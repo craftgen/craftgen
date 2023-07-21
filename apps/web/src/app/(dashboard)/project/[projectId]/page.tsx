@@ -1,20 +1,21 @@
-import { getProject, getSomething } from "./actions"
+import { getProject, getSomething } from "./actions";
+import { Metrics } from "./metrics";
 
-const ProjectPage = async ({params}: {
+const ProjectPage = async ({
+  params,
+}: {
   params: {
-    projectId: string
-  }
+    projectId: string;
+  };
 }) => {
-  const project = await getProject(params.projectId)
-  const ss = await getSomething({siteUrl: project?.site!})
-  console.log(ss)
+  const project = await getProject(params.projectId);
+  const metrics = await getSomething({ siteUrl: project?.site! });
   return (
-    <div>
-      <h1>project {project?.name}</h1>
-      <pre><code>{JSON.stringify(ss, null, 2)}</code></pre>
+    <div className="p-10">
+      <h1 className="text-3xl p-2 leading-tight">{project?.name}</h1>
+      <Metrics metrics={metrics} />
     </div>
-  )
-}
+  );
+};
 
-
-export default ProjectPage
+export default ProjectPage;

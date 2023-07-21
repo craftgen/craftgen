@@ -24,6 +24,7 @@
     "@supabase/auth-ui-react": "^0.4.2",
     "@supabase/auth-ui-shared": "^0.1.6",
     "@supabase/supabase-js": "^2.26.0",
+    "@tremor/react": "^3.4.1",
     "@turboseo/supabase": "*",
     "@types/node": "20.4.2",
     "@types/react": "18.2.15",
