@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1689912212858,
+      "tag": "0000_daffy_lady_deathstrike",
+      "breakpoints": true
+    }
+  ]
+}

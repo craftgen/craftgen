@@ -1,0 +1,32 @@
+{
+  "name": "@turboseo/supabase",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "supabase start",
+    "generate": "pnpm run drizzle:generate ",
+    "drizzle:generate": "drizzle-kit generate:pg",
+    "supa:generate": "supabase gen types typescript --local > db/database.types.ts",
+    "studio": "drizzle-kit studio",
+    "migrate": "pnpm with-env tsx ./db/migration.ts && pnpm run supa:generate",
+    "migrate:prod": "pnpm with-env:prod tsx ./db/migration.ts && pnpm run supa:generate",
+    "with-env": "dotenv -e ../.env --",
+    "with-env:prod": "dotenv -e ../.env.prod --"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "drizzle-orm": "^0.27.2",
+    "postgres": "^3.3.5"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.26.0",
+    "@types/node": "^20.4.1",
+    "dotenv-cli": "^7.2.1",
+    "drizzle-kit": "^0.19.10",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  }
+}
