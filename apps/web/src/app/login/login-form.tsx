@@ -8,9 +8,6 @@ import { useEffect } from "react";
 
 export const LoginForm = () => {
   const supabase = createClientComponentClient<Database>();
-  useEffect(() => {
-    supabase.from('user').select('*').then(console.log)
-  }) 
 
   return (
     <Auth
@@ -19,7 +16,14 @@ export const LoginForm = () => {
         theme: ThemeSupa,
       }}
       redirectTo={`${BASE_URL}/api/auth/callback`}
+      queryParams={{
+        access_type: 'offline',
+      }}
+      providerScopes={{
+        google: 'https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly',
+      }}
       providers={["google"]}
+
     />
   );
 };

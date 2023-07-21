@@ -17,13 +17,18 @@ export const user = pgTable("user", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const userRelations = relations(user, ({many}) => ({
+  projectMembers: many(projectMembers),
+}))
+
 export const project = pgTable("project", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   site: text("site").notNull(),
+  slug: text("slug").notNull(),
 });
 
-export const projectRelations = relations(project, ({many}) => ({
+export const projectRelations = relations(project, ({many, one}) => ({
   members: many(projectMembers),
   articles: many(articles),
 }))
@@ -31,11 +36,22 @@ export const projectRelations = relations(project, ({many}) => ({
 export const memberRoleEnum = pgEnum('member_role', ['owner', 'admin', 'editor', 'viewer']);
 
 export const projectMembers = pgTable("project_members", {
-  id: uuid("id").primaryKey(),
-  projectId: uuid("project_id").notNull(),
-  userId: uuid("user_id").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => project.id),
+  userId: uuid("user_id").notNull().references(() => user.id),
   role: memberRoleEnum('member_role').notNull().default('viewer'),
 });
+
+export const projectMemberRelations = relations(projectMembers, ({one}) => ({
+  project: one(project, {
+    fields: [projectMembers.projectId],
+    references: [project.id]
+  }),
+  user: one(user, {
+    fields: [projectMembers.userId],
+    references: [user.id]
+  }),
+}))
 
 export const articleStatusEnum = pgEnum('article_status', ['draft', 'published', 'archived']);
 

@@ -7,6 +7,7 @@
     "start": "supabase start",
     "generate": "pnpm run drizzle:generate ",
     "drizzle:generate": "drizzle-kit generate:pg",
+    "introspect": "drizzle-kit introspect:pg",
     "supa:generate": "supabase gen types typescript --local > db/database.types.ts",
     "studio": "drizzle-kit studio",
     "migrate": "pnpm with-env tsx ./db/migration.ts && pnpm run supa:generate",

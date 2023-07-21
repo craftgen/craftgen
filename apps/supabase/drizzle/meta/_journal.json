@@ -8,6 +8,20 @@
       "when": 1689912212858,
       "tag": "0000_daffy_lady_deathstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1689930829298,
+      "tag": "0001_mute_northstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1689937599663,
+      "tag": "0002_low_miracleman",
+      "breakpoints": true
     }
   ]
 }

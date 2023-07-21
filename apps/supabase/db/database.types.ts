@@ -84,16 +84,19 @@ export interface Database {
           id: string
           name: string
           site: string
+          slug: string
         }
         Insert: {
-          id: string
+          id?: string
           name: string
           site: string
+          slug: string
         }
         Update: {
           id?: string
           name?: string
           site?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -105,7 +108,7 @@ export interface Database {
           user_id: string
         }
         Insert: {
-          id: string
+          id?: string
           member_role?: Database["public"]["Enums"]["member_role"]
           project_id: string
           user_id: string
@@ -116,7 +119,20 @@ export interface Database {
           project_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_user_id_fk"
+            columns: ["user_id"]
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user: {
         Row: {
