@@ -20,7 +20,8 @@
   "license": "ISC",
   "dependencies": {
     "drizzle-orm": "^0.27.2",
-    "postgres": "^3.3.5"
+    "postgres": "^3.3.5",
+    "reactflow": "^11.7.4"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.26.0",

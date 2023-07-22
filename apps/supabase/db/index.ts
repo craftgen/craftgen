@@ -8,6 +8,7 @@ const connectionString = process.env.DATABASE_URL;
 console.log(connectionString);
 const postgresSql = postgres(connectionString, { max: 1 });
 export const db = drizzle(postgresSql, { schema });
+export * from  'drizzle-orm'
 
 // export const rls = (query) => {
 //   return db.transaction(async (tx) => {

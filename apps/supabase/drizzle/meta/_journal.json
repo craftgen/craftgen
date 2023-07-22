@@ -22,6 +22,27 @@
       "when": 1689937599663,
       "tag": "0002_low_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1690008206433,
+      "tag": "0003_cloudy_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1690011331145,
+      "tag": "0004_icy_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1690022937830,
+      "tag": "0005_keen_meggan",
+      "breakpoints": true
     }
   ]
 }

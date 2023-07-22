@@ -1,0 +1,5 @@
+@import 'reactflow/dist/style.css';
+
+.react-flow__attribution {
+  display: none;
+}

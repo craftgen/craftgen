@@ -3,7 +3,8 @@ import { Session } from "@supabase/supabase-js"
 
 export const Navbar: React.FC<{session: Session}> = () => {
   return (
-    <div className="">
+    <div className="flex items-center justify-between w-full p-2">
+      <h1>TurboSEO</h1>
       <ModeToggle />
     </div>
   )
