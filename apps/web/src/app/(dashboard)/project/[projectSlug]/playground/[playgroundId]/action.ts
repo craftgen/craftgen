@@ -19,10 +19,9 @@ export const savePlayground = async (params: {
   nodes: Node[];
   edges: Edge[];
 }) => {
-  console.log("params", JSON.stringify(params, null, 2));
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
-  db.transaction(async (tx) => {
+  await db.transaction(async (tx) => {
     const project = await tx.query.project.findFirst({
       where: (project, { eq }) => eq(project.slug, params.projectSlug),
     });
@@ -45,7 +44,6 @@ export const savePlayground = async (params: {
     const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
       return !params.nodes.find((n) => n.id === node.node_id);
     });
-    console.log({ nodesToPlaygroundsDelete: nodeToPlaygroundsDelete });
 
     if (nodeToPlaygroundsDelete.length > 0) {
       await tx.delete(nodeToPlayground).where(

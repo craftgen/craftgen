@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Database } from "@turboseo/supabase/db/database.types";
 import { redirect } from "next/navigation";
 import { Navbar } from "./navbar";
+import { persistGoogleToken } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
@@ -14,6 +15,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   } = await supabase.auth.getSession();
   if (!session) {
     redirect("/");
+  }
+  if (session.provider_refresh_token && session.provider_token) {
+    await persistGoogleToken();
   }
   return (
     <main>

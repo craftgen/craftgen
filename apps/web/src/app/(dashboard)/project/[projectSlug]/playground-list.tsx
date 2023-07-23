@@ -19,7 +19,9 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
   const handleCreatePlayground = async () => {
     console.log("create playground");
     const newPlayground = await createPlayground({ project_id: projectId });
-    console.log(newPlayground);
+    router.push(
+      `/project/${params.projectSlug}/playground/${newPlayground.id}`
+    );
   };
   return (
     <div className="py-4">

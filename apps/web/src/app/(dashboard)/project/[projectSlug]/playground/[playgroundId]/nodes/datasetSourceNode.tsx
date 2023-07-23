@@ -18,25 +18,26 @@ import { getDataSet, getDataSets, getNodeData } from "./actions";
 import { useActor } from "@xstate/react";
 import {
   Select,
+  SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SelectContent, SelectIcon } from "@radix-ui/react-select";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type DataSetSourceNodeData = {
   id: string;
@@ -73,16 +74,19 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
   id,
   type,
 }) => {
-  // const { data } = useSWR(["nodeData", id], ([key, id]) => getNodeData(id));
-  // const [state, send] = useActor(datasetMachine, {
-  //   input: {
-  //     id: data?.id,
-  //   },
-  // });
+  const { data } = useSWR(
+    () => ["nodeData", id],
+    ([key, id]) => getNodeData(id)
+  );
+  const [state, send] = useActor(datasetMachine, {
+    input: {
+      id: data?.id,
+    },
+  });
 
-  // const { data: dataSet } = useSWR(["dataSet", state.context.id], ([key, id]) =>
-  //   getDataSet(id!)
-  // );
+  const { data: dataSet } = useSWR(["dataSet", state.context.id], ([key, id]) =>
+    getDataSet(id!)
+  );
 
   return (
     <>
@@ -92,9 +96,21 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
           <Card>
             <CardHeader>Data Source</CardHeader>
             <CardContent>
-              {/* {state.value === "idle" && (
+              <pre>
+                <code>
+                  {JSON.stringify(
+                    {
+                      data,
+                      dataSet,
+                    },
+                    null,
+                    2
+                  )}
+                </code>
+              </pre>
+              {state.value === "idle" && data && (
                 <DataSetSourceNodeForm
-                  projectId={data?.project_id!}
+                  projectId={data?.project_id}
                   send={send}
                 />
               )}
@@ -102,7 +118,7 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
                 <>
                   <ScrollArea></ScrollArea>
                 </>
-              )} */}
+              )}
             </CardContent>
             <CardFooter>
               <div>id: {id}</div>
@@ -138,9 +154,10 @@ const DataSetSourceNodeForm: React.FC<{
   }
 
   const { data: datasets } = useSWR(
-    ["dataSets", projectId],
+    () => ["dataSets", projectId],
     ([key, projectId]) => getDataSets(projectId)
   );
+  console.log(datasets);
 
   return (
     <Form {...form}>
@@ -150,15 +167,19 @@ const DataSetSourceNodeForm: React.FC<{
           name="id"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Dataset</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select your website" />
+                    <SelectValue placeholder="Select your dataset" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="1">1</SelectItem>
-                  <SelectItem value="2">2</SelectItem>
+                  {datasets?.map((dataset) => (
+                    <SelectItem key={dataset.id} value={dataset.id}>
+                      {dataset.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormDescription>Select Data Source</FormDescription>

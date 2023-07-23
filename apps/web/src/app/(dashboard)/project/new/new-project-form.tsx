@@ -95,7 +95,7 @@ export const NewProjectForm = () => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Acme.com" {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name.

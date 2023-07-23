@@ -282,18 +282,24 @@ export interface Database {
           created_at: string
           email: string
           full_name: string | null
+          google_access_token: string | null
+          google_refresh_token: string | null
           id: string
         }
         Insert: {
           created_at?: string
           email: string
           full_name?: string | null
+          google_access_token?: string | null
+          google_refresh_token?: string | null
           id: string
         }
         Update: {
           created_at?: string
           email?: string
           full_name?: string | null
+          google_access_token?: string | null
+          google_refresh_token?: string | null
           id?: string
         }
         Relationships: []
