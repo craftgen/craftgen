@@ -13,6 +13,15 @@ import { cookies } from "next/headers";
 import type { Edge, Node } from "reactflow";
 import { NodeTypes } from "./nodes";
 
+export const getPlayground = async (params: { playgroundId: string }) => {
+  const supabase = createServerActionClient({ cookies });
+  const session = await supabase.auth.getSession();
+  console.log({ params });
+  return await db.query.playground.findFirst({
+    where: (playground, { eq }) => eq(playground.id, params.playgroundId),
+  });
+};
+
 export const savePlayground = async (params: {
   projectSlug: string;
   playgroundId: string;
@@ -91,7 +100,6 @@ export const createNode = async (params: {
       .values({
         project_id: project?.id,
         type: params.type,
-        data: {},
       })
       .returning();
 

@@ -1,0 +1,1 @@
+ALTER TABLE "node_data" ALTER COLUMN "data" DROP NOT NULL;

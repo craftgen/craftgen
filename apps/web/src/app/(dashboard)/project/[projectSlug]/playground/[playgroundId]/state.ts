@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, createStore } from "zustand";
 import { createClient, EnsureJson } from "@liveblocks/client";
 import { liveblocks } from "@liveblocks/zustand";
 import type { WithLiveblocks } from "@liveblocks/zustand";
@@ -17,22 +17,19 @@ import {
   applyEdgeChanges,
 } from "reactflow";
 
-const initialNodes = [
-  {
-    id: "3",
-    position: { x: 0, y: 200 },
-    data: { label: "3" },
-    type: "functionCalling",
-  },
-];
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
-
 type FlowState = {
   nodes: Node[];
   edges: Edge[];
+  setEdges: (edges: Edge[]) => void;
+  setNodes: (nodes: Node[]) => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+};
+
+type InitialState = {
+  nodes?: Node[];
+  edges?: Edge[];
 };
 // Create a Liveblocks client with your API key
 const client = createClient({
@@ -49,8 +46,14 @@ type Storage = {
 const useStore = create<WithLiveblocks<FlowState, {}, EnsureJson<Storage>>>(
   liveblocks(
     (set, get) => ({
-      nodes: initialNodes,
-      edges: initialEdges,
+      nodes: [],
+      edges: [],
+      setNodes: (nodes: Node[]) => {
+        set({ nodes });
+      },
+      setEdges: (edges: Edge[]) => {
+        set({ edges });
+      },
       onNodesChange: (changes: NodeChange[]) => {
         set({
           nodes: applyNodeChanges(changes, get().nodes),

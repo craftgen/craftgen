@@ -1,14 +1,10 @@
 import {
   pgTable,
-  serial,
   text,
   timestamp,
   uuid,
-  PgReal,
   pgEnum,
-  jsonb,
   json,
-  UpdateDeleteAction,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { Edge, Node } from "reactflow";
@@ -42,6 +38,11 @@ export const dataSet = pgTable("data_set", {
   description: text("description"),
 });
 
+export const dataSetRelations = relations(dataSet, ({ one, many }) => ({
+  project: one(project),
+  rows: many(dataRow),
+}));
+
 export const dataRow = pgTable("data_row", {
   id: uuid("id").primaryKey().defaultRandom(),
   data_set_id: uuid("data_set_id")
@@ -51,7 +52,10 @@ export const dataRow = pgTable("data_row", {
 });
 
 export const dataRowRelations = relations(dataRow, ({ one }) => ({
-  dataSet: one(dataSet),
+  dataSet: one(dataSet, {
+    fields: [dataRow.data_set_id],
+    references: [dataSet.id],
+  }),
 }));
 
 export const playground = pgTable("playground", {
@@ -70,7 +74,7 @@ export const nodeData = pgTable("node_data", {
     .notNull()
     .references(() => project.id),
   type: text("type").notNull(),
-  data: json("data").notNull(),
+  state: json("state"),
 });
 
 export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({

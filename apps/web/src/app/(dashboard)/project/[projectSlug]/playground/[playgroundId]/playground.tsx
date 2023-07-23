@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -14,20 +20,25 @@ import ReactFlow, {
 } from "reactflow";
 import useStore from "./state";
 import { debounce } from "lodash-es";
-import { createNode, savePlayground } from "./action";
+import { createNode, getPlayground, savePlayground } from "./action";
 import { useParams } from "next/navigation";
 import { Toolbar } from "./toolbar";
 import { nodeTypes } from "./nodes";
 
-export const Playground = () => {
+export const Playground: React.FC<{
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+}> = ({ playground }) => {
   const {
     nodes,
     edges,
+    setNodes,
+    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
     liveblocks: { enterRoom, leaveRoom, isStorageLoading },
   } = useStore();
+
   const params = useParams();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const saveDebounced = debounce(
@@ -41,7 +52,12 @@ export const Playground = () => {
     2000
   );
   useEffect(() => {
+    setEdges(playground.edges!);
+    setNodes(playground.nodes!);
     const listener = useStore.subscribe((state) => {
+      if (state.nodes.length === 0) {
+        console.log("SAVING PLAYGROUND", { state });
+      }
       saveDebounced(state);
     });
     return () => {
@@ -50,17 +66,14 @@ export const Playground = () => {
     };
   }, []);
 
-  const roomId = "asd";
+  const roomId = playground.id;
   // Enter the Liveblocks room on load
   useEffect(() => {
     enterRoom(roomId);
     return () => leaveRoom(roomId);
   }, [enterRoom, leaveRoom, roomId]);
 
-  const nodeTypesMem = useMemo(
-    () => (nodeTypes),
-    []
-  );
+  const nodeTypesMem = useMemo(() => nodeTypes, []);
 
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance<
     any,
@@ -111,7 +124,7 @@ export const Playground = () => {
       const newNode: Node = {
         id: node.id,
         type: node.type,
-        data: node.data,
+        data: node.state,
         position: position as XYPosition,
       };
       rfInstance?.addNodes([newNode]);
@@ -139,7 +152,6 @@ export const Playground = () => {
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypesMem}
-            fitView
             snapToGrid
             snapGrid={[15, 15]}
             onNodesChange={onNodesChange}

@@ -134,21 +134,21 @@ export interface Database {
       }
       node_data: {
         Row: {
-          data: Json
           id: string
           project_id: string
+          state: Json | null
           type: string
         }
         Insert: {
-          data: Json
           id?: string
           project_id: string
+          state?: Json | null
           type: string
         }
         Update: {
-          data?: Json
           id?: string
           project_id?: string
+          state?: Json | null
           type?: string
         }
         Relationships: [
