@@ -12,13 +12,12 @@ import ReactFlow, {
   ReactFlowProvider,
   XYPosition,
 } from "reactflow";
-import { functionCallingNode } from "./nodes/functionCallingNode";
 import useStore from "./state";
-import { Button } from "@/components/ui/button";
 import { debounce } from "lodash-es";
 import { createNode, savePlayground } from "./action";
 import { useParams } from "next/navigation";
 import { Toolbar } from "./toolbar";
+import { nodeTypes } from "./nodes";
 
 export const Playground = () => {
   const {
@@ -58,8 +57,8 @@ export const Playground = () => {
     return () => leaveRoom(roomId);
   }, [enterRoom, leaveRoom, roomId]);
 
-  const nodeTypes = useMemo(
-    () => ({ functionCalling: functionCallingNode }),
+  const nodeTypesMem = useMemo(
+    () => (nodeTypes),
     []
   );
 
@@ -68,22 +67,24 @@ export const Playground = () => {
     any
   > | null>(null);
 
-  const addNode = async () => {
-    if (!rfInstance) return;
-    const node = await createNode({
-      playgroundId: params.playgroundId as string,
-    });
-    const newNode: Node = {
-      id: node.id,
-      type: node.type,
-      data: node.data,
-      position: {
-        x: Math.random() * window.innerWidth - 100,
-        y: Math.random() * window.innerHeight,
-      },
-    };
-    rfInstance.addNodes([newNode]);
-  };
+  // const addNode = async () => {
+  //   if (!rfInstance) return;
+  //   const node = await createNode({
+  //     projectSlug: params.projectSlug as string,
+  //     playgroundId: params.playgroundId as string,
+  //     type,
+  //   });
+  //   const newNode: Node = {
+  //     id: node.id,
+  //     type: node.type,
+  //     data: node.data,
+  //     position: {
+  //       x: Math.random() * window.innerWidth - 100,
+  //       y: Math.random() * window.innerHeight,
+  //     },
+  //   };
+  //   rfInstance.addNodes([newNode]);
+  // };
 
   const onDrop = useCallback(
     async (event) => {
@@ -104,7 +105,9 @@ export const Playground = () => {
         y: event.clientY - reactFlowBounds.top,
       });
       const node = await createNode({
+        projectSlug: params.projectSlug as string,
         playgroundId: params.playgroundId as string,
+        type,
       });
       const newNode: Node = {
         id: node.id,
@@ -129,7 +132,6 @@ export const Playground = () => {
       </div>
     );
   }
-
   return (
     <div className="relative w-full h-full">
       <ReactFlowProvider>
@@ -137,7 +139,7 @@ export const Playground = () => {
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            nodeTypes={nodeTypes}
+            nodeTypes={nodeTypesMem}
             fitView
             snapToGrid
             snapGrid={[15, 15]}

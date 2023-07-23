@@ -1,9 +1,16 @@
 "use server";
 
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, eq, nodeData, playground } from "@turboseo/supabase/db";
+import {
+  db,
+  eq,
+  nodeData,
+  nodeToPlayground,
+  playground,
+} from "@turboseo/supabase/db";
 import { cookies } from "next/headers";
 import type { Edge, Node } from "reactflow";
+import { NodeTypes } from "./nodes";
 
 export const savePlayground = async (params: {
   projectSlug: string;
@@ -23,17 +30,33 @@ export const savePlayground = async (params: {
     .where(eq(playground.id, params.playgroundId));
 };
 
-export const createNode = async (params: { playgroundId: string }) => {
+export const createNode = async (params: {
+  playgroundId: string;
+  projectSlug: string;
+  type: NodeTypes;
+}) => {
   const supabase = createServerActionClient({ cookies });
 
-  const nodes = await db
-    .insert(nodeData)
-    .values({
-      playground_id: params.playgroundId,
-      type: "node",
-      data: {},
-    })
-    .returning();
+  const project = await db.query.project.findFirst({
+    where: (project, { eq }) => eq(project.slug, params.projectSlug),
+  });
+  if (!project) {
+    throw new Error("Project not found");
+  }
+  return await db.transaction(async (tx) => {
+    const nodes = await tx
+      .insert(nodeData)
+      .values({
+        project_id: project?.id,
+        type: params.type,
+        data: {},
+      })
+      .returning();
 
-  return nodes[0];
+    await tx.insert(nodeToPlayground).values({
+      node_id: nodes[0].id,
+      playground_id: params.playgroundId,
+    });
+    return nodes[0];
+  });
 };

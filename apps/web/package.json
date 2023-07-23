@@ -33,6 +33,7 @@
     "@types/node": "20.4.2",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
+    "@xstate/react": "4.0.0-beta.8",
     "autoprefixer": "10.4.14",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -56,6 +57,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.6",
     "typescript": "5.1.6",
+    "xstate": "5.0.0-beta.18",
     "zod": "^3.21.4",
     "zustand": "^4.3.9"
   },

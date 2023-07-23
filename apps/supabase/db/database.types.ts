@@ -136,24 +136,55 @@ export interface Database {
         Row: {
           data: Json
           id: string
-          playground_id: string
+          project_id: string
           type: string
         }
         Insert: {
           data: Json
           id?: string
-          playground_id: string
+          project_id: string
           type: string
         }
         Update: {
           data?: Json
           id?: string
-          playground_id?: string
+          project_id?: string
           type?: string
         }
         Relationships: [
           {
-            foreignKeyName: "node_data_playground_id_playground_id_fk"
+            foreignKeyName: "node_data_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      node_to_playground: {
+        Row: {
+          id: string
+          node_id: string
+          playground_id: string
+        }
+        Insert: {
+          id?: string
+          node_id: string
+          playground_id: string
+        }
+        Update: {
+          id?: string
+          node_id?: string
+          playground_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "node_to_playground_node_id_node_data_id_fk"
+            columns: ["node_id"]
+            referencedRelation: "node_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "node_to_playground_playground_id_playground_id_fk"
             columns: ["playground_id"]
             referencedRelation: "playground"
             referencedColumns: ["id"]

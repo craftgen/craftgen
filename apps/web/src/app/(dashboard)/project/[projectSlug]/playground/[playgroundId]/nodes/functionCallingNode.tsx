@@ -15,7 +15,7 @@ type FunctionCallingNodeData = {
   text: string;
 };
 
-export const functionCallingNode: React.FC<
+export const FunctionCallingNode: React.FC<
   NodeProps<FunctionCallingNodeData>
 > = ({}) => {
   const onChange = useCallback((evt) => {
@@ -25,13 +25,13 @@ export const functionCallingNode: React.FC<
 
   return (
     <>
-      <Handle type="target" position={Position.Right} />
-      <Handle type="source" position={Position.Left} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
       <ContextMenu>
         <ContextMenuTrigger>
           <Card>
             <CardHeader>
-              CreateJSON
+              Function Call 
             </CardHeader>
             <CardContent>
               <Label htmlFor="text">Text</Label>

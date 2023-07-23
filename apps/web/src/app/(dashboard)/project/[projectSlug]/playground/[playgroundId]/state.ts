@@ -17,8 +17,6 @@ import {
   applyEdgeChanges,
 } from "reactflow";
 
-
-
 const initialNodes = [
   {
     id: "3",
@@ -81,6 +79,5 @@ const useStore = create<WithLiveblocks<FlowState, {}, EnsureJson<Storage>>>(
     }
   )
 );
-
 
 export default useStore;

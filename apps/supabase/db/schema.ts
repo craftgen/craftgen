@@ -63,14 +63,38 @@ export const playground = pgTable("playground", {
 
 export const nodeData = pgTable("node_data", {
   id: uuid("id").primaryKey().defaultRandom(),
-  playground_id: uuid("playground_id")
+  project_id: uuid("project_id")
     .notNull()
-    .references(() => playground.id),
+    .references(() => project.id),
   type: text("type").notNull(),
   data: json("data").notNull(),
 });
 
+export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({
+  project: one(project),
+  playgrounds: many(nodeToPlayground),
+}));
+
+export const nodeToPlayground = pgTable("node_to_playground", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  node_id: uuid("node_id")
+    .notNull()
+    .references(() => nodeData.id),
+  playground_id: uuid("playground_id")
+    .notNull()
+    .references(() => playground.id),
+});
+
+export const nodeToPlaygroundRelations = relations(
+  nodeToPlayground,
+  ({ one }) => ({
+    node: one(nodeData),
+    playground: one(playground),
+  })
+);
+
 export const projectRelations = relations(project, ({ many, one }) => ({
+  nodes: many(nodeData),
   playground: many(playground),
   members: many(projectMembers),
   articles: many(articles),
