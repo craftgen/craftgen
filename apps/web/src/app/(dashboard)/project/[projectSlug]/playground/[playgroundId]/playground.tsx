@@ -88,7 +88,6 @@ export const Playground = () => {
 
   const onDrop = useCallback(
     async (event) => {
-      console.log(event);
       event.preventDefault();
 
       const reactFlowBounds =
@@ -148,7 +147,6 @@ export const Playground = () => {
             onDrop={onDrop}
             onDragOver={onDragOver}
             onConnect={onConnect}
-            onNodeContextMenu={(e) => console.log(e)}
             onInit={setRfInstance}
           >
             <Controls />

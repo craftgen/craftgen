@@ -14,7 +14,6 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
     ["playgrounds", projectId],
     ([key, projectId]) => getPlaygrounds(projectId)
   );
-  console.log(data);
   const params = useParams();
   const router = useRouter();
   const handleCreatePlayground = async () => {

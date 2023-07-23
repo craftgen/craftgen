@@ -8,7 +8,6 @@ import Link from "next/link";
 
 export const ProjectList = () => {
   const { data, isLoading } = useSWR("projects", getProjects);
-  console.log(data);
   return (
     <div>
       <h1>ProjectList</h1>
@@ -24,7 +23,6 @@ export const ProjectList = () => {
 const ProjectCard: React.FC<{
   projectMembers: Awaited<ReturnType<typeof getProjects>>[number];
 }> = ({ projectMembers }) => {
-  console.log(projectMembers);
   return (
     <Link href={`/project/${projectMembers.project.slug}`}>
       <Card>

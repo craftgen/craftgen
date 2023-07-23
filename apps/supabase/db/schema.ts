@@ -8,6 +8,7 @@ import {
   pgEnum,
   jsonb,
   json,
+  UpdateDeleteAction,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { Edge, Node } from "reactflow";
@@ -34,7 +35,7 @@ export const dataSet = pgTable("data_set", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
     .notNull()
-    .references(() => project.id),
+    .references(() => project.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
 });
@@ -43,7 +44,7 @@ export const dataRow = pgTable("data_row", {
   id: uuid("id").primaryKey().defaultRandom(),
   data_set_id: uuid("data_set_id")
     .notNull()
-    .references(() => dataSet.id),
+    .references(() => dataSet.id, { onDelete: "cascade" }),
   data: json("data").notNull(),
 });
 

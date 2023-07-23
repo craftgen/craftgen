@@ -30,7 +30,7 @@ export const createNewProject = async (
 ) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
-  await db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const newProject = await tx
       .insert(project)
       .values({
@@ -44,5 +44,6 @@ export const createNewProject = async (
       userId: session.data.session?.user.id!,
       role: "owner",
     });
+    return newProject[0];
   });
 };

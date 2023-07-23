@@ -73,16 +73,16 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
   id,
   type,
 }) => {
-  const { data } = useSWR(["nodeData", id], ([key, id]) => getNodeData(id));
-  const [state, send] = useActor(datasetMachine, {
-    input: {
-      id: data?.id,
-    },
-  });
+  // const { data } = useSWR(["nodeData", id], ([key, id]) => getNodeData(id));
+  // const [state, send] = useActor(datasetMachine, {
+  //   input: {
+  //     id: data?.id,
+  //   },
+  // });
 
-  const { data: dataSet } = useSWR(["dataSet", state.context.id], ([key, id]) =>
-    getDataSet(id!)
-  );
+  // const { data: dataSet } = useSWR(["dataSet", state.context.id], ([key, id]) =>
+  //   getDataSet(id!)
+  // );
 
   return (
     <>
@@ -92,7 +92,7 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
           <Card>
             <CardHeader>Data Source</CardHeader>
             <CardContent>
-              {state.value === "idle" && (
+              {/* {state.value === "idle" && (
                 <DataSetSourceNodeForm
                   projectId={data?.project_id!}
                   send={send}
@@ -102,10 +102,10 @@ export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
                 <>
                   <ScrollArea></ScrollArea>
                 </>
-              )}
+              )} */}
             </CardContent>
             <CardFooter>
-              <div>id: {data?.id}</div>
+              <div>id: {id}</div>
             </CardFooter>
           </Card>
         </ContextMenuTrigger>

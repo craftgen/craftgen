@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { slugify } from "@/lib/string";
 import { newProjectSchema, normalizeUrl } from "./shared";
-
+import { useRouter } from "next/navigation";
 
 export const NewProjectForm = () => {
   const form = useForm<z.infer<typeof newProjectSchema>>({
@@ -37,19 +37,18 @@ export const NewProjectForm = () => {
       site: "",
     },
   });
+  const router = useRouter();
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof newProjectSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
-    const val = await createNewProject(values)
-    console.log(val)
-
+    const val = await createNewProject(values);
+    router.push(`/dashboard/project/${val.slug}`);
   }
   const name = form.watch("name");
   useEffect(() => {
-    form.setValue("slug", slugify(name))
-  }, [name])
+    form.setValue("slug", slugify(name));
+  }, [name]);
   const site = form.watch("site");
   useEffect(() => {
     if (site) {

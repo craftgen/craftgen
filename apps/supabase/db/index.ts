@@ -5,7 +5,6 @@ export * from './schema';
 // import { sql } from "drizzle-orm";
 
 const connectionString = process.env.DATABASE_URL;
-console.log(connectionString);
 const postgresSql = postgres(connectionString, { max: 1 });
 export const db = drizzle(postgresSql, { schema });
 export * from  'drizzle-orm'
