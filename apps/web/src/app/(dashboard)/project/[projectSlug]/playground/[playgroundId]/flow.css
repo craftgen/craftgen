@@ -3,3 +3,16 @@
 .react-flow__attribution {
   display: none;
 }
+
+.react-flow .react-flow__handle {
+  display: flex;
+  min-width: 30px;
+  min-height: 14px;
+  width: auto;
+  height: auto;
+  @apply flex py-1 px-2; 
+  object-fit: contain;
+  border-radius: 3px;
+  background-color: #784be8;
+}
+

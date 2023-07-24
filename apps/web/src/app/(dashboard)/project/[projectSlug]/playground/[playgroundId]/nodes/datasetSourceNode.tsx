@@ -152,7 +152,7 @@ export const DataSetNode: React.FC<{ id: string; data: any }> = ({
     getDataSet(id!)
   );
 
-  console.log(dataSet)
+  console.log(dataSet);
 
   return (
     <>
@@ -226,7 +226,7 @@ export const DataSetSourceTableView: React.FC<{ datasetId: string }> = ({
       <h3>{dataSet?.name}</h3>
       <ScrollArea>
         {dataSet?.rows?.map((row) => (
-          <div className="flex flex-row">
+          <div className="flex flex-row" key={row.id}>
             <div className="px-2 py-1">{JSON.stringify(row.data)}</div>
           </div>
         ))}

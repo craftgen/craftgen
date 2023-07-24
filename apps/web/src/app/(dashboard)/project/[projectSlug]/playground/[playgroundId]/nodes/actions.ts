@@ -31,7 +31,6 @@ export const getNodeData = async (nodeId: string) => {
 };
 
 export const setNodeData = async (nodeId: string, state: any) => {
-  console.log({ nodeId, state });
   return await db
     .update(nodeData)
     .set({ state: JSON.parse(state) })

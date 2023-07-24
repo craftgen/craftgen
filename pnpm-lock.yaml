@@ -85,6 +85,7 @@ importers:
       react-hook-form: ^7.45.2
       reactflow: ^11.7.4
       slugify: ^1.6.6
+      squirrelly: ^9.0.0
       swr: ^2.2.0
       tailwind-merge: ^1.14.0
       tailwindcss: 3.3.3
@@ -137,6 +138,7 @@ importers:
       react-hook-form: 7.45.2_react@18.2.0
       reactflow: 11.7.4_64s6uhl5lpjd37tem3o2bfzl5e
       slugify: 1.6.6
+      squirrelly: 9.0.0
       swr: 2.2.0_react@18.2.0
       tailwind-merge: 1.14.0
       tailwindcss: 3.3.3
@@ -4922,6 +4924,7 @@ packages:
   /handlebars/4.7.7:
     resolution: {integrity: sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==}
     engines: {node: '>=0.4.7'}
+    hasBin: true
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
@@ -6623,6 +6626,11 @@ packages:
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
+  /squirrelly/9.0.0:
+    resolution: {integrity: sha512-MutQSfwrpIxvdUOFJ8XOfRSioLy+9O10bmBVWLik4uzJkD5TbeNSTOCKqLjzZJVcgdJNyLc8JRFUN15qFlZx9Q==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /stop-iteration-iterator/1.0.0:
     resolution: {integrity: sha512-iCGQj+0l0HOdZ2AEeBADlsRC+vsnDsZsbdSiH1yNSjcfKM7fdpCMfqAL/dwF5BLiw/XhRft/Wax6zQbhq2BcjQ==}
     engines: {node: '>= 0.4'}
@@ -7084,6 +7092,7 @@ packages:
   /uglify-js/3.17.4:
     resolution: {integrity: sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==}
     engines: {node: '>=0.8.0'}
+    hasBin: true
     requiresBuild: true
     dev: true
     optional: true

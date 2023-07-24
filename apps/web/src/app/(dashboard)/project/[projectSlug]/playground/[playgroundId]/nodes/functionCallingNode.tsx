@@ -1,5 +1,13 @@
-import { useCallback, useEffect } from "react";
-import { Handle, NodeProps, Position } from "reactflow";
+import { useCallback, useEffect, useMemo } from "react";
+import {
+  Handle,
+  NodeProps,
+  Node,
+  Position,
+  getIncomers,
+  useUpdateNodeInternals,
+  useReactFlow,
+} from "reactflow";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   ContextMenu,
@@ -15,37 +23,11 @@ import useSWR from "swr";
 import { getNodeData, setNodeData } from "./actions";
 import { StateFrom, assign, createMachine } from "xstate";
 import { useActor } from "@xstate/react";
-import { debounce } from "lodash-es";
+import { debounce, isString } from "lodash-es";
+import * as Sqrl from "squirrelly";
+import { Textarea } from "@/components/ui/textarea";
 
-const functionCallingMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMCuA7AxgFwJYHt0BhAQwBszd0oA6XCMsAYiIAkBBAOQHEBRAbQAMAXUSgADvli48hMSAAeiACwAmADQgAnogAcARhoBWAL5nN6fBDjy0WWcXKVq8ydIfylCALQA2TTo+vuYgdjgEjhRUtPSMrlIyEZ6IvoapAMyqBqpGAYj6uqo0AJxG6fo5IWEOpFHUNABOGOjR8e5JSIoqujTKvsq6yukA7LnaiKrKhsplFaZmJkA */
-  id: "functionCalling",
-  initial: "idle",
-  context: {
-    value: "",
-    model: "",
-  },
-  types: {
-    context: {} as {
-      value: string;
-      model: string;
-    },
-    events: {} as {
-      type: "CHANGE";
-      value: string;
-    },
-  },
-  states: {
-    idle: {
-      on: {
-        CHANGE: {
-          actions: assign({ value: ({ event }) => event.value }),
-        },
-      },
-    },
-    running: {},
-  },
-});
+// const functionCallingMachine =
 
 type FunctionCallingNodeData = StateFrom<
   typeof functionCallingMachine
@@ -73,39 +55,134 @@ export const FunctionCallingNode: React.FC<
   );
 };
 
+const createFunctionCallingMachine = (
+  id: string,
+  data: FunctionCallingNodeData
+) => {
+  return createMachine({
+    /** @xstate-layout N4IgpgJg5mDOIC5QDMCuA7AxgFwJYHt0BhAQwBszd0oA6XCMsAYiIAkBBAOQHEBRAbQAMAXUSgADvli48hMSAAeiACwAmADQgAnogAcARhoBWAL5nN6fBDjy0WWcXKVq8ydIfylCALQA2TTo+vuYgdjgEjhRUtPSMrlIyEZ6IvoapAMyqBqpGAYj6uqo0AJxG6fo5IWEOpFHUNABOGOjR8e5JSIoqujTKvsq6yukA7LnaiKrKhsplFaZmJkA */
+    id: "functionCalling",
+    initial: "idle",
+    context: {
+      value: "",
+      model: "",
+      variables: [],
+    },
+    types: {
+      context: {} as {
+        value: string;
+        model: string;
+        variables: string[];
+      },
+      events: {} as {
+        type: "CHANGE";
+        value: string;
+        variables: string[];
+      },
+    },
+    states: {
+      idle: {
+        on: {
+          CHANGE: {
+            actions: assign({
+              value: ({ event }) => event.value,
+              variables: ({ event }) => event.variables,
+            }),
+          },
+        },
+      },
+      running: {},
+    },
+  });
+};
+
 export const FunctionCallingContent: React.FC<{
   id: string;
   data: FunctionCallingNodeData;
 }> = ({ id, data }) => {
-  const [state, send, actor] = useActor(functionCallingMachine, {
+  const machine = useMemo(() => createFunctionCallingMachine(id, data), [id]);
+
+  const [state, send, actor] = useActor(machine, {
     id,
     ...(data && { state: data }),
   });
-  const saveDebounced = debounce((state) => setNodeData(id, state), 2000);
+  const saveDebounced = debounce((state) => setNodeData(id, state), 5000);
 
   useEffect(() => {
     const listener = actor.subscribe((state) => {
-      console.log("actor", state);
       saveDebounced(JSON.stringify(state));
     });
     return listener.unsubscribe;
   }, [state]);
-  // const { getEdges, getNodes } = useReactFlow();
+  const { getEdges, getNodes } = useReactFlow();
 
   // const outgoers = getOutgoers({ id } as Node, getNodes(), getEdges());
-  // const incomingEdges = getIncomers({ id } as Node, getNodes(), getEdges());
+  const incomingEdges = getIncomers({ id } as Node, getNodes(), getEdges());
+
 
   // console.log({ outgoers, incomingEdges });
 
   // const getOutgoers()
+  // const template = useMemo(() => {
+  //   try {
+  //     const rawTemplate = Sqrl.parse(state.context.value, {
+  //       ...Sqrl.defaultConfig,
+  //       useWith: true,
+  //     });
+  //     return rawTemplate;
+  //   } catch {
+  //     return [];
+  //   }
+  // }, [state.context.value]);
+
   const onChange = useCallback((evt) => {
-    send({ type: "CHANGE", value: evt.target.value });
+    let rawTemplate: any[] = [];
+    try {
+      rawTemplate = Sqrl.parse(evt.target.value, {
+        ...Sqrl.defaultConfig,
+        useWith: true,
+      })
+        .filter((item) => !isString(item))
+        .map((item) => {
+          return item.c;
+        });
+    } catch {
+      rawTemplate = state.context.variables;
+    }
+    send({ type: "CHANGE", value: evt.target.value, variables: rawTemplate });
   }, []);
+
+  const updateNodeInternals = useUpdateNodeInternals();
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [state.context.variables]);
+  const computedTemplate = useMemo(() => {
+    try {
+      return Sqrl.render(state.context.value, { name: "Alice" });
+    } catch (err) {
+      return err.message;
+    }
+  }, [state.context.value, getIncomers]);
 
   return (
     <>
-      <Handle type="target" position={Position.Left} />
-      <Handle type="source" position={Position.Right} />
+      <Handle type="source" position={Position.Right}>
+        Output
+      </Handle>
+      {state.context.variables?.map((variable, index) => (
+        <Handle
+          key={variable}
+          id={variable}
+          type="target"
+          position={Position.Left}
+          style={{ marginTop: index * 40 }}
+          className="p-2"
+        >
+          {"{{"}
+          {variable}
+          {"}}"}
+        </Handle>
+      ))}
       <ContextMenu>
         <ContextMenuTrigger>
           <Card>
@@ -116,6 +193,8 @@ export const FunctionCallingContent: React.FC<{
                   {JSON.stringify(
                     {
                       state,
+                      incomingEdges
+                      // template,
                       // outgoers,
                       // incomingEdges,
                     },
@@ -131,6 +210,10 @@ export const FunctionCallingContent: React.FC<{
                 onChange={onChange}
                 value={state.context.value}
               />
+              <div className={"w-full h-1 bg-foreground my-2"} />
+              <div>
+                <Textarea value={computedTemplate} disabled />
+              </div>
             </CardContent>
           </Card>
         </ContextMenuTrigger>
