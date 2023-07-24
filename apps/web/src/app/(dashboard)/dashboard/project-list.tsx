@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export const ProjectList = () => {
   const { data, isLoading } = useSWR("projects", getProjects);
+  console.log(data);
   return (
     <div>
       <h1>ProjectList</h1>

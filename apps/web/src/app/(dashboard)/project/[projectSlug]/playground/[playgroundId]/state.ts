@@ -22,15 +22,12 @@ type FlowState = {
   edges: Edge[];
   setEdges: (edges: Edge[]) => void;
   setNodes: (nodes: Node[]) => void;
+  updateNode: (id: string, data: any) => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 };
 
-type InitialState = {
-  nodes?: Node[];
-  edges?: Edge[];
-};
 // Create a Liveblocks client with your API key
 const client = createClient({
   publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_API_KEY as string,
@@ -53,6 +50,15 @@ const useStore = create<WithLiveblocks<FlowState, {}, EnsureJson<Storage>>>(
       },
       setEdges: (edges: Edge[]) => {
         set({ edges });
+      },
+      updateNode(id: string, data: any) {
+        set({
+          nodes: get().nodes.map(node =>
+            node.id === id
+              ? { ...node, data: { ...node.data, ...data } }
+              : node
+          )
+        });
       },
       onNodesChange: (changes: NodeChange[]) => {
         set({

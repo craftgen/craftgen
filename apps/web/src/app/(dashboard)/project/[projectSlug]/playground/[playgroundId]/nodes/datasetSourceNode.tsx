@@ -40,6 +40,7 @@ import React, { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { debounce } from "lodash-es";
 import { Wrench } from "lucide-react";
+import useStore from "../state";
 
 type DataSetSourceNodeData = {
   id: string;
@@ -108,13 +109,20 @@ const datasetMachine = createMachine({
 
 export const DataSetSourceNode: React.FC<NodeProps<DataSetSourceNodeData>> = ({
   id,
-  type,
+  ...rest
 }) => {
   const { data } = useSWR(
     () => ["nodeData", id],
     ([key, id]) => getNodeData(id)
   );
 
+  console.log(rest);
+  const { updateNode } = useStore();
+  useEffect(() => {
+    if (data) {
+      updateNode(id, data?.state);
+    }
+  }, [data]);
   if (!data) return null;
   return <DataSetNode id={id} data={data} />;
 };
@@ -144,9 +152,11 @@ export const DataSetNode: React.FC<{ id: string; data: any }> = ({
     getDataSet(id!)
   );
 
+  console.log(dataSet)
+
   return (
     <>
-      <Handle type="source" position={Position.Right} />
+      <Handle type="source" position={Position.Right} className="scale-200" />
       <ContextMenu>
         <ContextMenuTrigger>
           <Card>
@@ -212,18 +222,16 @@ export const DataSetSourceTableView: React.FC<{ datasetId: string }> = ({
     getDataSet(id!)
   );
   return (
-    <>
+    <div>
+      <h3>{dataSet?.name}</h3>
       <ScrollArea>
-        {JSON.stringify(dataSet, null, 2)}
-        {/* {dataSet?.dataRows?.map((row: any) => (
+        {dataSet?.rows?.map((row) => (
           <div className="flex flex-row">
-            {Object.keys(row).map((key) => (
-              <div className="px-2 py-1">{row[key]}</div>
-            ))}
+            <div className="px-2 py-1">{JSON.stringify(row.data)}</div>
           </div>
-        ))} */}
+        ))}
       </ScrollArea>
-    </>
+    </div>
   );
 };
 
