@@ -33,9 +33,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
       </div>
       <div>
         {data?.map((playground) => (
-          <Link
-            href={`/project/${params.projectSlug}/playground/${playground.id}`}
-          >
+          <Link href={`/project/${params.projectSlug}/rate/${playground.id}`}>
             <div key={playground.id}>{playground.id}</div>
           </Link>
         ))}
