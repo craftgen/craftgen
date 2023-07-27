@@ -5,28 +5,27 @@ import { useRete } from "rete-react-plugin";
 import { createEditor } from "./playground/editor";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { exportGraph, importGraph } from "./playground/io";
+import { Data, exportEditor, importEditor } from "./playground/io";
+// import { exportGraph, importGraph } from "./playground/io";
 
 export const Playground: React.FC<{ projectId: string }> = ({}) => {
   const [ref, rete] = useRete(createEditor);
-  const [storage, setStorage] = useState(null);
+  const [storage, setStorage] = useState<Data|null>(null);
   useEffect(() => {
     const nodes = rete?.editor.getNodes();
   }, [rete?.editor]);
   const handleExport = async () => {
     if (!rete?.editor) return;
-    const json = await exportGraph(rete?.editor);
+    const json = exportEditor(rete?.editor);
     setStorage(json);
     console.log({ json });
   };
 
   const handleImport = async () => {
     if (!rete?.editor) return;
-    rete.editor.clear();
-    console.log({
-      nodes: rete.editor.getNodes(),
-    });
-    const graph = await importGraph(storage, rete.editor);
+    await rete.editor.clear();
+    importEditor(rete.di, storage)
+    // const graph = await importGraph(storage, rete.editor);
     // console.log({ graph });
   };
 

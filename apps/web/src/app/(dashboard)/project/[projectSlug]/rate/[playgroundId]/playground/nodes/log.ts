@@ -2,6 +2,7 @@ import { ClassicPreset } from "rete";
 import { DataflowEngine } from "rete-engine";
 import { Schemes } from "../types";
 import { ActionSocket, TextSocket } from "../sockets";
+import { DiContainer } from "../editor";
 
 export class Log extends ClassicPreset.Node<
   { exec: ClassicPreset.Socket; message: ClassicPreset.Socket },
@@ -11,16 +12,15 @@ export class Log extends ClassicPreset.Node<
   width = 180;
   height = 150;
 
-  public __type = "Log";
 
   private _dataflow?: DataflowEngine<Schemes>;
+  static ID: 'log';
 
   constructor(
-    private log: (text: string) => void,
-    dataflow: DataflowEngine<Schemes>
+    di: DiContainer,
   ) {
     super("Log");
-    this._dataflow = dataflow;
+    this._dataflow = di.dataFlow;
 
     this.addInput(
       "exec",
@@ -38,12 +38,16 @@ export class Log extends ClassicPreset.Node<
       message: string[];
     };
     console.log("CALLED");
-    this.log((inputs.message && inputs.message[0]) || "");
+    console.log((inputs.message && inputs.message[0]) || "");
 
     forward("exec");
   }
 
   data() {
     return {};
+  }
+
+  serialize() {
+    return {}
   }
 }

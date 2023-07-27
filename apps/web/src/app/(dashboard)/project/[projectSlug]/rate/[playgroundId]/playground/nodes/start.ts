@@ -1,6 +1,6 @@
 import { ClassicPreset } from "rete";
 import { ActionSocket } from "../sockets";
-import { ButtonControl } from "../editor";
+import { ButtonControl, DiContainer } from "../editor";
 
 export class Start extends ClassicPreset.Node<
   {},
@@ -14,12 +14,12 @@ export class Start extends ClassicPreset.Node<
 
   private _engine?: any;
 
-  __type = "Start";
+  static ID: "start";
 
-
-  constructor(engine?: any) {
+  constructor(di: DiContainer) {
     super("Start");
-    this._engine = engine;
+    this._engine = di.engine;
+
     this.addOutput(
       "exec",
       new ClassicPreset.Output(new ActionSocket(), "Exec")
@@ -27,7 +27,7 @@ export class Start extends ClassicPreset.Node<
     this.addControl(
       "trigger",
       new ButtonControl("exec", () => {
-        engine?.execute(this.id);
+        this._engine?.execute(this.id);
         // console.log(this);
       })
     );
@@ -38,6 +38,10 @@ export class Start extends ClassicPreset.Node<
   }
 
   data() {
+    return {};
+  }
+
+  serialize() {
     return {};
   }
 }

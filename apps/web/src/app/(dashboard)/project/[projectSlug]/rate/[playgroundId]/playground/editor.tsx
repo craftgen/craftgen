@@ -10,6 +10,7 @@ import {
   Presets as ArrangePresets,
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
+import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
 import { DataflowEngine, ControlFlowEngine } from "rete-engine";
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
@@ -22,7 +23,7 @@ import { getConnectionSockets } from "./utis";
 import { Log, Start, TextNode } from "./nodes";
 import { Connection } from "./connection";
 
-type AreaExtra = ReactArea2D<Schemes>;
+type AreaExtra = ReactArea2D<Schemes> | MinimapExtra;
 
 class Node extends ClassicPreset.Node<
   { [key in string]: ClassicPreset.Socket },
@@ -67,11 +68,24 @@ function CustomButton(props: { data: ButtonControl }) {
   );
 }
 
+export type DiContainer = {
+  // updateControl: (id: string) => void
+  // updateNode: (id: string) => void
+  // process: () => void
+  editor: NodeEditor<Schemes>;
+  engine?: ControlFlowEngine<Schemes>;
+  dataFlow?: DataflowEngine<Schemes>;
+  arrange?: AutoArrangePlugin<Schemes>;
+  // modules: Modules
+};
+
 export async function createEditor(container: HTMLElement) {
   const editor = new NodeEditor<Schemes>();
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
   const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+  const minimap = new MinimapPlugin<Schemes>();
+
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
@@ -135,13 +149,13 @@ export async function createEditor(container: HTMLElement) {
   editor.use(dataflow);
   editor.use(area);
   addCustomBackground(area);
+  area.use(minimap);
   area.use(connection);
   area.use(render);
   area.use(arrange);
+  render.addPreset(Presets.minimap.setup({ size: 200 }));
   editor.addPipe((context) => {
-    // TO DO: 
-
-
+    // TO DO:
 
     if (context.type === "connectioncreate") {
       const { data } = context;
@@ -158,9 +172,18 @@ export async function createEditor(container: HTMLElement) {
   AreaExtensions.simpleNodesOrder(area);
   AreaExtensions.showInputControl(area);
 
-  const start = new Start(engine);
-  const text1 = new TextNode("log");
-  const log1 = new Log(console.log, dataflow);
+  const di: DiContainer = {
+    editor,
+    arrange,
+    engine: engine,
+    dataFlow: dataflow,
+  };
+
+  const start = new Start(di);
+  const text1 = new TextNode(di, {
+    value: 'log'
+  });
+  const log1 = new Log(di);
 
   const con1 = new Connection(start, "exec", log1, "exec");
   const con2 = new Connection(text1, "value", log1, "message");
@@ -180,8 +203,10 @@ export async function createEditor(container: HTMLElement) {
   AreaExtensions.zoomAt(area, editor.getNodes());
 
   return {
+    di,
     editor,
     engine,
+    dataflow,
     destroy: () => area.destroy(),
   };
 }

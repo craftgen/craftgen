@@ -1,5 +1,10 @@
 import { ClassicPreset } from "rete";
 import { TextSocket } from "../sockets";
+import { DiContainer } from "../editor";
+
+type Data = {
+  value: string;
+};
 
 export class TextNode extends ClassicPreset.Node<
   {},
@@ -8,14 +13,14 @@ export class TextNode extends ClassicPreset.Node<
 > {
   height = 120;
   width = 180;
-  
-  __type = "Text";
 
-  constructor(initial: string) {
+  static ID: "text";
+
+  constructor(di: DiContainer, data: Data) {
     super("Text");
     this.addControl(
       "value",
-      new ClassicPreset.InputControl("text", { initial })
+      new ClassicPreset.InputControl("text", { initial: data.value })
     );
     this.addOutput(
       "value",
@@ -25,7 +30,13 @@ export class TextNode extends ClassicPreset.Node<
 
   execute() {}
 
-  data(): { value: string } {
+  data(): Data {
+    return {
+      value: this.controls.value.value || "",
+    };
+  }
+
+  serialize(): Data {
     return {
       value: this.controls.value.value || "",
     };

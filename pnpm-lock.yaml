@@ -91,6 +91,7 @@ importers:
       rete-auto-arrange-plugin: ^2.0.0
       rete-connection-plugin: ^2.0.0
       rete-engine: ^2.0.0
+      rete-minimap-plugin: ^2.0.0
       rete-react-plugin: ^2.0.1
       rete-render-utils: ^2.0.1
       slugify: ^1.6.6
@@ -153,6 +154,7 @@ importers:
       rete-auto-arrange-plugin: 2.0.0_ep6dyau3s7cozb6mlt4267ndei
       rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-engine: 2.0.0_rete@2.0.2
+      rete-minimap-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-react-plugin: 2.0.1_k3q7eefwxzjj62gx5ucpeddqcu
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
       slugify: 1.6.6
@@ -8053,6 +8055,17 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       rete: 2.0.2
+    dev: false
+
+  /rete-minimap-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:
+    resolution: {integrity: sha512-5adT/3KSU2wt5hT5jyfpZbuMKj7/uprJDLQOeWnSygWw/9mef6l1IP+uvfopjj87hELbrhFHjIzduC923C6gow==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.21.5
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
     dev: false
 
   /rete-react-plugin/2.0.1_k3q7eefwxzjj62gx5ucpeddqcu:
