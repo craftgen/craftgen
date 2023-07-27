@@ -1,3 +1,4 @@
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { ClassicScheme, RenderEmit, Presets } from "rete-react-plugin";
@@ -110,27 +111,31 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   return (
     <div
       className={cn(
-        "bg-accent rounded p-2 border-2 border-gray-500 cursor-pointer box-border pb-2 select-none hover:bg-muted",
+        "bg-accent rounded  border-2 border-gray-500 cursor-pointer box-border pb-2 select-none hover:bg-muted shadow-md ",
         selected && "border-2 border-red-500",
         width && `w-[${width}px]`,
         height && `h-[${height}px]`
       )}
       data-testid="node"
     >
-      <div className="text-primary px-2 py-1" data-testid="title">
-        {label}
+      <div className="flex flex-col p-2">
+        <Label data-testid="title" className="w-full">
+          {label}
+        </Label>
+        <div className="py-2">
+          {/* controls */}
+          {controls.map(([key, control]) => {
+            return control ? (
+              <RefControl
+                key={key}
+                name="control"
+                emit={props.emit}
+                payload={control}
+              />
+            ) : null;
+          })}
+        </div>
       </div>
-      {/* Controls */}
-      {controls.map(([key, control]) => {
-        return control ? (
-          <RefControl
-            key={key}
-            name="control"
-            emit={props.emit}
-            payload={control}
-          />
-        ) : null;
-      })}
       {/* Outputs */}
       {outputs.map(
         ([key, output]) =>

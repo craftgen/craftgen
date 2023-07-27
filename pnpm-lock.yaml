@@ -14,7 +14,7 @@ importers:
       eslint: 7.32.0
       eslint-config-custom: link:packages/eslint-config-custom
       prettier: 2.8.8
-      turbo: 1.10.11
+      turbo: 1.10.12
 
   apps/supabase:
     specifiers:
@@ -66,6 +66,7 @@ importers:
       '@types/react-dom': 18.2.7
       '@xstate/react': 4.0.0-beta.8
       autoprefixer: 10.4.14
+      class-transformer: ^0.5.1
       class-variance-authority: ^0.7.0
       clsx: ^2.0.0
       cmdk: ^0.2.0
@@ -84,9 +85,12 @@ importers:
       react-dom: 18.2.0
       react-hook-form: ^7.45.2
       reactflow: ^11.7.4
+      reflect-metadata: ^0.1.13
       rete: ^2.0.2
       rete-area-plugin: ^2.0.0
+      rete-auto-arrange-plugin: ^2.0.0
       rete-connection-plugin: ^2.0.0
+      rete-engine: ^2.0.0
       rete-react-plugin: ^2.0.1
       rete-render-utils: ^2.0.1
       slugify: ^1.6.6
@@ -125,6 +129,7 @@ importers:
       '@types/react-dom': 18.2.7
       '@xstate/react': 4.0.0-beta.8_bnbxbjegail3qvjrrxttq2zhqi
       autoprefixer: 10.4.14_postcss@8.4.26
+      class-transformer: 0.5.1
       class-variance-authority: 0.7.0
       clsx: 2.0.0
       cmdk: 0.2.0_clwdj742dood3wxkovrqay7cta
@@ -142,9 +147,12 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.45.2_react@18.2.0
       reactflow: 11.7.4_64s6uhl5lpjd37tem3o2bfzl5e
+      reflect-metadata: 0.1.13
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
+      rete-auto-arrange-plugin: 2.0.0_ep6dyau3s7cozb6mlt4267ndei
       rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
+      rete-engine: 2.0.0_rete@2.0.2
       rete-react-plugin: 2.0.1_k3q7eefwxzjj62gx5ucpeddqcu
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
       slugify: 1.6.6
@@ -4480,6 +4488,10 @@ packages:
       fsevents: 2.3.2
     dev: false
 
+  /class-transformer/0.5.1:
+    resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
+    dev: false
+
   /class-variance-authority/0.7.0:
     resolution: {integrity: sha512-jFI8IQw4hczaL4ALINxqLEXQbWcNjoSkloa4IaufXCJr6QawJyw7tuRysRsrE8w2p/4gGaxKIt/hX3qz/IbD1A==}
     dependencies:
@@ -5091,6 +5103,10 @@ packages:
 
   /electron-to-chromium/1.4.464:
     resolution: {integrity: sha512-guZ84yoou4+ILNdj0XEbmGs6DEWj6zpVOWYpY09GU66yEb0DSYvP/biBPzHn0GuW/3RC/pnaYNUWlQE1fJYtgA==}
+    dev: false
+
+  /elkjs/0.8.2:
+    resolution: {integrity: sha512-L6uRgvZTH+4OF5NE/MBbzQx/WYpru1xCBE9respNj6qznEewGUIfhzmm7horWWxbNO2M0WckQypGctR8lH79xQ==}
     dev: false
 
   /emoji-regex/8.0.0:
@@ -7894,6 +7910,10 @@ packages:
       postcss-value-parser: 3.3.1
     dev: false
 
+  /reflect-metadata/0.1.13:
+    resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
+    dev: false
+
   /regenerate-unicode-properties/10.1.0:
     resolution: {integrity: sha512-d1VudCLoIGitcU/hEg2QqvyGZQmdC0Lf8BqdOMXGFSvJP4bNV1+XqbPQeHHLD51Jh4QJJ225dlIFvY4Ly6MXmQ==}
     engines: {node: '>=4'}
@@ -8000,6 +8020,21 @@ packages:
       rete: 2.0.2
     dev: false
 
+  /rete-auto-arrange-plugin/2.0.0_ep6dyau3s7cozb6mlt4267ndei:
+    resolution: {integrity: sha512-wyrJ+DW94J1E4ceTX6XVHt7lnp0eNXdwHKnuREY8ePl3BO8buLutvVpuMFwJEVW6AbnUVcKY38/huAwp4wDGoQ==}
+    peerDependencies:
+      elkjs: ^0.8.2
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      web-worker: ^1.2.0
+    dependencies:
+      '@babel/runtime': 7.21.5
+      elkjs: 0.8.2
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
+      web-worker: 1.2.0
+    dev: false
+
   /rete-connection-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:
     resolution: {integrity: sha512-8M+UC6gcWwTi0PEICprmCaoGxwEA4x42z0ywx3O5NQSILvkhWcvQXzHcyvwGx/LTsJT/UPzNjCfixu/TbRyTEw==}
     peerDependencies:
@@ -8009,6 +8044,15 @@ packages:
       '@babel/runtime': 7.21.5
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
+    dev: false
+
+  /rete-engine/2.0.0_rete@2.0.2:
+    resolution: {integrity: sha512-Xo/UggbWDgZf2TnFY5ftylkGH42CX3Ws5dH9fBx7r3PNXfAYJLIT3Calaoe+JogJPTeMZHMoeR61/aJTZABGzQ==}
+    peerDependencies:
+      rete: ^2.0.1
+    dependencies:
+      '@babel/runtime': 7.21.5
+      rete: 2.0.2
     dev: false
 
   /rete-react-plugin/2.0.1_k3q7eefwxzjj62gx5ucpeddqcu:
@@ -8626,65 +8670,65 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /turbo-darwin-64/1.10.11:
-    resolution: {integrity: sha512-pHNz6D5XUVB+bgZMKXIOegvH9GzPXucwgiHFatQcRoscAW1te1Zvn3fAWYo/mJ550AqPWQLmALZZel3z3lllLA==}
+  /turbo-darwin-64/1.10.12:
+    resolution: {integrity: sha512-vmDfGVPl5/aFenAbOj3eOx3ePNcWVUyZwYr7taRl0ZBbmv2TzjRiFotO4vrKCiTVnbqjQqAFQWY2ugbqCI1kOQ==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64/1.10.11:
-    resolution: {integrity: sha512-j3yGAvkBu0BqR+5nb9LiRs8UZsUQDOqpdP4S9OW3+W5jorJIxUxLawwk3XqoYVGhmPh84LWWOOrMgFQ/Y/3WSg==}
+  /turbo-darwin-arm64/1.10.12:
+    resolution: {integrity: sha512-3JliEESLNX2s7g54SOBqqkqJ7UhcOGkS0ywMr5SNuvF6kWVTbuUq7uBU/sVbGq8RwvK1ONlhPvJne5MUqBCTCQ==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64/1.10.11:
-    resolution: {integrity: sha512-FZ+/VT3Yt188VvPuvqIwIyvosYALzu7e8ewxpl8yiYDwQbLwxMOEt2UKACsL+D7wzNtIMPRDxNmnhNvTbx9Afw==}
+  /turbo-linux-64/1.10.12:
+    resolution: {integrity: sha512-siYhgeX0DidIfHSgCR95b8xPee9enKSOjCzx7EjTLmPqPaCiVebRYvbOIYdQWRqiaKh9yfhUtFmtMOMScUf1gg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64/1.10.11:
-    resolution: {integrity: sha512-IfxO8S1FiikunmUnlul1sd5piPlunU1QlnNNGFfhKJkMidkJ0rXsSbh2epn/pXO8RRPBnFRxYkp6gJz/FTUUTg==}
+  /turbo-linux-arm64/1.10.12:
+    resolution: {integrity: sha512-K/ZhvD9l4SslclaMkTiIrnfcACgos79YcAo4kwc8bnMQaKuUeRpM15sxLpZp3xDjDg8EY93vsKyjaOhdFG2UbA==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64/1.10.11:
-    resolution: {integrity: sha512-5qwTEk27duxYIsDycgZdpti1b41Xu2D3W+WRlg++sylwqhAgcPhfcppXMGd70h/SScgIh7IeLjzgTK7+YPE77g==}
+  /turbo-windows-64/1.10.12:
+    resolution: {integrity: sha512-7FSgSwvktWDNOqV65l9AbZwcoueAILeE4L7JvjauNASAjjbuzXGCEq5uN8AQU3U5BOFj4TdXrVmO2dX+lLu8Zg==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64/1.10.11:
-    resolution: {integrity: sha512-FGvWCWvii4PZqy+4VBoanKaMkqeRD146iHL67YpY5sp8z5H/Gkywtu8xxBbkgP14lBr6fAsyRarHBuR+c52cDg==}
+  /turbo-windows-arm64/1.10.12:
+    resolution: {integrity: sha512-gCNXF52dwom1HLY9ry/cneBPOKTBHhzpqhMylcyvJP0vp9zeMQQkt6yjYv+6QdnmELC92CtKNp2FsNZo+z0pyw==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo/1.10.11:
-    resolution: {integrity: sha512-6GzYbsG5Ro6dK62dJuBjA53RdpMr1PWVwN6ZZRSMgYgkvFmNDMwxzJUKuCSi+jfDSt6avwT7koNlwRPfgTFuOw==}
+  /turbo/1.10.12:
+    resolution: {integrity: sha512-WM3+jTfQWnB9W208pmP4oeehZcC6JQNlydb/ZHMRrhmQa+htGhWLCzd6Q9rLe0MwZLPpSPFV2/bN5egCLyoKjQ==}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.11
-      turbo-darwin-arm64: 1.10.11
-      turbo-linux-64: 1.10.11
-      turbo-linux-arm64: 1.10.11
-      turbo-windows-64: 1.10.11
-      turbo-windows-arm64: 1.10.11
+      turbo-darwin-64: 1.10.12
+      turbo-darwin-arm64: 1.10.12
+      turbo-linux-64: 1.10.12
+      turbo-linux-arm64: 1.10.12
+      turbo-windows-64: 1.10.12
+      turbo-windows-arm64: 1.10.12
     dev: true
 
   /type-check/0.4.0:
@@ -8942,6 +8986,10 @@ packages:
     dependencies:
       defaults: 1.0.4
     dev: true
+
+  /web-worker/1.2.0:
+    resolution: {integrity: sha512-PgF341avzqyx60neE9DD+XS26MMNMoUQRz9NOZwW32nPQrF6p77f1htcnjBSEV8BGMKZ16choqUG4hyI0Hx7mA==}
+    dev: false
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
