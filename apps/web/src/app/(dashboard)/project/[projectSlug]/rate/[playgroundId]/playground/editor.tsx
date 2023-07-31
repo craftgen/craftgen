@@ -30,18 +30,10 @@ import { getConnectionSockets } from "./utis";
 // import { Log, Start, TextNode } from "./nodes";
 import { Connection } from "./connection";
 import { CustomContextMenu } from "./ui/context-menu";
+import { CustomInput } from "./ui/custom-input";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
-function CustomInput(props: { data: ClassicPreset.InputControl<"text"> }) {
-  return (
-    <Input
-      disabled={props.data.readonly}
-      value={props.data.value}
-      onChange={(e) => props.data.setValue(e.target.value as string)}
-    />
-  );
-}
 
 export class ButtonControl extends ClassicPreset.Control {
   __type = "ButtonControl";
@@ -101,7 +93,8 @@ export async function createEditor(container: HTMLElement) {
           }
           // return Presets.classic.Control(data.payload);
           if (data.payload instanceof ClassicPreset.InputControl) {
-            return Presets.classic.InputControl;
+            // return Presets.classic.InputControl
+            return CustomInput;
           }
           return Presets.classic.Control;
           // if (data.payload instanceof ClassicPreset.InputControl) {
@@ -126,7 +119,7 @@ export async function createEditor(container: HTMLElement) {
           .map(([name]) => name),
     };
   });
-  const dataflow = new DataflowEngine<Schemes>(({ inputs, outputs }) => {
+  const dataFlow = new DataflowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>
         Object.entries(inputs)
@@ -160,7 +153,7 @@ export async function createEditor(container: HTMLElement) {
   arrange.addPreset(ArrangePresets.classic.setup());
 
   editor.use(engine);
-  editor.use(dataflow);
+  editor.use(dataFlow);
   editor.use(area);
   addCustomBackground(area);
   area.use(minimap);
@@ -191,7 +184,7 @@ export async function createEditor(container: HTMLElement) {
     editor,
     arrange,
     engine: engine,
-    dataFlow: dataflow,
+    dataFlow,
   };
 
   const start = new Nodes.Start(di);
@@ -221,7 +214,7 @@ export async function createEditor(container: HTMLElement) {
     di,
     editor,
     engine,
-    dataflow,
+    dataflow: dataFlow,
     destroy: () => area.destroy(),
   };
 }

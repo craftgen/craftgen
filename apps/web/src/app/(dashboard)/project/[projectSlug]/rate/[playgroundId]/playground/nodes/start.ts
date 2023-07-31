@@ -12,13 +12,13 @@ export class Start extends ClassicPreset.Node<
   width = 180;
   height = 120;
 
-  private _engine?: any;
+  private _di?: DiContainer;
 
   static ID: "start";
 
   constructor(di: DiContainer) {
     super("Start");
-    this._engine = di.engine;
+    this._di = di;
 
     this.addOutput(
       "exec",
@@ -27,8 +27,8 @@ export class Start extends ClassicPreset.Node<
     this.addControl(
       "trigger",
       new ButtonControl("exec", () => {
-        this._engine?.execute(this.id);
-        // console.log(this);
+        this._di?.dataFlow?.reset();
+        this._di?.engine?.execute(this.id);
       })
     );
   }

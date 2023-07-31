@@ -20,7 +20,10 @@ export class TextNode extends ClassicPreset.Node<
     super("Text");
     this.addControl(
       "value",
-      new ClassicPreset.InputControl("text", { initial: data.value })
+      new ClassicPreset.InputControl("text", { initial: data.value, change(value) {
+        console.log(value);
+        
+      }, })
     );
     this.addOutput(
       "value",

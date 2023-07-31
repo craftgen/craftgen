@@ -21,6 +21,7 @@ export class Log extends ClassicPreset.Node<
   ) {
     super("Log");
     this._dataflow = di.dataFlow;
+    console.log(di.dataFlow)
 
     this.addInput(
       "exec",
@@ -38,6 +39,7 @@ export class Log extends ClassicPreset.Node<
       message: string[];
     };
     console.log("CALLED");
+    console.log(inputs);
     console.log((inputs.message && inputs.message[0]) || "");
 
     forward("exec");
