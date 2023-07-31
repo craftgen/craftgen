@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { NodeEditor, GetSchemes, ClassicPreset } from "rete";
+import { NodeEditor, ClassicPreset } from "rete";
 import { AreaPlugin, AreaExtensions } from "rete-area-plugin";
 import {
   ConnectionPlugin,
@@ -11,7 +11,14 @@ import {
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
+import {
+  ContextMenuExtra,
+  ContextMenuPlugin,
+  Presets as ContextMenuPresets,
+} from "rete-context-menu-plugin";
 import { DataflowEngine, ControlFlowEngine } from "rete-engine";
+import * as Nodes from "./nodes";
+
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
@@ -20,22 +27,11 @@ import { Input } from "@/components/ui/input";
 import { Schemes } from "./types";
 import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
-import { Log, Start, TextNode } from "./nodes";
+// import { Log, Start, TextNode } from "./nodes";
 import { Connection } from "./connection";
+import { CustomContextMenu } from "./ui/context-menu";
 
-type AreaExtra = ReactArea2D<Schemes> | MinimapExtra;
-
-class Node extends ClassicPreset.Node<
-  { [key in string]: ClassicPreset.Socket },
-  { [key in string]: ClassicPreset.Socket },
-  {
-    [key in string]:
-      | ButtonControl
-      | ClassicPreset.Control
-      | ClassicPreset.InputControl<"number">
-      | ClassicPreset.InputControl<"text">;
-  }
-> {}
+type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
 function CustomInput(props: { data: ClassicPreset.InputControl<"text"> }) {
   return (
@@ -86,7 +82,6 @@ export async function createEditor(container: HTMLElement) {
   const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
   const minimap = new MinimapPlugin<Schemes>();
 
-
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
   });
@@ -108,6 +103,7 @@ export async function createEditor(container: HTMLElement) {
           if (data.payload instanceof ClassicPreset.InputControl) {
             return Presets.classic.InputControl;
           }
+          return Presets.classic.Control;
           // if (data.payload instanceof ClassicPreset.InputControl) {
           //   return Presets.classic.Control;
           // }
@@ -142,6 +138,24 @@ export async function createEditor(container: HTMLElement) {
           .map(([name]) => name),
     };
   });
+  const contextMenu = new ContextMenuPlugin<Schemes>({
+    items: ContextMenuPresets.classic.setup([
+      [
+        "Input",
+        [
+          ["Log", () => new Nodes.Log(di)],
+          ["Text", () => new Nodes.TextNode(di, { value: "text" })],
+          ["Start", () => new Nodes.Start(di)],
+          // ["Texture", () => new Nodes.InputTexture(di, { name: "" })],
+          // ["Curve", () => new Nodes.InputCurve(di, { name: "" })],
+          // [
+          //   "Color",
+          //   () => new Nodes.InputColor(di, { name: "", defaultColor: "white" }),
+          // ],
+        ],
+      ],
+    ]),
+  });
   const arrange = new AutoArrangePlugin<Schemes>();
   arrange.addPreset(ArrangePresets.classic.setup());
 
@@ -151,12 +165,13 @@ export async function createEditor(container: HTMLElement) {
   addCustomBackground(area);
   area.use(minimap);
   area.use(connection);
+  area.use(contextMenu);
   area.use(render);
   area.use(arrange);
   render.addPreset(Presets.minimap.setup({ size: 200 }));
-  editor.addPipe((context) => {
-    // TO DO:
+  render.addPreset(CustomContextMenu);
 
+  editor.addPipe((context) => {
     if (context.type === "connectioncreate") {
       const { data } = context;
       const { source, target } = getConnectionSockets(editor, data);
@@ -179,11 +194,11 @@ export async function createEditor(container: HTMLElement) {
     dataFlow: dataflow,
   };
 
-  const start = new Start(di);
-  const text1 = new TextNode(di, {
-    value: 'log'
+  const start = new Nodes.Start(di);
+  const text1 = new Nodes.TextNode(di, {
+    value: "log",
   });
-  const log1 = new Log(di);
+  const log1 = new Nodes.Log(di);
 
   const con1 = new Connection(start, "exec", log1, "exec");
   const con2 = new Connection(text1, "value", log1, "message");

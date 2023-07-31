@@ -90,6 +90,7 @@ importers:
       rete-area-plugin: ^2.0.0
       rete-auto-arrange-plugin: ^2.0.0
       rete-connection-plugin: ^2.0.0
+      rete-context-menu-plugin: ^2.0.0
       rete-engine: ^2.0.0
       rete-minimap-plugin: ^2.0.0
       rete-react-plugin: ^2.0.1
@@ -98,6 +99,7 @@ importers:
       squirrelly: ^9.0.0
       swr: ^2.2.0
       tailwind-merge: ^1.14.0
+      tailwind-styled-components: ^2.2.0
       tailwindcss: 3.3.3
       tailwindcss-animate: ^1.0.6
       typescript: 5.1.6
@@ -153,6 +155,7 @@ importers:
       rete-area-plugin: 2.0.0_rete@2.0.2
       rete-auto-arrange-plugin: 2.0.0_ep6dyau3s7cozb6mlt4267ndei
       rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
+      rete-context-menu-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-engine: 2.0.0_rete@2.0.2
       rete-minimap-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-react-plugin: 2.0.1_k3q7eefwxzjj62gx5ucpeddqcu
@@ -161,6 +164,7 @@ importers:
       squirrelly: 9.0.0
       swr: 2.2.0_react@18.2.0
       tailwind-merge: 1.14.0
+      tailwind-styled-components: 2.2.0_biqbaboplfbrettd7655fr4n2y
       tailwindcss: 3.3.3
       tailwindcss-animate: 1.0.6_tailwindcss@3.3.3
       typescript: 5.1.6
@@ -8048,6 +8052,17 @@ packages:
       rete-area-plugin: 2.0.0_rete@2.0.2
     dev: false
 
+  /rete-context-menu-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:
+    resolution: {integrity: sha512-cFqXUCgbuzdD994+cUgLNCiN/BeQzBb8PS1oZfJijL1RsHpRIlMM/pvVgGp1DJcveeIeKccndXb6UuzR9qfU4A==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.21.5
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
+    dev: false
+
   /rete-engine/2.0.0_rete@2.0.2:
     resolution: {integrity: sha512-Xo/UggbWDgZf2TnFY5ftylkGH42CX3Ws5dH9fBx7r3PNXfAYJLIT3Calaoe+JogJPTeMZHMoeR61/aJTZABGzQ==}
     peerDependencies:
@@ -8506,6 +8521,17 @@ packages:
 
   /tailwind-merge/1.14.0:
     resolution: {integrity: sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ==}
+    dev: false
+
+  /tailwind-styled-components/2.2.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Ogemwk0p69aU8WE/ooJZHjqstdJgT5R6HGU6TFz2uSnveSEtvW+C6aWOjGCvCr5H/bREv0IbbQ4yODknRrLBRQ==}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      tailwind-merge: 1.14.0
     dev: false
 
   /tailwindcss-animate/1.0.6_tailwindcss@3.3.3:

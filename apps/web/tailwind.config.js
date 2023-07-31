@@ -8,6 +8,7 @@ module.exports = {
     "./src/**/*.{ts,tsx}",
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
+  important: true,
   theme: {
     container: {
       center: true,

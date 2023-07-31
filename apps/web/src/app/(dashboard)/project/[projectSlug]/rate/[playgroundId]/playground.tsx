@@ -3,14 +3,23 @@ import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
 import { createEditor } from "./playground/editor";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Data, exportEditor, importEditor } from "./playground/io";
 // import { exportGraph, importGraph } from "./playground/io";
 
 export const Playground: React.FC<{ projectId: string }> = ({}) => {
+  const onChange = useCallback((data: any) => {
+    console.log("CHANGE", data);
+  }, []);
   const [ref, rete] = useRete(createEditor);
-  const [storage, setStorage] = useState<Data|null>(null);
+  useEffect(() => {
+    rete?.editor.addPipe((context) => {
+      onChange(context);
+      return context;
+    });
+  }, [rete]);
+  const [storage, setStorage] = useState<Data | null>(null);
   useEffect(() => {
     const nodes = rete?.editor.getNodes();
   }, [rete?.editor]);
@@ -24,9 +33,7 @@ export const Playground: React.FC<{ projectId: string }> = ({}) => {
   const handleImport = async () => {
     if (!rete?.editor) return;
     await rete.editor.clear();
-    importEditor(rete.di, storage)
-    // const graph = await importGraph(storage, rete.editor);
-    // console.log({ graph });
+    importEditor(rete.di, storage);
   };
 
   return (
