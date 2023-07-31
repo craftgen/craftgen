@@ -4,50 +4,52 @@ import "reflect-metadata";
 import { useRete } from "rete-react-plugin";
 import { createEditor } from "./playground/editor";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Data, exportEditor, importEditor } from "./playground/io";
-// import { exportGraph, importGraph } from "./playground/io";
+import { getPlayground, savePlayground } from "./action";
+import { useParams } from "next/navigation";
 
-export const Playground: React.FC<{ projectId: string }> = ({}) => {
-  const onChange = useCallback((data: any) => {
-    console.log("CHANGE", data);
-  }, []);
+export const Playground: React.FC<{
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+}> = ({ playground }) => {
   const [ref, rete] = useRete(createEditor);
+  const [dehydrated, setDehydration] = useState(false);
+  useEffect(() => {
+    if (!dehydrated && rete?.di) {
+      importEditor(rete?.di, {
+        edges: playground.edges as any,
+        nodes: playground.nodes as any,
+      });
+      rete.di.setUI();
+      setDehydration(true);
+    }
+  }, [rete, dehydrated]);
+  const params = useParams();
+  const onChange = useCallback(
+    (data: any) => {
+      console.log("onCallback", rete);
+      const json = exportEditor(rete?.di.editor!);
+      savePlayground({
+        projectSlug: params.projectSlug as string,
+        playgroundId: params.playgroundId as string,
+        nodes: json.nodes,
+        edges: json.edges,
+      });
+    },
+    [rete]
+  );
+
   useEffect(() => {
     rete?.editor.addPipe((context) => {
       onChange(context);
+      console.log("ONCHANGE", { context });
       return context;
     });
   }, [rete]);
   const [storage, setStorage] = useState<Data | null>(null);
-  useEffect(() => {
-    const nodes = rete?.editor.getNodes();
-  }, [rete?.editor]);
-  const handleExport = async () => {
-    if (!rete?.editor) return;
-    const json = exportEditor(rete?.editor);
-    setStorage(json);
-    console.log({ json });
-  };
-
-  const handleImport = async () => {
-    if (!rete?.editor) return;
-    await rete.editor.clear();
-    importEditor(rete.di, storage);
-  };
 
   return (
-    <>
-      <Button onClick={handleExport}>Export</Button>
-      <Button onClick={handleImport}>Import</Button>
-      <div>
-        {storage && (
-          <pre>
-            <code>{JSON.stringify(storage, null, 2)}</code>
-          </pre>
-        )}
-      </div>
-      <div ref={ref} className="w-screen h-[calc(100vh-20rem)]" />
-    </>
+    <div className="w-full h-full border-2 border-pink-400/30 rounded">
+      <div ref={ref} className="w-full h-[calc(100vh-5rem)]" />
+    </div>
   );
 };

@@ -38,8 +38,6 @@ export class Log extends ClassicPreset.Node<
     const inputs = (await this._dataflow?.fetchInputs(this.id)) as {
       message: string[];
     };
-    console.log("CALLED");
-    console.log(inputs);
     console.log((inputs.message && inputs.message[0]) || "");
 
     forward("exec");

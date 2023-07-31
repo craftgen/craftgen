@@ -17,23 +17,26 @@ import {
   Presets as ContextMenuPresets,
 } from "rete-context-menu-plugin";
 import { DataflowEngine, ControlFlowEngine } from "rete-engine";
+import {
+  HistoryPlugin,
+  HistoryActions,
+  Presets as HistoryPresets,
+  HistoryExtensions,
+} from "rete-history-plugin";
+
 import * as Nodes from "./nodes";
 
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Schemes } from "./types";
 import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
-// import { Log, Start, TextNode } from "./nodes";
-import { Connection } from "./connection";
 import { CustomContextMenu } from "./ui/context-menu";
 import { CustomInput } from "./ui/custom-input";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
-
 
 export class ButtonControl extends ClassicPreset.Control {
   __type = "ButtonControl";
@@ -60,6 +63,7 @@ export type DiContainer = {
   // updateControl: (id: string) => void
   // updateNode: (id: string) => void
   // process: () => void
+  setUI: () => void;
   editor: NodeEditor<Schemes>;
   engine?: ControlFlowEngine<Schemes>;
   dataFlow?: DataflowEngine<Schemes>;
@@ -133,29 +137,29 @@ export async function createEditor(container: HTMLElement) {
   });
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      [
-        "Input",
-        [
-          ["Log", () => new Nodes.Log(di)],
-          ["Text", () => new Nodes.TextNode(di, { value: "text" })],
-          ["Start", () => new Nodes.Start(di)],
-          // ["Texture", () => new Nodes.InputTexture(di, { name: "" })],
-          // ["Curve", () => new Nodes.InputCurve(di, { name: "" })],
-          // [
-          //   "Color",
-          //   () => new Nodes.InputColor(di, { name: "", defaultColor: "white" }),
-          // ],
-        ],
-      ],
+      // [
+      //   "Input",
+      //   [
+      ["Log", () => new Nodes.Log(di)],
+      ["Text", () => new Nodes.TextNode(di, { value: "text" })],
+      ["Start", () => new Nodes.Start(di)],
+      ["Prompt Template", () => new Nodes.PromptTemplate(di, { value: "" })],
+      //   ],
+      // ],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();
+  const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();
+  history.addPreset(HistoryPresets.classic.setup());
+  HistoryExtensions.keyboard(history);
+
   arrange.addPreset(ArrangePresets.classic.setup());
 
   editor.use(engine);
   editor.use(dataFlow);
   editor.use(area);
   addCustomBackground(area);
+  area.use(history);
   area.use(minimap);
   area.use(connection);
   area.use(contextMenu);
@@ -180,35 +184,20 @@ export async function createEditor(container: HTMLElement) {
   AreaExtensions.simpleNodesOrder(area);
   AreaExtensions.showInputControl(area);
 
+  await arrange.layout();
+  AreaExtensions.zoomAt(area, editor.getNodes());
+  const setUI = async () => {
+    await arrange.layout();
+    AreaExtensions.zoomAt(area, editor.getNodes());
+  };
+
   const di: DiContainer = {
     editor,
     arrange,
+    setUI,
     engine: engine,
     dataFlow,
   };
-
-  const start = new Nodes.Start(di);
-  const text1 = new Nodes.TextNode(di, {
-    value: "log",
-  });
-  const log1 = new Nodes.Log(di);
-
-  const con1 = new Connection(start, "exec", log1, "exec");
-  const con2 = new Connection(text1, "value", log1, "message");
-
-  await editor.addNode(start);
-  await editor.addNode(text1);
-  await editor.addNode(log1);
-
-  await editor.addConnection(con1);
-  await editor.addConnection(con2);
-  // setInterval(() => {
-  //   dataflow.reset();
-  //   engine.execute(start.id);
-  // }, 1000);
-
-  await arrange.layout();
-  AreaExtensions.zoomAt(area, editor.getNodes());
 
   return {
     di,

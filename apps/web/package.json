@@ -60,6 +60,7 @@
     "rete-connection-plugin": "^2.0.0",
     "rete-context-menu-plugin": "^2.0.0",
     "rete-engine": "^2.0.0",
+    "rete-history-plugin": "^2.0.0",
     "rete-minimap-plugin": "^2.0.0",
     "rete-react-plugin": "^2.0.1",
     "rete-render-utils": "^2.0.1",

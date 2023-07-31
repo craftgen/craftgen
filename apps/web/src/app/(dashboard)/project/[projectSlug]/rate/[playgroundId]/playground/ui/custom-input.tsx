@@ -4,7 +4,6 @@ import { ClassicPreset } from "rete";
 
 export function CustomInput(props: { data: ClassicPreset.InputControl<"text"> }) {
   const [value, setValue] = useState(props.data.value);
-  console.log({ value, props })
 
   useEffect(() => {
     setValue(props.data.value);

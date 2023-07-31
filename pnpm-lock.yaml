@@ -92,6 +92,7 @@ importers:
       rete-connection-plugin: ^2.0.0
       rete-context-menu-plugin: ^2.0.0
       rete-engine: ^2.0.0
+      rete-history-plugin: ^2.0.0
       rete-minimap-plugin: ^2.0.0
       rete-react-plugin: ^2.0.1
       rete-render-utils: ^2.0.1
@@ -157,6 +158,7 @@ importers:
       rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-context-menu-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-engine: 2.0.0_rete@2.0.2
+      rete-history-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-minimap-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-react-plugin: 2.0.1_k3q7eefwxzjj62gx5ucpeddqcu
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
@@ -8070,6 +8072,17 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       rete: 2.0.2
+    dev: false
+
+  /rete-history-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:
+    resolution: {integrity: sha512-F2n5iacIthf0v83LRmrp4VPx1Q1QnRZ3Wu/pFzeecaNqstps07+D8O32p1yFUqj4Bsp/t6WtBxSYl1VcDuw56A==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.21.5
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
     dev: false
 
   /rete-minimap-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:

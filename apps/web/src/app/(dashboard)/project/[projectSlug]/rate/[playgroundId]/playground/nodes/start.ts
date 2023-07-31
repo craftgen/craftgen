@@ -27,7 +27,7 @@ export class Start extends ClassicPreset.Node<
     this.addControl(
       "trigger",
       new ButtonControl("exec", () => {
-        this._di?.dataFlow?.reset();
+        // this._di?.dataFlow?.reset();
         this._di?.engine?.execute(this.id);
       })
     );

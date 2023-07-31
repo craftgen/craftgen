@@ -7,7 +7,6 @@ import {
   json,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import type { Edge, Node } from "reactflow";
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey(),
@@ -64,8 +63,8 @@ export const playground = pgTable("playground", {
     .notNull()
     .references(() => project.id),
   name: text("name").notNull(),
-  edges: json("edges").$type<Edge[]>().notNull(),
-  nodes: json("nodes").$type<Node[]>().notNull(),
+  edges: json("edges").notNull(),
+  nodes: json("nodes").notNull(),
 });
 
 export const nodeData = pgTable("node_data", {

@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import * as React from "react";
+import { useKeyPress } from "reactflow";
 import { ClassicScheme, RenderEmit, Presets } from "rete-react-plugin";
 // import styled, { css } from "styled-components";
 // import { $nodewidth, $socketmargin, $socketsize } from "./vars";
@@ -103,6 +104,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
+
 
   sortByIndex(inputs);
   sortByIndex(outputs);

@@ -25,7 +25,7 @@ export async function createNode(
 
 export type Data = {
   nodes: { id: NodeId; name: string; data: Record<string, unknown> }[];
-  connections: {
+  edges: {
     id: NodeId;
     source: string;
     target: string;
@@ -35,14 +35,14 @@ export type Data = {
 };
 
 export async function importEditor(di: DiContainer, data: Data) {
-  const { nodes, connections } = data;
+  const { nodes, edges } = data;
 
   for (const n of nodes) {
     const node = await createNode(di, n.name as any, n.data);
     node.id = n.id;
     await di.editor.addNode(node);
   }
-  for (const c of connections) {
+  for (const c of edges) {
     const source = di.editor.getNode(c.source);
     const target = di.editor.getNode(c.target);
 
@@ -67,7 +67,7 @@ export async function importEditor(di: DiContainer, data: Data) {
 
 export function exportEditor(editor: NodeEditor<Schemes>) {
   const nodes = [];
-  const connections = [];
+  const edges = [];
 
   for (const n of editor.getNodes()) {
     nodes.push({
@@ -77,7 +77,7 @@ export function exportEditor(editor: NodeEditor<Schemes>) {
     });
   }
   for (const c of editor.getConnections()) {
-    connections.push({
+    edges.push({
       source: c.source,
       sourceOutput: c.sourceOutput,
       target: c.target,
@@ -87,6 +87,6 @@ export function exportEditor(editor: NodeEditor<Schemes>) {
 
   return {
     nodes,
-    connections,
+    edges,
   };
 }

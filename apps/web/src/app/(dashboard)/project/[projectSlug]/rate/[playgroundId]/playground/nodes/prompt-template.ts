@@ -1,12 +1,11 @@
 import { ClassicPreset } from "rete";
-import { TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
 
 type Data = {
   value: string;
 };
 
-export class TextNode extends ClassicPreset.Node<
+export class PromptTemplate extends ClassicPreset.Node<
   {},
   { value: ClassicPreset.Socket },
   { value: ClassicPreset.InputControl<"text"> }
@@ -14,21 +13,9 @@ export class TextNode extends ClassicPreset.Node<
   height = 120;
   width = 180;
 
-  static ID: "text";
-
   constructor(di: DiContainer, data: Data) {
-    super("Text");
-    this.addControl(
-      "value",
-      new ClassicPreset.InputControl("text", { initial: data.value, change(value) {
-        console.log(value);
-        di.dataFlow?.reset();
-      }, })
-    );
-    this.addOutput(
-      "value",
-      new ClassicPreset.Output(new TextSocket(), "Number")
-    );
+    super("Prompt Template");
+    // this.addControl();
   }
 
   execute() {}
@@ -36,7 +23,7 @@ export class TextNode extends ClassicPreset.Node<
   data(): Data {
     return {
       value: this.controls.value.value || "",
-    };
+    }
   }
 
   serialize(): Data {
