@@ -49,15 +49,6 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   console.log(props, typeof props.data);
 
   return (
-    // <div
-    //   className={cn(
-    //     "bg-accent rounded-xl  border-2 border-gray-500 cursor-pointer box-border  select-none hover:bg-muted shadow-md ",
-    //     selected && "border-2 border-red-500",
-    //     width && `w-[${width}px]`,
-    //     height && `h-[${height}px]`
-    //   )}
-    //   data-testid="node"
-    // >
     <Card
       className={cn(
         width && `w-[${width}px]`,
@@ -98,7 +89,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
                 >
                   {output?.label}
                 </Badge>
-                <div >
+                <div>
                   <RefSocket
                     name="output-socket"
                     side="output"
@@ -120,7 +111,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
                 key={key}
                 data-testid={`input-${key}`}
               >
-                <div >
+                <div>
                   <RefSocket
                     name="input-socket"
                     emit={props.emit}
@@ -140,13 +131,18 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
                   </Badge>
                 )}
                 {input?.control && input?.showControl && (
-                  <span className="input-control">
-                    <RefControl
-                      key={key}
-                      name="input-control"
-                      emit={props.emit}
-                      payload={input.control}
-                    />
+                  <span className="input-control flex items-center">
+                    <Badge className="-translate-x-2" variant={"secondary"}>
+                      {input.label}
+                    </Badge>
+                    <div className="mr-2">
+                      <RefControl
+                        key={key}
+                        name="input-control"
+                        emit={props.emit}
+                        payload={input.control}
+                      />
+                    </div>
                   </span>
                 )}
               </div>
@@ -154,6 +150,5 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
         )}
       </div>
     </Card>
-    // </div>
   );
 }

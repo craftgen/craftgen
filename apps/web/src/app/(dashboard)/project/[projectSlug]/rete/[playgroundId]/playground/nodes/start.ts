@@ -1,6 +1,7 @@
 import { ClassicPreset } from "rete";
 import { ActionSocket } from "../sockets";
-import { ButtonControl, DiContainer } from "../editor";
+import { DiContainer } from "../editor";
+import { ButtonControl } from "../ui/control/control-button";
 
 export class Start extends ClassicPreset.Node<
   {},
@@ -10,15 +11,15 @@ export class Start extends ClassicPreset.Node<
   }
 > {
   width = 180;
-  height = 120;
+  height = 200;
 
-  private _di?: DiContainer;
+  private di?: DiContainer;
 
   static ID: "start";
 
   constructor(di: DiContainer) {
     super("Start");
-    this._di = di;
+    this.di = di;
 
     this.addOutput(
       "exec",
@@ -26,9 +27,9 @@ export class Start extends ClassicPreset.Node<
     );
     this.addControl(
       "trigger",
-      new ButtonControl("exec", () => {
+      new ButtonControl("Execute", () => {
         // this._di?.dataFlow?.reset();
-        this._di?.engine?.execute(this.id);
+        this.di?.engine?.execute(this.id);
       })
     );
   }

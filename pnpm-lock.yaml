@@ -62,9 +62,11 @@ importers:
       '@turboseo/supabase': '*'
       '@types/lodash-es': ^4.17.8
       '@types/node': 20.4.2
+      '@types/prismjs': ^1.26.0
       '@types/react': 18.2.15
       '@types/react-dom': 18.2.7
       '@xstate/react': 4.0.0-beta.8
+      ai-utils.js: ^0.0.42
       autoprefixer: 10.4.14
       class-transformer: ^0.5.1
       class-variance-authority: ^0.7.0
@@ -81,9 +83,11 @@ importers:
       next: 13.4.10
       next-themes: ^0.2.1
       postcss: 8.4.26
+      prismjs: ^1.29.0
       react: 18.2.0
       react-dom: 18.2.0
       react-hook-form: ^7.45.2
+      react-simple-code-editor: ^0.13.1
       reactflow: ^11.7.4
       reflect-metadata: ^0.1.13
       rete: ^2.0.2
@@ -107,6 +111,7 @@ importers:
       typescript: 5.1.6
       xstate: 5.0.0-beta.18
       zod: ^3.21.4
+      zod-to-json-schema: ^3.21.4
       zustand: ^4.3.9
     dependencies:
       '@hookform/resolvers': 3.1.1_react-hook-form@7.45.2
@@ -130,9 +135,11 @@ importers:
       '@turboseo/supabase': link:../supabase
       '@types/lodash-es': 4.17.8
       '@types/node': 20.4.2
+      '@types/prismjs': 1.26.0
       '@types/react': 18.2.15
       '@types/react-dom': 18.2.7
       '@xstate/react': 4.0.0-beta.8_bnbxbjegail3qvjrrxttq2zhqi
+      ai-utils.js: 0.0.42_eswsytzjdpbiy6tpo7vvalytje
       autoprefixer: 10.4.14_postcss@8.4.26
       class-transformer: 0.5.1
       class-variance-authority: 0.7.0
@@ -148,9 +155,11 @@ importers:
       next: 13.4.10_fe3dnxkyax5wguqewcrbc4wcza
       next-themes: 0.2.1_ajgs2obdksmy6bafrtpl2cn7xi
       postcss: 8.4.26
+      prismjs: 1.29.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.45.2_react@18.2.0
+      react-simple-code-editor: 0.13.1_biqbaboplfbrettd7655fr4n2y
       reactflow: 11.7.4_64s6uhl5lpjd37tem3o2bfzl5e
       reflect-metadata: 0.1.13
       rete: 2.0.2
@@ -174,6 +183,7 @@ importers:
       typescript: 5.1.6
       xstate: 5.0.0-beta.18
       zod: 3.21.4
+      zod-to-json-schema: 3.21.4_zod@3.21.4
       zustand: 4.3.9_immer@10.0.2+react@18.2.0
     devDependencies:
       dotenv-cli: 7.2.1
@@ -3869,6 +3879,10 @@ packages:
   /@types/phoenix/1.6.0:
     resolution: {integrity: sha512-qwfpsHmFuhAS/dVd4uBIraMxRd56vwBUYQGZ6GpXnFuM2XMRFJbIyruFKKlW2daQliuYZwe0qfn/UjFCDKic5g==}
 
+  /@types/prismjs/1.26.0:
+    resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
+    dev: false
+
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
 
@@ -4071,6 +4085,25 @@ packages:
       clean-stack: 2.2.0
       indent-string: 4.0.0
     dev: true
+
+  /ai-utils.js/0.0.42_eswsytzjdpbiy6tpo7vvalytje:
+    resolution: {integrity: sha512-PFenjKULizuR2NiSK2GKTbfYPW0OY1eNKG2iCDICZifMlHAu46zmFtX/4wigKCxfrFEwjWYOqVSX+2Bo/d98MA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@pinecone-database/pinecone': '*'
+      zod: ^3
+      zod-to-json-schema: ^3
+    peerDependenciesMeta:
+      '@pinecone-database/pinecone':
+        optional: true
+    dependencies:
+      eventsource-parser: 1.0.0
+      js-tiktoken: 1.0.7
+      nanoid: 3.3.6
+      secure-json-parse: 2.7.0
+      zod: 3.21.4
+      zod-to-json-schema: 3.21.4_zod@3.21.4
+    dev: false
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -5969,6 +6002,11 @@ packages:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
 
+  /eventsource-parser/1.0.0:
+    resolution: {integrity: sha512-9jgfSCa3dmEme2ES3mPByGXfgZ87VbP97tng1G2nWwWx6bV2nYxm2AWCrbQjXToSe+yYlqaZNtxffR9IeQr95g==}
+    engines: {node: '>=14.18'}
+    dev: false
+
   /execa/5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
@@ -6835,6 +6873,12 @@ packages:
     resolution: {integrity: sha512-j8GhLiKmUAh+dsFXlX1aJCbt5KMibuKb+d7j1JaOJG6s2UjX1PQlW+OKB/sD4a/5ZYF4RcmYmLSndOoU3Lt/3g==}
     dev: false
 
+  /js-tiktoken/1.0.7:
+    resolution: {integrity: sha512-biba8u/clw7iesNEWLOLwrNGoBP2lA+hTaBLs/D45pJdUPFXyxD6nhcDVtADChghv4GgyAiMKYMiRx7x6h7Biw==}
+    dependencies:
+      base64-js: 1.5.1
+    dev: false
+
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -7616,6 +7660,11 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
+  /prismjs/1.29.0:
+    resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
+    engines: {node: '>=6'}
+    dev: false
+
   /progress/2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
@@ -7749,6 +7798,16 @@ packages:
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
     dependencies:
       lodash: 4.17.21
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /react-simple-code-editor/0.13.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-XYeVwRZwgyKtjNIYcAEgg2FaQcCZwhbarnkJIV20U2wkCU9q/CPFBo8nRXrK4GXUz3AvbqZFsZRrpUTkqqEYyQ==}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
@@ -8202,6 +8261,10 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /secure-json-parse/2.7.0:
+    resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
     dev: false
 
   /semver/5.7.2:
@@ -9161,6 +9224,14 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: false
+
+  /zod-to-json-schema/3.21.4_zod@3.21.4:
+    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.21.4
     dev: false
 
   /zod/3.21.4:

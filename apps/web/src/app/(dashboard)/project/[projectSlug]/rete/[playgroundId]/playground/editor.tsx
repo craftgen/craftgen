@@ -30,36 +30,20 @@ import * as Nodes from "./nodes";
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
-import { Button } from "@/components/ui/button";
 import { Schemes } from "./types";
 import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
 import { CustomContextMenu } from "./ui/context-menu";
-import { CustomInput } from "./ui/custom-input";
+import { CustomInput } from "./ui/control/custom-input";
 import { CustomConnection } from "./ui/custom-connection";
+import { ButtonControl, CustomButton } from "./ui/control/control-button";
+import { CodeControl, CodeEditor } from "./ui/control/control-code";
+import {
+  SelectControl,
+  SelectControlComponent,
+} from "./ui/control/control-select";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
-
-export class ButtonControl extends ClassicPreset.Control {
-  __type = "ButtonControl";
-
-  constructor(public label: string, public onClick: () => void) {
-    super();
-  }
-}
-
-function CustomButton(props: { data: ButtonControl }) {
-  return (
-    <Button
-      onPointerDown={(e) => e.stopPropagation()}
-      onDoubleClick={(e) => e.stopPropagation()}
-      size={"sm"}
-      onClick={props.data.onClick}
-    >
-      {props.data.label}
-    </Button>
-  );
-}
 
 export type DiContainer = {
   // updateControl: (id: string) => void
@@ -109,6 +93,12 @@ export async function createEditor(container: HTMLElement) {
           if (data.payload instanceof ButtonControl) {
             return CustomButton;
           }
+          if (data.payload instanceof CodeControl) {
+            return CodeEditor;
+          }
+          if (data.payload instanceof SelectControl) {
+            return SelectControlComponent;
+          }
           // return Presets.classic.Control(data.payload);
           if (data.payload instanceof ClassicPreset.InputControl) {
             // return Presets.classic.InputControl
@@ -155,6 +145,8 @@ export async function createEditor(container: HTMLElement) {
       ["Text", () => new Nodes.TextNode(di, { value: "text" })],
       ["Start", () => new Nodes.Start(di)],
       ["Prompt Template", () => new Nodes.PromptTemplate(di, { value: "" })],
+      ["OpenAI", () => new Nodes.OpenAIFunctionCall(di)],
+      ["OpenAI Function", () => new Nodes.FunctionNode(di)],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();
@@ -191,6 +183,7 @@ export async function createEditor(container: HTMLElement) {
   });
 
   AreaExtensions.simpleNodesOrder(area);
+
   AreaExtensions.showInputControl(area);
 
   await arrange.layout();

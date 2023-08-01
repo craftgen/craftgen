@@ -14,6 +14,9 @@ export async function createNode(
     [Nodes.Log.name]: () => new Nodes.Log(di),
     [Nodes.TextNode.name]: () => new Nodes.TextNode(di, data),
     [Nodes.PromptTemplate.name]: () => new Nodes.PromptTemplate(di, data),
+    [Nodes.OpenAIFunctionCall.name]: () =>
+      new Nodes.OpenAIFunctionCall(di, data),
+    [Nodes.FunctionNode.name]: () => new Nodes.FunctionNode(di, data),
   };
   const matched = nodes[name];
 

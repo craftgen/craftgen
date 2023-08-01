@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
 import { DiContainer } from "../editor";
-import { flatten, isString } from "lodash-es";
+import { isString } from "lodash-es";
 import { TextSocket } from "../sockets";
 
 type Data = {
