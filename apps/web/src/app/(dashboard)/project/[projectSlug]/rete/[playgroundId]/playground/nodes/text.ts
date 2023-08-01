@@ -11,7 +11,7 @@ export class TextNode extends ClassicPreset.Node<
   { value: ClassicPreset.Socket },
   { value: ClassicPreset.InputControl<"text"> }
 > {
-  height = 120;
+  height = 200;
   width = 180;
 
   static ID: "text";

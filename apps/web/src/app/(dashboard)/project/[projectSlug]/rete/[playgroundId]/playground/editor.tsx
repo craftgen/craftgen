@@ -11,7 +11,7 @@ import {
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
-import { structures } from 'rete-structures'
+import { structures } from "rete-structures";
 import {
   ContextMenuExtra,
   ContextMenuPlugin,
@@ -36,6 +36,7 @@ import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
 import { CustomContextMenu } from "./ui/context-menu";
 import { CustomInput } from "./ui/custom-input";
+import { CustomConnection } from "./ui/custom-connection";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -64,7 +65,7 @@ export type DiContainer = {
   // updateControl: (id: string) => void
   // updateNode: (id: string) => void
   // process: () => void
-  graph: ReturnType<typeof structures>
+  graph: ReturnType<typeof structures>;
   area: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => void;
   editor: NodeEditor<Schemes>;
@@ -89,7 +90,7 @@ export async function createEditor(container: HTMLElement) {
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
   AreaExtensions.snapGrid(area, {
-    size: 20
+    size: 20,
   });
 
   render.addPreset(
@@ -100,6 +101,9 @@ export async function createEditor(container: HTMLElement) {
         },
         socket(context) {
           return CustomSocket;
+        },
+        connection(context) {
+          return CustomConnection;
         },
         control(data) {
           if (data.payload instanceof ButtonControl) {
@@ -170,7 +174,7 @@ export async function createEditor(container: HTMLElement) {
   area.use(contextMenu);
   area.use(render);
   area.use(arrange);
-  render.addPreset(Presets.minimap.setup({ size: 180,  }));
+  render.addPreset(Presets.minimap.setup({ size: 180 }));
   render.addPreset(CustomContextMenu);
 
   editor.addPipe((context) => {
@@ -196,7 +200,7 @@ export async function createEditor(container: HTMLElement) {
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 
-const graph = structures(editor)
+  const graph = structures(editor);
 
   const di: DiContainer = {
     editor,

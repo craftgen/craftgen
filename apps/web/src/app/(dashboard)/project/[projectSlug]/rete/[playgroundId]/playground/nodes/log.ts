@@ -1,6 +1,4 @@
 import { ClassicPreset } from "rete";
-import { DataflowEngine } from "rete-engine";
-import { Schemes } from "../types";
 import { ActionSocket, TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
 
@@ -17,7 +15,7 @@ export class Log extends ClassicPreset.Node<
 
   constructor(di: DiContainer) {
     super("Log");
-    console.log(di.dataFlow);
+    this.di = di;
 
     this.addInput(
       "exec",
@@ -31,11 +29,9 @@ export class Log extends ClassicPreset.Node<
   }
 
   async execute(input: "exec", forward: (output: "exec") => void) {
-    console.log("executing log node")
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };
-    console.log(inputs)
     console.log((inputs.message && inputs.message[0]) || "");
 
     forward("exec");
