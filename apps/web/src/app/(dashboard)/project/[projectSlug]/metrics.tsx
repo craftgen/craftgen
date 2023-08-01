@@ -139,8 +139,8 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
             justifyContent="start"
             alignItems="baseline"
           >
-            <Metric>{item.metric}</Metric>
-            <Text>from {item.metricPrev}</Text>
+            <Metric>{valueFormatterNumber(item.metric)}</Metric>
+            <Text>from {valueFormatterNumber(item.metricPrev as number)}</Text>
           </Flex>
           <AreaChart
             className="mt-6 h-28"
@@ -162,3 +162,5 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
     </Grid>
   );
 };
+const valueFormatterNumber = (number: number) =>
+  `${Intl.NumberFormat("us").format(number).toString()}`;

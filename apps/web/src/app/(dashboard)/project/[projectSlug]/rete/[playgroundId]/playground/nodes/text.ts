@@ -15,19 +15,26 @@ export class TextNode extends ClassicPreset.Node<
   width = 180;
 
   static ID: "text";
+  private di?: DiContainer;
 
   constructor(di: DiContainer, data: Data) {
     super("Text");
+    this.di = di;
     this.addControl(
       "value",
-      new ClassicPreset.InputControl("text", { initial: data.value, change(value) {
-        console.log(value);
-        di.dataFlow?.reset();
-      }, })
+      new ClassicPreset.InputControl("text", {
+        initial: data.value,
+        change(value) {
+          di.dataFlow?.reset();
+          di.editor.getNodes().forEach((n) => {
+            di.dataFlow?.fetch(n.id);
+          });
+        },
+      })
     );
     this.addOutput(
       "value",
-      new ClassicPreset.Output(new TextSocket(), "Number")
+      new ClassicPreset.Output(new TextSocket(), "Value")
     );
   }
 

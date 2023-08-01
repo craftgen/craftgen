@@ -11,6 +11,7 @@ import {
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
+import { structures } from 'rete-structures'
 import {
   ContextMenuExtra,
   ContextMenuPlugin,
@@ -63,6 +64,8 @@ export type DiContainer = {
   // updateControl: (id: string) => void
   // updateNode: (id: string) => void
   // process: () => void
+  graph: ReturnType<typeof structures>
+  area: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => void;
   editor: NodeEditor<Schemes>;
   engine?: ControlFlowEngine<Schemes>;
@@ -80,6 +83,13 @@ export async function createEditor(container: HTMLElement) {
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
+  });
+  AreaExtensions.restrictor(area, {
+    scaling: () => ({ min: 0.5, max: 1 }),
+    // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
+  });
+  AreaExtensions.snapGrid(area, {
+    size: 20
   });
 
   render.addPreset(
@@ -127,7 +137,7 @@ export async function createEditor(container: HTMLElement) {
     return {
       inputs: () =>
         Object.entries(inputs)
-          .filter(([_, input]) => input.socket instanceof TextSocket)
+          .filter(([_, input]) => input?.socket instanceof TextSocket)
           .map(([name]) => name),
       outputs: () =>
         Object.entries(outputs)
@@ -137,15 +147,10 @@ export async function createEditor(container: HTMLElement) {
   });
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      // [
-      //   "Input",
-      //   [
       ["Log", () => new Nodes.Log(di)],
       ["Text", () => new Nodes.TextNode(di, { value: "text" })],
       ["Start", () => new Nodes.Start(di)],
       ["Prompt Template", () => new Nodes.PromptTemplate(di, { value: "" })],
-      //   ],
-      // ],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();
@@ -165,7 +170,7 @@ export async function createEditor(container: HTMLElement) {
   area.use(contextMenu);
   area.use(render);
   area.use(arrange);
-  render.addPreset(Presets.minimap.setup({ size: 200 }));
+  render.addPreset(Presets.minimap.setup({ size: 180,  }));
   render.addPreset(CustomContextMenu);
 
   editor.addPipe((context) => {
@@ -191,9 +196,13 @@ export async function createEditor(container: HTMLElement) {
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 
+const graph = structures(editor)
+
   const di: DiContainer = {
     editor,
+    area,
     arrange,
+    graph,
     setUI,
     engine: engine,
     dataFlow,

@@ -43,7 +43,7 @@ export const NewProjectForm = () => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     const val = await createNewProject(values);
-    router.push(`/dashboard/project/${val.slug}`);
+    router.push(`/project/${val.slug}`);
   }
   const name = form.watch("name");
   useEffect(() => {
@@ -68,7 +68,7 @@ export const NewProjectForm = () => {
               <FormLabel>Site</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="min-w-fit">
                     <SelectValue placeholder="Select your website" />
                   </SelectTrigger>
                 </FormControl>

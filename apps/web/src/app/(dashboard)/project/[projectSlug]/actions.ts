@@ -39,7 +39,7 @@ export const getPlaygrounds = async (projectId: string) => {
   });
 };
 
-export const getSomething = async ({ siteUrl }: { siteUrl: string }) => {
+export const getAnalytics = async ({ siteUrl }: { siteUrl: string }) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
   const webmaster = await getWebmaster({ session: session.data.session! });
@@ -54,3 +54,20 @@ export const getSomething = async ({ siteUrl }: { siteUrl: string }) => {
   });
   return res.data;
 };
+
+export const getSearchQueries = async ({siteUrl}: {siteUrl: string}) => { 
+  const supabase = createServerActionClient({ cookies });
+  const session = await supabase.auth.getSession();
+  const webmaster = await getWebmaster({ session: session.data.session! });
+
+
+  const res = await webmaster.searchanalytics.query({
+    siteUrl,
+    requestBody: {
+      dimensions: ["query"],
+      startDate: format(sub(new Date(), { days: 10 }), "yyyy-MM-dd"),
+      endDate: format(sub(new Date(), { days: 3 }), "yyyy-MM-dd"),
+    },
+  });
+  return res.data;
+}

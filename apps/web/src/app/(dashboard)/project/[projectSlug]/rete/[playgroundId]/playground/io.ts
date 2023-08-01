@@ -1,9 +1,7 @@
-import { ClassicPreset, NodeEditor, NodeId } from "rete";
+import { NodeEditor, NodeId } from "rete";
 import { NodeProps, Schemes } from "./types";
-import { ActionSocket } from "./sockets";
 import * as Nodes from "./nodes";
 import { DiContainer } from "./editor";
-import { NodeFactory } from "./nodes/types";
 import { Connection } from "./connection";
 
 export async function createNode(
@@ -15,6 +13,7 @@ export async function createNode(
     [Nodes.Start.name]: () => new Nodes.Start(di),
     [Nodes.Log.name]: () => new Nodes.Log(di),
     [Nodes.TextNode.name]: () => new Nodes.TextNode(di, data),
+    [Nodes.PromptTemplate.name]: () => new Nodes.PromptTemplate(di, data),
   };
   const matched = nodes[name];
 
@@ -62,7 +61,7 @@ export async function importEditor(di: DiContainer, data: Data) {
       await di.editor.addConnection(conn);
     }
   }
-  await di.arrange?.layout()
+  await di.arrange?.layout();
 }
 
 export function exportEditor(editor: NodeEditor<Schemes>) {

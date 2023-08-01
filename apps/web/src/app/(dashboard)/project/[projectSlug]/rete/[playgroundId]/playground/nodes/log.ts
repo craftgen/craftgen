@@ -12,16 +12,12 @@ export class Log extends ClassicPreset.Node<
   width = 180;
   height = 150;
 
+  private di?: DiContainer;
+  static ID: "log";
 
-  private _dataflow?: DataflowEngine<Schemes>;
-  static ID: 'log';
-
-  constructor(
-    di: DiContainer,
-  ) {
+  constructor(di: DiContainer) {
     super("Log");
-    this._dataflow = di.dataFlow;
-    console.log(di.dataFlow)
+    console.log(di.dataFlow);
 
     this.addInput(
       "exec",
@@ -35,9 +31,11 @@ export class Log extends ClassicPreset.Node<
   }
 
   async execute(input: "exec", forward: (output: "exec") => void) {
-    const inputs = (await this._dataflow?.fetchInputs(this.id)) as {
+    console.log("executing log node")
+    const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };
+    console.log(inputs)
     console.log((inputs.message && inputs.message[0]) || "");
 
     forward("exec");
@@ -47,7 +45,11 @@ export class Log extends ClassicPreset.Node<
     return {};
   }
 
+  public delete() {
+    this.di?.editor.removeNode(this.id);
+  }
+
   serialize() {
-    return {}
+    return {};
   }
 }

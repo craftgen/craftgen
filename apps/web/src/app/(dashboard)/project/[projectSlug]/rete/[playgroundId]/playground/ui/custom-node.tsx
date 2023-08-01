@@ -1,82 +1,12 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { useKeyPress } from "reactflow";
 import { ClassicScheme, RenderEmit, Presets } from "rete-react-plugin";
-// import styled, { css } from "styled-components";
-// import { $nodewidth, $socketmargin, $socketsize } from "./vars";
 
 const { RefSocket, RefControl } = Presets.classic;
 
 type NodeExtraData = { width?: number; height?: number };
 
-// export const NodeStyles = styled.div<
-//   NodeExtraData & { selected: boolean; styles?: (props: any) => any }
-// >`
-//   background: black;
-//   border: 2px solid grey;
-//   border-radius: 10px;
-//   cursor: pointer;
-//   box-sizing: border-box;
-//   width: ${(props) =>
-//     Number.isFinite(props.width) ? `${props.width}px` : `${$nodewidth}px`};
-//   height: ${(props) =>
-//     Number.isFinite(props.height) ? `${props.height}px` : "auto"};
-//   padding-bottom: 6px;
-//   position: relative;
-//   user-select: none;
-//   &:hover {
-//     background: #333;
-//   }
-//   ${(props) =>
-//     props.selected &&
-//     css`
-//       border-color: red;
-//     `}
-//   .title {
-//     color: white;
-//     font-family: sans-serif;
-//     font-size: 18px;
-//     padding: 8px;
-//   }
-//   .output {
-//     text-align: right;
-//   }
-//   .input {
-//     text-align: left;
-//   }
-//   .output-socket {
-//     text-align: right;
-//     margin-right: -1px;
-//     display: inline-block;
-//   }
-//   .input-socket {
-//     text-align: left;
-//     margin-left: -1px;
-//     display: inline-block;
-//   }
-//   .input-title,
-//   .output-title {
-//     vertical-align: middle;
-//     color: white;
-//     display: inline-block;
-//     font-family: sans-serif;
-//     font-size: 14px;
-//     margin: ${$socketmargin}px;
-//     line-height: ${$socketsize}px;
-//   }
-//   .input-control {
-//     z-index: 1;
-//     width: calc(100% - ${$socketsize + 2 * $socketmargin}px);
-//     vertical-align: middle;
-//     display: inline-block;
-//   }
-//   .control {
-//     display: block;
-//     padding: ${$socketmargin}px ${$socketsize / 2 + $socketmargin}px;
-//   }
-//   ${(props) => props.styles && props.styles(props)}
-// `;
 
 function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   entries: T
@@ -109,6 +39,8 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   sortByIndex(inputs);
   sortByIndex(outputs);
   sortByIndex(controls);
+
+  console.log(props, typeof props.data,)
 
   return (
     <div

@@ -96,6 +96,7 @@ importers:
       rete-minimap-plugin: ^2.0.0
       rete-react-plugin: ^2.0.1
       rete-render-utils: ^2.0.1
+      rete-structures: ^2.0.0
       slugify: ^1.6.6
       squirrelly: ^9.0.0
       swr: ^2.2.0
@@ -162,6 +163,7 @@ importers:
       rete-minimap-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-react-plugin: 2.0.1_k3q7eefwxzjj62gx5ucpeddqcu
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
+      rete-structures: 2.0.0_rete@2.0.2
       slugify: 1.6.6
       squirrelly: 9.0.0
       swr: 2.2.0_react@18.2.0
@@ -8125,6 +8127,14 @@ packages:
       '@babel/runtime': 7.21.5
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
+    dev: false
+
+  /rete-structures/2.0.0_rete@2.0.2:
+    resolution: {integrity: sha512-rbjo/6tx+xcFJeQGaL5xf0svD2mjUWfhB50ZBP5Q1suaaIXJ6a7LVoWh/RT8ECNltK50CU7/UJDY37fopETI5w==}
+    peerDependencies:
+      rete: ^2.0.1
+    dependencies:
+      rete: 2.0.2
     dev: false
 
   /rete/2.0.2:

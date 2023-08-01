@@ -20,6 +20,7 @@ export const Playground: React.FC<{
         nodes: playground.nodes as any,
       });
       rete.di.setUI();
+      rete.di.dataFlow?.reset();
       setDehydration(true);
     }
   }, [rete, dehydrated]);
