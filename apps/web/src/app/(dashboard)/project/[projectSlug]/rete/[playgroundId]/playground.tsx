@@ -4,7 +4,7 @@ import "reflect-metadata";
 import { useRete } from "rete-react-plugin";
 import { createEditor } from "./playground/editor";
 import { useCallback, useEffect, useState } from "react";
-import { Data, exportEditor, importEditor } from "./playground/io";
+import { exportEditor, importEditor } from "./playground/io";
 import { getPlayground, savePlayground } from "./action";
 import { useParams } from "next/navigation";
 
@@ -46,7 +46,6 @@ export const Playground: React.FC<{
       return context;
     });
   }, [rete]);
-  const [storage, setStorage] = useState<Data | null>(null);
 
   return (
     <div className="w-full h-full border-2 border-pink-400/30 rounded">

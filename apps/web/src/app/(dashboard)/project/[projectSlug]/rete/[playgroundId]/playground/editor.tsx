@@ -81,7 +81,7 @@ export async function createEditor(container: HTMLElement) {
     Presets.classic.setup({
       customize: {
         node() {
-          return CustomNode;
+          return (props: any) => CustomNode({ ...props, di });
         },
         socket(context) {
           return CustomSocket;

@@ -67,7 +67,7 @@ export class OpenAIFunctionCall extends ClassicPreset.Node<
     );
   }
 
-  async execute() {
+  async execute(input: any, forward: (output: "message") => void) {
     console.log(this);
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       prompt?: string;
@@ -75,9 +75,11 @@ export class OpenAIFunctionCall extends ClassicPreset.Node<
     };
     const control = this.inputs.prompt?.control;
     if (!inputs.prompt) {
-      inputs.prompt = control?.value as any
-      return; 
+      inputs.prompt = control?.value as any;
+      return;
     }
+
+    forward("message");
 
     // const res = await generateTextFn({
     //   model: this.controls.model.value,
