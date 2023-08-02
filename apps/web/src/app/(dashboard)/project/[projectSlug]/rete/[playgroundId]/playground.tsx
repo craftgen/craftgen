@@ -27,7 +27,6 @@ export const Playground: React.FC<{
   const params = useParams();
   const onChange = useCallback(
     (data: any) => {
-      console.log("onCallback", rete);
       const json = exportEditor(rete?.di.editor!);
       savePlayground({
         projectSlug: params.projectSlug as string,
@@ -42,7 +41,6 @@ export const Playground: React.FC<{
   useEffect(() => {
     rete?.editor.addPipe((context) => {
       onChange(context);
-      console.log("ONCHANGE", { context });
       return context;
     });
   }, [rete]);

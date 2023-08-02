@@ -4,3 +4,4 @@ export { TextNode } from "./text";
 export { PromptTemplate } from "./prompt-template";
 export { OpenAIFunctionCall } from "./openai-function";
 export { FunctionNode } from "./function";
+export { DataSource } from "./datasource";

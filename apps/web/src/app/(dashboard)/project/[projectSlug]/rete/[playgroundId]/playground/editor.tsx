@@ -147,6 +147,7 @@ export async function createEditor(container: HTMLElement) {
       ["Prompt Template", () => new Nodes.PromptTemplate(di, { value: "" })],
       ["OpenAI", () => new Nodes.OpenAIFunctionCall(di)],
       ["OpenAI Function", () => new Nodes.FunctionNode(di)],
+      ["Data Source", () => new Nodes.DataSource(di, { name: "" })],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();

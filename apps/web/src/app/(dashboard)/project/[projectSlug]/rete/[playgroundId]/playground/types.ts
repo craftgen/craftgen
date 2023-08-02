@@ -6,7 +6,8 @@ import {
   PromptTemplate,
   Start,
   TextNode,
-  FunctionNode
+  FunctionNode,
+  DataSource,
 } from "./nodes";
 
 export type NodeProps =
@@ -15,6 +16,7 @@ export type NodeProps =
   | TextNode
   | PromptTemplate
   | OpenAIFunctionCall
-  | FunctionNode;
+  | FunctionNode
+  | DataSource;
 export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;
