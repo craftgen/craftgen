@@ -47,7 +47,7 @@ type DataSetSourceNodeData = {
 };
 
 const datasetMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdBMAbmgPbEA2OAxmcVhAMT5GkXEAOYAdgNoAMAuolBtaASzSjinISAAeiAIwB2AJw4ATEoDMAFi1aAHL14A2XkoU6ANCACeidbwU4ArMeNne6lyu1aAvv42qBhYuEwk5DjsXIyEkRTUtGB8gkggIrDiktLp8gjKapq6+kam5pY29gVuOCr19T46LjoKLiaBweiY2HjdsMQArgBOlGA4ohBkYPQAwgDyAHKLAKKzACqpMpnZUjL5bS44Og0q6ipavgoGKtZ2iFomzm7GhjdKSiY3gUEgnMT4eDpEI9NDbMQSPZ5RAAWnUd2qcJ0nRAILCeHiLHBWUhuVA+XhVUQJi0x1OZh89UMvBcKLRvQiLCoNDo2N2eLkiCU6iJNSUOF4Bn0jxpLhcChMYrp-QZmKiMQ5O1x+welzqLi0Ci06glgtUj15bTULiF+gpYolUt+9PC-SGozAbOV0IQhPurqUOgF7l1Pg+KgU0tCDLtIzGEymjvSSpyKoQ3N5hi9vklDScCnhHWtMttoXt4coUk4YEoaEgTtjLvOpJMqi+Xy1OgM6h57qTdU+lJU6czP38QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdBMAbmgPbEA2OAxmcVhAMT5GkUlRRlgDaADALqJQAB1oBLNKOIA7QSAAeiAEwB2AMw5VAVgAsARgBsexVq0GANCACeSxYpw9ligJy6AHLt2PXe1QF9fFqgYWLhMJOQ4xEJgUoyE4azE7Jy8AkggIrDikjLp1gi6mk44mq6q5fo8mtUG1RYKCJrOOGqejk4OTtpOyv6B6JjYeAOwxACuAE6UYDiiEJz0AMIA8gByqwCiiwAqqbKZ2dKyDQZ2BtpNyt48Tk6u+qoW+dr6rji2qg7KD6Uqfn0gKTEfDwdJBQZofZiCRHdINAC0im0T0Q8M8OFcmJ4uhuRR4Wh4igB4JCeHiLChWRhuVADSRKIQ+mKRW+yhu3h6Hk0xJGQzCLCoNDolMONPkiEcDMKynsZQqVRq+mqPOCfPJESiMRF1OOiHKxScmlUulUigMPFcyicqn0UqKJTlNoVmlq3ICIBJfJG4ymYG1OV1CHpViUPRw3Ru+O6eiaPH0Kohw2CPums3mfvSBx1cIligZqm8OB6StuHQ8SPj7s9oW9k1TlGkUjAlDQkH9sNpofU+itr1eJu0rls+cLxaKt2xugr-n8QA */
   id: "dataset",
   type: "parallel",
   context: {
@@ -91,17 +91,8 @@ const datasetMachine = createMachine({
     datasource: {
       initial: "idle",
       states: {
-        idle: {
-          on: {
-            CONNECT: {
-              target: "connected",
-              actions: assign({
-                id: ({ event }) => event.dataSetId,
-              }),
-            },
-          },
-        },
-        connected: {},
+        idle: {},
+        connected: {}
       },
     },
   },

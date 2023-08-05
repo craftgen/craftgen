@@ -46,7 +46,10 @@ export class OpenAIFunctionCall extends ClassicPreset.Node<
             key: key as OPENAI_CHAT_MODELS_KEY,
             value: key,
           })),
-        ]
+        ],
+        (value) => {
+          console.log("select value changed", value);
+        }
       )
     );
 

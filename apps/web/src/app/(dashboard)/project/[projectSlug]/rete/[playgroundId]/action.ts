@@ -10,6 +10,7 @@ import {
   playground,
 } from "@turboseo/supabase/db";
 import { cookies } from "next/headers";
+import { NodeProps, NodeTypes } from "./playground/types";
 
 export const getPlayground = async (params: { playgroundId: string }) => {
   const supabase = createServerActionClient({ cookies });
@@ -51,6 +52,13 @@ export const savePlayground = async (params: {
     const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
       return !params.nodes.find((n) => n.id === node.node_id);
     });
+    console.log(
+      JSON.stringify(
+        { nodeToPlaygroundsDelete, playgroundNodes, params },
+        null,
+        2
+      )
+    );
 
     if (nodeToPlaygroundsDelete.length > 0) {
       await tx.delete(nodeToPlayground).where(
@@ -67,6 +75,7 @@ export const savePlayground = async (params: {
         });
         return relation.length === 0;
       });
+      console.log({ orphanNodes });
       if (orphanNodes.length > 0) {
         await tx.delete(nodeData).where(
           inArray(
@@ -76,5 +85,35 @@ export const savePlayground = async (params: {
         );
       }
     }
+  });
+};
+
+export const createNodeInDB = async (params: {
+  playgroundId: string;
+  projectSlug: string;
+  type: NodeTypes;
+}) => {
+  const supabase = createServerActionClient({ cookies });
+
+  const project = await db.query.project.findFirst({
+    where: (project, { eq }) => eq(project.slug, params.projectSlug),
+  });
+  if (!project) {
+    throw new Error("Project not found");
+  }
+  return await db.transaction(async (tx) => {
+    const nodes = await tx
+      .insert(nodeData)
+      .values({
+        project_id: project?.id,
+        type: params.type,
+      })
+      .returning();
+
+    await tx.insert(nodeToPlayground).values({
+      node_id: nodes[0].id,
+      playground_id: params.playgroundId,
+    });
+    return nodes[0];
   });
 };

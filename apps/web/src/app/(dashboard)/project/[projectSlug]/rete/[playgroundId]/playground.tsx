@@ -7,11 +7,20 @@ import { useCallback, useEffect, useState } from "react";
 import { exportEditor, importEditor } from "./playground/io";
 import { getPlayground, savePlayground } from "./action";
 import { useParams } from "next/navigation";
+import { useStore } from "./playground/store";
+import { debounce } from "lodash-es";
 
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
   const [ref, rete] = useRete(createEditor);
+  const { setDi } = useStore();
+
+  useEffect(() => {
+    if (!rete) return;
+    setDi(rete?.di);
+  }, [rete?.di]);
+
   const [dehydrated, setDehydration] = useState(false);
   useEffect(() => {
     if (!dehydrated && rete?.di) {
@@ -25,10 +34,31 @@ export const Playground: React.FC<{
     }
   }, [rete, dehydrated]);
   const params = useParams();
+  useEffect(() => {
+    const listener = useStore.subscribe((state) => {
+      console.log("@@@@", state);
+    });
+    return () => {
+      listener();
+    };
+  });
+
+  const saveDebounced = debounce(
+    (state) =>
+      savePlayground({
+        projectSlug: params.projectSlug as string,
+        playgroundId: params.playgroundId as string,
+        nodes: state.nodes,
+        edges: state.edges,
+      }),
+    2000
+  );
+
   const onChange = useCallback(
     (data: any) => {
       const json = exportEditor(rete?.di.editor!);
-      savePlayground({
+      console.log("@@@@@@@", { json });
+      saveDebounced({
         projectSlug: params.projectSlug as string,
         playgroundId: params.playgroundId as string,
         nodes: json.nodes,
@@ -40,7 +70,18 @@ export const Playground: React.FC<{
 
   useEffect(() => {
     rete?.editor.addPipe((context) => {
-      onChange(context);
+      console.log("context", context)
+      switch (context.type) {
+        case "nodecreated":
+        case "noderemoved":
+        case "connectioncreated":
+        case "connectionremoved":
+          onChange(context)
+        default: 
+          console.log("context", context)
+
+      }
+
       return context;
     });
   }, [rete]);

@@ -1,4 +1,5 @@
 "use server";
+import { db, eq, nodeData } from "@turboseo/supabase/db";
 import {
   OPENAI_CHAT_MODELS,
   InstructionToOpenAIChatPromptMapping,
@@ -27,4 +28,17 @@ export const generateTextFn = async ({
     }
   );
   return text;
+};
+
+export const getNodeData = async (nodeId: string) => {
+  return await db.query.nodeData.findFirst({
+    where: (nodeData, { eq }) => eq(nodeData.id, nodeId),
+  });
+};
+
+export const setNodeData = async (nodeId: string, state: any) => {
+  return await db
+    .update(nodeData)
+    .set({ state: JSON.parse(state) })
+    .where(eq(nodeData.id, nodeId));
 };

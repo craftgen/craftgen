@@ -42,6 +42,15 @@ import {
   SelectControl,
   SelectControlComponent,
 } from "./ui/control/control-select";
+import {
+  TableControl,
+  TableControlComponent,
+} from "./ui/control/control-table";
+import {
+  DebugControl,
+  DebugControlComponent,
+} from "./ui/control/control-debug";
+import { createNode } from "./io";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -81,7 +90,7 @@ export async function createEditor(container: HTMLElement) {
     Presets.classic.setup({
       customize: {
         node() {
-          return (props: any) => CustomNode({ ...props, di });
+          return CustomNode;
         },
         socket(context) {
           return CustomSocket;
@@ -98,6 +107,12 @@ export async function createEditor(container: HTMLElement) {
           }
           if (data.payload instanceof SelectControl) {
             return SelectControlComponent;
+          }
+          if (data.payload instanceof TableControl) {
+            return TableControlComponent;
+          }
+          if (data.payload instanceof DebugControl) {
+            return DebugControlComponent;
           }
           // return Presets.classic.Control(data.payload);
           if (data.payload instanceof ClassicPreset.InputControl) {
@@ -141,13 +156,34 @@ export async function createEditor(container: HTMLElement) {
   });
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      ["Log", () => new Nodes.Log(di)],
-      ["Text", () => new Nodes.TextNode(di, { value: "text" })],
-      ["Start", () => new Nodes.Start(di)],
-      ["Prompt Template", () => new Nodes.PromptTemplate(di, { value: "" })],
-      ["OpenAI", () => new Nodes.OpenAIFunctionCall(di)],
-      ["OpenAI Function", () => new Nodes.FunctionNode(di)],
-      ["Data Source", () => new Nodes.DataSource(di, { name: "" })],
+      ["Log", () => createNode({ di, name: "Log", saveToDB: true })],
+      [
+        "Text",
+        () =>
+          createNode({
+            di,
+            name: "TextNode",
+            data: { value: "text" },
+            saveToDB: true,
+          }),
+      ],
+      ["Start", () => createNode({ di, name: "Start", saveToDB: true })],
+      [
+        "Prompt Template",
+        () => createNode({ di, name: "PromptTemplate", saveToDB: true }),
+      ],
+      [
+        "OpenAI",
+        () => createNode({ di, name: "OpenAIFunctionCall", saveToDB: true }),
+      ],
+      [
+        "OpenAI Function",
+        () => createNode({ di, name: "FunctionNode", saveToDB: true }),
+      ],
+      [
+        "Data Source",
+        () => createNode({ di, name: "DataSource", saveToDB: true }),
+      ],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();

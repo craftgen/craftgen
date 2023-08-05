@@ -1,28 +1,57 @@
 import { NodeEditor, NodeId } from "rete";
-import { NodeProps, Schemes } from "./types";
+import { NodeProps, NodeTypes, Schemes } from "./types";
 import * as Nodes from "./nodes";
 import { DiContainer } from "./editor";
 import { Connection } from "./connection";
+import { createNodeInDB } from "../action";
+import { getNodeData } from "./actions";
 
-export async function createNode(
-  di: DiContainer,
-  name: keyof typeof nodes,
-  data: any
-) {
-  const nodes = {
-    [Nodes.Start.name]: () => new Nodes.Start(di),
-    [Nodes.Log.name]: () => new Nodes.Log(di),
-    [Nodes.TextNode.name]: () => new Nodes.TextNode(di, data),
-    [Nodes.PromptTemplate.name]: () => new Nodes.PromptTemplate(di, data),
-    [Nodes.OpenAIFunctionCall.name]: () =>
-      new Nodes.OpenAIFunctionCall(di, data),
-    [Nodes.FunctionNode.name]: () => new Nodes.FunctionNode(di, data),
-    [Nodes.DataSource.name]: () => new Nodes.DataSource(di, data),
+export async function createNode({
+  di,
+  name,
+  data,
+  saveToDB = false,
+}: {
+  di: DiContainer;
+  name: NodeTypes;
+  data?: any;
+  saveToDB?: boolean;
+}) {
+  type NodeMappingFunctions = {
+    [Property in NodeTypes]: (di: DiContainer, data: any) => NodeProps;
+  };
+
+  const nodes: NodeMappingFunctions = {
+    Start: (di) => new Nodes.Start(di),
+    Log: (di) => new Nodes.Log(di),
+    TextNode: (di, data) => new Nodes.TextNode(di, data),
+    PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
+    OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
+    FunctionNode: (di, data) => new Nodes.FunctionNode(di, data),
+    DataSource: (di, data) => new Nodes.DataSource(di, data),
   };
   const matched = nodes[name];
 
   if (!matched) throw new Error(`Unsupported node '${name}'`);
-  const node = await matched();
+
+  if (saveToDB) {
+    const nodeInDb = await createNodeInDB({
+      playgroundId: "9e41c12c-8417-4b4b-a713-e4eb7dea71cb",
+      projectSlug: "starterstorycom",
+      type: name,
+    });
+    console.log("nodeInDb", nodeInDb);
+    const node = await matched(di, {
+      ...data,
+      state: {
+        ...data?.state,
+        id: nodeInDb.id,
+      },
+    });
+    return node;
+  }
+
+  const node = await matched(di, data);
   return node;
 }
 
@@ -41,7 +70,15 @@ export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
   for (const n of nodes) {
-    const node = await createNode(di, n.name as any, n.data);
+    const data = await getNodeData(n.id);
+    console.log("gettingData", data);
+    const node = await createNode({
+      di,
+      name: n.name as any,
+      data: {
+        state: data?.state,
+      },
+    });
     node.id = n.id;
     await di.editor.addNode(node);
   }

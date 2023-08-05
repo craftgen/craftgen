@@ -10,6 +10,21 @@ import {
   DataSource,
 } from "./nodes";
 
+const nodes = {
+  Start: Start,
+  Log: Log,
+  TextNode: TextNode,
+  PromptTemplate: PromptTemplate,
+  OpenAIFunctionCall: OpenAIFunctionCall,
+  FunctionNode: FunctionNode,
+  DataSource: DataSource,
+};
+
+type ValueOf<T> = T[keyof T];
+export type NodeTypes = ValueOf<{
+  [Property in keyof typeof nodes as string]: Property
+}>;
+
 export type NodeProps =
   | Start
   | Log

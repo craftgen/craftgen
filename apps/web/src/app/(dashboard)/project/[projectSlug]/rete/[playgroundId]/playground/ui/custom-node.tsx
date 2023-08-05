@@ -1,12 +1,22 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ClassicScheme, RenderEmit, Presets } from "rete-react-plugin";
-import { DiContainer } from "../editor";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
+import { useStore } from "../store";
+import { NodeTypes } from "../types";
+import useSWR from "swr";
+import { getNodeData } from "../actions";
+import { useActor, useSelector } from "@xstate/react";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -24,7 +34,6 @@ function sortByIndex<T extends [string, undefined | { index?: number }][]>(
 }
 
 type Props<S extends ClassicScheme> = {
-  di: DiContainer;
   data: S["Node"] & NodeExtraData;
   styles?: () => any;
   emit: RenderEmit<S>;
@@ -39,31 +48,33 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
+  const { di } = useStore();
+  const state = useSelector((props.data as any).actor, (state) => state);
 
   sortByIndex(inputs);
   sortByIndex(outputs);
   sortByIndex(controls);
 
-  console.log(props, typeof props.data);
   const deleteNode = React.useCallback(async () => {
     const connections =
-      props.di.editor.getConnections().filter((c) => {
+      di?.editor.getConnections().filter((c) => {
         return c.source === props.data.id || c.target === props.data.id;
       }) || [];
     for (const connection of connections) {
-      await props.di?.editor.removeConnection(connection.id);
+      await di?.editor.removeConnection(connection.id);
     }
-    await props.di?.editor.removeNode(props.data.id);
+    await di?.editor.removeNode(props.data.id);
   }, [props.data]);
 
   const cloneNode = React.useCallback(async () => {
-    const newNode = await createNode(
-      props.di!,
-      props.data.constructor.name,
-      props.data
-    );
-    props.di.editor.addNode(newNode);
-    props.di?.area.translate(newNode.id, props?.di?.area.area.pointer);
+    const newNode = await createNode({
+      di: di!,
+      name: props.data.constructor.name as NodeTypes,
+      data: props.data,
+      saveToDB: true,
+    });
+    di?.editor.addNode(newNode);
+    di?.area.translate(newNode.id, di?.area.area.pointer);
   }, []);
 
   useHotkeys<HTMLDivElement>(
@@ -91,7 +102,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   useHotkeys<HTMLDivElement>(
     `${Key.Meta}+${Key.Enter}`,
     async (event) => {
-      props.di.engine?.execute(props.data.id);
+      di?.engine?.execute(props.data.id);
     },
     {
       enabled: selected,
@@ -103,13 +114,16 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
       className={cn(
         width && `w-[${width}px]`,
         height && `h-[${height}px]`,
-        selected && " border-red-500"
+        selected && " border-red-500",
+        "flex flex-col"
       )}
     >
       <CardHeader>
         <CardTitle>{label}</CardTitle>
+        {JSON.stringify(state)}
+        <div>{JSON.stringify(props.data?.actor as any)}</div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         {/* controls */}
         {controls.map(([key, control]) => {
           return control ? (
@@ -199,6 +213,14 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
             )
         )}
       </div>
+      <CardFooter>
+        <Badge
+          variant={"outline"}
+          className="font-mono text-muted hover:text-primary w-full"
+        >
+          Id: {props.data.id}
+        </Badge>
+      </CardFooter>
     </Card>
   );
 }
