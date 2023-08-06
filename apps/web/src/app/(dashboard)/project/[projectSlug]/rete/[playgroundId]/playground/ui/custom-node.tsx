@@ -110,117 +110,124 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   );
 
   return (
-    <Card
-      className={cn(
-        width && `w-[${width}px]`,
-        height && `h-[${height}px]`,
-        selected && " border-red-500",
-        "flex flex-col"
-      )}
-    >
-      <CardHeader>
-        <CardTitle>{label}</CardTitle>
-        {JSON.stringify(state)}
-        <div>{JSON.stringify(props.data?.actor as any)}</div>
-      </CardHeader>
-      <CardContent className="flex-1">
-        {/* controls */}
-        {controls.map(([key, control]) => {
-          return control ? (
-            <RefControl
-              key={key}
-              name="control"
-              emit={props.emit}
-              payload={control}
-            />
-          ) : null;
-        })}
-      </CardContent>
-      <div className="py-4">
-        {/* Outputs */}
-        {outputs.map(
-          ([key, output]) =>
-            output && (
-              <div
-                className="text-right flex items-center justify-end"
-                key={key}
-                data-testid={`output-${key}`}
-              >
-                <Badge
-                  className="translate-x-2"
-                  data-testid="output-title"
-                  variant={"secondary"}
-                >
-                  {output?.label}
-                </Badge>
-                <div>
-                  <RefSocket
-                    name="output-socket"
-                    side="output"
-                    emit={props.emit}
-                    socketKey={key}
-                    nodeId={id}
-                    payload={output.socket}
-                  />
-                </div>
-              </div>
-            )
+    <div className="relative flex">
+      <Card
+        className={cn(
+          width && `w-[${width}px]`,
+          height && `h-[${height}px]`,
+          selected && " border-red-500",
+          "flex flex-col"
         )}
-        {/* Inputs */}
-        {inputs.map(
-          ([key, input]) =>
-            input && (
-              <div
-                className="text-left flex items-center"
+      >
+        <CardHeader>
+          <CardTitle>{label}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1">
+          {/* controls */}
+          {controls.map(([key, control]) => {
+            return control ? (
+              <RefControl
                 key={key}
-                data-testid={`input-${key}`}
-              >
-                <div>
-                  <RefSocket
-                    name="input-socket"
-                    emit={props.emit}
-                    side="input"
-                    socketKey={key}
-                    nodeId={id}
-                    payload={input.socket}
-                  />
-                </div>
-                {input && (!input.control || !input.showControl) && (
+                name="control"
+                emit={props.emit}
+                payload={control}
+              />
+            ) : null;
+          })}
+        </CardContent>
+        <div className="py-4">
+          {/* Outputs */}
+          {outputs.map(
+            ([key, output]) =>
+              output && (
+                <div
+                  className="text-right flex items-center justify-end"
+                  key={key}
+                  data-testid={`output-${key}`}
+                >
                   <Badge
-                    className="-translate-x-2"
-                    data-testid="input-title"
+                    className="translate-x-2"
+                    data-testid="output-title"
                     variant={"secondary"}
                   >
-                    {input?.label}
+                    {output?.label}
                   </Badge>
-                )}
-                {input?.control && input?.showControl && (
-                  <span className="input-control flex items-center">
-                    <Badge className="-translate-x-2" variant={"secondary"}>
-                      {input.label}
+                  <div>
+                    <RefSocket
+                      name="output-socket"
+                      side="output"
+                      emit={props.emit}
+                      socketKey={key}
+                      nodeId={id}
+                      payload={output.socket}
+                    />
+                  </div>
+                </div>
+              )
+          )}
+          {/* Inputs */}
+          {inputs.map(
+            ([key, input]) =>
+              input && (
+                <div
+                  className="text-left flex items-center"
+                  key={key}
+                  data-testid={`input-${key}`}
+                >
+                  <div>
+                    <RefSocket
+                      name="input-socket"
+                      emit={props.emit}
+                      side="input"
+                      socketKey={key}
+                      nodeId={id}
+                      payload={input.socket}
+                    />
+                  </div>
+                  {input && (!input.control || !input.showControl) && (
+                    <Badge
+                      className="-translate-x-2"
+                      data-testid="input-title"
+                      variant={"secondary"}
+                    >
+                      {input?.label}
                     </Badge>
-                    <div className="mr-2">
-                      <RefControl
-                        key={key}
-                        name="input-control"
-                        emit={props.emit}
-                        payload={input.control}
-                      />
-                    </div>
-                  </span>
-                )}
-              </div>
-            )
+                  )}
+                  {input?.control && input?.showControl && (
+                    <span className="input-control flex items-center">
+                      <Badge className="-translate-x-2" variant={"secondary"}>
+                        {input.label}
+                      </Badge>
+                      <div className="mr-2">
+                        <RefControl
+                          key={key}
+                          name="input-control"
+                          emit={props.emit}
+                          payload={input.control}
+                        />
+                      </div>
+                    </span>
+                  )}
+                </div>
+              )
+          )}
+        </div>
+        <CardFooter>
+          <Badge
+            variant={"outline"}
+            className="font-mono text-muted hover:text-primary w-full"
+          >
+            Id: {props.data.id}
+          </Badge>
+        </CardFooter>
+      </Card>
+      <div className="">
+        {state.matches("devtool.open") && (
+          <pre>
+            <code>{JSON.stringify(state, null, 2)}</code>
+          </pre>
         )}
       </div>
-      <CardFooter>
-        <Badge
-          variant={"outline"}
-          className="font-mono text-muted hover:text-primary w-full"
-        >
-          Id: {props.data.id}
-        </Badge>
-      </CardFooter>
-    </Card>
+    </div>
   );
 }

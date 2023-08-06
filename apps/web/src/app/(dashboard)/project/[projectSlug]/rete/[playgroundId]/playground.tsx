@@ -3,7 +3,7 @@ import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
 import { createEditor } from "./playground/editor";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { exportEditor, importEditor } from "./playground/io";
 import { getPlayground, savePlayground } from "./action";
 import { useParams } from "next/navigation";
@@ -13,7 +13,11 @@ import { debounce } from "lodash-es";
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
-  const [ref, rete] = useRete(createEditor);
+  const c = useCallback(
+    (el: HTMLElement) => createEditor(el, playground),
+    [playground]
+  );
+  const [ref, rete] = useRete(c);
   const { setDi } = useStore();
 
   useEffect(() => {
@@ -70,16 +74,15 @@ export const Playground: React.FC<{
 
   useEffect(() => {
     rete?.editor.addPipe((context) => {
-      console.log("context", context)
+      console.log("context", context);
       switch (context.type) {
         case "nodecreated":
         case "noderemoved":
         case "connectioncreated":
         case "connectionremoved":
-          onChange(context)
-        default: 
-          console.log("context", context)
-
+          onChange(context);
+        default:
+          console.log("context", context);
       }
 
       return context;

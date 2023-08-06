@@ -18,6 +18,9 @@ export const getPlayground = async (params: { playgroundId: string }) => {
   console.log({ params });
   return await db.query.playground.findFirst({
     where: (playground, { eq }) => eq(playground.id, params.playgroundId),
+    with: {
+      project: true,
+    },
   });
 };
 

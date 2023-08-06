@@ -1,13 +1,11 @@
 import { ClassicPreset } from "rete";
-import {
-  ColumnDef,
-} from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 
-export class TableControl extends ClassicPreset.Control {
+export class TableControl<T> extends ClassicPreset.Control {
   __type = "table";
 
-  constructor() {
+  constructor(public columns: ColumnDef<T>[], public data: T[]) {
     super();
   }
 }
@@ -49,6 +47,6 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function TableControlComponent(props: { data: TableControl }) {
-  return <DataTable data={payments} columns={columns} />;
+export function TableControlComponent<T>(props: { data: TableControl<T> }) {
+  return <DataTable data={props.data.data} columns={props.data.columns} />;
 }

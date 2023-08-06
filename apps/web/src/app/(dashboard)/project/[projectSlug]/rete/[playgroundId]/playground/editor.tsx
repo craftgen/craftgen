@@ -30,7 +30,7 @@ import * as Nodes from "./nodes";
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
-import { Schemes } from "./types";
+import { NodeTypes, Schemes } from "./types";
 import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
 import { CustomContextMenu } from "./ui/context-menu";
@@ -51,6 +51,7 @@ import {
   DebugControlComponent,
 } from "./ui/control/control-debug";
 import { createNode } from "./io";
+import type { getPlayground } from "../action";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -68,7 +69,10 @@ export type DiContainer = {
   // modules: Modules
 };
 
-export async function createEditor(container: HTMLElement) {
+export async function createEditor(
+  container: HTMLElement,
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>
+) {
   const editor = new NodeEditor<Schemes>();
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
@@ -154,36 +158,39 @@ export async function createEditor(container: HTMLElement) {
           .map(([name]) => name),
     };
   });
+
+  const curriedCreateNode = ({
+    name,
+    data,
+  }: {
+    name: NodeTypes;
+    data?: any;
+  }) => {
+    return createNode({
+      di,
+      name,
+      data,
+      saveToDB: true,
+      playgroundId: playground.id,
+      projectSlug: playground.project?.slug,
+    });
+  };
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
-      ["Log", () => createNode({ di, name: "Log", saveToDB: true })],
+      ["Log", () => curriedCreateNode({ name: "Log" })],
       [
         "Text",
         () =>
-          createNode({
-            di,
+          curriedCreateNode({
             name: "TextNode",
             data: { value: "text" },
-            saveToDB: true,
           }),
       ],
-      ["Start", () => createNode({ di, name: "Start", saveToDB: true })],
-      [
-        "Prompt Template",
-        () => createNode({ di, name: "PromptTemplate", saveToDB: true }),
-      ],
-      [
-        "OpenAI",
-        () => createNode({ di, name: "OpenAIFunctionCall", saveToDB: true }),
-      ],
-      [
-        "OpenAI Function",
-        () => createNode({ di, name: "FunctionNode", saveToDB: true }),
-      ],
-      [
-        "Data Source",
-        () => createNode({ di, name: "DataSource", saveToDB: true }),
-      ],
+      ["Start", () => curriedCreateNode({ name: "Start" })],
+      ["Prompt Template", () => curriedCreateNode({ name: "PromptTemplate" })],
+      ["OpenAI", () => curriedCreateNode({ name: "OpenAIFunctionCall" })],
+      ["OpenAI Function", () => curriedCreateNode({ name: "FunctionNode" })],
+      ["Data Source", () => curriedCreateNode({ name: "DataSource" })],
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();

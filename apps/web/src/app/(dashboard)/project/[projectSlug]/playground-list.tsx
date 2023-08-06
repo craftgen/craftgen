@@ -19,9 +19,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
   const handleCreatePlayground = async () => {
     console.log("create playground");
     const newPlayground = await createPlayground({ project_id: projectId });
-    router.push(
-      `/project/${params.projectSlug}/playground/${newPlayground.id}`
-    );
+    router.push(`/project/${params.projectSlug}/rete/${newPlayground.id}`);
   };
   return (
     <div className="py-4">
@@ -33,7 +31,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
       </div>
       <div>
         {data?.map((playground) => (
-          <Link href={`/project/${params.projectSlug}/rate/${playground.id}`}>
+          <Link href={`/project/${params.projectSlug}/rete/${playground.id}`}>
             <div key={playground.id}>{playground.id}</div>
           </Link>
         ))}

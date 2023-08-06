@@ -11,11 +11,15 @@ export async function createNode({
   name,
   data,
   saveToDB = false,
+  playgroundId,
+  projectSlug,
 }: {
   di: DiContainer;
   name: NodeTypes;
   data?: any;
   saveToDB?: boolean;
+  playgroundId?: string;
+  projectSlug?: string;
 }) {
   type NodeMappingFunctions = {
     [Property in NodeTypes]: (di: DiContainer, data: any) => NodeProps;
@@ -35,18 +39,17 @@ export async function createNode({
   if (!matched) throw new Error(`Unsupported node '${name}'`);
 
   if (saveToDB) {
+    if (!playgroundId) throw new Error("playgroundId is required");
+    if (!projectSlug) throw new Error("projectSlug is required");
     const nodeInDb = await createNodeInDB({
-      playgroundId: "9e41c12c-8417-4b4b-a713-e4eb7dea71cb",
-      projectSlug: "starterstorycom",
+      playgroundId,
+      projectSlug,
       type: name,
     });
     console.log("nodeInDb", nodeInDb);
     const node = await matched(di, {
+      ...nodeInDb,
       ...data,
-      state: {
-        ...data?.state,
-        id: nodeInDb.id,
-      },
     });
     return node;
   }
@@ -76,7 +79,8 @@ export async function importEditor(di: DiContainer, data: Data) {
       di,
       name: n.name as any,
       data: {
-        state: data?.state,
+        ...n.data,
+        ...data,
       },
     });
     node.id = n.id;

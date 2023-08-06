@@ -67,6 +67,13 @@ export const playground = pgTable("playground", {
   nodes: json("nodes").notNull(),
 });
 
+export const playgroundRelations = relations(playground, ({ one, many }) => ({
+  project: one(project, {
+    fields: [playground.project_id],
+    references: [project.id],
+  }),
+}));
+
 export const nodeData = pgTable("node_data", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
