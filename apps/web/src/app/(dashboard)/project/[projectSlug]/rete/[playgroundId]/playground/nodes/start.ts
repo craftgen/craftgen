@@ -2,8 +2,15 @@ import { ClassicPreset } from "rete";
 import { ActionSocket } from "../sockets";
 import { DiContainer } from "../editor";
 import { ButtonControl } from "../ui/control/control-button";
+import { BaseNode, NodeData } from "./base";
+import { createMachine } from "xstate";
 
-export class Start extends ClassicPreset.Node<
+const StartNodeMachine = createMachine({
+  id: "startNode",
+});
+
+export class Start extends BaseNode<
+  typeof StartNodeMachine,
   {},
   { exec: ClassicPreset.Socket },
   {
@@ -13,13 +20,11 @@ export class Start extends ClassicPreset.Node<
   width = 180;
   height = 200;
 
-  private di?: DiContainer;
-
   static ID: "start";
 
-  constructor(di: DiContainer) {
-    super("Start");
-    this.di = di;
+  constructor(di: DiContainer, data: NodeData) {
+    console.log(di, data);
+    super("Start", di, data, StartNodeMachine, {});
 
     this.addOutput(
       "exec",

@@ -9,18 +9,19 @@ import {
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ClassicScheme, RenderEmit, Presets } from "rete-react-plugin";
+import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
 import { useStore } from "../store";
 import { NodeTypes } from "../types";
-import useSWR from "swr";
-import { getNodeData } from "../actions";
-import { useActor, useSelector } from "@xstate/react";
+import { Button } from "@/components/ui/button";
+import { Wrench } from "lucide-react";
+import { AnyActorRef } from "xstate";
+import { useSelector } from "@xstate/react";
 
 const { RefSocket, RefControl } = Presets.classic;
 
-type NodeExtraData = { width?: number; height?: number };
+type NodeExtraData = { width?: number; height?: number; actor: AnyActorRef };
 
 function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   entries: T
@@ -49,7 +50,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
   const { di } = useStore();
-  const state = useSelector((props.data as any).actor, (state) => state);
+  const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
   sortByIndex(outputs);
@@ -109,19 +110,37 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
     }
   );
 
+  const toggleDebug = () => {
+    SetDebug(!debug);
+  };
+  const ref = React.useRef<HTMLButtonElement>(null);
+  Drag.useNoDrag(ref);
+
+  const state = useSelector(props.data.actor, (state) => state);
+
   return (
-    <div className="relative flex">
+    <div className="relative">
       <Card
         className={cn(
           width && `w-[${width}px]`,
           height && `h-[${height}px]`,
           selected && " border-red-500",
-          "flex flex-col"
+          "flex flex-col flex-1"
         )}
       >
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{label}</CardTitle>
+          <Button
+            ref={ref}
+            variant={"ghost"}
+            size={"icon"}
+            onClick={toggleDebug}
+            className="absolute top-0 right-0"
+          >
+            <Wrench size={10} />
+          </Button>
         </CardHeader>
+
         <CardContent className="flex-1">
           {/* controls */}
           {controls.map(([key, control]) => {
@@ -213,18 +232,28 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
           )}
         </div>
         <CardFooter>
-          <Badge
-            variant={"outline"}
-            className="font-mono text-muted hover:text-primary w-full"
-          >
-            Id: {props.data.id}
-          </Badge>
+          {debug && (
+            <Badge
+              variant={"outline"}
+              className="font-mono text-muted hover:text-primary w-full"
+            >
+              Id: {props.data.id}
+            </Badge>
+          )}
         </CardFooter>
       </Card>
-      <div className="">
-        {state.matches("devtool.open") && (
+      <div className="absolute">
+        {debug && (
           <pre>
-            <code>{JSON.stringify(state, null, 2)}</code>
+            <code>
+              {JSON.stringify(
+                {
+                  state: state,
+                },
+                null,
+                2
+              )}
+            </code>
           </pre>
         )}
       </div>

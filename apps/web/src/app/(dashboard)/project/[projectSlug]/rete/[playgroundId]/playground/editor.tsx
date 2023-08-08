@@ -52,6 +52,7 @@ import {
 } from "./ui/control/control-debug";
 import { createNode } from "./io";
 import type { getPlayground } from "../action";
+import { playground } from "@turboseo/supabase/db";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -67,6 +68,12 @@ export type DiContainer = {
   dataFlow?: DataflowEngine<Schemes>;
   arrange?: AutoArrangePlugin<Schemes>;
   // modules: Modules
+};
+
+export const createEditorFunc = (
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>
+) => {
+  return (container: HTMLElement) => createEditor(container, playground);
 };
 
 export async function createEditor(

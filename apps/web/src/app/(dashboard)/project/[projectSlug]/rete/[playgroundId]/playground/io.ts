@@ -26,8 +26,8 @@ export async function createNode({
   };
 
   const nodes: NodeMappingFunctions = {
-    Start: (di) => new Nodes.Start(di),
-    Log: (di) => new Nodes.Log(di),
+    Start: (di, data) => new Nodes.Start(di, data),
+    Log: (di, data) => new Nodes.Log(di, data),
     TextNode: (di, data) => new Nodes.TextNode(di, data),
     PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
@@ -46,10 +46,12 @@ export async function createNode({
       projectSlug,
       type: name,
     });
-    console.log("nodeInDb", nodeInDb);
+    console.log("creating new node with", { data, nodeInDb });
     const node = await matched(di, {
       ...nodeInDb,
-      ...data,
+      state: {
+        context: data,
+      },
     });
     return node;
   }

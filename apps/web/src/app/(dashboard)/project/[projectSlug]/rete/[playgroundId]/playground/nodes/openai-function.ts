@@ -4,6 +4,7 @@ import { DiContainer } from "../editor";
 import { generateTextFn } from "../actions";
 import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS } from "ai-utils.js";
+import { BaseNode, NodeData } from "./base";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -12,7 +13,7 @@ type Data = {
   message: string;
 };
 
-export class OpenAIFunctionCall extends ClassicPreset.Node<
+export class OpenAIFunctionCall extends BaseNode<
   {
     prompt: TextSocket;
     exec: ActionSocket;
@@ -27,10 +28,9 @@ export class OpenAIFunctionCall extends ClassicPreset.Node<
   width = 280;
 
   static ID: "openai-function-call";
-  private di?: DiContainer;
 
-  constructor(di: DiContainer, data?: Data) {
-    super("OpenAI Function Call");
+  constructor(di: DiContainer, data?: NodeData) {
+    super("OpenAI Function Call", di, data);
     this.di = di;
     this.addInput(
       "exec",

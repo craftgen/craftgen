@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
-import { createEditor } from "./playground/editor";
+import { createEditorFunc } from "./playground/editor";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { exportEditor, importEditor } from "./playground/io";
 import { getPlayground, savePlayground } from "./action";
@@ -13,11 +13,10 @@ import { debounce } from "lodash-es";
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
-  const c = useCallback(
-    (el: HTMLElement) => createEditor(el, playground),
-    [playground]
-  );
-  const [ref, rete] = useRete(c);
+  const createEditor = useMemo(() => {
+    return createEditorFunc(playground);
+  }, [playground]);
+  const [ref, rete] = useRete(createEditor);
   const { setDi } = useStore();
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export const Playground: React.FC<{
         nodes: playground.nodes as any,
       });
       rete.di.setUI();
-      rete.di.dataFlow?.reset();
+      // rete.di.dataFlow?.reset();
       setDehydration(true);
     }
   }, [rete, dehydrated]);
@@ -74,7 +73,6 @@ export const Playground: React.FC<{
 
   useEffect(() => {
     rete?.editor.addPipe((context) => {
-      console.log("context", context);
       switch (context.type) {
         case "nodecreated":
         case "noderemoved":
@@ -82,7 +80,6 @@ export const Playground: React.FC<{
         case "connectionremoved":
           onChange(context);
         default:
-          console.log("context", context);
       }
 
       return context;

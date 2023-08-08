@@ -10,15 +10,14 @@ import {
   InterpreterFrom,
   fromPromise,
 } from "xstate";
-import { DebugControl } from "../ui/control/control-debug";
 import { setNodeData } from "../actions";
 import { debounce } from "lodash-es";
 import {
   getDataSet,
   getDataSets,
 } from "../../../../playground/[playgroundId]/nodes/actions";
-import { InferModel, nodeData } from "@turboseo/supabase/db";
 import { ButtonControl } from "../ui/control/control-button";
+import { BaseNode, NodeData } from "./base";
 
 type Data = {
   id: any;
@@ -112,7 +111,7 @@ const datasetMachine = createMachine({
   },
 });
 
-export class DataSource extends ClassicPreset.Node<
+export class DataSource extends BaseNode<
   {},
   {
     foreach: TextSocket;
@@ -126,11 +125,10 @@ export class DataSource extends ClassicPreset.Node<
   height = 320;
   width = 380;
 
-  private di: DiContainer;
   actor: InterpreterFrom<typeof datasetMachine>;
 
-  constructor(di: DiContainer, data: InferModel<typeof nodeData>) {
-    super("DataSource");
+  constructor(di: DiContainer, data: NodeData) {
+    super("DataSource", di, data);
     console.log("INITIALIZING DATASOURCE", data);
     this.id = data?.id || this.id;
     console.log({ id: this.id, state: data.state });

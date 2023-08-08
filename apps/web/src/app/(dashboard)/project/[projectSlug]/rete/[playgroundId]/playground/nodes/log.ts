@@ -1,8 +1,15 @@
 import { ClassicPreset } from "rete";
 import { ActionSocket, TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
+import { BaseNode, NodeData } from "./base";
+import { createMachine } from "xstate";
 
-export class Log extends ClassicPreset.Node<
+const LogNodeMachine = createMachine({
+  id: "log",
+});
+
+export class Log extends BaseNode<
+  typeof LogNodeMachine,
   { exec: ClassicPreset.Socket; message: ClassicPreset.Socket },
   { exec: ClassicPreset.Socket },
   {}
@@ -10,12 +17,10 @@ export class Log extends ClassicPreset.Node<
   width = 180;
   height = 150;
 
-  private di?: DiContainer;
   static ID: "log";
 
-  constructor(di: DiContainer) {
-    super("Log");
-    this.di = di;
+  constructor(di: DiContainer, data: NodeData) {
+    super("Log", di, data, LogNodeMachine, {});
 
     this.addInput(
       "exec",

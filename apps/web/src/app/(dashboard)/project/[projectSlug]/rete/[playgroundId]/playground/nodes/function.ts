@@ -2,12 +2,13 @@ import { ClassicPreset } from "rete";
 import { ActionSocket, TextSocket } from "../sockets";
 import { CodeControl } from "../ui/control/control-code";
 import { DiContainer } from "../editor";
+import { BaseNode, NodeData } from "./base";
 
 type Data = {
   schema: string;
 };
 
-export class FunctionNode extends ClassicPreset.Node<
+export class FunctionNode extends BaseNode<
   {
     prompt: TextSocket;
     exec: ActionSocket;
@@ -19,12 +20,11 @@ export class FunctionNode extends ClassicPreset.Node<
 > {
   height = 420;
   width = 280;
-  private di?: DiContainer;
 
   static ID: "start";
 
-  constructor(di: DiContainer, data?: Data) {
-    super("Function");
+  constructor(di: DiContainer, data: NodeData) {
+    super("Function", di, data);
     this.di = di;
     this.addControl("schema", new CodeControl(data?.schema!, "js"));
   }
