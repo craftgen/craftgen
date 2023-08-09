@@ -7,6 +7,7 @@ import { createMachine, assign, fromPromise, StateFrom } from "xstate";
 import {
   getDataSet,
   getDataSets,
+  getDatasetPaginated,
 } from "../../../../playground/[playgroundId]/nodes/actions";
 import { BaseNode, NodeData } from "./base";
 
@@ -15,17 +16,26 @@ const datasetMachine = createMachine({
   id: "dataset",
   context: {
     datasetId: null,
+    cursor: null,
+    processedDataIds: [],
   },
   types: {
     context: {} as {
       datasetId: string | null;
       datasets?: any[];
       dataset?: any;
+      processedDataIds?: string[];
+      cursor?: string | null;
     },
-    events: {} as {
-      type: "CONNECT";
-      datasetId: string;
-    },
+    events: {} as
+      | {
+          type: "CONNECT";
+          datasetId: string;
+        }
+      | {
+          type: "NEXT";
+          cursor: string;
+        },
   },
   initial: "idle",
   states: {
@@ -65,7 +75,20 @@ const datasetMachine = createMachine({
         },
       },
     },
-    connected: {},
+    connected: {
+      on: {
+        NEXT: {
+          target: "connecting",
+          actions: assign({
+            cursor: ({ event }) => event.cursor,
+            processedDataIds: ({ context, event }) => {
+              if (event.cursor === null) return [];
+              return [...(context.processedDataIds || []), event.cursor];
+            },
+          }),
+        },
+      },
+    },
   },
 });
 
@@ -152,7 +175,6 @@ export class DataSource extends BaseNode<
               ...r.data,
               id: r.id,
             })) || []
-            // state.context.dataset?.columns || []
           )
         );
       } else {
@@ -164,7 +186,22 @@ export class DataSource extends BaseNode<
     return {};
   }
 
-  data() {
+  async data() {
+    const state = this.actor.getSnapshot();
+    if (state.matches("connected")) {
+      const data = await getDatasetPaginated({
+        datasetId: state.context.datasetId,
+        cursor: state.context.cursor,
+        limit: 1,
+      });
+      this.actor.send({
+        type: "NEXT",
+        cursor: data.nextCursor || null,
+      });
+      return {
+        foreach: data.data[0],
+      };
+    }
     return {
       foreach: "something",
     };

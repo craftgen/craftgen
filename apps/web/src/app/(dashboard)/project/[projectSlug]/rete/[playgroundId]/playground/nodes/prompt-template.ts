@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
 import { DiContainer } from "../editor";
-import { isString } from "lodash-es";
+import { isString, set, get } from "lodash-es";
 import { TextSocket } from "../sockets";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
@@ -93,10 +93,10 @@ const PromptTemplateNodeMachine = createMachine({
       },
       on: {
         change: "typing",
-        data: {
-        
-
-        }
+        render: {
+          target: "ready",
+          reenter: true,
+        },
       },
     },
   },
@@ -139,9 +139,6 @@ export class PromptTemplate extends BaseNode<
             .map((item) => {
               return item.c;
             });
-          // } catch (e) {
-          //   console.log("error on parse", e);
-          // }
           return rawTemplate;
         }),
         render: fromPromise(async ({ input }) => {
@@ -150,17 +147,17 @@ export class PromptTemplate extends BaseNode<
 
           const values = Object.entries(inputs).reduce((prev, curr) => {
             const [key, value] = curr;
-            prev[key] = value[0];
+            set(prev, key, get(value[0], key));
+            // prev[key] = value[0];
 
             return prev;
           }, {} as Record<string, string>);
-          const rendered = Sqrl.render(input.template, values, {
-            useWith: true,
-          });
-          console.log({
+          console.log("@@@ HULO", {
             template: input.template,
             values,
-            rendered,
+          });
+          const rendered = Sqrl.render(input.template, values, {
+            useWith: true,
           });
           return rendered;
         }),
@@ -229,43 +226,16 @@ export class PromptTemplate extends BaseNode<
   execute() {}
 
   data(inputs: { [key: string]: [string | number] }): Data {
-    // console.log("dataa", { inputs });
-    // // this.actor.send({
-    // //   type: "render",
-    // //   inputs,
-    // // });
-    // const state = this.actor.getSnapshot();
-
-    // // console.log((inputs.message && inputs.message[0]) || "");
-
-    // // // Flatten inputs
-    // const values = Object.entries(inputs).reduce((prev, curr) => {
-    //   const [key, value] = curr;
-    //   prev[key] = value[0];
-    //   return prev;
-    // }, {} as Record<string, string>);
-
-    // try {
-    //   const value = Sqrl.render(state.context.template, values, {
-    //     useWith: true,
-    //   });
-    //   console.log({ value, values });
-
-    //   this.di.area.update("control", value);
-
-    //   return {
-    //     value: value,
-    //   };
-    // } catch (e) {
-    //   console.log(e);
-    //   return {
-    //     value: "",
-    //   };
-    // }
-    this.actor.send({
-
-    })
+    // this.actor.send({
+    //   type: "render",
+    // });
     const state = this.actor.getSnapshot();
+    console.log("PROMPT TEMPLATE", state, inputs);
+    this.actor.send({
+      type: "render",
+      inputs,
+    });
+
     return {
       value: state.context.rendered,
     };

@@ -34,6 +34,10 @@ export class Log extends BaseNode<
   }
 
   async execute(input: "exec", forward: (output: "exec") => void) {
+    this.di.dataFlow?.reset();
+    this.di.editor.getNodes().forEach((n) => {
+      this.di.dataFlow?.fetch(n.id);
+    });
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };

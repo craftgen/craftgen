@@ -1,6 +1,14 @@
 "use server";
 
-import { db, eq, nodeData } from "@turboseo/supabase/db";
+import {
+  and,
+  dataRow,
+  db,
+  eq,
+  gt,
+  nodeData,
+  dataSet,
+} from "@turboseo/supabase/db";
 
 export const getDataSets = async (projectId: string) => {
   console.log({ projectId });
@@ -20,6 +28,28 @@ export const getDataSet = async (dataSetId: string) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const getDatasetPaginated = async (params: {
+  datasetId: string;
+  cursor?: string;
+  limit?: number;
+}) => {
+  const cursorCondition = params.cursor
+    ? gt(dataRow.id, params.cursor)
+    : undefined;
+  console.log(cursorCondition);
+  const data = await db
+    .select()
+    .from(dataRow)
+    .where(and(eq(dataRow.data_set_id, params.datasetId), cursorCondition))
+    .orderBy(dataRow.id)
+    .limit(params?.limit || 10);
+
+  return {
+    data,
+    nextCursor: data[data.length - 1]?.id,
+  };
 };
 
 export const getNodeData = async (nodeId: string) => {

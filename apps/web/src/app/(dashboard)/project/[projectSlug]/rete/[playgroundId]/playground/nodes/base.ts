@@ -78,7 +78,7 @@ export class BaseNode<
     }, 100);
 
     this.actor.subscribe((state) => {
-      dataFlowDebounce();
+      // dataFlowDebounce();
       saveDebounced(JSON.stringify(state));
     });
 

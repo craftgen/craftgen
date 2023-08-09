@@ -92,7 +92,6 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
     async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      console.log("running");
       await cloneNode();
     },
     {
@@ -103,7 +102,6 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   useHotkeys<HTMLDivElement>(
     `${Key.Meta}+${Key.Enter}`,
     async (event) => {
-      console.log("Running", props);
       di?.engine?.execute(props.data.id);
     },
     {
