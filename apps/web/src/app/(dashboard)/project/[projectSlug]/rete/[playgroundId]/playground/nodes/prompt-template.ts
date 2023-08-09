@@ -90,12 +90,13 @@ const PromptTemplateNodeMachine = createMachine({
             rendered: ({ event }) => event.output,
           }),
         },
-        // onDone: {
-        //   target: "ready",
-        // },
       },
       on: {
         change: "typing",
+        data: {
+        
+
+        }
       },
     },
   },

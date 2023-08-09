@@ -52,15 +52,23 @@ export class BaseNode<
     this.id = data.id;
     this.di = di;
     const a = machine.provide(machineImplements as any);
+    console.log("creating actor with data", data?.state);
+    console.log({
+      id: this.id,
+      ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
+    });
     this.actor = interpret(a, {
       id: this.id,
-      ...(data?.state !== null && data.state),
+      ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
     });
 
+    const s = this.actor.getSnapshot();
+    console.log("first snapshot", s);
+
     const saveDebounced = debounce((state) => {
-      console.log("state changed", state);
+      console.log("saving state", state);
       setNodeData(this.id, state);
-    }, 2000);
+    }, 1000);
 
     const dataFlowDebounce = debounce(() => {
       di.dataFlow?.reset();

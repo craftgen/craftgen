@@ -16,7 +16,7 @@ export async function createNode({
 }: {
   di: DiContainer;
   name: NodeTypes;
-  data?: any;
+  data: NonNullable<Awaited<ReturnType<typeof getNodeData>>>;
   saveToDB?: boolean;
   playgroundId?: string;
   projectSlug?: string;
@@ -49,9 +49,6 @@ export async function createNode({
     console.log("creating new node with", { data, nodeInDb });
     const node = await matched(di, {
       ...nodeInDb,
-      state: {
-        context: data,
-      },
     });
     return node;
   }
@@ -75,14 +72,14 @@ export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
   for (const n of nodes) {
-    const data = await getNodeData(n.id);
-    console.log("gettingData", data);
+    const nodeData = await getNodeData(n.id);
+    console.log("gettingData", nodeData);
     const node = await createNode({
       di,
       name: n.name as any,
       data: {
         ...n.data,
-        ...data,
+        ...nodeData,
       },
     });
     node.id = n.id;

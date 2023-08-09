@@ -190,7 +190,6 @@ export async function createEditor(
         () =>
           curriedCreateNode({
             name: "TextNode",
-            data: { value: "text" },
           }),
       ],
       ["Start", () => curriedCreateNode({ name: "Start" })],

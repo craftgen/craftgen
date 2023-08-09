@@ -62,13 +62,12 @@ export class TextNode extends BaseNode<
         }),
       },
     });
-    this.di = di;
-    this.id = data?.id;
     const self = this;
+    const state = this.actor.getSnapshot();
     this.addControl(
       "value",
       new ClassicPreset.InputControl("text", {
-        initial: data.state?.context?.value || "",
+        initial: state?.context?.value || "",
         change(value) {
           self.actor.send({ type: "change", value });
         },
