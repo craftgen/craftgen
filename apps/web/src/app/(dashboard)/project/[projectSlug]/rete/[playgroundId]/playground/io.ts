@@ -73,12 +73,12 @@ export async function importEditor(di: DiContainer, data: Data) {
 
   for (const n of nodes) {
     const nodeData = await getNodeData(n.id);
+    if (!nodeData) throw new Error(`Node data not found for ${n.id}`);
     console.log("gettingData", nodeData);
     const node = await createNode({
       di,
       name: n.name as any,
       data: {
-        ...n.data,
         ...nodeData,
       },
     });

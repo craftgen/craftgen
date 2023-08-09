@@ -166,9 +166,7 @@ export class DataSource extends BaseNode<
 
   data() {
     return {
-      foreach: () => {
-        return "todo";
-      },
+      foreach: "something",
     };
   }
 

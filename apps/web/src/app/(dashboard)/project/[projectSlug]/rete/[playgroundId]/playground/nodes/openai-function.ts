@@ -5,6 +5,7 @@ import { generateTextFn } from "../actions";
 import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS } from "ai-utils.js";
 import { BaseNode, NodeData } from "./base";
+import { createMachine } from "xstate";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -13,7 +14,21 @@ type Data = {
   message: string;
 };
 
+const OpenAIFunctionCallMachine = createMachine({
+  id: "openai-function-call",
+  initial: "idle",
+  context: {
+    model: "gpt-3.5-turbo",
+    message: "",
+  },
+  states: {
+    idle: {},
+    running: {},
+  }
+});
+
 export class OpenAIFunctionCall extends BaseNode<
+  typeof OpenAIFunctionCallMachine,
   {
     prompt: TextSocket;
     exec: ActionSocket;
@@ -29,8 +44,11 @@ export class OpenAIFunctionCall extends BaseNode<
 
   static ID: "openai-function-call";
 
-  constructor(di: DiContainer, data?: NodeData) {
-    super("OpenAI Function Call", di, data);
+  constructor(
+    di: DiContainer,
+    data: NodeData<typeof OpenAIFunctionCallMachine>
+  ) {
+    super("OpenAI Function Call", di, data, OpenAIFunctionCallMachine, {});
     this.di = di;
     this.addInput(
       "exec",
