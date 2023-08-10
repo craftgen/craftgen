@@ -63,6 +63,8 @@ import { createSelectOnBackspacePlugin } from "@udecode/plate-select";
 import { createAlignPlugin } from "@udecode/plate-alignment";
 import { createEmojiPlugin } from "@udecode/plate-emoji";
 import { createTablePlugin } from "@udecode/plate-table";
+import { createLinkPlugin } from "@udecode/plate-link";
+import { linkPlugin } from "./link-plugin";
 
 type EditorProps = {
   initialValue?: any[];
@@ -107,12 +109,16 @@ const plugins = createMyPlugins(
     createBlockquotePlugin(),
     createCodeBlockPlugin(),
     createHeadingPlugin(),
+
     // Marks
     createBoldPlugin(),
     createItalicPlugin(),
     createUnderlinePlugin(),
     createStrikethroughPlugin(),
     createCodePlugin(),
+    createLinkPlugin({
+      ...linkPlugin,
+    }),
 
     // Functionality
     createAutoformatPlugin({
@@ -135,7 +141,7 @@ const plugins = createMyPlugins(
   ],
   {
     components: createPlateUI(undefined, {
-      draggable: true,
+      draggable: false,
     }),
   }
 );

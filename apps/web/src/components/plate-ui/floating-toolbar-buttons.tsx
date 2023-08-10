@@ -1,18 +1,20 @@
-import React from 'react';
+import React from "react";
 import {
   MARK_BOLD,
   MARK_CODE,
   MARK_ITALIC,
   MARK_STRIKETHROUGH,
   MARK_UNDERLINE,
-} from '@udecode/plate-basic-marks';
-import { usePlateReadOnly } from '@udecode/plate-common';
+} from "@udecode/plate-basic-marks";
+import { usePlateReadOnly } from "@udecode/plate-common";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
-import { MarkToolbarButton } from './mark-toolbar-button';
-import { MoreDropdownMenu } from './more-dropdown-menu';
-import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu';
+import { MarkToolbarButton } from "./mark-toolbar-button";
+import { MoreDropdownMenu } from "./more-dropdown-menu";
+import { TurnIntoDropdownMenu } from "./turn-into-dropdown-menu";
+import { LinkToolbarButton } from "./link-toolbar-button";
+import { ToolbarSeparator } from "./toolbar";
 
 export function FloatingToolbarButtons() {
   const readOnly = usePlateReadOnly();
@@ -44,6 +46,8 @@ export function FloatingToolbarButtons() {
           <MarkToolbarButton nodeType={MARK_CODE} tooltip="Code (⌘+E)">
             <Icons.code />
           </MarkToolbarButton>
+          <ToolbarSeparator />
+          <LinkToolbarButton />
         </>
       )}
 
