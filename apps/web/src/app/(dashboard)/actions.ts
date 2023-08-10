@@ -1,7 +1,7 @@
 "use server";
 
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, user } from "@turboseo/supabase/db";
+import { db, user } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 
 export const persistGoogleToken = async () => {

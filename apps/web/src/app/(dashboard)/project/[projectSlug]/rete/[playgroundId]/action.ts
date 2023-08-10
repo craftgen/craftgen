@@ -8,7 +8,7 @@ import {
   nodeData,
   nodeToPlayground,
   playground,
-} from "@turboseo/supabase/db";
+} from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { NodeProps, NodeTypes } from "./playground/types";
 

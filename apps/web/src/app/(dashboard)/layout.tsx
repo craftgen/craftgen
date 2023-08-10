@@ -1,6 +1,6 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { Database } from "@turboseo/supabase/db/database.types";
+import { Database } from "@seocraft/supabase/db/database.types";
 import { redirect } from "next/navigation";
 import { Navbar } from "./navbar";
 import { persistGoogleToken } from "./actions";

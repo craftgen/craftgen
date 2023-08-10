@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { google } from "googleapis";
 import { normalizeUrl } from "./shared";
-import { db, project, projectMembers } from "@turboseo/supabase/db";
+import { db, project, projectMembers } from "@seocraft/supabase/db";
 import { z } from "zod";
 import { newProjectSchema } from "./shared";
 import { getGoogleAuth } from "@/lib/google";

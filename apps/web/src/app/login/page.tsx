@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
-  title: "Login - Turboseo.ai",
+  title: "Login - seocraft.ai",
   alternates: {
     canonical: "/login",
   },

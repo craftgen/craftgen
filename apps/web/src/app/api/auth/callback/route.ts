@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import type { NextRequest } from "next/server";
-import type { Database } from "@turboseo/supabase/db/database.types";
+import type { Database } from "@seocraft/supabase/db/database.types";
 import { BASE_URL } from "@/lib/constants";
 
 export const runtime = "edge";

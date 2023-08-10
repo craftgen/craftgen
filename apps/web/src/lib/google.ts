@@ -1,5 +1,5 @@
 import { Session } from "@supabase/supabase-js";
-import { db, eq, user } from "@turboseo/supabase/db";
+import { db, eq, user } from "@seocraft/supabase/db";
 import { google } from "googleapis";
 
 export const getGoogleAuth = async ({ session }: { session: Session }) => {

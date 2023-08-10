@@ -111,7 +111,7 @@ export const NewProjectForm = () => {
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="turboSEO" disabled {...field} />
+                <Input placeholder="seocraft" disabled {...field} />
               </FormControl>
               <FormDescription>
                 This is your public display name.

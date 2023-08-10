@@ -1,5 +1,5 @@
 "use server";
-import { db, eq, nodeData } from "@turboseo/supabase/db";
+import { db, eq, nodeData } from "@seocraft/supabase/db";
 import {
   OPENAI_CHAT_MODELS,
   InstructionToOpenAIChatPromptMapping,

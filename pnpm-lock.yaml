@@ -53,13 +53,13 @@ importers:
       '@radix-ui/react-select': ^1.2.2
       '@radix-ui/react-slider': ^1.1.2
       '@radix-ui/react-slot': ^1.0.2
+      '@seocraft/supabase': '*'
       '@supabase/auth-helpers-nextjs': ^0.7.3
       '@supabase/auth-ui-react': ^0.4.2
       '@supabase/auth-ui-shared': ^0.1.6
       '@supabase/supabase-js': ^2.26.0
       '@tanstack/react-table': ^8.9.3
       '@tremor/react': ^3.4.1
-      '@turboseo/supabase': '*'
       '@types/lodash-es': ^4.17.8
       '@types/node': 20.4.2
       '@types/prismjs': ^1.26.0
@@ -128,13 +128,13 @@ importers:
       '@radix-ui/react-select': 1.2.2_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-slider': 1.1.2_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-slot': 1.0.2_tznpbkknyqq5lcv5sgrl332jvu
+      '@seocraft/supabase': link:../supabase
       '@supabase/auth-helpers-nextjs': 0.7.3_iiiesaoje4n7wwwlrxqqgs6ipe
       '@supabase/auth-ui-react': 0.4.2_iiiesaoje4n7wwwlrxqqgs6ipe
       '@supabase/auth-ui-shared': 0.1.6_iiiesaoje4n7wwwlrxqqgs6ipe
       '@supabase/supabase-js': 2.26.0
       '@tanstack/react-table': 8.9.3_biqbaboplfbrettd7655fr4n2y
       '@tremor/react': 3.4.1_zrapbp5bhju6nhklhwf5u2ffs4
-      '@turboseo/supabase': link:../supabase
       '@types/lodash-es': 4.17.8
       '@types/node': 20.4.2
       '@types/prismjs': 1.26.0

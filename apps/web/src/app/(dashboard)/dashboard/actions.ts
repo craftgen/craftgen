@@ -1,7 +1,7 @@
 "use server";
 
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, projectMembers } from "@turboseo/supabase/db";
+import { db, projectMembers } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 
 export const getProjects = async () => {

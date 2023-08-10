@@ -52,7 +52,7 @@ import {
 } from "./ui/control/control-debug";
 import { createNode } from "./io";
 import type { getPlayground } from "../action";
-import { playground } from "@turboseo/supabase/db";
+import { playground } from "@seocraft/supabase/db";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 

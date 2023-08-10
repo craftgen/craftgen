@@ -8,7 +8,7 @@ import {
   nodeData,
   nodeToPlayground,
   playground,
-} from "@turboseo/supabase/db";
+} from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import type { Edge, Node } from "reactflow";
 import { NodeTypes } from "./nodes";

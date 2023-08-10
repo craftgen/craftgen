@@ -8,7 +8,7 @@ import {
   gt,
   nodeData,
   dataSet,
-} from "@turboseo/supabase/db";
+} from "@seocraft/supabase/db";
 
 export const getDataSets = async (projectId: string) => {
   console.log({ projectId });

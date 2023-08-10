@@ -2,7 +2,7 @@
 
 import { getGoogleAuth, getWebmaster } from "@/lib/google";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, playground } from "@turboseo/supabase/db";
+import { db, playground } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 

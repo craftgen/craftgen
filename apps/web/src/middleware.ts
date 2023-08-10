@@ -1,5 +1,5 @@
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@turboseo/supabase/db/database.types'
+import { Database } from '@seocraft/supabase/db/database.types'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(req: NextRequest) {
