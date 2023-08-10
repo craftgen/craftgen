@@ -15,6 +15,7 @@ import { MoreDropdownMenu } from "./more-dropdown-menu";
 import { TurnIntoDropdownMenu } from "./turn-into-dropdown-menu";
 import { LinkToolbarButton } from "./link-toolbar-button";
 import { ToolbarSeparator } from "./toolbar";
+import { CommentToolbarButton } from "./comment-toolbar-button";
 
 export function FloatingToolbarButtons() {
   const readOnly = usePlateReadOnly();
@@ -50,6 +51,8 @@ export function FloatingToolbarButtons() {
           <LinkToolbarButton />
         </>
       )}
+
+      <CommentToolbarButton />
 
       <MoreDropdownMenu />
     </>

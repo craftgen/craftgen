@@ -21,6 +21,7 @@ import { MediaToolbarButton } from "./media-toolbar-button";
 import { ELEMENT_IMAGE } from "@udecode/plate-media";
 import { TableDropdownMenu } from "./table-dropdown-menu";
 import { EmojiDropdownMenu } from "./emoji-dropdown-menu";
+import { CommentToolbarButton } from "./comment-toolbar-button";
 
 export function FixedToolbarButtons() {
   const readOnly = usePlateReadOnly();
@@ -81,6 +82,7 @@ export function FixedToolbarButtons() {
         <div className="grow" />
 
         <ToolbarGroup noSeparator>
+          <CommentToolbarButton />
           <ModeDropdownMenu />
         </ToolbarGroup>
       </div>

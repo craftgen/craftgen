@@ -64,7 +64,8 @@ import { createAlignPlugin } from "@udecode/plate-alignment";
 import { createEmojiPlugin } from "@udecode/plate-emoji";
 import { createTablePlugin } from "@udecode/plate-table";
 import { createLinkPlugin } from "@udecode/plate-link";
-import { linkPlugin } from "./link-plugin";
+import { linkPlugin } from "./plugins/link-plugin";
+import { captionPlugin } from "./plugins/caption-plugin";
 
 type EditorProps = {
   initialValue?: any[];
@@ -74,7 +75,9 @@ type EditorProps = {
 const plugins = createMyPlugins(
   [
     // Elements
-    createCaptionPlugin({ options: [ELEMENT_IMAGE, ELEMENT_MEDIA_EMBED] }),
+    createCaptionPlugin({
+      ...captionPlugin,
+    }) as any, // TODO: fix type
     createAlignPlugin({
       inject: {
         props: {
@@ -146,6 +149,9 @@ const plugins = createMyPlugins(
   }
 );
 
+
+
+
 export const Editor: React.FC<EditorProps> = ({
   initialValue = [],
   onChange = console.log,
@@ -163,33 +169,35 @@ export const Editor: React.FC<EditorProps> = ({
           <FixedToolbar>
             <FixedToolbarButtons />
           </FixedToolbar>
-          <CommentsProvider>
-            <div
-              ref={containerRef}
-              className={cn(
-                "relative flex max-w-[900px] overflow-x-auto",
-                "[&_.slate-start-area-top]:!h-4",
-                "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
-              )}
-            >
-              <Plate<MyValue>
-                editableProps={{
-                  placeholder: "Type...",
-                  autoFocus: true,
-                  className: cn(
-                    "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
-                    "!min-h-[600px] w-[900px] px-[96px] py-16"
-                  ),
-                }}
+          <div className="flex w-full">
+            <CommentsProvider  users={{}} myUserId={undefined}>
+              <div
+                ref={containerRef}
+                className={cn(
+                  "relative flex max-w-[900px] overflow-x-auto",
+                  "[&_.slate-start-area-top]:!h-4",
+                  "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
+                )}
               >
-                <FloatingToolbar>
-                  <FloatingToolbarButtons />
-                </FloatingToolbar>
-                <CursorOverlay containerRef={containerRef} />
-                <CommentsPopover />
-              </Plate>
-            </div>
-          </CommentsProvider>
+                <Plate<MyValue>
+                  editableProps={{
+                    placeholder: "Type...",
+                    autoFocus: true,
+                    className: cn(
+                      "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
+                      "!min-h-[600px] w-[900px] px-[96px] py-16"
+                    ),
+                  }}
+                >
+                  <FloatingToolbar>
+                    <FloatingToolbarButtons />
+                  </FloatingToolbar>
+                  <CursorOverlay containerRef={containerRef} />
+                </Plate>
+              </div>
+              <CommentsPopover />
+            </CommentsProvider>
+          </div>
         </PlateProvider>
       </DndProvider>
     </TooltipProvider>
