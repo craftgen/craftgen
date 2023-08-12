@@ -10,7 +10,7 @@ export const ProjectList = () => {
   const { data, isLoading } = useSWR("projects", getProjects);
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-3 gap-4 ">
         {data?.map((project) => (
           <ProjectCard key={project.id} projectMembers={project} />
         ))}

@@ -1,9 +1,12 @@
 import { Session } from "@supabase/supabase-js";
-import { db, eq, user } from "@seocraft/supabase/db";
+import { db } from "@seocraft/supabase/db";
 import { google } from "googleapis";
 
 export const getGoogleAuth = async ({ session }: { session: Session }) => {
-  const googleAuth = new google.auth.OAuth2();
+  const googleAuth = new google.auth.OAuth2({
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  });
   const authUser = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, session?.user?.id),
   });

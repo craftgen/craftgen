@@ -10,9 +10,10 @@ import {
   getDatasetPaginated,
 } from "../../../../playground/[playgroundId]/nodes/actions";
 import { BaseNode, NodeData } from "./base";
+import { ButtonControl } from "../ui/control/control-button";
 
 const datasetMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdBMAbmgPbEA2OAxmcVhAMT5GkUlRRlgDaADALqJQAB1oBLNKOIA7QSAAeiAIwB2AJw4ATADYArFo0AWDQGYdADiM6dAGhABPRBp6KcBrT1UGehnvuNaAXwDbVAwsXCYSchxiITApRkIo1mJ2Tl4BJBARWHFJGSyFBBV1bT1DE3NLG3slHR4cVWVFUzNlZx560yCQ9ExsPD7YYgBXACdKMBwxsBQIO3oAYQB5ADlVgFFFgBUM2Ry86Vki82McHX89LQMmszMNWwcEfxd9N+0tZTNdTx6QUP6ESGowmU0o0ikYEoEikUEY0imoikBGIAGspgDwoMwiDJlQIVCYVAEEiUZR0PkMnssgcJEdCohVMYNDhmm83NpFEytI9EMYzDpGszVB5lJUjIo-piBpjcYiIJx4ZCcKS0RihjLgeM8aIFWAScjiOS6VIqfx9mITcdHKoXFyNGLVJ5RRoWrzngKhRpVIZlDonK7JX8pMR8PAstK0BbclaGQgALSGd2JgxSjURJIsaOHAqgIpJ2oILRnAwCz7MgynVT6NNhGWZ6LUWiQbOxvOIMXuxQ6ZQ4Treqz6AzGRQaHu1wF4BsUWLxVv5a3PAy9rz+CXGIzKZQGLs6dRWAflYej8fBf7p7GYOXz+nthAFp4Os6qer+lRmZzVswTrGy7Xyzgb1zeQOweQsXlcF4dE3W0xR0H9NRxf98SkSFoSRKAgMXMVXjaLRFHwu5zH0d0IOHQimUrXRT16OsgSQ0EULQtAWxpS0FzjRRR1w5Riz8DQzBUHlwIsL1DH8DROR0INaMnP9GJmOYnmEdjbxAhBSzMHBmUEtRPh4ZdjE6UjRKZSSrFtT4zFtYwgiCIA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdASwgBswBiCAewDsx9KA3cgaxtQy1wOIT3vIGN0eKgG0ADAF0x4xKAAO5WHjRDKMkAA9EAJgBsARhx6AnFoDsegBwBmUVb2WtAGhABPbaa2GLFvToAsotZWVjpaVgC+4c6smNg4AE5gKBAuJADCAPIAclkAomkAKlJq8orKVGqaCACsFkY4RnqieqamfiZ6Vm3Obghmojg6FqbV9jrVOjqm-jqR0eixuHxU1HzKlFBkVDQ8DMw4Mew4y5Sr61DcvALllFLFSCClSiqViLX1jc2t7Vqd3a6IHw4PwWCamYZGHQ2aojOYgQ5xE5nSAkPIADSKEhKCmeFQeVXeDSaLTaHS6fh6iBafhwtWqRj8ZiMRmsnT8cIRuESyVSfG5aDA9zkOJurwQfihg2Mehh42a1Ql1UpCCsE2B1kCoNMoh0OoskSiIEo5AgcDUnOxZRe+MQAFodMr7ThRC6XVZGl0rD8tByFkdOGBLbjVDbxU4AX1tcCjG1RMyLHHTDH2YbOQkkikg6LQ342s69O0jHrGZDRBSI1ojFYGlXqrZ6UZ6Xofam-YiVmA1jwoFnraAqq0LDhvDLgt5mqJpsqWjph42LH57FpF16hr62O3Tp2BRBe3j+4g-NVq1YtD4ugmfOZQdPAsOPPpapPTBFWxulvzu3uQwfxaMpY0sp1jKirKous4gjY3gwjqeoGuEQA */
   id: "dataset",
   context: {
     datasetId: null,
@@ -35,6 +36,9 @@ const datasetMachine = createMachine({
       | {
           type: "NEXT";
           cursor: string;
+        }
+      | {
+          type: "CREATE";
         },
   },
   initial: "idle",
@@ -52,6 +56,7 @@ const datasetMachine = createMachine({
         },
       },
     },
+
     ready: {
       on: {
         CONNECT: {
@@ -61,8 +66,20 @@ const datasetMachine = createMachine({
             datasets: undefined,
           }),
         },
+        CREATE: "creating",
       },
     },
+    creating: {
+      // on: {
+      // CREATE: {
+      //   target: "connecting",
+      //   actions: assign({
+      //     datasetId: ({ event }) => event.datasetId,
+      //   }),
+      // },
+      // },
+    },
+
     connecting: {
       invoke: {
         src: "fetchDataset",
@@ -75,6 +92,7 @@ const datasetMachine = createMachine({
         },
       },
     },
+
     connected: {
       on: {
         NEXT: {
@@ -101,6 +119,7 @@ export class DataSource extends BaseNode<
   {
     datasourceId?: SelectControl<string>;
     datasource?: TableControl<any>;
+    createButton?: ButtonControl;
   }
 > {
   height = 320;
@@ -138,6 +157,18 @@ export class DataSource extends BaseNode<
   }
 
   syncStateWithUI(state: StateFrom<typeof datasetMachine>) {
+    if (state.matches("ready")) {
+      this.addControl(
+        "createButton",
+        new ButtonControl("Create", () => {
+          this.actor.send({
+            type: "CREATE",
+          });
+        })
+      );
+    } else {
+      this.removeControl("createButton");
+    }
     if (state.matches("ready") && !this.controls.datasourceId) {
       this.addControl(
         "datasourceId",

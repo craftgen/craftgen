@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 
-import { useEffect } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { createNewProject, getSites } from "./actions";
 import {
   Select,
@@ -28,7 +28,11 @@ import { slugify } from "@/lib/string";
 import { newProjectSchema, normalizeUrl } from "./shared";
 import { useRouter } from "next/navigation";
 
-export const NewProjectForm = () => {
+export const NewProjectForm: React.FC<PropsWithChildren> = ({
+  children,
+  // onSubmit,
+  // hideSubmit = false,
+}) => {
   const form = useForm<z.infer<typeof newProjectSchema>>({
     resolver: zodResolver(newProjectSchema),
     defaultValues: {
@@ -39,11 +43,14 @@ export const NewProjectForm = () => {
   });
   const router = useRouter();
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof newProjectSchema>) {
+  async function onSubmitHandler(values: z.infer<typeof newProjectSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     const val = await createNewProject(values);
     router.push(`/project/${val.slug}`);
+    // if (onSubmit) {
+    //   onSubmit(values);
+    // }
   }
   const name = form.watch("name");
   useEffect(() => {
@@ -59,7 +66,7 @@ export const NewProjectForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmitHandler)} className="space-y-8">
         <FormField
           control={form.control}
           name="site"
@@ -120,7 +127,7 @@ export const NewProjectForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        {children ? children : <Button type="submit">Submit</Button>}
       </form>
     </Form>
   );

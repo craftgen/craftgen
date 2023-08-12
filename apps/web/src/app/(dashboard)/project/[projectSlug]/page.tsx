@@ -22,7 +22,7 @@ const ProjectPage = async ({
   return (
     <div className="p-10">
       <h1 className="text-3xl p-2 leading-tight">{project?.name}</h1>
-      <Metrics metrics={metrics} />
+      {metrics && <Metrics metrics={metrics} />}
       <section>
         <PlaygroundList projectId={project?.id!} />
       </section>
