@@ -4,6 +4,7 @@ import { Database } from "@seocraft/supabase/db/database.types";
 import { redirect } from "next/navigation";
 import { Navbar } from "./navbar";
 import { persistGoogleToken } from "./actions";
+import { CommandMenu } from "./components/command-menu";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
@@ -23,6 +24,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <main>
       <Navbar session={session} />
       <div className="px-4">{children}</div>
+      {/* <CommandMenu /> */}
     </main>
   );
 };
