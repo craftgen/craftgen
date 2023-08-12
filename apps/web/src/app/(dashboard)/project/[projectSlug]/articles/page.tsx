@@ -1,5 +1,7 @@
-import { Editor } from "@/components/editor";
+'use client';
 
+import { Editor } from "@/components/editor";
+import { useState } from "react";
 
 const initialValue = [
   {
@@ -12,10 +14,12 @@ const initialValue = [
   },
 ];
 const ArticlesPage = () => {
+  const [val, setVal] = useState<any>();
   return (
     <div>
       <h1>Articles</h1>
-      <Editor initialValue={initialValue} />
+      {val && <pre>{JSON.stringify(val, null, 2)}</pre>}
+      <Editor initialValue={initialValue} onChange={(v) => setVal(v)} />
     </div>
   );
 };

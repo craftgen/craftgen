@@ -1,6 +1,11 @@
 "use client";
 
-import { Plate, PlateProvider, createPlugins } from "@udecode/plate-common";
+import {
+  Plate,
+  PlateProvider,
+  createPlugins,
+  usePlateSelectors,
+} from "@udecode/plate-common";
 import {
   createBoldPlugin,
   createCodePlugin,
@@ -66,6 +71,8 @@ import { createTablePlugin } from "@udecode/plate-table";
 import { createLinkPlugin } from "@udecode/plate-link";
 import { linkPlugin } from "./plugins/link-plugin";
 import { captionPlugin } from "./plugins/caption-plugin";
+import { create } from "zustand";
+import { Button } from "../ui/button";
 
 type EditorProps = {
   initialValue?: any[];
@@ -149,14 +156,38 @@ const plugins = createMyPlugins(
   }
 );
 
+const useStore = create<{
+  editor: any;
+  setEditor: (editor: any) => void;
+}>((set, get) => ({
+  editor: null,
+  setEditor: (editor: any) => ({ editor }),
+}));
 
-
+const EditorStore = () => {
+  const editor = usePlateSelectors().editor();
+  console.log(editor);
+  const { setEditor } = useStore();
+  setEditor(editor);
+  return (
+    <div>
+      <Button onClick={() => editor.insertNode({
+        text: "Hello",
+        type: ELEMENT_H1,
+      })}>
+        Insert Text
+      </Button>
+    </div>
+  );
+};
 
 export const Editor: React.FC<EditorProps> = ({
   initialValue = [],
   onChange = console.log,
 }) => {
   const containerRef = useRef(null);
+  const { editor } = useStore();
+  console.log(editor);
 
   return (
     <TooltipProvider>
@@ -166,11 +197,12 @@ export const Editor: React.FC<EditorProps> = ({
           initialValue={initialValue}
           onChange={onChange}
         >
+          <EditorStore />
           <FixedToolbar>
             <FixedToolbarButtons />
           </FixedToolbar>
           <div className="flex w-full">
-            <CommentsProvider  users={{}} myUserId={undefined}>
+            <CommentsProvider users={{}} myUserId={undefined}>
               <div
                 ref={containerRef}
                 className={cn(

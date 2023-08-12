@@ -8,7 +8,6 @@ import Link from "next/link";
 
 export const ProjectList = () => {
   const { data, isLoading } = useSWR("projects", getProjects);
-  console.log(data);
   return (
     <div>
       <div className="grid grid-cols-3 gap-4 p-4">
@@ -24,8 +23,8 @@ const ProjectCard: React.FC<{
   projectMembers: Awaited<ReturnType<typeof getProjects>>[number];
 }> = ({ projectMembers }) => {
   return (
-    <Link href={`/project/${projectMembers.project.slug}`}>
-      <Card>
+    <Link href={`/project/${projectMembers.project.slug}`} className="group">
+      <Card className="group-hover:shadow-sm group-hover:shadow-primary/40 transition duration-300">
         <CardHeader className="flex justify-between items-center">
           <h2>{projectMembers.project.name}</h2>
           <Badge>{projectMembers.role}</Badge>

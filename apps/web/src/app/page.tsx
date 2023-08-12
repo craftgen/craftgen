@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-24">
       <div className="">
-        <h1 className="text-5xl">TURBO SEO</h1>
+        <h1 className="text-5xl">SEO CRAFT</h1>
         <p>
           Modern approach to SEO automation. <br />
         </p>
