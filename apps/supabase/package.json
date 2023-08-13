@@ -19,15 +19,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "drizzle-orm": "^0.27.2",
-    "postgres": "^3.3.5",
-    "reactflow": "^11.7.4"
+    "drizzle-orm": "^0.28.2",
+    "postgres": "^3.3.5"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.26.0",
-    "@types/node": "^20.4.1",
+    "@supabase/supabase-js": "^2.32.0",
+    "@types/node": "^20.4.10",
     "dotenv-cli": "^7.2.1",
-    "drizzle-kit": "^0.19.10",
+    "drizzle-kit": "^0.19.12",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   }
