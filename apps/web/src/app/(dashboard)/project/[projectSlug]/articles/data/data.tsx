@@ -7,7 +7,8 @@ import {
   CrossCircledIcon,
   QuestionMarkCircledIcon,
   StopwatchIcon,
-} from "@radix-ui/react-icons"
+} from "@radix-ui/react-icons";
+import { BookTemplate } from "lucide-react";
 
 export const labels = [
   {
@@ -22,13 +23,18 @@ export const labels = [
     value: "documentation",
     label: "Documentation",
   },
-]
+];
 
 export const statuses = [
   {
     value: "backlog",
     label: "Backlog",
     icon: QuestionMarkCircledIcon,
+  },
+  {
+    value: "draft",
+    label: "Draft",
+    icon: BookTemplate,
   },
   {
     value: "todo",
@@ -50,7 +56,7 @@ export const statuses = [
     label: "Canceled",
     icon: CrossCircledIcon,
   },
-]
+];
 
 export const priorities = [
   {
@@ -68,4 +74,4 @@ export const priorities = [
     value: "high",
     icon: ArrowUpIcon,
   },
-]
+];

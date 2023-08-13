@@ -22,11 +22,10 @@ import { ELEMENT_IMAGE } from "@udecode/plate-media";
 import { TableDropdownMenu } from "./table-dropdown-menu";
 import { EmojiDropdownMenu } from "./emoji-dropdown-menu";
 import { CommentToolbarButton } from "./comment-toolbar-button";
-import { Button } from "./button";
+import { ArticleSaveButton } from "./article-save-button";
 
-export function FixedToolbarButtons() {
+export function FixedToolbarButtons({ id }: { id: string }) {
   const readOnly = usePlateReadOnly();
-  const plate = usePlateEditorState()
 
   return (
     <div className="w-full overflow-hidden">
@@ -84,9 +83,7 @@ export function FixedToolbarButtons() {
         <div className="grow" />
         <ToolbarGroup noSeparator>
           <CommentToolbarButton />
-          <Button  size={'sm'}>
-            Save
-          </Button>
+          <ArticleSaveButton id={id} />
           <ModeDropdownMenu />
         </ToolbarGroup>
       </div>

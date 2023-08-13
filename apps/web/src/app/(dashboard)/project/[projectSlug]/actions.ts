@@ -131,7 +131,7 @@ export const updateArticle = async ({
   slug?: string;
   nodes: any[];
 }) => {
-  console.log("NODES", nodes);
+  console.log("NODES", nodes, id);
   return await db.transaction(async (tx) => {
     const existingArticle = await tx.query.article.findFirst({
       where: (article, { eq }) => eq(article.id, id),
@@ -162,16 +162,20 @@ export const updateArticle = async ({
     );
 
     nodes.forEach(async (node) => {
+      console.log(node);
       await tx
         .insert(articleNode)
         .values({
-          ...node,
+          id: node.id,
+          type: node.type,
+          data: node,
           articleId: id,
         })
         .onConflictDoUpdate({
           target: articleNode.id,
           set: {
-            ...node,
+            type: node.type,
+            data: node,
           },
         });
     });

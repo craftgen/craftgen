@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-import { Toolbar, ToolbarProps } from './toolbar';
+import { Toolbar, ToolbarProps } from "./toolbar";
 
 const FixedToolbar = React.forwardRef<HTMLDivElement, ToolbarProps>(
   ({ className, ...props }: ToolbarProps, ref) => {
@@ -10,7 +10,7 @@ const FixedToolbar = React.forwardRef<HTMLDivElement, ToolbarProps>(
       <Toolbar
         ref={ref}
         className={cn(
-          'supports-backdrop-blur:bg-background/60 sticky left-0 top-[57px] z-50 w-full justify-between overflow-x-auto rounded-t-lg border-b border-b-border bg-background/95 backdrop-blur',
+          "supports-backdrop-blur:bg-background/60 sticky left-0 top-20 z-50 w-full justify-between overflow-x-auto  border-b border-b-border bg-background/95 backdrop-blur",
           className
         )}
         {...props}
@@ -18,6 +18,6 @@ const FixedToolbar = React.forwardRef<HTMLDivElement, ToolbarProps>(
     );
   }
 );
-FixedToolbar.displayName = 'FixedToolbar';
+FixedToolbar.displayName = "FixedToolbar";
 
 export { FixedToolbar };

@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { getArticle, updateArticle } from "../../actions";
 import { usePlateEditorState } from "@udecode/plate-common";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const initialValue = [
   {
@@ -37,21 +38,13 @@ export const ArticleEditor: React.FC<{
       fallbackData: article,
     }
   );
-  const handleSave = async () => {
-    const res = await updateArticle({
-      id: article.id,
-      slug: article.slug,
-      title: article.title,
-      nodes: val,
-    });
-  };
   return (
     <>
-      <Button onClick={handleSave}>Save</Button>
       <Editor
+        id={article.id}
         initialValue={
           data?.nodes?.length && data.nodes.length > 0
-            ? data?.nodes
+            ? data?.nodes.map((node) => node.data)
             : initialValue
         }
         onChange={(v) => setVal(v)}

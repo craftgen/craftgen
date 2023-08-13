@@ -69,8 +69,10 @@ import { linkPlugin } from "./plugins/link-plugin";
 import { captionPlugin } from "./plugins/caption-plugin";
 import { create } from "zustand";
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 
 type EditorProps = {
+  id: string;
   initialValue?: any[];
   onChange?: (value: any[]) => void;
 };
@@ -185,12 +187,11 @@ const EditorStore = () => {
 };
 
 export const Editor: React.FC<EditorProps> = ({
+  id,
   initialValue = [],
   onChange = console.log,
 }) => {
   const containerRef = useRef(null);
-  const { editor } = useStore();
-
   return (
     <TooltipProvider>
       <DndProvider backend={HTML5Backend}>
@@ -199,39 +200,49 @@ export const Editor: React.FC<EditorProps> = ({
           initialValue={initialValue}
           onChange={onChange}
         >
-          <EditorStore />
+          {/* <EditorStore /> */}
           <FixedToolbar>
-            <FixedToolbarButtons />
+            <FixedToolbarButtons id={id}/>
           </FixedToolbar>
-          <div className="flex w-full">
-            <CommentsProvider users={{}} myUserId={undefined}>
-              <div
-                ref={containerRef}
-                className={cn(
-                  "relative flex max-w-[900px] overflow-x-auto",
-                  "[&_.slate-start-area-top]:!h-4",
-                  "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
-                )}
+          <ScrollArea>
+            <div className="flex w-full justify-center">
+              <CommentsProvider
+                // users={{
+                //   123: {
+                //     id: 123,
+                //     name: "John Doe",
+                //   },
+                // }}
+                // myUserId={"123"}
               >
-                <Plate<MyValue>
-                  editableProps={{
-                    placeholder: "Type...",
-                    autoFocus: true,
-                    className: cn(
-                      "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
-                      "!min-h-[600px] w-[900px] px-[96px] py-16"
-                    ),
-                  }}
+                <div
+                  ref={containerRef}
+                  className={cn(
+                    "relative flex max-w-[900px] overflow-x-auto",
+                    "[&_.slate-start-area-top]:!h-4",
+                    "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
+                  )}
                 >
-                  <FloatingToolbar>
-                    <FloatingToolbarButtons />
-                  </FloatingToolbar>
-                  <CursorOverlay containerRef={containerRef} />
-                </Plate>
-              </div>
-              <CommentsPopover />
-            </CommentsProvider>
-          </div>
+                  <Plate<MyValue>
+                    editableProps={{
+                      placeholder: "Type...",
+                      autoFocus: true,
+                      className: cn(
+                        "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
+                        "!min-h-[600px] w-[900px] px-[96px] py-16"
+                      ),
+                    }}
+                  >
+                    <FloatingToolbar>
+                      <FloatingToolbarButtons />
+                    </FloatingToolbar>
+                    <CursorOverlay containerRef={containerRef} />
+                  </Plate>
+                </div>
+                <CommentsPopover />
+              </CommentsProvider>
+            </div>
+          </ScrollArea>
         </PlateProvider>
       </DndProvider>
     </TooltipProvider>

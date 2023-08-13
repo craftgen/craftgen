@@ -6,6 +6,7 @@ import {
   pgEnum,
   json,
   unique,
+  integer,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -156,7 +157,7 @@ export const article = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     projectId: uuid("project_id")
       .notNull()
-      .references(() => project.id),
+      .references(() => project.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     slug: text("slug").notNull(),
     status: articleStatusEnum("article_status").notNull().default("draft"),
@@ -184,9 +185,9 @@ export const articleNode = pgTable("article_node", {
   id: uuid("id").primaryKey().defaultRandom(),
   articleId: uuid("article_id")
     .notNull()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
-  children: json("children").notNull(),
+  data: json("data").notNull(),
 });
 
 export const Link = pgTable("link", {

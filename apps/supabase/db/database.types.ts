@@ -89,23 +89,30 @@ export interface Database {
       article_node: {
         Row: {
           article_id: string
-          children: Json
+          data: Json
           id: string
           type: string
         }
         Insert: {
           article_id: string
-          children: Json
+          data: Json
           id?: string
           type: string
         }
         Update: {
           article_id?: string
-          children?: Json
+          data?: Json
           id?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "article_node_article_id_article_id_fk"
+            columns: ["article_id"]
+            referencedRelation: "article"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       data_row: {
         Row: {
