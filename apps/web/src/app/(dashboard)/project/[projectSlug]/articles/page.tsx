@@ -11,7 +11,7 @@ const ArticlesPage = async ({
   const project = await getProject(params.projectSlug as string);
   const articles = await getArticles({ projectId: project?.id! });
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center mt-8">
       <div className="max-w-6xl w-full">
         <ArticleList articles={articles} projectId={project?.id!} />
       </div>

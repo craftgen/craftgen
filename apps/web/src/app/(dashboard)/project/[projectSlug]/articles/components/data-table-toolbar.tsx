@@ -74,5 +74,5 @@ const NewArticleButton = () => {
       projectId: project?.id,
     });
   };
-  return <Button onClick={handleNewArticle}>New Article</Button>;
+  return <Button className="ml-4" size={'sm'} onClick={handleNewArticle}>New Article</Button>;
 };

@@ -4,11 +4,7 @@ import { SelectControl } from "../ui/control/control-select";
 import { TextSocket } from "../sockets";
 import { TableControl } from "../ui/control/control-table";
 import { createMachine, assign, fromPromise, StateFrom } from "xstate";
-import {
-  getDataSet,
-  getDataSets,
-  getDatasetPaginated,
-} from "../../../../playground/[playgroundId]/nodes/actions";
+import { getDataSet, getDataSets, getDatasetPaginated } from "../../action";
 import { BaseNode, NodeData } from "./base";
 import { ButtonControl } from "../ui/control/control-button";
 

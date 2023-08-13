@@ -1,18 +1,22 @@
 import { getPlayground } from "./action";
-import "./flow.css";
 import { Playground } from "./playground";
+import "./rete.css";
 
-export default async function Home(props: {
+const PlaygroundPage = async (props: {
   params: {
     projectSlug: string;
     playgroundId: string;
   };
-}) {
-  const playground = await getPlayground({ playgroundId: props.params.playgroundId });
-
+}) => {
+  const playground = await getPlayground({
+    playgroundId: props.params.playgroundId,
+  });
+  if (!playground) return <div>Not found</div>;
   return (
-    <main className="w-screen h-[calc(100vh-4rem)]">
+    <div>
       <Playground playground={playground} />
-    </main>
+    </div>
   );
-}
+};
+
+export default PlaygroundPage;
