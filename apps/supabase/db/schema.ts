@@ -5,6 +5,7 @@ import {
   uuid,
   pgEnum,
   json,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -110,7 +111,7 @@ export const projectRelations = relations(project, ({ many, one }) => ({
   nodes: many(nodeData),
   playground: many(playground),
   members: many(projectMembers),
-  articles: many(articles),
+  articles: many(article),
   datasets: many(dataSet),
 }));
 
@@ -149,15 +150,60 @@ export const articleStatusEnum = pgEnum("article_status", [
   "archived",
 ]);
 
-export const articles = pgTable("articles", {
-  id: uuid("id").primaryKey(),
-  projectId: uuid("project_id").notNull(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  status: articleStatusEnum("article_status").notNull().default("draft"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+export const article = pgTable(
+  "article",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => project.id),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    status: articleStatusEnum("article_status").notNull().default("draft"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    slug: unique("slug").on(t.projectId, t.slug),
+  })
+);
+
+export const articleRelations = relations(article, ({ one, many }) => ({
+  project: one(project, {
+    fields: [article.projectId],
+    references: [project.id],
+  }),
+  metadata: one(articleMetadata, {
+    fields: [article.id],
+    references: [articleMetadata.id],
+  }),
+  nodes: many(articleNode),
+}));
+
+export const articleNode = pgTable("article_node", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  articleId: uuid("article_id")
+    .notNull()
+    .references(() => article.id),
+  type: text("type").notNull(),
+  children: json("children").notNull(),
 });
+
+export const Link = pgTable("link", {
+  id: uuid("id").primaryKey(),
+  articleNodeId: uuid("article_node_id").notNull(),
+  type: text("type").$type<"internal" | "external">().notNull(),
+  url: text("url").notNull(),
+  article: uuid("article_id"),
+});
+
+export const articleNodeRelations = relations(articleNode, ({ many, one }) => ({
+  links: many(Link),
+  article: one(article, {
+    fields: [articleNode.articleId],
+    references: [article.id],
+  }),
+}));
 
 export const articleMetadata = pgTable("article_metadata", {
   id: uuid("id").primaryKey(),

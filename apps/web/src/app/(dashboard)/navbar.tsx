@@ -7,14 +7,6 @@ import { Network } from "lucide-react";
 import { TeamSwitcher } from "./components/team-switcher";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
 export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({

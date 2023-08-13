@@ -34,6 +34,43 @@ export interface Database {
   }
   public: {
     Tables: {
+      article: {
+        Row: {
+          article_status: Database["public"]["Enums"]["article_status"]
+          created_at: string
+          id: string
+          project_id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          article_status?: Database["public"]["Enums"]["article_status"]
+          created_at?: string
+          id?: string
+          project_id: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          article_status?: Database["public"]["Enums"]["article_status"]
+          created_at?: string
+          id?: string
+          project_id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       article_metadata: {
         Row: {
           article_id: string
@@ -49,33 +86,24 @@ export interface Database {
         }
         Relationships: []
       }
-      articles: {
+      article_node: {
         Row: {
-          article_status: Database["public"]["Enums"]["article_status"]
-          content: string
-          created_at: string
+          article_id: string
+          children: Json
           id: string
-          project_id: string
-          title: string
-          updated_at: string
+          type: string
         }
         Insert: {
-          article_status?: Database["public"]["Enums"]["article_status"]
-          content: string
-          created_at?: string
-          id: string
-          project_id: string
-          title: string
-          updated_at?: string
+          article_id: string
+          children: Json
+          id?: string
+          type: string
         }
         Update: {
-          article_status?: Database["public"]["Enums"]["article_status"]
-          content?: string
-          created_at?: string
+          article_id?: string
+          children?: Json
           id?: string
-          project_id?: string
-          title?: string
-          updated_at?: string
+          type?: string
         }
         Relationships: []
       }
@@ -131,6 +159,30 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+      }
+      link: {
+        Row: {
+          article_id: string | null
+          article_node_id: string
+          id: string
+          type: string
+          url: string
+        }
+        Insert: {
+          article_id?: string | null
+          article_node_id: string
+          id: string
+          type: string
+          url: string
+        }
+        Update: {
+          article_id?: string | null
+          article_node_id?: string
+          id?: string
+          type?: string
+          url?: string
+        }
+        Relationships: []
       }
       node_data: {
         Row: {

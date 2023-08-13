@@ -25,8 +25,6 @@ import {
   HistoryExtensions,
 } from "rete-history-plugin";
 
-import * as Nodes from "./nodes";
-
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
@@ -52,7 +50,6 @@ import {
 } from "./ui/control/control-debug";
 import { createNode } from "./io";
 import type { getPlayground } from "../action";
-import { playground } from "@seocraft/supabase/db";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 

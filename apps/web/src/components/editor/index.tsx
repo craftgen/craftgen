@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  Plate,
-  PlateProvider,
-  createPlugins,
-  usePlateSelectors,
-} from "@udecode/plate-common";
+import { v4 as uuidv4 } from "uuid";
+import { Plate, PlateProvider, usePlateSelectors } from "@udecode/plate-common";
 import {
   createBoldPlugin,
   createCodePlugin,
@@ -139,7 +135,11 @@ const plugins = createMyPlugins(
     }),
     createBlockSelectionPlugin(),
     createComboboxPlugin(),
-    createNodeIdPlugin(),
+    createNodeIdPlugin({
+      options: {
+        idCreator: uuidv4,
+      },
+    }),
     createDndPlugin({ options: { enableScroller: true } }),
     createCommentsPlugin(),
     createResetNodePlugin({
@@ -166,15 +166,18 @@ const useStore = create<{
 
 const EditorStore = () => {
   const editor = usePlateSelectors().editor();
-  console.log(editor);
   const { setEditor } = useStore();
   setEditor(editor);
   return (
     <div>
-      <Button onClick={() => editor.insertNode({
-        text: "Hello",
-        type: ELEMENT_H1,
-      })}>
+      <Button
+        onClick={() =>
+          editor.insertNode({
+            text: "Hello",
+            type: ELEMENT_H1,
+          })
+        }
+      >
         Insert Text
       </Button>
     </div>
@@ -187,7 +190,6 @@ export const Editor: React.FC<EditorProps> = ({
 }) => {
   const containerRef = useRef(null);
   const { editor } = useStore();
-  console.log(editor);
 
   return (
     <TooltipProvider>

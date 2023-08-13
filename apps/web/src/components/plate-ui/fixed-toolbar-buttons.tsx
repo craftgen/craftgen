@@ -6,7 +6,7 @@ import {
   MARK_STRIKETHROUGH,
   MARK_UNDERLINE,
 } from "@udecode/plate-basic-marks";
-import { usePlateReadOnly } from "@udecode/plate-common";
+import { usePlateEditorState, usePlateReadOnly } from "@udecode/plate-common";
 
 import { Icons } from "@/components/icons";
 
@@ -22,9 +22,11 @@ import { ELEMENT_IMAGE } from "@udecode/plate-media";
 import { TableDropdownMenu } from "./table-dropdown-menu";
 import { EmojiDropdownMenu } from "./emoji-dropdown-menu";
 import { CommentToolbarButton } from "./comment-toolbar-button";
+import { Button } from "./button";
 
 export function FixedToolbarButtons() {
   const readOnly = usePlateReadOnly();
+  const plate = usePlateEditorState()
 
   return (
     <div className="w-full overflow-hidden">
@@ -80,9 +82,11 @@ export function FixedToolbarButtons() {
         )}
 
         <div className="grow" />
-
         <ToolbarGroup noSeparator>
           <CommentToolbarButton />
+          <Button  size={'sm'}>
+            Save
+          </Button>
           <ModeDropdownMenu />
         </ToolbarGroup>
       </div>

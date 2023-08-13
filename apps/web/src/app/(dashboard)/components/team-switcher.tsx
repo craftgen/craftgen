@@ -110,7 +110,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
             role="combobox"
             aria-expanded={open}
             aria-label="Select a team"
-            className={cn("w-[200px] justify-between", className)}
+            className={cn("w-[280px] justify-between", className)}
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
@@ -123,7 +123,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className="w-[280px] p-0">
           <Command>
             <CommandList>
               <CommandInput placeholder="Search team..." />

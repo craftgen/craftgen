@@ -14,7 +14,8 @@ import { useMemo } from "react";
 
 export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
   const flatten = useMemo(() => {
-    return metrics.rows
+    if (!metrics?.rows) return [];
+    return metrics?.rows
       .map((row: any) => {
         const date = row.keys[0];
         return {

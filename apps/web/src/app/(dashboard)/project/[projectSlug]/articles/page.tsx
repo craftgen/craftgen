@@ -1,24 +1,25 @@
-"use client";
+import { getArticles, getProject } from "../actions";
+import { ArticleList } from "./article-list";
 
-import { Editor } from "@/components/editor";
-import { useState } from "react";
-
-const initialValue = [
-  {
-    type: "p",
-    children: [
-      {
-        text: "This is editable plain text with react and history plugins, just like a <textarea>!",
-      },
-    ],
-  },
-];
-const ArticlesPage = () => {
-  const [val, setVal] = useState<any>();
+const ArticlesPage = async ({
+  params,
+}: {
+  params: {
+    projectSlug: string;
+  };
+}) => {
+  const project = await getProject(params.projectSlug as string);
+  const articles = await getArticles({ projectId: project?.id! });
+  console.log(articles);
   return (
-    <div>
-      {val && <pre>{JSON.stringify(val, null, 2)}</pre>}
-      <Editor initialValue={initialValue} onChange={(v) => setVal(v)} />
+    <div className="flex flex-col items-center">
+      Articles
+      <pre>
+        <code>{JSON.stringify(articles, null, 2)}</code>
+      </pre>
+      <div className="max-w-6xl w-full">
+        <ArticleList articles={articles} projectId={project?.id!} />
+      </div>
     </div>
   );
 };

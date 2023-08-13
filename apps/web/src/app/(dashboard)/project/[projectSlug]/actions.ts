@@ -1,8 +1,17 @@
 "use server";
 
-import { getGoogleAuth, getWebmaster } from "@/lib/google";
+import { getWebmaster } from "@/lib/google";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, playground } from "@seocraft/supabase/db";
+import {
+  and,
+  article,
+  articleNode,
+  db,
+  eq,
+  inArray,
+  not,
+  playground,
+} from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 
@@ -73,4 +82,125 @@ export const getSearchQueries = async ({ siteUrl }: { siteUrl: string }) => {
     },
   });
   return res.data;
+};
+
+export const getArticles = async ({ projectId }: { projectId: string }) => {
+  const articles = await db.query.article.findMany({
+    where: (article, { eq }) => eq(article.projectId, projectId),
+    with: {
+      project: true,
+      metadata: true,
+    },
+  });
+  return articles.map((article) => {
+    return {
+      ...article,
+      link: `/project/${article.project.slug}/articles/${article.slug}`,
+      originalLink: `${article.project.site}${article.slug}`,
+    };
+  });
+};
+export const getArticle = async ({
+  projectId,
+  articleSlug,
+}: {
+  projectId: string;
+  articleSlug: string[];
+}) => {
+  return await db.query.article.findFirst({
+    where: (article, { eq, and }) =>
+      and(
+        eq(article.slug, articleSlug.join("/")),
+        eq(article.projectId, projectId)
+      ),
+    with: {
+      project: true,
+      metadata: true,
+      nodes: true,
+    },
+  });
+};
+export const updateArticle = async ({
+  id,
+  nodes,
+  title,
+  slug,
+}: {
+  id: string;
+  title?: string;
+  slug?: string;
+  nodes: any[];
+}) => {
+  console.log("NODES", nodes);
+  return await db.transaction(async (tx) => {
+    const existingArticle = await tx.query.article.findFirst({
+      where: (article, { eq }) => eq(article.id, id),
+      with: {
+        nodes: true,
+        project: true,
+      },
+    });
+    console.log("EXISTING", existingArticle);
+    if (title || slug) {
+      const updates = {
+        ...(title && { title }),
+        ...(slug && { slug }),
+      };
+      await tx.update(article).set(updates).where(eq(article.id, id));
+    }
+
+    await tx.delete(articleNode).where(
+      and(
+        eq(articleNode.articleId, id),
+        not(
+          inArray(
+            articleNode.id,
+            nodes.map((node) => node.id)
+          )
+        )
+      )
+    );
+
+    nodes.forEach(async (node) => {
+      await tx
+        .insert(articleNode)
+        .values({
+          ...node,
+          articleId: id,
+        })
+        .onConflictDoUpdate({
+          target: articleNode.id,
+          set: {
+            ...node,
+          },
+        });
+    });
+    return await tx.query.article.findFirst({
+      where: (article, { eq }) => eq(article.id, id),
+      with: {
+        nodes: true,
+        project: true,
+      },
+    });
+  });
+};
+
+export const createArticle = async ({
+  projectId,
+  title = "New Article",
+  slug = `new-article-${+new Date()}`,
+}: {
+  projectId: string;
+  title?: string;
+  slug?: string;
+}) => {
+  const newArticle = await db
+    .insert(article)
+    .values({
+      title: title,
+      slug,
+      projectId,
+    })
+    .returning();
+  return newArticle[0];
 };
