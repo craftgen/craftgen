@@ -66,7 +66,7 @@ export function DataTableToolbar<TData>({
 
 const NewArticleButton = () => {
   const { data: project } = useProject();
-  console.log(project);
+  console.log('project', project);
 
   const handleNewArticle = () => {
     if (!project) return;

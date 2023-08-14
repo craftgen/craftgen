@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
 import { ActionSocket, TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
-import { generateTextFn } from "../actions";
+// import { generateTextFn } from "../actions";
 import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS } from "ai-utils.js";
 import { BaseNode, NodeData } from "./base";
@@ -79,7 +79,7 @@ export class OpenAIFunctionCall extends BaseNode<
     });
     const input = new ClassicPreset.Input(new TextSocket(), "Prompt");
     input.addControl(control);
-    console.log(input);
+    console.log('openai', input);
     this.addInput("prompt", input);
 
     this.addOutput(
@@ -89,7 +89,7 @@ export class OpenAIFunctionCall extends BaseNode<
   }
 
   async execute(input: any, forward: (output: "message") => void) {
-    console.log(this);
+    console.log('aaa', this);
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       prompt?: string;
       message: string[];

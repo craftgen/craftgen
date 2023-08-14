@@ -23,7 +23,7 @@ export class Start extends BaseNode<
   static ID: "start";
 
   constructor(di: DiContainer, data: NodeData<typeof StartNodeMachine>) {
-    console.log(di, data);
+    console.log('aa', di, data);
     super("Start", di, data, StartNodeMachine, {});
 
     this.addOutput(

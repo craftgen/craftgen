@@ -126,13 +126,13 @@ export class DataSource extends BaseNode<
       actors: {
         fetchDataSets: fromPromise(async () => {
           const datasets = await getDataSets(data.project_id);
-          console.log({ datasets });
+          console.log('datasets', { datasets });
           return datasets;
         }),
         fetchDataset: fromPromise(async ({ input }) => {
           console.log("fetching data", input);
           const data = await getDataSet(input.datasetId);
-          console.log(data);
+          console.log('data sss', data);
           console.log("DDD", data?.rows);
           return data;
         }),

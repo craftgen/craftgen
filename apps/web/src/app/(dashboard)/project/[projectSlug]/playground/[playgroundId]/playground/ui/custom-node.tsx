@@ -17,7 +17,9 @@ import { NodeTypes } from "../types";
 import { Button } from "@/components/ui/button";
 import { Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
-import { useSelector } from "@xstate/react";
+import { useActorRef, useSelector } from "@xstate/react";
+import { debounce } from "lodash-es";
+import { setNodeData } from "../../action";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -51,6 +53,18 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const { id, label, width, height } = props.data;
   const { di } = useStore();
   const [debug, SetDebug] = React.useState(false);
+
+  const saveDebounced = debounce((state: string) => {
+    console.log("saving state", state, typeof state);
+    setNodeData({ nodeId: props.data.id, state });
+  }, 1000);
+
+  React.useEffect(() => {
+    const listener = props.data.actor.subscribe((state) => {
+      saveDebounced(JSON.stringify(state));
+    });
+    return () => listener.unsubscribe();
+  });
 
   sortByIndex(inputs);
   sortByIndex(outputs);

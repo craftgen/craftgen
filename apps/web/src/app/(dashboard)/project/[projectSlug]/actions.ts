@@ -169,7 +169,7 @@ export const updateArticle = async ({
     );
 
     nodes.forEach(async (node) => {
-      console.log(node);
+      console.log('node', node);
       await tx
         .insert(articleNode)
         .values({

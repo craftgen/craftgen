@@ -9,7 +9,7 @@ import {
   interpret,
 } from "xstate";
 import { debounce } from "lodash-es";
-import { setNodeData } from "../actions";
+import { setNodeData } from "../../action";
 
 export type NodeData<T extends AnyStateMachine> = {
   id: string;
@@ -52,35 +52,19 @@ export class BaseNode<
     this.id = data.id;
     this.di = di;
     const a = machine.provide(machineImplements as any);
-    console.log("creating actor with data", data?.state);
-    console.log({
-      id: this.id,
-      ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
-    });
     this.actor = interpret(a, {
       id: this.id,
       ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
     });
 
-    const s = this.actor.getSnapshot();
-    console.log("first snapshot", s);
+    // const saveDebounced = debounce((state: string) => {
+    //   console.log("saving state", state, typeof state);
+    //   // setNodeData({ nodeId: this.id, state });
+    // }, 1000);
 
-    const saveDebounced = debounce((state) => {
-      console.log("saving state", state);
-      setNodeData(this.id, state);
-    }, 1000);
-
-    const dataFlowDebounce = debounce(() => {
-      di.dataFlow?.reset();
-      di.editor.getNodes().forEach((n) => {
-        di.dataFlow?.fetch(n.id);
-      });
-    }, 100);
-
-    this.actor.subscribe((state) => {
-      // dataFlowDebounce();
-      saveDebounced(JSON.stringify(state));
-    });
+    // this.actor.subscribe((state) => {
+    //   saveDebounced(JSON.stringify(state));
+    // });
 
     this.actor.start();
   }

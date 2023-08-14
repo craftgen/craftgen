@@ -142,7 +142,6 @@ export class PromptTemplate extends BaseNode<
           return rawTemplate;
         }),
         render: fromPromise(async ({ input }) => {
-          // console.log({ inputs: this.inputs, input });
           const inputs = (await this.di.dataFlow?.fetchInputs(this.id)) as {};
 
           const values = Object.entries(inputs).reduce((prev, curr) => {

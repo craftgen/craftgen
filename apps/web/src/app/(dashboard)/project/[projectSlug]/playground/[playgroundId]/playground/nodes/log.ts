@@ -41,7 +41,7 @@ export class Log extends BaseNode<
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };
-    console.log((inputs.message && inputs.message[0]) || "");
+    console.log('inputs log', (inputs.message && inputs.message[0]) || "");
 
     forward("exec");
   }

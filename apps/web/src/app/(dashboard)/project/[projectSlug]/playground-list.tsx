@@ -9,6 +9,7 @@ import Link from "next/link";
 import { DataTable } from "@/components/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { ResultOf } from "@/lib/type";
+import { formatDistanceToNow } from "date-fns";
 
 const columns: ColumnDef<ResultOf<typeof getPlaygrounds>[number]>[] = [
   {
@@ -24,8 +25,8 @@ const columns: ColumnDef<ResultOf<typeof getPlaygrounds>[number]>[] = [
   },
   {
     header: "Last Updated",
-    accessorKey: "updated_at",
-    cell: ({ row }) => row.getValue("updated_at"),
+    accessorKey: "updatedAt",
+    cell: ({ row }) => formatDistanceToNow(row.getValue("updatedAt")),
   },
 ];
 export const PlaygroundList: React.FC<{ projectId: string }> = ({

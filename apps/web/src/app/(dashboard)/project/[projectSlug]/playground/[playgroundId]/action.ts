@@ -13,7 +13,7 @@ import {
   gt,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import {  NodeTypes } from "./playground/types";
+import { NodeTypes } from "./playground/types";
 
 export const getPlayground = async (params: { playgroundId: string }) => {
   const supabase = createServerActionClient({ cookies });
@@ -58,13 +58,6 @@ export const savePlayground = async (params: {
     const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
       return !params.nodes.find((n) => n.id === node.node_id);
     });
-    console.log(
-      JSON.stringify(
-        { nodeToPlaygroundsDelete, playgroundNodes, params },
-        null,
-        2
-      )
-    );
 
     if (nodeToPlaygroundsDelete.length > 0) {
       await tx.delete(nodeToPlayground).where(
@@ -140,7 +133,7 @@ export const getDataSet = async (dataSetId: string) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    console.log('err', err);
   }
 };
 
@@ -152,7 +145,7 @@ export const getDatasetPaginated = async (params: {
   const cursorCondition = params.cursor
     ? gt(dataRow.id, params.cursor)
     : undefined;
-  console.log(cursorCondition);
+  console.log('cursorCondition', cursorCondition);
   const data = await db
     .select()
     .from(dataRow)
@@ -167,14 +160,20 @@ export const getDatasetPaginated = async (params: {
 };
 
 export const getNodeData = async (nodeId: string) => {
-  console.log({ nodeId });
+  console.log('getNodeData', { nodeId });
 
   return await db.query.nodeData.findFirst({
     where: (nodeData, { eq }) => eq(nodeData.id, nodeId),
   });
 };
 
-export const setNodeData = async (nodeId: string, state: any) => {
+export const setNodeData = async ({
+  nodeId,
+  state,
+}: {
+  nodeId: string;
+  state: any;
+}) => {
   return await db
     .update(nodeData)
     .set({ state: JSON.parse(state) })
