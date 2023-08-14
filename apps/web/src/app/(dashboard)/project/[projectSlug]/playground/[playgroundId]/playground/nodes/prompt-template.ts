@@ -2,10 +2,10 @@ import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
 import { DiContainer } from "../editor";
 import { isString, set, get } from "lodash-es";
-import { TextSocket } from "../sockets";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
+import { stringSocket } from "../sockets";
 
 type Data = {
   value: string;
@@ -165,7 +165,7 @@ export class PromptTemplate extends BaseNode<
     this.actor.subscribe((state) => {
       this.process();
     });
-    this.addOutput("value", new ClassicPreset.Output(new TextSocket(), "Text"));
+    this.addOutput("value", new ClassicPreset.Output(stringSocket, "Text"));
     const self = this;
     this.addControl(
       "template",

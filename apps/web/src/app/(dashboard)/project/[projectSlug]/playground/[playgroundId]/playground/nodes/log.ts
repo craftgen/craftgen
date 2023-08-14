@@ -1,8 +1,8 @@
 import { ClassicPreset } from "rete";
-import { ActionSocket, TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
+import { anySocket, triggerSocket } from "../sockets";
 
 const LogNodeMachine = createMachine({
   id: "log",
@@ -22,15 +22,9 @@ export class Log extends BaseNode<
   constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {
     super("Log", di, data, LogNodeMachine, {});
 
-    this.addInput(
-      "exec",
-      new ClassicPreset.Input(new ActionSocket(), "Exec", true)
-    );
-    this.addInput("message", new ClassicPreset.Input(new TextSocket(), "Text"));
-    this.addOutput(
-      "exec",
-      new ClassicPreset.Output(new ActionSocket(), "Exec")
-    );
+    this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
+    this.addInput("message", new ClassicPreset.Input(anySocket, "Data"));
+    this.addOutput("exec", new ClassicPreset.Output(triggerSocket, "Exec"));
   }
 
   async execute(input: "exec", forward: (output: "exec") => void) {
@@ -44,10 +38,6 @@ export class Log extends BaseNode<
     console.log("inputs log", (inputs.message && inputs.message[0]) || "");
 
     forward("exec");
-  }
-
-  data() {
-    return {};
   }
 
   public delete() {

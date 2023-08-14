@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
 import { SelectControl } from "../ui/control/control-select";
-import { TextSocket } from "../sockets";
+import { DatabaseIdSocket, TextSocket } from "../sockets";
 import { TableControl } from "../ui/control/control-table";
 import { createMachine, assign, fromPromise, StateFrom } from "xstate";
 import { getDataSet, getDataSets, getDatasetPaginated } from "../../action";
@@ -108,11 +108,10 @@ const datasetMachine = createMachine({
 
 export class DataSource extends BaseNode<
   typeof datasetMachine,
-  {
-    insert: TextSocket;
-  },
+  {},
   {
     foreach: TextSocket;
+    databaseId: DatabaseIdSocket;
   },
   {
     datasourceId?: SelectControl<string>;
@@ -146,11 +145,6 @@ export class DataSource extends BaseNode<
       this.syncStateWithUI(state);
     });
 
-    this.addInput(
-      "insert",
-      new ClassicPreset.Input(new TextSocket(), "insert")
-    );
-
     this.addOutput(
       "foreach",
       new ClassicPreset.Output(new TextSocket(), "foreach")
@@ -160,18 +154,6 @@ export class DataSource extends BaseNode<
   }
 
   syncStateWithUI(state: StateFrom<typeof datasetMachine>) {
-    if (state.matches("ready")) {
-      this.addControl(
-        "createButton",
-        new ButtonControl("Create", () => {
-          this.actor.send({
-            type: "CREATE",
-          });
-        })
-      );
-    } else {
-      this.removeControl("createButton");
-    }
     if (state.matches("ready") && !this.controls.datasourceId) {
       this.addControl(
         "datasourceId",
@@ -196,6 +178,10 @@ export class DataSource extends BaseNode<
       }
 
       if (!this.controls.datasource) {
+        this.addOutput(
+          "databaseId",
+          new ClassicPreset.Output(DatabaseIdSocket, "databaseId")
+        );
         this.addControl(
           "datasource",
           new TableControl(

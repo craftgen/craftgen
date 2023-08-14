@@ -29,7 +29,6 @@ import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
 import { NodeTypes, Schemes } from "./types";
-import { ActionSocket, TextSocket } from "./sockets";
 import { getConnectionSockets } from "./utis";
 import { CustomContextMenu } from "./ui/context-menu";
 import { CustomInput } from "./ui/control/custom-input";
@@ -142,11 +141,11 @@ export async function createEditor(
     return {
       inputs: () =>
         Object.entries(inputs)
-          .filter(([_, input]) => input.socket instanceof ActionSocket)
+          .filter(([_, input]) => input?.socket?.name === "Trigger")
           .map(([name]) => name),
       outputs: () =>
         Object.entries(outputs)
-          .filter(([_, output]) => output.socket instanceof ActionSocket)
+          .filter(([_, input]) => input?.socket?.name === "Trigger")
           .map(([name]) => name),
     };
   });
@@ -154,14 +153,16 @@ export async function createEditor(
     return {
       inputs: () =>
         Object.entries(inputs)
-          .filter(([_, input]) => input?.socket instanceof TextSocket)
+          .filter(([_, input]) => input?.socket?.name !== "Trigger")
           .map(([name]) => name),
       outputs: () =>
         Object.entries(outputs)
-          .filter(([_, output]) => output.socket instanceof TextSocket)
+          .filter(([_, input]) => input?.socket?.name !== "Trigger")
           .map(([name]) => name),
     };
   });
+
+  console.log(dataFlow);
 
   const curriedCreateNode = ({
     name,
@@ -181,6 +182,16 @@ export async function createEditor(
   };
   const contextMenu = new ContextMenuPlugin<Schemes>({
     items: ContextMenuPresets.classic.setup([
+      [
+        "Database",
+        [
+          ["Insert", () => curriedCreateNode({ name: "DatabaseInsert" })],
+          ["Update", () => curriedCreateNode({ name: "DatabaseUpdate" })],
+          ["Upsert", () => curriedCreateNode({ name: "DatabaseUpsert" })],
+          ["Delete", () => curriedCreateNode({ name: "DatabaseDelete" })],
+          ["Select", () => curriedCreateNode({ name: "DatabaseSelect" })],
+        ],
+      ],
       ["Log", () => curriedCreateNode({ name: "Log" })],
       [
         "Text",
@@ -192,7 +203,6 @@ export async function createEditor(
       ["Start", () => curriedCreateNode({ name: "Start" })],
       ["Prompt Template", () => curriedCreateNode({ name: "PromptTemplate" })],
       ["OpenAI", () => curriedCreateNode({ name: "OpenAIFunctionCall" })],
-      ["OpenAI Function", () => curriedCreateNode({ name: "FunctionNode" })],
       ["Data Source", () => curriedCreateNode({ name: "DataSource" })],
     ]),
   });
@@ -220,7 +230,6 @@ export async function createEditor(
     if (context.type === "connectioncreate") {
       const { data } = context;
       const { source, target } = getConnectionSockets(editor, data);
-
       if (!source.isCompatibleWith(target)) {
         console.log("Sockets are not compatible", "error");
         return;

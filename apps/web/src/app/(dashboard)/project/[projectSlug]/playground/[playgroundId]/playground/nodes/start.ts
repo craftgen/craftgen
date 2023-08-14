@@ -1,9 +1,9 @@
 import { ClassicPreset } from "rete";
-import { ActionSocket } from "../sockets";
 import { DiContainer } from "../editor";
 import { ButtonControl } from "../ui/control/control-button";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
+import { triggerSocket } from "../sockets";
 
 const StartNodeMachine = createMachine({
   id: "startNode",
@@ -28,7 +28,7 @@ export class Start extends BaseNode<
 
     this.addOutput(
       "exec",
-      new ClassicPreset.Output(new ActionSocket(), "Exec")
+      new ClassicPreset.Output(triggerSocket, "Exec")
     );
     this.addControl(
       "trigger",

@@ -6,8 +6,12 @@ import {
   PromptTemplate,
   Start,
   TextNode,
-  FunctionNode,
   DataSource,
+  DatabaseDelete,
+  DatabaseInsert,
+  DatabaseSelect,
+  DatabaseUpdate,
+  DatabaseUpsert,
 } from "./nodes";
 
 const nodes = {
@@ -16,13 +20,18 @@ const nodes = {
   TextNode: TextNode,
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
-  FunctionNode: FunctionNode,
   DataSource: DataSource,
+
+  DatabaseDelete: DatabaseDelete,
+  DatabaseInsert: DatabaseInsert,
+  DatabaseSelect: DatabaseSelect,
+  DatabaseUpdate: DatabaseUpdate,
+  DatabaseUpsert: DatabaseUpsert,
 };
 
 type ValueOf<T> = T[keyof T];
 export type NodeTypes = ValueOf<{
-  [Property in keyof typeof nodes as string]: Property
+  [Property in keyof typeof nodes as string]: Property;
 }>;
 
 export type NodeProps =
@@ -31,7 +40,12 @@ export type NodeProps =
   | TextNode
   | PromptTemplate
   | OpenAIFunctionCall
-  | FunctionNode
-  | DataSource;
+  | DataSource
+  | DatabaseDelete
+  | DatabaseInsert
+  | DatabaseSelect
+  | DatabaseUpdate
+  | DatabaseUpsert;
+
 export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;

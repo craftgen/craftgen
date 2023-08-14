@@ -30,8 +30,13 @@ export async function createNode({
     TextNode: (di, data) => new Nodes.TextNode(di, data),
     PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
-    FunctionNode: (di, data) => new Nodes.FunctionNode(di, data),
     DataSource: (di, data) => new Nodes.DataSource(di, data),
+
+    DatabaseDelete: (di, data) => new Nodes.DatabaseDelete(di, data),
+    DatabaseInsert: (di, data) => new Nodes.DatabaseInsert(di, data),
+    DatabaseSelect: (di, data) => new Nodes.DatabaseSelect(di, data),
+    DatabaseUpdate: (di, data) => new Nodes.DatabaseUpdate(di, data),
+    DatabaseUpsert: (di, data) => new Nodes.DatabaseUpsert(di, data),
   };
   const matched = nodes[name];
 

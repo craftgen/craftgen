@@ -3,5 +3,10 @@ export { Log } from "./log";
 export { TextNode } from "./text";
 export { PromptTemplate } from "./prompt-template";
 export { OpenAIFunctionCall } from "./openai-function";
-export { FunctionNode } from "./function";
 export { DataSource } from "./datasource";
+
+export { DatabaseInsert } from "./database/insert";
+export { DatabaseSelect } from "./database/select";
+export { DatabaseUpdate } from "./database/update";
+export { DatabaseDelete } from "./database/delete";
+export { DatabaseUpsert } from "./database/upsert";

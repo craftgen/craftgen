@@ -68,4 +68,8 @@ export class BaseNode<
 
     this.actor.start();
   }
+
+  data() {
+    return {};
+  }
 }
