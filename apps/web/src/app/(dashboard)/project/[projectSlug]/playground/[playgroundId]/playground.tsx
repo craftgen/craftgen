@@ -25,13 +25,16 @@ export const Playground: React.FC<{
   }, [rete?.di]);
 
   const [dehydrated, setDehydration] = useState(false);
+
   useEffect(() => {
     if (!dehydrated && rete?.di) {
-      importEditor(rete?.di, {
-        edges: playground.edges as any,
-        nodes: playground.nodes as any,
-      });
-      rete.di.setUI();
+      (async () => {
+        await importEditor(rete?.di, {
+          edges: playground.edges as any,
+          nodes: playground.nodes as any,
+        });
+        await rete.di.setUI();
+      })();
       // rete.di.dataFlow?.reset();
       setDehydration(true);
     }
@@ -58,8 +61,8 @@ export const Playground: React.FC<{
   );
 
   const onChange = useCallback(
-    (data: any) => {
-      const json = exportEditor(rete?.di.editor!);
+    async (data: any) => {
+      const json = await exportEditor(rete?.di.editor!);
       console.log("@@@@@@@", { json });
       saveDebounced({
         projectSlug: params.projectSlug as string,

@@ -32,60 +32,65 @@ export const savePlayground = async (params: {
   playgroundId: string;
   nodes: any[];
   edges: any[];
-}) => {
-  const supabase = createServerActionClient({ cookies });
-  const session = await supabase.auth.getSession();
-  await db.transaction(async (tx) => {
-    const project = await tx.query.project.findFirst({
-      where: (project, { eq }) => eq(project.slug, params.projectSlug),
-    });
-    if (!project) {
-      throw new Error("Project not found");
-    }
-    await tx
-      .update(playground)
-      .set({
-        edges: params.edges,
-        nodes: params.nodes,
-        updatedAt: new Date(),
-      })
-      .where(eq(playground.id, params.playgroundId));
-
-    const playgroundNodes = await tx.query.nodeToPlayground.findMany({
-      where: (nodeToPlayground, { eq }) =>
-        eq(nodeToPlayground.playground_id, params.playgroundId),
-    });
-
-    const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
-      return !params.nodes.find((n) => n.id === node.node_id);
-    });
-
-    if (nodeToPlaygroundsDelete.length > 0) {
-      await tx.delete(nodeToPlayground).where(
-        inArray(
-          nodeToPlayground.id,
-          nodeToPlaygroundsDelete.map((node) => node.id)
-        )
-      );
-      // Delete orphaned nodes
-      const orphanNodes = nodeToPlaygroundsDelete.filter(async (node) => {
-        const relation = await tx.query.nodeToPlayground.findMany({
-          where: (nodeToPlayground, { eq }) =>
-            eq(nodeToPlayground.node_id, node.id),
-        });
-        return relation.length === 0;
+}): Promise<void> => {
+  try {
+    console.log({ nodes: params.nodes, edges: params.edges });
+    const supabase = createServerActionClient({ cookies });
+    const session = await supabase.auth.getSession();
+    await db.transaction(async (tx) => {
+      const project = await tx.query.project.findFirst({
+        where: (project, { eq }) => eq(project.slug, params.projectSlug),
       });
-      console.log({ orphanNodes });
-      if (orphanNodes.length > 0) {
-        await tx.delete(nodeData).where(
+      if (!project) {
+        throw new Error("Project not found");
+      }
+      await tx
+        .update(playground)
+        .set({
+          edges: params.edges,
+          nodes: params.nodes,
+          updatedAt: new Date(),
+        })
+        .where(eq(playground.id, params.playgroundId));
+
+      const playgroundNodes = await tx.query.nodeToPlayground.findMany({
+        where: (nodeToPlayground, { eq }) =>
+          eq(nodeToPlayground.playground_id, params.playgroundId),
+      });
+
+      const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
+        return !params.nodes.find((n) => n.id === node.node_id);
+      });
+
+      if (nodeToPlaygroundsDelete.length > 0) {
+        await tx.delete(nodeToPlayground).where(
           inArray(
-            nodeData.id,
-            orphanNodes.map((node) => node.node_id)
+            nodeToPlayground.id,
+            nodeToPlaygroundsDelete.map((node) => node.id)
           )
         );
+        // Delete orphaned nodes
+        const orphanNodes = nodeToPlaygroundsDelete.filter(async (node) => {
+          const relation = await tx.query.nodeToPlayground.findMany({
+            where: (nodeToPlayground, { eq }) =>
+              eq(nodeToPlayground.node_id, node.id),
+          });
+          return relation.length === 0;
+        });
+        console.log({ orphanNodes });
+        if (orphanNodes.length > 0) {
+          await tx.delete(nodeData).where(
+            inArray(
+              nodeData.id,
+              orphanNodes.map((node) => node.node_id)
+            )
+          );
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export const createNodeInDB = async (params: {

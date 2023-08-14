@@ -112,7 +112,7 @@ export async function importEditor(di: DiContainer, data: Data) {
   await di.arrange?.layout();
 }
 
-export function exportEditor(editor: NodeEditor<Schemes>) {
+export async function exportEditor(editor: NodeEditor<Schemes>) {
   const nodes = [];
   const edges = [];
 
@@ -120,7 +120,7 @@ export function exportEditor(editor: NodeEditor<Schemes>) {
     nodes.push({
       id: n.id,
       name: n.constructor.name,
-      data: n.serialize(),
+      data: await n.serialize(),
     });
   }
   for (const c of editor.getConnections()) {

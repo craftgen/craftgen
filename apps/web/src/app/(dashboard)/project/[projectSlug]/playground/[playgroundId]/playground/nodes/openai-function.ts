@@ -1,11 +1,11 @@
 import { ClassicPreset } from "rete";
-import { ActionSocket, TextSocket } from "../sockets";
 import { DiContainer } from "../editor";
 // import { generateTextFn } from "../actions";
 import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS } from "ai-utils.js";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
+import { stringSocket, triggerSocket } from "../sockets";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -24,14 +24,14 @@ const OpenAIFunctionCallMachine = createMachine({
   states: {
     idle: {},
     running: {},
-  }
+  },
 });
 
 export class OpenAIFunctionCall extends BaseNode<
   typeof OpenAIFunctionCallMachine,
   {
-    prompt: TextSocket;
-    exec: ActionSocket;
+    prompt: typeof stringSocket;
+    exec: typeof triggerSocket;
   },
   { message: ClassicPreset.Socket },
   {
@@ -50,10 +50,7 @@ export class OpenAIFunctionCall extends BaseNode<
   ) {
     super("OpenAI Function Call", di, data, OpenAIFunctionCallMachine, {});
     this.di = di;
-    this.addInput(
-      "exec",
-      new ClassicPreset.Input(new ActionSocket(), "Exec", true)
-    );
+    this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
     this.addControl(
       "model",
       new SelectControl<OPENAI_CHAT_MODELS_KEY>(
@@ -77,19 +74,19 @@ export class OpenAIFunctionCall extends BaseNode<
         console.log("ONE", value);
       },
     });
-    const input = new ClassicPreset.Input(new TextSocket(), "Prompt");
+    const input = new ClassicPreset.Input(stringSocket, "Prompt");
     input.addControl(control);
-    console.log('openai', input);
+    console.log("openai", input);
     this.addInput("prompt", input);
 
     this.addOutput(
       "message",
-      new ClassicPreset.Output(new TextSocket(), "Message")
+      new ClassicPreset.Output(stringSocket, "Message")
     );
   }
 
   async execute(input: any, forward: (output: "message") => void) {
-    console.log('aaa', this);
+    console.log("aaa", this);
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       prompt?: string;
       message: string[];

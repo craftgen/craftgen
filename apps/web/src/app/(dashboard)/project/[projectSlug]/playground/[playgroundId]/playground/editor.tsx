@@ -8,6 +8,7 @@ import {
 import {
   AutoArrangePlugin,
   Presets as ArrangePresets,
+  ArrangeAppliers,
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
@@ -58,7 +59,7 @@ export type DiContainer = {
   // process: () => void
   graph: ReturnType<typeof structures>;
   area: AreaPlugin<Schemes, AreaExtra>;
-  setUI: () => void;
+  setUI: () => Promise<void>;
   editor: NodeEditor<Schemes>;
   engine?: ControlFlowEngine<Schemes>;
   dataFlow?: DataflowEngine<Schemes>;
@@ -162,8 +163,6 @@ export async function createEditor(
     };
   });
 
-  console.log(dataFlow);
-
   const curriedCreateNode = ({
     name,
     data,
@@ -207,9 +206,18 @@ export async function createEditor(
     ]),
   });
   const arrange = new AutoArrangePlugin<Schemes>();
+
   const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();
   history.addPreset(HistoryPresets.classic.setup());
   HistoryExtensions.keyboard(history);
+
+  const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
+    duration: 500,
+    timingFunction: (t) => t,
+    async onTick() {
+      await AreaExtensions.zoomAt(area, editor.getNodes());
+    },
+  });
 
   arrange.addPreset(ArrangePresets.classic.setup());
 
@@ -245,7 +253,7 @@ export async function createEditor(
   await arrange.layout();
   AreaExtensions.zoomAt(area, editor.getNodes());
   const setUI = async () => {
-    await arrange.layout();
+    await arrange.layout({ applier });
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 

@@ -41,6 +41,9 @@ export class BaseNode<
 
   public actor: InterpreterFrom<AnyStateMachine>;
 
+  width = 200;
+  height = 200;
+
   constructor(
     label: string,
     di: DiContainer,

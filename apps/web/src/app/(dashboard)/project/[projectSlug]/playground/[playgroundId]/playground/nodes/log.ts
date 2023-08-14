@@ -8,12 +8,7 @@ const LogNodeMachine = createMachine({
   id: "log",
 });
 
-export class Log extends BaseNode<
-  typeof LogNodeMachine,
-  { exec: ClassicPreset.Socket; message: ClassicPreset.Socket },
-  { exec: ClassicPreset.Socket },
-  {}
-> {
+export class Log extends BaseNode<typeof LogNodeMachine> {
   width = 180;
   height = 150;
 

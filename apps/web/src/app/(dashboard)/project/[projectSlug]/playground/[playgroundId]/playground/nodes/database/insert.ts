@@ -1,7 +1,7 @@
 import { createMachine } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
-import { DatabaseIdSocket } from "../../sockets";
+import { databaseIdSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
 
 const databaseInsertMachine = createMachine({
@@ -11,7 +11,7 @@ const databaseInsertMachine = createMachine({
 export class DatabaseInsert extends BaseNode<
   typeof databaseInsertMachine,
   {
-    databaseId: DatabaseIdSocket;
+    databaseId: typeof databaseIdSocket;
   },
   {},
   {}
@@ -20,7 +20,7 @@ export class DatabaseInsert extends BaseNode<
     super("Database Insert", di, data, databaseInsertMachine, {});
     this.addInput(
       "databaseId",
-      new ClassicPreset.Input(DatabaseIdSocket, "databaseId")
+      new ClassicPreset.Input(databaseIdSocket, "databaseId")
     );
   }
 
@@ -28,5 +28,7 @@ export class DatabaseInsert extends BaseNode<
 
   async data() {}
 
-  async serialize() {}
+  async serialize() {
+    return {};
+  }
 }

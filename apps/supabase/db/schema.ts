@@ -63,7 +63,7 @@ export const playground = pgTable("playground", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
     .notNull()
-    .references(() => project.id),
+    .references(() => project.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   edges: json("edges").notNull(),
   nodes: json("nodes").notNull(),
@@ -82,7 +82,7 @@ export const nodeData = pgTable("node_data", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
     .notNull()
-    .references(() => project.id),
+    .references(() => project.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   state: json("state"),
 });
@@ -96,10 +96,14 @@ export const nodeToPlayground = pgTable("node_to_playground", {
   id: uuid("id").primaryKey().defaultRandom(),
   node_id: uuid("node_id")
     .notNull()
-    .references(() => nodeData.id),
+    .references(() => nodeData.id, {
+      onDelete: "cascade",
+    }),
   playground_id: uuid("playground_id")
     .notNull()
-    .references(() => playground.id),
+    .references(() => playground.id, {
+      onDelete: "cascade",
+    }),
 });
 
 export const nodeToPlaygroundRelations = relations(
