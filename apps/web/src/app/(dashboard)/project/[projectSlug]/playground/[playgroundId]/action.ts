@@ -143,6 +143,20 @@ export const getDataSet = async (dataSetId: string) => {
   }
 };
 
+export const insertDataSet = async (params: { id: string; data: any }) => {
+  return await db.transaction(async (tx) => {
+    const row =  tx
+      .insert(dataRow)
+      .values({
+        data_set_id: params.id,
+        data: params.data,
+      })
+      .returning();
+    
+    return row;
+  });
+};
+
 export const getDatasetPaginated = async (params: {
   datasetId: string;
   cursor?: string;

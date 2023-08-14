@@ -85,7 +85,7 @@ export class TextNode extends BaseNode<
     };
   }
 
-  serialize() {
+  async serialize() {
     return {
       value: this.controls.value.value || "",
     };

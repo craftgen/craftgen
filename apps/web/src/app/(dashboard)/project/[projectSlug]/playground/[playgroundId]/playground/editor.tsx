@@ -50,6 +50,7 @@ import {
 } from "./ui/control/control-debug";
 import { createNode } from "./io";
 import type { getPlayground } from "../action";
+import { InspectorPlugin } from "./plugins/inspectorPlugin";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -64,6 +65,7 @@ export type DiContainer = {
   engine?: ControlFlowEngine<Schemes>;
   dataFlow?: DataflowEngine<Schemes>;
   arrange?: AutoArrangePlugin<Schemes>;
+  inspector: InspectorPlugin;
   // modules: Modules
 };
 
@@ -220,11 +222,13 @@ export async function createEditor(
   });
 
   arrange.addPreset(ArrangePresets.classic.setup());
+  const inspector = new InspectorPlugin();
 
   editor.use(engine);
   editor.use(dataFlow);
   editor.use(area);
   addCustomBackground(area);
+  area.use(inspector);
   area.use(history);
   area.use(minimap);
   area.use(connection);
@@ -267,6 +271,7 @@ export async function createEditor(
     setUI,
     engine: engine,
     dataFlow,
+    inspector,
   };
 
   return {

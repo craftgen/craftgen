@@ -47,7 +47,7 @@ export class Start extends BaseNode<
     return {};
   }
 
-  serialize() {
+  async serialize() {
     return {};
   }
 }

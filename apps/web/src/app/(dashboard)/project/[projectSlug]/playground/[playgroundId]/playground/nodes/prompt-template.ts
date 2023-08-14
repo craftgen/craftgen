@@ -240,7 +240,7 @@ export class PromptTemplate extends BaseNode<
     };
   }
 
-  serialize(): Data {
+  async serialize(): Promise<Data> {
     const state = this.actor.getSnapshot();
     return {
       value: state.context.rendered,

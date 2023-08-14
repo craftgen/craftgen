@@ -17,7 +17,7 @@ export const Playground: React.FC<{
     return createEditorFunc(playground);
   }, [playground]);
   const [ref, rete] = useRete(createEditor);
-  const { setDi } = useStore();
+  const { di, setDi } = useStore();
 
   useEffect(() => {
     if (!rete) return;
@@ -88,10 +88,20 @@ export const Playground: React.FC<{
       return context;
     });
   }, [rete]);
-
+  console.log(di?.inspector.selectedNodeId, rete?.di.inspector.selectedNodeId);
   return (
     <div className="w-full h-full">
+      <div>
+        <h2>Inspector</h2>
+        {JSON.stringify(di?.inspector)}
+        <InspectorWindow nodeId={di?.inspector.selectedNodeId || null} />
+      </div>
       <div ref={ref} className="w-full h-[calc(100vh-5rem)]" />
     </div>
   );
+};
+
+const InspectorWindow: React.FC<{ nodeId: string | null }> = ({ nodeId }) => {
+  console.log(nodeId);
+  return <code>selectedNode = {nodeId}</code>;
 };
