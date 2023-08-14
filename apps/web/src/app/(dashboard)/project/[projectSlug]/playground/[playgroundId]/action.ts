@@ -47,6 +47,7 @@ export const savePlayground = async (params: {
       .set({
         edges: params.edges,
         nodes: params.nodes,
+        updatedAt: new Date(),
       })
       .where(eq(playground.id, params.playgroundId));
 
@@ -133,7 +134,7 @@ export const getDataSet = async (dataSetId: string) => {
       },
     });
   } catch (err) {
-    console.log('err', err);
+    console.log("err", err);
   }
 };
 
@@ -145,7 +146,7 @@ export const getDatasetPaginated = async (params: {
   const cursorCondition = params.cursor
     ? gt(dataRow.id, params.cursor)
     : undefined;
-  console.log('cursorCondition', cursorCondition);
+  console.log("cursorCondition", cursorCondition);
   const data = await db
     .select()
     .from(dataRow)
@@ -160,7 +161,7 @@ export const getDatasetPaginated = async (params: {
 };
 
 export const getNodeData = async (nodeId: string) => {
-  console.log('getNodeData', { nodeId });
+  console.log("getNodeData", { nodeId });
 
   return await db.query.nodeData.findFirst({
     where: (nodeData, { eq }) => eq(nodeData.id, nodeId),
@@ -177,5 +178,6 @@ export const setNodeData = async ({
   return await db
     .update(nodeData)
     .set({ state: JSON.parse(state) })
-    .where(eq(nodeData.id, nodeId));
+    .where(eq(nodeData.id, nodeId))
+    .returning();
 };

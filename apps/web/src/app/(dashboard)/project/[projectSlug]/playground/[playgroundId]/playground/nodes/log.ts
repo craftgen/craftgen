@@ -19,7 +19,7 @@ export class Log extends BaseNode<
 
   static ID: "log";
 
-  constructor(di: DiContainer, data: NodeData) {
+  constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {
     super("Log", di, data, LogNodeMachine, {});
 
     this.addInput(
@@ -41,7 +41,7 @@ export class Log extends BaseNode<
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };
-    console.log('inputs log', (inputs.message && inputs.message[0]) || "");
+    console.log("inputs log", (inputs.message && inputs.message[0]) || "");
 
     forward("exec");
   }

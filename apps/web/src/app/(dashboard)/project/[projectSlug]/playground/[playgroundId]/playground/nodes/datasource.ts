@@ -108,7 +108,9 @@ const datasetMachine = createMachine({
 
 export class DataSource extends BaseNode<
   typeof datasetMachine,
-  {},
+  {
+    insert: TextSocket;
+  },
   {
     foreach: TextSocket;
   },
@@ -126,13 +128,13 @@ export class DataSource extends BaseNode<
       actors: {
         fetchDataSets: fromPromise(async () => {
           const datasets = await getDataSets(data.project_id);
-          console.log('datasets', { datasets });
+          console.log("datasets", { datasets });
           return datasets;
         }),
         fetchDataset: fromPromise(async ({ input }) => {
           console.log("fetching data", input);
           const data = await getDataSet(input.datasetId);
-          console.log('data sss', data);
+          console.log("data sss", data);
           console.log("DDD", data?.rows);
           return data;
         }),
@@ -143,6 +145,11 @@ export class DataSource extends BaseNode<
       console.log("state changed in datasource actor => ", state);
       this.syncStateWithUI(state);
     });
+
+    this.addInput(
+      "insert",
+      new ClassicPreset.Input(new TextSocket(), "insert")
+    );
 
     this.addOutput(
       "foreach",
@@ -209,7 +216,16 @@ export class DataSource extends BaseNode<
     }
   }
 
-  execute() {
+  async execute(input: "insert", forward: (output: "exec") => void) {
+    this.di.dataFlow?.reset();
+    this.di.editor.getNodes().forEach((n) => {
+      this.di.dataFlow?.fetch(n.id);
+    });
+    const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
+      message: string[];
+    };
+    console.log("inputs log", (inputs.message && inputs.message[0]) || "");
+
     return {};
   }
 

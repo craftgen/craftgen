@@ -57,14 +57,14 @@ export class BaseNode<
       ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
     });
 
-    // const saveDebounced = debounce((state: string) => {
-    //   console.log("saving state", state, typeof state);
-    //   // setNodeData({ nodeId: this.id, state });
-    // }, 1000);
+    const saveDebounced = debounce((state: string) => {
+      console.log("saving state", state);
+      setNodeData({ nodeId: this.id, state });
+    }, 1000);
 
-    // this.actor.subscribe((state) => {
-    //   saveDebounced(JSON.stringify(state));
-    // });
+    this.actor.subscribe((state) => {
+      saveDebounced(JSON.stringify(state));
+    });
 
     this.actor.start();
   }

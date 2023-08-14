@@ -92,7 +92,7 @@
     "immer": "^10.0.2",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.263.0",
-    "next": "13.4.10",
+    "next": "13.4.13",
     "next-themes": "^0.2.1",
     "postcss": "8.4.26",
     "prismjs": "^1.29.0",

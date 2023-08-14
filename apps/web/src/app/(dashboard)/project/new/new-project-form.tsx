@@ -61,7 +61,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
     if (site) {
       form.setValue("name", normalizeUrl(site));
     }
-  }, [site]);
+  }, [site, form]);
   const { data, isLoading } = useSWR("sites", getSites);
 
   return (
