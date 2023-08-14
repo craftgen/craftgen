@@ -45,6 +45,13 @@ export const getPlaygrounds = async (projectId: string) => {
   console.log("PROEJCT>", projectId);
   return await db.query.playground.findMany({
     where: (playground, { eq }) => eq(playground.project_id, projectId),
+    with: {
+      project: {
+        columns: {
+          slug: true,
+        },
+      },
+    },
   });
 };
 

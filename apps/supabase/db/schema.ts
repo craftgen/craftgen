@@ -67,6 +67,8 @@ export const playground = pgTable("playground", {
   name: text("name").notNull(),
   edges: json("edges").notNull(),
   nodes: json("nodes").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const playgroundRelations = relations(playground, ({ one, many }) => ({

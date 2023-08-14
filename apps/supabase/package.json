@@ -19,7 +19,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/pg": "^8.10.2",
     "drizzle-orm": "^0.28.2",
+    "pg": "^8.11.2",
     "postgres": "^3.3.5"
   },
   "devDependencies": {
