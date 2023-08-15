@@ -2,19 +2,20 @@ import { Root } from "rete";
 import { Schemes } from "../../types";
 import { Scope } from "rete";
 import { Area2D } from "rete-area-plugin";
+import { ReteStoreInstance } from "../../store";
 
 export class InspectorPlugin extends Scope<
   never,
   [Area2D<Schemes>, Root<Schemes>]
 > {
   public selectedNodeId: string | null = null;
-  constructor() {
+  constructor(store: ReteStoreInstance) {
     super("inspector");
     this.addPipe((context) => {
       // if (context.type === '')
       if (context.type === "nodepicked") {
+        store.getState().setSelectedNodeId(context.data.id);
         this.selectedNodeId = context.data.id;
-        console.log(this);
       }
       if (
         context.type === "pointerdown" &&
@@ -22,8 +23,8 @@ export class InspectorPlugin extends Scope<
           "background"
         )
       ) {
+        store.getState().setSelectedNodeId(null);
         this.selectedNodeId = null;
-        console.log(this);
       }
 
       return context;

@@ -12,12 +12,12 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
-import { useStore } from "../store";
 import { NodeTypes } from "../types";
 import { Button } from "@/components/ui/button";
 import { Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
+import { useStore } from "zustand";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -44,12 +44,13 @@ export type NodeComponent<Scheme extends ClassicScheme> = (
 ) => JSX.Element;
 
 export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
+  console.log(props);
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
-  const { di } = useStore();
+  const di = useStore(props.store, (state) => state.di);
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);

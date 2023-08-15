@@ -1,3 +1,6 @@
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
+
 .fill-area {
   display: table;
   z-index: -1;
@@ -8,8 +11,21 @@
   height: 640000px;
 }
 
+.dark .react-resizable-handle {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIxIj48cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iI2ZmZiIvPjwvZz48L3N2Zz4=')
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: hsl(var(--primary));
+}
+
 .background {
   opacity: 1;
   background-color: var(--background);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  background-image: radial-gradient(
+    hsl(var(--muted-foreground)) 1px,
+    transparent 0
+  );
+  background-size: 40px 40px;
+  background-position: -19px -19px;
 }

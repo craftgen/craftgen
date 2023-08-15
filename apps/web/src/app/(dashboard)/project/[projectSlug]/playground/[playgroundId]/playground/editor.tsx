@@ -51,6 +51,7 @@ import {
 import { createNode } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
+import { ReteStoreInstance } from "./store";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -70,14 +71,16 @@ export type DiContainer = {
 };
 
 export const createEditorFunc = (
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,
+  store: ReteStoreInstance
 ) => {
-  return (container: HTMLElement) => createEditor(container, playground);
+  return (container: HTMLElement) => createEditor(container, playground, store);
 };
 
 export async function createEditor(
   container: HTMLElement,
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,
+  store: ReteStoreInstance
 ) {
   const editor = new NodeEditor<Schemes>();
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
@@ -100,7 +103,7 @@ export async function createEditor(
     Presets.classic.setup({
       customize: {
         node() {
-          return CustomNode;
+          return ({ data, emit }) => CustomNode({ data, emit, store });
         },
         socket(context) {
           return CustomSocket;
@@ -222,7 +225,7 @@ export async function createEditor(
   });
 
   arrange.addPreset(ArrangePresets.classic.setup());
-  const inspector = new InspectorPlugin();
+  const inspector = new InspectorPlugin(store);
 
   editor.use(engine);
   editor.use(dataFlow);
@@ -273,6 +276,8 @@ export async function createEditor(
     dataFlow,
     inspector,
   };
+
+  store.getState().setDi(di);
 
   return {
     di,

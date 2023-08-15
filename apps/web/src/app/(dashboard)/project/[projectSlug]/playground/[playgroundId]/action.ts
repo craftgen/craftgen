@@ -14,6 +14,7 @@ import {
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { NodeTypes } from "./playground/types";
+import ReactGridLayout from "react-grid-layout";
 
 export const getPlayground = async (params: { playgroundId: string }) => {
   const supabase = createServerActionClient({ cookies });
@@ -25,6 +26,17 @@ export const getPlayground = async (params: { playgroundId: string }) => {
       project: true,
     },
   });
+};
+
+export const savePlaygroundLayout = async (params: {
+  playgroundId: string;
+  layout: ReactGridLayout.Layout[];
+}) => {
+  return await db
+    .update(playground)
+    .set({ layout: params.layout })
+    .where(eq(playground.id, params.playgroundId))
+    .returning();
 };
 
 export const savePlayground = async (params: {
@@ -145,14 +157,14 @@ export const getDataSet = async (dataSetId: string) => {
 
 export const insertDataSet = async (params: { id: string; data: any }) => {
   return await db.transaction(async (tx) => {
-    const row =  tx
+    const row = tx
       .insert(dataRow)
       .values({
         data_set_id: params.id,
         data: params.data,
       })
       .returning();
-    
+
     return row;
   });
 };

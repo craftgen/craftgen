@@ -23,13 +23,9 @@ export class Start extends BaseNode<
   static ID: "start";
 
   constructor(di: DiContainer, data: NodeData<typeof StartNodeMachine>) {
-    console.log('aa', di, data);
     super("Start", di, data, StartNodeMachine, {});
 
-    this.addOutput(
-      "exec",
-      new ClassicPreset.Output(triggerSocket, "Exec")
-    );
+    this.addOutput("exec", new ClassicPreset.Output(triggerSocket, "Exec"));
     this.addControl(
       "trigger",
       new ButtonControl("Execute", () => {

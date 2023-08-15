@@ -3,26 +3,43 @@ import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
 import { createEditorFunc } from "./playground/editor";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor, importEditor } from "./playground/io";
-import { getPlayground, savePlayground } from "./action";
+import { getPlayground, savePlayground, savePlaygroundLayout } from "./action";
 import { useParams } from "next/navigation";
-import { useStore } from "./playground/store";
+import {
+  CraftContext,
+  createCraftStore,
+  useCraftStore,
+} from "./playground/store";
 import { debounce } from "lodash-es";
+import GridLayout, { WidthProvider } from "react-grid-layout";
+import { Grip } from "lucide-react";
+import { useStore } from "zustand";
 
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
+  const store = useRef(createCraftStore({ layout: playground.layout as any }));
   const createEditor = useMemo(() => {
-    return createEditorFunc(playground);
-  }, [playground]);
+    return createEditorFunc(playground, store.current);
+  }, [playground, store.current]);
   const [ref, rete] = useRete(createEditor);
-  const { di, setDi } = useStore();
+  const { di, layout, setLayout } = useStore(store.current);
 
   useEffect(() => {
-    if (!rete) return;
-    setDi(rete?.di);
-  }, [rete?.di]);
+    setLayout(playground.layout as GridLayout.Layout[]);
+    const layoutListener = store.current.subscribe(
+      (state) => state.layout,
+      async (layout) => {
+        await savePlaygroundLayout({
+          layout,
+          playgroundId: playground.id,
+        });
+      }
+    );
+    return () => layoutListener();
+  }, []);
 
   const [dehydrated, setDehydration] = useState(false);
 
@@ -40,14 +57,6 @@ export const Playground: React.FC<{
     }
   }, [rete, dehydrated]);
   const params = useParams();
-  useEffect(() => {
-    const listener = useStore.subscribe((state) => {
-      console.log("@@@@", state);
-    });
-    return () => {
-      listener();
-    };
-  });
 
   const saveDebounced = debounce(
     (state) =>
@@ -88,20 +97,41 @@ export const Playground: React.FC<{
       return context;
     });
   }, [rete]);
-  console.log(di?.inspector.selectedNodeId, rete?.di.inspector.selectedNodeId);
+  // const layout: GridLayout.Layout[] = [
+  //   { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  //   { i: "b", x: 2, y: 0, w: 10, h: 12, minW: 4 },
+  // ];
+
   return (
-    <div className="w-full h-full">
-      <div>
-        <h2>Inspector</h2>
-        {JSON.stringify(di?.inspector)}
-        <InspectorWindow nodeId={di?.inspector.selectedNodeId || null} />
+    <CraftContext.Provider value={store?.current}>
+      <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] ">
+        <ResponsiveGridLayout
+          className="layout"
+          layout={layout}
+          onLayoutChange={setLayout}
+          cols={12}
+          margin={[0, 0]}
+          rowHeight={60}
+          draggableHandle=".draggable-handle"
+        >
+          <div key={"rete"} className="border-2 bg-background">
+            <div className="draggable-handle cursor-move absolute top-1 right-1 z-50">
+              <Grip />
+            </div>
+            <div ref={ref} className="w-full h-full " />
+          </div>
+          <div key={"inspector"} className="border-2 p-4 bg-background">
+            <InspectorWindow nodeId={di?.inspector.selectedNodeId || null} />
+          </div>
+        </ResponsiveGridLayout>
       </div>
-      <div ref={ref} className="w-full h-[calc(100vh-5rem)]" />
-    </div>
+    </CraftContext.Provider>
   );
 };
 
+const ResponsiveGridLayout = WidthProvider(GridLayout);
+
 const InspectorWindow: React.FC<{ nodeId: string | null }> = ({ nodeId }) => {
-  console.log(nodeId);
-  return <code>selectedNode = {nodeId}</code>;
+  const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
+  return <code>selectedNode = {selectedNodeId}</code>;
 };
