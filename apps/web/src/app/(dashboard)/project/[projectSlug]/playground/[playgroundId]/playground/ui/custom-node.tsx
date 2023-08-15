@@ -18,6 +18,7 @@ import { Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
+import { ReteStoreInstance } from "../store";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -38,19 +39,19 @@ type Props<S extends ClassicScheme> = {
   data: S["Node"] & NodeExtraData;
   styles?: () => any;
   emit: RenderEmit<S>;
+  store: ReteStoreInstance;
 };
 export type NodeComponent<Scheme extends ClassicScheme> = (
   props: Props<Scheme>
 ) => JSX.Element;
 
 export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
-  console.log(props);
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
-  const di = useStore(props.store, (state) => state.di);
+  const { di, playgroundId, projectSlug } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
@@ -74,6 +75,8 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
       name: props.data.constructor.name as NodeTypes,
       data: props.data,
       saveToDB: true,
+      playgroundId,
+      projectSlug,
     });
     di?.editor.addNode(newNode);
     di?.area.translate(newNode.id, di?.area.area.pointer);

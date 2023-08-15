@@ -20,7 +20,14 @@ import { useStore } from "zustand";
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
-  const store = useRef(createCraftStore({ layout: playground.layout as any }));
+  const params = useParams();
+  const store = useRef(
+    createCraftStore({
+      layout: playground.layout as any,
+      projectSlug: params.projectSlug as string,
+      playgroundId: params.playgroundId as string,
+    })
+  );
   const createEditor = useMemo(() => {
     return createEditorFunc(playground, store.current);
   }, [playground, store.current]);
@@ -56,7 +63,6 @@ export const Playground: React.FC<{
       setDehydration(true);
     }
   }, [rete, dehydrated]);
-  const params = useParams();
 
   const saveDebounced = debounce(
     (state) =>
@@ -97,20 +103,16 @@ export const Playground: React.FC<{
       return context;
     });
   }, [rete]);
-  // const layout: GridLayout.Layout[] = [
-  //   { i: "a", x: 0, y: 0, w: 2, h: 2 },
-  //   { i: "b", x: 2, y: 0, w: 10, h: 12, minW: 4 },
-  // ];
 
   return (
     <CraftContext.Provider value={store?.current}>
-      <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] ">
+      <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] py-1 px-1">
         <ResponsiveGridLayout
           className="layout"
           layout={layout}
           onLayoutChange={setLayout}
           cols={12}
-          margin={[0, 0]}
+          margin={[2, 2]}
           rowHeight={60}
           draggableHandle=".draggable-handle"
         >
