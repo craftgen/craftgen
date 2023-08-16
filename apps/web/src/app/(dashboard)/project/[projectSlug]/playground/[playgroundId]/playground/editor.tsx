@@ -48,7 +48,7 @@ import {
   DebugControl,
   DebugControlComponent,
 } from "./ui/control/control-debug";
-import { createNode } from "./io";
+import { createNode, importEditor } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
@@ -67,6 +67,7 @@ export type DiContainer = {
   dataFlow?: DataflowEngine<Schemes>;
   arrange?: AutoArrangePlugin<Schemes>;
   inspector: InspectorPlugin;
+  render: ReactPlugin<Schemes, AreaExtra>;
   // modules: Modules
 };
 
@@ -86,7 +87,7 @@ export async function createEditor(
   const area = new AreaPlugin<Schemes, AreaExtra>(container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
   const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
-  const minimap = new MinimapPlugin<Schemes>();
+  // const minimap = new MinimapPlugin<Schemes>();
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
@@ -233,12 +234,12 @@ export async function createEditor(
   addCustomBackground(area);
   area.use(inspector);
   area.use(history);
-  area.use(minimap);
+  // area.use(minimap);
   area.use(connection);
   area.use(contextMenu);
   area.use(render);
   area.use(arrange);
-  render.addPreset(Presets.minimap.setup({ size: 180 }));
+  // render.addPreset(Presets.minimap.setup({ size: 180 }));
   render.addPreset(CustomContextMenu);
 
   editor.addPipe((context) => {
@@ -256,26 +257,30 @@ export async function createEditor(
   AreaExtensions.simpleNodesOrder(area);
 
   AreaExtensions.showInputControl(area);
-
-  await arrange.layout();
-  AreaExtensions.zoomAt(area, editor.getNodes());
   const setUI = async () => {
     await arrange.layout({ applier });
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
-
   const graph = structures(editor);
-
   const di: DiContainer = {
     editor,
     area,
     arrange,
     graph,
     setUI,
-    engine: engine,
+    render,
+    engine,
     dataFlow,
     inspector,
   };
+
+  await importEditor(di, {
+    nodes: playground.nodes as any,
+    edges: playground.edges as any,
+  });
+
+  await arrange.layout();
+  AreaExtensions.zoomAt(area, editor.getNodes());
 
   store.getState().setDi(di);
 

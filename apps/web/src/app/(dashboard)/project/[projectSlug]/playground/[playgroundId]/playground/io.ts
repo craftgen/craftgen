@@ -76,6 +76,7 @@ export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
   for (const n of nodes) {
+    if (di.editor.getNode(n.id)) continue;
     const nodeData = await getNodeData(n.id);
     if (!nodeData) throw new Error(`Node data not found for ${n.id}`);
     console.log("gettingData", nodeData);
@@ -109,7 +110,6 @@ export async function importEditor(di: DiContainer, data: Data) {
       await di.editor.addConnection(conn);
     }
   }
-  await di.arrange?.layout();
 }
 
 export async function exportEditor(editor: NodeEditor<Schemes>) {

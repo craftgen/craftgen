@@ -1,7 +1,7 @@
 "use client";
 import "reflect-metadata";
 
-import { useRete } from "rete-react-plugin";
+import { Presets, useRete } from "rete-react-plugin";
 import { createEditorFunc } from "./playground/editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor, importEditor } from "./playground/io";
@@ -14,8 +14,16 @@ import {
 } from "./playground/store";
 import { debounce } from "lodash-es";
 import GridLayout, { WidthProvider } from "react-grid-layout";
-import { Grip } from "lucide-react";
+import { Grip, Maximize } from "lucide-react";
 import { useStore } from "zustand";
+import { NodeProps } from "./playground/types";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
@@ -47,22 +55,6 @@ export const Playground: React.FC<{
     );
     return () => layoutListener();
   }, []);
-
-  const [dehydrated, setDehydration] = useState(false);
-
-  useEffect(() => {
-    if (!dehydrated && rete?.di) {
-      (async () => {
-        await importEditor(rete?.di, {
-          edges: playground.edges as any,
-          nodes: playground.nodes as any,
-        });
-        await rete.di.setUI();
-      })();
-      // rete.di.dataFlow?.reset();
-      setDehydration(true);
-    }
-  }, [rete, dehydrated]);
 
   const saveDebounced = debounce(
     (state) =>
@@ -106,34 +98,106 @@ export const Playground: React.FC<{
 
   return (
     <CraftContext.Provider value={store?.current}>
-      <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] py-1 px-1">
-        <ResponsiveGridLayout
-          className="layout"
-          layout={layout}
-          onLayoutChange={setLayout}
-          cols={12}
-          margin={[2, 2]}
-          rowHeight={60}
-          draggableHandle=".draggable-handle"
-        >
-          <div key={"rete"} className="border-2 bg-background">
-            <div className="draggable-handle cursor-move absolute top-1 right-1 z-50">
-              <Grip />
+      <TooltipProvider>
+        <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] py-1 px-1">
+          <ResponsiveGridLayout
+            className="layout"
+            layout={layout}
+            onLayoutChange={setLayout}
+            cols={12}
+            margin={[2, 2]}
+            rowHeight={60}
+            draggableHandle=".draggable-handle"
+          >
+            <div key={"rete"} className="border-2 bg-background">
+              <div className="absolute top-1 right-1 z-50 flex ">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={"ghost"}
+                        size="icon"
+                        onClick={() => di?.setUI()}
+                      >
+                        <Maximize />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Center the content</TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="draggable-handle cursor-move ">
+                  <Button variant={"ghost"} size="icon">
+                    <Grip />
+                  </Button>
+                </div>
+              </div>
+
+              <div ref={ref} className="w-full h-full " />
             </div>
-            <div ref={ref} className="w-full h-full " />
-          </div>
-          <div key={"inspector"} className="border-2 p-4 bg-background">
-            <InspectorWindow nodeId={di?.inspector.selectedNodeId || null} />
-          </div>
-        </ResponsiveGridLayout>
-      </div>
+            <div key={"inspector"} className="border-2 p-4 bg-background">
+              <InspectorWindow />
+            </div>
+          </ResponsiveGridLayout>
+        </div>
+      </TooltipProvider>
     </CraftContext.Provider>
   );
 };
 
 const ResponsiveGridLayout = WidthProvider(GridLayout);
 
-const InspectorWindow: React.FC<{ nodeId: string | null }> = ({ nodeId }) => {
+const InspectorWindow: React.FC<{}> = ({}) => {
+  const di = useCraftStore((state) => state.di);
   const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
-  return <code>selectedNode = {selectedNodeId}</code>;
+  const selectedNode = useMemo(() => {
+    if (selectedNodeId) {
+      return di?.editor.getNode(selectedNodeId);
+    }
+  }, [selectedNodeId]);
+  return (
+    <div className="p-2 w-full h-full ">
+      {JSON.stringify(di?.editor.getNodes().map((node) => node.label))}
+      {selectedNode ? (
+        <InspectorNode node={selectedNode} />
+      ) : (
+        <div className="flex items-center justify-center w-full h-full">
+          Select a node to inspect
+        </div>
+      )}
+    </div>
+  );
+};
+const { RefControl } = Presets.classic;
+const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
+  const controls = Object.entries(node.controls);
+  const di = useCraftStore((state) => state.di);
+
+  return (
+    <div>
+      <h4 className="font-bold">{node.label}</h4>
+      <div>
+        {controls.map(([key, control]) => {
+          return control ? (
+            <div key={`k--${key}`}>
+              {key} -
+              <RefControl
+                key={key}
+                name="control"
+                emit={() => {}}
+                payload={control}
+              />
+            </div>
+          ) : null;
+        })}
+        {/* {controls.map(([key, control]) => {
+          return (
+            <div key={key}>
+              {key}
+              {JSON.stringify(control)}
+            </div>
+          );
+        })} */}
+      </div>
+    </div>
+  );
 };
