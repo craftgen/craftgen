@@ -153,13 +153,10 @@ const ResponsiveGridLayout = WidthProvider(GridLayout);
 const InspectorWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
   const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
-  const selectedNode = useMemo(() => {
-    if (selectedNodeId) {
-      return di?.editor.getNode(selectedNodeId);
-    }
-  }, [selectedNodeId]);
+  const selectedNode = selectedNodeId && di?.editor.getNode(selectedNodeId);
+  console.log(selectedNode);
   return (
-    <div className="p-2 w-full h-full ">
+    <div className="w-full h-full flex flex-col">
       {selectedNode ? (
         <InspectorNode node={selectedNode} />
       ) : (
@@ -173,9 +170,9 @@ const InspectorWindow: React.FC<{}> = ({}) => {
 const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   const controls = Object.entries(node.controls);
   return (
-    <div>
+    <div className="h-full w-full flex flex-col">
       <h4 className="font-bold">{node.label}</h4>
-      <div>
+      <div className="flex flex-col h-full overflow-hidden">
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} />
         ))}
@@ -185,11 +182,16 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
 };
 
 const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,
     type: "control",
     payload: control!,
   });
-  return <ControlElement ref={ref} data={control} />;
+  return (
+    <>
+      <div ref={ref} />
+      <ControlElement data={control} />
+    </>
+  );
 };

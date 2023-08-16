@@ -51,7 +51,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
-  const { di, playgroundId, projectSlug } = useStore(props.store);
+  const { di, playgroundId, projectSlug, showControls } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
@@ -146,16 +146,17 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
 
         <CardContent className="flex-1">
           {/* controls */}
-          {controls.map(([key, control]) => {
-            return control ? (
-              <RefControl
-                key={key}
-                name="control"
-                emit={props.emit}
-                payload={control}
-              />
-            ) : null;
-          })}
+          {showControls &&
+            controls.map(([key, control]) => {
+              return control ? (
+                <RefControl
+                  key={key}
+                  name="control"
+                  emit={props.emit}
+                  payload={control}
+                />
+              ) : null;
+            })}
         </CardContent>
         <div className="py-4">
           {/* Outputs */}

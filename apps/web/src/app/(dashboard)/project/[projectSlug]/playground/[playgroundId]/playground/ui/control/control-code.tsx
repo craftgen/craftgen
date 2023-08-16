@@ -1,57 +1,60 @@
-import Editor from "react-simple-code-editor";
 import { ClassicPreset } from "rete";
-import { highlight, languages } from "prismjs";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Drag } from "rete-react-plugin";
-import "prismjs/components/prism-json";
-import "prismjs/components/prism-handlebars";
-import "prismjs/themes/prism.css"; //Example style, you can use another
 
-export class CodeControl<T extends string> extends ClassicPreset.Control {
+import Editor from "@monaco-editor/react";
+import { useTheme } from "next-themes";
+
+type CodeControlOptions = {
+  initial: string;
+  change: (value: string) => void;
+};
+
+export class CodeControl extends ClassicPreset.Control {
   __type = "code";
+  value?: string;
 
-  constructor(
-    public value: string,
-    public language: string,
-    public setValue: (value: T) => void
-  ) {
+  constructor(public language: string, public options: CodeControlOptions) {
     super();
+    if (typeof options?.initial !== "undefined") this.value = options.initial;
+  }
+
+  setValue(value: string) {
+    this.value = value;
+    if (this.options?.change) this.options.change(value);
   }
 }
 
-export function CodeEditor<T extends string>(props: { data: CodeControl<T> }) {
-  const [code, setCode] = useState(props.data.value || "");
+export function CodeEditor<T extends string>(props: { data: CodeControl }) {
+  const [code, setCode] = useState(props.data.value);
+
   useEffect(() => {
-    setCode(props.data.value || "");
+    setCode(props.data.value);
   }, [props.data.value]);
+
   const ref = useRef(null);
   Drag.useNoDrag(ref);
-  const handleChange = (value: string) => {
+
+  const handleChange = (value: any) => {
     setCode(value);
     props.data.setValue(value as T);
   };
-  const highlightFunc = useMemo(() => {
-    return (code: string) => {
-      console.log({
-        code,
-        b: languages["js"],
-        a: props.data.language,
-      });
-      return highlight(code, languages["js"], "js");
-    };
-  }, [props.data.language]);
+  const { theme } = useTheme();
   return (
-    <div ref={ref}>
+    <div ref={ref} className="h-full w-full">
       <Editor
-        value={code}
-        className="bg-muted h-full"
-        onValueChange={handleChange}
-        highlight={highlightFunc}
-        padding={10}
-        style={{
-          fontFamily: '"Fira code", "Fira Mono", monospace',
-          fontSize: 12,
+        defaultValue={code}
+        theme={theme === "dark" ? "vs-dark" : "light"}
+        language={props.data.language}
+        className="h-full min-h-[10rem] border  rounded flex-1"
+        height={"100%"}
+        options={{
+          minimap: {
+            enabled: false,
+          },
+          lineNumbers: "off",
         }}
+        onChange={handleChange}
       />
     </div>
   );

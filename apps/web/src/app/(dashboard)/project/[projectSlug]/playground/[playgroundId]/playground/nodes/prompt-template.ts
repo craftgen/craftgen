@@ -7,6 +7,7 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
 import { stringSocket } from "../sockets";
 import { CodeControl } from "../ui/control/control-code";
+import { ThickArrowDownIcon } from "@radix-ui/react-icons";
 
 type Data = {
   value: string;
@@ -110,13 +111,10 @@ export class PromptTemplate extends BaseNode<
   },
   { value: ClassicPreset.Socket },
   {
-    template: CodeControl;
+    template: CodeControl<string>;
     debug: DebugControl;
   }
 > {
-  height = 420;
-  width = 380;
-
   constructor(
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>
@@ -170,14 +168,17 @@ export class PromptTemplate extends BaseNode<
     const self = this;
     this.addControl(
       "template",
-      new CodeControl(data.state?.context?.template || "", "js", (value) => {
-        self.actor.send({
-          type: "change",
-          value,
-        });
+      new CodeControl("handlebars", {
+        initial: data.state?.context?.template || "",
+        change: (value) => {
+          self.actor.send({
+            type: "change",
+            value,
+          });
+        },
       })
     );
-    this.addControl("debug", new DebugControl(this.actor.status));
+    // this.addControl("debug", new DebugControl(this.actor.status));
     this.process();
     // this.process(data.state?.context?.template || "");
   }
