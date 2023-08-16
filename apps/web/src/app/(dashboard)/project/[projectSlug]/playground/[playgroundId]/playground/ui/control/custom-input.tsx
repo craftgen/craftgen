@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import { ClassicPreset } from "rete";
 import { Drag } from "rete-react-plugin";
@@ -16,9 +16,10 @@ export function CustomInput(props: {
 
   return (
     <>
-      <Input
+      <Textarea
         ref={ref}
         disabled={props.data.readonly}
+        rows={3}
         value={value}
         onChange={(e) => {
           setValue(e.target.value as string);

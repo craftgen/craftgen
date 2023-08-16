@@ -6,6 +6,7 @@ import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
 import { stringSocket } from "../sockets";
+import { CodeControl } from "../ui/control/control-code";
 
 type Data = {
   value: string;
@@ -109,7 +110,7 @@ export class PromptTemplate extends BaseNode<
   },
   { value: ClassicPreset.Socket },
   {
-    template: ClassicPreset.InputControl<"text">;
+    template: CodeControl;
     debug: DebugControl;
   }
 > {
@@ -169,14 +170,11 @@ export class PromptTemplate extends BaseNode<
     const self = this;
     this.addControl(
       "template",
-      new ClassicPreset.InputControl("text", {
-        initial: data.state?.context?.template || "",
-        change(value) {
-          self.actor.send({
-            type: "change",
-            value,
-          });
-        },
+      new CodeControl(data.state?.context?.template || "", "js", (value) => {
+        self.actor.send({
+          type: "change",
+          value,
+        });
       })
     );
     this.addControl("debug", new DebugControl(this.actor.status));
@@ -201,10 +199,7 @@ export class PromptTemplate extends BaseNode<
 
     for (const item of rawTemplate) {
       if (this.hasInput(item)) continue;
-      this.addInput(
-        item,
-        new ClassicPreset.Input(new TextSocket(), item, false)
-      );
+      this.addInput(item, new ClassicPreset.Input(stringSocket, item, false));
     }
 
     const values = Object.entries(this.inputs).reduce((prev, curr) => {

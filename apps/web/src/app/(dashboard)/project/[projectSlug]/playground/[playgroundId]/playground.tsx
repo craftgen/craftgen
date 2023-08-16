@@ -135,7 +135,10 @@ export const Playground: React.FC<{
 
               <div ref={ref} className="w-full h-full " />
             </div>
-            <div key={"inspector"} className="border-2 p-4 bg-background">
+            <div
+              key={"inspector"}
+              className="border-2 p-4 bg-background rounded"
+            >
               <InspectorWindow />
             </div>
           </ResponsiveGridLayout>
@@ -167,25 +170,26 @@ const InspectorWindow: React.FC<{}> = ({}) => {
     </div>
   );
 };
-const { RefControl } = Presets.classic;
 const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   const controls = Object.entries(node.controls);
-  const di = useCraftStore((state) => state.di);
-
   return (
     <div>
       <h4 className="font-bold">{node.label}</h4>
       <div>
-        {controls.map(([key, control]) => {
-          const ref = useRef();
-          const ControlElement = getControl({
-            element: ref.current!,
-            type: "control",
-            payload: control!,
-          });
-          return <ControlElement key={key} data={control} />;
-        })}
+        {controls.map(([key, control]) => (
+          <ControlWrapper key={key} control={control} />
+        ))}
       </div>
     </div>
   );
+};
+
+const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
+  const ref = useRef<HTMLElement>(null);
+  const ControlElement = getControl({
+    element: ref.current!,
+    type: "control",
+    payload: control!,
+  });
+  return <ControlElement ref={ref} data={control} />;
 };

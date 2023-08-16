@@ -12,6 +12,8 @@ export type ReteStore = {
   selectedNodeId: string | null;
   di: DiContainer | null;
   layout: GridLayout.Layout[];
+  showControls: boolean;
+  toggleControls: () => void;
   setLayout: (layout: GridLayout.Layout[]) => void;
   setDi: (di: DiContainer) => void;
   setSelectedNodeId: (selectedNodeId: string | null) => void;
@@ -23,7 +25,10 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       projectSlug: "",
       selectedNodeId: null,
       di: null,
+      showControls: false,
       layout: [],
+      toggleControls: () =>
+        set((state) => ({ showControls: !state.showControls })),
       setLayout: (layout: GridLayout.Layout[]) => set({ layout }),
       setDi: (di: DiContainer) => set({ di }),
       setSelectedNodeId: (selectedNodeId: string | null) =>
