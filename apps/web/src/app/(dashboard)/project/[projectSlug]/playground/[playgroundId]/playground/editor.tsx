@@ -52,6 +52,7 @@ import { createNode, importEditor } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
+import { getControl } from "./control";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -113,31 +114,7 @@ export async function createEditor(
           return CustomConnection;
         },
         control(data) {
-          if (data.payload instanceof ButtonControl) {
-            return CustomButton;
-          }
-          if (data.payload instanceof CodeControl) {
-            return CodeEditor;
-          }
-          if (data.payload instanceof SelectControl) {
-            return SelectControlComponent;
-          }
-          if (data.payload instanceof TableControl) {
-            return TableControlComponent;
-          }
-          if (data.payload instanceof DebugControl) {
-            return DebugControlComponent;
-          }
-          // return Presets.classic.Control(data.payload);
-          if (data.payload instanceof ClassicPreset.InputControl) {
-            // return Presets.classic.InputControl
-            return CustomInput;
-          }
-          return Presets.classic.Control;
-          // if (data.payload instanceof ClassicPreset.InputControl) {
-          //   return Presets.classic.Control;
-          // }
-          return null;
+          return getControl(data);
         },
       },
     })

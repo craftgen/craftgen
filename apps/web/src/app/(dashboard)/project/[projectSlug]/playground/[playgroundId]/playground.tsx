@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getControl } from "./playground/control";
 
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
@@ -156,7 +157,6 @@ const InspectorWindow: React.FC<{}> = ({}) => {
   }, [selectedNodeId]);
   return (
     <div className="p-2 w-full h-full ">
-      {JSON.stringify(di?.editor.getNodes().map((node) => node.label))}
       {selectedNode ? (
         <InspectorNode node={selectedNode} />
       ) : (
@@ -177,26 +177,14 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
       <h4 className="font-bold">{node.label}</h4>
       <div>
         {controls.map(([key, control]) => {
-          return control ? (
-            <div key={`k--${key}`}>
-              {key} -
-              <RefControl
-                key={key}
-                name="control"
-                emit={() => {}}
-                payload={control}
-              />
-            </div>
-          ) : null;
+          const ref = useRef();
+          const ControlElement = getControl({
+            element: ref.current!,
+            type: "control",
+            payload: control!,
+          });
+          return <ControlElement key={key} data={control} />;
         })}
-        {/* {controls.map(([key, control]) => {
-          return (
-            <div key={key}>
-              {key}
-              {JSON.stringify(control)}
-            </div>
-          );
-        })} */}
       </div>
     </div>
   );
