@@ -36,7 +36,7 @@ export class BaseNode<
   } = {
     [key in string]?: Control;
   }
-> extends ClassicPreset.Node<Inputs, Outputs, Controls> {
+> extends ClassicPreset.Node<Inputs, Outputs, Controls>  {
   public di: DiContainer;
 
   public actor: InterpreterFrom<AnyStateMachine>;

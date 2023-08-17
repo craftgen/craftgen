@@ -80,7 +80,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
     const newNode = await createNode({
       di: di!,
       name: props.data.constructor.name as NodeTypes,
-      data: props.data,
+      data: props.data as any, //TODO:TYPE
       saveToDB: true,
       playgroundId,
       projectSlug,

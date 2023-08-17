@@ -22,6 +22,8 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     // })
   }
 
+  async execute() {}
+
   data(inputs: any) {
     return {
       object: {

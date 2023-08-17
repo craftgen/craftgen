@@ -47,7 +47,7 @@ const PromptTemplateNodeMachine = createMachine({
     idle: {
       invoke: {
         src: "parse",
-        input: ({ context }) => ({ value: context.template }),
+        input: ({ context }: any) => ({ value: context.template }), //TODO:XSTATE
         onError: {
           target: "error",
         },
@@ -97,7 +97,7 @@ const PromptTemplateNodeMachine = createMachine({
     ready: {
       invoke: {
         src: "render",
-        input: ({ context }) => ({
+        input: ({ context }: any) => ({ // TODO:XSTATE
           template: context.template,
           inputs: context.inputs,
         }),
@@ -170,7 +170,7 @@ export class PromptTemplate extends BaseNode<
     super("Prompt Template", di, data, PromptTemplateNodeMachine, {
       actions: {
         updateValue: assign({
-          template: ({ event }) => event.value,
+          template: ({ event }: any) => event.value, // TODO:
         }),
       },
       actors: {
@@ -183,7 +183,7 @@ export class PromptTemplate extends BaseNode<
           })
             .filter((item) => !isString(item))
             .map((item) => {
-              return item.c;
+              return (item as any).c; // TODO:TYPE
             });
           return rawTemplate;
         }),

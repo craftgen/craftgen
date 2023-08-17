@@ -37,7 +37,9 @@ export const columns: ColumnDef<Task>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Article" />
     ),
-    cell: ({ row }) => <div className="w-[80px] truncate">{row.getValue("id")}</div>,
+    cell: ({ row }) => (
+      <div className="w-[80px] truncate">{row.getValue("id")}</div>
+    ),
     enableSorting: false,
     enableHiding: false,
   },
@@ -47,12 +49,12 @@ export const columns: ColumnDef<Task>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label);
+      // const label = labels.find((label) => label.value === row.original.label);
 
       return (
         <Link href={`${row.original.link}`}>
           <div className="flex space-x-2">
-            {label && <Badge variant="outline">{label.label}</Badge>}
+            {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
             <span className="max-w-[500px] truncate font-medium">
               {row.getValue("title")}
             </span>

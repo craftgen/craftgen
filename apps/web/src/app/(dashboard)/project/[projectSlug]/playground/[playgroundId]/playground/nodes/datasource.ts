@@ -16,15 +16,15 @@ const datasetMachine = createMachine({
     cursor: null,
     processedDataIds: [],
   },
-  types: {
-    context: {} as {
+  types: {} as {
+    context: {
       datasetId: string | null;
       datasets?: any[];
       dataset?: any;
       processedDataIds?: string[];
       cursor?: string | null;
-    },
-    events: {} as
+    };
+    events:
       | {
           type: "CONNECT";
           datasetId: string;
@@ -35,7 +35,7 @@ const datasetMachine = createMachine({
         }
       | {
           type: "CREATE";
-        },
+        };
   },
   initial: "idle",
   states: {
@@ -65,21 +65,12 @@ const datasetMachine = createMachine({
         CREATE: "creating",
       },
     },
-    creating: {
-      // on: {
-      // CREATE: {
-      //   target: "connecting",
-      //   actions: assign({
-      //     datasetId: ({ event }) => event.datasetId,
-      //   }),
-      // },
-      // },
-    },
+    creating: {},
 
     connecting: {
       invoke: {
         src: "fetchDataset",
-        input: ({ context }) => ({ datasetId: context.datasetId }),
+        input: ({ context }: any) => ({ datasetId: context.datasetId }),
         onDone: {
           target: "connected",
           actions: assign({

@@ -16,7 +16,7 @@ export class DatabaseUpdate extends BaseNode<
     super("DatabaseUpdate", di, data, databaseUpdateMachine, {});
   }
 
-  async invoke() {}
+  async execute() {}
 
   async data() {}
 

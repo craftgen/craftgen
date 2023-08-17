@@ -16,7 +16,7 @@ export class DatabaseDelete extends BaseNode<
     super("DatabaseDelete", di, data, databaseDeleteMachine, {});
   }
 
-  async invoke() {}
+  async execute() {}
 
   async data() {}
 

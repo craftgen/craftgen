@@ -16,7 +16,7 @@ export class DatabaseUpsert extends BaseNode<
     super("DatabaseUpsert", di, data, databaseUpsertMachine, {});
   }
 
-  async invoke() {}
+  async execute() {}
 
   async data() {}
 

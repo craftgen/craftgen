@@ -30,19 +30,10 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import useSWR from "swr";
 import { useParams, useRouter } from "next/navigation";
 import { getProjects } from "../dashboard/actions";
-import { use, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useMemo, useState } from "react";
 import { NewProjectForm } from "../project/new/new-project-form";
 
 interface TeamSwitcherProps extends PopoverTriggerProps {}
@@ -77,23 +68,34 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const groups = useMemo(() => {
     if (isLoading) {
-      return [];
+      return [
+        {
+          label: "Projects",
+          teams: [
+            {
+              label: params.projectSlug as string,
+              value: params.projectSlug as string,
+            },
+          ],
+        },
+      ];
     }
     return [
       {
         label: "Projects",
-        teams: data?.map((project) => ({
-          label: project.project.name,
-          value: project.project.slug,
-        })),
+        teams:
+          data?.map((project) => ({
+            label: project.project.name,
+            value: project.project.slug,
+          })) || ([] as { label: string; value: string }[]),
       },
     ];
   }, [data]);
   const selectedTeam = useMemo(() => {
     if (!groups[0]?.teams) {
       return {
-        label: params.projectSlug,
-        value: params.projectSlug,
+        label: params.projectSlug as string,
+        value: params.projectSlug as string,
       };
     }
     return groups[0].teams.find(

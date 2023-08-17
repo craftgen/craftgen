@@ -21,8 +21,11 @@ import {
   DataSourceControl,
   DataSourceControlComponent,
 } from "./ui/control/control-datasource";
+import { divide } from "lodash-es";
 
-export const getControl = (data: ExtractPayload<Schemes, "control">) => {
+export const getControl = (
+  data: ExtractPayload<Schemes, "control">
+): (({ data }: { data: any }) => JSX.Element | null) => {
   if (data.payload instanceof ButtonControl) {
     return CustomButton;
   }
@@ -44,5 +47,6 @@ export const getControl = (data: ExtractPayload<Schemes, "control">) => {
   if (data.payload instanceof ClassicPreset.InputControl) {
     return CustomInput;
   }
-  return Presets.classic.Control;
+  return ({ data }) => null;
+  // return ClassicPreset.Control;
 };

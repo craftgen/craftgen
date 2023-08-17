@@ -4,10 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Editor } from "@/components/editor";
 import { useState } from "react";
 import useSWR from "swr";
-import { getArticle, updateArticle } from "../../actions";
-import { usePlateEditorState } from "@udecode/plate-common";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { getArticle } from "../../actions";
 
 const initialValue = [
   {

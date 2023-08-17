@@ -25,21 +25,19 @@ import {
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
-import { NodeTypes, Schemes } from "./types";
+import { Schemes } from "./types";
 import { getConnectionSockets } from "./utis";
 import { CustomConnection } from "./ui/custom-connection";
-import { createNode, importEditor } from "./io";
+import { importEditor } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
 import { getControl } from "./control";
+import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
 export type DiContainer = {
-  // updateControl: (id: string) => void
-  // updateNode: (id: string) => void
-  // process: () => void
   graph: ReturnType<typeof structures>;
   area: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => Promise<void>;
@@ -49,7 +47,6 @@ export type DiContainer = {
   arrange?: AutoArrangePlugin<Schemes>;
   inspector: InspectorPlugin;
   render: ReactPlugin<Schemes, AreaExtra>;
-  // modules: Modules
 };
 
 export const createEditorFunc = (
@@ -84,8 +81,10 @@ export async function createEditor(
   render.addPreset(
     Presets.classic.setup({
       customize: {
-        node() {
-          return ({ data, emit }) => CustomNode({ data, emit, store });
+        node(context) {
+          // TODO: fix types some point
+          return ({ data, emit }: any) =>
+            CustomNode({ data, emit, store }) as any;
         },
         socket(context) {
           return CustomSocket;
@@ -126,48 +125,6 @@ export async function createEditor(
     };
   });
 
-  const curriedCreateNode = ({
-    name,
-    data,
-  }: {
-    name: NodeTypes;
-    data?: any;
-  }) => {
-    return createNode({
-      di,
-      name,
-      data,
-      saveToDB: true,
-      playgroundId: playground.id,
-      projectSlug: playground.project?.slug,
-    });
-  };
-  // const contextMenu = new ContextMenuPlugin<Schemes>({
-  //   items: ContextMenuPresets.classic.setup([
-  //     [
-  //       "Database",
-  //       [
-  //         ["Insert", () => curriedCreateNode({ name: "DatabaseInsert" })],
-  //         ["Update", () => curriedCreateNode({ name: "DatabaseUpdate" })],
-  //         ["Upsert", () => curriedCreateNode({ name: "DatabaseUpsert" })],
-  //         ["Delete", () => curriedCreateNode({ name: "DatabaseDelete" })],
-  //         ["Select", () => curriedCreateNode({ name: "DatabaseSelect" })],
-  //       ],
-  //     ],
-  //     ["Log", () => curriedCreateNode({ name: "Log" })],
-  //     [
-  //       "Text",
-  //       () =>
-  //         curriedCreateNode({
-  //           name: "TextNode",
-  //         }),
-  //     ],
-  //     ["Start", () => curriedCreateNode({ name: "Start" })],
-  //     ["Prompt Template", () => curriedCreateNode({ name: "PromptTemplate" })],
-  //     ["OpenAI", () => curriedCreateNode({ name: "OpenAIFunctionCall" })],
-  //     ["Data Source", () => curriedCreateNode({ name: "DataSource" })],
-  //   ]),
-  // });
   const arrange = new AutoArrangePlugin<Schemes>();
 
   const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();

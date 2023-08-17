@@ -19,7 +19,7 @@ export class DatabaseSelect extends BaseNode<typeof databaseSelectMachine> {
     );
   }
 
-  async invoke() {}
+  async execute() {}
 
   async data() {}
 

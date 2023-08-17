@@ -51,10 +51,12 @@ export class OpenAIFunctionCall extends BaseNode<
     super("OpenAI Function Call", di, data, OpenAIFunctionCallMachine, {});
     this.di = di;
     this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
+    const self = this;
+    const state = this.actor.getSnapshot();
     this.addControl(
       "model",
       new SelectControl<OPENAI_CHAT_MODELS_KEY>(
-        data?.model || "gpt-3.5-turbo",
+        state.context.model,
         "Model",
         [
           ...Object.keys(OPENAI_CHAT_MODELS).map((key) => ({
@@ -68,15 +70,7 @@ export class OpenAIFunctionCall extends BaseNode<
       )
     );
 
-    const control = new ClassicPreset.InputControl("text", {
-      initial: data?.message || "asda",
-      change(value) {
-        console.log("ONE", value);
-      },
-    });
     const input = new ClassicPreset.Input(stringSocket, "Prompt");
-    input.addControl(control);
-    console.log("openai", input);
     this.addInput("prompt", input);
 
     this.addOutput(
@@ -92,10 +86,6 @@ export class OpenAIFunctionCall extends BaseNode<
       message: string[];
     };
     const control = this.inputs.prompt?.control;
-    if (!inputs.prompt) {
-      inputs.prompt = control?.value as any;
-      return;
-    }
 
     forward("message");
 
@@ -108,16 +98,15 @@ export class OpenAIFunctionCall extends BaseNode<
     console.log("executing", "openai-function-call", inputs, control);
   }
 
-  data(): Data {
+  data() {
+    const state = this.actor.getSnapshot();
     return {
-      model: this.controls.model.value,
       message: "",
     };
   }
 
-  serialize(): Data {
+  serialize() {
     return {
-      model: this.controls.model.value,
       message: "",
     };
   }
