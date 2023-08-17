@@ -8,6 +8,7 @@ export function addCustomBackground<S extends BaseSchemes, K>(
 
   background.classList.add("background");
   background.classList.add("fill-area");
-
   area.area.content.add(background);
 }
+
+

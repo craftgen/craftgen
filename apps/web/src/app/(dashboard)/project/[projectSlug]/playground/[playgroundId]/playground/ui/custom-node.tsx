@@ -19,6 +19,13 @@ import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
 import { ReteStoreInstance } from "../store";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -78,8 +85,8 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
       playgroundId,
       projectSlug,
     });
-    di?.editor.addNode(newNode);
-    di?.area.translate(newNode.id, di?.area.area.pointer);
+    await di?.editor.addNode(newNode);
+    await di?.area.translate(newNode.id, di?.area.area.pointer);
   }, []);
 
   useHotkeys<HTMLDivElement>(
@@ -122,145 +129,159 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const state = useSelector(props.data.actor, (state) => state);
 
   return (
-    <div className="relative">
-      <Card
-        className={cn(
-          width && `w-[${width}px]`,
-          height && `h-[${height}px]`,
-          selected && " border-red-500",
-          "flex flex-col flex-1"
-        )}
-      >
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{label}</CardTitle>
-          <Button
-            ref={ref}
-            variant={"ghost"}
-            size={"icon"}
-            onClick={toggleDebug}
-            className="absolute top-0 right-0"
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div className="relative">
+          <Card
+            className={cn(
+              width && `w-[${width}px]`,
+              height && `h-[${height}px]`,
+              selected && " border-red-500",
+              "flex flex-col flex-1"
+            )}
           >
-            <Wrench size={10} />
-          </Button>
-        </CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>{label}</CardTitle>
+              <Button
+                ref={ref}
+                variant={"ghost"}
+                size={"icon"}
+                onClick={toggleDebug}
+                className="absolute top-0 right-0"
+              >
+                <Wrench size={10} />
+              </Button>
+            </CardHeader>
 
-        <CardContent className="flex-1">
-          {/* controls */}
-          {showControls &&
-            controls.map(([key, control]) => {
-              return control ? (
-                <RefControl
-                  key={key}
-                  name="control"
-                  emit={props.emit}
-                  payload={control}
-                />
-              ) : null;
-            })}
-        </CardContent>
-        <div className="py-4">
-          {/* Outputs */}
-          {outputs.map(
-            ([key, output]) =>
-              output && (
-                <div
-                  className="text-right flex items-center justify-end"
-                  key={key}
-                  data-testid={`output-${key}`}
-                >
-                  <Badge
-                    className="translate-x-2"
-                    data-testid="output-title"
-                    variant={"secondary"}
-                  >
-                    {output?.label}
-                  </Badge>
-                  <div>
-                    <RefSocket
-                      name="output-socket"
-                      side="output"
+            <CardContent className="flex-1">
+              {/* controls */}
+              {showControls &&
+                controls.map(([key, control]) => {
+                  return control ? (
+                    <RefControl
+                      key={key}
+                      name="control"
                       emit={props.emit}
-                      socketKey={key}
-                      nodeId={id}
-                      payload={output.socket}
+                      payload={control}
                     />
-                  </div>
-                </div>
-              )
-          )}
-          {/* Inputs */}
-          {inputs.map(
-            ([key, input]) =>
-              input && (
-                <div
-                  className="text-left flex items-center"
-                  key={key}
-                  data-testid={`input-${key}`}
-                >
-                  <div>
-                    <RefSocket
-                      name="input-socket"
-                      emit={props.emit}
-                      side="input"
-                      socketKey={key}
-                      nodeId={id}
-                      payload={input.socket}
-                    />
-                  </div>
-                  {input && (!input.control || !input.showControl) && (
-                    <Badge
-                      className="-translate-x-2"
-                      data-testid="input-title"
-                      variant={"secondary"}
+                  ) : null;
+                })}
+            </CardContent>
+            <div className="py-4">
+              {/* Outputs */}
+              {outputs.map(
+                ([key, output]) =>
+                  output && (
+                    <div
+                      className="text-right flex items-center justify-end"
+                      key={key}
+                      data-testid={`output-${key}`}
                     >
-                      {input?.label}
-                    </Badge>
-                  )}
-                  {input?.control && input?.showControl && (
-                    <span className="input-control flex items-center">
-                      <Badge className="-translate-x-2" variant={"secondary"}>
-                        {input.label}
+                      <Badge
+                        className="translate-x-2"
+                        data-testid="output-title"
+                        variant={"secondary"}
+                      >
+                        {output?.label}
                       </Badge>
-                      <div className="mr-2">
-                        <RefControl
-                          key={key}
-                          name="input-control"
+                      <div>
+                        <RefSocket
+                          name="output-socket"
+                          side="output"
                           emit={props.emit}
-                          payload={input.control}
+                          socketKey={key}
+                          nodeId={id}
+                          payload={output.socket}
                         />
                       </div>
-                    </span>
-                  )}
-                </div>
-              )
-          )}
-        </div>
-        <CardFooter>
-          {debug && (
-            <Badge
-              variant={"outline"}
-              className="font-mono text-muted hover:text-primary w-full"
-            >
-              Id: {props.data.id}
-            </Badge>
-          )}
-        </CardFooter>
-      </Card>
-      <div className="absolute">
-        {debug && (
-          <pre>
-            <code>
-              {JSON.stringify(
-                {
-                  state: state,
-                },
-                null,
-                2
+                    </div>
+                  )
               )}
-            </code>
-          </pre>
-        )}
-      </div>
-    </div>
+              {/* Inputs */}
+              {inputs.map(
+                ([key, input]) =>
+                  input && (
+                    <div
+                      className="text-left flex items-center"
+                      key={key}
+                      data-testid={`input-${key}`}
+                    >
+                      <div>
+                        <RefSocket
+                          name="input-socket"
+                          emit={props.emit}
+                          side="input"
+                          socketKey={key}
+                          nodeId={id}
+                          payload={input.socket}
+                        />
+                      </div>
+                      {input && (!input.control || !input.showControl) && (
+                        <Badge
+                          className="-translate-x-2"
+                          data-testid="input-title"
+                          variant={"secondary"}
+                        >
+                          {input?.label}
+                        </Badge>
+                      )}
+                      {input?.control && input?.showControl && (
+                        <span className="input-control flex items-center">
+                          <Badge
+                            className="-translate-x-2"
+                            variant={"secondary"}
+                          >
+                            {input.label}
+                          </Badge>
+                          <div className="mr-2">
+                            <RefControl
+                              key={key}
+                              name="input-control"
+                              emit={props.emit}
+                              payload={input.control}
+                            />
+                          </div>
+                        </span>
+                      )}
+                    </div>
+                  )
+              )}
+            </div>
+            <CardFooter>
+              {debug && (
+                <Badge
+                  variant={"outline"}
+                  className="font-mono text-muted hover:text-primary w-full"
+                >
+                  Id: {props.data.id}
+                </Badge>
+              )}
+            </CardFooter>
+          </Card>
+          <div className="absolute">
+            {debug && (
+              <pre>
+                <code>
+                  {JSON.stringify(
+                    {
+                      state: state,
+                      position: di?.area.nodeViews.get(props.data.id)?.position,
+                    },
+                    null,
+                    2
+                  )}
+                </code>
+              </pre>
+            )}
+          </div>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={deleteNode}>
+          Delete
+          <ContextMenuShortcut>⌫</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }

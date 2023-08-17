@@ -162,32 +162,32 @@ export async function createEditor(
       projectSlug: playground.project?.slug,
     });
   };
-  const contextMenu = new ContextMenuPlugin<Schemes>({
-    items: ContextMenuPresets.classic.setup([
-      [
-        "Database",
-        [
-          ["Insert", () => curriedCreateNode({ name: "DatabaseInsert" })],
-          ["Update", () => curriedCreateNode({ name: "DatabaseUpdate" })],
-          ["Upsert", () => curriedCreateNode({ name: "DatabaseUpsert" })],
-          ["Delete", () => curriedCreateNode({ name: "DatabaseDelete" })],
-          ["Select", () => curriedCreateNode({ name: "DatabaseSelect" })],
-        ],
-      ],
-      ["Log", () => curriedCreateNode({ name: "Log" })],
-      [
-        "Text",
-        () =>
-          curriedCreateNode({
-            name: "TextNode",
-          }),
-      ],
-      ["Start", () => curriedCreateNode({ name: "Start" })],
-      ["Prompt Template", () => curriedCreateNode({ name: "PromptTemplate" })],
-      ["OpenAI", () => curriedCreateNode({ name: "OpenAIFunctionCall" })],
-      ["Data Source", () => curriedCreateNode({ name: "DataSource" })],
-    ]),
-  });
+  // const contextMenu = new ContextMenuPlugin<Schemes>({
+  //   items: ContextMenuPresets.classic.setup([
+  //     [
+  //       "Database",
+  //       [
+  //         ["Insert", () => curriedCreateNode({ name: "DatabaseInsert" })],
+  //         ["Update", () => curriedCreateNode({ name: "DatabaseUpdate" })],
+  //         ["Upsert", () => curriedCreateNode({ name: "DatabaseUpsert" })],
+  //         ["Delete", () => curriedCreateNode({ name: "DatabaseDelete" })],
+  //         ["Select", () => curriedCreateNode({ name: "DatabaseSelect" })],
+  //       ],
+  //     ],
+  //     ["Log", () => curriedCreateNode({ name: "Log" })],
+  //     [
+  //       "Text",
+  //       () =>
+  //         curriedCreateNode({
+  //           name: "TextNode",
+  //         }),
+  //     ],
+  //     ["Start", () => curriedCreateNode({ name: "Start" })],
+  //     ["Prompt Template", () => curriedCreateNode({ name: "PromptTemplate" })],
+  //     ["OpenAI", () => curriedCreateNode({ name: "OpenAIFunctionCall" })],
+  //     ["Data Source", () => curriedCreateNode({ name: "DataSource" })],
+  //   ]),
+  // });
   const arrange = new AutoArrangePlugin<Schemes>();
 
   const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();
@@ -213,7 +213,7 @@ export async function createEditor(
   area.use(history);
   // area.use(minimap);
   area.use(connection);
-  area.use(contextMenu);
+  // area.use(contextMenu);
   area.use(render);
   area.use(arrange);
   // render.addPreset(Presets.minimap.setup({ size: 180 }));

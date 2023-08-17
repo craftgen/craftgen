@@ -12,6 +12,9 @@ export class InspectorPlugin extends Scope<
   constructor(store: ReteStoreInstance) {
     super("inspector");
     this.addPipe((context) => {
+      if (context.type === "pointermove") {
+        store.getState().setPosition(context.data.position);
+      }
       // if (context.type === '')
       if (context.type === "nodepicked") {
         store.getState().setSelectedNodeId(context.data.id);

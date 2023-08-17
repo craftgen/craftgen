@@ -13,6 +13,8 @@ export type ReteStore = {
   di: DiContainer | null;
   layout: GridLayout.Layout[];
   showControls: boolean;
+  position: { x: number; y: number };
+  setPosition: (position: { x: number; y: number }) => void;
   toggleControls: () => void;
   setLayout: (layout: GridLayout.Layout[]) => void;
   setDi: (di: DiContainer) => void;
@@ -27,6 +29,8 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       di: null,
       showControls: false,
       layout: [],
+      position: { x: 0, y: 0 },
+      setPosition: (position: { x: number; y: number }) => set({ position }),
       toggleControls: () =>
         set((state) => ({ showControls: !state.showControls })),
       setLayout: (layout: GridLayout.Layout[]) => set({ layout }),

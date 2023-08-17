@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getControl } from "./playground/control";
+import { ContextMenuProvider } from "./playground/context-menu";
 
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
@@ -132,8 +133,9 @@ export const Playground: React.FC<{
                   </Button>
                 </div>
               </div>
-
-              <div ref={ref} className="w-full h-full " />
+              <ContextMenuProvider>
+                <div ref={ref} className="w-full h-full " />
+              </ContextMenuProvider>
             </div>
             <div
               key={"inspector"}
@@ -154,7 +156,6 @@ const InspectorWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
   const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
   const selectedNode = selectedNodeId && di?.editor.getNode(selectedNodeId);
-  console.log(selectedNode);
   return (
     <div className="w-full h-full flex flex-col">
       {selectedNode ? (
