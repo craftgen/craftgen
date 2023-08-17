@@ -6,6 +6,7 @@ import { TableControl } from "../ui/control/control-table";
 import { createMachine, assign, fromPromise, StateFrom } from "xstate";
 import { getDataSet, getDataSets, getDatasetPaginated } from "../../action";
 import { BaseNode, NodeData } from "./base";
+import { DataSourceControl } from "../ui/control/control-datasource";
 
 const datasetMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdASwgBswBiCAewDsx9KA3cgaxtQy1wOIT3vIGN0eKgG0ADAF0x4xKAAO5WHjRDKMkAA9EAJgBsARhx6AnFoDsegBwBmUVb2WtAGhABPbaa2GLFvToAsotZWVjpaVgC+4c6smNg4AE5gKBAuJADCAPIAclkAomkAKlJq8orKVGqaCACsFkY4RnqieqamfiZ6Vm3Obghmojg6FqbV9jrVOjqm-jqR0eixuHxU1HzKlFBkVDQ8DMw4Mew4y5Sr61DcvALllFLFSCClSiqViLX1jc2t7Vqd3a6IHw4PwWCamYZGHQ2aojOYgQ5xE5nSAkPIADSKEhKCmeFQeVXeDSaLTaHS6fh6iBafhwtWqRj8ZiMRmsnT8cIRuESyVSfG5aDA9zkOJurwQfihg2Mehh42a1Ql1UpCCsE2B1kCoNMoh0OoskSiIEo5AgcDUnOxZRe+MQAFodMr7ThRC6XVZGl0rD8tByFkdOGBLbjVDbxU4AX1tcCjG1RMyLHHTDH2YbOQkkikg6LQ342s69O0jHrGZDRBSI1ojFYGlXqrZ6UZ6Xofam-YiVmA1jwoFnraAqq0LDhvDLgt5mqJpsqWjph42LH57FpF16hr62O3Tp2BRBe3j+4g-NVq1YtD4ugmfOZQdPAsOPPpapPTBFWxulvzu3uQwfxaMpY0sp1jKirKous4gjY3gwjqeoGuEQA */
@@ -129,10 +130,6 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
       this.syncStateWithUI(state);
     });
 
-    // this.addOutput(
-    //   "foreach",
-    //   new ClassicPreset.Output(objectSocket, "foreach")
-    // );
     const state = this.actor.getSnapshot();
     this.syncStateWithUI(state);
   }
@@ -166,20 +163,10 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
           "databaseId",
           new ClassicPreset.Output(databaseIdSocket, "databaseId")
         );
+
         this.addControl(
           "datasource",
-          new TableControl(
-            [
-              {
-                accessorKey: "name",
-                header: "Name",
-              },
-            ],
-            state.context.dataset?.rows.map((r: any) => ({
-              ...r.data,
-              id: r.id,
-            })) || []
-          )
+          new DataSourceControl(state.context.datasetId!)
         );
       } else {
       }

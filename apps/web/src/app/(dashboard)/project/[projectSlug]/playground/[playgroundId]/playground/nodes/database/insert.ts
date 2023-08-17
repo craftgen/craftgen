@@ -22,19 +22,20 @@ export class DatabaseInsert extends BaseNode<
     super("Database Insert", di, data, databaseInsertMachine, {});
     this.addInput(
       "databaseId",
-      new ClassicPreset.Input(databaseIdSocket, "databaseId")
+      new ClassicPreset.Input(databaseIdSocket, "databaseId", false)
     );
     this.addInput("data", new ClassicPreset.Input(objectSocket, "data"));
   }
 
-  async invoke() {
+  async execute() {
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-      dataBaseId: string;
-      data: Record<string, unknown>;
+      databaseId: string[];
+      data: Record<string, unknown>[];
     };
+    console.log("insertInputs", inputs);
     await insertDataSet({
-      id: inputs.dataBaseId,
-      data: inputs.data,
+      id: inputs.databaseId[0],
+      data: inputs.data[0],
     });
   }
 

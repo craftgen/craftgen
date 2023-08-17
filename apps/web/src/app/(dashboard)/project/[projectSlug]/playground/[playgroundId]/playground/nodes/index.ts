@@ -10,3 +10,5 @@ export { DatabaseSelect } from "./database/select";
 export { DatabaseUpdate } from "./database/update";
 export { DatabaseDelete } from "./database/delete";
 export { DatabaseUpsert } from "./database/upsert";
+
+export { ComposeObject } from "./object/composeObject";

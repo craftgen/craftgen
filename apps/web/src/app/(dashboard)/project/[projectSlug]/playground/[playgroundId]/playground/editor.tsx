@@ -11,13 +11,9 @@ import {
   ArrangeAppliers,
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
-import { MinimapExtra, MinimapPlugin } from "rete-minimap-plugin";
+import { MinimapExtra } from "rete-minimap-plugin";
 import { structures } from "rete-structures";
-import {
-  ContextMenuExtra,
-  ContextMenuPlugin,
-  Presets as ContextMenuPresets,
-} from "rete-context-menu-plugin";
+import { ContextMenuExtra } from "rete-context-menu-plugin";
 import { DataflowEngine, ControlFlowEngine } from "rete-engine";
 import {
   HistoryPlugin,
@@ -31,23 +27,7 @@ import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
 import { NodeTypes, Schemes } from "./types";
 import { getConnectionSockets } from "./utis";
-import { CustomContextMenu } from "./ui/context-menu";
-import { CustomInput } from "./ui/control/custom-input";
 import { CustomConnection } from "./ui/custom-connection";
-import { ButtonControl, CustomButton } from "./ui/control/control-button";
-import { CodeControl, CodeEditor } from "./ui/control/control-code";
-import {
-  SelectControl,
-  SelectControlComponent,
-} from "./ui/control/control-select";
-import {
-  TableControl,
-  TableControlComponent,
-} from "./ui/control/control-table";
-import {
-  DebugControl,
-  DebugControlComponent,
-} from "./ui/control/control-debug";
 import { createNode, importEditor } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
@@ -94,7 +74,7 @@ export async function createEditor(
     accumulating: AreaExtensions.accumulateOnCtrl(),
   });
   AreaExtensions.restrictor(area, {
-    scaling: () => ({ min: 0.5, max: 1 }),
+    scaling: () => ({ min: 0.2, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
   AreaExtensions.snapGrid(area, {
@@ -217,7 +197,6 @@ export async function createEditor(
   area.use(render);
   area.use(arrange);
   // render.addPreset(Presets.minimap.setup({ size: 180 }));
-  render.addPreset(CustomContextMenu);
 
   editor.addPipe((context) => {
     if (context.type === "connectioncreate") {

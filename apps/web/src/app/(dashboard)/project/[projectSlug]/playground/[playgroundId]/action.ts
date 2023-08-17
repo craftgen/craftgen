@@ -169,6 +169,10 @@ export const insertDataSet = async (params: { id: string; data: any }) => {
   });
 };
 
+export const deleteDataRow = async (params: { id: string }) => {
+  return await db.delete(dataRow).where(eq(dataRow.id, params.id));
+};
+
 export const getDatasetPaginated = async (params: {
   datasetId: string;
   cursor?: string;

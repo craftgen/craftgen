@@ -17,6 +17,10 @@ import {
   TableControlComponent,
 } from "./ui/control/control-table";
 import { CustomInput } from "./ui/control/custom-input";
+import {
+  DataSourceControl,
+  DataSourceControlComponent,
+} from "./ui/control/control-datasource";
 
 export const getControl = (data: ExtractPayload<Schemes, "control">) => {
   if (data.payload instanceof ButtonControl) {
@@ -30,6 +34,9 @@ export const getControl = (data: ExtractPayload<Schemes, "control">) => {
   }
   if (data.payload instanceof TableControl) {
     return TableControlComponent;
+  }
+  if (data.payload instanceof DataSourceControl) {
+    return DataSourceControlComponent;
   }
   if (data.payload instanceof DebugControl) {
     return DebugControlComponent;

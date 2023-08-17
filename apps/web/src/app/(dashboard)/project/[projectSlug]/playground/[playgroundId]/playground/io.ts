@@ -37,6 +37,8 @@ export async function createNode({
     DatabaseSelect: (di, data) => new Nodes.DatabaseSelect(di, data),
     DatabaseUpdate: (di, data) => new Nodes.DatabaseUpdate(di, data),
     DatabaseUpsert: (di, data) => new Nodes.DatabaseUpsert(di, data),
+
+    ComposeObject: (di, data) => new Nodes.ComposeObject(di, data),
   };
   const matched = nodes[name];
 
