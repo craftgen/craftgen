@@ -8,16 +8,11 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { PropsWithChildren, useRef, useState } from "react";
 import { useCraftStore } from "./store";
 import { createNode } from "./io";
-import { NodeTypes } from "./types";
-import { ContextMenuItem } from "@radix-ui/react-context-menu";
+import { NodeTypes, nodes } from "./types";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
@@ -55,14 +50,8 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     });
     setOpen(false);
   };
-  const handleAddNode = async (nodeName: string) => {
-    switch (nodeName) {
-      case "text":
-        curriedCreateNode({ name: "Start", position });
-        break;
-      default:
-        break;
-    }
+  const handleAddNode = async (nodeName: NodeTypes) => {
+    curriedCreateNode({ name: nodeName, position });
   };
 
   useHotkeys(`${Key.Meta}+k`, () => {
@@ -77,17 +66,22 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Suggestions">
-            <CommandItem onSelect={() => handleAddNode("text")}>
+            <CommandItem onSelect={() => handleAddNode("TextNode")}>
               Text
             </CommandItem>
-            <CommandItem>Search Emoji</CommandItem>
-            <CommandItem>Calculator</CommandItem>
           </CommandGroup>
           <CommandSeparator />
-          <CommandGroup heading="Settings">
-            <CommandItem>Profile</CommandItem>
-            <CommandItem>Billing</CommandItem>
-            <CommandItem>Settings</CommandItem>
+          <CommandGroup heading="Nodes">
+            {Object.entries(nodes).map(([key, val]) => {
+              return (
+                <CommandItem
+                  key={key}
+                  onSelect={() => handleAddNode(key as NodeTypes)}
+                >
+                  {key}
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         </CommandList>
       </CommandDialog>

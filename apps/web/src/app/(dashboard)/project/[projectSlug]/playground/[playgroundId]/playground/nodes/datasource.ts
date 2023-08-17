@@ -105,22 +105,7 @@ const datasetMachine = createMachine({
   },
 });
 
-export class DataSource extends BaseNode<
-  typeof datasetMachine
-  // {},
-  // {
-  //   foreach: Socket;
-  //   databaseId: DatabaseIdSocket;
-  // },
-  // {
-  //   datasourceId?: SelectControl<string>;
-  //   datasource?: TableControl<any>;
-  //   createButton?: ButtonControl;
-  // }
-> {
-  height = 320;
-  width = 380;
-
+export class DataSource extends BaseNode<typeof datasetMachine> {
   constructor(di: DiContainer, data: NodeData<typeof datasetMachine>) {
     super("DataSource", di, data, datasetMachine, {
       actors: {

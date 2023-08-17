@@ -7,26 +7,27 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
 import { stringSocket } from "../sockets";
 import { CodeControl } from "../ui/control/control-code";
-import { ThickArrowDownIcon } from "@radix-ui/react-icons";
 
 type Data = {
   value: string;
 };
 
 const PromptTemplateNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYAzBYoBGZcrMA2ACzKLNm84AcNgDQgAT0RnAHYQimcLLy9lLycLELcLAF9k-35sfEIScjZxBjBUDFQKEXIAM3RUTFKMTKEcsVowSWk5fSU1DSNkHT0DI1MES2s7Bxc3D28-QPMATkcKL3cLOednObmQrdT0usFssqa6ehkAC1JmGG6kEF7dDsNboZHbeydXd08ffyDh+woITMcxiywSm0cPl2d32WWEojYOACyCkUFOFyuYBu2geA2eiDW4TMAFYQjZtmYvAtScTfuYvMTAZS5mZPCzWSFidCMgd4bkKEiUVd6MZYDh+aRyoRUAAKYn2ACU9B5cMaiORqOxdz6j0GiG2jI2jhsxPWFlizmBdIQPgiDMhCS8zkcjmJLO5sIaRzYhWK6Mu1zUPR1eNAQwNEQWJrNFqtswQrnCFicbsi0U88q5aRhAlV3ooqDApAgAUYLDy0l4tVzXoRBaLJdaXHaBg0Wvu-RYeoQqzmFGUiQs6wcngHXmtaYoQ-sxpdoQZJI9NcOdcLxdLvqqpVElWq1fqK-5a8bUmb8k66iDtw7uvxCGJpIijjMThiUSdymcE5siwHD5sczKMS7hmNsS4HnylDHqW5wBliV44p2TxhogD7hM6L6Qm40SuF+8bEpS-Zkq4ILKI4cxWF4qTZsw6AQHAPSeoehDBriXZ3ngjjWngjKbHx-H8UC4G8mq1DNKxSHdpaE4bG8FjEgypqOKsVLCXmdaCqiEm3ihCBrDYFCZqy0QWC4rgzH8USLMsQEDq65lhGptb8puqDaaGJj6kBFCbMocx2F4ZnmmYE4DksTguHYyZhFR2Yqs5UENn8iE6Z5PYMoZzg-hRxpUlscwToB4XLA+kIMsoNjUckQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYALAGYKARmUBOKwA4Lzqx4e2ArAHYANCAAnoi+DsoUZg4OFo5mZlbeAGxJAL6pgfzY+IQk5GziDGCoGKgUIuQAZuiomOUY2UJ5YrRgktJy+kpqGkbIOnoGRqYIljb2Tq7unj4BwYhuDhS+ylY+iW7O4VbpmQ2CuRUtdPQyABakzDC9SCD9ul2GtyNjdo4ubh5WXn6BIaPKCK+CzRXxJVarbzOXy+XZ3fY5YSiNg4ILIKRQU4XK5gG7aB5DZ6IBzebwUbyA5TgpK+KyWJK2P6IKxJZzLEEOJIWPy2NyxCxwrIHJH5Cio9FXejGWA4UWkSqEVAACnsygAlPQhYjmii0Ri8XcBo9hohnMoyVDvCSqbZXGDvEyEM5bBQOZyrObeTTVoKEU0jmxiqUsZdrmo+kbCaARmaLc4rRSGXakg75ggQUDVqqnGYqQkBRl4QJtQGKEGavRUGBmBBigb7oMWCaEOCybY6TCXMpbLmkmZHSzfK7vB7nAzYmbfLZfcX-ciKFXSBAgowWAVpLx6rPDvPF8v2lxOgYNPXI02iQgKRYKFz3A5c95c2ZU-9SeMqVb4wlopYZ40d6Ke4ruWZRHNUtRbv+IqUEBB6yPI3TqOGtwNsaF7JEOFK+GaWaxDCSSOmENjgve3jchYFi5lYBZ7Nu0FsEBIY4qeBLntGiAYeSyjYYCax4WCjquC6ExmLG3YOGOaSFlqc6AWAS4rlWNZ1sh+KNk87GjPEbwUTELJmCsDgwo6fhkgZlFmCmRl+BR6SFsw6C1vAKF+gBhARqxGkmIgeAEWmeBktEQXBSFOzSa59HUK0Hnqc2lGEVCN5xNRyiUZMsLhXROpinqVwxWhmkxEsvh+O4j5gnSPaOhYKyRBCWw1Ws0IZbRUHZSB+VRt5CBTkkFDcRCGwWEk95zP8IIulR2Z0nmNFFm1pZAZ1bHdS4Zj9XSlE0hJlhhGNiCshEfZhN47YpMo0LOHZqRAA */
   id: "prompt-template",
   initial: "idle",
   context: {
     template: "",
     rendered: "",
     variables: [],
+    inputs: {},
   },
   types: {
     context: {} as {
       template: string;
       rendered: string;
       variables: string[];
+      inputs: Record<string, any[]>;
     },
     events: {} as
       | {
@@ -35,6 +36,10 @@ const PromptTemplateNodeMachine = createMachine({
         }
       | {
           type: "render";
+          inputs: any;
+        }
+      | {
+          type: "data";
           inputs: any;
         },
   },
@@ -75,15 +80,27 @@ const PromptTemplateNodeMachine = createMachine({
         },
       },
     },
+
     error: {
       on: {
         change: "typing",
+        render: "idle",
+        data: {
+          target: "ready",
+          actions: assign({
+            inputs: ({ event }) => event.inputs,
+          }),
+        },
       },
     },
+
     ready: {
       invoke: {
         src: "render",
-        input: ({ context }) => ({ template: context.template }),
+        input: ({ context }) => ({
+          template: context.template,
+          inputs: context.inputs,
+        }),
         onError: {
           target: "error",
         },
@@ -95,14 +112,45 @@ const PromptTemplateNodeMachine = createMachine({
       },
       on: {
         change: "typing",
+        data: {
+          target: "ready",
+          actions: assign({
+            inputs: ({ event }) => event.inputs,
+          }),
+        },
         render: {
           target: "ready",
+          actions: assign({
+            inputs: ({ event }) => event.inputs,
+          }),
           reenter: true,
         },
       },
     },
   },
 });
+const renderFunc = async ({
+  input,
+}: {
+  input: {
+    inputs: Record<string, any[]>;
+    template: string;
+  };
+}) => {
+  const values = Object.entries(input.inputs).reduce((prev, curr) => {
+    const [key, value] = curr as [string, any[]];
+    if (key.includes(".")) {
+      set(prev, key, get(value[0], key));
+    } else {
+      set(prev, key, value[0]);
+    }
+    return prev;
+  }, {} as Record<string, string>);
+  const rendered = Sqrl.render(input.template, values, {
+    useWith: true,
+  });
+  return rendered;
+};
 
 export class PromptTemplate extends BaseNode<
   typeof PromptTemplateNodeMachine,
@@ -111,7 +159,7 @@ export class PromptTemplate extends BaseNode<
   },
   { value: ClassicPreset.Socket },
   {
-    template: CodeControl<string>;
+    template: CodeControl;
     debug: DebugControl;
   }
 > {
@@ -119,7 +167,6 @@ export class PromptTemplate extends BaseNode<
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>
   ) {
-    console.log("initiiiial", data);
     super("Prompt Template", di, data, PromptTemplateNodeMachine, {
       actions: {
         updateValue: assign({
@@ -140,25 +187,7 @@ export class PromptTemplate extends BaseNode<
             });
           return rawTemplate;
         }),
-        render: fromPromise(async ({ input }) => {
-          const inputs = (await this.di.dataFlow?.fetchInputs(this.id)) as {};
-
-          const values = Object.entries(inputs).reduce((prev, curr) => {
-            const [key, value] = curr;
-            set(prev, key, get(value[0], key));
-            // prev[key] = value[0];
-
-            return prev;
-          }, {} as Record<string, string>);
-          console.log("@@@ HULO", {
-            template: input.template,
-            values,
-          });
-          const rendered = Sqrl.render(input.template, values, {
-            useWith: true,
-          });
-          return rendered;
-        }),
+        render: fromPromise(renderFunc),
       },
     });
     this.actor.subscribe((state) => {
@@ -178,9 +207,7 @@ export class PromptTemplate extends BaseNode<
         },
       })
     );
-    // this.addControl("debug", new DebugControl(this.actor.status));
     this.process();
-    // this.process(data.state?.context?.template || "");
   }
 
   process() {
@@ -194,7 +221,6 @@ export class PromptTemplate extends BaseNode<
         .filter((c) => c.target === this.id && c.targetInput === item);
       if (connections.length >= 1) continue;
       // if (this.inputs.) continue; // if there's an input that's not in the template keep it.
-      console.log("removing input", item);
       this.removeInput(item);
     }
 
@@ -202,37 +228,24 @@ export class PromptTemplate extends BaseNode<
       if (this.hasInput(item)) continue;
       this.addInput(item, new ClassicPreset.Input(stringSocket, item, false));
     }
-
-    const values = Object.entries(this.inputs).reduce((prev, curr) => {
-      const [key, value] = curr;
-      prev[key] = value[0];
-
-      return prev;
-    }, {} as Record<string, string>);
-
-    const renderedValue = Sqrl.render(state.context.rendered || "", values, {
-      useWith: true,
-    });
-
-    // this.di.dataFlow?.reset();
-    // this.di.editor.getNodes().forEach((n) => this.di.dataFlow?.fetch(n.id));
   }
 
   execute() {}
 
-  data(inputs: { [key: string]: [string | number] }): Data {
-    // this.actor.send({
-    //   type: "render",
-    // });
-    const state = this.actor.getSnapshot();
-    console.log("PROMPT TEMPLATE", state, inputs);
+  data(inputs: { [key: string]: [string | number] }) {
     this.actor.send({
-      type: "render",
+      type: "data",
       inputs,
     });
-
+    const state = this.actor.getSnapshot();
+    const rendered = renderFunc({
+      input: {
+        template: state.context.template,
+        inputs,
+      },
+    });
     return {
-      value: state.context.rendered,
+      value: rendered,
     };
   }
 

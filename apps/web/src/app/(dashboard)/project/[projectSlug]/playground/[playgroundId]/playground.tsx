@@ -104,14 +104,21 @@ export const Playground: React.FC<{
         <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] py-1 px-1">
           <ResponsiveGridLayout
             className="layout"
-            layout={layout}
+            layout={layout.map((l) => ({
+              ...l,
+              resizeHandles: ["nw", "sw", "ne", "se"],
+            }))}
             onLayoutChange={setLayout}
             cols={12}
             margin={[2, 2]}
             rowHeight={60}
             draggableHandle=".draggable-handle"
           >
-            <div key={"rete"} className="border-2 bg-background">
+            <div
+              key={"rete"}
+              className="border-2 bg-background"
+              data-grid={{ resizeHandles: ["s", "w", "e", "n"] }}
+            >
               <div className="absolute top-1 right-1 z-50 flex ">
                 <div>
                   <Tooltip>

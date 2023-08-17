@@ -68,8 +68,21 @@ export const playground = pgTable("playground", {
   layout: json("layout")
     .notNull()
     .default([
-      { i: "inspector", x: 0, y: 0, w: 2, h: 2 },
-      { i: "rete", x: 2, y: 0, w: 10, h: 12, minW: 4 },
+      {
+        i: "inspector",
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2,
+      },
+      {
+        i: "rete",
+        x: 2,
+        y: 0,
+        w: 10,
+        h: 12,
+        minW: 4,
+      },
     ]),
   edges: json("edges").notNull(),
   nodes: json("nodes").notNull(),

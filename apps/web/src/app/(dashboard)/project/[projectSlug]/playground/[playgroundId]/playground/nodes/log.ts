@@ -31,12 +31,11 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       message: string[];
     };
     console.log("inputs log", (inputs.message && inputs.message[0]) || "");
-
     forward("exec");
   }
 
-  public delete() {
-    this.di?.editor.removeNode(this.id);
+  data() {
+    return {};
   }
 
   serialize() {

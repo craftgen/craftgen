@@ -14,7 +14,7 @@ import {
   DatabaseUpsert,
 } from "./nodes";
 
-const nodes = {
+export const nodes = {
   Start: Start,
   Log: Log,
   TextNode: TextNode,

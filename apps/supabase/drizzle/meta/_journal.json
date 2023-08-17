@@ -169,6 +169,20 @@
       "when": 1692082627872,
       "tag": "0023_clear_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1692247146379,
+      "tag": "0024_omniscient_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1692247158331,
+      "tag": "0025_clumsy_dazzler",
+      "breakpoints": true
     }
   ]
 }
