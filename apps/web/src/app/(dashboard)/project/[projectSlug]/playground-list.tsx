@@ -47,10 +47,10 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
   };
   return (
     <div className="py-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center py-4">
         <h3>Playgrounds</h3>
         <div>
-          <Button onClick={handleCreatePlayground}>Create Playground</Button>
+          <Button onClick={handleCreatePlayground} size={'sm'}>Create Playground</Button>
         </div>
       </div>
       <div>{data && <DataTable columns={columns} data={data!} />}</div>
