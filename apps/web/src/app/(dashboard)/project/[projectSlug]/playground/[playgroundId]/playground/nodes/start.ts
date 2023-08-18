@@ -6,6 +6,7 @@ import { createMachine } from "xstate";
 import { triggerSocket } from "../sockets";
 
 const StartNodeMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "startNode",
 });
 

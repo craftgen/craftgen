@@ -4,6 +4,7 @@ import { DiContainer } from "../../editor";
 import { databaseIdSocket, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
 import { insertDataSet } from "../../../action";
+import { mutate } from "swr";
 
 const databaseInsertMachine = createMachine({
   id: "databaseInsert",
@@ -37,6 +38,7 @@ export class DatabaseInsert extends BaseNode<
       id: inputs.databaseId[0],
       data: inputs.data[0],
     });
+    await mutate(`/api/datasource/${inputs.databaseId[0]}`);
   }
 
   async data() {}

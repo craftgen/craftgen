@@ -14,7 +14,7 @@ import {
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { NodeTypes } from "./playground/types";
-import ReactGridLayout from "react-grid-layout";
+import * as FlexLayout from "flexlayout-react";
 
 export const getPlayground = async (params: { playgroundId: string }) => {
   const supabase = createServerActionClient({ cookies });
@@ -30,8 +30,9 @@ export const getPlayground = async (params: { playgroundId: string }) => {
 
 export const savePlaygroundLayout = async (params: {
   playgroundId: string;
-  layout: ReactGridLayout.Layout[];
+  layout: FlexLayout.IJsonModel;
 }) => {
+  console.log("saving playground layout", params);
   return await db
     .update(playground)
     .set({ layout: params.layout })

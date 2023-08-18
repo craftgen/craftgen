@@ -26,6 +26,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import * as FlexLayout from "flexlayout-react";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -58,7 +59,9 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
-  const { di, playgroundId, projectSlug, showControls } = useStore(props.store);
+  const { di, playgroundId, projectSlug, showControls, layout } = useStore(
+    props.store
+  );
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
@@ -87,6 +90,25 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
     });
     await di?.editor.addNode(newNode);
     await di?.area.translate(newNode.id, di?.area.area.pointer);
+  }, []);
+
+  const pinNode = React.useCallback(async () => {
+    const tabset = layout.getActiveTabset()?.getId()!;
+    layout.doAction(
+      FlexLayout.Actions.addNode(
+        {
+          type: "tab",
+          component: "inspectorNode",
+          name: props.data.label,
+          config: {
+            nodeId: props.data.id,
+          },
+        },
+        tabset,
+        FlexLayout.DockLocation.CENTER,
+        1
+      )
+    );
   }, []);
 
   useHotkeys<HTMLDivElement>(
@@ -137,7 +159,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
               width && `w-[${width}px]`,
               height && `h-[${height}px]`,
               selected && " border-red-500",
-              "flex flex-col flex-1"
+              "flex flex-col flex-1 bg-muted"
             )}
           >
             <CardHeader className="flex flex-row items-center justify-between">
@@ -180,7 +202,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
                       <Badge
                         className="translate-x-2"
                         data-testid="output-title"
-                        variant={"secondary"}
+                        variant={"default"}
                       >
                         {output?.label}
                       </Badge>
@@ -220,7 +242,7 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
                         <Badge
                           className="-translate-x-2"
                           data-testid="input-title"
-                          variant={"secondary"}
+                          variant={"default"}
                         >
                           {input?.label}
                         </Badge>
@@ -277,6 +299,11 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
+        <ContextMenuItem onClick={cloneNode}>
+          Clone
+          <ContextMenuShortcut>⌘D</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={pinNode}>Pin</ContextMenuItem>
         <ContextMenuItem onClick={deleteNode}>
           Delete
           <ContextMenuShortcut>⌫</ContextMenuShortcut>

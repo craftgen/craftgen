@@ -71,7 +71,7 @@ export async function createEditor(
     accumulating: AreaExtensions.accumulateOnCtrl(),
   });
   AreaExtensions.restrictor(area, {
-    scaling: () => ({ min: 0.2, max: 1 }),
+    scaling: () => ({ min: 0.4, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
   AreaExtensions.snapGrid(area, {

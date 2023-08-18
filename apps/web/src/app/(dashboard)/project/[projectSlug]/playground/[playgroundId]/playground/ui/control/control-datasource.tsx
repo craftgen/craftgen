@@ -12,7 +12,7 @@ export class DataSourceControl<T> extends ClassicPreset.Control {
 export function DataSourceControlComponent<T>(props: {
   data: DataSourceControl<T>;
 }) {
-  const { data } = useSWR(`api/datasource/${props.data.datasourceId}`, () =>
+  const { data } = useSWR(`/api/datasource/${props.data.datasourceId}`, () =>
     getDataSet(props.data.datasourceId)
   );
   return (
@@ -66,7 +66,7 @@ export function DataSourceTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const handleDelete = async () => {
     await deleteDataRow({ id: row.id });
-    await mutate(`api/datasource/${datasourceId}`);
+    await mutate(`/api/datasource/${datasourceId}`);
   };
 
   return (
