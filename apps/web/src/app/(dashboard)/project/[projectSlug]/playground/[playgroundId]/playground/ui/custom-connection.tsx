@@ -2,6 +2,7 @@ import * as React from "react";
 import tw from "tailwind-styled-components";
 
 import { ClassicScheme, Presets } from "rete-react-plugin";
+import { socketConfig } from "../sockets";
 const { useConnection } = Presets.classic;
 
 const Svg = tw.svg`
@@ -18,6 +19,10 @@ export function CustomConnection(props: {
 }) {
   const { path } = useConnection();
   if (!path) return null;
+
+  // const config = React.useMemo(() => {
+  //   return socketConfig[props.data.];
+  // }, [props.data.name]);
 
   return (
     <Svg data-testid="connection">

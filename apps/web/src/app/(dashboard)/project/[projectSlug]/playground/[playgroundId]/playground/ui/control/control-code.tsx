@@ -41,18 +41,19 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   };
   const { theme } = useTheme();
   return (
-    <div ref={ref} className="h-full w-full">
+    <div ref={ref} className="flex-1 h-full w-full">
       <Editor
         defaultValue={code}
         theme={theme === "dark" ? "vs-dark" : "light"}
         language={props.data.language}
-        className="h-full min-h-[10rem] border  rounded flex-1"
+        className="min-h-[10rem] border  rounded "
         height={"100%"}
         options={{
           minimap: {
             enabled: false,
           },
           lineNumbers: "off",
+          scrollBeyondLastLine: false,
         }}
         onChange={handleChange}
       />

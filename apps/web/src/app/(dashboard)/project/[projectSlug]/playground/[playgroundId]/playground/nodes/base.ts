@@ -1,15 +1,16 @@
 import { ClassicPreset } from "rete";
-import { Control, Socket } from "rete/_types/presets/classic";
+import { Control } from "rete/_types/presets/classic";
 import { DiContainer } from "../editor";
 import {
   AnyStateMachine,
   InterpreterFrom,
   MachineImplementationsFrom,
   StateFrom,
-  interpret,
+  interpret, // TODO: xstate
 } from "xstate";
 import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
+import { Socket } from "../sockets";
 
 export type NodeData<T extends AnyStateMachine> = {
   id: string;
@@ -36,7 +37,7 @@ export class BaseNode<
   } = {
     [key in string]?: Control;
   }
-> extends ClassicPreset.Node<Inputs, Outputs, Controls>  {
+> extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   public di: DiContainer;
 
   public actor: InterpreterFrom<AnyStateMachine>;
@@ -61,7 +62,6 @@ export class BaseNode<
     });
 
     const saveDebounced = debounce((state: string) => {
-      console.log("saving state", state);
       setNodeData({ nodeId: this.id, state });
     }, 1000);
 

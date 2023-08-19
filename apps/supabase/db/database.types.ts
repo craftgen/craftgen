@@ -255,7 +255,7 @@ export interface Database {
           created_at: string
           edges: Json
           id: string
-          layout: Json
+          layout: Json | null
           name: string
           nodes: Json
           project_id: string
@@ -265,7 +265,7 @@ export interface Database {
           created_at?: string
           edges: Json
           id?: string
-          layout?: Json
+          layout?: Json | null
           name: string
           nodes: Json
           project_id: string
@@ -275,7 +275,7 @@ export interface Database {
           created_at?: string
           edges?: Json
           id?: string
-          layout?: Json
+          layout?: Json | null
           name?: string
           nodes?: Json
           project_id?: string

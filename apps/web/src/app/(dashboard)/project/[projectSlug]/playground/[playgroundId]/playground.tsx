@@ -13,7 +13,6 @@ import {
   useCraftStore,
 } from "./playground/store";
 import { debounce } from "lodash-es";
-import GridLayout, { WidthProvider } from "react-grid-layout";
 import { Maximize } from "lucide-react";
 import { useStore } from "zustand";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,41 @@ import { getControl } from "./playground/control";
 import { ContextMenuProvider } from "./playground/context-menu";
 import * as FlexLayout from "flexlayout-react";
 
+const defaultLayout: FlexLayout.IJsonModel = {
+  global: {},
+  borders: [],
+  layout: {
+    type: "row",
+    weight: 100,
+    children: [
+      {
+        type: "tabset",
+        weight: 50,
+        children: [
+          {
+            type: "tab",
+            name: "Inspector",
+            component: "inspector",
+            enableClose: false,
+          },
+        ],
+      },
+      {
+        type: "tabset",
+        weight: 50,
+        children: [
+          {
+            type: "tab",
+            name: "Composer",
+            component: "rete",
+            enableClose: false,
+          },
+        ],
+      },
+    ],
+  },
+};
+
 export const Playground: React.FC<{
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
 }> = ({ playground }) => {
@@ -34,7 +68,7 @@ export const Playground: React.FC<{
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
-        playground.layout as FlexLayout.IJsonModel
+        (playground.layout as FlexLayout.IJsonModel) || defaultLayout
       ),
       projectSlug: params.projectSlug as string,
       playgroundId: params.playgroundId as string,
@@ -65,40 +99,6 @@ export const Playground: React.FC<{
     }, 2000),
     [layout]
   );
-
-  const json: FlexLayout.IJsonModel = {
-    global: {},
-    borders: [],
-    layout: {
-      type: "row",
-      weight: 100,
-      children: [
-        {
-          type: "tabset",
-          weight: 50,
-          children: [
-            {
-              type: "tab",
-              name: "Inspector",
-              component: "inspector",
-            },
-          ],
-        },
-        {
-          type: "tabset",
-          weight: 50,
-          children: [
-            {
-              type: "tab",
-              name: "Composer",
-              component: "rete",
-              enableClose: false,
-            },
-          ],
-        },
-      ],
-    },
-  };
 
   const factory = (layoutNode: FlexLayout.TabNode) => {
     const component = layoutNode.getComponent();
@@ -248,9 +248,8 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   if (!node) return null;
   const controls = Object.entries(node.controls);
   return (
-    <div className="h-full w-full flex flex-col">
-      <h4 className="font-bold">{node.label}</h4>
-      <div className="flex flex-col h-full overflow-hidden">
+    <div className="h-full w-full flex flex-col p-2">
+      <div className="flex flex-col h-full overflow-hidden max-h-[calc(100vh-12rem)]">
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} />
         ))}

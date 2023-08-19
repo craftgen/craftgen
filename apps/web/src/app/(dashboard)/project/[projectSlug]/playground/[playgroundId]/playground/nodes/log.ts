@@ -3,6 +3,7 @@ import { DiContainer } from "../editor";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
 import { anySocket, triggerSocket } from "../sockets";
+import { structures } from "rete-structures";
 
 const LogNodeMachine = createMachine({
   id: "log",
@@ -24,7 +25,9 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
 
   async execute(input: "exec", forward: (output: "exec") => void) {
     this.di.dataFlow?.reset();
-    this.di.editor.getNodes().forEach((n) => {
+    const incomers = this.di.graph.incomers(this.id);
+
+    incomers.nodes().forEach((n) => {
       this.di.dataFlow?.fetch(n.id);
     });
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {

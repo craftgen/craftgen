@@ -5,7 +5,7 @@ import { isString, set, get } from "lodash-es";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
-import { stringSocket } from "../sockets";
+import { Socket, stringSocket } from "../sockets";
 import { CodeControl } from "../ui/control/control-code";
 
 type Data = {
@@ -97,7 +97,8 @@ const PromptTemplateNodeMachine = createMachine({
     ready: {
       invoke: {
         src: "render",
-        input: ({ context }: any) => ({ // TODO:XSTATE
+        input: ({ context }: any) => ({
+          // TODO:XSTATE
           template: context.template,
           inputs: context.inputs,
         }),
@@ -155,9 +156,9 @@ const renderFunc = async ({
 export class PromptTemplate extends BaseNode<
   typeof PromptTemplateNodeMachine,
   {
-    [key: string]: ClassicPreset.Socket;
+    [key: string]: Socket;
   },
-  { value: ClassicPreset.Socket },
+  { value: Socket },
   {
     template: CodeControl;
     debug: DebugControl;
@@ -219,8 +220,7 @@ export class PromptTemplate extends BaseNode<
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
-      if (connections.length >= 1) continue;
-      // if (this.inputs.) continue; // if there's an input that's not in the template keep it.
+      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
       this.removeInput(item);
     }
 

@@ -12,7 +12,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
-import { NodeTypes } from "../types";
+import { NodeTypes, Schemes } from "../types";
 import { Button } from "@/components/ui/button";
 import { Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
@@ -27,6 +27,8 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
+import { SocketNameType, useSocketConfig } from "../sockets";
+import { useMeasure } from "react-use";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -43,17 +45,17 @@ function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   });
 }
 
-type Props<S extends ClassicScheme> = {
+type Props<S extends Schemes> = {
   data: S["Node"] & NodeExtraData;
   styles?: () => any;
   emit: RenderEmit<S>;
   store: ReteStoreInstance;
 };
-export type NodeComponent<Scheme extends ClassicScheme> = (
-  props: Props<Scheme>
-) => JSX.Element;
+export type NodeComponent = (props: Props<Schemes>) => JSX.Element;
 
-export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
+export function CustomNode<Scheme extends ClassicScheme>(
+  props: Props<Schemes>
+) {
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
@@ -149,12 +151,14 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   Drag.useNoDrag(ref);
 
   const state = useSelector(props.data.actor, (state) => state);
-
+  const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
+  React.useEffect(() => {}, [sizes]);
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="relative">
+        <div className="relative" ref={nodeRef}>
           <Card
+            onDoubleClick={pinNode}
             className={cn(
               width && `w-[${width}px]`,
               height && `h-[${height}px]`,
@@ -191,83 +195,31 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
             </CardContent>
             <div className="py-4">
               {/* Outputs */}
-              {outputs.map(
-                ([key, output]) =>
-                  output && (
-                    <div
-                      className="text-right flex items-center justify-end"
-                      key={key}
-                      data-testid={`output-${key}`}
-                    >
-                      <Badge
-                        className="translate-x-2"
-                        data-testid="output-title"
-                        variant={"default"}
-                      >
-                        {output?.label}
-                      </Badge>
-                      <div>
-                        <RefSocket
-                          name="output-socket"
-                          side="output"
-                          emit={props.emit}
-                          socketKey={key}
-                          nodeId={id}
-                          payload={output.socket}
-                        />
-                      </div>
-                    </div>
-                  )
-              )}
+              {outputs.map(([key, output]) => {
+                if (!output) return null;
+                return (
+                  <RenderOutput
+                    emit={props.emit}
+                    output={output}
+                    key={`output-key-${key}`}
+                    outputKey={key}
+                    id={id}
+                  />
+                );
+              })}
               {/* Inputs */}
-              {inputs.map(
-                ([key, input]) =>
-                  input && (
-                    <div
-                      className="text-left flex items-center"
-                      key={key}
-                      data-testid={`input-${key}`}
-                    >
-                      <div>
-                        <RefSocket
-                          name="input-socket"
-                          emit={props.emit}
-                          side="input"
-                          socketKey={key}
-                          nodeId={id}
-                          payload={input.socket}
-                        />
-                      </div>
-                      {input && (!input.control || !input.showControl) && (
-                        <Badge
-                          className="-translate-x-2"
-                          data-testid="input-title"
-                          variant={"default"}
-                        >
-                          {input?.label}
-                        </Badge>
-                      )}
-                      {input?.control && input?.showControl && (
-                        <span className="input-control flex items-center">
-                          <Badge
-                            className="-translate-x-2"
-                            variant={"secondary"}
-                          >
-                            {input.label}
-                          </Badge>
-                          <div className="mr-2">
-                            <RefControl
-                              key={key}
-                              name="input-control"
-                              emit={props.emit}
-                              payload={input.control}
-                            />
-                          </div>
-                        </span>
-                      )}
-                    </div>
-                  )
-              )}
+              {inputs.map(([key, input]) => {
+                if (!input) return null;
+                return (
+                  <RenderInput
+                    emit={props.emit}
+                    input={input}
+                    key={`input-key-${key}`}
+                    inputKey={key}
+                    id={id}
+                  />
+                );
+              })}
             </div>
             <CardFooter>
               {debug && (
@@ -312,3 +264,76 @@ export function CustomNode<Scheme extends ClassicScheme>(props: Props<Scheme>) {
     </ContextMenu>
   );
 }
+
+const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
+  const config = useSocketConfig(input?.socket?.name as SocketNameType);
+  return (
+    <div
+      className="text-left flex items-center"
+      data-testid={`input-${inputKey}`}
+    >
+      <div>
+        <RefSocket
+          name="input-socket"
+          emit={emit}
+          side="input"
+          socketKey={inputKey}
+          nodeId={id}
+          payload={input.socket}
+        />
+      </div>
+      {input && (!input.control || !input.showControl) && (
+        <Badge
+          className={cn("-translate-x-2", config?.badge)}
+          data-testid="input-title"
+          variant={"default"}
+        >
+          {input?.label}
+        </Badge>
+      )}
+      {input?.control && input?.showControl && (
+        <span className="input-control flex items-center">
+          <Badge className="-translate-x-2" variant={"secondary"}>
+            {input.label}
+          </Badge>
+          <div className="mr-2">
+            <RefControl
+              key={inputKey}
+              name="input-control"
+              emit={emit}
+              payload={input.control}
+            />
+          </div>
+        </span>
+      )}
+    </div>
+  );
+};
+
+const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
+  const config = useSocketConfig(output?.socket?.name as SocketNameType);
+  return (
+    <div
+      className="text-right flex items-center justify-end"
+      data-testid={`output-${outputKey}`}
+    >
+      <Badge
+        className={cn("translate-x-2", config?.badge)}
+        data-testid="output-title"
+        variant={"default"}
+      >
+        {output?.label}
+      </Badge>
+      <div>
+        <RefSocket
+          name="output-socket"
+          side="output"
+          emit={emit}
+          socketKey={outputKey}
+          nodeId={id}
+          payload={output?.socket!}
+        />
+      </div>
+    </div>
+  );
+};

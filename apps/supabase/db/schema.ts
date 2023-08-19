@@ -65,25 +65,7 @@ export const playground = pgTable("playground", {
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  layout: json("layout")
-    .notNull()
-    .default([
-      {
-        i: "inspector",
-        x: 0,
-        y: 0,
-        w: 2,
-        h: 2,
-      },
-      {
-        i: "rete",
-        x: 2,
-        y: 0,
-        w: 10,
-        h: 12,
-        minW: 4,
-      },
-    ]),
+  layout: json("layout"),
   edges: json("edges").notNull(),
   nodes: json("nodes").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),

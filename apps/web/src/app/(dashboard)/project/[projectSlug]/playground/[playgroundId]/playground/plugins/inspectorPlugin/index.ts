@@ -3,6 +3,7 @@ import { Schemes } from "../../types";
 import { Scope } from "rete";
 import { Area2D } from "rete-area-plugin";
 import { ReteStoreInstance } from "../../store";
+import { debounce } from "lodash-es";
 
 export class InspectorPlugin extends Scope<
   never,
@@ -11,9 +12,12 @@ export class InspectorPlugin extends Scope<
   public selectedNodeId: string | null = null;
   constructor(store: ReteStoreInstance) {
     super("inspector");
+    const debounced = debounce((position) => {
+      store.getState().setPosition(position);
+    }, 100);
     this.addPipe((context) => {
       if (context.type === "pointermove") {
-        store.getState().setPosition(context.data.position);
+        debounced(context.data.position);
       }
       // if (context.type === '')
       if (context.type === "nodepicked") {

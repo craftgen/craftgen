@@ -159,7 +159,7 @@ export async function createEditor(
     if (context.type === "connectioncreate") {
       const { data } = context;
       const { source, target } = getConnectionSockets(editor, data);
-      if (!source.isCompatibleWith(target)) {
+      if (target && !source.isCompatibleWith(target)) {
         console.log("Sockets are not compatible", "error");
         return;
       }

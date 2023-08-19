@@ -1,7 +1,6 @@
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { Schemes } from "./types";
 import { ClassicPreset } from "rete";
-import { Presets } from "rete-connection-plugin";
 import { ButtonControl, CustomButton } from "./ui/control/control-button";
 import { CodeControl, CodeEditor } from "./ui/control/control-code";
 import {
@@ -22,6 +21,10 @@ import {
   DataSourceControlComponent,
 } from "./ui/control/control-datasource";
 import { divide } from "lodash-es";
+import {
+  SocketGeneratorControl,
+  SocketGeneratorControlComponent,
+} from "./ui/control/control-socket-generator";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -43,6 +46,9 @@ export const getControl = (
   }
   if (data.payload instanceof DebugControl) {
     return DebugControlComponent;
+  }
+  if (data.payload instanceof SocketGeneratorControl) {
+    return SocketGeneratorControlComponent;
   }
   if (data.payload instanceof ClassicPreset.InputControl) {
     return CustomInput;
