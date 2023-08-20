@@ -148,24 +148,9 @@ export async function createEditor(
   addCustomBackground(area);
   area.use(inspector);
   area.use(history);
-  // area.use(minimap);
   area.use(connection);
-  // area.use(contextMenu);
   area.use(render);
   area.use(arrange);
-  // render.addPreset(Presets.minimap.setup({ size: 180 }));
-
-  // editor.addPipe((context) => {
-  //   if (context.type === "connectioncreate") {
-  //     const { data } = context;
-  //     const { source, target } = getConnectionSockets(editor, data);
-  //     if (target && !source.isCompatibleWith(target)) {
-  //       console.log("Sockets are not compatible", "error");
-  //       return;
-  //     }
-  //   }
-  //   return context;
-  // });
 
   AreaExtensions.simpleNodesOrder(area);
 

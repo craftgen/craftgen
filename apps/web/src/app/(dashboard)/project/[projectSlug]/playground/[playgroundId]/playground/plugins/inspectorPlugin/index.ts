@@ -15,23 +15,31 @@ export class InspectorPlugin extends Scope<
     const debounced = debounce((position) => {
       store.getState().setPosition(position);
     }, 100);
+
     this.addPipe((context) => {
       if (context.type === "pointermove") {
         debounced(context.data.position);
+        return context;
       }
-      // if (context.type === '')
       if (context.type === "nodepicked") {
-        store.getState().setSelectedNodeId(context.data.id);
-        this.selectedNodeId = context.data.id;
+        requestAnimationFrame(() => {
+          store.getState().setSelectedNodeId(context.data.id);
+          this.selectedNodeId = context.data.id;
+        });
+        return context;
       }
-      if (
-        context.type === "pointerdown" &&
-        (context.data?.event.target as HTMLElement).classList.contains(
-          "background"
-        )
-      ) {
-        store.getState().setSelectedNodeId(null);
-        this.selectedNodeId = null;
+      if (context.type === "pointerdown") {
+        if (
+          (context.data?.event.target as HTMLElement).classList.contains(
+            "background"
+          )
+        ) {
+          requestAnimationFrame(() => {
+            store.getState().setSelectedNodeId(null);
+            this.selectedNodeId = null;
+          });
+          return context;
+        }
       }
 
       return context;
