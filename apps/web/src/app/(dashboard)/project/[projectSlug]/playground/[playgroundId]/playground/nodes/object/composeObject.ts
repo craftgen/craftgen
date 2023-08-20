@@ -13,14 +13,20 @@ const composeObjectMachine = createMachine({
   initial: "idle",
   types: {} as {
     context: {
+      name: string;
+      description?: string;
       inputs: Socket[];
     };
     events: {
       type: "change";
+      name: string;
+      description?: string;
       inputs: Socket[];
     };
   },
   context: {
+    name: "object",
+    description: "object description",
     inputs: [
       {
         name: "name",
@@ -36,6 +42,8 @@ const composeObjectMachine = createMachine({
           target: "idle",
           actions: assign({
             inputs: ({ event }) => event.inputs,
+            name: ({ event }) => event.name,
+            description: ({ event }) => event.description,
           }),
           reenter: true,
         },
@@ -57,11 +65,17 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       name: "Input Sockets",
       ignored: ["trigger"],
       tooltip: "Add input sockets",
-      initial: state.context.inputs,
-      onChange: (sockets) => {
+      initial: {
+        name: state.context.name,
+        description: state.context.description,
+        inputs: state.context.inputs,
+      },
+      onChange: ({ inputs, name, description }) => {
         this.actor.send({
           type: "change",
-          inputs: sockets,
+          name,
+          description,
+          inputs,
         });
       },
     });
@@ -76,6 +90,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   process() {
     const state = this.actor.getSnapshot();
     const rawTemplate = state.context.inputs as Socket[];
+    console.log("rawTemplate", rawTemplate);
 
     for (const item of Object.keys(this.inputs)) {
       if (rawTemplate.find((i: Socket) => i.name === item)) continue;

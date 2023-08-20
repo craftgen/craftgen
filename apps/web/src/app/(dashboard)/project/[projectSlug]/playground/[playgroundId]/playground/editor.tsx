@@ -155,17 +155,17 @@ export async function createEditor(
   area.use(arrange);
   // render.addPreset(Presets.minimap.setup({ size: 180 }));
 
-  editor.addPipe((context) => {
-    if (context.type === "connectioncreate") {
-      const { data } = context;
-      const { source, target } = getConnectionSockets(editor, data);
-      if (target && !source.isCompatibleWith(target)) {
-        console.log("Sockets are not compatible", "error");
-        return;
-      }
-    }
-    return context;
-  });
+  // editor.addPipe((context) => {
+  //   if (context.type === "connectioncreate") {
+  //     const { data } = context;
+  //     const { source, target } = getConnectionSockets(editor, data);
+  //     if (target && !source.isCompatibleWith(target)) {
+  //       console.log("Sockets are not compatible", "error");
+  //       return;
+  //     }
+  //   }
+  //   return context;
+  // });
 
   AreaExtensions.simpleNodesOrder(area);
 

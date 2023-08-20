@@ -269,7 +269,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
   const config = useSocketConfig(input?.socket?.name as SocketNameType);
   return (
     <div
-      className="text-left flex items-center"
+      className="text-left flex items-center select-none "
       data-testid={`input-${inputKey}`}
     >
       <div>
@@ -292,7 +292,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
         </Badge>
       )}
       {input?.control && input?.showControl && (
-        <span className="input-control flex items-center">
+        <span className="input-control flex items-center ">
           <Badge className="-translate-x-2" variant={"secondary"}>
             {input.label}
           </Badge>
@@ -314,7 +314,7 @@ const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
   const config = useSocketConfig(output?.socket?.name as SocketNameType);
   return (
     <div
-      className="text-right flex items-center justify-end"
+      className="text-right flex items-center justify-end select-none"
       data-testid={`output-${outputKey}`}
     >
       <Badge

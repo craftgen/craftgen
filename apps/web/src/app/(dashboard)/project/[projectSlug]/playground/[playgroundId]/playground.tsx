@@ -25,6 +25,9 @@ import {
 import { getControl } from "./playground/control";
 import { ContextMenuProvider } from "./playground/context-menu";
 import * as FlexLayout from "flexlayout-react";
+import { getConnectionSockets } from "./playground/utis";
+import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -168,9 +171,29 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
     [rete]
   );
 
+  const { toast } = useToast();
+
   useEffect(() => {
     rete?.editor.addPipe((context) => {
       switch (context.type) {
+        case "connectioncreate": {
+          const { data } = context;
+          const { source, target } = getConnectionSockets(di?.editor!, data);
+          if (target && !source.isCompatibleWith(target)) {
+            console.log("Sockets are not compatible", "error");
+            toast({
+              title: "Sockets are not compatible",
+              description: (
+                <span>
+                  Socket <Badge> {source.name} </Badge> is not compatible with{" "}
+                  <Badge>{target.name} </Badge>
+                </span>
+              ),
+            });
+            return;
+          }
+          break;
+        }
         case "nodecreated":
         case "noderemoved":
         case "connectioncreated":

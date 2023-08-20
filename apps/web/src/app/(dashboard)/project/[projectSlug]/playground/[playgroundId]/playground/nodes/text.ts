@@ -43,12 +43,7 @@ const TextNodeMachine = createMachine({
   },
 });
 
-export class TextNode extends BaseNode<
-  typeof TextNodeMachine,
-  {},
-  { value: ClassicPreset.Socket },
-  { value: ClassicPreset.InputControl<"text"> }
-> {
+export class TextNode extends BaseNode<typeof TextNodeMachine> {
   height = 200;
   width = 180;
 
@@ -86,8 +81,6 @@ export class TextNode extends BaseNode<
   }
 
   async serialize() {
-    return {
-      value: this.controls.value.value || "",
-    };
+    return {};
   }
 }

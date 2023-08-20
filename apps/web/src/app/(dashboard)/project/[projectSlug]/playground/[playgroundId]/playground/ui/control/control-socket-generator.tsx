@@ -23,13 +23,18 @@ import { SelectValue } from "@radix-ui/react-select";
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { types } from "../../sockets";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type SocketGeneratorControlOptions = {
   connectionType: "input" | "output";
   name: string;
   ignored: string[];
   tooltip: string;
-  initial: Socket[];
+  initial: {
+    name: string;
+    description: string;
+    inputs: Socket[];
+  };
   onChange: (data: any) => void;
 };
 
@@ -37,15 +42,21 @@ export type Socket = z.infer<typeof socketSchema>;
 
 export class SocketGeneratorControl extends ClassicPreset.Control {
   __type = "socket-generator";
+  name: string;
+  description?: string;
   inputs: Socket[] = [];
   constructor(public params: SocketGeneratorControlOptions) {
     super();
-    this.inputs = params.initial;
+    this.inputs = params.initial.inputs;
+    this.name = params.initial.name;
+    this.description = params.initial.description;
   }
 
-  setValue(value: Socket[]) {
-    this.inputs = value;
-    this.params.onChange(value);
+  setValue(val: { inputs: Socket[]; name: string; description?: string }) {
+    this.inputs = val.inputs;
+    this.name = val.name;
+    this.description = val.description;
+    this.params.onChange(val);
   }
 }
 
@@ -59,7 +70,9 @@ const socketSchema = z.object({
 });
 
 const formSchema = z.object({
-  fields: z.array(socketSchema),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  inputs: z.array(socketSchema),
 });
 
 export function SocketGeneratorControlComponent(props: {
@@ -67,27 +80,31 @@ export function SocketGeneratorControlComponent(props: {
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      fields: props.data.inputs,
+      name: props.data.name,
+      description: props.data.description,
+      inputs: props.data.inputs,
     },
     values: {
-      fields: props.data.inputs,
+      name: props.data.name,
+      description: props.data.description,
+      inputs: props.data.inputs,
     },
     mode: "onBlur",
   });
 
   useEffect(() => {
     console.log([props.data.inputs]);
-    form.setValue("fields", props.data.inputs);
+    form.setValue("inputs", props.data.inputs);
   }, [props.data.inputs]);
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
       control: form.control, // control props comes from useForm (optional: if you are using FormContext)
-      name: "fields", // unique name for your Field Array
+      name: "inputs", // unique name for your Field Array
     }
   );
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
-    const fieldsValue = form.getValues("fields");
+    const fieldsValue = form.getValues();
     props.data.setValue(fieldsValue);
   };
   useEffect(() => {
@@ -99,18 +116,47 @@ export function SocketGeneratorControlComponent(props: {
         onChange={form.handleSubmit(onSubmit)}
         className="flex flex-col h-full"
       >
-        SocketGeneratorControlComponent
+        <FormField
+          control={form.control}
+          name={`name`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="name" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`description`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="description" {...field} />
+              </FormControl>
+              <FormDescription>This is your description.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button
           type="button"
           onClick={() => append({ name: "", type: "string", description: "" })}
         >
           Add Input
         </Button>
-        <ScrollArea className="max-h-fit rounded-md border p-4">
+        <ScrollArea className="max-h-fit py-4 flex flex-col">
           {fields.map((field, index) => (
             <div
               key={`field.${index}`}
-              className="flex flex-col border p-2 relative @container"
+              className="flex flex-col border p-2 relative @container rounded shadow mb-4"
             >
               <div className="absolute top-2 right-2">
                 <Button
@@ -121,10 +167,10 @@ export function SocketGeneratorControlComponent(props: {
                   <X />
                 </Button>
               </div>
-              <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1">
+              <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
                 <FormField
                   control={form.control}
-                  name={`fields.${index}.name`}
+                  name={`inputs.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
@@ -140,7 +186,7 @@ export function SocketGeneratorControlComponent(props: {
                 />
                 <FormField
                   control={form.control}
-                  name={`fields.${index}.type`}
+                  name={`inputs.${index}.type`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
@@ -171,7 +217,7 @@ export function SocketGeneratorControlComponent(props: {
                 />
                 <FormField
                   control={form.control}
-                  name={`fields.${index}.description`}
+                  name={`inputs.${index}.description`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
@@ -184,6 +230,23 @@ export function SocketGeneratorControlComponent(props: {
                       <FormDescription>
                         This is your public display name.
                       </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`inputs.${index}.required`}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          className="mx-4"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel>Required</FormLabel>
                       <FormMessage />
                     </FormItem>
                   )}
