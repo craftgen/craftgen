@@ -132,8 +132,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
     const schema = createJsonSchema(state.context.inputs);
 
-    console.log("composer", this.inputs, state.context.inputs, schema);
-
     return {
       object: flatten,
       schema,

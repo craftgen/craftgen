@@ -1,18 +1,13 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
-// import { generateTextFn } from "../actions";
 import { SelectControl } from "../ui/control/control-select";
-import { OPENAI_CHAT_MODELS } from "ai-utils.js";
+import { OPENAI_CHAT_MODELS, OpenAIChatModelType } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
-import { createMachine } from "xstate";
+import { assign, createMachine } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
+import { generateTextFn } from "../actions";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
-
-type Data = {
-  model: OPENAI_CHAT_MODELS_KEY;
-  message: string;
-};
 
 const OpenAIFunctionCallMachine = createMachine({
   id: "openai-function-call",
@@ -21,9 +16,53 @@ const OpenAIFunctionCallMachine = createMachine({
     model: "gpt-3.5-turbo",
     message: "",
   },
+  types: {} as {
+    context: {
+      model: OpenAIChatModelType;
+      message: string;
+    };
+    events:
+      | {
+          type: "CONFIG_CHANGE";
+          model: OpenAIChatModelType;
+        }
+      | {
+          type: "RUN";
+        }
+      | {
+          type: "COMPLETE";
+          message: string;
+        };
+  },
   states: {
-    idle: {},
-    running: {},
+    idle: {
+      on: {
+        CONFIG_CHANGE: {
+          actions: assign({
+            model: ({ event }) => event.model,
+          }),
+        },
+        RUN: "running",
+      },
+    },
+    running: {
+      on: {
+        COMPLETE: {
+          target: "complete",
+          actions: assign({
+            message: ({ event }) => event.message,
+          }),
+        },
+      },
+    },
+    complete: {
+      on: {
+        RUN: "running",
+      },
+      after: {
+        1000: "idle",
+      },
+    },
   },
 });
 
@@ -33,7 +72,7 @@ export class OpenAIFunctionCall extends BaseNode<
     prompt: typeof stringSocket;
     exec: typeof triggerSocket;
   },
-  { message: ClassicPreset.Socket },
+  { message: typeof stringSocket; exec: typeof triggerSocket },
   {
     model: SelectControl<OPENAI_CHAT_MODELS_KEY>;
     prompt: ClassicPreset.InputControl<"text">;
@@ -51,7 +90,7 @@ export class OpenAIFunctionCall extends BaseNode<
     super("OpenAI Function Call", di, data, OpenAIFunctionCallMachine, {});
     this.di = di;
     this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
-    const self = this;
+    this.addOutput("exec", new ClassicPreset.Output(triggerSocket, "Exec"));
     const state = this.actor.getSnapshot();
     this.addControl(
       "model",
@@ -65,7 +104,10 @@ export class OpenAIFunctionCall extends BaseNode<
           })),
         ],
         (value) => {
-          console.log("select value changed", value);
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            model: value,
+          });
         }
       )
     );
@@ -79,35 +121,42 @@ export class OpenAIFunctionCall extends BaseNode<
     );
   }
 
-  async execute(input: any, forward: (output: "message") => void) {
-    console.log("aaa", this);
+  async execute(input: any, forward: (output: "exec") => void) {
+    const state = this.actor.getSnapshot();
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       prompt?: string;
       message: string[];
     };
-    const control = this.inputs.prompt?.control;
 
-    forward("message");
+    this.actor.send({
+      type: "RUN",
+    });
 
-    // const res = await generateTextFn({
-    //   model: this.controls.model.value,
-    //   system: "You are a story write.",
-    //   instruction: "Write a story about a story writer.",
-    // });
+    console.log("inputs", inputs);
+    const res = await generateTextFn({
+      model: state.context.model,
+      system: "You are a story write.",
+      user: "Write a story about a story writer.",
+    });
 
-    console.log("executing", "openai-function-call", inputs, control);
+    this.actor.send({
+      type: "COMPLETE",
+      message: res,
+    });
+
+    console.log("executing", "openai-function-call", res);
+
+    forward("exec");
   }
 
   data() {
     const state = this.actor.getSnapshot();
     return {
-      message: "",
+      message: state.context.message,
     };
   }
 
   serialize() {
-    return {
-      message: "",
-    };
+    return {};
   }
 }
