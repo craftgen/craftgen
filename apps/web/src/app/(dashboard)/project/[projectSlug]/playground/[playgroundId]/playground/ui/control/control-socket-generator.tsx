@@ -9,14 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  ControllerFieldState,
-  ControllerRenderProps,
-  FieldValues,
-  UseFormStateReturn,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -60,6 +53,9 @@ const socketSchema = z.object({
   name: z.string().min(1).max(4),
   type: z.enum(types),
   description: z.string().optional(),
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  required: z.boolean().default(false).optional(),
 });
 
 const formSchema = z.object({
@@ -73,8 +69,16 @@ export function SocketGeneratorControlComponent(props: {
     defaultValues: {
       fields: props.data.inputs,
     },
+    values: {
+      fields: props.data.inputs,
+    },
     mode: "onBlur",
   });
+
+  useEffect(() => {
+    console.log([props.data.inputs]);
+    form.setValue("fields", props.data.inputs);
+  }, [props.data.inputs]);
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
@@ -123,7 +127,7 @@ export function SocketGeneratorControlComponent(props: {
                   name={`fields.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>name</FormLabel>
+                      <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input placeholder="shadcn" {...field} />
                       </FormControl>
@@ -141,8 +145,8 @@ export function SocketGeneratorControlComponent(props: {
                     <FormItem>
                       <FormLabel>Type</FormLabel>
                       <Select
+                        value={field.value}
                         onValueChange={(value) => {
-                          console.log("ffff", value);
                           field.onChange(value);
                         }}
                         defaultValue={field.value}
@@ -172,7 +176,10 @@ export function SocketGeneratorControlComponent(props: {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input
+                          placeholder="Description for the field"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         This is your public display name.

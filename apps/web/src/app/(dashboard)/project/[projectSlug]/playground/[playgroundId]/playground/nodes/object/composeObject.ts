@@ -1,20 +1,12 @@
 import { assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
-import {
-  anySocket,
-  getSocketByJsonSchemaType,
-  numberSocket,
-  objectSocket,
-  stringSocket,
-} from "../../sockets";
+import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
 import {
   Socket,
   SocketGeneratorControl,
 } from "../../ui/control/control-socket-generator";
-import { zodToJsonSchema } from "zod-to-json-schema";
-import { z } from "zod";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -122,35 +114,10 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
         [key]: flattenValue,
       };
     }, {});
-    const zodSchema = z.object({
-      name: z.string(),
-      description: z.string().min(10).max(100).optional(),
-    });
 
-    const jsonSchema = zodToJsonSchema(zodSchema);
+    const schema = createJsonSchema(state.context.inputs);
 
-    const schema = {
-      type: "object",
-      properties: {
-        ...state.context.inputs.reduce((acc: [], input: Socket) => {
-          return {
-            ...acc,
-            [input.name]: {
-              ...input,
-            },
-          };
-        }, {}),
-      },
-    };
-
-    console.log(
-      "composer",
-      this.inputs,
-      state.context.inputs,
-      schema,
-      jsonSchema,
-      zodSchema.shape
-    );
+    console.log("composer", this.inputs, state.context.inputs, schema);
 
     return {
       object: flatten,
@@ -164,3 +131,29 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     };
   }
 }
+
+const createJsonSchema = (inputs: Socket[]) => {
+  const socketToProperty = (input: Socket) => ({
+    type: input.type, // or based on input.type
+    ...(input.description && { description: input.description }),
+    ...(input.minLength && { minLength: input.minLength }),
+    ...(input.maxLength && { maxLength: input.maxLength }),
+  });
+
+  const required = inputs
+    .filter((input) => input.required)
+    .map((input) => input.name);
+
+  const properties = inputs.reduce((acc, input) => {
+    acc[input.name] = socketToProperty(input);
+    return acc;
+  }, {} as Record<string, any>);
+
+  return {
+    type: "object",
+    properties,
+    required,
+    additionalProperties: false,
+    $schema: "http://json-schema.org/draft-07/schema#",
+  };
+};
