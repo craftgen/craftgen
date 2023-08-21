@@ -193,58 +193,56 @@ export const Editor: React.FC<EditorProps> = ({
 }) => {
   const containerRef = useRef(null);
   return (
-    <TooltipProvider>
-      <DndProvider backend={HTML5Backend}>
-        <PlateProvider<MyValue>
-          plugins={plugins}
-          initialValue={initialValue}
-          onChange={onChange}
-        >
-          {/* <EditorStore /> */}
-          <FixedToolbar>
-            <FixedToolbarButtons id={id}/>
-          </FixedToolbar>
-          <ScrollArea>
-            <div className="flex w-full justify-center">
-              <CommentsProvider
-                // users={{
-                //   123: {
-                //     id: 123,
-                //     name: "John Doe",
-                //   },
-                // }}
-                // myUserId={"123"}
+    <div className="relative h-full flex flex-col">
+      <TooltipProvider>
+        <DndProvider backend={HTML5Backend}>
+          <PlateProvider<MyValue>
+            plugins={plugins}
+            initialValue={initialValue}
+            onChange={onChange}
+          >
+            {/* <EditorStore /> */}
+            <FixedToolbar>
+              <FixedToolbarButtons id={id} />
+            </FixedToolbar>
+            <CommentsProvider
+            // users={{
+            //   123: {
+            //     id: 123,
+            //     name: "John Doe",
+            //   },
+            // }}
+            // myUserId={"123"}
+            >
+              <ScrollArea
+                ref={containerRef}
+                className={cn(
+                  "relative flex max-w-[900px] overflow-x-auto w-full mx-auto",
+                  "[&_.slate-start-area-top]:!h-4",
+                  "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
+                )}
               >
-                <div
-                  ref={containerRef}
-                  className={cn(
-                    "relative flex max-w-[900px] overflow-x-auto",
-                    "[&_.slate-start-area-top]:!h-4",
-                    "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
-                  )}
+                <Plate<MyValue>
+                  editableProps={{
+                    placeholder: "Type here...",
+                    autoFocus: true,
+                    className: cn(
+                      "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
+                      "!min-h-[600px] max-w-[900px] w-full px-[96px] my-10"
+                    ),
+                  }}
                 >
-                  <Plate<MyValue>
-                    editableProps={{
-                      placeholder: "Type...",
-                      autoFocus: true,
-                      className: cn(
-                        "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
-                        "!min-h-[600px] w-[900px] px-[96px] py-16"
-                      ),
-                    }}
-                  >
-                    <FloatingToolbar>
-                      <FloatingToolbarButtons />
-                    </FloatingToolbar>
-                    <CursorOverlay containerRef={containerRef} />
-                  </Plate>
-                </div>
-                <CommentsPopover />
-              </CommentsProvider>
-            </div>
-          </ScrollArea>
-        </PlateProvider>
-      </DndProvider>
-    </TooltipProvider>
+                  <FloatingToolbar>
+                    <FloatingToolbarButtons />
+                  </FloatingToolbar>
+                  <CursorOverlay containerRef={containerRef} />
+                </Plate>
+              </ScrollArea>
+              <CommentsPopover />
+            </CommentsProvider>
+          </PlateProvider>
+        </DndProvider>
+      </TooltipProvider>
+    </div>
   );
 };

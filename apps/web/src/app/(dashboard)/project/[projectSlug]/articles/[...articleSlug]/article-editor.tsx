@@ -36,7 +36,7 @@ export const ArticleEditor: React.FC<{
     }
   );
   return (
-    <>
+    <div className="h-[calc(100vh-5rem)]  flex flex-col relative">
       <Editor
         id={article.id}
         initialValue={
@@ -46,6 +46,6 @@ export const ArticleEditor: React.FC<{
         }
         onChange={(v) => setVal(v)}
       />
-    </>
+    </div>
   );
 };

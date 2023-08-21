@@ -12,7 +12,7 @@ import {
   createCraftStore,
   useCraftStore,
 } from "./playground/store";
-import { debounce } from "lodash-es";
+import { debounce, divide } from "lodash-es";
 import { Maximize } from "lucide-react";
 import { useStore } from "zustand";
 import { Button } from "@/components/ui/button";
@@ -128,6 +128,9 @@ export const Playground: React.FC<{
             model={layout}
             factory={factory}
             onModelChange={(model) => debouncedLayoutChange(model)}
+            onRenderTab={(node, renderValues) => {
+              // renderValues.buttons.push(<div>X</div>);
+            }}
             realtimeResize
           />
         </div>
@@ -251,10 +254,10 @@ const InspectorWindow: React.FC<{}> = ({}) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-4">
+    <>
       {selectedNodeId ? (
-        <div>
-          <Button onClick={handlePinTab}>Pin</Button>
+        <div className="h-full flex flex-col">
+          {/* <Button onClick={handlePinTab}>Pin</Button> */}
           <InspectorNode nodeId={selectedNodeId} />
         </div>
       ) : (
@@ -262,7 +265,7 @@ const InspectorWindow: React.FC<{}> = ({}) => {
           Select a node to inspect
         </div>
       )}
-    </div>
+    </>
   );
 };
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
@@ -271,8 +274,8 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   if (!node) return null;
   const controls = Object.entries(node.controls);
   return (
-    <div className="h-full w-full flex flex-col p-2">
-      <div className="flex flex-col h-full overflow-hidden max-h-[calc(100vh-12rem)]">
+    <div className="h-full w-full flex flex-col flex-1">
+      <div className="flex flex-col h-full overflow-hidden ">
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} />
         ))}

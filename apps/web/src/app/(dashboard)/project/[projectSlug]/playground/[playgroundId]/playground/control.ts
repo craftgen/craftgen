@@ -20,11 +20,11 @@ import {
   DataSourceControl,
   DataSourceControlComponent,
 } from "./ui/control/control-datasource";
-import { divide } from "lodash-es";
 import {
   SocketGeneratorControl,
   SocketGeneratorControlComponent,
 } from "./ui/control/control-socket-generator";
+import { ArticleEditor, ArticleControl } from "./ui/control/control-editor";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -34,6 +34,9 @@ export const getControl = (
   }
   if (data.payload instanceof CodeControl) {
     return CodeEditor;
+  }
+  if (data.payload instanceof ArticleControl) {
+    return ArticleEditor;
   }
   if (data.payload instanceof SelectControl) {
     return SelectControlComponent;

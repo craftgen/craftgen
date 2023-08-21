@@ -8,13 +8,11 @@ const ArticlePage = async ({ params }: { params: any }) => {
     articleSlug: params.articleSlug as string[],
   });
   return (
-    <div>
-      <ArticleEditor
-        projectId={project!.id}
-        articleSlug={params.articleSlug}
-        article={article!}
-      />
-    </div>
+    <ArticleEditor
+      projectId={project!.id}
+      articleSlug={params.articleSlug}
+      article={article!}
+    />
   );
 };
 

@@ -30,7 +30,7 @@ export function FixedToolbarButtons({ id }: { id: string }) {
   return (
     <div className="w-full overflow-hidden">
       <div
-        className="flex flex-wrap"
+        className="flex flex-wrap @container "
         style={{
           transform: "translateX(calc(-1px))",
         }}
@@ -39,9 +39,10 @@ export function FixedToolbarButtons({ id }: { id: string }) {
           <>
             <ToolbarGroup noSeparator>
               <InsertDropdownMenu />
-              <TurnIntoDropdownMenu />
+              <div className="hidden @sm:block">
+                <TurnIntoDropdownMenu />
+              </div>
             </ToolbarGroup>
-
             <ToolbarGroup>
               <MarkToolbarButton tooltip="Bold (⌘+B)" nodeType={MARK_BOLD}>
                 <Icons.bold />
@@ -55,7 +56,6 @@ export function FixedToolbarButtons({ id }: { id: string }) {
               >
                 <Icons.underline />
               </MarkToolbarButton>
-
               <MarkToolbarButton
                 tooltip="Strikethrough (⌘+⇧+M)"
                 nodeType={MARK_STRIKETHROUGH}
