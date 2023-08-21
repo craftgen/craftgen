@@ -1,3 +1,5 @@
+"use client";
+
 import { createRoot } from "react-dom/client";
 import { NodeEditor, ClassicPreset } from "rete";
 import { AreaPlugin, AreaExtensions } from "rete-area-plugin";
@@ -8,7 +10,6 @@ import {
 import {
   AutoArrangePlugin,
   Presets as ArrangePresets,
-  ArrangeAppliers,
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { MinimapExtra } from "rete-minimap-plugin";
@@ -26,14 +27,15 @@ import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
 import { Schemes } from "./types";
-import { getConnectionSockets } from "./utis";
 import { CustomConnection } from "./ui/custom-connection";
 import { importEditor } from "./io";
 import type { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
 import { getControl } from "./control";
-import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
+
+import ELK from "elkjs/lib/elk.bundled.js";
+const elk = new ELK();
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
@@ -125,19 +127,23 @@ export async function createEditor(
     };
   });
 
-  const arrange = new AutoArrangePlugin<Schemes>();
+  class CustomArrange extends AutoArrangePlugin<Schemes> {
+    elk = elk;
+  }
+
+  const arrange = new CustomArrange();
 
   const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();
   history.addPreset(HistoryPresets.classic.setup());
   HistoryExtensions.keyboard(history);
 
-  const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
-    duration: 500,
-    timingFunction: (t) => t,
-    async onTick() {
-      await AreaExtensions.zoomAt(area, editor.getNodes());
-    },
-  });
+  // const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
+  //   duration: 500,
+  //   timingFunction: (t) => t,
+  //   async onTick() {
+  //     await AreaExtensions.zoomAt(area, editor.getNodes());
+  //   },
+  // });
 
   arrange.addPreset(ArrangePresets.classic.setup());
   const inspector = new InspectorPlugin(store);
@@ -156,7 +162,7 @@ export async function createEditor(
 
   AreaExtensions.showInputControl(area);
   const setUI = async () => {
-    await arrange.layout({ applier });
+    await arrange.layout();
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
   const graph = structures(editor);
@@ -176,8 +182,8 @@ export async function createEditor(
     nodes: playground.nodes as any,
     edges: playground.edges as any,
   });
-
   await arrange.layout();
+
   AreaExtensions.zoomAt(area, editor.getNodes());
 
   store.getState().setDi(di);

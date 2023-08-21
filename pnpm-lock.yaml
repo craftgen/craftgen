@@ -126,6 +126,7 @@ importers:
       cmdk: ^0.2.0
       date-fns: ^2.30.0
       dotenv-cli: ^7.2.1
+      elkjs: ^0.8.2
       eslint: 8.45.0
       eslint-config-next: 13.4.10
       flexlayout-react: ^0.7.9
@@ -260,6 +261,7 @@ importers:
       clsx: 2.0.0
       cmdk: 0.2.0_clwdj742dood3wxkovrqay7cta
       date-fns: 2.30.0
+      elkjs: 0.8.2
       eslint: 8.45.0
       eslint-config-next: 13.4.10_ko3fmmbeyij36muomfgt2u76xu
       flexlayout-react: 0.7.9_biqbaboplfbrettd7655fr4n2y

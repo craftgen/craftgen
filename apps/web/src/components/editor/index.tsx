@@ -1,7 +1,16 @@
 "use client";
 
 import { v4 as uuidv4 } from "uuid";
-import { Plate, PlateProvider, usePlateSelectors } from "@udecode/plate-common";
+import {
+  Plate,
+  PlateProvider,
+  replaceNodeChildren,
+  usePlateEditorState,
+  usePlateSelectors,
+  usePlateStates,
+  usePlateStore,
+  useResetPlateEditor,
+} from "@udecode/plate-common";
 import {
   createBoldPlugin,
   createCodePlugin,
@@ -43,7 +52,7 @@ import { cn } from "@/lib/utils";
 import { FloatingToolbar } from "../plate-ui/floating-toolbar";
 import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
 import { CursorOverlay } from "../plate-ui/cursor-overlay";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CommentsProvider,
   createCommentsPlugin,
@@ -70,10 +79,12 @@ import { captionPlugin } from "./plugins/caption-plugin";
 import { create } from "zustand";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { useDebounce } from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundId]/playground/ui/hooks";
+import { debounce, isEqual } from "lodash-es";
 
 type EditorProps = {
   id: string;
-  initialValue?: any[];
+  initialValue?: MyValue;
   onChange?: (value: any[]) => void;
 };
 
@@ -140,6 +151,7 @@ const plugins = createMyPlugins(
     createNodeIdPlugin({
       options: {
         idCreator: uuidv4,
+        reuseId: true,
       },
     }),
     createDndPlugin({ options: { enableScroller: true } }),
@@ -166,12 +178,29 @@ const useStore = create<{
   setEditor: (editor: any) => ({ editor }),
 }));
 
-const EditorStore = () => {
+const EditorStore = ({ val, id }) => {
   const editor = usePlateSelectors().editor();
-  const { setEditor } = useStore();
-  setEditor(editor);
+  const [value, setValue] = usePlateStates("plate").value();
+  useEffect(() => {
+    if (isEqual(val, value)) return;
+    replaceNodeChildren(editor, {
+      at: [],
+      nodes: val,
+    });
+  }, [val]);
   return (
     <div>
+      {/* REAL_ID: {editor.id}
+      <br />
+      --- PROP VALUE ---
+      <br />
+      {JSON.stringify(val)}
+      <br />
+      --- STATE VALUE ---
+      <br />
+      {JSON.stringify(value)}
+      <br />
+      ---- */}
       <Button
         onClick={() =>
           editor.insertNode({
@@ -192,16 +221,19 @@ export const Editor: React.FC<EditorProps> = ({
   onChange = console.log,
 }) => {
   const containerRef = useRef(null);
+
   return (
     <div className="relative h-full flex flex-col">
       <TooltipProvider>
         <DndProvider backend={HTML5Backend}>
           <PlateProvider<MyValue>
             plugins={plugins}
+            // value={initialValue}
+            // id={id}
             initialValue={initialValue}
             onChange={onChange}
           >
-            {/* <EditorStore /> */}
+            <EditorStore id={id} val={initialValue} />
             <FixedToolbar>
               <FixedToolbarButtons id={id} />
             </FixedToolbar>

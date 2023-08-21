@@ -271,6 +271,16 @@ const InspectorWindow: React.FC<{}> = ({}) => {
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   const di = useCraftStore((state) => state.di);
   const node = di?.editor.getNode(nodeId);
+  const [updateCounter, setUpdateCounter] = useState(0);
+  useEffect(() => {
+    if (!node) return;
+    const sub = node.actor.subscribe(() => {
+      debounce(() => {
+        setUpdateCounter((prev) => prev + 1);
+      }, 100)();
+    });
+    return sub.unsubscribe;
+  }, [node]);
   if (!node) return null;
   const controls = Object.entries(node.controls);
   return (
