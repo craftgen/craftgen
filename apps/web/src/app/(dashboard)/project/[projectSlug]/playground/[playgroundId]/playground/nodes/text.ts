@@ -44,9 +44,6 @@ const TextNodeMachine = createMachine({
 });
 
 export class TextNode extends BaseNode<typeof TextNodeMachine> {
-  height = 200;
-  width = 180;
-
   static ID: "text";
 
   constructor(di: DiContainer, data: NodeData<typeof TextNodeMachine>) {

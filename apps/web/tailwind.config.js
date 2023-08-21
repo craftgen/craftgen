@@ -158,6 +158,10 @@ module.exports = {
         "tremor-title": ["1.125rem", { lineHeight: "1.75rem" }],
         "tremor-metric": ["1.875rem", { lineHeight: "2.25rem" }],
       },
+      fontFamily: {
+        sans: ['var(--font-noto-sans-variable)'],
+        inter: ['var(--font-inter-variable)'],
+      }
     },
   },
   safelist: [

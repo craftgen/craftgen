@@ -32,7 +32,8 @@ export class InspectorPlugin extends Scope<
         if (
           (context.data?.event.target as HTMLElement).classList.contains(
             "background"
-          )
+          ) &&
+          this.selectedNodeId
         ) {
           requestAnimationFrame(() => {
             store.getState().setSelectedNodeId(null);

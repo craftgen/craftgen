@@ -12,3 +12,5 @@ export { DatabaseDelete } from "./database/delete";
 export { DatabaseUpsert } from "./database/upsert";
 
 export { ComposeObject } from "./object/composeObject";
+
+export { Article } from "./article";
