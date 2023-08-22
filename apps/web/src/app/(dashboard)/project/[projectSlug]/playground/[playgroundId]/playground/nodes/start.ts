@@ -10,14 +10,7 @@ const StartNodeMachine = createMachine({
   id: "startNode",
 });
 
-export class Start extends BaseNode<
-  typeof StartNodeMachine,
-  {},
-  { exec: ClassicPreset.Socket },
-  {
-    trigger: ButtonControl;
-  }
-> {
+export class Start extends BaseNode<typeof StartNodeMachine> {
   width = 180;
   height = 200;
 

@@ -6,25 +6,25 @@ import { Database } from "@seocraft/supabase/db/database.types";
 import { cookies } from "next/headers";
 
 export default async function Home() {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // const supabase = createServerComponentClient<Database>({ cookies });
+  // const {
+  //   data: { session },
+  // } = await supabase.auth.getSession();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start ">
       <div className="flex items-center justify-between bg-muted w-full h-10 p-4">
         <div></div>
         <div>
-          {session ? (
-            <Link href="/dashboard" className="font-bold">
-              Dashboard
-            </Link>
-          ) : (
-            <Link href="/login" className="font-bold">
-              Login
-            </Link>
-          )}
+          {/* {session ? ( */}
+          <Link href="/dashboard" className="font-bold">
+            Dashboard
+          </Link>
+          {/* ) : ( */}
+          <Link href="/login" className="font-bold">
+            Login
+          </Link>
+          {/* )} */}
         </div>
       </div>
       <Scene>

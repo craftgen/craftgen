@@ -4,6 +4,7 @@
     "**/.env.*local"
   ],
   "globalEnv": [
+    "OPENAI_API_KEY",
     "NEXT_PUBLIC_BASE_URL",
     "NEXT_PUBLIC_VERCEL_URL",
     "GOOGLE_CLIENT_ID",

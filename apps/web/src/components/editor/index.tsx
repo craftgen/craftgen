@@ -172,7 +172,7 @@ const plugins = createMyPlugins(
   }
 );
 
-const EditorStore = ({ val, id }) => {
+const EditorStore = ({ val, id }: { val: MyValue; id: string }) => {
   const editor = usePlateSelectors().editor();
   const [value, setValue] = usePlateStates("plate").value();
   useEffect(() => {
@@ -182,24 +182,11 @@ const EditorStore = ({ val, id }) => {
       nodes: val,
     });
   }, [val]);
-  return (
-    <div>
-      {/* <Button
-        onClick={() =>
-          editor.insertNode({
-            text: "Hello",
-            type: ELEMENT_H1,
-          })
-        }
-      >
-        Insert Text
-      </Button> */}
-    </div>
-  );
+  return null;
 };
 
 export const createTmpEditor = (): PlateEditor<MyValue> => {
-return createPlateEditor({ plugins,  }, );
+  return createPlateEditor({ plugins });
 };
 
 export const Editor: React.FC<EditorProps> = ({

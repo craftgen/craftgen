@@ -5,8 +5,9 @@ import { Editor } from "@/components/editor";
 import { useState } from "react";
 import useSWR from "swr";
 import { getArticle } from "../../actions";
+import { MyValue } from "@/lib/plate/plate-types";
 
-const initialValue = [
+const initialValue: MyValue = [
   {
     type: "h1",
     id: uuidv4(),
@@ -41,7 +42,7 @@ export const ArticleEditor: React.FC<{
         id={article.id}
         initialValue={
           data?.nodes?.length && data.nodes.length > 0
-            ? data?.nodes.map((node) => node.data)
+            ? (data?.nodes.map((node) => node.data) as MyValue)
             : initialValue
         }
         onChange={(v) => setVal(v)}
