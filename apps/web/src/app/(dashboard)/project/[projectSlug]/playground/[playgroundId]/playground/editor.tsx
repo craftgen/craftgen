@@ -58,6 +58,7 @@ export const createEditorFunc = (
   return (container: HTMLElement) => createEditor(container, playground, store);
 };
 
+
 export async function createEditor(
   container: HTMLElement,
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,

@@ -124,7 +124,7 @@ export class OpenAIFunctionCall extends BaseNode<
   async execute(input: any, forward: (output: "exec") => void) {
     const state = this.actor.getSnapshot();
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-      prompt?: string;
+      prompt: string;
       message: string[];
     };
 
@@ -135,8 +135,7 @@ export class OpenAIFunctionCall extends BaseNode<
     console.log("inputs", inputs);
     const res = await generateTextFn({
       model: state.context.model,
-      system: "You are a story write.",
-      user: "Write a story about a story writer.",
+      user: await inputs.prompt[0],
     });
 
     this.actor.send({

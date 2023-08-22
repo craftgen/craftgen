@@ -9,11 +9,9 @@ import {
 
 export const generateTextFn = async ({
   model,
-  system,
   user,
 }: {
   model: keyof typeof OPENAI_CHAT_MODELS;
-  system: string;
   user: string;
 }) => {
   const text = await generateText(
@@ -23,9 +21,6 @@ export const generateTextFn = async ({
       maxTokens: 1000,
     }).withPromptFormat(OpenAIChatChatPromptFormat()),
     [
-      {
-        system,
-      },
       {
         user,
       },

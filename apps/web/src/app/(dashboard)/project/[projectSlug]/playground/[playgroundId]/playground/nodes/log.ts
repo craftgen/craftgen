@@ -27,8 +27,8 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     this.di.dataFlow?.reset();
     const incomers = this.di.graph.incomers(this.id);
 
-    incomers.nodes().forEach((n) => {
-      this.di.dataFlow?.fetch(n.id);
+    incomers.nodes().forEach(async (n) => {
+      await this.di.dataFlow?.fetch(n.id);
     });
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];

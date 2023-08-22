@@ -4,7 +4,6 @@ import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@seocraft/supabase/db/database.types";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export default async function Home() {
   const supabase = createServerComponentClient<Database>({ cookies });
@@ -39,9 +38,9 @@ export default async function Home() {
               revolutionize the way you create articles, images, and content.
               With intuitive drag-and-drop functionality, users can
               programmatically design content, tailoring every aspect to their
-              unique needs. . Whether you're enhancing your SEO or building a
-              robust content marketing strategy, SEOCRAFT provides the tools to
-              craft your success.
+              unique needs. . Whether you&apos;re enhancing your SEO or building
+              a robust content marketing strategy, SEOCRAFT provides the tools
+              to craft your success.
             </p>
           </div>
           <div className="flex items-center justify-center">
@@ -133,7 +132,7 @@ export default async function Home() {
         <h2>AI-Integrated Brilliance:</h2>
         <p>
           Imagine having the brainpower of leading AI models from Huggingface &
-          Replicate right at your fingertips. Well, with SEOcraft, that's
+          Replicate right at your fingertips. Well, with SEOcraft, that&apos;s
           exactly what you get. Tailor content, analyze trends, and develop
           strategies that resonate. And the best part? You control the key,
           ensuring full autonomy and flexibility.
@@ -147,22 +146,22 @@ export default async function Home() {
 // SEOcraft is a node-based content crafting platform that transforms how you design articles, images, and multimedia content. Think of it as your canvas, where you can create, edit, and arrange elements programmatically. Forget the constraints of ordinary editors; this is where creativity meets innovation.
 
 // AI-Integrated Brilliance:
-// Imagine having the brainpower of leading AI models from Huggingface & Replicate right at your fingertips. Well, with SEOcraft, that's exactly what you get. Tailor content, analyze trends, and develop strategies that resonate. And the best part? You control the key, ensuring full autonomy and flexibility.
+// Imagine having the brainpower of leading AI models from Huggingface & Replicate right at your fingertips. Well, with SEOcraft, that&apos;s exactly what you get. Tailor content, analyze trends, and develop strategies that resonate. And the best part? You control the key, ensuring full autonomy and flexibility.
 
 // A New Way to Craft Content:
-// SEOcraft's interactive editor lets you connect the dots - literally. With our drag-and-drop functionality, you can build complex content structures with ease, personalizing every detail. From SEO-optimized articles to captivating visuals, it's all within reach.
+// SEOcraft&apos;s interactive editor lets you connect the dots - literally. With our drag-and-drop functionality, you can build complex content structures with ease, personalizing every detail. From SEO-optimized articles to captivating visuals, it&apos;s all within reach.
 
 // Dynamic and Scalable:
-// Growing your online presence? SEOcraft scales with you. Create hundreds of unique articles, design eye-catching images, and expand your reach without breaking a sweat. Our platform is built to accommodate your growth, no matter how fast you're moving.
+// Growing your online presence? SEOcraft scales with you. Create hundreds of unique articles, design eye-catching images, and expand your reach without breaking a sweat. Our platform is built to accommodate your growth, no matter how fast you&apos;re moving.
 
 // Content Creation, Redefined:
-// Forget the static and predictable. SEOcraft opens a world where you can craft content that speaks to your audience, engages the reader, and ranks on search engines. From a single blog post to an entire multimedia campaign, it's all possible with SEOcraft.
+// Forget the static and predictable. SEOcraft opens a world where you can craft content that speaks to your audience, engages the reader, and ranks on search engines. From a single blog post to an entire multimedia campaign, it&apos;s all possible with SEOcraft.
 
 // No More Waiting:
 // With parallel processing and dedicated mechanisms, SEOcraft is one of the fastest and most scalable bulk content creators available. No more time-consuming loading or delays. Create content clusters in minutes and focus on what really matters.
 
 // Bring Your Own Key, Build Your Future:
-// Your security and control are paramount. SEOcraft's Bring-Your-Own-Key model ensures you're always in the driver's seat. It's your vision, your key, your success.
+// Your security and control are paramount. SEOcraft&apos;s Bring-Your-Own-Key model ensures you&apos;re always in the driver&apos;s seat. It&apos;s your vision, your key, your success.
 
 // Interactive Preview:
 // Want to see how it all comes together?
@@ -170,7 +169,7 @@ export default async function Home() {
 // Experience the revolution of content crafting with our interactive editor. Play around, connect nodes, and unleash creativity.
 
 // No Jargon, No Confusion:
-// SEOcraft is designed to be intuitive and user-friendly. Whether you're a seasoned content strategist or just starting, you'll find your groove in no time.
+// SEOcraft is designed to be intuitive and user-friendly. Whether you&apos;re a seasoned content strategist or just starting, you&apos;ll find your groove in no time.
 
 // Ready to Craft Your Success?
 // Stop settling for ordinary. Embrace the future of content creation with SEOcraft. This is where you craft your success, where your creativity knows no bounds. What are you waiting for?

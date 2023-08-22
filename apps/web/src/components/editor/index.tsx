@@ -3,7 +3,9 @@
 import { v4 as uuidv4 } from "uuid";
 import {
   Plate,
+  PlateEditor,
   PlateProvider,
+  createPlateEditor,
   replaceNodeChildren,
   usePlateEditorState,
   usePlateSelectors,
@@ -52,7 +54,7 @@ import { cn } from "@/lib/utils";
 import { FloatingToolbar } from "../plate-ui/floating-toolbar";
 import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
 import { CursorOverlay } from "../plate-ui/cursor-overlay";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   CommentsProvider,
   createCommentsPlugin,
@@ -170,14 +172,6 @@ const plugins = createMyPlugins(
   }
 );
 
-const useStore = create<{
-  editor: any;
-  setEditor: (editor: any) => void;
-}>((set, get) => ({
-  editor: null,
-  setEditor: (editor: any) => ({ editor }),
-}));
-
 const EditorStore = ({ val, id }) => {
   const editor = usePlateSelectors().editor();
   const [value, setValue] = usePlateStates("plate").value();
@@ -190,18 +184,7 @@ const EditorStore = ({ val, id }) => {
   }, [val]);
   return (
     <div>
-      {/* REAL_ID: {editor.id}
-      <br />
-      --- PROP VALUE ---
-      <br />
-      {JSON.stringify(val)}
-      <br />
-      --- STATE VALUE ---
-      <br />
-      {JSON.stringify(value)}
-      <br />
-      ---- */}
-      <Button
+      {/* <Button
         onClick={() =>
           editor.insertNode({
             text: "Hello",
@@ -210,9 +193,13 @@ const EditorStore = ({ val, id }) => {
         }
       >
         Insert Text
-      </Button>
+      </Button> */}
     </div>
   );
+};
+
+export const createTmpEditor = (): PlateEditor<MyValue> => {
+return createPlateEditor({ plugins,  }, );
 };
 
 export const Editor: React.FC<EditorProps> = ({
@@ -223,7 +210,7 @@ export const Editor: React.FC<EditorProps> = ({
   const containerRef = useRef(null);
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="relative h-full flex flex-col @container">
       <TooltipProvider>
         <DndProvider backend={HTML5Backend}>
           <PlateProvider<MyValue>
@@ -260,7 +247,7 @@ export const Editor: React.FC<EditorProps> = ({
                     autoFocus: true,
                     className: cn(
                       "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
-                      "!min-h-[600px] max-w-[900px] w-full px-[96px] my-10"
+                      "!min-h-[600px] max-w-[900px] w-full px-4 md:px-10 @lg:px-[96px] my-10"
                     ),
                   }}
                 >
