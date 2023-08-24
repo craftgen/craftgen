@@ -8,6 +8,7 @@ import { createContext, useContext } from "react";
 
 export type ReteStore = {
   playgroundId: string;
+  projectId: string;
   projectSlug: string;
   selectedNodeId: string | null;
   di: DiContainer | null;
@@ -23,8 +24,9 @@ export type ReteStore = {
 export const createCraftStore = (initial: Partial<ReteStore>) =>
   createStore<ReteStore, [["zustand/subscribeWithSelector", never]]>(
     subscribeWithSelector((set, get) => ({
-      playgroundId: "",
+      projectId: "",
       projectSlug: "",
+      playgroundId: "",
       selectedNodeId: null,
       di: null,
       showControls: false,
@@ -40,7 +42,8 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       ...initial,
     }))
   );
-export type ReteStoreInstance = ReturnType<typeof createCraftStore>;
+
+export type ReteStoreInstance = ReturnType<typeof createCraftStore>; 
 
 export const CraftContext = createContext<ReteStoreInstance | null>(null);
 

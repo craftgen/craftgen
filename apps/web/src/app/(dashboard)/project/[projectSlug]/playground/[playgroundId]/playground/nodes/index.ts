@@ -14,3 +14,8 @@ export { DatabaseUpsert } from "./database/upsert";
 export { ComposeObject } from "./object/composeObject";
 
 export { Article } from "./article";
+
+export { Input } from "./io/input";
+export { Output } from "./io/output";
+
+export { ModuleNode } from "./io/module";

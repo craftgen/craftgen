@@ -24,19 +24,19 @@ export class DatabaseInsert extends BaseNode<
 > {
   constructor(di: DiContainer, data: NodeData<typeof databaseInsertMachine>) {
     super("Database Insert", di, data, databaseInsertMachine, {});
-    this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
+    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "Exec", true));
     this.addInput(
       "databaseId",
       new ClassicPreset.Input(databaseIdSocket, "databaseId", false)
     );
     this.addOutput(
-      "exec",
+      "trigger",
       new ClassicPreset.Output(triggerSocket, "Exec", true)
     );
     this.addInput("data", new ClassicPreset.Input(objectSocket, "data"));
   }
 
-  async execute(input: "exec", forward: (output: "exec") => void) {
+  async execute(input: "trigger", forward: (output: "trigger") => void) {
     this.di.dataFlow?.reset();
     const incomers = this.di.graph.incomers(this.id);
 
@@ -53,7 +53,7 @@ export class DatabaseInsert extends BaseNode<
       data: inputs.data[0],
     });
     await mutate(`/api/datasource/${inputs.databaseId[0]}`);
-    forward("exec");
+    forward("trigger");
   }
 
   async data() {}

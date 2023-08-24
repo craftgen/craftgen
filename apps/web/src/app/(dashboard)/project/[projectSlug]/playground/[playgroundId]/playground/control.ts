@@ -25,6 +25,10 @@ import {
   SocketGeneratorControlComponent,
 } from "./ui/control/control-socket-generator";
 import { ArticleEditor, ArticleControl } from "./ui/control/control-editor";
+import {
+  SWRSelectControl,
+  SWRSelectControlComponent,
+} from "./ui/control/control-swr-select";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -40,6 +44,9 @@ export const getControl = (
   }
   if (data.payload instanceof SelectControl) {
     return SelectControlComponent;
+  }
+  if (data.payload instanceof SWRSelectControl) {
+    return SWRSelectControlComponent;
   }
   if (data.payload instanceof TableControl) {
     return TableControlComponent;

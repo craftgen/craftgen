@@ -164,7 +164,7 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
     }
   }
 
-  async execute(input: "insert", forward: (output: "exec") => void) {
+  async execute(input: "insert", forward: (output: "trigger") => void) {
     this.di.dataFlow?.reset();
     this.di.editor.getNodes().forEach((n) => {
       this.di.dataFlow?.fetch(n.id);

@@ -1,4 +1,4 @@
-import { ClassicPreset, NodeEditor } from "rete";
+import { ClassicPreset, NodeEditor, NodeId } from "rete";
 import { Sockets } from "./sockets";
 import { Schemes } from "./types";
 
@@ -20,6 +20,17 @@ export function getConnectionSockets(
 
   return {
     source: output?.socket,
-    target: input?.socket
+    target: input?.socket,
   };
+}
+
+export async function removeConnections(
+  editor: NodeEditor<Schemes>,
+  nodeId: NodeId
+) {
+  for (const c of [...editor.getConnections()]) {
+    if (c.source === nodeId || c.target === nodeId) {
+      await editor.removeConnection(c.id);
+    }
+  }
 }

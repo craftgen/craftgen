@@ -13,7 +13,10 @@ import {
   DatabaseUpdate,
   DatabaseUpsert,
   ComposeObject,
-  Article
+  Article,
+  Input,
+  Output,
+  ModuleNode,
 } from "./nodes";
 
 export const nodes = {
@@ -31,7 +34,11 @@ export const nodes = {
   DatabaseUpsert: DatabaseUpsert,
 
   ComposeObject: ComposeObject,
-  Article: Article
+  Article: Article,
+
+  Input: Input,
+  Output: Output,
+  ModuleNode: ModuleNode,
 } as const;
 
 type ValueOf<T> = T[keyof T];
@@ -52,7 +59,10 @@ export type NodeProps =
   | DatabaseUpdate
   | DatabaseUpsert
   | ComposeObject
-  | Article;
+  | Article
+  | Input
+  | Output
+  | ModuleNode;
 
 export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;

@@ -90,7 +90,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   process() {
     const state = this.actor.getSnapshot();
     const rawTemplate = state.context.inputs as Socket[];
-    console.log("rawTemplate", rawTemplate);
 
     for (const item of Object.keys(this.inputs)) {
       if (rawTemplate.find((i: Socket) => i.name === item)) continue;

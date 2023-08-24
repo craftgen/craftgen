@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
-import { createEditorFunc } from "./playground/editor";
+import { ModuleMap, createEditorFunc } from "./playground/editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor } from "./playground/io";
 import { getPlayground, savePlayground, savePlaygroundLayout } from "./action";
@@ -28,6 +28,8 @@ import * as FlexLayout from "flexlayout-react";
 import { getConnectionSockets } from "./playground/utis";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import useSWR from "swr";
+import { getPlaygrounds } from "../../actions";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -73,6 +75,7 @@ export const Playground: React.FC<{
       layout: FlexLayout.Model.fromJson(
         (playground.layout as FlexLayout.IJsonModel) || defaultLayout
       ),
+      projectId: playground.project.id,
       projectSlug: params.projectSlug as string,
       playgroundId: params.playgroundId as string,
     })
@@ -146,6 +149,19 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
   const di = useCraftStore((state) => state.di);
   const projectSlug = useCraftStore((state) => state.projectSlug);
   const playgroundId = useCraftStore((state) => state.playgroundId);
+  const { data, isValidating } = useSWR(
+    `/api/playgrounds/${playground.project.id}`,
+    () => getPlaygrounds(playground.project.id)
+  );
+  // const getModuleData = useMemo(() => {
+  //   return data?.reduce((prev, curr) => {
+  //     return {
+  //       ...prev,
+  //       [curr.id]: curr,
+  //     };
+  //   }, {}) as ModuleMap;
+  // }, [isValidating, data]);
+
   const createEditor = useMemo(() => {
     return createEditorFunc(playground, store.current);
   }, [playground, store.current]);

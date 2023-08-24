@@ -2,11 +2,11 @@ import { ClassicPreset } from "rete";
 import { Control } from "rete/_types/presets/classic";
 import { DiContainer } from "../editor";
 import {
+  Actor,
   AnyStateMachine,
-  InterpreterFrom,
   MachineImplementationsFrom,
   StateFrom,
-  interpret, // TODO: xstate
+  createActor,
 } from "xstate";
 import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
@@ -40,7 +40,7 @@ export class BaseNode<
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   public di: DiContainer;
 
-  public actor: InterpreterFrom<AnyStateMachine>;
+  public actor: Actor<AnyStateMachine>;
 
   width = 200;
   height = 200;
@@ -56,7 +56,7 @@ export class BaseNode<
     this.id = data.id;
     this.di = di;
     const a = machine.provide(machineImplements as any);
-    this.actor = interpret(a, {
+    this.actor = createActor(a, {
       id: this.id,
       ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
     });
@@ -70,5 +70,9 @@ export class BaseNode<
     });
 
     this.actor.start();
+  }
+
+  log(...args: any[]) {
+    console.log(`[${this.di.editor.name}] - [${this.label}]`, ...args);
   }
 }

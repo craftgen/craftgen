@@ -1,7 +1,7 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import { NodeEditor, ClassicPreset } from "rete";
+import { NodeEditor } from "rete";
 import { AreaPlugin, AreaExtensions } from "rete-area-plugin";
 import {
   ConnectionPlugin,
@@ -29,17 +29,20 @@ import { CustomSocket } from "./ui/custom-socket";
 import { Schemes } from "./types";
 import { CustomConnection } from "./ui/custom-connection";
 import { importEditor } from "./io";
-import type { getPlayground } from "../action";
+import { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
 import { getControl } from "./control";
 
 import ELK from "elkjs/lib/elk.bundled.js";
+import { Modules } from "./modules";
+import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 const elk = new ELK();
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
 
 export type DiContainer = {
+  store: any; // TODO: fix types
   graph: ReturnType<typeof structures>;
   area: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => Promise<void>;
@@ -49,7 +52,13 @@ export type DiContainer = {
   arrange?: AutoArrangePlugin<Schemes>;
   inspector: InspectorPlugin;
   render: ReactPlugin<Schemes, AreaExtra>;
+  modules: Modules;
 };
+
+export type ModuleMap = Record<
+  string,
+  NonNullable<Awaited<ReturnType<typeof getPlayground>>>
+>;
 
 export const createEditorFunc = (
   playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,
@@ -57,7 +66,6 @@ export const createEditorFunc = (
 ) => {
   return (container: HTMLElement) => createEditor(container, playground, store);
 };
-
 
 export async function createEditor(
   container: HTMLElement,
@@ -103,30 +111,8 @@ export async function createEditor(
   );
 
   connection.addPreset(ConnectionPresets.classic.setup());
-  const engine = new ControlFlowEngine<Schemes>(({ inputs, outputs }) => {
-    return {
-      inputs: () =>
-        Object.entries(inputs)
-          .filter(([_, input]) => input?.socket?.name === "Trigger")
-          .map(([name]) => name),
-      outputs: () =>
-        Object.entries(outputs)
-          .filter(([_, input]) => input?.socket?.name === "Trigger")
-          .map(([name]) => name),
-    };
-  });
-  const dataFlow = new DataflowEngine<Schemes>(({ inputs, outputs }) => {
-    return {
-      inputs: () =>
-        Object.entries(inputs)
-          .filter(([_, input]) => input?.socket?.name !== "Trigger")
-          .map(([name]) => name),
-      outputs: () =>
-        Object.entries(outputs)
-          .filter(([_, input]) => input?.socket?.name !== "Trigger")
-          .map(([name]) => name),
-    };
-  });
+  const engine = createControlFlowEngine();
+  const dataFlow = createDataFlowEngine();
 
   class CustomArrange extends AutoArrangePlugin<Schemes> {
     elk = elk;
@@ -166,8 +152,33 @@ export async function createEditor(
     await arrange.layout();
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
+  const modules = new Modules(
+    (moduleId) => {
+      // const modules = getModuleData();
+      // if (modules[moduleId]) {
+      //   return true;
+      // }
+      return true;
+    },
+    async ({ moduleId, overwrites }) => {
+      const data = await getPlayground({ playgroundId: moduleId });
+      if (!data) throw new Error(`Module ${moduleId} not found`);
+      await importEditor(
+        {
+          ...di,
+          ...overwrites,
+        },
+        {
+          nodes: data.nodes as any,
+          edges: data.edges as any,
+        }
+      );
+    }
+  );
+
   const graph = structures(editor);
   const di: DiContainer = {
+    store,
     editor,
     area,
     arrange,
@@ -177,6 +188,7 @@ export async function createEditor(
     engine,
     dataFlow,
     inspector,
+    modules,
   };
 
   await importEditor(di, {

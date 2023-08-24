@@ -19,7 +19,7 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof StartNodeMachine>) {
     super("Start", di, data, StartNodeMachine, {});
 
-    this.addOutput("exec", new ClassicPreset.Output(triggerSocket, "Exec"));
+    this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
     this.addControl(
       "trigger",
       new ButtonControl("Execute", () => {
@@ -29,8 +29,8 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
     );
   }
 
-  execute(_: any, forward: (output: "exec") => void) {
-    forward("exec");
+  execute(_: any, forward: (output: "trigger") => void) {
+    forward("trigger");
   }
 
   data() {

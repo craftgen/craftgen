@@ -18,12 +18,15 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {
     super("Log", di, data, LogNodeMachine, {});
 
-    this.addInput("exec", new ClassicPreset.Input(triggerSocket, "Exec", true));
+    this.addInput(
+      "trigger",
+      new ClassicPreset.Input(triggerSocket, "Exec", true)
+    );
     this.addInput("message", new ClassicPreset.Input(anySocket, "Data"));
-    this.addOutput("exec", new ClassicPreset.Output(triggerSocket, "Exec"));
+    this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
   }
 
-  async execute(input: "exec", forward: (output: "exec") => void) {
+  async execute(input: "trigger", forward: (output: "trigger") => void) {
     this.di.dataFlow?.reset();
     const incomers = this.di.graph.incomers(this.id);
 
@@ -33,8 +36,8 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       message: string[];
     };
-    console.log("inputs log", (inputs.message && inputs.message[0]) || "");
-    forward("exec");
+    console.log(inputs.message);
+    forward("trigger");
   }
 
   data() {

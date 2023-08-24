@@ -41,6 +41,11 @@ export async function createNode({
     ComposeObject: (di, data) => new Nodes.ComposeObject(di, data),
 
     Article: (di, data) => new Nodes.Article(di, data),
+
+    Input: (di, data) => new Nodes.Input(di, data),
+    Output: (di, data) => new Nodes.Output(di, data),
+
+    ModuleNode: (di, data) => new Nodes.ModuleNode(di, data),
   };
   const matched = nodes[name];
 
