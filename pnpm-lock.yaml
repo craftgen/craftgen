@@ -14,7 +14,7 @@ importers:
       eslint: 7.32.0
       eslint-config-custom: link:packages/eslint-config-custom
       prettier: 2.8.8
-      turbo: 1.10.12
+      turbo: 1.10.13
 
   apps/supabase:
     specifiers:
@@ -24,6 +24,7 @@ importers:
       dotenv-cli: ^7.2.1
       drizzle-kit: ^0.19.12
       drizzle-orm: ^0.28.2
+      drizzle-typebox: ^0.1.1
       jose: ^4.14.4
       pg: ^8.11.2
       postgres: ^3.3.5
@@ -32,6 +33,7 @@ importers:
     dependencies:
       '@types/pg': 8.10.2
       drizzle-orm: 0.28.2_2pygkiannzxgmvxudlj5yuvoma
+      drizzle-typebox: 0.1.1_6isqqh3prvgoivpat5w26w546y
       jose: 4.14.4
       pg: 8.11.2
       postgres: 3.3.5
@@ -63,6 +65,7 @@ importers:
       '@radix-ui/react-separator': ^1.0.3
       '@radix-ui/react-slider': ^1.1.2
       '@radix-ui/react-slot': ^1.0.2
+      '@radix-ui/react-switch': ^1.0.3
       '@radix-ui/react-toast': ^1.1.4
       '@radix-ui/react-toggle': ^1.0.3
       '@radix-ui/react-toolbar': ^1.0.4
@@ -199,6 +202,7 @@ importers:
       '@radix-ui/react-separator': 1.0.3_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-slider': 1.1.2_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-slot': 1.0.2_tznpbkknyqq5lcv5sgrl332jvu
+      '@radix-ui/react-switch': 1.0.3_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-toast': 1.1.4_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-toggle': 1.0.3_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-toolbar': 1.0.4_uas4yajzsllemiyrexr66mus4q
@@ -3471,6 +3475,33 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@radix-ui/react-switch/1.0.3_uas4yajzsllemiyrexr66mus4q:
+    resolution: {integrity: sha512-mxm87F88HyHztsI7N+ZUmEoARGkC22YVW5CaC+Byc+HRpuvCrOBPTAnXgf+tZ/7i0Sg/eOePGdMhUKhPaQEqow==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.21.5
+      '@radix-ui/primitive': 1.0.1
+      '@radix-ui/react-compose-refs': 1.0.1_tznpbkknyqq5lcv5sgrl332jvu
+      '@radix-ui/react-context': 1.0.1_tznpbkknyqq5lcv5sgrl332jvu
+      '@radix-ui/react-primitive': 1.0.3_uas4yajzsllemiyrexr66mus4q
+      '@radix-ui/react-use-controllable-state': 1.0.1_tznpbkknyqq5lcv5sgrl332jvu
+      '@radix-ui/react-use-previous': 1.0.1_tznpbkknyqq5lcv5sgrl332jvu
+      '@radix-ui/react-use-size': 1.0.1_tznpbkknyqq5lcv5sgrl332jvu
+      '@types/react': 18.2.15
+      '@types/react-dom': 18.2.7
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@radix-ui/react-toast/1.1.4_uas4yajzsllemiyrexr66mus4q:
     resolution: {integrity: sha512-wf+fc8DOywrpRK3jlPlWVe+ELYGHdKDaaARJZNuUTWyWYq7+ANCFLp4rTjZ/mcGkJJQ/vZ949Zis9xxEpfq9OA==}
     peerDependencies:
@@ -3895,6 +3926,10 @@ packages:
 
   /@rushstack/eslint-patch/1.2.0:
     resolution: {integrity: sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==}
+    dev: false
+
+  /@sinclair/typebox/0.31.2:
+    resolution: {integrity: sha512-+LlOCOcCcsq6zxt1Ld9VkOSTMY6189dBtHHxb2nUftYpiUFXX0mKuK/UgtX84haktCs/x8j8k29v//ohdjlToA==}
     dev: false
 
   /@stitches/core/1.2.8:
@@ -7094,6 +7129,16 @@ packages:
       '@types/pg': 8.10.2
       pg: 8.11.2
       postgres: 3.3.5
+    dev: false
+
+  /drizzle-typebox/0.1.1_6isqqh3prvgoivpat5w26w546y:
+    resolution: {integrity: sha512-eNIDe+EOCB96/bbRHOPbrC+bsuCXFd2H0/96Fl0cJkY+NKnu2qLTnGI6ILXPbyu82Yr1tsShlzDypw+VeCDqaQ==}
+    peerDependencies:
+      '@sinclair/typebox': '>=0.17.6'
+      drizzle-orm: '>=0.23.13'
+    dependencies:
+      '@sinclair/typebox': 0.31.2
+      drizzle-orm: 0.28.2_2pygkiannzxgmvxudlj5yuvoma
     dev: false
 
   /ecdsa-sig-formatter/1.0.11:
@@ -11383,65 +11428,64 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /turbo-darwin-64/1.10.12:
-    resolution: {integrity: sha512-vmDfGVPl5/aFenAbOj3eOx3ePNcWVUyZwYr7taRl0ZBbmv2TzjRiFotO4vrKCiTVnbqjQqAFQWY2ugbqCI1kOQ==}
+  /turbo-darwin-64/1.10.13:
+    resolution: {integrity: sha512-vmngGfa2dlYvX7UFVncsNDMuT4X2KPyPJ2Jj+xvf5nvQnZR/3IeDEGleGVuMi/hRzdinoxwXqgk9flEmAYp0Xw==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64/1.10.12:
-    resolution: {integrity: sha512-3JliEESLNX2s7g54SOBqqkqJ7UhcOGkS0ywMr5SNuvF6kWVTbuUq7uBU/sVbGq8RwvK1ONlhPvJne5MUqBCTCQ==}
+  /turbo-darwin-arm64/1.10.13:
+    resolution: {integrity: sha512-eMoJC+k7gIS4i2qL6rKmrIQGP6Wr9nN4odzzgHFngLTMimok2cGLK3qbJs5O5F/XAtEeRAmuxeRnzQwTl/iuAw==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64/1.10.12:
-    resolution: {integrity: sha512-siYhgeX0DidIfHSgCR95b8xPee9enKSOjCzx7EjTLmPqPaCiVebRYvbOIYdQWRqiaKh9yfhUtFmtMOMScUf1gg==}
+  /turbo-linux-64/1.10.13:
+    resolution: {integrity: sha512-0CyYmnKTs6kcx7+JRH3nPEqCnzWduM0hj8GP/aodhaIkLNSAGAa+RiYZz6C7IXN+xUVh5rrWTnU2f1SkIy7Gdg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64/1.10.12:
-    resolution: {integrity: sha512-K/ZhvD9l4SslclaMkTiIrnfcACgos79YcAo4kwc8bnMQaKuUeRpM15sxLpZp3xDjDg8EY93vsKyjaOhdFG2UbA==}
+  /turbo-linux-arm64/1.10.13:
+    resolution: {integrity: sha512-0iBKviSGQQlh2OjZgBsGjkPXoxvRIxrrLLbLObwJo3sOjIH0loGmVIimGS5E323soMfi/o+sidjk2wU1kFfD7Q==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64/1.10.12:
-    resolution: {integrity: sha512-7FSgSwvktWDNOqV65l9AbZwcoueAILeE4L7JvjauNASAjjbuzXGCEq5uN8AQU3U5BOFj4TdXrVmO2dX+lLu8Zg==}
+  /turbo-windows-64/1.10.13:
+    resolution: {integrity: sha512-S5XySRfW2AmnTeY1IT+Jdr6Goq7mxWganVFfrmqU+qqq3Om/nr0GkcUX+KTIo9mPrN0D3p5QViBRzulwB5iuUQ==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64/1.10.12:
-    resolution: {integrity: sha512-gCNXF52dwom1HLY9ry/cneBPOKTBHhzpqhMylcyvJP0vp9zeMQQkt6yjYv+6QdnmELC92CtKNp2FsNZo+z0pyw==}
+  /turbo-windows-arm64/1.10.13:
+    resolution: {integrity: sha512-nKol6+CyiExJIuoIc3exUQPIBjP9nIq5SkMJgJuxsot2hkgGrafAg/izVDRDrRduQcXj2s8LdtxJHvvnbI8hEQ==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo/1.10.12:
-    resolution: {integrity: sha512-WM3+jTfQWnB9W208pmP4oeehZcC6JQNlydb/ZHMRrhmQa+htGhWLCzd6Q9rLe0MwZLPpSPFV2/bN5egCLyoKjQ==}
+  /turbo/1.10.13:
+    resolution: {integrity: sha512-vOF5IPytgQPIsgGtT0n2uGZizR2N3kKuPIn4b5p5DdeLoI0BV7uNiydT7eSzdkPRpdXNnO8UwS658VaI4+YSzQ==}
     hasBin: true
-    requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.12
-      turbo-darwin-arm64: 1.10.12
-      turbo-linux-64: 1.10.12
-      turbo-linux-arm64: 1.10.12
-      turbo-windows-64: 1.10.12
-      turbo-windows-arm64: 1.10.12
+      turbo-darwin-64: 1.10.13
+      turbo-darwin-arm64: 1.10.13
+      turbo-linux-64: 1.10.13
+      turbo-linux-arm64: 1.10.13
+      turbo-windows-64: 1.10.13
+      turbo-windows-arm64: 1.10.13
     dev: true
 
   /type-check/0.4.0:

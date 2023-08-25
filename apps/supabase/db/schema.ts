@@ -6,8 +6,9 @@ import {
   pgEnum,
   json,
   unique,
-  integer,
+  boolean,
 } from "drizzle-orm/pg-core";
+
 import { relations } from "drizzle-orm";
 
 export const user = pgTable("user", {
@@ -65,6 +66,8 @@ export const playground = pgTable("playground", {
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  description: text("description"),
+  public: boolean("public").notNull().default(false),
   layout: json("layout"),
   edges: json("edges").notNull(),
   nodes: json("nodes").notNull(),

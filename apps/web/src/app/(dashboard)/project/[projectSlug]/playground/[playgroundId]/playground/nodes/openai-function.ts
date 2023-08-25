@@ -177,24 +177,12 @@ export class OpenAIFunctionCall extends BaseNode<
       inputs,
     });
 
-    // console.log("inputs", inputs);
-    // const res = await generateTextFn({
-    //   model: state.context.model,
-    //   user: await inputs.prompt[0],
-    // });
-
-    // this.actor.send({
-    //   type: "COMPLETE",
-    //   message: res,
-    // });
     this.actor.subscribe((state) => {
       if (state.matches("complete")) {
         console.log("COMPLETE", { message: state.context.message });
         forward("trigger");
       }
     });
-
-    // console.log("executing", "openai-function-call", res);
   }
 
   async data(inputs: any) {

@@ -28,6 +28,21 @@ export const getPlayground = async (params: { playgroundId: string }) => {
   });
 };
 
+export const updatePlayground = async (
+  playgroundId: string,
+  args: {
+    name: string;
+    description?: string;
+    public: boolean;
+  }
+) => {
+  return await db
+    .update(playground)
+    .set(args)
+    .where(eq(playground.id, playgroundId))
+    .returning();
+};
+
 export const savePlaygroundLayout = async (params: {
   playgroundId: string;
   layout: FlexLayout.IJsonModel;

@@ -253,32 +253,38 @@ export interface Database {
       playground: {
         Row: {
           created_at: string
+          description: string | null
           edges: Json
           id: string
           layout: Json | null
           name: string
           nodes: Json
           project_id: string
+          public: boolean
           updated_at: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           edges: Json
           id?: string
           layout?: Json | null
           name: string
           nodes: Json
           project_id: string
+          public?: boolean
           updated_at?: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           edges?: Json
           id?: string
           layout?: Json | null
           name?: string
           nodes?: Json
           project_id?: string
+          public?: boolean
           updated_at?: string
         }
         Relationships: [
