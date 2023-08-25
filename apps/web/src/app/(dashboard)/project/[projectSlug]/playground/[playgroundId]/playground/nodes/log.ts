@@ -3,7 +3,6 @@ import { DiContainer } from "../editor";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
 import { anySocket, triggerSocket } from "../sockets";
-import { structures } from "rete-structures";
 
 const LogNodeMachine = createMachine({
   id: "log",

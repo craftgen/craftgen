@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { google } from "googleapis";
 import { normalizeUrl } from "./shared";
-import { db, project, projectMembers } from "@seocraft/supabase/db";
+import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
 import { z } from "zod";
 import { newProjectSchema } from "./shared";
 import { getGoogleAuth } from "@/lib/google";
@@ -12,7 +12,7 @@ import { getGoogleAuth } from "@/lib/google";
 export const getSites = async () => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
-  const googleAuth = await getGoogleAuth({session: session.data.session!});
+  const googleAuth = await getGoogleAuth({ session: session.data.session! });
 
   const webmaster = google.webmasters({
     version: "v3",
@@ -44,6 +44,17 @@ export const createNewProject = async (
       userId: session.data.session?.user.id!,
       role: "owner",
     });
+    await tx.insert(variable).values([
+      {
+        project_id: newProject[0].id,
+        key: "OPENAI_API_KEY",
+      },
+      {
+        project_id: newProject[0].id,
+        key: "REPLICATE_API_KEY",
+      },
+    ]);
+
     return newProject[0];
   });
 };

@@ -153,6 +153,7 @@ importers:
       react-use: ^17.4.0
       reactflow: ^11.7.4
       reflect-metadata: ^0.1.13
+      replicate: ^0.16.1
       rete: ^2.0.2
       rete-area-plugin: ^2.0.0
       rete-auto-arrange-plugin: ^2.0.0
@@ -289,6 +290,7 @@ importers:
       react-use: 17.4.0_biqbaboplfbrettd7655fr4n2y
       reactflow: 11.7.4_64s6uhl5lpjd37tem3o2bfzl5e
       reflect-metadata: 0.1.13
+      replicate: 0.16.1
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
       rete-auto-arrange-plugin: 2.0.0_ep6dyau3s7cozb6mlt4267ndei
@@ -10528,6 +10530,11 @@ packages:
     hasBin: true
     dependencies:
       jsesc: 0.5.0
+    dev: false
+
+  /replicate/0.16.1:
+    resolution: {integrity: sha512-7GlY2IRJd4CwXLSO+eTNCRjYFlT10pgHQjYnwCBczr4+qdErIZp4sAEuRFfhzXNU3Bi+sYJJLpcddnUOFxStNg==}
+    engines: {git: '>=2.11.0', node: '>=18.0.0', npm: '>=7.19.0', yarn: '>=1.7.0'}
     dev: false
 
   /require-from-string/2.0.2:

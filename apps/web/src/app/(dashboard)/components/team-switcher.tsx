@@ -174,7 +174,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
                     }}
                   >
                     <PlusCircledIcon className="mr-2 h-5 w-5" />
-                    Create Team
+                    Create Project
                   </CommandItem>
                 </DialogTrigger>
               </CommandGroup>
@@ -184,9 +184,9 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
       </Popover>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create team</DialogTitle>
+          <DialogTitle>Create Project</DialogTitle>
           <DialogDescription>
-            Add a new team to manage products and customers.
+            Add a new project to manage site and content.
           </DialogDescription>
         </DialogHeader>
         <NewProjectForm>

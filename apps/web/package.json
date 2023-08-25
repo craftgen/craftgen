@@ -115,6 +115,7 @@
     "react-use": "^17.4.0",
     "reactflow": "^11.7.4",
     "reflect-metadata": "^0.1.13",
+    "replicate": "^0.16.1",
     "rete": "^2.0.2",
     "rete-area-plugin": "^2.0.0",
     "rete-auto-arrange-plugin": "^2.0.0",

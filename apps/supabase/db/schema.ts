@@ -31,6 +31,36 @@ export const project = pgTable("project", {
   slug: text("slug").notNull().unique(),
 });
 
+export const apiKey = pgTable(
+  "project_api_key",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    project_id: uuid("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    key: text("key").notNull(),
+  },
+  (t) => ({
+    key: unique().on(t.project_id, t.key),
+  })
+);
+
+export const variable = pgTable(
+  "project_variable",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    project_id: uuid("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    value: text("value"),
+  },
+  (t) => ({
+    key: unique().on(t.project_id, t.key),
+  })
+);
+
 export const dataSet = pgTable("data_set", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
@@ -124,6 +154,8 @@ export const projectRelations = relations(project, ({ many, one }) => ({
   members: many(projectMembers),
   articles: many(article),
   datasets: many(dataSet),
+  variables: many(variable),
+  apiKeys: many(apiKey),
 }));
 
 export const memberRoleEnum = pgEnum("member_role", [

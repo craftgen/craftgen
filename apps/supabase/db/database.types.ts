@@ -317,6 +317,34 @@ export interface Database {
         }
         Relationships: []
       }
+      project_api_key: {
+        Row: {
+          id: string
+          key: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_api_key_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       project_members: {
         Row: {
           id: string
@@ -347,6 +375,34 @@ export interface Database {
             foreignKeyName: "project_members_user_id_user_id_fk"
             columns: ["user_id"]
             referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      project_variable: {
+        Row: {
+          id: string
+          key: string
+          project_id: string
+          value: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          project_id: string
+          value?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          project_id?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_variable_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
             referencedColumns: ["id"]
           }
         ]
