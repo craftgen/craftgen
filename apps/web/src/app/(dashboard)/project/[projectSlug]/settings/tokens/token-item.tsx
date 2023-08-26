@@ -341,7 +341,7 @@ const ToggleView: React.FC<{ value: string }> = ({ value }) => {
       </Button>
       <Input
         type={show ? "text" : "password"}
-        className={cn(!show && "border-none")}
+        className={cn(!show && "border-none bg-muted/50")}
         value={value}
         readOnly
       />
