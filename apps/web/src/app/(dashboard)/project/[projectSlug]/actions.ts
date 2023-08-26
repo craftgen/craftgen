@@ -11,6 +11,7 @@ import {
   inArray,
   not,
   playground,
+  variable,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
@@ -19,6 +20,46 @@ export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
     where: (project, { eq }) => eq(project.slug, projectSlug),
   });
+};
+
+export const getProjectTokens = async (params: { project_id: string }) => {
+  return await db.query.variable.findMany({
+    where: (token, { eq }) => eq(token.project_id, params.project_id),
+  });
+};
+
+export const insertProjectTokens = async (params: {
+  project_id: string;
+  tokens: {
+    key: string;
+    value: string;
+  }[];
+}) => {
+  return await db
+    .insert(variable)
+    .values(
+      params.tokens.map((token) => ({
+        ...token,
+        project_id: params.project_id,
+      }))
+    )
+    .returning();
+};
+
+export const updateProjectToken = async (params: {
+  id: string;
+  key: string;
+  value: string;
+}) => {
+  return await db
+    .update(variable)
+    .set(params)
+    .where(eq(variable.id, params.id))
+    .returning();
+};
+
+export const deleteProjectToken = async (params: { id: string }) => {
+  return await db.delete(variable).where(eq(variable.id, params.id));
 };
 
 export const createPlayground = async ({
@@ -169,7 +210,7 @@ export const updateArticle = async ({
     );
 
     nodes.forEach(async (node) => {
-      console.log('node', node);
+      console.log("node", node);
       await tx
         .insert(articleNode)
         .values({

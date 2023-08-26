@@ -71,7 +71,7 @@ importers:
       '@radix-ui/react-toolbar': ^1.0.4
       '@radix-ui/react-tooltip': ^1.0.6
       '@seocraft/supabase': '*'
-      '@supabase/auth-helpers-nextjs': ^0.7.3
+      '@supabase/auth-helpers-nextjs': ^0.7.4
       '@supabase/auth-ui-react': ^0.4.2
       '@supabase/auth-ui-shared': ^0.1.6
       '@supabase/supabase-js': ^2.26.0
@@ -130,6 +130,7 @@ importers:
       date-fns: ^2.30.0
       dotenv-cli: ^7.2.1
       elkjs: ^0.8.2
+      encoding: ^0.1.13
       eslint: 8.45.0
       eslint-config-next: 13.4.10
       flexlayout-react: ^0.7.9
@@ -209,10 +210,10 @@ importers:
       '@radix-ui/react-toolbar': 1.0.4_uas4yajzsllemiyrexr66mus4q
       '@radix-ui/react-tooltip': 1.0.6_uas4yajzsllemiyrexr66mus4q
       '@seocraft/supabase': link:../supabase
-      '@supabase/auth-helpers-nextjs': 0.7.3_iiiesaoje4n7wwwlrxqqgs6ipe
+      '@supabase/auth-helpers-nextjs': 0.7.4_iiiesaoje4n7wwwlrxqqgs6ipe
       '@supabase/auth-ui-react': 0.4.2_iiiesaoje4n7wwwlrxqqgs6ipe
       '@supabase/auth-ui-shared': 0.1.6_iiiesaoje4n7wwwlrxqqgs6ipe
-      '@supabase/supabase-js': 2.26.0
+      '@supabase/supabase-js': 2.26.0_encoding@0.1.13
       '@tailwindcss/container-queries': 0.1.1_tailwindcss@3.3.3
       '@tanstack/react-table': 8.9.3_biqbaboplfbrettd7655fr4n2y
       '@tremor/react': 3.4.1_zrapbp5bhju6nhklhwf5u2ffs4
@@ -267,11 +268,12 @@ importers:
       cmdk: 0.2.0_clwdj742dood3wxkovrqay7cta
       date-fns: 2.30.0
       elkjs: 0.8.2
+      encoding: 0.1.13
       eslint: 8.45.0
       eslint-config-next: 13.4.10_ko3fmmbeyij36muomfgt2u76xu
       flexlayout-react: 0.7.9_biqbaboplfbrettd7655fr4n2y
       framer-motion: 10.16.0_biqbaboplfbrettd7655fr4n2y
-      googleapis: 122.0.0
+      googleapis: 122.0.0_encoding@0.1.13
       immer: 10.0.2
       lodash-es: 4.17.21
       lucide-react: 0.263.0_react@18.2.0
@@ -3938,13 +3940,13 @@ packages:
     resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
     dev: false
 
-  /@supabase/auth-helpers-nextjs/0.7.3_iiiesaoje4n7wwwlrxqqgs6ipe:
-    resolution: {integrity: sha512-ikuBGHFnvyfneToj0Y2EfiqUnEr1bdqR6JZiFydPnzACQ2Q7TkcOhkoUSc9/sMEeG7EKX5PhH8riAz42oPdKRg==}
+  /@supabase/auth-helpers-nextjs/0.7.4_iiiesaoje4n7wwwlrxqqgs6ipe:
+    resolution: {integrity: sha512-MyGCkB7LEDcGrKmesKGjyG54Jlbiss8VGTegrNde/ywXujQyRFnzycijoASDBc6i9SmE7eE1qWBsMr2URb07nw==}
     peerDependencies:
       '@supabase/supabase-js': ^2.19.0
     dependencies:
       '@supabase/auth-helpers-shared': 0.4.1_iiiesaoje4n7wwwlrxqqgs6ipe
-      '@supabase/supabase-js': 2.26.0
+      '@supabase/supabase-js': 2.26.0_encoding@0.1.13
       set-cookie-parser: 2.6.0
     dev: false
 
@@ -3953,7 +3955,7 @@ packages:
     peerDependencies:
       '@supabase/supabase-js': ^2.19.0
     dependencies:
-      '@supabase/supabase-js': 2.26.0
+      '@supabase/supabase-js': 2.26.0_encoding@0.1.13
       jose: 4.14.4
     dev: false
 
@@ -3964,7 +3966,7 @@ packages:
     dependencies:
       '@stitches/core': 1.2.8
       '@supabase/auth-ui-shared': 0.1.6_iiiesaoje4n7wwwlrxqqgs6ipe
-      '@supabase/supabase-js': 2.26.0
+      '@supabase/supabase-js': 2.26.0_encoding@0.1.13
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -3975,7 +3977,7 @@ packages:
     peerDependencies:
       '@supabase/supabase-js': ^2.21.0
     dependencies:
-      '@supabase/supabase-js': 2.26.0
+      '@supabase/supabase-js': 2.26.0_encoding@0.1.13
     dev: false
 
   /@supabase/functions-js/2.1.2:
@@ -3984,11 +3986,20 @@ packages:
       cross-fetch: 3.1.8
     transitivePeerDependencies:
       - encoding
+    dev: true
 
-  /@supabase/gotrue-js/2.44.1:
+  /@supabase/functions-js/2.1.2_encoding@0.1.13:
+    resolution: {integrity: sha512-QCR6pwJs9exCl37bmpMisUd6mf+0SUBJ6mUpiAjEkSJ/+xW8TCuO14bvkWHADd5hElJK9MxNlMQXxSA4DRz9nQ==}
+    dependencies:
+      cross-fetch: 3.1.8_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@supabase/gotrue-js/2.44.1_encoding@0.1.13:
     resolution: {integrity: sha512-/6AEWvvGHHFazoiLp8Uf17UfKRYmcOAnY5N4dcpLuUZkvilc8dHpgEngC/XLlZqWsK1r3lcjwROU3I8IBfGwDg==}
     dependencies:
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8_encoding@0.1.13
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -4001,10 +4012,10 @@ packages:
       - encoding
     dev: true
 
-  /@supabase/postgrest-js/1.7.2:
+  /@supabase/postgrest-js/1.7.2_encoding@0.1.13:
     resolution: {integrity: sha512-GK80JpRq8l6Qll85erICypAfQCied8tdlXfsDN14W844HqXCSOisk8AaE01DAwGJanieaoN5fuqhzA2yKxDvEQ==}
     dependencies:
-      cross-fetch: 3.1.8
+      cross-fetch: 3.1.8_encoding@0.1.13
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -4032,16 +4043,25 @@ packages:
       cross-fetch: 3.1.8
     transitivePeerDependencies:
       - encoding
+    dev: true
 
-  /@supabase/supabase-js/2.26.0:
+  /@supabase/storage-js/2.5.1_encoding@0.1.13:
+    resolution: {integrity: sha512-nkR0fQA9ScAtIKA3vNoPEqbZv1k5B5HVRYEvRWdlP6mUpFphM9TwPL2jZ/ztNGMTG5xT6SrHr+H7Ykz8qzbhjw==}
+    dependencies:
+      cross-fetch: 3.1.8_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@supabase/supabase-js/2.26.0_encoding@0.1.13:
     resolution: {integrity: sha512-RXmTPTobaYAwkSobadHZmEVLmzX3SGrtRZIGfLWnLv92VzBRrjuXn0a+bJqKl50GUzsyqPA+j5pod7EwMkcH5A==}
     dependencies:
-      '@supabase/functions-js': 2.1.2
-      '@supabase/gotrue-js': 2.44.1
-      '@supabase/postgrest-js': 1.7.2
+      '@supabase/functions-js': 2.1.2_encoding@0.1.13
+      '@supabase/gotrue-js': 2.44.1_encoding@0.1.13
+      '@supabase/postgrest-js': 1.7.2_encoding@0.1.13
       '@supabase/realtime-js': 2.7.3
-      '@supabase/storage-js': 2.5.1
-      cross-fetch: 3.1.8
+      '@supabase/storage-js': 2.5.1_encoding@0.1.13
+      cross-fetch: 3.1.8_encoding@0.1.13
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -6615,6 +6635,15 @@ packages:
       node-fetch: 2.6.12
     transitivePeerDependencies:
       - encoding
+    dev: true
+
+  /cross-fetch/3.1.8_encoding@0.1.13:
+    resolution: {integrity: sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==}
+    dependencies:
+      node-fetch: 2.6.12_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -7162,6 +7191,12 @@ packages:
 
   /emoji-regex/9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
+    dev: false
+
+  /encoding/0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+    dependencies:
+      iconv-lite: 0.6.3
     dev: false
 
   /enhanced-resolve/5.13.0:
@@ -8248,24 +8283,24 @@ packages:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
     dev: false
 
-  /gaxios/5.1.3:
+  /gaxios/5.1.3_encoding@0.1.13:
     resolution: {integrity: sha512-95hVgBRgEIRQQQHIbnxBXeHbW4TqFk4ZDJW7wmVtvYar72FdhRIo1UGOLS2eRAKCPEdPBWu+M7+A33D9CdX9rA==}
     engines: {node: '>=12'}
     dependencies:
       extend: 3.0.2
       https-proxy-agent: 5.0.1
       is-stream: 2.0.1
-      node-fetch: 2.6.12
+      node-fetch: 2.6.12_encoding@0.1.13
     transitivePeerDependencies:
       - encoding
       - supports-color
     dev: false
 
-  /gcp-metadata/5.3.0:
+  /gcp-metadata/5.3.0_encoding@0.1.13:
     resolution: {integrity: sha512-FNTkdNEnBdlqF2oatizolQqNANMrcqJt6AAYt99B3y1aLLC8Hc5IOBb+ZnnzllodEEf6xMBp6wRcBbc16fa65w==}
     engines: {node: '>=12'}
     dependencies:
-      gaxios: 5.1.3
+      gaxios: 5.1.3_encoding@0.1.13
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
@@ -8428,7 +8463,7 @@ packages:
       slash: 4.0.0
     dev: false
 
-  /google-auth-library/8.9.0:
+  /google-auth-library/8.9.0_encoding@0.1.13:
     resolution: {integrity: sha512-f7aQCJODJFmYWN6PeNKzgvy9LI2tYmXnzpNDHEjG5sDNPgGb2FXQyTBnXeSH+PAtpKESFD+LmHw3Ox3mN7e1Fg==}
     engines: {node: '>=12'}
     dependencies:
@@ -8436,9 +8471,9 @@ packages:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
       fast-text-encoding: 1.0.6
-      gaxios: 5.1.3
-      gcp-metadata: 5.3.0
-      gtoken: 6.1.2
+      gaxios: 5.1.3_encoding@0.1.13
+      gcp-metadata: 5.3.0_encoding@0.1.13
+      gtoken: 6.1.2_encoding@0.1.13
       jws: 4.0.0
       lru-cache: 6.0.0
     transitivePeerDependencies:
@@ -8454,13 +8489,13 @@ packages:
       node-forge: 1.3.1
     dev: false
 
-  /googleapis-common/6.0.4:
+  /googleapis-common/6.0.4_encoding@0.1.13:
     resolution: {integrity: sha512-m4ErxGE8unR1z0VajT6AYk3s6a9gIMM6EkDZfkPnES8joeOlEtFEJeF8IyZkb0tjPXkktUfYrE4b3Li1DNyOwA==}
     engines: {node: '>=12.0.0'}
     dependencies:
       extend: 3.0.2
-      gaxios: 5.1.3
-      google-auth-library: 8.9.0
+      gaxios: 5.1.3_encoding@0.1.13
+      google-auth-library: 8.9.0_encoding@0.1.13
       qs: 6.11.2
       url-template: 2.0.8
       uuid: 9.0.0
@@ -8469,12 +8504,12 @@ packages:
       - supports-color
     dev: false
 
-  /googleapis/122.0.0:
+  /googleapis/122.0.0_encoding@0.1.13:
     resolution: {integrity: sha512-n8Gt7j9LzSkhQEGPOrcLBKxllTvW/0v6oILuwszL/zqgelNsGJYXVqPJllgJJ6RM7maJ6T35UBeYqI6GQ/IlJg==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      google-auth-library: 8.9.0
-      googleapis-common: 6.0.4
+      google-auth-library: 8.9.0_encoding@0.1.13
+      googleapis-common: 6.0.4_encoding@0.1.13
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -8493,11 +8528,11 @@ packages:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: false
 
-  /gtoken/6.1.2:
+  /gtoken/6.1.2_encoding@0.1.13:
     resolution: {integrity: sha512-4ccGpzz7YAr7lxrT2neugmXQ3hP9ho2gcaityLVkiUecAiwiy60Ii8gRbZeOsXV19fYaRjgBSshs8kXw+NKCPQ==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      gaxios: 5.1.3
+      gaxios: 5.1.3_encoding@0.1.13
       google-p12-pem: 4.0.1
       jws: 4.0.0
     transitivePeerDependencies:
@@ -8613,6 +8648,13 @@ packages:
     dependencies:
       safer-buffer: 2.1.2
     dev: true
+
+  /iconv-lite/0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      safer-buffer: 2.1.2
+    dev: false
 
   /ieee754/1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -9485,6 +9527,20 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
+    dev: true
+
+  /node-fetch/2.6.12_encoding@0.1.13:
+    resolution: {integrity: sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      encoding: 0.1.13
+      whatwg-url: 5.0.0
+    dev: false
 
   /node-forge/1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -10761,7 +10817,6 @@ packages:
 
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-    dev: true
 
   /scheduler/0.23.0:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
