@@ -9,13 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import useSWRMutation from "swr/mutation";
 
 import { z } from "zod";
-import {
-  getPlayground,
-  updatePlayground,
-} from "./playground/[playgroundId]/action";
+import { updatePlayground } from "./playground/[playgroundId]/action";
 import {
   Form,
   FormControl,
@@ -29,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { mutate } from "swr";
-import { useParams } from "next/navigation";
+import { useProject } from "./hooks/use-project";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -44,6 +40,7 @@ export const PlaygroundEditDialog: React.FC<{
   onOpenChange: (isOpen: boolean) => void;
   playground: any;
 }> = ({ isOpen, onOpenChange, playground }) => {
+  const { data: project } = useProject();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,6 +52,7 @@ export const PlaygroundEditDialog: React.FC<{
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await updatePlayground(playground.id, data);
+    await mutate(`/api/project/${project?.id}/playgrounds`);
     await mutate(`/api/playground/${playground.id}`);
     form.reset();
     onOpenChange(false);

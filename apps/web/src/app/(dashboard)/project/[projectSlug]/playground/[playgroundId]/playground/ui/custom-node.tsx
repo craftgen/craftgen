@@ -29,6 +29,8 @@ import {
 import * as FlexLayout from "flexlayout-react";
 import { SocketNameType, useSocketConfig } from "../sockets";
 import { useMeasure } from "react-use";
+import { useToast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -153,17 +155,32 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const state = useSelector(props.data.actor, (state) => state);
   const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
   React.useEffect(() => {}, [sizes]);
+
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    const subs = props.data.actor.subscribe((state) => {
+      if (state.matches("error")) {
+        toast({
+          title: "Error",
+          description: state.context.error.message,
+        });
+      }
+    });
+    return subs.unsubscribe;
+  }, []);
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div className="relative" ref={nodeRef}>
           <Card
-            onDoubleClick={pinNode}
             className={cn(
               width && `w-[${width}px]`,
               height && `h-[${height}px]`,
-              selected && " border-red-500",
-              "flex flex-col flex-1 bg-muted"
+              selected && " border-primary",
+              "flex flex-col flex-1 bg-muted",
+              state.matches("running") && "border-green-300",
+              state.matches("error") && "border-red-600 border-2"
             )}
           >
             <CardHeader className="flex flex-row items-center justify-between">
@@ -179,7 +196,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
               </Button>
             </CardHeader>
 
-            <CardContent className="flex-1">
+            <CardContent className="flex-1" onDoubleClick={pinNode}>
               {/* controls */}
               {showControls &&
                 controls.map(([key, control]) => {

@@ -3,13 +3,10 @@ import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset, NodeEditor } from "rete";
 import { anySocket, triggerSocket } from "../../sockets";
-import { SelectControl } from "../../ui/control/control-select";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
-import { removeConnections } from "../../utis";
 import { SWRSelectControl } from "../../ui/control/control-swr-select";
 import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
-import { getPlayground } from "../../../action";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */

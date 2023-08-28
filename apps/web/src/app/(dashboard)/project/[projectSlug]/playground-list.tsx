@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { createPlayground, getPlaygrounds } from "./actions";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { PlaygroundEditDialog } from "./playground-edit-dialog";
+import { useProject } from "./hooks/use-project";
 
 const columns: ColumnDef<ResultOf<typeof getPlaygrounds>[number]>[] = [
   {
@@ -55,8 +56,11 @@ interface DataTableRowActionsProps<TData> {
 export function PlaygroundListTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const { data: project } = useProject();
   const [editDialog, setEditDialog] = React.useState(false);
-  const handleDelete = async () => {};
+  const handleDelete = async () => {
+    mutate(`/api/project/${project?.id}/playgrounds`);
+  };
 
   return (
     <>
@@ -96,13 +100,14 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
   projectId,
 }) => {
   const { data, isLoading } = useSWR(
-    ["playgrounds", projectId],
-    ([key, projectId]) => getPlaygrounds(projectId)
+    `/api/project/${projectId}/playgrounds`,
+    () => getPlaygrounds(projectId)
   );
   const params = useParams();
   const router = useRouter();
   const handleCreatePlayground = async () => {
     const newPlayground = await createPlayground({ project_id: projectId });
+    mutate(`/api/project/${projectId}/playgrounds`);
     router.push(
       `/project/${params.projectSlug}/playground/${newPlayground.id}`
     );

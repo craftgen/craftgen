@@ -84,7 +84,6 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
   }
 
   async execute() {
-    this.di.dataFlow?.reset();
     const incomers = this.di.graph.incomers(this.id);
 
     incomers.nodes().forEach(async (n) => {

@@ -152,7 +152,6 @@ export const createNodeInDB = async (params: {
 };
 
 export const getDataSets = async (projectId: string) => {
-  console.log({ projectId });
   return await db.query.dataSet.findMany({
     where: (dataSet, { eq }) => eq(dataSet.project_id, projectId),
   });

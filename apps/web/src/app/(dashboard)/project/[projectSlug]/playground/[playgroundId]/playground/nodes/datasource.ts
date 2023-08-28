@@ -1,12 +1,12 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
-import { SelectControl } from "../ui/control/control-select";
-import { databaseIdSocket, objectSocket } from "../sockets";
-import { TableControl } from "../ui/control/control-table";
+import { databaseIdSocket } from "../sockets";
 import { createMachine, assign, fromPromise, StateFrom } from "xstate";
 import { getDataSet, getDataSets, getDatasetPaginated } from "../../action";
 import { BaseNode, NodeData } from "./base";
 import { DataSourceControl } from "../ui/control/control-datasource";
+import { ButtonControl } from "../ui/control/control-button";
+import { SWRSelectControl } from "../ui/control/control-swr-select";
 
 const datasetMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QQIYBcWzGgdASwgBswBiCAewDsx9KA3cgaxtQy1wOIT3vIGN0eKgG0ADAF0x4xKAAO5WHjRDKMkAA9EAJgBsARhx6AnFoDsegBwBmUVb2WtAGhABPbaa2GLFvToAsotZWVjpaVgC+4c6smNg4AE5gKBAuJADCAPIAclkAomkAKlJq8orKVGqaCACsFkY4RnqieqamfiZ6Vm3Obghmojg6FqbV9jrVOjqm-jqR0eixuHxU1HzKlFBkVDQ8DMw4Mew4y5Sr61DcvALllFLFSCClSiqViLX1jc2t7Vqd3a6IHw4PwWCamYZGHQ2aojOYgQ5xE5nSAkPIADSKEhKCmeFQeVXeDSaLTaHS6fh6iBafhwtWqRj8ZiMRmsnT8cIRuESyVSfG5aDA9zkOJurwQfihg2Mehh42a1Ql1UpCCsE2B1kCoNMoh0OoskSiIEo5AgcDUnOxZRe+MQAFodMr7ThRC6XVZGl0rD8tByFkdOGBLbjVDbxU4AX1tcCjG1RMyLHHTDH2YbOQkkikg6LQ342s69O0jHrGZDRBSI1ojFYGlXqrZ6UZ6Xofam-YiVmA1jwoFnraAqq0LDhvDLgt5mqJpsqWjph42LH57FpF16hr62O3Tp2BRBe3j+4g-NVq1YtD4ugmfOZQdPAsOPPpapPTBFWxulvzu3uQwfxaMpY0sp1jKirKous4gjY3gwjqeoGuEQA */
@@ -126,20 +126,32 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
   }
 
   syncStateWithUI(state: StateFrom<typeof datasetMachine>) {
+    const store = this.di.store.getState();
     if (state.matches("ready") && !this.controls.datasourceId) {
       this.addControl(
+        "create_datasource",
+        new ButtonControl("Create Datasource", () => {})
+      );
+      this.addControl(
         "datasourceId",
-        new SelectControl<string>(
+        new SWRSelectControl(
           state.context.datasetId || undefined,
           "Select Data Source",
-          [
-            ...(state.context.datasets?.map((dataset) => ({
-              key: dataset.id,
-              value: dataset.name,
-            })) || []),
-          ],
-          (value) => {
-            this.actor.send({ type: "CONNECT", datasetId: value });
+          `/api/datasources/${store.projectId}`,
+          async () => {
+            return await getDataSets(store.projectId);
+          },
+          (data) => {
+            return data.map((datasource) => ({
+              key: datasource.id,
+              value: datasource.name,
+            }));
+          },
+          (value: string) => {
+            this.actor.send({
+              type: "CONNECT",
+              moduleId: value,
+            });
           }
         )
       );

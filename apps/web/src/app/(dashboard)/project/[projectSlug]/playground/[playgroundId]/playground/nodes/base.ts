@@ -45,6 +45,8 @@ export class BaseNode<
   width = 200;
   height = 200;
 
+  state: "idle" | "running" | "error" = "idle";
+
   constructor(
     label: string,
     di: DiContainer,
@@ -66,6 +68,7 @@ export class BaseNode<
     }, 1000);
 
     this.actor.subscribe((state) => {
+      this.state = state.value as any;
       saveDebounced(JSON.stringify(state));
     });
 

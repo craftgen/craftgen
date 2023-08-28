@@ -30,6 +30,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import useSWR from "swr";
 import { getPlaygrounds } from "../../actions";
+import { useSelector } from "@xstate/react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -153,14 +156,6 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
     `/api/playgrounds/${playground.project.id}`,
     () => getPlaygrounds(playground.project.id)
   );
-  // const getModuleData = useMemo(() => {
-  //   return data?.reduce((prev, curr) => {
-  //     return {
-  //       ...prev,
-  //       [curr.id]: curr,
-  //     };
-  //   }, {}) as ModuleMap;
-  // }, [isValidating, data]);
 
   const createEditor = useMemo(() => {
     return createEditorFunc(playground, store.current);
@@ -299,13 +294,28 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   }, [node]);
   if (!node) return null;
   const controls = Object.entries(node.controls);
+  const state = useSelector(node.actor, (state) => state);
+  if (!node) {
+    return null;
+  }
   return (
     <div className="h-full w-full flex flex-col flex-1">
-      <div className="flex flex-col h-full overflow-hidden ">
+      <div className="flex flex-col h-full overflow-hidden p-4">
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} />
         ))}
       </div>
+
+      {state.matches("error") && (
+        <div className="py-4 px-4">
+          <Alert variant={"destructive"} className="">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{state.context.error?.message}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+      <div></div>
     </div>
   );
 };
