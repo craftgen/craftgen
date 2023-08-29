@@ -1,4 +1,4 @@
-import { assign, createMachine } from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset, NodeEditor } from "rete";
@@ -16,6 +16,12 @@ const ModuleNodeMachine = createMachine({
       moduleId: string | null;
       inputs: Record<string, any>;
       outputs: Record<string, any>;
+      inputData: Record<string, any>;
+      outputData: Record<string, any>;
+      error: {
+        name: string;
+        message: string;
+      } | null;
     };
     events:
       | {
@@ -29,12 +35,16 @@ const ModuleNodeMachine = createMachine({
         }
       | {
           type: "RUN";
+          inputData: Record<string, any>;
         };
   },
   context: {
     moduleId: null,
     inputs: [],
     outputs: [],
+    error: null,
+    inputData: {},
+    outputData: {},
   },
   initial: "idle",
   states: {
@@ -66,11 +76,49 @@ const ModuleNodeMachine = createMachine({
           }),
         },
 
-        RUN: "running",
+        RUN: {
+          target: "running",
+          actions: assign({
+            inputData: ({ event }) => event.inputData,
+          }),
+        },
       },
     },
 
-    running: {},
+    running: {
+      invoke: {
+        src: "execute",
+        input: ({ context }) => ({
+          inputData: context.inputData,
+        }),
+        onDone: {
+          target: "connected",
+          actions: assign({
+            outputData: ({ event }) => event.output,
+          }),
+        },
+        onError: {
+          target: "error",
+          actions: assign({
+            error: ({ event }) => ({
+              name: event.data.name,
+              message: event.data.message,
+            }),
+          }),
+        },
+      },
+    },
+    error: {
+      on: {
+        RUN: {
+          target: "running",
+          actions: assign({
+            inputData: ({ event }) => event.inputData,
+            error: null,
+          }),
+        },
+      },
+    },
   },
 });
 
@@ -78,7 +126,15 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   module: null | Module = null;
 
   constructor(di: DiContainer, data: NodeData<typeof ModuleNodeMachine>) {
-    super("Module", di, data, ModuleNodeMachine, {});
+    super("Module", di, data, ModuleNodeMachine, {
+      actors: {
+        execute: fromPromise(async ({ input }) => {
+          console.log(input);
+          const val = await this.module?.exec(input.inputData);
+          return val;
+        }),
+      },
+    });
     const state = this.actor.getSnapshot();
     const store = this.di.store.getState();
     console.log("MOUDLEUA", state);
@@ -122,9 +178,19 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   }
 
   async execute(_: any, forward: (output: "trigger") => void) {
-    console.log("MODULE EXEECT");
+    const inputs = await this.di?.dataFlow?.fetchInputs(this.id);
+    console.log("MODULE EXEECT", inputs);
+    this.actor.send({
+      type: "RUN",
+      inputData: inputs,
+    });
 
-    forward("trigger");
+    this.actor.subscribe((state) => {
+      if (state.matches("complete")) {
+        console.log("COMPLETE", { message: state.context.message });
+        forward("trigger");
+      }
+    });
   }
 
   async update() {
@@ -176,10 +242,24 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   }
 
   async data(inputs: Record<string, any>) {
-    const data = await this.module?.exec(inputs);
-    console.log("ModuleNode data", data, this.module);
+    let state = this.actor.getSnapshot();
+    console.log("state", state, inputs);
+    if (this.inputs.trigger) {
+      this.actor.subscribe((newState) => {
+        state = newState;
+        console.log("state", newState, inputs);
+      });
+      while (state.matches("running")) {
+        console.log("waiting for complete");
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
 
-    return data || {};
+    console.log("Passing DATA ->", { message: state.context.message });
+
+    return {
+      message: state.context.message,
+    };
   }
 
   async serialize() {

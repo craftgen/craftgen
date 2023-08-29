@@ -113,6 +113,7 @@ const OpenAIFunctionCallMachine = createMachine({
           target: "running",
           actions: assign({
             inputs: ({ event }) => event.inputs,
+            error: null,
           }),
         },
       },
@@ -159,6 +160,7 @@ export class OpenAIFunctionCall extends BaseNode<
             model: state.context.model,
             user: await input.inputs.prompt[0],
           });
+          // const res = new Promise((resolve) => setTimeout(resolve, 5000));
           return res;
         }),
         check_api_key: fromPromise(async () => {

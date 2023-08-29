@@ -3,3 +3,4 @@ const IntegrationsPage = () => {
 };
 
 export default IntegrationsPage;
+
