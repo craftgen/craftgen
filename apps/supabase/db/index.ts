@@ -8,7 +8,7 @@ export * from "./schema";
 import { Session } from "@supabase/supabase-js";
 import * as jose from "jose";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.POSTGRES_URL;
 // const pool = new Pool({ connectionString: connectionString });
 const postgresSql = postgres(connectionString as string, { max: 1 });
 export const db = drizzle(postgresSql, { schema });
