@@ -15,10 +15,10 @@ export class DatabaseInsert extends BaseNode<
   {
     databaseId: typeof databaseIdSocket;
     data: typeof objectSocket;
-    exec: typeof triggerSocket;
+    trigger: typeof triggerSocket;
   },
   {
-    exec: typeof triggerSocket;
+    trigger: typeof triggerSocket;
   },
   {}
 > {

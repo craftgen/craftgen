@@ -130,16 +130,7 @@ const OpenAIFunctionCallMachine = createMachine({
 });
 
 export class OpenAIFunctionCall extends BaseNode<
-  typeof OpenAIFunctionCallMachine,
-  {
-    prompt: typeof stringSocket;
-    trigger: typeof triggerSocket;
-  },
-  { message: typeof stringSocket; trigger: typeof triggerSocket },
-  {
-    model: SelectControl<OPENAI_CHAT_MODELS_KEY>;
-    prompt: ClassicPreset.InputControl<"text">;
-  }
+  typeof OpenAIFunctionCallMachine
 > {
   height = 420;
   width = 280;

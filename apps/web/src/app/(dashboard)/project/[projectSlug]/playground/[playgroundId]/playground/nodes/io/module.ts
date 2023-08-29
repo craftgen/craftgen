@@ -140,9 +140,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     console.log("MOUDLEUA", state);
     if (state.matches("connected")) {
       console.log("ModuleNode", state);
-      const module = this.di.modules.findModule(state.context.moduleId);
-      this.module = module;
-      console.log("ModuleNode", module);
+      this.module = this.di.modules.findModule(state.context.moduleId);
     }
     this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
     this.addOutput(
@@ -195,9 +193,9 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
   async update() {
     const state = this.actor.getSnapshot();
-    const module = this.di.modules.findModule(state.context.moduleId);
-    if (this.module === module) return false;
-    this.module = module;
+    const newModule = this.di.modules.findModule(state.context.moduleId);
+    if (this.module === newModule) return false;
+    this.module = newModule;
 
     // await removeConnections(this.di.editor, this.id);
     if (this.module) {

@@ -6,10 +6,9 @@ import {
   createPseudoconnection,
 } from "rete-connection-plugin";
 import { getElementCenter } from "rete-render-utils";
-import { Position } from "./types";
 import { findNearestPoint, isInsideRect } from "./math";
 import { getNodeRect } from "./utils";
-import { Schemes } from "../types";
+import { Schemes, Position } from "../types";
 import { Socket } from "../sockets";
 
 export { CustomConnection } from "./custom-connection";

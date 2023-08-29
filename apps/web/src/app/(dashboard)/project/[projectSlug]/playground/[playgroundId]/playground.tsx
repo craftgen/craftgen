@@ -33,6 +33,7 @@ import { getPlaygrounds } from "../../actions";
 import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { NodeProps } from "./playground/types";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -281,7 +282,7 @@ const InspectorWindow: React.FC<{}> = ({}) => {
 };
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   const di = useCraftStore((state) => state.di);
-  const node = di?.editor.getNode(nodeId);
+  const node = di?.editor.getNode(nodeId) as NodeProps;
   const [updateCounter, setUpdateCounter] = useState(0);
   useEffect(() => {
     if (!node) return;
@@ -292,12 +293,8 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
     });
     return sub.unsubscribe;
   }, [node]);
-  if (!node) return null;
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
-  if (!node) {
-    return null;
-  }
   return (
     <div className="h-full w-full flex flex-col flex-1">
       <div className="flex flex-col h-full overflow-hidden p-4">
@@ -315,7 +312,6 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
           </Alert>
         </div>
       )}
-      <div></div>
     </div>
   );
 };

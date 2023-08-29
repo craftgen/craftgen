@@ -57,7 +57,7 @@ export class Modules {
     nodes: Schemes["Node"][],
     inputData: Record<string, any>
   ) {
-    const inputNodes = nodes.filter(Modules.isInputNode);
+    const inputNodes = nodes.filter(Modules.isInputNode) as Input[];
     console.log("inject", inputNodes);
 
     inputNodes.forEach((node) => {
@@ -88,7 +88,7 @@ export class Modules {
     nodes: Schemes["Node"][],
     dataFlow: DataflowEngine<Schemes>
   ) {
-    const outputNodes = nodes.filter(Modules.isOutputNode);
+    const outputNodes = nodes.filter(Modules.isOutputNode) as Output[];
     const outputs = await Promise.all(
       outputNodes.map(async (outNode) => {
         const data = await dataFlow.fetch(outNode.id);
@@ -134,20 +134,16 @@ export class Modules {
   public static getPorts(editor: NodeEditor<Schemes>) {
     const nodes = editor.getNodes();
     console.log("getPorts", nodes);
-    const inputs = nodes
-      .filter(Modules.isInputNode)
-      .map(
-        (n) =>
-          (n.controls.name as ClassicPreset.InputControl<"text">)
-            .value as string
-      );
-    const outputs = nodes
-      .filter(Modules.isOutputNode)
-      .map(
-        (n) =>
-          (n.controls.name as ClassicPreset.InputControl<"text">)
-            .value as string
-      );
+    const inputNodes = nodes.filter(Modules.isInputNode) as Input[];
+    const inputs = inputNodes.map(
+      (n) =>
+        (n.controls.name as ClassicPreset.InputControl<"text">).value as string
+    );
+    const outputNodes = nodes.filter(Modules.isOutputNode) as Output[];
+    const outputs = outputNodes.map(
+      (n) =>
+        (n.controls.name as ClassicPreset.InputControl<"text">).value as string
+    );
     return {
       inputs,
       outputs,

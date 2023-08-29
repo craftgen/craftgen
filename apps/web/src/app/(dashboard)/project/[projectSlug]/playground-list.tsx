@@ -4,7 +4,7 @@ import useSWR, { mutate } from "swr";
 import { createPlayground, deletePlayground, getPlaygrounds } from "./actions";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/data-table";
 import { ColumnDef, Row } from "@tanstack/react-table";
@@ -23,7 +23,9 @@ import { PlaygroundEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
 import { useToast } from "@/components/ui/use-toast";
 
-const columns: ColumnDef<ResultOf<typeof getPlaygrounds>[number]>[] = [
+type Playground = ResultOf<typeof getPlaygrounds>[number];
+
+const columns: ColumnDef<Playground>[] = [
   {
     header: "Name",
     accessorKey: "name",
@@ -47,14 +49,14 @@ const columns: ColumnDef<ResultOf<typeof getPlaygrounds>[number]>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <PlaygroundListTableRowActions row={row} />,
+    cell: ({ row }) => <PlaygroundListTableRowActions<Playground> row={row} />,
   },
 ];
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
-export function PlaygroundListTableRowActions<TData>({
+export function PlaygroundListTableRowActions<TData extends { id: string }>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const { data: project } = useProject();

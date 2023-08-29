@@ -44,16 +44,6 @@ export const createNewProject = async (
       userId: session.data.session?.user.id!,
       role: "owner",
     });
-    await tx.insert(variable).values([
-      {
-        project_id: newProject[0].id,
-        key: "OPENAI_API_KEY",
-      },
-      {
-        project_id: newProject[0].id,
-        key: "REPLICATE_API_KEY",
-      },
-    ]);
 
     return newProject[0];
   });

@@ -54,7 +54,7 @@ export const variable = pgTable(
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     key: text("key").notNull(),
-    value: text("value"),
+    value: text("value").notNull(),
   },
   (t) => ({
     key: unique().on(t.project_id, t.key),

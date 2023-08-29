@@ -127,6 +127,7 @@ export async function createEditor(
 
   // const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
   //   duration: 500,
+  //     timingFunction: easeInOut
   //   timingFunction: (t) => t,
   //   async onTick() {
   //     await AreaExtensions.zoomAt(area, editor.getNodes());
@@ -147,7 +148,6 @@ export async function createEditor(
   area.use(arrange);
 
   AreaExtensions.simpleNodesOrder(area);
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMagneticConnection(connection, {
     async createConnection(from, to) {

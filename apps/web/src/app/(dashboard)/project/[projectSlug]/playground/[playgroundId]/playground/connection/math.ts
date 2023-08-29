@@ -1,4 +1,4 @@
-import { Position, Rect } from "./types";
+import { Position, Rect } from "../types";
 
 export function findNearestPoint<T extends Position>(
   points: T[],

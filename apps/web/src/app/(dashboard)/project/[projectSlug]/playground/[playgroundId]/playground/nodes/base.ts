@@ -33,9 +33,9 @@ export class BaseNode<
     [key in string]?: Socket;
   },
   Controls extends {
-    [key in string]?: Control;
+    [key in string]?: Control & { name?: string };
   } = {
-    [key in string]?: Control;
+    [key in string]?: Control & { name?: string };
   }
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   public di: DiContainer;

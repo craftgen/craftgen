@@ -66,3 +66,6 @@ export type NodeProps =
 
 export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;
+
+export type Position = { x: number; y: number };
+export type Rect = { left: number; top: number; right: number; bottom: number };

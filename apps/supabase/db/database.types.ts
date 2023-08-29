@@ -384,19 +384,19 @@ export interface Database {
           id: string
           key: string
           project_id: string
-          value: string | null
+          value: string
         }
         Insert: {
           id?: string
           key: string
           project_id: string
-          value?: string | null
+          value: string
         }
         Update: {
           id?: string
           key?: string
           project_id?: string
-          value?: string | null
+          value?: string
         }
         Relationships: [
           {
