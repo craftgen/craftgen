@@ -2,7 +2,6 @@ import * as React from "react";
 import tw from "tailwind-styled-components";
 
 import { ClassicScheme, Presets } from "rete-react-plugin";
-import { socketConfig } from "../sockets";
 const { useConnection } = Presets.classic;
 
 const Svg = tw.svg`

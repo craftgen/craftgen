@@ -1,7 +1,7 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import { NodeEditor } from "rete";
+import { ClassicPreset, NodeEditor } from "rete";
 import { AreaPlugin, AreaExtensions } from "rete-area-plugin";
 import {
   ConnectionPlugin,
@@ -27,7 +27,7 @@ import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
 import { Schemes } from "./types";
-import { CustomConnection } from "./ui/custom-connection";
+import { CustomConnection } from "./connection/custom-connection";
 import { importEditor } from "./io";
 import { getPlayground } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
@@ -37,6 +37,7 @@ import { getControl } from "./control";
 import ELK from "elkjs/lib/elk.bundled.js";
 import { Modules } from "./modules";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
+import { useMagneticConnection } from "./connection";
 const elk = new ELK();
 
 type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
@@ -146,6 +147,37 @@ export async function createEditor(
   area.use(arrange);
 
   AreaExtensions.simpleNodesOrder(area);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useMagneticConnection(connection, {
+    async createConnection(from, to) {
+      if (from.side === to.side) return;
+      const [source, target] = from.side === "output" ? [from, to] : [to, from];
+      const sourceNode = editor.getNode(source.nodeId);
+      const targetNode = editor.getNode(target.nodeId);
+
+      await editor.addConnection(
+        new ClassicPreset.Connection(
+          sourceNode,
+          source.key as never,
+          targetNode,
+          target.key as never
+        )
+      );
+    },
+    display(from, to) {
+      return from.side !== to.side;
+    },
+    offset(socket, position) {
+      const socketRadius = 10;
+
+      return {
+        x:
+          position.x + (socket.side === "input" ? -socketRadius : socketRadius),
+        y: position.y,
+      };
+    },
+  });
 
   AreaExtensions.showInputControl(area);
   const setUI = async () => {

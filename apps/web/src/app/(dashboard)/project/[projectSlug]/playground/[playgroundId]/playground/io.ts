@@ -2,7 +2,7 @@ import { NodeEditor, NodeId } from "rete";
 import { NodeProps, NodeTypes, Schemes } from "./types";
 import * as Nodes from "./nodes";
 import { DiContainer } from "./editor";
-import { Connection } from "./connection";
+import { Connection } from "./connection/connection";
 import { createNodeInDB, getNodeData } from "../action";
 
 export async function createNode({

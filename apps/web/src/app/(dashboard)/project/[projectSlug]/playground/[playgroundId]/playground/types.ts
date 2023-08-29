@@ -1,5 +1,5 @@
 import { GetSchemes } from "rete";
-import { Connection } from "./connection";
+import { Connection } from "./connection/connection";
 import {
   Log,
   OpenAIFunctionCall,
