@@ -46,10 +46,6 @@ const links = [
     href: (projectSlug: string) => `/project/${projectSlug}/articles`,
   },
   {
-    name: "Playground",
-    href: (projectSlug: string) => `/project/${projectSlug}/playground`,
-  },
-  {
     name: "Settings",
     href: (projectSlug: string) => `/project/${projectSlug}/settings`,
   },

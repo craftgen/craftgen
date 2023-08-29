@@ -82,6 +82,10 @@ export const createPlayground = async ({
   return newPlayground[0];
 };
 
+export const deletePlayground = async ({ id }: { id: string }) => {
+  return await db.delete(playground).where(eq(playground.id, id));
+};
+
 export const getPlaygrounds = async (projectId: string) => {
   console.log("PROEJCT>", projectId);
   return await db.query.playground.findMany({

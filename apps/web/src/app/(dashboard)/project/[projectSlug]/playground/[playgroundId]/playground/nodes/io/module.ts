@@ -9,7 +9,7 @@ import { SWRSelectControl } from "../../ui/control/control-swr-select";
 import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
 
 const ModuleNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
   id: "ModuleNode",
   types: {} as {
     context: {
@@ -26,6 +26,9 @@ const ModuleNodeMachine = createMachine({
           type: "SET_CONFIG";
           inputs: Record<string, any>;
           outputs: Record<string, any>;
+        }
+      | {
+          type: "RUN";
         };
   },
   context: {
@@ -45,6 +48,7 @@ const ModuleNodeMachine = createMachine({
         },
       },
     },
+
     connected: {
       on: {
         SET_MODULE: {
@@ -53,6 +57,7 @@ const ModuleNodeMachine = createMachine({
             moduleId: ({ event }) => event.moduleId,
           }),
         },
+
         SET_CONFIG: {
           target: "connected",
           actions: assign({
@@ -60,8 +65,12 @@ const ModuleNodeMachine = createMachine({
             outputs: ({ event }) => event.outputs,
           }),
         },
+
+        RUN: "running",
       },
     },
+
+    running: {},
   },
 });
 

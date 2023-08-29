@@ -133,7 +133,11 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
     return {
       object: flatten,
-      schema,
+      schema: {
+        name: state.context.name,
+        description: state.context.description,
+        ...schema,
+      },
     };
   }
 

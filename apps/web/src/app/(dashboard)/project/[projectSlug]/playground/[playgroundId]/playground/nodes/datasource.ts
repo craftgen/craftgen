@@ -19,7 +19,6 @@ const datasetMachine = createMachine({
   types: {} as {
     context: {
       datasetId: string | null;
-      datasets?: any[];
       dataset?: any;
       processedDataIds?: string[];
       cursor?: string | null;
@@ -37,29 +36,14 @@ const datasetMachine = createMachine({
           type: "CREATE";
         };
   },
-  initial: "idle",
+  initial: "ready",
   states: {
-    idle: {
-      invoke: {
-        src: "fetchDataSets",
-        onDone: {
-          target: "ready",
-          actions: assign({
-            datasets: ({ event }) => {
-              return event.output;
-            },
-          }),
-        },
-      },
-    },
-
     ready: {
       on: {
         CONNECT: {
           target: "connecting",
           actions: assign({
             datasetId: ({ event }) => event.datasetId,
-            datasets: undefined,
           }),
         },
         CREATE: "creating",
@@ -101,11 +85,6 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
   constructor(di: DiContainer, data: NodeData<typeof datasetMachine>) {
     super("DataSource", di, data, datasetMachine, {
       actors: {
-        fetchDataSets: fromPromise(async () => {
-          const datasets = await getDataSets(data.project_id);
-          console.log("datasets", { datasets });
-          return datasets;
-        }),
         fetchDataset: fromPromise(async ({ input }) => {
           console.log("fetching data", input);
           const data = await getDataSet(input.datasetId);
@@ -130,7 +109,11 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
     if (state.matches("ready") && !this.controls.datasourceId) {
       this.addControl(
         "create_datasource",
-        new ButtonControl("Create Datasource", () => {})
+        new ButtonControl("Create Datasource", () => {
+          this.actor.send({
+            type: "CREATE",
+          });
+        })
       );
       this.addControl(
         "datasourceId",
@@ -150,7 +133,7 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
           (value: string) => {
             this.actor.send({
               type: "CONNECT",
-              moduleId: value,
+              datasetId: value,
             });
           }
         )
@@ -158,6 +141,7 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
     }
     if (state.matches("connected")) {
       if (this.controls.datasourceId) {
+        this.removeControl("create_datasource");
         this.removeControl("datasourceId");
       }
 
