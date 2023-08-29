@@ -213,6 +213,7 @@ export const ExistingTokenList: React.FC<{
     <div className="">
       {tokens.map((token, index) => (
         <TokenItem
+          key={`token-${token.id}`}
           token={token}
           isOpen={edit === token.id}
           setOpen={(value) => setEdit(value)}
