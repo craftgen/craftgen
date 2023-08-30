@@ -29,9 +29,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
           <ModeToggle />
         </div>
       </div>
-      <div>
-        <ProjectNavbar session={session} />
-      </div>
+      <div>{params.projectSlug && <ProjectNavbar session={session} />}</div>
     </div>
   );
 };

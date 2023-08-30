@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useEffect, useRef } from "react";
 import { createNewProject, getSites } from "./actions";
 import {
   Select,
@@ -29,9 +29,10 @@ import { newProjectSchema, normalizeUrl } from "./shared";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@seocraft/supabase/db/database.types";
-import Script from "next/script";
 import { BASE_URL } from "@/lib/constants";
 import { Icons } from "@/components/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "lucide-react";
 
 export const NewProjectForm: React.FC<PropsWithChildren> = ({
   children,
@@ -43,7 +44,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
     defaultValues: {
       name: "",
       slug: "",
-      site: "",
+      site: undefined,
     },
   });
   const router = useRouter();
@@ -67,35 +68,22 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
       form.setValue("name", normalizeUrl(site));
     }
   }, [site, form]);
-  const { data, isLoading, error } = useSWR("sites", getSites);
+  const { data, isLoading, error, mutate } = useSWR("sites", getSites);
   const supabase = createClientComponentClient<Database>();
   const handleConnectGoogle = async (response: any) => {
-    const res = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${BASE_URL}/api/auth/callback?redirect=false`,
+        redirectTo: `${BASE_URL}/api/auth/callback?redirect=true`,
         queryParams: {
           access_type: "offline",
           prompt: "consent",
         },
         scopes:
           "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
-        skipBrowserRedirect: true,
       },
     });
-    if (res.data.url) {
-      window.open(
-        res.data.url,
-        "popUpWindow",
-        "height=500,width=500,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes"
-      );
-    }
   };
-  useEffect(() => {
-    if (window) {
-      (window as any).handleConnectGoogle = handleConnectGoogle;
-    }
-  }, []);
 
   return (
     <Form {...form}>
@@ -109,15 +97,27 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   {error ? (
-                    <Button
-                      className="w-full  py-2"
-                      variant={"outline"}
-                      type="button"
-                      onClick={handleConnectGoogle}
-                    >
-                      <Icons.searchConsole className="w-8 h-8 py-2"/>
-                      Connect Google Search Console
-                    </Button>
+                    <>
+                      <Alert variant={"warning"}>
+                        <Link className="h-4 w-4 " />
+                        <AlertTitle>
+                          You haven't connected Google Search Console
+                        </AlertTitle>
+                        <AlertDescription>
+                          Connect to Google Search Console to sync your sites by
+                          clicking the button below.
+                        </AlertDescription>
+                      </Alert>
+                      <Button
+                        className="w-full  py-2"
+                        variant={"outline"}
+                        type="button"
+                        onClick={handleConnectGoogle}
+                      >
+                        <Icons.searchConsole className="w-8 h-8 py-2" />
+                        Connect Google Search Console
+                      </Button>
+                    </>
                   ) : (
                     <SelectTrigger className="min-w-fit">
                       <SelectValue placeholder="Select your website" />
@@ -165,9 +165,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
               <FormControl>
                 <Input placeholder="seocraft" disabled {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>This is your public slug name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

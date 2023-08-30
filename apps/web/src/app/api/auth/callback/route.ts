@@ -17,12 +17,10 @@ export async function GET(request: NextRequest) {
     const supabase = createRouteHandlerClient<Database>({ cookies });
     await supabase.auth.exchangeCodeForSession(code);
   }
-  const redirect = Boolean(requestUrl.searchParams.get("redirect"));
+  const redirect = requestUrl.searchParams.get("redirect");
 
   if (!redirect) {
     return NextResponse.redirect(`${BASE_URL}/dashboard`);
   }
-  return NextResponse.redirect(`${BASE_URL}/you-can-close-this-now`);
-
-  // URL to redirect to after sign in process completes
+  return NextResponse.redirect(`${BASE_URL}/project/new`);
 }
