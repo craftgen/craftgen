@@ -4,7 +4,7 @@ import useSWR, { mutate } from "swr";
 import { createPlayground, deletePlayground, getPlaygrounds } from "./actions";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/data-table";
 import { ColumnDef, Row } from "@tanstack/react-table";
@@ -22,6 +22,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { PlaygroundEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
 import { useToast } from "@/components/ui/use-toast";
+import { PlaygroundCreateDialog } from "./playground-create-dialog";
 
 type Playground = ResultOf<typeof getPlaygrounds>[number];
 
@@ -107,32 +108,19 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
     `/api/project/${projectId}/playgrounds`,
     () => getPlaygrounds(projectId)
   );
-  const params = useParams();
-  const router = useRouter();
-  const { toast } = useToast();
-  const handleCreatePlayground = async () => {
-    const t = toast({
-      title: "Creating playground...",
-      description: "This may take a few seconds.",
-    });
-
-    const newPlayground = await createPlayground({ project_id: projectId });
-    mutate(`/api/project/${projectId}/playgrounds`);
-    router.push(
-      `/project/${params.projectSlug}/playground/${newPlayground.id}`
-    );
-  };
+  const [isOpen, setOpen] = useState(false);
   return (
     <div className="py-4">
       <div className="flex justify-between items-center py-4">
         <h3>Playgrounds</h3>
         <div>
-          <Button onClick={handleCreatePlayground} size={"sm"}>
+          <Button onClick={() => setOpen(true)} size={"sm"}>
             Create Playground
           </Button>
         </div>
       </div>
       <div>{data && <DataTable columns={columns} data={data!} />}</div>
+      <PlaygroundCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
     </div>
   );
 };

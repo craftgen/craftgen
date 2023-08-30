@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 
-import { PropsWithChildren, useEffect, useRef } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { createNewProject, getSites } from "./actions";
 import {
   Select,

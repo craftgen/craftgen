@@ -10,7 +10,7 @@ import {
   Metric,
   Text,
 } from "@tremor/react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
   const flatten = useMemo(() => {
@@ -30,6 +30,15 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
   }, [metrics]);
+
+  const valueFormatterNumber = useCallback(
+    (digit: number) =>
+      Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(digit),
+    []
+  );
 
   const mata = useMemo(() => {
     return flatten.reduce(
@@ -133,7 +142,7 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
         <Card key={item.title}>
           <Flex alignItems="start">
             <Text>{item.title}</Text>
-            <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
+            <BadgeDelta deltaType={item.deltaType}>{valueFormatterNumber(item.delta)}</BadgeDelta>
           </Flex>
           <Flex
             className="space-x-3 truncate"
@@ -163,5 +172,5 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
     </Grid>
   );
 };
-const valueFormatterNumber = (number: number) =>
-  `${Intl.NumberFormat("us").format(number).toString()}`;
+// const valueFormatterNumber = (number: number) =>
+//   `${Intl.NumberFormat("us").format(number).toString()}`;
