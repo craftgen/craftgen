@@ -142,7 +142,9 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
         <Card key={item.title}>
           <Flex alignItems="start">
             <Text>{item.title}</Text>
-            <BadgeDelta deltaType={item.deltaType}>{valueFormatterNumber(item.delta)}</BadgeDelta>
+            <BadgeDelta deltaType={item.deltaType}>
+              {valueFormatterNumber(item.delta)}
+            </BadgeDelta>
           </Flex>
           <Flex
             className="space-x-3 truncate"

@@ -64,8 +64,14 @@ export const deleteProjectToken = async (params: { id: string }) => {
 
 export const createPlayground = async ({
   project_id,
+  name,
+  description,
+  template,
 }: {
   project_id: string;
+  name: string;
+  description?: string;
+  template?: string;
 }) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
@@ -73,7 +79,8 @@ export const createPlayground = async ({
   const newPlayground = await db
     .insert(playground)
     .values({
-      name: "New Playground",
+      name,
+      description,
       project_id,
       edges: [],
       nodes: [],
