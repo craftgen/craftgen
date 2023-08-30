@@ -17,13 +17,14 @@ export const LoginForm = () => {
       }}
       redirectTo={`${BASE_URL}/api/auth/callback`}
       queryParams={{
-        access_type: 'offline',
+        access_type: "offline",
+        prompt: "consent",
       }}
       providerScopes={{
-        google: 'https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly',
+        google:
+          "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
       }}
       providers={["google"]}
-
     />
   );
 };
