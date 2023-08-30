@@ -101,7 +101,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
                       <Alert variant={"warning"}>
                         <Link className="h-4 w-4 " />
                         <AlertTitle>
-                          You haven't connected Google Search Console
+                          You haven&apos;t connected Google Search Console
                         </AlertTitle>
                         <AlertDescription>
                           Connect to Google Search Console to sync your sites by
