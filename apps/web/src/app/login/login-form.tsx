@@ -4,7 +4,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
 import { BASE_URL } from "@/lib/constants";
 import { Database } from "@seocraft/supabase/db/database.types";
-import { useEffect } from "react";
 
 export const LoginForm = () => {
   const supabase = createClientComponentClient<Database>();
@@ -16,14 +15,14 @@ export const LoginForm = () => {
         theme: ThemeSupa,
       }}
       redirectTo={`${BASE_URL}/api/auth/callback`}
-      queryParams={{
-        access_type: "offline",
-        prompt: "consent",
-      }}
-      providerScopes={{
-        google:
-          "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
-      }}
+      // queryParams={{
+      //   access_type: "offline",
+      //   prompt: "consent",
+      // }}
+      // providerScopes={{
+      //   google:
+      //     "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
+      // }}
       providers={["google"]}
     />
   );

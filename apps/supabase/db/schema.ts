@@ -27,7 +27,7 @@ export const userRelations = relations(user, ({ many }) => ({
 export const project = pgTable("project", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  site: text("site").notNull().unique(),
+  site: text("site").unique(),
   slug: text("slug").notNull().unique(),
 });
 

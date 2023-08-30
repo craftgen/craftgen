@@ -13,6 +13,6 @@ export const normalizeUrl = (url: string) => {
 
 export const newProjectSchema = z.object({
   name: z.string().min(2).max(50),
-  site: z.string().url(),
+  site: z.string().url().optional(),
   slug: z.string().min(2).max(50),
 });

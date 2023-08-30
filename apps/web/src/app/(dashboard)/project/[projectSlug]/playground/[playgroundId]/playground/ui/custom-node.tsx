@@ -30,7 +30,7 @@ import * as FlexLayout from "flexlayout-react";
 import { SocketNameType, useSocketConfig } from "../sockets";
 import { useMeasure } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastAction } from "@radix-ui/react-toast";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -161,10 +161,23 @@ export function CustomNode<Scheme extends ClassicScheme>(
   React.useEffect(() => {
     const subs = props.data.actor.subscribe((state) => {
       if (state.matches("error")) {
-        toast({
-          title: "Error",
-          description: state.context.error.message,
-        });
+        if (state.context.error.name === "") {
+          toast({
+            title: "Error",
+            description: state.context.error.message,
+            action: (
+              <ToastAction altText={"go to settings"}>
+                {" "}
+                Go to Settings{" "}
+              </ToastAction>
+            ),
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: state.context.error.message,
+          });
+        }
       }
     });
     return subs.unsubscribe;

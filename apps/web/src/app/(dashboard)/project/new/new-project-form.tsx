@@ -27,6 +27,11 @@ import {
 import { slugify } from "@/lib/string";
 import { newProjectSchema, normalizeUrl } from "./shared";
 import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@seocraft/supabase/db/database.types";
+import Script from "next/script";
+import { BASE_URL } from "@/lib/constants";
+import { Icons } from "@/components/icons";
 
 export const NewProjectForm: React.FC<PropsWithChildren> = ({
   children,
@@ -62,7 +67,35 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
       form.setValue("name", normalizeUrl(site));
     }
   }, [site, form]);
-  const { data, isLoading } = useSWR("sites", getSites);
+  const { data, isLoading, error } = useSWR("sites", getSites);
+  const supabase = createClientComponentClient<Database>();
+  const handleConnectGoogle = async (response: any) => {
+    const res = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${BASE_URL}/api/auth/callback?redirect=false`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+        scopes:
+          "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
+        skipBrowserRedirect: true,
+      },
+    });
+    if (res.data.url) {
+      window.open(
+        res.data.url,
+        "popUpWindow",
+        "height=500,width=500,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes"
+      );
+    }
+  };
+  useEffect(() => {
+    if (window) {
+      (window as any).handleConnectGoogle = handleConnectGoogle;
+    }
+  }, []);
 
   return (
     <Form {...form}>
@@ -75,9 +108,21 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
               <FormLabel>Site</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="min-w-fit">
-                    <SelectValue placeholder="Select your website" />
-                  </SelectTrigger>
+                  {error ? (
+                    <Button
+                      className="w-full  py-2"
+                      variant={"outline"}
+                      type="button"
+                      onClick={handleConnectGoogle}
+                    >
+                      <Icons.searchConsole className="w-8 h-8 py-2"/>
+                      Connect Google Search Console
+                    </Button>
+                  ) : (
+                    <SelectTrigger className="min-w-fit">
+                      <SelectValue placeholder="Select your website" />
+                    </SelectTrigger>
+                  )}
                 </FormControl>
                 <SelectContent>
                   {data?.map((site) => (
