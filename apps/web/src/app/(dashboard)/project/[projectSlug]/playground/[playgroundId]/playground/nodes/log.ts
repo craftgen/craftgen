@@ -21,7 +21,7 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       "trigger",
       new ClassicPreset.Input(triggerSocket, "Exec", true)
     );
-    this.addInput("message", new ClassicPreset.Input(anySocket, "Data"));
+    this.addInput("data", new ClassicPreset.Input(anySocket, "Data"));
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
   }
 
@@ -33,9 +33,11 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       await this.di.dataFlow?.fetch(n.id);
     });
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-      message: string[];
+      data: Promise<any>[];
     };
-    console.log(inputs.message);
+
+    const inputData = await Promise.all(inputs.data);
+    console.log(inputData);
     forward("trigger");
   }
 

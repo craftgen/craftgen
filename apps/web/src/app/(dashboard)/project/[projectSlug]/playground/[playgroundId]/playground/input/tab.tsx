@@ -69,6 +69,10 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
   });
   const onSubmit = async (data: any) => {
     console.log(data);
+    input.actor.send({
+      type: "SET_VALUE",
+      values: data,
+    });
     input.di.engine?.execute(input.id);
   };
   useEffect(() => {

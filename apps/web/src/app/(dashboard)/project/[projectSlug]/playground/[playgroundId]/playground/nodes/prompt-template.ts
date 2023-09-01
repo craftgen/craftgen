@@ -13,7 +13,7 @@ type Data = {
 };
 
 const PromptTemplateNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYALAGYKARmUBOKwA4Lzqx4e2ArAHYANCAAnoi+DsoUZg4OFo5mZlbeAGxJAL6pgfzY+IQk5GziDGCoGKgUIuQAZuiomOUY2UJ5YrRgktJy+kpqGkbIOnoGRqYIljb2Tq7unj4BwYhuDhS+ylY+iW7O4VbpmQ2CuRUtdPQyABakzDC9SCD9ul2GtyNjdo4ubh5WXn6BIaPKCK+CzRXxJVarbzOXy+XZ3fY5YSiNg4ILIKRQU4XK5gG7aB5DZ6IBzebwUbyA5TgpK+KyWJK2P6IKxJZzLEEOJIWPy2NyxCxwrIHJH5Cio9FXejGWA4UWkSqEVAACnsygAlPQhYjmii0Ri8XcBo9hohnMoyVDvCSqbZXGDvEyEM5bBQOZyrObeTTVoKEU0jmxiqUsZdrmo+kbCaARmaLc4rRSGXakg75ggQUDVqqnGYqQkBRl4QJtQGKEGavRUGBmBBigb7oMWCaEOCybY6TCXMpbLmkmZHSzfK7vB7nAzYmbfLZfcX-ciKFXSBAgowWAVpLx6rPDvPF8v2lxOgYNPXI02iQgKRYKFz3A5c95c2ZU-9SeMqVb4wlopYZ40d6Ke4ruWZRHNUtRbv+IqUEBB6yPI3TqOGtwNsaF7JEOFK+GaWaxDCSSOmENjgve3jchYFi5lYBZ7Nu0FsEBIY4qeBLntGiAYeSyjYYCax4WCjquC6ExmLG3YOGOaSFlqc6AWAS4rlWNZ1sh+KNk87GjPEbwUTELJmCsDgwo6fhkgZlFmCmRl+BR6SFsw6C1vAKF+gBhARqxGkmIgeAEWmeBktEQXBSFOzSa59HUK0Hnqc2lGEVCN5xNRyiUZMsLhXROpinqVwxWhmkxEsvh+O4j5gnSPaOhYKyRBCWw1Ws0IZbRUHZSB+VRt5CBTkkFDcRCGwWEk95zP8IIulR2Z0nmNFFm1pZAZ1bHdS4Zj9XSlE0hJlhhGNiCshEfZhN47YpMo0LOHZqRAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYzAZgoBGZQE5LANktmA7E5tuAHO4A0IACeiD7etpYArN4u9gAsNt4RjgC+yQH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCBbWdo4u7p4+-kGIET4UyjZJlvbuljZOZjap6XWC2WVNdPQyABakzDDdSCC9uh2Gt0Mjtg7Orh5evm4BwcPKZQUNyxexgmxrDzeexOby7O77LLCURsHCBZBSKCnC5XMA3bQPAbPRAw2IUVbeWKwxzRGJ-RBOJxkpxrCLKCIRMzQyyueEZA7I3IUNEYq70YywHBC0jlQioAAUdmUAEp6PykY1UejMfi7n1HoNEN5lGTYpTnFYbJYfFb6QhvDYKKCwW4vJYHCMdmkEQINUc2IVitjLtc1D19UTQENYm4ge83JZYpZfPY3CC7YnTR4IpmzFsbFY+YiGv6KIGqvRUGBmBBCrr7v0WIbhkyKEzlEyEysQTY7Zy3BQIst7GMYTyvXtfSWUWWihWIORSPWI03iQgY3HHAmkym07E7UyzBR7B73k4PTYJz76ocZ1XSBBAowWHlpLxalPb0L74-Wlx2gYGjLoSq5RgyVKLCCZjKDyJoeGaB4Om8axUiO3i+BEsRFp+gqUD+T7liURyVNUH43rhbD4X+sjyJ06hhrcDYGmuMbWGCYLGg4EKTH2oJOhE548majLnnC3rqtO35gA+T7nCGeIMQSjZPGB9omk65pbBs1oOpYdrGkeAlWJhVpmPECTYeRmoUPhjCLsBynNoyEQUBYebOMo25MnpswIFEzICco3gbJ4ebeG4lkCtZtlVjWdaKXqIEqSYDJOC5blMkkCScsFdpmmE0Huh4KHbnEqTesw6C1vAjHFl+hDhklzZ4E4dp4C57GdV19jRJFfozvkjWOSxZh9soR5LEkgLQkyjhUn1kmUCKmJDcxqn2FEbZGR4rhaVydoeE4tixAJLJcrNC31QGc6oKtkYpQg1oufMuleJsPiOH2rpOrtnlcjmbg5pdFE2dJj53aBD0TIOWxslyxnofuvlpvYMNWLEsQwWY8wY+VyRAA */
   id: "prompt-template",
   initial: "idle",
   context: {
@@ -21,6 +21,7 @@ const PromptTemplateNodeMachine = createMachine({
     rendered: "",
     variables: [],
     inputs: {},
+    error: null,
   },
   types: {
     context: {} as {
@@ -28,6 +29,10 @@ const PromptTemplateNodeMachine = createMachine({
       rendered: string;
       variables: string[];
       inputs: Record<string, any[]>;
+      error: {
+        name: string;
+        message: string;
+      } | null;
     },
     events: {} as
       | {
@@ -83,7 +88,10 @@ const PromptTemplateNodeMachine = createMachine({
 
     error: {
       on: {
-        change: "typing",
+        change: {
+          target: "typing",
+          actions: "updateValue",
+        },
         render: "idle",
         data: {
           target: "ready",
@@ -104,6 +112,12 @@ const PromptTemplateNodeMachine = createMachine({
         }),
         onError: {
           target: "error",
+          actions: assign({
+            error: ({ event }) => ({
+              name: event.data.name,
+              message: event.data.message,
+            }),
+          }),
         },
         onDone: {
           actions: assign({
@@ -233,6 +247,7 @@ export class PromptTemplate extends BaseNode<
   execute() {}
 
   data(inputs: { [key: string]: [string | number] }) {
+    console.log(inputs);
     this.actor.send({
       type: "data",
       inputs,
