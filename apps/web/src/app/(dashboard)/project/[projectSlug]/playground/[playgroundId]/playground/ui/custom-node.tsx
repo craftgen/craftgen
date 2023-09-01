@@ -63,9 +63,14 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
-  const { di, playgroundId, projectSlug, showControls, layout } = useStore(
-    props.store
-  );
+  const {
+    di,
+    playgroundId,
+    projectSlug,
+    showControls,
+    layout,
+    setSelectedNodeId,
+  } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
@@ -73,6 +78,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   sortByIndex(controls);
 
   const deleteNode = React.useCallback(async () => {
+    setSelectedNodeId(null);
     const connections =
       di?.editor.getConnections().filter((c) => {
         return c.source === props.data.id || c.target === props.data.id;
@@ -223,33 +229,37 @@ export function CustomNode<Scheme extends ClassicScheme>(
                   ) : null;
                 })}
             </CardContent>
-            <div className="py-4">
-              {/* Outputs */}
-              {outputs.map(([key, output]) => {
-                if (!output) return null;
-                return (
-                  <RenderOutput
-                    emit={props.emit}
-                    output={output}
-                    key={`output-key-${key}`}
-                    outputKey={key}
-                    id={id}
-                  />
-                );
-              })}
-              {/* Inputs */}
-              {inputs.map(([key, input]) => {
-                if (!input) return null;
-                return (
-                  <RenderInput
-                    emit={props.emit}
-                    input={input}
-                    key={`input-key-${key}`}
-                    inputKey={key}
-                    id={id}
-                  />
-                );
-              })}
+            <div className="py-4 grid-cols-2 grid">
+              <div>
+                {/* Inputs */}
+                {inputs.map(([key, input]) => {
+                  if (!input) return null;
+                  return (
+                    <RenderInput
+                      emit={props.emit}
+                      input={input}
+                      key={`input-key-${key}`}
+                      inputKey={key}
+                      id={id}
+                    />
+                  );
+                })}
+              </div>
+              <div>
+                {/* Outputs */}
+                {outputs.map(([key, output]) => {
+                  if (!output) return null;
+                  return (
+                    <RenderOutput
+                      emit={props.emit}
+                      output={output}
+                      key={`output-key-${key}`}
+                      outputKey={key}
+                      id={id}
+                    />
+                  );
+                })}
+              </div>
             </div>
             <CardFooter>
               {debug && (

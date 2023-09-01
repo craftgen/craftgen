@@ -34,6 +34,8 @@ import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { NodeProps } from "./playground/types";
+import { Input } from "./playground/nodes";
+import { InputWindow } from "./playground/input/tab";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -43,14 +45,32 @@ const defaultLayout: FlexLayout.IJsonModel = {
     weight: 100,
     children: [
       {
-        type: "tabset",
+        type: "row",
         weight: 50,
         children: [
           {
-            type: "tab",
-            name: "Inspector",
-            component: "inspector",
-            enableClose: false,
+            type: "tabset",
+            weight: 100,
+            children: [
+              {
+                type: "tab",
+                name: "Inspector",
+                component: "inspector",
+                enableClose: false,
+              },
+            ],
+          },
+          {
+            type: "tabset",
+            weight: 100,
+            children: [
+              {
+                type: "tab",
+                name: "Inputs",
+                component: "inputWindow",
+                enableClose: false,
+              },
+            ],
           },
         ],
       },
@@ -124,6 +144,9 @@ export const Playground: React.FC<{
     }
     if (component === "inspectorNode") {
       return <InspectorNode nodeId={config.nodeId} />;
+    }
+    if (component === "inputWindow") {
+      return <InputWindow />;
     }
   };
 

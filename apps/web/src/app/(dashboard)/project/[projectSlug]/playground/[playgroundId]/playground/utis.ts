@@ -1,6 +1,7 @@
 import { ClassicPreset, NodeEditor, NodeId } from "rete";
 import { Sockets } from "./sockets";
 import { Schemes } from "./types";
+import { JSONSocket } from "./ui/control/control-socket-generator";
 
 type Input = ClassicPreset.Input<Sockets>;
 type Output = ClassicPreset.Output<Sockets>;
@@ -34,3 +35,29 @@ export async function removeConnections(
     }
   }
 }
+
+export const createJsonSchema = (inputs: JSONSocket[]) => {
+  const socketToProperty = (input: JSONSocket) => ({
+    type: input.type, // or based on input.type
+    ...(input.description && { description: input.description }),
+    ...(input.minLength && { minLength: input.minLength }),
+    ...(input.maxLength && { maxLength: input.maxLength }),
+  });
+
+  const required = inputs
+    .filter((input) => input.required)
+    .map((input) => input.name);
+
+  const properties = inputs.reduce((acc, input) => {
+    acc[input.name] = socketToProperty(input);
+    return acc;
+  }, {} as Record<string, any>);
+
+  return {
+    type: "object",
+    properties,
+    required,
+    additionalProperties: false,
+    $schema: "http://json-schema.org/draft-07/schema#",
+  };
+};

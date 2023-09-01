@@ -20,7 +20,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { types } from "../../sockets";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,27 +33,28 @@ type SocketGeneratorControlOptions = {
   initial: {
     name: string;
     description: string;
-    inputs: Socket[];
+    sockets: JSONSocket[];
   };
-  onChange: (data: any) => void;
+  onChange: (data: SocketGeneratorControlData) => void;
 };
 
-export type Socket = z.infer<typeof socketSchema>;
+export type JSONSocket = z.infer<typeof socketSchema>;
+export type SocketGeneratorControlData = z.infer<typeof formSchema>;
 
 export class SocketGeneratorControl extends ClassicPreset.Control {
   __type = "socket-generator";
   name: string;
   description?: string;
-  inputs: Socket[] = [];
+  sockets: JSONSocket[] = [];
   constructor(public params: SocketGeneratorControlOptions) {
     super();
-    this.inputs = params.initial.inputs;
+    this.sockets = params.initial.sockets;
     this.name = params.initial.name;
     this.description = params.initial.description;
   }
 
-  setValue(val: { inputs: Socket[]; name: string; description?: string }) {
-    this.inputs = val.inputs;
+  setValue(val: { sockets: JSONSocket[]; name: string; description?: string }) {
+    this.sockets = val.sockets;
     this.name = val.name;
     this.description = val.description;
     this.params.onChange(val);
@@ -72,7 +73,7 @@ const socketSchema = z.object({
 const formSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  inputs: z.array(socketSchema),
+  sockets: z.array(socketSchema),
 });
 
 export function SocketGeneratorControlComponent(props: {
@@ -82,25 +83,24 @@ export function SocketGeneratorControlComponent(props: {
     defaultValues: {
       name: props.data.name,
       description: props.data.description,
-      inputs: props.data.inputs,
+      sockets: props.data.sockets,
     },
     values: {
       name: props.data.name,
       description: props.data.description,
-      inputs: props.data.inputs,
+      sockets: props.data.sockets,
     },
     mode: "onBlur",
   });
 
   useEffect(() => {
-    console.log([props.data.inputs]);
-    form.setValue("inputs", props.data.inputs);
-  }, [props.data.inputs]);
+    form.setValue("sockets", props.data.sockets);
+  }, [props.data.sockets]);
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
       control: form.control, // control props comes from useForm (optional: if you are using FormContext)
-      name: "inputs", // unique name for your Field Array
+      name: "sockets", // unique name for your Field Array
     }
   );
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
@@ -170,7 +170,7 @@ export function SocketGeneratorControlComponent(props: {
               <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
                 <FormField
                   control={form.control}
-                  name={`inputs.${index}.name`}
+                  name={`sockets.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
@@ -186,7 +186,7 @@ export function SocketGeneratorControlComponent(props: {
                 />
                 <FormField
                   control={form.control}
-                  name={`inputs.${index}.type`}
+                  name={`sockets.${index}.type`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
@@ -217,7 +217,7 @@ export function SocketGeneratorControlComponent(props: {
                 />
                 <FormField
                   control={form.control}
-                  name={`inputs.${index}.description`}
+                  name={`sockets.${index}.description`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
@@ -236,7 +236,7 @@ export function SocketGeneratorControlComponent(props: {
                 />
                 <FormField
                   control={form.control}
-                  name={`inputs.${index}.required`}
+                  name={`sockets.${index}.required`}
                   render={({ field }) => (
                     <FormItem className="flex items-center space-y-0">
                       <FormControl>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@seocraft/supabase/db/database.types";
 import { cookies } from "next/headers";
+import Hero from "./hero";
 
 export default async function Home() {
   // const supabase = createServerComponentClient<Database>({ cookies });
@@ -27,6 +28,9 @@ export default async function Home() {
           {/* )} */}
         </div>
       </div>
+      {/* <Scene>
+        <Hero />
+      </Scene> */}
       <Scene>
         <div className="grid grid-cols-2">
           <div className="flex flex-col p-20 justify-around items-start h-full">

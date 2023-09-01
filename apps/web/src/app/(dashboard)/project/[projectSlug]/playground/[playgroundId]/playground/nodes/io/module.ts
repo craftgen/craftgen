@@ -1,19 +1,27 @@
-import { assign, createMachine, fromPromise } from "xstate";
+import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset, NodeEditor } from "rete";
-import { anySocket, triggerSocket } from "../../sockets";
+import {
+  anySocket,
+  getSocketByJsonSchemaType,
+  triggerSocket,
+} from "../../sockets";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
 import { SWRSelectControl } from "../../ui/control/control-swr-select";
 import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
+import { SelectControl } from "../../ui/control/control-select";
+import { Input as InputNode } from "./input";
+import { JSONSocket } from "../../ui/control/control-socket-generator";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
   id: "ModuleNode",
   types: {} as {
     context: {
-      moduleId: string | null;
+      moduleId?: string;
+      inputId?: string;
       inputs: Record<string, any>;
       outputs: Record<string, any>;
       inputData: Record<string, any>;
@@ -29,6 +37,10 @@ const ModuleNodeMachine = createMachine({
           moduleId: string;
         }
       | {
+          type: "SET_INPUT";
+          inputId: string;
+        }
+      | {
           type: "SET_CONFIG";
           inputs: Record<string, any>;
           outputs: Record<string, any>;
@@ -39,7 +51,8 @@ const ModuleNodeMachine = createMachine({
         };
   },
   context: {
-    moduleId: null,
+    moduleId: undefined,
+    inputId: undefined,
     inputs: [],
     outputs: [],
     error: null,
@@ -51,14 +64,23 @@ const ModuleNodeMachine = createMachine({
     idle: {
       on: {
         SET_MODULE: {
-          target: "connected",
+          target: "chooseInput",
           actions: assign({
             moduleId: ({ event }) => event.moduleId,
           }),
         },
       },
     },
-
+    chooseInput: {
+      on: {
+        SET_INPUT: {
+          target: "connected",
+          actions: assign({
+            inputId: ({ event }) => event.inputId,
+          }),
+        },
+      },
+    },
     connected: {
       on: {
         SET_MODULE: {
@@ -89,6 +111,7 @@ const ModuleNodeMachine = createMachine({
       invoke: {
         src: "execute",
         input: ({ context }) => ({
+          inputId: context.inputId,
           inputData: context.inputData,
         }),
         onDone: {
@@ -129,55 +152,98 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     super("Module", di, data, ModuleNodeMachine, {
       actors: {
         execute: fromPromise(async ({ input }) => {
-          console.log(input);
-          const val = await this.module?.exec(input.inputData);
+          console.log("RUNNING", input);
+          const val = await this.module?.exec(input.inputId, input.inputData);
+          console.log("RES", val);
           return val;
         }),
       },
     });
     const state = this.actor.getSnapshot();
-    const store = this.di.store.getState();
-    console.log("MOUDLEUA", state);
-    if (state.matches("connected")) {
-      console.log("ModuleNode", state);
-      this.module = this.di.modules.findModule(state.context.moduleId);
+    if (state.context.moduleId && state.context.inputId) {
+      this.update();
     }
+    this.syncUI(state);
     this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
     this.addOutput(
       "trigger",
       new ClassicPreset.Output(triggerSocket, "trigger")
     );
-    this.addControl(
-      "module",
-      new SWRSelectControl(
-        state.context.moduleId,
-        "Select Module",
-        `/api/playgrounds/${store.projectId}`, // TODO get from project
-        async () => {
-          return await getPlaygrounds(store.projectId);
-        },
-        (data) => {
-          return data.map((playground) => ({
-            key: playground.id,
-            value: playground.name,
-          }));
-        },
-        (value: string) => {
-          this.actor.send({
-            type: "SET_MODULE",
-            moduleId: value,
-          });
-          this.update();
-        }
-      )
-    );
+    this.actor.subscribe((state) => this.syncUI(state));
 
     this.syncPorts(state.context.inputs, state.context.outputs);
   }
 
+  async syncUI(state: StateFrom<typeof ModuleNodeMachine>) {
+    const store = this.di.store.getState();
+    if (state.matches("idle")) {
+      this.addControl(
+        "module",
+        new SWRSelectControl(
+          state.context.moduleId,
+          "Select Module",
+          `/api/playgrounds/${store.projectId}`, // TODO get from project
+          async () => {
+            return await getPlaygrounds(store.projectId);
+          },
+          (data) => {
+            return data.map((playground) => ({
+              key: playground.id,
+              value: playground.name,
+            }));
+          },
+          (value: string) => {
+            this.actor.send({
+              type: "SET_MODULE",
+              moduleId: value,
+            });
+          }
+        )
+      );
+    } else {
+      this.removeControl("module");
+    }
+    if (state.matches("chooseInput") || state.matches("connected")) {
+      this.module = await this.di.modules.findModule(state.context.moduleId!);
+    }
+    if (state.matches("chooseInput")) {
+      if (this.controls.select_input) {
+        this.removeControl("select_input");
+      }
+      const inputs =
+        this.module?.editor
+          .getNodes()
+          .filter((node) => node instanceof InputNode)
+          .map((n) => ({
+            key: n.id,
+            value: n.actor.getSnapshot().context.name,
+          })) || [];
+
+      this.addControl(
+        "select_input",
+        new SelectControl(
+          state.context.inputId,
+          "Select Input",
+          inputs,
+          (value) => {
+            console.log("SET INPUT", value);
+            this.actor.send({
+              type: "SET_INPUT",
+              inputId: value,
+            });
+            this.update();
+          }
+        )
+      );
+    } else {
+      this.removeControl("select_input");
+    }
+  }
+
   async execute(_: any, forward: (output: "trigger") => void) {
+    this.di.dataFlow?.reset();
     const inputs = await this.di?.dataFlow?.fetchInputs(this.id);
-    console.log("MODULE EXEECT", inputs);
+    console.log("EXECUTE", inputs);
     this.actor.send({
       type: "RUN",
       inputData: inputs,
@@ -193,29 +259,30 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
   async update() {
     const state = this.actor.getSnapshot();
-    const newModule = this.di.modules.findModule(state.context.moduleId);
-    if (this.module === newModule) return false;
-    this.module = newModule;
+    const newModule = await this.di.modules.findModule(state.context.moduleId);
+    if (this.module !== newModule) {
+      this.module = newModule;
+    }
 
-    // await removeConnections(this.di.editor, this.id);
     if (this.module) {
       const editor = new NodeEditor<Schemes>();
-      console.log("Applying Module", this.module);
       await this.module.apply(editor);
 
-      const { inputs, outputs } = Modules.getPorts(editor);
+      const { inputs, outputs } = Modules.getPorts(
+        editor,
+        state.context.inputId
+      );
       this.actor.send({
         type: "SET_CONFIG",
         inputs,
         outputs,
       });
-      console.log(inputs, outputs);
       this.syncPorts(inputs, outputs);
     } else this.syncPorts([], []);
     return true;
   }
 
-  syncPorts(inputs: string[], outputs: string[]) {
+  syncPorts(inputs: JSONSocket[], outputs: string[]) {
     /**
      * Flush all ports
      */
@@ -228,8 +295,9 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       this.removeOutput(key);
     });
 
-    inputs.forEach((key) => {
-      this.addInput(key, new ClassicPreset.Input(anySocket, key)); // TODO: match type
+    inputs.forEach((item) => {
+      const socket = getSocketByJsonSchemaType(item.type)!;
+      this.addInput(item.name, new ClassicPreset.Input(socket, item.name));
     });
     outputs.forEach((key) => {
       this.addOutput(key, new ClassicPreset.Output(anySocket, key)); // TODO: match type
@@ -241,20 +309,15 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
   async data(inputs: Record<string, any>) {
     let state = this.actor.getSnapshot();
-    console.log("state", state, inputs);
     if (this.inputs.trigger) {
       this.actor.subscribe((newState) => {
         state = newState;
-        console.log("state", newState, inputs);
       });
       while (state.matches("running")) {
         console.log("waiting for complete");
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
-
-    console.log("Passing DATA ->", { message: state.context.message });
-
     return {
       message: state.context.message,
     };

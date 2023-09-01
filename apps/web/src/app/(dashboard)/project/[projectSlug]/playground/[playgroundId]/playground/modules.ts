@@ -1,12 +1,16 @@
 import { ClassicPreset, NodeEditor } from "rete";
-import { Schemes } from "./types";
+import { NodeProps, Schemes } from "./types";
 import { ControlFlowEngine, DataflowEngine } from "rete-engine";
 import { Input, Output } from "./nodes";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
+import { StateFrom, stateIn } from "xstate";
 
 export type Module = {
+  editor: NodeEditor<Schemes>;
+  engine: ControlFlowEngine<Schemes>;
+  dataFlow: DataflowEngine<Schemes>;
   apply: (editor: NodeEditor<Schemes>) => Promise<void>;
-  exec: (data: Record<string, any>) => Promise<any>;
+  exec: (inputId: string, data: Record<string, any>) => Promise<any>;
 };
 
 export class Modules {
@@ -22,27 +26,31 @@ export class Modules {
     }) => Promise<void>
   ) {}
 
-  public findModule = (path: string): null | Module => {
+  public findModule = async (path: string): Promise<null | Module> => {
     console.log("findModule", path, this.has(path));
     if (!this.has(path)) return null;
 
+    const editor = new NodeEditor<Schemes>();
+    editor.name = `module_${path}`;
+    const dataFlow = createDataFlowEngine();
+    const engine = createControlFlowEngine();
+
+    editor.use(engine);
+    editor.use(dataFlow);
+    await this.graph({
+      moduleId: path,
+      overwrites: { editor, dataFlow, engine },
+    });
+
     return {
+      editor,
+      dataFlow,
+      engine,
       apply: (editor: NodeEditor<Schemes>) =>
         this.graph({ moduleId: path, overwrites: { editor } }),
-      exec: async (inputData: Record<string, any>) => {
-        const editor = new NodeEditor<Schemes>();
-        editor.name = `Module: ${path}`;
-        const dataFlow = createDataFlowEngine();
-        const engine = createControlFlowEngine();
-
-        editor.use(engine);
-        editor.use(dataFlow);
-        await this.graph({
-          moduleId: path,
-          overwrites: { editor, dataFlow, engine },
-        });
-
+      exec: async (inputId: string, inputData: Record<string, any>) => {
         const val = await this.execute({
+          inputId,
           inputs: inputData,
           editor,
           dataFlow,
@@ -53,22 +61,11 @@ export class Modules {
     };
   };
 
-  private injectInputs(
-    nodes: Schemes["Node"][],
-    inputData: Record<string, any>
-  ) {
-    const inputNodes = nodes.filter(Modules.isInputNode) as Input[];
-    console.log("inject", inputNodes);
-
-    inputNodes.forEach((node) => {
-      const key = (node.controls["name"] as ClassicPreset.InputControl<"text">)
-        .value;
-      if (key) {
-        node.actor.send({
-          type: "SET_VALUE",
-          value: inputData[key] && inputData[key][0],
-        });
-      }
+  private injectInputs(node: NodeProps, inputData: Record<string, any>) {
+    console.log("inject Data TO INPUT OF MODULE", node, inputData);
+    node.actor.send({
+      type: "SET_VALUE",
+      values: inputData,
     });
   }
 
@@ -107,45 +104,46 @@ export class Modules {
   }
 
   private async execute({
+    inputId,
     inputs,
     editor,
     engine,
     dataFlow,
   }: {
+    inputId: string;
     inputs: Record<string, any>;
     editor: NodeEditor<Schemes>;
     engine: ControlFlowEngine<Schemes>;
     dataFlow: DataflowEngine<Schemes>;
   }) {
+    console.log("EXECUTING IN MODULES", {
+      inputId,
+      inputs,
+      editor,
+      engine,
+      dataFlow,
+    });
     const nodes = editor.getNodes();
+    const inputNode = editor.getNode(inputId);
 
-    this.injectInputs(nodes, inputs);
-    const inputNodes = nodes.filter(Modules.isInputNode);
-
-    /**
-     * Send trigger to all input nodes
-     */
-    await Promise.all(inputNodes.map((node) => engine.execute(node.id)));
+    this.injectInputs(inputNode, inputs);
+    engine.execute(inputId);
 
     console.log("@@@@ Calling for outputs");
     return this.retrieveOutputs(nodes, dataFlow);
   }
 
-  public static getPorts(editor: NodeEditor<Schemes>) {
+  public static getPorts(editor: NodeEditor<Schemes>, inputId: string) {
     const nodes = editor.getNodes();
-    console.log("getPorts", nodes);
-    const inputNodes = nodes.filter(Modules.isInputNode) as Input[];
-    const inputs = inputNodes.map(
-      (n) =>
-        (n.controls.name as ClassicPreset.InputControl<"text">).value as string
-    );
+    const selectedInput = editor.getNode(inputId);
+    const state = selectedInput.actor.getSnapshot();
     const outputNodes = nodes.filter(Modules.isOutputNode) as Output[];
     const outputs = outputNodes.map(
       (n) =>
         (n.controls.name as ClassicPreset.InputControl<"text">).value as string
     );
     return {
-      inputs,
+      inputs: state.context.outputs,
       outputs,
     };
   }

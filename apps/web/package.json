@@ -85,6 +85,8 @@
     "@udecode/plate-table": "^23.3.0",
     "@udecode/slate": "^22.0.2",
     "@xstate/react": "4.0.0-beta.8",
+    "ajv": "^8.12.0",
+    "ajv-errors": "^3.0.0",
     "autoprefixer": "10.4.14",
     "class-transformer": "^0.5.1",
     "class-variance-authority": "^0.7.0",

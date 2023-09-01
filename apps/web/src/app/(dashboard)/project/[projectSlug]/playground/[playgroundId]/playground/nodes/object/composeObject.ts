@@ -4,9 +4,10 @@ import { DiContainer } from "../../editor";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
 import {
-  Socket,
+  JSONSocket,
   SocketGeneratorControl,
 } from "../../ui/control/control-socket-generator";
+import { createJsonSchema } from "../../utis";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -15,13 +16,13 @@ const composeObjectMachine = createMachine({
     context: {
       name: string;
       description?: string;
-      inputs: Socket[];
+      inputs: JSONSocket[];
     };
     events: {
       type: "change";
       name: string;
       description?: string;
-      inputs: Socket[];
+      inputs: JSONSocket[];
     };
   },
   context: {
@@ -68,14 +69,14 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        inputs: state.context.inputs,
+        sockets: state.context.inputs,
       },
-      onChange: ({ inputs, name, description }) => {
+      onChange: ({ sockets, name, description }) => {
         this.actor.send({
           type: "change",
           name,
           description,
-          inputs,
+          inputs: sockets,
         });
       },
     });
@@ -89,10 +90,10 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
   process() {
     const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.inputs as Socket[];
+    const rawTemplate = state.context.inputs as JSONSocket[];
 
     for (const item of Object.keys(this.inputs)) {
-      if (rawTemplate.find((i: Socket) => i.name === item)) continue;
+      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
@@ -147,29 +148,3 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     };
   }
 }
-
-const createJsonSchema = (inputs: Socket[]) => {
-  const socketToProperty = (input: Socket) => ({
-    type: input.type, // or based on input.type
-    ...(input.description && { description: input.description }),
-    ...(input.minLength && { minLength: input.minLength }),
-    ...(input.maxLength && { maxLength: input.maxLength }),
-  });
-
-  const required = inputs
-    .filter((input) => input.required)
-    .map((input) => input.name);
-
-  const properties = inputs.reduce((acc, input) => {
-    acc[input.name] = socketToProperty(input);
-    return acc;
-  }, {} as Record<string, any>);
-
-  return {
-    type: "object",
-    properties,
-    required,
-    additionalProperties: false,
-    $schema: "http://json-schema.org/draft-07/schema#",
-  };
-};
