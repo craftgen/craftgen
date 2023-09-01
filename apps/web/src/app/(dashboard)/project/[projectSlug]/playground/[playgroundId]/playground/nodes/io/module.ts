@@ -243,7 +243,6 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   async execute(_: any, forward: (output: "trigger") => void) {
     this.di.dataFlow?.reset();
     const inputs = await this.di?.dataFlow?.fetchInputs(this.id);
-    console.log("EXECUTE", inputs);
     this.actor.send({
       type: "RUN",
       inputData: inputs,
