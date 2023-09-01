@@ -46,7 +46,7 @@ type Team = {
 };
 
 export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
-  const { data, isLoading } = useSWR("projects", getProjects);
+  const { data, isLoading } = useSWR("/api/projects", getProjects);
   const params = useParams();
   const router = useRouter();
   const handleChange = (value: string) => {

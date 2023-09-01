@@ -53,7 +53,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     const val = await createNewProject(values);
-    router.push(`/project/${val.slug}`);
+    router.push(`/project/${val.slug}/settings/tokens`);
     // if (onSubmit) {
     //   onSubmit(values);
     // }

@@ -300,19 +300,19 @@ export interface Database {
         Row: {
           id: string
           name: string
-          site: string
+          site: string | null
           slug: string
         }
         Insert: {
           id?: string
           name: string
-          site: string
+          site?: string | null
           slug: string
         }
         Update: {
           id?: string
           name?: string
-          site?: string
+          site?: string | null
           slug?: string
         }
         Relationships: []
@@ -382,21 +382,24 @@ export interface Database {
       project_variable: {
         Row: {
           id: string
+          is_system: boolean
           key: string
           project_id: string
-          value: string
+          value: string | null
         }
         Insert: {
           id?: string
+          is_system?: boolean
           key: string
           project_id: string
-          value: string
+          value?: string | null
         }
         Update: {
           id?: string
+          is_system?: boolean
           key?: string
           project_id?: string
-          value?: string
+          value?: string | null
         }
         Relationships: [
           {

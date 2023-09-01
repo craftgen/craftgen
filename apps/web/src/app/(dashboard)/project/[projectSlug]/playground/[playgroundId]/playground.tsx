@@ -332,6 +332,7 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
             <ExclamationTriangleIcon className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{state.context.error?.message}</AlertDescription>
+            {state.context.error.name}
           </Alert>
         </div>
       )}

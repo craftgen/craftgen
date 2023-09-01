@@ -11,14 +11,33 @@ import {
   inArray,
   not,
   playground,
+  project,
+  projectMembers,
   variable,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
+import { TEXT } from "react-dnd-html5-backend/dist/NativeTypes";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
     where: (project, { eq }) => eq(project.slug, projectSlug),
+  });
+};
+
+export const updateProject = async (params: { id: string; name: string }) => {
+  return await db
+    .update(project)
+    .set(params)
+    .where(eq(project.id, params.id))
+    .returning();
+};
+export const deleteProject = async (params: { id: string }) => {
+  return await db.transaction(async (tx) => {
+    await tx
+      .delete(projectMembers)
+      .where(eq(projectMembers.projectId, params.id));
+    await tx.delete(project).where(eq(project.id, params.id));
   });
 };
 

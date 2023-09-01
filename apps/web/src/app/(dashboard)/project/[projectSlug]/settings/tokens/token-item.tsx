@@ -42,6 +42,7 @@ import {
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useProject } from "../../hooks/use-project";
 import useSWR, { mutate } from "swr";
+import { Badge } from "@/components/ui/badge";
 const tokenSchema = z.object({
   key: z.string().min(1, "Key is required"),
   value: z.string().min(1, "Value is required"),
@@ -253,7 +254,13 @@ export const TokenItem: React.FC<{
           <span className="font-bold bg-muted rounded p-1">{token.key}</span>
         </div>
         <div className="col-span-3">
-          <ToggleView value={token.value} />
+          {token.value ? (
+            <ToggleView value={token.value} />
+          ) : (
+            <Badge variant={"destructive"}>
+              <span className="text-sm">Not set</span>
+            </Badge>
+          )}
         </div>
         <div className="col-span-1">
           <DropdownMenu>
@@ -292,7 +299,7 @@ export const TokenItem: React.FC<{
                   <FormItem>
                     <FormLabel>Key</FormLabel>
                     <FormControl>
-                      <Input placeholder="shadcn" {...field} />
+                      <Input placeholder="e.g OPENAI_API_KEY" {...field} />
                     </FormControl>
                     <FormDescription>This is key</FormDescription>
                     <FormMessage />
@@ -306,7 +313,7 @@ export const TokenItem: React.FC<{
                   <FormItem>
                     <FormLabel>Value</FormLabel>
                     <FormControl>
-                      <Input placeholder="shadcn" {...field} />
+                      <Input placeholder="sk_*****" {...field} />
                     </FormControl>
                     <FormDescription>This is key</FormDescription>
                     <FormMessage />

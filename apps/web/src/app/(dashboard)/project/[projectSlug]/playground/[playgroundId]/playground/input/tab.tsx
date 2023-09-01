@@ -85,8 +85,6 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {JSON.stringify(fields)}
-        {JSON.stringify(form.getValues())}
         <Separator />
         {fields?.map((f: any) => (
           <FormField
