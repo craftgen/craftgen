@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { useRete } from "rete-react-plugin";
-import { ModuleMap, createEditorFunc } from "./playground/editor";
+import { createEditorFunc } from "./playground/editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor } from "./playground/io";
 import { getPlayground, savePlayground, savePlaygroundLayout } from "./action";
@@ -34,8 +34,25 @@ import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { NodeProps } from "./playground/types";
-import { Input } from "./playground/nodes";
-import { InputWindow } from "./playground/input/tab";
+import {
+  InputWindow,
+  renderField,
+  renderFieldBaseOnSocketType,
+} from "./playground/input/tab";
+import { useForm } from "react-hook-form";
+import { ajvResolver } from "@hookform/resolvers/ajv";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Socket } from "./playground/sockets";
+import { Input } from "rete/_types/presets/classic";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -326,6 +343,8 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
         ))}
       </div>
 
+      <DynamicInputsForm inputs={node.inputs} />
+
       {state.matches("error") && (
         <div className="py-4 px-4">
           <Alert variant={"destructive"} className="">
@@ -337,6 +356,65 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
         </div>
       )}
     </div>
+  );
+};
+
+export const DynamicInputsForm: React.FC<{
+  inputs: { [key: string]: Input<Socket> | undefined };
+}> = ({ inputs }) => {
+  const form = useForm({
+    // resolver: ajvResolver(schema),
+  });
+  const onSubmit = async (data: any) => {
+    console.log(data);
+    // input.actor.send({
+    //   type: "SET_VALUE",
+    //   values: data,
+    // });
+    // input.di.engine?.execute(input.id);
+  };
+  // useEffect(() => {
+  //   console.log({
+  //     schema,
+  //     fields,
+  //   });
+  // }, [schema]);
+  console.log(inputs);
+  const fields = Object.entries(inputs)
+    .filter(([key, value]) => {
+      return (
+        value?.socket.name !== "Trigger" && value?.control && value?.showControl
+      );
+    })
+    .map(([key, input]) => ({
+      name: key,
+      type: input?.socket.name,
+    }));
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Separator />
+        {fields?.map((f: any) => (
+          <FormField
+            key={f.name}
+            control={form.control}
+            name={f.name}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{f.name}</FormLabel>
+                <FormControl>
+                  {renderFieldBaseOnSocketType(f.type, field)}
+                </FormControl>
+                <FormDescription>{f.description}</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+        <Button>Execute</Button>
+      </form>
+    </Form>
   );
 };
 

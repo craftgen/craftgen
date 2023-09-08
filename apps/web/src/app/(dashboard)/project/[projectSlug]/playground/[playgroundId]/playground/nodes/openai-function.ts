@@ -200,7 +200,13 @@ export class OpenAIFunctionCall extends BaseNode<
     });
 
     const input = new ClassicPreset.Input(stringSocket, "Prompt");
-    this.addInput("prompt", input);
+    input.addControl(
+      new ClassicPreset.InputControl("text", {
+        initial: "",
+        change: (value) => value,
+      })
+    );
+    this.addInput("prompt", input, );
 
     this.addOutput(
       "message",
