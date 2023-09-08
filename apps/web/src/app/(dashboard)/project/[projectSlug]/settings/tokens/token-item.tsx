@@ -279,6 +279,7 @@ export const TokenItem: React.FC<{
               </DropdownMenuItem>
               <DropdownMenuItem
                 about="Remove this token"
+                disabled={token.system}
                 onSelect={handleDelete}
               >
                 Remove
@@ -299,7 +300,11 @@ export const TokenItem: React.FC<{
                   <FormItem>
                     <FormLabel>Key</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g OPENAI_API_KEY" {...field} />
+                      <Input
+                        placeholder="e.g OPENAI_API_KEY"
+                        {...field}
+                        disabled={token.system}
+                      />
                     </FormControl>
                     <FormDescription>This is key</FormDescription>
                     <FormMessage />

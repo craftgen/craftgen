@@ -30,7 +30,8 @@ import * as FlexLayout from "flexlayout-react";
 import { SocketNameType, useSocketConfig } from "../sockets";
 import { useMeasure } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@radix-ui/react-toast";
+import Link from "next/link";
+import { ToastAction } from "@/components/ui/toast";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -163,19 +164,20 @@ export function CustomNode<Scheme extends ClassicScheme>(
   React.useEffect(() => {}, [sizes]);
 
   const { toast } = useToast();
-
   React.useEffect(() => {
     const subs = props.data.actor.subscribe((state) => {
       if (state.matches("error")) {
-        if (state.context.error.name === "") {
+        if (state.context.error.name === "MISSING_API_KEY_ERROR") {
           toast({
             title: "Error",
             description: state.context.error.message,
             action: (
-              <ToastAction altText={"go to settings"}>
-                {" "}
-                Go to Settings{" "}
-              </ToastAction>
+              <Link href={`/project/${projectSlug}/settings/tokens`}>
+                <ToastAction altText={"go to settings"}>
+                  {/* <Button size="sm">Go to Settings</Button> */}
+                  Go to Settings
+                </ToastAction>
+              </Link>
             ),
           });
         } else {
