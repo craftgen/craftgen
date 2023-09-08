@@ -124,6 +124,7 @@ const OpenAIFunctionCallMachine = createMachine({
         src: "run",
         input: ({ context }) => ({
           settings: context.settings,
+          inputs: context.inputs,
         }),
         onDone: {
           target: "complete",

@@ -52,8 +52,9 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Socket } from "./playground/sockets";
-import { Input } from "rete/_types/presets/classic";
+import { Input as InputNode } from "rete/_types/presets/classic";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -336,12 +337,35 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   }, [node]);
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
+  const outputs = useMemo(() => {
+    if (!state.context.outputs) return [];
+    return Object.entries(node.outputs)
+      .filter(([key, output]) => output?.socket.name !== "Trigger")
+      .map(([key, output]) => {
+        console.log(output);
+        return {
+          key,
+          socket: output?.socket,
+          value: state.context.outputs[key],
+        };
+      });
+  }, [state]);
+  console.log(outputs);
   return (
     <div className="h-full w-full flex flex-col flex-1">
       <div className="flex flex-col h-full overflow-hidden p-4">
         <DynamicInputsForm inputs={node.inputs} />
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} label={key} />
+        ))}
+      </div>
+      <Separator />
+      <div>
+        {outputs.map((output) => (
+          <div key={output.key} className="px-4 py-2">
+            <Label>{output.key}</Label>
+            {renderFieldValueBaseOnSocketType(output.socket!, output.value)}
+          </div>
         ))}
       </div>
 
@@ -359,8 +383,21 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   );
 };
 
+export const renderFieldValueBaseOnSocketType = (
+  socket: Socket,
+  value: any
+) => {
+  switch (socket.name) {
+    case "String":
+      return <Input value={value} readOnly />;
+
+    default:
+      return null;
+  }
+};
+
 export const DynamicInputsForm: React.FC<{
-  inputs: { [key: string]: Input<Socket> | undefined };
+  inputs: { [key: string]: InputNode<Socket> | undefined };
 }> = ({ inputs }) => {
   return (
     <>

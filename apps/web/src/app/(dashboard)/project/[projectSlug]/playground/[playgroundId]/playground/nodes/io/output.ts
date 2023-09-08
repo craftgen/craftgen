@@ -3,6 +3,7 @@ import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset } from "rete";
 import { anySocket, triggerSocket } from "../../sockets";
+import { Icons } from "@/components/icons";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -36,6 +37,7 @@ const OutputNodeMachine = createMachine({
 });
 
 export class Output extends BaseNode<typeof OutputNodeMachine> {
+  icon: keyof typeof Icons = "output";
   constructor(di: DiContainer, data: NodeData<typeof OutputNodeMachine>) {
     super("Output", di, data, OutputNodeMachine, {});
 

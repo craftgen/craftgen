@@ -14,7 +14,7 @@ import { createNode } from "../io";
 import { Key } from "ts-key-enum";
 import { NodeTypes, Schemes } from "../types";
 import { Button } from "@/components/ui/button";
-import { Play, Wrench } from "lucide-react";
+import { Loader2, Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
@@ -106,6 +106,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   }, []);
 
   const triggerNode = async () => {
+    console.log("trigger node", props.data.id);
     di?.engine?.execute(props.data.id);
   };
 
@@ -164,6 +165,8 @@ export function CustomNode<Scheme extends ClassicScheme>(
   };
   const ref = React.useRef<HTMLButtonElement>(null);
   Drag.useNoDrag(ref);
+  const ref2 = React.useRef<HTMLButtonElement>(null);
+  Drag.useNoDrag(ref2);
 
   const state = useSelector(props.data.actor, (state) => state);
   const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
@@ -227,8 +230,20 @@ export function CustomNode<Scheme extends ClassicScheme>(
                 >
                   <Wrench size={14} />
                 </Button>
-                <Button onClick={triggerNode} variant={"ghost"} size="icon">
-                  <Play size={14} />
+                <Button
+                  ref={ref2}
+                  onClick={triggerNode}
+                  variant={"ghost"}
+                  size="icon"
+                >
+                  {state.matches("running") ? (
+                    <Loader2
+                      size={14}
+                      className="animate-spin text-green-400"
+                    />
+                  ) : (
+                    <Play size={14} />
+                  )}
                 </Button>
               </div>
             </CardHeader>

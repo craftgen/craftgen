@@ -14,6 +14,7 @@ import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions"
 import { SelectControl } from "../../ui/control/control-select";
 import { Input as InputNode } from "./input";
 import { JSONSocket } from "../../ui/control/control-socket-generator";
+import { Icons } from "@/components/icons";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -147,6 +148,7 @@ const ModuleNodeMachine = createMachine({
 
 export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   module: null | Module = null;
+  icon: keyof typeof Icons = "component";
 
   constructor(di: DiContainer, data: NodeData<typeof ModuleNodeMachine>) {
     super("Module", di, data, ModuleNodeMachine, {
