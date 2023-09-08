@@ -1,13 +1,19 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
 import { SelectControl } from "../ui/control/control-select";
-import { OPENAI_CHAT_MODELS, OpenAIChatModelType } from "modelfusion";
+import {
+  OPENAI_CHAT_MODELS,
+  OpenAIChatModelType,
+  OpenAIChatSettings,
+} from "modelfusion";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { Icons } from "@/components/icons";
+import { SliderControl } from "../ui/control/control-slider";
+import { omit } from "lodash-es";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -16,17 +22,21 @@ const OpenAIFunctionCallMachine = createMachine({
   id: "openai-function-call",
   initial: "initial",
   context: {
-    model: "gpt-3.5-turbo",
     inputs: {},
-    message: "",
+    outputs: {},
+    settings: {
+      model: "gpt-3.5-turbo",
+      temperature: 0.7,
+      maxTokens: 1000,
+    },
     validApiKey: null,
     error: null,
   },
   types: {} as {
     context: {
-      model: OpenAIChatModelType;
       inputs: Record<string, any[]>;
-      message: string;
+      outputs: Record<string, any[]>;
+      settings: OpenAIChatSettings;
       validApiKey: boolean | null;
       error: {
         name: string;
@@ -34,10 +44,9 @@ const OpenAIFunctionCallMachine = createMachine({
       } | null;
     };
     events:
-      | {
+      | (OpenAIChatSettings & {
           type: "CONFIG_CHANGE";
-          model: OpenAIChatModelType;
-        }
+        })
       | {
           type: "RUN";
           inputs: Record<string, any[]>;
@@ -77,7 +86,21 @@ const OpenAIFunctionCallMachine = createMachine({
       on: {
         CONFIG_CHANGE: {
           actions: assign({
-            model: ({ event }) => event.model,
+            settings: ({ context, event }) => ({
+              ...context.settings,
+              ...omit(event, "type"),
+              ...(event?.model && {
+                maxTokens:
+                  context.settings?.maxTokens! >
+                  OPENAI_CHAT_MODELS[
+                    event.model as keyof typeof OPENAI_CHAT_MODELS
+                  ].contextWindowSize
+                    ? OPENAI_CHAT_MODELS[
+                        event.model as keyof typeof OPENAI_CHAT_MODELS
+                      ].contextWindowSize
+                    : context.settings?.maxTokens,
+              }),
+            }),
           }),
         },
         RUN: {
@@ -100,13 +123,12 @@ const OpenAIFunctionCallMachine = createMachine({
       invoke: {
         src: "run",
         input: ({ context }) => ({
-          model: context.model,
-          inputs: context.inputs,
+          settings: context.settings,
         }),
         onDone: {
           target: "complete",
           actions: assign({
-            message: ({ event }) => event.output,
+            outputs: ({ event }) => event.output,
           }),
         },
         onError: {
@@ -171,11 +193,11 @@ export class OpenAIFunctionCall extends BaseNode<
           const store = di.store.getState();
           const res = await generateTextFn({
             projectId: store.projectId,
-            model: state.context.model,
-            user: await input.inputs.prompt[0],
+            settings: input.settings,
+            user: await input.inputs.prompt,
           });
           // const res = new Promise((resolve) => setTimeout(resolve, 5000));
-          return res;
+          return { message: res };
         }),
         check_api_key: fromPromise(async () => {
           console.log("CHECKING API KEY", di.store.getState().projectId);
@@ -195,37 +217,79 @@ export class OpenAIFunctionCall extends BaseNode<
       "trigger",
       new ClassicPreset.Input(triggerSocket, "Exec", true)
     );
-    this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
     const state = this.actor.getSnapshot();
+
+    this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
     this.addControl(
       "model",
-      new SelectControl<OPENAI_CHAT_MODELS_KEY>(
-        state.context.model,
-        "Model",
-        [
+      new SelectControl<OPENAI_CHAT_MODELS_KEY>(state.context.settings.model, {
+        change: (val) => {
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            model: val,
+          });
+        },
+        placeholder: "Select Model",
+        values: [
           ...Object.keys(OPENAI_CHAT_MODELS).map((key) => ({
             key: key as OPENAI_CHAT_MODELS_KEY,
             value: key,
           })),
         ],
-        (value) => {
+      })
+    );
+    this.addControl(
+      "temprature",
+      new SliderControl(state.context.settings.temperature, {
+        change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
-            model: value,
+            temperature: val,
           });
-        }
-      )
+        },
+        max: 1,
+        step: 0.01,
+      })
+    );
+    this.addControl(
+      "maxTokens",
+      new SliderControl(state.context.settings.maxTokens, {
+        change: (val) => {
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            maxTokens: val,
+          });
+        },
+        max: this.contextWindowSize,
+        step: 1,
+      })
     );
     this.actor.subscribe((state) => {
       console.log("OPENAI ACTOR", {
         state,
       });
+      if (this.hasControl("maxTokens")) {
+        this.removeControl("maxTokens");
+      }
+      this.addControl(
+        "maxTokens",
+        new SliderControl(state.context.settings.maxTokens, {
+          change: (val) => {
+            this.actor.send({
+              type: "CONFIG_CHANGE",
+              maxTokens: val,
+            });
+          },
+          max: this.contextWindowSize,
+          step: 1,
+        })
+      );
     });
 
     const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
     input.addControl(
       new ClassicPreset.InputControl("text", {
-        initial: state.context.inputs.prompt[0] || "",
+        initial: state.context.inputs?.prompt || "",
         change: (value) => {
           this.actor.send({
             type: "SET_VALUE",
@@ -244,6 +308,13 @@ export class OpenAIFunctionCall extends BaseNode<
     );
   }
 
+  get contextWindowSize() {
+    const state = this.actor.getSnapshot();
+    return OPENAI_CHAT_MODELS[
+      state.context.settings.model as keyof typeof OPENAI_CHAT_MODELS
+    ].contextWindowSize;
+  }
+
   async execute(input: any, forward: (output: "trigger") => void) {
     try {
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
@@ -256,8 +327,6 @@ export class OpenAIFunctionCall extends BaseNode<
         }
       });
 
-      console.log("@@@", inputs);
-
       this.actor.send({
         type: "RUN",
         inputs,
@@ -265,7 +334,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
       this.actor.subscribe((state) => {
         if (state.matches("complete")) {
-          console.log("COMPLETE", { message: state.context.message });
+          console.log("COMPLETE", { outputs: state.context.outputs });
           forward("trigger");
         }
       });
@@ -288,11 +357,7 @@ export class OpenAIFunctionCall extends BaseNode<
       }
     }
 
-    console.log("Passing DATA ->", { message: state.context.message });
-
-    return {
-      message: state.context.message,
-    };
+    return state.context.outputs;
   }
 
   serialize() {

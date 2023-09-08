@@ -29,6 +29,10 @@ import {
   SWRSelectControl,
   SWRSelectControlComponent,
 } from "./ui/control/control-swr-select";
+import {
+  SliderControl,
+  SliderControlComponenet,
+} from "./ui/control/control-slider";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -62,6 +66,9 @@ export const getControl = (
   }
   if (data.payload instanceof ClassicPreset.InputControl) {
     return CustomInput;
+  }
+  if (data.payload instanceof SliderControl) {
+    return SliderControlComponenet;
   }
   return ({ data }) => null;
   // return ClassicPreset.Control;

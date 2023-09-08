@@ -5,17 +5,18 @@ import {
   OPENAI_CHAT_MODELS,
   OpenAIChatChatPromptFormat,
   OpenAIChatModel,
+  OpenAIChatSettings,
   generateText,
 } from "modelfusion";
 
 export const generateTextFn = async ({
   projectId,
-  model,
   user,
+  settings,
 }: {
   projectId: string;
-  model: keyof typeof OPENAI_CHAT_MODELS;
   user: string;
+  settings: OpenAIChatSettings;
 }) => {
   const apiKey = await getApiKeyValue({
     projectId,
@@ -24,9 +25,8 @@ export const generateTextFn = async ({
   if (!apiKey) throw new Error("Missing API Key, `OPENAI_API_KEY`");
   const text = await generateText(
     new OpenAIChatModel({
-      model,
       apiKey,
-      maxTokens: 1000,
+      ...settings,
     }).withPromptFormat(OpenAIChatChatPromptFormat()),
     [
       {

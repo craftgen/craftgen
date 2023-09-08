@@ -382,7 +382,6 @@ const ControlWrapper: React.FC<{ control: any; label: string }> = ({
     type: "control",
     payload: control!,
   });
-  console.log(control);
   return (
     <>
       <div ref={ref} className="space-y-1">
