@@ -386,7 +386,9 @@ const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   return (
     <>
       <div ref={ref} className="space-y-1">
-        <Label htmlFor={control.id} className="capitalize">{label}</Label>
+        <Label htmlFor={control.id} className="capitalize">
+          {label}
+        </Label>
         <ControlElement data={control} />
       </div>
     </>
