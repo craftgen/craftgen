@@ -7,6 +7,7 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { DebugControl } from "../ui/control/control-debug";
 import { Socket, stringSocket } from "../sockets";
 import { CodeControl } from "../ui/control/control-code";
+import { Icons } from "@/components/icons";
 
 type Data = {
   value: string;
@@ -178,6 +179,8 @@ export class PromptTemplate extends BaseNode<
     debug: DebugControl;
   }
 > {
+  width = 400;
+  icon: keyof typeof Icons = "text-select";
   constructor(
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>

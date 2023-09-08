@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { ClassicPreset } from "rete";
 
 export class SelectControl<T extends string> extends ClassicPreset.Control {
@@ -37,7 +37,7 @@ export function SelectControlComponent<T extends string>(props: {
 
   return (
     <Select onValueChange={handleChange} defaultValue={props.data.value}>
-      <SelectTrigger className="min-w-[180px] w-full">
+      <SelectTrigger className="min-w-[180px] w-full" id={props.data.id}>
         <SelectValue placeholder={props.data.placeholder} />
       </SelectTrigger>
       <SelectContent className="z-50">

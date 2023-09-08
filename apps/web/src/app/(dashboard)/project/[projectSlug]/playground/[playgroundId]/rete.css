@@ -71,8 +71,8 @@
 }
 
 .background {
-  opacity: 1;
-  background-color: var(--background);
+  opacity: .3;
+  background-color: hsl(var(--muted));
   background-image: radial-gradient(
     hsl(var(--muted-foreground)) 1px,
     transparent 0

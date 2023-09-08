@@ -17,6 +17,7 @@ export function CustomInput(props: {
   return (
     <>
       <Textarea
+        id={props.data.id}
         ref={ref}
         disabled={props.data.readonly}
         rows={3}

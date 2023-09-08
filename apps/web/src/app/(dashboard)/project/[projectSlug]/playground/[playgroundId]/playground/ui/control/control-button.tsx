@@ -12,6 +12,7 @@ export class ButtonControl extends ClassicPreset.Control {
 export function CustomButton(props: { data: ButtonControl }) {
   return (
     <Button
+      id={props.data.id}
       onPointerDown={(e) => e.stopPropagation()}
       onDoubleClick={(e) => e.stopPropagation()}
       size={"sm"}

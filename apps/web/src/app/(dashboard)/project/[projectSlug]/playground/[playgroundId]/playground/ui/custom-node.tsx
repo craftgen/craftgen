@@ -14,7 +14,7 @@ import { createNode } from "../io";
 import { Key } from "ts-key-enum";
 import { NodeTypes, Schemes } from "../types";
 import { Button } from "@/components/ui/button";
-import { Wrench } from "lucide-react";
+import { Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
@@ -32,6 +32,8 @@ import { useMeasure } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
+import { Separator } from "@/components/ui/separator";
+import { Icons } from "@/components/icons";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -103,6 +105,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
     await di?.area.translate(newNode.id, di?.area.area.pointer);
   }, []);
 
+  const triggerNode = async () => {
+    di?.engine?.execute(props.data.id);
+  };
+
   const pinNode = React.useCallback(async () => {
     const tabset = layout.getActiveTabset()?.getId()!;
     layout.doAction(
@@ -146,7 +152,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   useHotkeys<HTMLDivElement>(
     `${Key.Meta}+${Key.Enter}`,
     async (event) => {
-      di?.engine?.execute(props.data.id);
+      triggerNode();
     },
     {
       enabled: selected,
@@ -190,6 +196,9 @@ export function CustomNode<Scheme extends ClassicScheme>(
     });
     return subs.unsubscribe;
   }, []);
+  const NodeIcon = React.useMemo(() => {
+    return Icons[props.data.icon];
+  }, []);
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -199,23 +208,31 @@ export function CustomNode<Scheme extends ClassicScheme>(
               width && `w-[${width}px]`,
               height && `h-[${height}px]`,
               selected && " border-primary",
-              "flex flex-col flex-1 bg-muted",
+              "flex flex-col flex-1 bg-background",
               state.matches("running") && "border-green-300",
               state.matches("error") && "border-red-600 border-2"
             )}
           >
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{label}</CardTitle>
-              <Button
-                ref={ref}
-                variant={"ghost"}
-                size={"icon"}
-                onClick={toggleDebug}
-                className="absolute top-0 right-0"
-              >
-                <Wrench size={10} />
-              </Button>
+            <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
+              <div className="flex space-x-2 items-center">
+                <NodeIcon className="w-5 h-5" />
+                <CardTitle>{label}</CardTitle>
+              </div>
+              <div className="flex">
+                <Button
+                  ref={ref}
+                  variant={"ghost"}
+                  size={"icon"}
+                  onClick={toggleDebug}
+                >
+                  <Wrench size={14} />
+                </Button>
+                <Button onClick={triggerNode} variant={"ghost"} size="icon">
+                  <Play size={14} />
+                </Button>
+              </div>
             </CardHeader>
+            <Separator />
 
             <CardContent className="flex-1" onDoubleClick={pinNode}>
               {/* controls */}
@@ -324,7 +341,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
           payload={input.socket}
         />
       </div>
-      {input && (!input.control || !input.showControl) && (
+      {input && (
         <Badge
           className={cn("-translate-x-2", config?.badge)}
           data-testid="input-title"
@@ -333,7 +350,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
           {input?.label}
         </Badge>
       )}
-      {input?.control && input?.showControl && (
+      {/* {input?.control && input?.showControl && (
         <span className="input-control flex items-center ">
           <Badge className="-translate-x-2" variant={"secondary"}>
             {input.label}
@@ -347,7 +364,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
             />
           </div>
         </span>
-      )}
+      )} */}
     </div>
   );
 };

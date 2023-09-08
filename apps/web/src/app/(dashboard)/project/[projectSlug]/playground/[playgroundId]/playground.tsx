@@ -1,7 +1,7 @@
 "use client";
 import "reflect-metadata";
 
-import { useRete } from "rete-react-plugin";
+import { Presets, useRete } from "rete-react-plugin";
 import { createEditorFunc } from "./playground/editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor } from "./playground/io";
@@ -53,6 +53,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Socket } from "./playground/sockets";
 import { Input } from "rete/_types/presets/classic";
+import { Label } from "@/components/ui/label";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -338,12 +339,11 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   return (
     <div className="h-full w-full flex flex-col flex-1">
       <div className="flex flex-col h-full overflow-hidden p-4">
+        <DynamicInputsForm inputs={node.inputs} />
         {controls.map(([key, control]) => (
-          <ControlWrapper key={key} control={control} />
+          <ControlWrapper key={key} control={control} label={key} />
         ))}
       </div>
-
-      <DynamicInputsForm inputs={node.inputs} />
 
       {state.matches("error") && (
         <div className="py-4 px-4">
@@ -362,73 +362,33 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
 export const DynamicInputsForm: React.FC<{
   inputs: { [key: string]: Input<Socket> | undefined };
 }> = ({ inputs }) => {
-  const form = useForm({
-    // resolver: ajvResolver(schema),
-  });
-  const onSubmit = async (data: any) => {
-    console.log(data);
-    // input.actor.send({
-    //   type: "SET_VALUE",
-    //   values: data,
-    // });
-    // input.di.engine?.execute(input.id);
-  };
-  // useEffect(() => {
-  //   console.log({
-  //     schema,
-  //     fields,
-  //   });
-  // }, [schema]);
-  console.log(inputs);
-  const fields = Object.entries(inputs)
-    .filter(([key, value]) => {
-      return (
-        value?.socket.name !== "Trigger" && value?.control && value?.showControl
-      );
-    })
-    .map(([key, input]) => ({
-      name: key,
-      type: input?.socket.name,
-    }));
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Separator />
-        {fields?.map((f: any) => (
-          <FormField
-            key={f.name}
-            control={form.control}
-            name={f.name}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{f.name}</FormLabel>
-                <FormControl>
-                  {renderFieldBaseOnSocketType(f.type, field)}
-                </FormControl>
-                <FormDescription>{f.description}</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-        <Button>Execute</Button>
-      </form>
-    </Form>
+    <>
+      {Object.entries(inputs).map(([inputKey, input]) => {
+        if (!input?.control || !input?.showControl) return null;
+        return <ControlWrapper control={input.control} label={inputKey} />;
+      })}
+    </>
   );
 };
 
-const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
+const ControlWrapper: React.FC<{ control: any; label: string }> = ({
+  control,
+  label,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,
     type: "control",
     payload: control!,
   });
+  console.log(control);
   return (
     <>
-      <div ref={ref} />
-      <ControlElement data={control} />
+      <div ref={ref} className="space-y-1">
+        <Label htmlFor={control.id} className="capitalize">{label}</Label>
+        <ControlElement data={control} />
+      </div>
     </>
   );
 };

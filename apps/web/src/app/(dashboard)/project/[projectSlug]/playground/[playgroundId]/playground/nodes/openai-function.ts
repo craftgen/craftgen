@@ -7,6 +7,7 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
+import { Icons } from "@/components/icons";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -44,6 +45,10 @@ const OpenAIFunctionCallMachine = createMachine({
       | {
           type: "COMPLETE";
           message: string;
+        }
+      | {
+          type: "SET_VALUE";
+          inputs: Record<string, any[]>;
         };
   },
   states: {
@@ -81,6 +86,14 @@ const OpenAIFunctionCallMachine = createMachine({
             inputs: ({ event }) => event.inputs,
           }),
         },
+        SET_VALUE: {
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
       },
     },
     running: {
@@ -116,6 +129,14 @@ const OpenAIFunctionCallMachine = createMachine({
             error: null,
           }),
         },
+        SET_VALUE: {
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
       },
     },
     complete: {
@@ -137,11 +158,13 @@ export class OpenAIFunctionCall extends BaseNode<
 
   static ID: "openai-function-call";
 
+  icon: keyof typeof Icons = "openAI";
+
   constructor(
     di: DiContainer,
     data: NodeData<typeof OpenAIFunctionCallMachine>
   ) {
-    super("OpenAI Function Call", di, data, OpenAIFunctionCallMachine, {
+    super("OpenAI", di, data, OpenAIFunctionCallMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
           console.log("RUNNING", input);
@@ -199,14 +222,21 @@ export class OpenAIFunctionCall extends BaseNode<
       });
     });
 
-    const input = new ClassicPreset.Input(stringSocket, "Prompt");
+    const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
     input.addControl(
       new ClassicPreset.InputControl("text", {
-        initial: "",
-        change: (value) => value,
+        initial: state.context.inputs.prompt[0] || "",
+        change: (value) => {
+          this.actor.send({
+            type: "SET_VALUE",
+            inputs: {
+              prompt: input.multipleConnections ? [value] : value,
+            },
+          });
+        },
       })
     );
-    this.addInput("prompt", input, );
+    this.addInput("prompt", input);
 
     this.addOutput(
       "message",
@@ -217,8 +247,15 @@ export class OpenAIFunctionCall extends BaseNode<
   async execute(input: any, forward: (output: "trigger") => void) {
     try {
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-        prompt: string;
+        [x: string]: string;
       };
+      const state = this.actor.getSnapshot();
+      Object.keys(this.inputs).forEach((key) => {
+        if (!inputs[key] && this.inputs[key]?.control) {
+          inputs[key] = state.context.inputs[key];
+        }
+      });
+
       console.log("@@@", inputs);
 
       this.actor.send({
