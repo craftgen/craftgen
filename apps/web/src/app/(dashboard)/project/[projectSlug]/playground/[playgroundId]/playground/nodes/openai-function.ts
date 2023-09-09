@@ -6,7 +6,7 @@ import {
   OpenAIChatModelType,
   OpenAIChatSettings,
 } from "modelfusion";
-import { BaseNode, NodeData, baseStateMachine } from "./base";
+import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn } from "../actions";
@@ -27,7 +27,7 @@ const OpenAIFunctionCallMachine = createMachine({
     settings: {
       model: "gpt-3.5-turbo",
       temperature: 0.7,
-      maxTokens: 1000,
+      maxCompletionTokens: 1000,
     },
     validApiKey: null,
     error: null,
@@ -91,14 +91,14 @@ const OpenAIFunctionCallMachine = createMachine({
               ...omit(event, "type"),
               ...(event?.model && {
                 maxTokens:
-                  context.settings?.maxTokens! >
+                  context.settings?.maxCompletionTokens! >
                   OPENAI_CHAT_MODELS[
                     event.model as keyof typeof OPENAI_CHAT_MODELS
                   ].contextWindowSize
                     ? OPENAI_CHAT_MODELS[
                         event.model as keyof typeof OPENAI_CHAT_MODELS
                       ].contextWindowSize
-                    : context.settings?.maxTokens,
+                    : context.settings?.maxCompletionTokens,
               }),
             }),
           }),
@@ -264,7 +264,7 @@ export class OpenAIFunctionCall extends BaseNode<
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
-            maxTokens: val,
+            maxCompletionTokens: val,
           });
         },
         max: this.contextWindowSize,

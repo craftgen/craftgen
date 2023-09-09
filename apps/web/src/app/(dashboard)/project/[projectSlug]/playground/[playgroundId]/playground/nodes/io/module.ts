@@ -223,19 +223,18 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
       this.addControl(
         "select_input",
-        new SelectControl(
-          state.context.inputId,
-          "Select Input",
-          inputs,
-          (value) => {
+        new SelectControl(state.context.inputId, {
+          placeholder: "Select Input",
+          values: inputs,
+          change: (value) => {
             console.log("SET INPUT", value);
             this.actor.send({
               type: "SET_INPUT",
               inputId: value,
             });
             this.update();
-          }
-        )
+          },
+        })
       );
     } else {
       this.removeControl("select_input");

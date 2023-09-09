@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { deleteProject, updateProject } from "../actions";
 import { mutate } from "swr";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,8 +46,8 @@ export const ProjectSettingsSection = () => {
 
 export const ProjectDeleteSection = () => {
   const { data: project } = useProject();
-  if (!project) return null;
   const router = useRouter();
+  if (!project) return null;
   const handleDelete = async () => {
     await deleteProject({ id: project?.id! });
     router.push("/dashboard");

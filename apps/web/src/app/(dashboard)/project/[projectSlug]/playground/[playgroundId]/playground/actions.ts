@@ -2,11 +2,13 @@
 
 import { db } from "@seocraft/supabase/db";
 import {
-  OPENAI_CHAT_MODELS,
+  OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,
   OpenAIChatModel,
   OpenAIChatSettings,
   generateText,
+  retryWithExponentialBackoff,
+  throttleMaxConcurrency,
 } from "modelfusion";
 
 export const generateTextFn = async ({
@@ -23,9 +25,19 @@ export const generateTextFn = async ({
     apiKey: "OPENAI_API_KEY",
   });
   if (!apiKey) throw new Error("Missing API Key, `OPENAI_API_KEY`");
+  const api = new OpenAIApiConfiguration({
+    apiKey: apiKey,
+    throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
+    retry: retryWithExponentialBackoff({
+      maxTries: 8,
+      initialDelayInMs: 1000,
+      backoffFactor: 2,
+    }),
+  });
+
   const text = await generateText(
     new OpenAIChatModel({
-      apiKey,
+      api,
       ...settings,
     }).withPromptFormat(OpenAIChatChatPromptFormat()),
     [

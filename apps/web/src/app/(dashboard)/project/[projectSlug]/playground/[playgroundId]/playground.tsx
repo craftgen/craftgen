@@ -422,7 +422,7 @@ export const DynamicInputsForm: React.FC<{
         if (!input?.control || !input?.showControl) {
           if (input?.socket.name === "Trigger") return null;
           return (
-            <Alert variant={"default"}>
+            <Alert variant={"default"} key={inputKey}>
               <AlertTitle>
                 Input: <Badge>{inputKey}</Badge>
               </AlertTitle>
@@ -432,7 +432,13 @@ export const DynamicInputsForm: React.FC<{
             </Alert>
           );
         }
-        return <ControlWrapper control={input.control} label={inputKey} />;
+        return (
+          <ControlWrapper
+            key={inputKey}
+            control={input.control}
+            label={inputKey}
+          />
+        );
       })}
     </>
   );
