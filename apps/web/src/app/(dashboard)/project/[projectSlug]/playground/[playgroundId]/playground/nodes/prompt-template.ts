@@ -22,6 +22,7 @@ const PromptTemplateNodeMachine = createMachine({
     rendered: "",
     variables: [],
     inputs: {},
+    outputs: {},
     error: null,
   },
   types: {
@@ -30,6 +31,7 @@ const PromptTemplateNodeMachine = createMachine({
       rendered: string;
       variables: string[];
       inputs: Record<string, any[]>;
+      outputs: Record<string, any>;
       error: {
         name: string;
         message: string;

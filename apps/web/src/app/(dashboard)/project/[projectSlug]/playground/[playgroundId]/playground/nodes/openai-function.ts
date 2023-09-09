@@ -164,7 +164,13 @@ const OpenAIFunctionCallMachine = createMachine({
     },
     complete: {
       on: {
-        RUN: "running",
+        RUN: {
+          target: "running",
+          actions: assign({
+            inputs: ({ event }) => event.inputs,
+            error: null,
+          }),
+        },
       },
       after: {
         1000: "idle",
@@ -325,6 +331,16 @@ export class OpenAIFunctionCall extends BaseNode<
       Object.keys(this.inputs).forEach((key) => {
         if (!inputs[key] && this.inputs[key]?.control) {
           inputs[key] = state.context.inputs[key];
+        }
+      });
+
+      // Normalize inputs based on if input accepts multipleConnections
+      // If not, flatten the value instead of array
+      Object.keys(inputs).forEach((key) => {
+        if (!this.inputs[key]?.multipleConnections) {
+          inputs[key] = Array.isArray(inputs[key])
+            ? inputs[key][0]
+            : inputs[key];
         }
       });
 
