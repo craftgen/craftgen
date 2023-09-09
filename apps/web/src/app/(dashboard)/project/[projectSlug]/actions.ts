@@ -17,7 +17,6 @@ import {
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
-import { TEXT } from "react-dnd-html5-backend/dist/NativeTypes";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({

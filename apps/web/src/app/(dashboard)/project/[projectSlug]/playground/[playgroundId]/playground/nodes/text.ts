@@ -9,13 +9,12 @@ const TextNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
   id: "textNode",
   context: {
-    value: "text",
+    outputs: {
+      value: "",
+    },
   },
   initial: "idle",
   types: {
-    context: {} as {
-      value: string;
-    },
     events: {} as {
       type: "change";
       value: string;
@@ -52,7 +51,9 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
     super("text", di, data, TextNodeMachine, {
       actions: {
         updateValue: assign({
-          value: ({ event }) => event.value,
+          outputs: ({ event }) => ({
+            value: event.value,
+          }),
         }),
       },
     });
@@ -61,7 +62,7 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
     this.addControl(
       "value",
       new ClassicPreset.InputControl("text", {
-        initial: state?.context?.value || "",
+        initial: state?.context?.outputs?.value || "",
         change(value) {
           self.actor.send({ type: "change", value });
         },
@@ -74,9 +75,7 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
 
   data() {
     const state = this.actor.getSnapshot();
-    return {
-      value: state.context.value,
-    };
+    return state.context.outputs;
   }
 
   async serialize() {

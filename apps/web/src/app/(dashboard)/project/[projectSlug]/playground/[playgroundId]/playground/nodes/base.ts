@@ -61,6 +61,7 @@ export class BaseNode<
     this.id = data.id;
     this.di = di;
     const a = machine.provide(machineImplements as any);
+    console.log("MMM", a);
     this.actor = createActor(a, {
       id: this.id,
       ...(data?.state !== null && { state: data.state }), // This needs to be stay state.

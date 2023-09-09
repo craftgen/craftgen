@@ -6,7 +6,7 @@ import {
   OpenAIChatModelType,
   OpenAIChatSettings,
 } from "modelfusion";
-import { BaseNode, NodeData } from "./base";
+import { BaseNode, NodeData, baseStateMachine } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn } from "../actions";
@@ -362,7 +362,6 @@ export class OpenAIFunctionCall extends BaseNode<
 
   async data(inputs: any) {
     let state = this.actor.getSnapshot();
-    console.log("state", state, inputs);
     if (this.inputs.trigger) {
       this.actor.subscribe((newState) => {
         state = newState;

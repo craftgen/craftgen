@@ -34,27 +34,13 @@ import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { NodeProps } from "./playground/types";
-import {
-  InputWindow,
-  renderField,
-  renderFieldBaseOnSocketType,
-} from "./playground/input/tab";
-import { useForm } from "react-hook-form";
-import { ajvResolver } from "@hookform/resolvers/ajv";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
+import { InputWindow } from "./playground/input/tab";
 import { Socket } from "./playground/sockets";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -342,7 +328,6 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
     return Object.entries(node.outputs)
       .filter(([key, output]) => output?.socket.name !== "Trigger")
       .map(([key, output]) => {
-        console.log(output);
         return {
           key,
           socket: output?.socket,
@@ -350,14 +335,46 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
         };
       });
   }, [state]);
-  console.log(outputs);
   return (
-    <div className="h-full w-full flex flex-col flex-1">
-      <div className="flex flex-col h-full overflow-hidden p-4">
-        <DynamicInputsForm inputs={node.inputs} />
+    <div className="h-full w-full flex flex-col">
+      <Tabs defaultValue="controls" className="p-4 h-full">
+        <TabsList>
+          <TabsTrigger value="controls">Controls</TabsTrigger>
+          <TabsTrigger value="inputs">Inputs</TabsTrigger>
+          <TabsTrigger value="outputs">Outputs</TabsTrigger>
+        </TabsList>
+        <TabsContent value="controls" className="h-full">
+          <div className="flex flex-col h-full overflow-hidden gap-4 ">
+            <ScrollArea>
+              {controls.map(([key, control]) => (
+                <ControlWrapper key={key} control={control} label={key} />
+              ))}
+            </ScrollArea>
+          </div>
+        </TabsContent>
+        <TabsContent value="inputs" className="h-full">
+          <ScrollArea>
+            <div className="flex flex-col h-full overflow-hidden space-y-2">
+              <DynamicInputsForm inputs={node.inputs} />
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="outputs" className="h-full">
+          <ScrollArea>
+            {outputs.map((output) => (
+              <div key={output.key} className="">
+                <Label className="capitalize">{output.key}</Label>
+                {renderFieldValueBaseOnSocketType(output.socket!, output.value)}
+              </div>
+            ))}
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+      {/* <div className="flex flex-col h-full overflow-hidden p-4">
         {controls.map(([key, control]) => (
           <ControlWrapper key={key} control={control} label={key} />
         ))}
+        <DynamicInputsForm inputs={node.inputs} />
       </div>
       <Separator />
       <div>
@@ -367,7 +384,7 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
             {renderFieldValueBaseOnSocketType(output.socket!, output.value)}
           </div>
         ))}
-      </div>
+      </div> */}
 
       {state.matches("error") && (
         <div className="py-4 px-4">
@@ -402,7 +419,19 @@ export const DynamicInputsForm: React.FC<{
   return (
     <>
       {Object.entries(inputs).map(([inputKey, input]) => {
-        if (!input?.control || !input?.showControl) return null;
+        if (!input?.control || !input?.showControl) {
+          if (input?.socket.name === "Trigger") return null;
+          return (
+            <Alert variant={"default"}>
+              <AlertTitle>
+                Input: <Badge>{inputKey}</Badge>
+              </AlertTitle>
+              <AlertDescription>
+                This input controlled by the incoming connection.
+              </AlertDescription>
+            </Alert>
+          );
+        }
         return <ControlWrapper control={input.control} label={inputKey} />;
       })}
     </>
@@ -421,7 +450,7 @@ const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   });
   return (
     <>
-      <div ref={ref} className="space-y-1">
+      <div ref={ref} className="space-y-1 flex flex-col">
         <Label htmlFor={control.id} className="capitalize">
           {label}
         </Label>

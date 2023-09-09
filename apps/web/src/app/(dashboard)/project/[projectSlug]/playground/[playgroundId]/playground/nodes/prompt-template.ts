@@ -19,7 +19,6 @@ const PromptTemplateNodeMachine = createMachine({
   initial: "idle",
   context: {
     template: "",
-    rendered: "",
     variables: [],
     inputs: {},
     outputs: {},
@@ -28,7 +27,6 @@ const PromptTemplateNodeMachine = createMachine({
   types: {
     context: {} as {
       template: string;
-      rendered: string;
       variables: string[];
       inputs: Record<string, any[]>;
       outputs: Record<string, any>;
@@ -47,8 +45,8 @@ const PromptTemplateNodeMachine = createMachine({
           inputs: any;
         }
       | {
-          type: "data";
-          inputs: any;
+          type: "SET_VALUE";
+          inputs: Record<string, any[]>;
         },
   },
   states: {
@@ -71,6 +69,14 @@ const PromptTemplateNodeMachine = createMachine({
           target: "typing",
           actions: "updateValue",
         },
+        SET_VALUE: {
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
       },
     },
 
@@ -88,28 +94,64 @@ const PromptTemplateNodeMachine = createMachine({
         },
       },
     },
-
+    ready: {
+      on: {
+        change: "typing",
+        render: {
+          target: "running",
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
+        SET_VALUE: {
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
+      },
+    },
     error: {
+      exit: () => {
+        assign({
+          error: null,
+        });
+      },
       on: {
         change: {
           target: "typing",
           actions: "updateValue",
         },
-        render: "idle",
-        data: {
+        render: {
+          target: "running",
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
+        SET_VALUE: {
           target: "ready",
           actions: assign({
-            inputs: ({ event }) => event.inputs,
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
           }),
         },
       },
     },
 
-    ready: {
+    running: {
       invoke: {
         src: "render",
-        input: ({ context }: any) => ({
-          // TODO:XSTATE
+        input: ({ context }) => ({
           template: context.template,
           inputs: context.inputs,
         }),
@@ -123,30 +165,16 @@ const PromptTemplateNodeMachine = createMachine({
           }),
         },
         onDone: {
-          actions: assign({
-            rendered: ({ event }) => event.output,
-          }),
-        },
-      },
-      on: {
-        change: "typing",
-        data: {
           target: "ready",
           actions: assign({
-            inputs: ({ event }) => event.inputs,
+            outputs: ({ event }) => ({ value: event.output }),
           }),
-        },
-        render: {
-          target: "ready",
-          actions: assign({
-            inputs: ({ event }) => event.inputs,
-          }),
-          reenter: true,
         },
       },
     },
   },
 });
+
 const renderFunc = async ({
   input,
 }: {
@@ -158,9 +186,9 @@ const renderFunc = async ({
   const values = Object.entries(input.inputs).reduce((prev, curr) => {
     const [key, value] = curr as [string, any[]];
     if (key.includes(".")) {
-      set(prev, key, get(value[0], key));
+      set(prev, key, get(value, key));
     } else {
-      set(prev, key, value[0]);
+      set(prev, key, value);
     }
     return prev;
   }, {} as Record<string, string>);
@@ -181,7 +209,6 @@ export class PromptTemplate extends BaseNode<
     debug: DebugControl;
   }
 > {
-  width = 400;
   icon: keyof typeof Icons = "text-select";
   constructor(
     di: DiContainer,
@@ -232,8 +259,7 @@ export class PromptTemplate extends BaseNode<
 
   process() {
     const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.variables;
-
+    const rawTemplate: string[] = state.context.variables;
     for (const item of Object.keys(this.inputs)) {
       if (rawTemplate.includes(item)) continue;
       const connections = this.di.editor
@@ -245,28 +271,43 @@ export class PromptTemplate extends BaseNode<
 
     for (const item of rawTemplate) {
       if (this.hasInput(item)) continue;
-      this.addInput(item, new ClassicPreset.Input(stringSocket, item, false));
+      const input = new ClassicPreset.Input(stringSocket, item, false);
+      input.addControl(
+        new ClassicPreset.InputControl("text", {
+          initial: state.context.inputs[item] || "",
+          change: (value) => {
+            console.log(value);
+            this.actor.send({
+              type: "SET_VALUE",
+              inputs: {
+                [item]: value,
+              },
+            });
+          },
+        })
+      );
+      this.addInput(item, input);
     }
   }
 
   execute() {}
 
-  data(inputs: { [key: string]: [string | number] }) {
-    console.log(inputs);
+  async data(inputs: { [key: string]: [string | number] }) {
     this.actor.send({
-      type: "data",
+      type: "render",
       inputs,
     });
-    const state = this.actor.getSnapshot();
-    const rendered = renderFunc({
-      input: {
-        template: state.context.template,
-        inputs,
-      },
+    let state = this.actor.getSnapshot();
+    const subs = this.actor.subscribe((newState) => {
+      state = newState;
+      console.log("state", newState, inputs);
     });
-    return {
-      value: rendered,
-    };
+    while (state.matches("running")) {
+      console.log("waiting for complete");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    subs.unsubscribe();
+    return state.context.outputs;
   }
 
   async serialize(): Promise<Data> {
