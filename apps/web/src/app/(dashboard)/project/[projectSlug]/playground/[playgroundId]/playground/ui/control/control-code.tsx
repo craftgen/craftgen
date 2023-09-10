@@ -45,21 +45,23 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   return (
     // <div ref={ref} className="flex-1 h-full w-full  bg-red-500">
     //   {height}
-      <Editor
-        defaultValue={code}
-        theme={theme === "dark" ? "vs-dark" : "light"}
-        language={props.data.language}
-        className="min-h-[20rem] h-full border object-fill rounded "
-        height={height - 200}
-        options={{
-          minimap: {
-            enabled: false,
-          },
-          lineNumbers: "off",
-          scrollBeyondLastLine: false,
-        }}
-        onChange={handleChange}
-      />
+    <Editor
+      defaultValue={code}
+      theme={theme === "dark" ? "vs-dark" : "light"}
+      language={props.data.language}
+      className="min-h-[20rem] h-full border object-fill rounded "
+      height={height - 200}
+      options={{
+        minimap: {
+          enabled: false,
+        },
+        lineNumbers: "off",
+        wordWrap: "on",
+        wordWrapColumn: 80,
+        scrollBeyondLastLine: false,
+      }}
+      onChange={handleChange}
+    />
     // </div>
   );
 }
