@@ -1,4 +1,4 @@
-import { assign, createMachine } from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
@@ -18,12 +18,14 @@ const composeObjectMachine = createMachine({
       name: string;
       description?: string;
       inputs: JSONSocket[];
+      schema: any;
     };
     events: {
       type: "change";
       name: string;
       description?: string;
       inputs: JSONSocket[];
+      schema: any;
     };
   },
   context: {
@@ -36,6 +38,7 @@ const composeObjectMachine = createMachine({
         description: "Name of the object",
       },
     ],
+    schema: {},
   },
   states: {
     idle: {
@@ -46,6 +49,7 @@ const composeObjectMachine = createMachine({
             inputs: ({ event }) => event.inputs,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
+            schema: ({ event }) => event.schema,
           }),
           reenter: true,
         },
@@ -57,7 +61,15 @@ const composeObjectMachine = createMachine({
 export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   icon: keyof typeof Icons = "braces";
   constructor(di: DiContainer, data: NodeData<typeof composeObjectMachine>) {
-    super("Componse Object", di, data, composeObjectMachine, {});
+    super("Componse Object", di, data, composeObjectMachine, {
+      actors: {
+        process: fromPromise(async ({ input }) => {
+          console.log("PROCESSING", input);
+          const schema = createJsonSchema(input.inputs);
+          return schema;
+        }),
+      },
+    });
 
     this.addOutput("object", new ClassicPreset.Output(objectSocket, "Object"));
     this.addOutput("schema", new ClassicPreset.Output(objectSocket, "Schema"));
@@ -74,11 +86,13 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
         sockets: state.context.inputs,
       },
       onChange: ({ sockets, name, description }) => {
+        const schema = createJsonSchema(sockets);
         this.actor.send({
           type: "change",
           name,
           description,
           inputs: sockets,
+          schema,
         });
       },
     });
@@ -132,14 +146,12 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       };
     }, {});
 
-    const schema = createJsonSchema(state.context.inputs);
-
     return {
       object: flatten,
       schema: {
         name: state.context.name,
         description: state.context.description,
-        ...schema,
+        ...state.context.schema,
       },
     };
   }

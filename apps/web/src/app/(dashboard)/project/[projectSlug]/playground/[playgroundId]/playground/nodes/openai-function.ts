@@ -3,13 +3,13 @@ import { DiContainer } from "../editor";
 import { SelectControl } from "../ui/control/control-select";
 import {
   OPENAI_CHAT_MODELS,
-  OpenAIChatModelType,
   OpenAIChatSettings,
+  generateJson,
 } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
-import { stringSocket, triggerSocket } from "../sockets";
-import { getApiKeyValue, generateTextFn } from "../actions";
+import { objectSocket, stringSocket, triggerSocket } from "../sockets";
+import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { Icons } from "@/components/icons";
 import { SliderControl } from "../ui/control/control-slider";
@@ -90,7 +90,7 @@ const OpenAIFunctionCallMachine = createMachine({
               ...context.settings,
               ...omit(event, "type"),
               ...(event?.model && {
-                maxTokens:
+                maxCompletionTokens:
                   context.settings?.maxCompletionTokens! >
                   OPENAI_CHAT_MODELS[
                     event.model as keyof typeof OPENAI_CHAT_MODELS
@@ -152,6 +152,25 @@ const OpenAIFunctionCallMachine = createMachine({
             error: null,
           }),
         },
+        CONFIG_CHANGE: {
+          actions: assign({
+            settings: ({ context, event }) => ({
+              ...context.settings,
+              ...omit(event, "type"),
+              ...(event?.model && {
+                maxCompletionTokens:
+                  context.settings?.maxCompletionTokens! >
+                  OPENAI_CHAT_MODELS[
+                    event.model as keyof typeof OPENAI_CHAT_MODELS
+                  ].contextWindowSize
+                    ? OPENAI_CHAT_MODELS[
+                        event.model as keyof typeof OPENAI_CHAT_MODELS
+                      ].contextWindowSize
+                    : context.settings?.maxCompletionTokens,
+              }),
+            }),
+          }),
+        },
         SET_VALUE: {
           actions: assign({
             inputs: ({ context, event }) => ({
@@ -198,10 +217,16 @@ export class OpenAIFunctionCall extends BaseNode<
         run: fromPromise(async ({ input }) => {
           console.log("RUNNING", input);
           const store = di.store.getState();
-          const res = await generateTextFn({
+          // const res = await generateTextFn({
+          //   projectId: store.projectId,
+          //   settings: input.settings,
+          //   user: await input.inputs.prompt,
+          // });
+          const res = await genereteJsonFn({
             projectId: store.projectId,
             settings: input.settings,
             user: await input.inputs.prompt,
+            schema: await input.inputs.schema[0],
           });
           // const res = new Promise((resolve) => setTimeout(resolve, 5000));
           return { message: res };
@@ -227,6 +252,10 @@ export class OpenAIFunctionCall extends BaseNode<
     const state = this.actor.getSnapshot();
 
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
+    this.addInput(
+      "schema",
+      new ClassicPreset.Input(objectSocket, "Schema", true)
+    );
     this.addControl(
       "model",
       new SelectControl<OPENAI_CHAT_MODELS_KEY>(state.context.settings.model, {
@@ -245,6 +274,7 @@ export class OpenAIFunctionCall extends BaseNode<
         ],
       })
     );
+
     this.addControl(
       "temprature",
       new SliderControl(state.context.settings.temperature, {
@@ -259,8 +289,8 @@ export class OpenAIFunctionCall extends BaseNode<
       })
     );
     this.addControl(
-      "maxTokens",
-      new SliderControl(state.context.settings.maxTokens, {
+      "maxCompletionTokens",
+      new SliderControl(state.context.settings.maxCompletionTokens, {
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -275,16 +305,16 @@ export class OpenAIFunctionCall extends BaseNode<
       console.log("OPENAI ACTOR", {
         state,
       });
-      if (this.hasControl("maxTokens")) {
-        this.removeControl("maxTokens");
+      if (this.hasControl("maxCompletionTokens")) {
+        this.removeControl("maxCompletionTokens");
       }
       this.addControl(
-        "maxTokens",
-        new SliderControl(state.context.settings.maxTokens, {
+        "maxCompletionTokens",
+        new SliderControl(state.context.settings.maxCompletionTokens, {
           change: (val) => {
             this.actor.send({
               type: "CONFIG_CHANGE",
-              maxTokens: val,
+              maxCompletionTokens: val,
             });
           },
           max: this.contextWindowSize,
@@ -343,6 +373,8 @@ export class OpenAIFunctionCall extends BaseNode<
             : inputs[key];
         }
       });
+
+      console.log(inputs);
 
       this.actor.send({
         type: "RUN",

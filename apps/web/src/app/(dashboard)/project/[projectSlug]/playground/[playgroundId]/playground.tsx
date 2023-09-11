@@ -345,7 +345,7 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
         </TabsList>
         <TabsContent value="controls" className="h-full">
           <div className="flex flex-col h-full overflow-hidden gap-4 ">
-            <ScrollArea>
+            <ScrollArea className="h-full">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
@@ -353,11 +353,11 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
           </div>
         </TabsContent>
         <TabsContent value="inputs" className="h-full">
-          <ScrollArea>
-            <div className="flex flex-col h-full overflow-hidden space-y-2">
+          <div className="flex flex-col h-full overflow-hidden space-y-2">
+            <ScrollArea className="px-4 pb-10">
               <DynamicInputsForm inputs={node.inputs} />
-            </div>
-          </ScrollArea>
+            </ScrollArea>
+          </div>
         </TabsContent>
         <TabsContent value="outputs" className="h-full">
           <ScrollArea>
@@ -370,29 +370,12 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
           </ScrollArea>
         </TabsContent>
       </Tabs>
-      {/* <div className="flex flex-col h-full overflow-hidden p-4">
-        {controls.map(([key, control]) => (
-          <ControlWrapper key={key} control={control} label={key} />
-        ))}
-        <DynamicInputsForm inputs={node.inputs} />
-      </div>
-      <Separator />
-      <div>
-        {outputs.map((output) => (
-          <div key={output.key} className="px-4 py-2">
-            <Label>{output.key}</Label>
-            {renderFieldValueBaseOnSocketType(output.socket!, output.value)}
-          </div>
-        ))}
-      </div> */}
-
       {state.matches("error") && (
         <div className="py-4 px-4">
           <Alert variant={"destructive"} className="">
             <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>{state.context.error?.name}</AlertTitle>
             <AlertDescription>{state.context.error?.message}</AlertDescription>
-            {state.context.error.name}
           </Alert>
         </div>
       )}
