@@ -210,19 +210,22 @@ export class OpenAIFunctionCall extends BaseNode<
         run: fromPromise(async ({ input }) => {
           console.log("RUNNING", input);
           const store = di.store.getState();
-          // const res = await generateTextFn({
-          //   projectId: store.projectId,
-          //   settings: input.settings,
-          //   user: await input.inputs.prompt,
-          // });
-          const res = await genereteJsonFn({
-            projectId: store.projectId,
-            settings: input.settings,
-            user: await input.inputs.prompt,
-            schema: await input.inputs.schema[0],
-          });
-          // const res = new Promise((resolve) => setTimeout(resolve, 5000));
-          return { message: res };
+          if (input.settings.resultType === "text") {
+            const res = await generateTextFn({
+              projectId: store.projectId,
+              settings: input.settings.openai,
+              user: await input.inputs.prompt,
+            });
+            return { message: res };
+          } else {
+            const res = await genereteJsonFn({
+              projectId: store.projectId,
+              settings: input.settings.openai,
+              user: await input.inputs.prompt,
+              schema: await input.inputs.schema[0],
+            });
+            return { message: res };
+          }
         }),
         check_api_key: fromPromise(async () => {
           console.log("CHECKING API KEY", di.store.getState().projectId);
@@ -327,9 +330,6 @@ export class OpenAIFunctionCall extends BaseNode<
       })
     );
     this.actor.subscribe((state) => {
-      console.log("OPENAI ACTOR", {
-        state,
-      });
       if (this.hasControl("maxCompletionTokens")) {
         this.removeControl("maxCompletionTokens");
       }
@@ -348,6 +348,15 @@ export class OpenAIFunctionCall extends BaseNode<
           step: 1,
         })
       );
+      if (state.context.settings.resultType === "json") {
+        if (this.outputs?.result) {
+          this.outputs.result.socket = objectSocket;
+        }
+      } else {
+        if (this.outputs?.result) {
+          this.outputs.result.socket = stringSocket;
+        }
+      }
     });
 
     const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
@@ -365,11 +374,7 @@ export class OpenAIFunctionCall extends BaseNode<
       })
     );
     this.addInput("prompt", input);
-
-    this.addOutput(
-      "message",
-      new ClassicPreset.Output(stringSocket, "Message")
-    );
+    this.addOutput("result", new ClassicPreset.Output(stringSocket, "Output"));
   }
 
   get contextWindowSize() {
