@@ -30,7 +30,7 @@ export async function createNode({
     TextNode: (di, data) => new Nodes.TextNode(di, data),
     PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
-    Replicate: (di, data) => new Nodes.ReplicateNode(di, data),
+    Replicate: (di, data) => new Nodes.Replicate(di, data),
     DataSource: (di, data) => new Nodes.DataSource(di, data),
 
     DatabaseDelete: (di, data) => new Nodes.DatabaseDelete(di, data),

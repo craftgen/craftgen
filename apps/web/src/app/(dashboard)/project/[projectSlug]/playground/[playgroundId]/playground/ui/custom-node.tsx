@@ -198,7 +198,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
     return subs.unsubscribe;
   }, []);
   const NodeIcon = React.useMemo(() => {
-    return nodesMeta[props.data.constructor.name as NodeTypes].icon;
+    return nodesMeta[props.data.ID].icon;
   }, []);
 
   return (

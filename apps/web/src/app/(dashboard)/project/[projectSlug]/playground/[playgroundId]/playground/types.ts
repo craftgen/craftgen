@@ -19,7 +19,7 @@ import {
   ModuleNode,
 } from "./nodes";
 import { Icon, Icons } from "@/components/icons";
-import { ReplicateNode } from "./nodes/replicate";
+import { Replicate } from "./nodes/replicate";
 
 export const nodes = {
   Start: Start,
@@ -42,7 +42,7 @@ export const nodes = {
   Output: Output,
   ModuleNode: ModuleNode,
 
-  Replicate: ReplicateNode,
+  Replicate: Replicate,
 } as const;
 
 export const nodesMeta: Record<

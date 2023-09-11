@@ -216,7 +216,7 @@ export class OpenAIFunctionCall extends BaseNode<
               settings: input.settings.openai,
               user: await input.inputs.prompt,
             });
-            return { output: res };
+            return { result: res };
           } else {
             const res = await genereteJsonFn({
               projectId: store.projectId,
@@ -224,7 +224,7 @@ export class OpenAIFunctionCall extends BaseNode<
               user: await input.inputs.prompt,
               schema: await input.inputs.schema[0],
             });
-            return { output: res };
+            return { result: res };
           }
         }),
         check_api_key: fromPromise(async () => {
