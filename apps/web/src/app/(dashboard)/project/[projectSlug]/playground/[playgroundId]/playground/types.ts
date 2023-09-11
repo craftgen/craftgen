@@ -116,7 +116,7 @@ export const nodesMeta: Record<
   Article: {
     name: "Article",
     description: "Node for handling articles",
-    icon: Icons["box-select"],
+    icon: Icons.newspaper,
   },
   Input: {
     name: "Input",

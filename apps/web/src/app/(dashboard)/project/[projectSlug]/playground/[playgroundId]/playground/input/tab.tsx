@@ -150,3 +150,27 @@ export const renderFieldBaseOnSocketType = (
       return null;
   }
 };
+
+export const renderControlBaseOnSocketType = (
+  type: SocketNameType,
+  field: ControllerRenderProps
+) => {
+  switch (type) {
+    case "String":
+      return new Contro
+    //   return <Input placeholder="seocraft" {...field} />;
+    // case "Number":
+    //   return (
+    //     <Input
+    //       type="number"
+    //       placeholder="123"
+    //       {...field}
+    //       onChange={(e) => field.onChange(Number(e.target.value))}
+    //     />
+    //   );
+    // case "Boolean":
+    //   return <Input type="checkbox" {...field} />;
+    default:
+      return null;
+  }
+}

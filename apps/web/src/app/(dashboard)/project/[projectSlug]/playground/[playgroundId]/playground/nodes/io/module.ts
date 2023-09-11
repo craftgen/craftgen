@@ -295,7 +295,21 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
     inputs.forEach((item) => {
       const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addInput(item.name, new ClassicPreset.Input(socket, item.name));
+      const input = new ClassicPreset.Input(socket, item.name);
+      input.addControl(
+        new ClassicPreset.InputControl("text", {
+          initial: item.description,
+          change: (value) => {
+            this.actor.send({
+              type: "change",
+              name: item.name,
+              description: value,
+            });
+          },
+        })
+      );
+      // input.addControl("input", new JSONSocket(item.type, item.name, item.description))
+      this.addInput(item.name, input);
     });
     outputs.forEach((key) => {
       this.addOutput(key, new ClassicPreset.Output(anySocket, key)); // TODO: match type

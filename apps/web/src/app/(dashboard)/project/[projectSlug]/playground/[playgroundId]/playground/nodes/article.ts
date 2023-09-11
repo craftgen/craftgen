@@ -7,6 +7,7 @@ import { stringSocket, triggerSocket } from "../sockets";
 import { ArticleControl } from "../ui/control/control-editor";
 import { MyValue } from "@/lib/plate/plate-types";
 import { createNode } from "@udecode/plate-common";
+import { createTmpEditor } from "@/components/editor";
 
 const ArticleNodeMachine = createMachine({
   id: "articleNode",
@@ -27,7 +28,7 @@ const ArticleNodeMachine = createMachine({
         id: uuidv4(),
         children: [
           {
-            text: "Awesome Article",
+            text: "",
           },
         ],
       },
@@ -78,6 +79,13 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
       articleController.value = state.context.nodes;
     });
     this.addControl("article", articleController);
+    this.addOutput(
+      "Markdown",
+      new ClassicPreset.Output(stringSocket, "Markdown")
+    );
+
+    this.addOutput("HTML", new ClassicPreset.Output(stringSocket, "HTML"));
+    this.addOutput("JSON", new ClassicPreset.Output(stringSocket, "JSON"));
   }
 
   async execute() {
@@ -104,6 +112,9 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
   }
 
   data() {
+    const state = this.actor.getSnapshot();
+    console.log("ARTICLE State", state);
+    const editor = createTmpEditor();
     return {};
   }
 
