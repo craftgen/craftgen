@@ -62,7 +62,10 @@ export async function createNode({
     });
     console.log("creating new node with", { data, nodeInDb });
     const node = await matched(di, {
-      ...nodeInDb,
+      ...data,
+      id: nodeInDb.id,
+      type: nodeInDb.type,
+      project_id: nodeInDb.project_id,
     });
     return node;
   }
