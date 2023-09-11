@@ -19,6 +19,7 @@ import {
   ModuleNode,
 } from "./nodes";
 import { Icon, Icons } from "@/components/icons";
+import { ReplicateNode } from "./nodes/replicate";
 
 export const nodes = {
   Start: Start,
@@ -40,6 +41,8 @@ export const nodes = {
   Input: Input,
   Output: Output,
   ModuleNode: ModuleNode,
+
+  Replicate: ReplicateNode,
 } as const;
 
 export const nodesMeta: Record<
@@ -129,6 +132,11 @@ export const nodesMeta: Record<
     name: "Module Node",
     description: "Node for handling module nodes",
     icon: Icons.component,
+  },
+  Replicate: {
+    name: "Replicate",
+    description: "For using Replicate API",
+    icon: Icons["box-select"],
   },
 };
 type ValueOf<T> = T[keyof T];

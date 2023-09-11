@@ -23,8 +23,11 @@ export class DatabaseInsert extends BaseNode<
   {}
 > {
   constructor(di: DiContainer, data: NodeData<typeof databaseInsertMachine>) {
-    super("Database Insert", di, data, databaseInsertMachine, {});
-    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "Exec", true));
+    super("DatabaseInsert", "Insert", di, data, databaseInsertMachine, {});
+    this.addInput(
+      "trigger",
+      new ClassicPreset.Input(triggerSocket, "Exec", true)
+    );
     this.addInput(
       "databaseId",
       new ClassicPreset.Input(databaseIdSocket, "databaseId", false)

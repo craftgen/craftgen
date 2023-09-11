@@ -11,6 +11,7 @@ import {
 import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
 import { Socket } from "../sockets";
+import { NodeTypes } from "../types";
 
 export type NodeData<T extends AnyStateMachine> = {
   id: string;
@@ -45,10 +46,10 @@ export class BaseNode<
   width = 200;
   height = 200;
 
-
   state: "idle" | "running" | "error" = "idle";
 
   constructor(
+    public readonly ID: NodeTypes,
     label: string,
     di: DiContainer,
     data: NodeData<Machine>,

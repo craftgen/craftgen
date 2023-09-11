@@ -37,7 +37,7 @@ const OutputNodeMachine = createMachine({
 
 export class Output extends BaseNode<typeof OutputNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof OutputNodeMachine>) {
-    super("Output", di, data, OutputNodeMachine, {});
+    super("Output", "Output", di, data, OutputNodeMachine, {});
 
     const state = this.actor.getSnapshot();
     this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));

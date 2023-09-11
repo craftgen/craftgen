@@ -13,7 +13,7 @@ export class DatabaseUpsert extends BaseNode<
   {}
 > {
   constructor(di: DiContainer, data: NodeData<typeof databaseUpsertMachine>) {
-    super("DatabaseUpsert", di, data, databaseUpsertMachine, {});
+    super("DatabaseUpsert", "Upsert", di, data, databaseUpsertMachine, {});
   }
 
   async execute() {}

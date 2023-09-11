@@ -8,7 +8,7 @@ const replicateMachine = createMachine({
 
 export class ReplicateNode extends BaseNode<typeof replicateMachine> {
   constructor(di: DiContainer, data: NodeData<typeof replicateMachine>) {
-    super("OpenAI Function Call", di, data, replicateMachine, {});
+    super("Replicate", "Replicate", di, data, replicateMachine, {});
   }
 
   async execute() {}

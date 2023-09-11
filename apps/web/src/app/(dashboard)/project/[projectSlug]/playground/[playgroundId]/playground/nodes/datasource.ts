@@ -83,7 +83,7 @@ const datasetMachine = createMachine({
 
 export class DataSource extends BaseNode<typeof datasetMachine> {
   constructor(di: DiContainer, data: NodeData<typeof datasetMachine>) {
-    super("DataSource", di, data, datasetMachine, {
+    super("DataSource", "Data Source", di, data, datasetMachine, {
       actors: {
         fetchDataset: fromPromise(async ({ input }) => {
           console.log("fetching data", input);

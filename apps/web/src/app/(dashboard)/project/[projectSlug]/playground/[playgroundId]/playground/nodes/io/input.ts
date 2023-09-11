@@ -67,7 +67,7 @@ export const InputNodeMachine = createMachine({
 
 export class Input extends BaseNode<typeof InputNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof InputNodeMachine>) {
-    super("Input", di, data, InputNodeMachine, {
+    super("Input", "Input", di, data, InputNodeMachine, {
       actions: {
         create_schema: assign({
           schema: ({ context }) => createJsonSchema(context.outputs),

@@ -13,7 +13,7 @@ export class DatabaseUpdate extends BaseNode<
   {}
 > {
   constructor(di: DiContainer, data: NodeData<typeof databaseUpdateMachine>) {
-    super("DatabaseUpdate", di, data, databaseUpdateMachine, {});
+    super("DatabaseUpdate", "Update", di, data, databaseUpdateMachine, {});
   }
 
   async execute() {}

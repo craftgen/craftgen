@@ -205,7 +205,7 @@ export class OpenAIFunctionCall extends BaseNode<
     di: DiContainer,
     data: NodeData<typeof OpenAIFunctionCallMachine>
   ) {
-    super("OpenAI", di, data, OpenAIFunctionCallMachine, {
+    super("OpenAIFunctionCall", "OpenAI", di, data, OpenAIFunctionCallMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
           console.log("RUNNING", input);

@@ -49,10 +49,8 @@ const ArticleNodeMachine = createMachine({
 });
 
 export class Article extends BaseNode<typeof ArticleNodeMachine> {
-  static ID: "article";
-
   constructor(di: DiContainer, data: NodeData<typeof ArticleNodeMachine>) {
-    super("article", di, data, ArticleNodeMachine, {
+    super("Article", "article", di, data, ArticleNodeMachine, {
       actions: {},
     });
 

@@ -149,7 +149,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   module: null | Module = null;
 
   constructor(di: DiContainer, data: NodeData<typeof ModuleNodeMachine>) {
-    super("Module", di, data, ModuleNodeMachine, {
+    super("ModuleNode", "Module", di, data, ModuleNodeMachine, {
       actors: {
         execute: fromPromise(async ({ input }) => {
           console.log("RUNNING", input);

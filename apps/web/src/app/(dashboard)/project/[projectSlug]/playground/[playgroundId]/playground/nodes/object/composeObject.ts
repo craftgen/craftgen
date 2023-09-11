@@ -59,7 +59,7 @@ const composeObjectMachine = createMachine({
 
 export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   constructor(di: DiContainer, data: NodeData<typeof composeObjectMachine>) {
-    super("Componse Object", di, data, composeObjectMachine, {
+    super("ComposeObject", "Componse Object", di, data, composeObjectMachine, {
       actors: {
         process: fromPromise(async ({ input }) => {
           console.log("PROCESSING", input);

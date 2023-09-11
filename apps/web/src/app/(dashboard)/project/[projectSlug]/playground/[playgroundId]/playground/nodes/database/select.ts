@@ -11,7 +11,7 @@ const databaseSelectMachine = createMachine({
 
 export class DatabaseSelect extends BaseNode<typeof databaseSelectMachine> {
   constructor(di: DiContainer, data: NodeData<typeof databaseSelectMachine>) {
-    super("DatabaseSelect", di, data, databaseSelectMachine, {});
+    super("DatabaseSelect", "Select", di, data, databaseSelectMachine, {});
 
     this.addInput(
       "databaseId",

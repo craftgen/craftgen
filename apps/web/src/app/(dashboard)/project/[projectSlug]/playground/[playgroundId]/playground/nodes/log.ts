@@ -15,7 +15,7 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
   static ID: "log";
 
   constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {
-    super("Log", di, data, LogNodeMachine, {});
+    super("Log", "Log", di, data, LogNodeMachine, {});
 
     this.addInput(
       "trigger",

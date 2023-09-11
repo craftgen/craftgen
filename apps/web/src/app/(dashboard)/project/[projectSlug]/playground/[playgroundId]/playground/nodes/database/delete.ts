@@ -13,7 +13,7 @@ export class DatabaseDelete extends BaseNode<
   {}
 > {
   constructor(di: DiContainer, data: NodeData<typeof databaseDeleteMachine>) {
-    super("DatabaseDelete", di, data, databaseDeleteMachine, {});
+    super("DatabaseDelete", "Delete", di, data, databaseDeleteMachine, {});
   }
 
   async execute() {}
