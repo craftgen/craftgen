@@ -18,6 +18,7 @@ import {
   Output,
   ModuleNode,
 } from "./nodes";
+import { Icon, Icons } from "@/components/icons";
 
 export const nodes = {
   Start: Start,
@@ -41,6 +42,95 @@ export const nodes = {
   ModuleNode: ModuleNode,
 } as const;
 
+export const nodesMeta: Record<
+  keyof typeof nodes,
+  {
+    name: string;
+    description: string;
+    icon: Icon;
+  }
+> = {
+  Start: {
+    name: "Start",
+    description: "Start node of the workflow",
+    icon: Icons.power,
+  },
+  Log: {
+    name: "Log",
+    description: "Log node for debugging",
+    icon: Icons.bug,
+  },
+  TextNode: {
+    name: "Text Node",
+    description: "Node for handling text",
+    icon: Icons.text,
+  },
+  PromptTemplate: {
+    name: "Prompt Template",
+    description: "Template for user prompts",
+    icon: Icons["text-select"],
+  },
+  OpenAIFunctionCall: {
+    name: "OpenAI Function Call",
+    description: "Node for making OpenAI function calls",
+    icon: Icons.openAI,
+  },
+  DataSource: {
+    name: "Data Source",
+    description: "Node for handling data sources",
+    icon: Icons.database,
+  },
+  DatabaseDelete: {
+    name: "Database Delete",
+    description: "Node for deleting data from the database",
+    icon: Icons["box-select"],
+  },
+  DatabaseInsert: {
+    name: "Database Insert",
+    description: "Node for inserting data into the database",
+    icon: Icons["box-select"],
+  },
+  DatabaseSelect: {
+    name: "Database Select",
+    description: "Node for selecting data from the database",
+    icon: Icons["box-select"],
+  },
+  DatabaseUpdate: {
+    name: "Database Update",
+    description: "Node for updating data in the database",
+    icon: Icons["box-select"],
+  },
+  DatabaseUpsert: {
+    name: "Database Upsert",
+    description: "Node for upserting data in the database",
+    icon: Icons["box-select"],
+  },
+  ComposeObject: {
+    name: "Compose Object",
+    description: "Node for composing objects",
+    icon: Icons.braces,
+  },
+  Article: {
+    name: "Article",
+    description: "Node for handling articles",
+    icon: Icons["box-select"],
+  },
+  Input: {
+    name: "Input",
+    description: "Node for handling inputs",
+    icon: Icons.input,
+  },
+  Output: {
+    name: "Output",
+    description: "Node for handling outputs",
+    icon: Icons.output,
+  },
+  ModuleNode: {
+    name: "Module Node",
+    description: "Node for handling module nodes",
+    icon: Icons.component,
+  },
+};
 type ValueOf<T> = T[keyof T];
 export type NodeTypes = ValueOf<{
   [Property in keyof typeof nodes as string]: Property;

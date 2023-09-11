@@ -6,7 +6,6 @@ import { ClassicPreset } from "rete";
 import { stringSocket, triggerSocket } from "../sockets";
 import { ArticleControl } from "../ui/control/control-editor";
 import { MyValue } from "@/lib/plate/plate-types";
-import { createTmpEditor } from "@/components/editor";
 import { createNode } from "@udecode/plate-common";
 
 const ArticleNodeMachine = createMachine({

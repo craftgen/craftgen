@@ -1,17 +1,12 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
 import { SelectControl } from "../ui/control/control-select";
-import {
-  OPENAI_CHAT_MODELS,
-  OpenAIChatSettings,
-  generateJson,
-} from "modelfusion";
+import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
-import { Icons } from "@/components/icons";
 import { SliderControl } from "../ui/control/control-slider";
 import { omit } from "lodash-es";
 
@@ -28,6 +23,7 @@ const OpenAIFunctionCallMachine = createMachine({
       model: "gpt-3.5-turbo",
       temperature: 0.7,
       maxCompletionTokens: 1000,
+      resultType: "json",
     },
     validApiKey: null,
     error: null,
@@ -206,8 +202,6 @@ export class OpenAIFunctionCall extends BaseNode<
 
   static ID: "openai-function-call";
 
-  icon: keyof typeof Icons = "openAI";
-
   constructor(
     di: DiContainer,
     data: NodeData<typeof OpenAIFunctionCallMachine>
@@ -271,6 +265,29 @@ export class OpenAIFunctionCall extends BaseNode<
             key: key as OPENAI_CHAT_MODELS_KEY,
             value: key,
           })),
+        ],
+      })
+    );
+
+    this.addControl(
+      "type",
+      new SelectControl(state.context.settings.resultType, {
+        change: (val) => {
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            resultType: val,
+          });
+        },
+        placeholder: "Select Result Type",
+        values: [
+          {
+            key: "json",
+            value: "Object",
+          },
+          {
+            key: "text",
+            value: "Text",
+          },
         ],
       })
     );

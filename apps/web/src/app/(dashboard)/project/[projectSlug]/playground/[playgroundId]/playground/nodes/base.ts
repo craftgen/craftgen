@@ -11,7 +11,6 @@ import {
 import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
 import { Socket } from "../sockets";
-import { Icons } from "@/components/icons";
 
 export type NodeData<T extends AnyStateMachine> = {
   id: string;
@@ -46,7 +45,6 @@ export class BaseNode<
   width = 200;
   height = 200;
 
-  icon: keyof typeof Icons = "box-select";
 
   state: "idle" | "running" | "error" = "idle";
 

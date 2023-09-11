@@ -8,7 +8,6 @@ import {
   SocketGeneratorControl,
 } from "../../ui/control/control-socket-generator";
 import { createJsonSchema } from "../../utis";
-import { Icons } from "@/components/icons";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -59,7 +58,6 @@ const composeObjectMachine = createMachine({
 });
 
 export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
-  icon: keyof typeof Icons = "braces";
   constructor(di: DiContainer, data: NodeData<typeof composeObjectMachine>) {
     super("Componse Object", di, data, composeObjectMachine, {
       actors: {

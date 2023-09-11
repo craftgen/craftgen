@@ -12,7 +12,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
-import { NodeTypes, Schemes } from "../types";
+import { NodeTypes, Schemes, nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
 import { Loader2, Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
@@ -200,8 +200,9 @@ export function CustomNode<Scheme extends ClassicScheme>(
     return subs.unsubscribe;
   }, []);
   const NodeIcon = React.useMemo(() => {
-    return Icons[props.data.icon];
+    return nodesMeta[props.data.constructor.name as NodeTypes].icon;
   }, []);
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>

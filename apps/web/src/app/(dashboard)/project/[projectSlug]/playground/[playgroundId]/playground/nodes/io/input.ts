@@ -8,7 +8,6 @@ import {
   SocketGeneratorControl,
 } from "../../ui/control/control-socket-generator";
 import { createJsonSchema } from "../../utis";
-import { Icons } from "@/components/icons";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -67,7 +66,6 @@ export const InputNodeMachine = createMachine({
 });
 
 export class Input extends BaseNode<typeof InputNodeMachine> {
-  icon: keyof typeof Icons = "input";
   constructor(di: DiContainer, data: NodeData<typeof InputNodeMachine>) {
     super("Input", di, data, InputNodeMachine, {
       actions: {

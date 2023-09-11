@@ -7,12 +7,13 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  CommandShortcut,
 } from "@/components/ui/command";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { PropsWithChildren, useRef, useState } from "react";
 import { useCraftStore } from "./store";
 import { createNode } from "./io";
-import { NodeTypes, nodes } from "./types";
+import { NodeTypes, nodes, nodesMeta } from "./types";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
@@ -72,13 +73,15 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Nodes">
-            {Object.entries(nodes).map(([key, val]) => {
+            {Object.entries(nodesMeta).map(([key, val]) => {
+              const Icon = val.icon;
               return (
                 <CommandItem
                   key={key}
                   onSelect={() => handleAddNode(key as NodeTypes)}
                 >
-                  {key}
+                  <Icon className="text-muted-foreground mr-2" />
+                  {val.name}
                 </CommandItem>
               );
             })}

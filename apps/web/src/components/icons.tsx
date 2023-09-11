@@ -9,12 +9,14 @@ import {
   Bold,
   BoxSelect,
   Braces,
+  Bug,
   Check,
   ChevronDown,
   ChevronRight,
   ChevronsUpDown,
   Code2,
   Component,
+  Database,
   Edit2,
   ExternalLink,
   Eye,
@@ -48,6 +50,7 @@ import {
   Paperclip,
   Pilcrow,
   Plus,
+  Power,
   Quote,
   RectangleHorizontal,
   RectangleVertical,
@@ -71,7 +74,7 @@ import {
 
 import type { LucideIcon } from "lucide-react";
 
-export type Icon = LucideIcon;
+export type Icon = LucideIcon | ((props: LucideProps) => JSX.Element);
 
 const borderAll = (props: LucideProps) => (
   <svg
@@ -204,6 +207,7 @@ export const Icons = {
   output: LogOut,
   downloadCloud: X,
   delete: Trash,
+  database: Database,
   dragHandle: GripVertical,
   editing: Edit2,
   emoji: Smile,
@@ -304,6 +308,8 @@ export const Icons = {
   sun: SunMedium,
   twitter: Twitter,
   openAI,
+  power: Power,
+  bug: Bug,
 } as const;
 
 export const iconVariants = cva("", {
