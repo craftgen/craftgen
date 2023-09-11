@@ -8,9 +8,28 @@ import { objectSocket, stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { SliderControl } from "../ui/control/control-slider";
-import { omit } from "lodash-es";
+import { merge, omit } from "lodash-es";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
+
+const mergeSettings = (context: any, event: any) => {
+  return merge(context.settings, {
+    ...omit(event, "type"),
+    openai: {
+      ...event?.openai,
+      ...(event?.openai?.model && {
+        maxCompletionTokens:
+          OPENAI_CHAT_MODELS[
+            event.openai.model as keyof typeof OPENAI_CHAT_MODELS
+          ].contextWindowSize < context.settings?.openai?.maxCompletionTokens!
+            ? OPENAI_CHAT_MODELS[
+                event.openai.model as keyof typeof OPENAI_CHAT_MODELS
+              ].contextWindowSize
+            : context.settings.openai.maxCompletionTokens,
+      }),
+    },
+  });
+};
 
 const OpenAIFunctionCallMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgDMBXDAYwBcdkM9SsAbegOhwnrAGIBhAeQDkAYgEkA4gH0uACQCCfEQFEA2gAYAuolCpksHJWoaQAD0QAmAJwBWJgGYA7BeUBGE44BsADjP3bAGhABPRGtXK0trR2V7d0dbazMAX3i-NExcQhIKKho6RhY2TgAlAFU+FXUkEC0dPQwDYwQAFncTJhDXE1dnMxjIiws-QMaG6yYzc1cJ22dlC2sLROT0bHxiMhraBmYAJxIMHAwoDghqMBYMADdkAGtTlOX0tayN3J2MPYOEfcu6GrKygyquiydUQTRabQ6XR69n6AUQ0SYDTMyOaDXaJjizgWIDuaVWmWoz22u32hzAWy2yC2TFQ9Cw5AIVIAtkxcSsMuscsS3qTPhdkD8sn81ADtED9BV6rZbK4mCYOhZ3A1bCYmg1lCYBqZ3MpEbNlGYJsF3FM5ti2Q8CdlNkxyZSthxiqURRVATUQQgdWZWtYTDrbMp3K4mo5HFqEPLvWFHA1nAHmnYTOalniOU8uUxSMgmbSwORCiV-q6xe7JYgYu5RuYA2iLK5bF7rOHVVYTMpwuZPCbHBYk0kcSn2Y9CRmszn2PmOIZYOR6acsAR81sABQRZTKACUHAt+M5NrHufzRc0JeBZYQFarXmUtfrjfDaMcTB77QN0sV9dViX7GGQEDgBg7mmI6bKK1RnqA9R4K44bQcmqRDlaRJ5OwYHirU57WMqcptHM0TSk0TZwo09aIso6KuIafomLYDTwfcu7pjarzvFAaGlpBiCdC0NFYWi1jttYAm+MRLhPgG4SxpROrBq49GpsO1q5HaVLsRBRiIGYN5MA4DaOEqtF+l4zbWJWsyyVMIRuPM-ZAYpyEHhOYBqRKnGNJqxGhk+7gWD2DT6i47bdN+8RAA */
@@ -20,10 +39,12 @@ const OpenAIFunctionCallMachine = createMachine({
     inputs: {},
     outputs: {},
     settings: {
-      model: "gpt-3.5-turbo",
-      temperature: 0.7,
-      maxCompletionTokens: 1000,
-      resultType: "json",
+      openai: {
+        model: "gpt-3.5-turbo",
+        temperature: 0.7,
+        maxCompletionTokens: 1000,
+      },
+      resultType: "text",
     },
     validApiKey: null,
     error: null,
@@ -32,7 +53,10 @@ const OpenAIFunctionCallMachine = createMachine({
     context: {
       inputs: Record<string, any[]>;
       outputs: Record<string, any[]>;
-      settings: OpenAIChatSettings;
+      settings: {
+        openai: OpenAIChatSettings;
+        resultType: "json" | "text";
+      };
       validApiKey: boolean | null;
       error: {
         name: string;
@@ -40,9 +64,11 @@ const OpenAIFunctionCallMachine = createMachine({
       } | null;
     };
     events:
-      | (OpenAIChatSettings & {
+      | {
           type: "CONFIG_CHANGE";
-        })
+          openai: OpenAIChatSettings;
+          resultType: "json" | "text";
+        }
       | {
           type: "RUN";
           inputs: Record<string, any[]>;
@@ -82,23 +108,10 @@ const OpenAIFunctionCallMachine = createMachine({
       on: {
         CONFIG_CHANGE: {
           actions: assign({
-            settings: ({ context, event }) => ({
-              ...context.settings,
-              ...omit(event, "type"),
-              ...(event?.model && {
-                maxCompletionTokens:
-                  context.settings?.maxCompletionTokens! >
-                  OPENAI_CHAT_MODELS[
-                    event.model as keyof typeof OPENAI_CHAT_MODELS
-                  ].contextWindowSize
-                    ? OPENAI_CHAT_MODELS[
-                        event.model as keyof typeof OPENAI_CHAT_MODELS
-                      ].contextWindowSize
-                    : context.settings?.maxCompletionTokens,
-              }),
-            }),
+            settings: ({ context, event }) => mergeSettings(context, event),
           }),
         },
+
         RUN: {
           target: "running",
           actions: assign({
@@ -150,21 +163,7 @@ const OpenAIFunctionCallMachine = createMachine({
         },
         CONFIG_CHANGE: {
           actions: assign({
-            settings: ({ context, event }) => ({
-              ...context.settings,
-              ...omit(event, "type"),
-              ...(event?.model && {
-                maxCompletionTokens:
-                  context.settings?.maxCompletionTokens! >
-                  OPENAI_CHAT_MODELS[
-                    event.model as keyof typeof OPENAI_CHAT_MODELS
-                  ].contextWindowSize
-                    ? OPENAI_CHAT_MODELS[
-                        event.model as keyof typeof OPENAI_CHAT_MODELS
-                      ].contextWindowSize
-                    : context.settings?.maxCompletionTokens,
-              }),
-            }),
+            settings: ({ context, event }) => mergeSettings(context, event),
           }),
         },
         SET_VALUE: {
@@ -252,21 +251,26 @@ export class OpenAIFunctionCall extends BaseNode<
     );
     this.addControl(
       "model",
-      new SelectControl<OPENAI_CHAT_MODELS_KEY>(state.context.settings.model, {
-        change: (val) => {
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            model: val,
-          });
-        },
-        placeholder: "Select Model",
-        values: [
-          ...Object.keys(OPENAI_CHAT_MODELS).map((key) => ({
-            key: key as OPENAI_CHAT_MODELS_KEY,
-            value: key,
-          })),
-        ],
-      })
+      new SelectControl<OPENAI_CHAT_MODELS_KEY>(
+        state.context.settings.openai.model,
+        {
+          change: (val) => {
+            this.actor.send({
+              type: "CONFIG_CHANGE",
+              openai: {
+                model: val,
+              },
+            });
+          },
+          placeholder: "Select Model",
+          values: [
+            ...Object.keys(OPENAI_CHAT_MODELS).map((key) => ({
+              key: key as OPENAI_CHAT_MODELS_KEY,
+              value: key,
+            })),
+          ],
+        }
+      )
     );
 
     this.addControl(
@@ -293,12 +297,14 @@ export class OpenAIFunctionCall extends BaseNode<
     );
 
     this.addControl(
-      "temprature",
-      new SliderControl(state.context.settings.temperature, {
+      "temperature",
+      new SliderControl(state.context.settings.openai.temperature, {
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
-            temperature: val,
+            openai: {
+              temperature: val,
+            },
           });
         },
         max: 1,
@@ -307,11 +313,13 @@ export class OpenAIFunctionCall extends BaseNode<
     );
     this.addControl(
       "maxCompletionTokens",
-      new SliderControl(state.context.settings.maxCompletionTokens, {
+      new SliderControl(state.context.settings.openai.maxCompletionTokens, {
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
-            maxCompletionTokens: val,
+            openai: {
+              maxCompletionTokens: val,
+            },
           });
         },
         max: this.contextWindowSize,
@@ -327,11 +335,13 @@ export class OpenAIFunctionCall extends BaseNode<
       }
       this.addControl(
         "maxCompletionTokens",
-        new SliderControl(state.context.settings.maxCompletionTokens, {
+        new SliderControl(state.context.settings.openai.maxCompletionTokens, {
           change: (val) => {
             this.actor.send({
               type: "CONFIG_CHANGE",
-              maxCompletionTokens: val,
+              openai: {
+                maxCompletionTokens: val,
+              },
             });
           },
           max: this.contextWindowSize,
@@ -365,7 +375,7 @@ export class OpenAIFunctionCall extends BaseNode<
   get contextWindowSize() {
     const state = this.actor.getSnapshot();
     return OPENAI_CHAT_MODELS[
-      state.context.settings.model as keyof typeof OPENAI_CHAT_MODELS
+      state.context.settings.openai.model as keyof typeof OPENAI_CHAT_MODELS
     ].contextWindowSize;
   }
 
