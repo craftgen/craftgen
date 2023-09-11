@@ -33,7 +33,6 @@ import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
 import { Separator } from "@/components/ui/separator";
-import { Icons } from "@/components/icons";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -106,7 +105,6 @@ export function CustomNode<Scheme extends ClassicScheme>(
   }, []);
 
   const triggerNode = async () => {
-    console.log("trigger node", props.data.id);
     di?.engine?.execute(props.data.id);
   };
 

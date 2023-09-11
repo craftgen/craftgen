@@ -3,7 +3,7 @@ import { DiContainer } from "../editor";
 import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
-import { assign, createMachine, fromPromise } from "xstate";
+import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
@@ -216,7 +216,7 @@ export class OpenAIFunctionCall extends BaseNode<
               settings: input.settings.openai,
               user: await input.inputs.prompt,
             });
-            return { message: res };
+            return { output: res };
           } else {
             const res = await genereteJsonFn({
               projectId: store.projectId,
@@ -224,7 +224,7 @@ export class OpenAIFunctionCall extends BaseNode<
               user: await input.inputs.prompt,
               schema: await input.inputs.schema[0],
             });
-            return { message: res };
+            return { output: res };
           }
         }),
         check_api_key: fromPromise(async () => {
@@ -248,10 +248,7 @@ export class OpenAIFunctionCall extends BaseNode<
     const state = this.actor.getSnapshot();
 
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
-    this.addInput(
-      "schema",
-      new ClassicPreset.Input(objectSocket, "Schema", true)
-    );
+
     this.addControl(
       "model",
       new SelectControl<OPENAI_CHAT_MODELS_KEY>(
@@ -330,34 +327,10 @@ export class OpenAIFunctionCall extends BaseNode<
       })
     );
     this.actor.subscribe((state) => {
-      if (this.hasControl("maxCompletionTokens")) {
-        this.removeControl("maxCompletionTokens");
-      }
-      this.addControl(
-        "maxCompletionTokens",
-        new SliderControl(state.context.settings.openai.maxCompletionTokens, {
-          change: (val) => {
-            this.actor.send({
-              type: "CONFIG_CHANGE",
-              openai: {
-                maxCompletionTokens: val,
-              },
-            });
-          },
-          max: this.contextWindowSize,
-          step: 1,
-        })
-      );
-      if (state.context.settings.resultType === "json") {
-        if (this.outputs?.result) {
-          this.outputs.result.socket = objectSocket;
-        }
-      } else {
-        if (this.outputs?.result) {
-          this.outputs.result.socket = stringSocket;
-        }
-      }
+      this.syncUI(state);
     });
+
+    this.syncUI(state);
 
     const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
     input.addControl(
@@ -374,7 +347,15 @@ export class OpenAIFunctionCall extends BaseNode<
       })
     );
     this.addInput("prompt", input);
-    this.addOutput("result", new ClassicPreset.Output(stringSocket, "Output"));
+    this.addOutput(
+      "result",
+      new ClassicPreset.Output(
+        state.context.settings.resultType === "json"
+          ? objectSocket
+          : stringSocket,
+        "Output"
+      )
+    );
   }
 
   get contextWindowSize() {
@@ -382,6 +363,47 @@ export class OpenAIFunctionCall extends BaseNode<
     return OPENAI_CHAT_MODELS[
       state.context.settings.openai.model as keyof typeof OPENAI_CHAT_MODELS
     ].contextWindowSize;
+  }
+
+  async syncUI(state: StateFrom<typeof OpenAIFunctionCallMachine>) {
+    if (this.hasControl("maxCompletionTokens")) {
+      this.removeControl("maxCompletionTokens");
+    }
+    this.addControl(
+      "maxCompletionTokens",
+      new SliderControl(state.context.settings.openai?.maxCompletionTokens!, {
+        change: (val) => {
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            openai: {
+              maxCompletionTokens: val,
+            },
+          });
+        },
+        max: this.contextWindowSize,
+        step: 1,
+      })
+    );
+    if (state.context.settings.resultType === "json") {
+      if (this.outputs?.result) {
+        this.outputs.result.socket = objectSocket;
+      }
+    } else {
+      if (this.outputs?.result) {
+        this.outputs.result.socket = stringSocket;
+      }
+    }
+    if (state.context.settings.resultType === "json") {
+      if (this.inputs?.schema) return;
+      this.addInput(
+        "schema",
+        new ClassicPreset.Input(objectSocket, "Schema", true)
+      );
+    } else {
+      if (this.inputs?.schema) {
+        this.removeInput("schema");
+      }
+    }
   }
 
   async execute(input: any, forward: (output: "trigger") => void) {
