@@ -102,6 +102,7 @@
     "eslint-config-next": "13.4.10",
     "flexlayout-react": "^0.7.9",
     "framer-motion": "^10.16.0",
+    "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
     "immer": "^10.0.2",
     "lodash-es": "^4.17.21",
