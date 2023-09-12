@@ -157,7 +157,7 @@ export const renderControlBaseOnSocketType = (
 ) => {
   switch (type) {
     case "String":
-      return new Contro
+    // return new Contro
     //   return <Input placeholder="seocraft" {...field} />;
     // case "Number":
     //   return (
@@ -173,4 +173,4 @@ export const renderControlBaseOnSocketType = (
     default:
       return null;
   }
-}
+};

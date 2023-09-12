@@ -7,11 +7,8 @@ import {
   PlateProvider,
   createPlateEditor,
   replaceNodeChildren,
-  usePlateEditorState,
   usePlateSelectors,
   usePlateStates,
-  usePlateStore,
-  useResetPlateEditor,
 } from "@udecode/plate-common";
 import {
   createBoldPlugin,
