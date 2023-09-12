@@ -86,10 +86,7 @@ export class DataSource extends BaseNode<typeof datasetMachine> {
     super("DataSource", "Data Source", di, data, datasetMachine, {
       actors: {
         fetchDataset: fromPromise(async ({ input }) => {
-          console.log("fetching data", input);
           const data = await getDataSet(input.datasetId);
-          console.log("data sss", data);
-          console.log("DDD", data?.rows);
           return data;
         }),
       },

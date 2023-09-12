@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@seocraft/supabase/db";
-import { JSONSchemaType } from "ajv";
 import {
   OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,
@@ -14,7 +13,6 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
 const getApiKeyFromProject = async (projectId: string) => {
   const apiKey = await getApiKeyValue({
@@ -27,13 +25,6 @@ const getApiKeyFromProject = async (projectId: string) => {
 };
 
 import * as z from "zod";
-const a = z.object({
-  name: z.string().nonempty(),
-  description: z.string().optional(),
-  age: z.number().min(0).max(120),
-});
-
-type ab = z.infer<typeof a>;
 /**
  * This function converts a JSON schema into a Zod schema.
  *
@@ -204,10 +195,6 @@ export const genereteJsonFn = async ({
     description: schema.description,
     schema: turnJSONSchemaToZodSchema(schema),
   };
-
-  const back = zodToJsonSchema(schemaZod.schema);
-  const ex = zodToJsonSchema(a);
-  console.log(schema, ex, back);
   const apiKey = await getApiKeyFromProject(projectId);
   const api = new OpenAIApiConfiguration({
     apiKey: apiKey,
