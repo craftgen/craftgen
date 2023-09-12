@@ -20,6 +20,7 @@ import {
 } from "./nodes";
 import { Icon, Icons } from "@/components/icons";
 import { Replicate } from "./nodes/replicate";
+import { GoogleSheet } from "./nodes/datasource/google-sheet";
 
 export const nodes = {
   Start: Start,
@@ -43,6 +44,9 @@ export const nodes = {
   ModuleNode: ModuleNode,
 
   Replicate: Replicate,
+
+  // DataSources
+  GoogleSheet: GoogleSheet,
 } as const;
 
 export const nodesMeta: Record<
@@ -137,6 +141,11 @@ export const nodesMeta: Record<
     name: "Replicate",
     description: "For using Replicate API",
     icon: Icons["box-select"],
+  },
+  GoogleSheet: {
+    name: "Google Sheet",
+    description: "Google sheet as datasource",
+    icon: Icons.googleSheet,
   },
 };
 type ValueOf<T> = T[keyof T];

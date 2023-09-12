@@ -17,11 +17,25 @@ import {
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
+import { GoogleIntegrationsScope } from "./settings/integrations/page";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
     where: (project, { eq }) => eq(project.slug, projectSlug),
   });
+};
+
+export const getGoogleScopes = async () => {
+  const supabase = createServerActionClient({ cookies });
+  const session = await supabase.auth.getSession();
+
+  const data = await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.id, session.data.session?.user.id!),
+    columns: {
+      google_scopes: true,
+    },
+  });
+  return data?.google_scopes as unknown as GoogleIntegrationsScope[];
 };
 
 export const updateProject = async (params: { id: string; name: string }) => {

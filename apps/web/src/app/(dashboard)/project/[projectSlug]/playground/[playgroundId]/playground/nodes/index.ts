@@ -20,3 +20,4 @@ export { Output } from "./io/output";
 
 export { ModuleNode } from "./io/module";
 export { Replicate } from "./replicate";
+export { GoogleSheet } from "./datasource/google-sheet";

@@ -417,6 +417,7 @@ export interface Database {
           full_name: string | null
           google_access_token: string | null
           google_refresh_token: string | null
+          google_scopes: string[]
           id: string
         }
         Insert: {
@@ -425,6 +426,7 @@ export interface Database {
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
+          google_scopes?: string[]
           id: string
         }
         Update: {
@@ -433,6 +435,7 @@ export interface Database {
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
+          google_scopes?: string[]
           id?: string
         }
         Relationships: []

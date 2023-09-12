@@ -74,7 +74,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${BASE_URL}/api/auth/callback?redirect=true`,
+        redirectTo: `${BASE_URL}/api/auth/callback?redirect=/project/new&scopeKeys=searchConsole`,
         queryParams: {
           access_type: "offline",
           prompt: "consent",
@@ -133,6 +133,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
                       {site.url}
                     </SelectItem>
                   ))}
+                  {data?.length === 0 && <div>Don&apos;t have a site?</div>}
                 </SelectContent>
               </Select>
               <FormDescription>Select your site.</FormDescription>

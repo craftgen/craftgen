@@ -47,6 +47,7 @@ export async function createNode({
     Output: (di, data) => new Nodes.Output(di, data),
 
     ModuleNode: (di, data) => new Nodes.ModuleNode(di, data),
+    GoogleSheet: (di, data) => new Nodes.GoogleSheet(di, data),
   };
   const matched = nodes[name];
 

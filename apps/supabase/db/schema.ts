@@ -15,6 +15,7 @@ export const user = pgTable("user", {
   id: uuid("id").primaryKey(),
   fullName: text("full_name"),
   email: text("email").notNull(),
+  google_scopes: text("google_scopes").array().notNull().default([]),
   google_access_token: text("google_access_token"),
   google_refresh_token: text("google_refresh_token"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
