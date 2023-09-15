@@ -408,6 +408,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
   async execute(input: any, forward: (output: "trigger") => void) {
     try {
+      this.di.dataFlow?.reset();
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
         [x: string]: string;
       };

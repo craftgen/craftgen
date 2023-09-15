@@ -37,3 +37,44 @@ export const getWebmaster = async ({ session }: { session: Session }) => {
     auth: googleAuth,
   });
 };
+
+export const getDrive = async ({ session }: { session: Session }) => {
+  const googleAuth = await getGoogleAuth({ session });
+
+  const drive = google.drive({
+    version: "v3",
+    auth: googleAuth,
+  });
+
+  return drive;
+};
+
+export const getSpreadsheetData = async ({
+  session,
+  query,
+}: {
+  session: Session;
+  query: string;
+}) => {
+  const googleAuth = await getGoogleAuth({ session });
+  const drive = google.drive({ version: "v3", auth: googleAuth });
+
+  const response = await drive.files.list({
+    q: `mimeType='application/vnd.google-apps.spreadsheet' and name contains '${query}'`,
+    pageSize: 10,
+    fields: "nextPageToken, files(id, name)",
+  });
+
+  return response.data.files;
+};
+
+export const getSheets = async ({ session }: { session: Session }) => {
+  const googleAuth = await getGoogleAuth({ session });
+
+  const sheets = google.sheets({
+    version: "v4",
+    auth: googleAuth,
+  });
+
+  return sheets;
+};

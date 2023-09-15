@@ -20,4 +20,11 @@ export { Output } from "./io/output";
 
 export { ModuleNode } from "./io/module";
 export { Replicate } from "./replicate";
-export { GoogleSheet } from "./datasource/google-sheet";
+
+// DATASOURCES
+export { GoogleSheet } from "./datasource/google-sheet/google-sheet";
+export { Shopify } from "./datasource/shopify/shopify";
+export { Wordpress } from "./datasource/wordpress/wordpress";
+export { Webflow } from "./datasource/webflow/webflow";
+export { Postgres } from "./datasource/postgres/postgres";
+// export { GoogleAnalytics } from "./datasource/google-analytics/google-analytics";

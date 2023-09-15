@@ -43,7 +43,7 @@ export class BaseNode<
 
   public actor: Actor<AnyStateMachine>;
 
-  width = 200;
+  width = 240;
   height = 200;
 
   state: "idle" | "running" | "error" = "idle";

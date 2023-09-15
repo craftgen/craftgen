@@ -17,10 +17,14 @@ import {
   Input,
   Output,
   ModuleNode,
+  Shopify,
+  Webflow,
+  Wordpress,
+  Postgres,
 } from "./nodes";
 import { Icon, Icons } from "@/components/icons";
 import { Replicate } from "./nodes/replicate";
-import { GoogleSheet } from "./nodes/datasource/google-sheet";
+import { GoogleSheet } from "./nodes/datasource/google-sheet/google-sheet";
 
 export const nodes = {
   Start: Start,
@@ -47,6 +51,10 @@ export const nodes = {
 
   // DataSources
   GoogleSheet: GoogleSheet,
+  Shopify: Shopify,
+  Webflow: Webflow,
+  Wordpress: Wordpress,
+  Postgres: Postgres,
 } as const;
 
 export const nodesMeta: Record<
@@ -146,6 +154,26 @@ export const nodesMeta: Record<
     name: "Google Sheet",
     description: "Google sheet as datasource",
     icon: Icons.googleSheet,
+  },
+  Shopify: {
+    name: "Shopify",
+    description: "Shopify as datasource",
+    icon: Icons.shopify,
+  },
+  Webflow: {
+    name: "Webflow",
+    description: "Webflow as datasource",
+    icon: Icons.webflow,
+  },
+  Wordpress: {
+    name: "Wordpress",
+    description: "Wordpress as datasource",
+    icon: Icons.wordpress,
+  },
+  Postgres: {
+    name: "Postgresql",
+    description: "Postgresql as datasource",
+    icon: Icons.postgres,
   },
 };
 type ValueOf<T> = T[keyof T];

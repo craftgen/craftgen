@@ -48,6 +48,10 @@ export async function createNode({
 
     ModuleNode: (di, data) => new Nodes.ModuleNode(di, data),
     GoogleSheet: (di, data) => new Nodes.GoogleSheet(di, data),
+    Wordpress: (di, data) => new Nodes.Wordpress(di, data),
+    Webflow: (di, data) => new Nodes.Webflow(di, data),
+    Shopify: (di, data) => new Nodes.Shopify(di, data),
+    Postgres: (di, data) => new Nodes.Postgres(di, data),
   };
   const matched = nodes[name];
 

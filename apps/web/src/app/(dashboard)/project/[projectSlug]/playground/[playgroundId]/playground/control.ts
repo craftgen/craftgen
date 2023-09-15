@@ -33,6 +33,10 @@ import {
   SliderControl,
   SliderControlComponenet,
 } from "./ui/control/control-slider";
+import {
+  GoogleDriveControl,
+  GoogleDriveControlComponent,
+} from "./ui/control/control-google-drive";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -69,6 +73,10 @@ export const getControl = (
   }
   if (data.payload instanceof SliderControl) {
     return SliderControlComponenet;
+  }
+
+  if (data.payload instanceof GoogleDriveControl) {
+    return GoogleDriveControlComponent;
   }
   return ({ data }) => null;
   // return ClassicPreset.Control;

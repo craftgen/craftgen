@@ -7,7 +7,7 @@ import { normalizeUrl } from "./shared";
 import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
 import { z } from "zod";
 import { newProjectSchema } from "./shared";
-import { getGoogleAuth } from "@/lib/google";
+import { getGoogleAuth } from "@/lib/google/auth";
 
 export const getSites = async () => {
   const supabase = createServerActionClient({ cookies });

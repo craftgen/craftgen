@@ -126,9 +126,7 @@ const GoogleIntegrations: React.FC<{
               )}
             />
           </div>
-          <Button disabled={!form.formState.isDirty} type="submit">
-            Update
-          </Button>
+          <Button type="submit">Update</Button>
         </form>
       </Form>
     </div>

@@ -36,7 +36,12 @@ import { Separator } from "@/components/ui/separator";
 
 const { RefSocket, RefControl } = Presets.classic;
 
-type NodeExtraData = { width?: number; height?: number; actor: AnyActorRef };
+type NodeExtraData = {
+  width?: number;
+  height?: number;
+  actor: AnyActorRef;
+  action?: string;
+};
 
 function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   entries: T
@@ -221,7 +226,15 @@ export function CustomNode<Scheme extends ClassicScheme>(
             <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
               <div className="flex space-x-2 items-center">
                 <NodeIcon className="w-5 h-5" />
-                <CardTitle>{label}</CardTitle>
+                <CardTitle className="flex">
+                  {label}{" "}
+                  {props.data.action ? (
+                    <span className="text-muted-foreground ml-2 text-sm">
+                      {"/"}
+                      {props.data.action}
+                    </span>
+                  ) : null}
+                </CardTitle>
               </div>
               <div className="flex">
                 <Button

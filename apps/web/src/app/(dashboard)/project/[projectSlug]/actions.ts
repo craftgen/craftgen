@@ -1,6 +1,6 @@
 "use server";
 
-import { getWebmaster } from "@/lib/google";
+import { getDrive,  getWebmaster } from "@/lib/google/auth";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import {
   and,
@@ -18,6 +18,7 @@ import {
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 import { GoogleIntegrationsScope } from "./settings/integrations/page";
+import { getSheet } from "@/lib/google/spreedsheet";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
@@ -137,6 +138,36 @@ export const getPlaygrounds = async (projectId: string) => {
       },
     },
   });
+};
+
+export const getUser = async () => {
+  const supabase = createServerActionClient({ cookies });
+  const session = await supabase.auth.getSession();
+
+  return await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.id, session.data.session?.user.id!),
+  });
+};
+
+export const getSheets = async ({ query }: { query: string }) => {
+  const supabase = createServerActionClient({ cookies });
+  const session = await supabase.auth.getSession();
+  const drive = await getDrive({ session: session.data.session! });
+  const drives = await drive.drives.list({});
+  const files = await drive.files.list({});
+
+  // const sheet = await getSheet({ session: session.data.session! });
+
+  // const sheets = await getSpreadsheetData({
+  //   session: session.data.session!,
+  //   query,
+  // });
+  return {
+    // sheet,
+    drives: drives.data.drives,
+    files: files.data.files,
+    // sheets,
+  };
 };
 
 export const getAnalytics = async ({ siteUrl }: { siteUrl: string }) => {

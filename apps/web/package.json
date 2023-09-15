@@ -115,6 +115,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "18.2.0",
+    "react-google-drive-picker": "^1.2.2",
     "react-hook-form": "^7.45.2",
     "react-hotkeys-hook": "^4.4.1",
     "react-lite-youtube-embed": "^2.3.52",
@@ -149,7 +150,7 @@
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
-    "xstate": "5.0.0-beta.27",
+    "xstate": "5.0.0-beta.28",
     "zod": "^3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
