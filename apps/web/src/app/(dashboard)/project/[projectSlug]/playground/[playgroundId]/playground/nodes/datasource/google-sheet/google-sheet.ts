@@ -20,6 +20,7 @@ export type GoogleSheetSettings = {
     | {
         id: number;
         name: string;
+        headers: string[];
       }
     | undefined;
   action: GoogleSheetActionTypes;
@@ -72,9 +73,32 @@ const GoogleSheetMachine = createMachine({
         },
       },
       always: {
-        target: "ready",
+        target: "loading",
         guard: ({ context }) =>
           !!context.settings.spreadsheet && !!context.settings.sheet,
+      },
+    },
+    loading: {
+      invoke: {
+        src: "getHeaders",
+        input: ({ context }) => ({ context }),
+        onError: {
+          target: "error",
+        },
+        onDone: {
+          target: "ready",
+          actions: assign({
+            settings: ({ context, event }) => {
+              return {
+                ...context.settings,
+                sheet: {
+                  ...context.settings.sheet,
+                  headers: event.output,
+                },
+              };
+            },
+          }),
+        },
       },
     },
     ready: {
@@ -208,6 +232,11 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         },
       },
       actors: {
+        getHeaders: fromPromise(async ({ input, self }) => {
+          console.log("getHeaders", input);
+          const headers = await getHeaders(input.context);
+          return headers;
+        }),
         action: fromPromise(async ({ input, self }) => {
           console.log("action", input);
           const res = await GoogleSheetActions[
@@ -221,11 +250,6 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
     });
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-    // this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
-    // this.addOutput(
-    //   "trigger",
-    //   new ClassicPreset.Output(triggerSocket, "trigger")
-    // );
 
     this.addControl(
       "action",
@@ -289,30 +313,8 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
     if (state.matches("idle")) {
       if (this.hasInput("trigger")) this.removeInput("trigger");
       if (this.hasOutput("trigger")) this.removeOutput("trigger");
-      Object.entries(this.inputs).forEach(async ([key, input]) => {
-        if (input?.socket.name === "Trigger") return;
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.target === this.id && c.targetInput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            })
-        );
-        this.removeInput(key);
-      });
-      Object.entries(this.outputs).forEach(async ([key, output]) => {
-        if (output?.socket.name === "Trigger") return;
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.source === this.id && c.sourceOutput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            })
-        );
-        this.removeOutput(key);
-      });
+      await this.setInputs({});
+      await this.setOutputs({});
     }
     if (state.matches("ready")) {
       if (!this.hasInput("trigger"))
@@ -327,33 +329,31 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
           new ClassicPreset.Output(triggerSocket, "trigger")
         );
 
-      switch (state.context.settings.action) {
-        case "addRow": {
-          const headers = await getHeaders(state.context);
-          headers.forEach((header) => {
-            if (this.hasInput(header)) return;
-            this.addInput(
-              header,
-              new ClassicPreset.Input(stringSocket, header, false)
-            );
-          });
-          Object.entries(this.inputs).forEach(async ([key, input]) => {
-            if (input?.socket.name === "Trigger") return;
-            if (!headers.includes(key)) {
-              await Promise.all(
-                this.di.editor
-                  .getConnections()
-                  .filter((c) => c.target === this.id && c.targetInput === key)
-                  .map(async (c) => {
-                    await this.di.editor.removeConnection(c.id);
-                  })
-              );
-              this.removeInput(key);
-            }
-          });
-        }
-        case "readRow": {
-        }
+      const action = state.context.settings.action;
+      const headers = await getHeaders(state.context);
+
+      if (action === "addRow") {
+        await this.setInputs(
+          headers.reduce((prev, curr) => {
+            return {
+              ...prev,
+              [curr]: stringSocket,
+            };
+          }, {})
+        );
+        await this.setOutputs({});
+      }
+
+      if (action === "readRow") {
+        await this.setInputs({});
+        await this.setOutputs(
+          headers.reduce((prev, curr) => {
+            return {
+              ...prev,
+              [curr]: stringSocket,
+            };
+          }, {})
+        );
       }
     }
     if (state.context.settings.spreadsheet) {
@@ -383,49 +383,8 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         );
       }
     } else {
-      if (this.hasControl("sheet")) {
-        this.removeControl("sheet");
-      }
+      if (this.hasControl("sheet")) this.removeControl("sheet");
     }
-    // const headers = await getHeaders(state.context.settings);
-    // if (state.context.settings.action === "addRow") {
-    //   if (!this.inputs["add_row"]) {
-    //     headers.forEach((header) => {
-    //       this.addInput(
-    //         header,
-    //         new ClassicPreset.Input(stringSocket, header, false)
-    //       );
-    //     });
-    //     // this.addInput("add_row", new ClassicPreset.Input(objectSocket, "row"));
-    //   }
-    // } else {
-    //   if (headers.some((header) => this.hasInput(header))) {
-    //     headers.forEach((header) => {
-    //       this.removeInput(header);
-    //     });
-    //   }
-    // }
-    // if (state.context.settings.action === "addRow") {
-    //   if (!this.outputs["read_row"]) {
-    //     this.addOutput(
-    //       "read_row",
-    //       new ClassicPreset.Output(objectSocket, "row")
-    //     );
-    //   }
-    // } else {
-    //   if (this.outputs["read_row"]) {
-    //     this.removeOutput("read_row");
-    //   }
-    // }
-
-    // if (
-    //   state.context.settings.sheetId &&
-    //   state.context.settings.spreadsheetId
-    // ) {
-    //   const headers = await getHeaders(state.context.settings);
-    //   console.log("HEADERS", headers);
-    // }
-
     console.log("syncUI", state);
   }
 

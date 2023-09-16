@@ -77,7 +77,6 @@ export function GoogleDriveControlComponent(props: {
     setFile(undefined);
     props.data.setValue(undefined);
   };
-
   return (
     <div className="flex flex-col">
       {file ? (
@@ -88,14 +87,7 @@ export function GoogleDriveControlComponent(props: {
               alt={file.name}
               className="w-6 h-6 rounded-full"
             />
-            {/* <Tooltip>
-              <TooltipContent>
-                <span>{file.name}</span>
-              </TooltipContent>
-              <TooltipTrigger> */}
             <p className="truncate text-sm font-semibold ml-2">{file.name}</p>
-            {/* </TooltipTrigger>
-            </Tooltip> */}
           </div>
           <div className="flex items-center">
             <a href={file.url} target="_blank" rel="noreferrer">

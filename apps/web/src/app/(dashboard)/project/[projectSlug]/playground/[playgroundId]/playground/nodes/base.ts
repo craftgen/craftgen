@@ -77,6 +77,65 @@ export class BaseNode<
     this.actor.start();
   }
 
+  async setInputs(inputs: Record<string, Socket>) {
+    const newInputs = Object.entries(inputs);
+    newInputs.forEach(([key, socket]) => {
+      if (this.hasInput(key)) {
+        if (this.inputs[key]?.socket.name !== socket.name) {
+          this.inputs[key]?.socket;
+        }
+      } else {
+        this.addInput(key, new ClassicPreset.Input(socket as any, key, false));
+      }
+    });
+
+    Object.entries(this.inputs).forEach(async ([key, input]) => {
+      if (input?.socket.name === "Trigger") return;
+      if (!newInputs.find(([k]) => k === key)) {
+        await Promise.all(
+          this.di.editor
+            .getConnections()
+            .filter((c) => c.target === this.id && c.targetInput === key)
+            .map(async (c) => {
+              await this.di.editor.removeConnection(c.id);
+            })
+        );
+        this.removeInput(key);
+      }
+    });
+  }
+
+  async setOutputs(outputs: Record<string, Socket>) {
+    const newOutputs = Object.entries(outputs);
+    newOutputs.forEach(([key, socket]) => {
+      if (this.hasOutput(key)) {
+        if (this.outputs[key]?.socket.name !== socket.name) {
+          this.outputs[key]?.socket;
+        }
+      } else {
+        this.addOutput(
+          key,
+          new ClassicPreset.Output(socket as any, key, false)
+        );
+      }
+    });
+
+    Object.entries(this.outputs).forEach(async ([key, output]) => {
+      if (output?.socket.name === "Trigger") return;
+      if (!newOutputs.find(([k]) => k === key)) {
+        await Promise.all(
+          this.di.editor
+            .getConnections()
+            .filter((c) => c.source === this.id && c.sourceOutput === key)
+            .map(async (c) => {
+              await this.di.editor.removeConnection(c.id);
+            })
+        );
+        this.removeOutput(key);
+      }
+    });
+  }
+
   log(...args: any[]) {
     console.log(`[${this.di.editor.name}] - [${this.label}]`, ...args);
   }
