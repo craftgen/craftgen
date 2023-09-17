@@ -9,10 +9,11 @@ import { BaseNode, NodeData } from "../../base";
 import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { SelectControl } from "../../../ui/control/control-select";
-import { stringSocket, triggerSocket } from "../../../sockets";
-import { addRow, getHeaders, getSheets } from "./actions";
+import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
+import { addRow, getHeaders, getSheets, readRow } from "./actions";
 import { GoogleDriveControl } from "../../../ui/control/control-google-drive";
 import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
+import { match } from "ts-pattern";
 
 export type GoogleSheetSettings = {
   spreadsheet: CallbackDoc | undefined;
@@ -138,7 +139,7 @@ const GoogleSheetMachine = createMachine({
           actions: assign({
             error: ({ event }) => ({
               name: event.data.name,
-              message: event.data.message,
+              message: event.dataa.message,
             }),
           }),
         },
@@ -179,7 +180,7 @@ const GoogleSheetMachine = createMachine({
         },
       },
       after: {
-        1000: "idle",
+        1000: "ready",
       },
     },
   },
@@ -207,10 +208,15 @@ export const GoogleSheetActions: Record<
 
     return "yes";
   },
-  readRow: async ({}) => {
+  readRow: async ({
+    input,
+  }: {
+    input: ContextFrom<typeof GoogleSheetMachine>;
+  }) => {
     console.log("Running readRow");
-    // await readRow();
-    return "yes";
+    const row = await readRow(input);
+    console.log(row);
+    return row;
   },
 } as const;
 
@@ -238,13 +244,20 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
           return headers;
         }),
         action: fromPromise(async ({ input, self }) => {
-          console.log("action", input);
-          const res = await GoogleSheetActions[
-            input.settings.action as GoogleSheetActionTypes
-          ]({
-            input,
-          });
-          return { res };
+          const res = match(input as ContextFrom<typeof GoogleSheetMachine>)
+            .with({ settings: { action: "addRow" } }, async (input) => {
+              console.log("addRow", input);
+              await addRow(input);
+              return "yes";
+            })
+            .with({ settings: { action: "readRow" } }, async (input) => {
+              console.log("readRow", input);
+              const row = await readRow(input);
+              console.log(row);
+              return row;
+            })
+            .exhaustive();
+          return res;
         }),
       },
     });
@@ -310,12 +323,66 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
   }
 
   async syncUI(state: StateFrom<typeof GoogleSheetMachine>) {
-    if (state.matches("idle")) {
-      if (this.hasInput("trigger")) this.removeInput("trigger");
-      if (this.hasOutput("trigger")) this.removeOutput("trigger");
-      await this.setInputs({});
-      await this.setOutputs({});
-    }
+    match(state)
+      .with({ value: "idle" }, async () => {
+        if (this.hasInput("trigger")) this.removeInput("trigger");
+        if (this.hasOutput("trigger")) this.removeOutput("trigger");
+        await this.setInputs({});
+        await this.setOutputs({});
+      })
+      .with(
+        {
+          value: "idle",
+          context: {
+            settings: {
+              spreadsheet: undefined,
+            },
+          },
+        },
+        async () => {}
+        
+      )
+      .with(
+        {
+          value: "idle",
+          context: {
+            settings: {
+              sheet: undefined,
+            },
+          },
+        },
+        async () => {
+          const sheets = await getSheets(state.context);
+          this.addControl(
+            "sheet",
+            new SelectControl(String(state.context.settings.sheet?.id), {
+              placeholder: "Select a sheet",
+              values: sheets.map((sheet) => ({
+                key: String(sheet.id),
+                value: sheet.title,
+              })),
+              change: (v) => {
+                console.log("change", v);
+                this.actor.send({
+                  type: "CONFIG_CHANGE",
+                  settings: {
+                    sheet: {
+                      id: Number(v),
+                      name: sheets.find((sheet) => sheet.id === Number(v))
+                        ?.title,
+                    },
+                  },
+                });
+              },
+            })
+          );
+        }
+      )
+      .with({ value: "loading" }, async () => {})
+      .with({ value: "ready" }, async () => {})
+      .with({ value: "running" }, async () => {})
+      .with({ value: "complete" }, async () => {})
+      .with({ value: "error" }, async () => {});
     if (state.matches("ready")) {
       if (!this.hasInput("trigger"))
         this.addInput(
@@ -330,7 +397,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         );
 
       const action = state.context.settings.action;
-      const headers = await getHeaders(state.context);
+      const headers = state.context.settings.sheet?.headers || [];
 
       if (action === "addRow") {
         await this.setInputs(
@@ -345,7 +412,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       }
 
       if (action === "readRow") {
-        await this.setInputs({});
+        await this.setInputs({ rowIndex: numberSocket });
         await this.setOutputs(
           headers.reduce((prev, curr) => {
             return {
@@ -356,35 +423,35 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         );
       }
     }
-    if (state.context.settings.spreadsheet) {
-      if (!this.hasControl("sheet")) {
-        const sheets = await getSheets(state.context);
-        this.addControl(
-          "sheet",
-          new SelectControl(String(state.context.settings.sheet?.id), {
-            placeholder: "Select a sheet",
-            values: sheets.map((sheet) => ({
-              key: String(sheet.id),
-              value: sheet.title,
-            })),
-            change: (v) => {
-              console.log("change", v);
-              this.actor.send({
-                type: "CONFIG_CHANGE",
-                settings: {
-                  sheet: {
-                    id: Number(v),
-                    name: sheets.find((sheet) => sheet.id === Number(v))?.title,
-                  },
-                },
-              });
-            },
-          })
-        );
-      }
-    } else {
-      if (this.hasControl("sheet")) this.removeControl("sheet");
-    }
+    // if (state.context.settings.spreadsheet) {
+    //   if (!this.hasControl("sheet")) {
+    //     const sheets = await getSheets(state.context);
+    //     this.addControl(
+    //       "sheet",
+    //       new SelectControl(String(state.context.settings.sheet?.id), {
+    //         placeholder: "Select a sheet",
+    //         values: sheets.map((sheet) => ({
+    //           key: String(sheet.id),
+    //           value: sheet.title,
+    //         })),
+    //         change: (v) => {
+    //           console.log("change", v);
+    //           this.actor.send({
+    //             type: "CONFIG_CHANGE",
+    //             settings: {
+    //               sheet: {
+    //                 id: Number(v),
+    //                 name: sheets.find((sheet) => sheet.id === Number(v))?.title,
+    //               },
+    //             },
+    //           });
+    //         },
+    //       })
+    //     );
+    //   }
+    // } else {
+    //   if (this.hasControl("sheet")) this.removeControl("sheet");
+    // }
     console.log("syncUI", state);
   }
 
@@ -413,16 +480,28 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       inputs,
     });
 
-    this.actor.subscribe((state) => {
+    const subs = this.actor.subscribe((state) => {
       if (state.matches("complete")) {
         console.log("COMPLETE", { outputs: state.context.outputs });
         forward("trigger");
       }
     });
+    subs.unsubscribe();
   }
 
   async data() {
-    return {};
+    let state = this.actor.getSnapshot();
+    if (this.inputs.trigger) {
+      this.actor.subscribe((newState) => {
+        state = newState;
+        console.log("state", newState, inputs);
+      });
+      while (state.matches("running")) {
+        console.log("waiting for complete");
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+    return state.context.outputs;
   }
 
   async serialize() {

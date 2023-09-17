@@ -1,6 +1,7 @@
 export { Start } from "./start";
 export { Log } from "./log";
 export { TextNode } from "./text";
+export { Number } from "./number";
 export { PromptTemplate } from "./prompt-template";
 export { OpenAIFunctionCall } from "./openai-function";
 export { DataSource } from "./datasource";

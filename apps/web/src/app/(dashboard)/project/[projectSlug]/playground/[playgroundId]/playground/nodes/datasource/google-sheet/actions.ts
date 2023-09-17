@@ -53,12 +53,19 @@ class GoogleSpreadSheetService {
     return sheet.getRows(params);
   }
 
-  public async getRow(rowId: number) {
+  public async getRow(rowIndex: number) {
+    console.log("getRow", rowIndex);
     const sheet = await this.getSheet();
-    return sheet.getRows({
-      offset: rowId,
+    console.log("11", sheet);
+
+    const result = await sheet.getRows({
+      offset: rowIndex,
       limit: 1,
     });
+    console.log("22", result);
+
+    const [row] = result;
+    return row.toObject();
   }
 
   public async getHeaders(): Promise<string[]> {
@@ -105,5 +112,5 @@ export const readRows = async (settings: GoogleSheetMachineContext) => {
 
 export const readRow = async (settings: GoogleSheetMachineContext) => {
   const spreadsheet = await getSheet(settings);
-  return spreadsheet.getRow(settings.inputs?.rowId);
+  return spreadsheet.getRow(settings.inputs?.rowIndex! as unknown as number);
 };

@@ -219,6 +219,8 @@ export function CustomNode<Scheme extends ClassicScheme>(
               height && `h-[${height}px]`,
               selected && " border-primary",
               "flex flex-col flex-1 bg-background",
+              state.matches("loading") &&
+                "border-blue-300 border-2 animate-pulse",
               state.matches("running") && "border-green-300",
               state.matches("error") && "border-red-600 border-2"
             )}

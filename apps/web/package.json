@@ -146,6 +146,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.6",
     "ts-key-enum": "^2.0.12",
+    "ts-pattern": "^5.0.5",
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",

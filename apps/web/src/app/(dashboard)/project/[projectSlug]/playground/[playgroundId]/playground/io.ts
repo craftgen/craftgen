@@ -28,6 +28,7 @@ export async function createNode({
     Start: (di, data) => new Nodes.Start(di, data),
     Log: (di, data) => new Nodes.Log(di, data),
     TextNode: (di, data) => new Nodes.TextNode(di, data),
+    Number: (di, data) => new Nodes.Number(di, data),
     PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
     Replicate: (di, data) => new Nodes.Replicate(di, data),

@@ -30,6 +30,7 @@ export const nodes = {
   Start: Start,
   Log: Log,
   TextNode: TextNode,
+  Number: Number,
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
   DataSource: DataSource,
@@ -79,6 +80,11 @@ export const nodesMeta: Record<
     name: "Text Node",
     description: "Node for handling text",
     icon: Icons.text,
+  },
+  Number: {
+    name: "Number",
+    description: "Node for handling numbers",
+    icon: Icons.numbers,
   },
   PromptTemplate: {
     name: "Prompt Template",

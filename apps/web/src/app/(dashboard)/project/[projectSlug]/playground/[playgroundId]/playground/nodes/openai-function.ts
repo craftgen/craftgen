@@ -436,12 +436,13 @@ export class OpenAIFunctionCall extends BaseNode<
         inputs,
       });
 
-      this.actor.subscribe((state) => {
+      const subs = this.actor.subscribe((state) => {
         if (state.matches("complete")) {
           console.log("COMPLETE", { outputs: state.context.outputs });
           forward("trigger");
         }
       });
+      subs.unsubscribe();
     } catch (error) {
       console.log("ERROR", error);
     }
