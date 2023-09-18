@@ -140,9 +140,9 @@ export const Hero = () => {
                   Best way to work with AI to automate content!
                 </p>
                 <p className="mt-3 text-base leading-7 text-gray-600 font-inter">
-                  SEOcraft’s playground brilliantly counters chatbot
+                  SEOcraft&apos;s playground brilliantly counters chatbot
                   limitations. It empowers users with a nuanced toolset,
-                  elevating AI from an 'operated machine' to a collaboratively
+                  elevating AI from an &apos;operated machine&apos; to a collaboratively
                   designed masterpiece.
                 </p>
               </blockquote>

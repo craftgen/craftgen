@@ -99,7 +99,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                       <FormItem>
                         <Input placeholder="Email" {...field} />
                         <FormDescription>
-                          (we won't spam you, we promise)!
+                          (we won&apos;t spam you, we promise)!
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
