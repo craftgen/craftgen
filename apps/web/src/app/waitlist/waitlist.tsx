@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { addToWaitlist } from "../action";
-import { useState } from "react";
+import { MutableRefObject, PropsWithChildren, useRef, useState } from "react";
 import { Confettis } from "@/components/confetti";
 import Image from "next/image";
 
@@ -31,7 +31,7 @@ const formSchema = z.object({
   platforms: z.array(z.string()).optional(),
 });
 
-export const Waitlist = () => {
+export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,7 +45,11 @@ export const Waitlist = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Unlock Early Access: Join Our Priority Waitlist</Button>
+        {children ? (
+          children
+        ) : (
+          <Button>Unlock Early Access: Join Our Priority Waitlist</Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         {success ? (

@@ -1,19 +1,12 @@
-import { Scene } from "@/components/scene";
-import Image from "next/image";
-import Link from "next/link";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@seocraft/supabase/db/database.types";
-import { cookies } from "next/headers";
 import Hero from "./hero";
 import { ModeToggle } from "@/components/theme-toggle";
-import { Waitlist } from "./waitlist/waitlist";
 
 export default async function Home() {
   // const supabase = createServerComponentClient<Database>({ cookies });
   // const {
   //   data: { session },
   // } = await supabase.auth.getSession();
-
+  // const ref = useRef<HTMLDivElement>(null);
   return (
     <main className="flex min-h-screen flex-col items-center justify-start ">
       {/* <div className="flex items-center justify-between bg-muted w-full h-10 p-4">
@@ -27,9 +20,12 @@ export default async function Home() {
           </Link>
         </div>
       </div> */}
-      <ModeToggle />
-      <Scene>
-        <div className="grid grid-cols-2">
+      <div className="w-full flex justify-end p-1">
+        <ModeToggle />
+      </div>
+      <Hero />
+      {/* <Scene>
+        <div className="grid grid-cols-2" ref={ref}>
           <div className="flex flex-col p-20 justify-around items-start h-full">
             <h1 className="text-7xl font-black">
               <span className="text-red-600">SEO</span>CRAFT
@@ -43,7 +39,7 @@ export default async function Home() {
               a robust content marketing strategy, SEOCRAFT provides the tools
               to craft your success.
             </p>
-            <Waitlist />
+            <Waitlist containerRef={ref} />
           </div>
           <div className="flex items-center justify-center">
             <Image
@@ -55,7 +51,7 @@ export default async function Home() {
             />
           </div>
         </div>
-      </Scene>
+      </Scene> */}
       {/* <Scene>
         <div>
           <section className="py-12  sm:py-16 lg:py-20 xl:py-24">
