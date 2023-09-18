@@ -136,6 +136,57 @@ export class BaseNode<
     });
   }
 
+  /**
+   * This function waits for the actor's state to match a given state value.
+   * It subscribes to the actor's state changes and checks if the new state matches the given state value.
+   * If the state does not match, it waits for 500ms before checking again.
+   * Once the state matches the given value, it unsubscribes from the actor's state changes.
+   *
+   * @param {string} stateValue - The state value to wait for.
+   */
+  async waitForState(stateValue: string) {
+    let state = this.actor.getSnapshot()
+    const sub = this.actor.subscribe((newState) => {
+      state = newState;
+      console.log("state", newState);
+    });
+    while (!state.matches(stateValue)) {
+      console.log("waiting for complete");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    sub.unsubscribe();
+  }
+
+  /**
+   * This function retrieves the inputs for the current node.
+   * It first resets the data flow, then fetches the inputs for the current node id.
+   * It then iterates over the inputs and if an input does not exist and has a control, it sets the input to the corresponding value from the actor's state context.
+   * After that, it normalizes the inputs based on whether the input accepts multiple connections.
+   * If an input does not accept multiple connections and its value is an array, it flattens the value to the first element of the array.
+   * Finally, it returns the inputs.
+   */
+  async getInputs() {
+    this.di.dataFlow?.reset();
+    const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
+      [x: string]: string;
+    };
+    const state = this.actor.getSnapshot();
+    Object.keys(this.inputs).forEach((key) => {
+      if (!inputs[key] && this.inputs[key]?.control) {
+        inputs[key] = state.context.inputs[key];
+      }
+    });
+
+    // Normalize inputs based on if input accepts multipleConnections
+    // If not, flatten the value instead of array
+    Object.keys(inputs).forEach((key) => {
+      if (!this.inputs[key]?.multipleConnections) {
+        inputs[key] = Array.isArray(inputs[key]) ? inputs[key][0] : inputs[key];
+      }
+    });
+    return inputs;
+  }
+
   log(...args: any[]) {
     console.log(`[${this.di.editor.name}] - [${this.label}]`, ...args);
   }

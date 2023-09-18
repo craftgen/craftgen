@@ -407,60 +407,18 @@ export class OpenAIFunctionCall extends BaseNode<
   }
 
   async execute(input: any, forward: (output: "trigger") => void) {
-    try {
-      this.di.dataFlow?.reset();
-      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-        [x: string]: string;
-      };
-      const state = this.actor.getSnapshot();
-      Object.keys(this.inputs).forEach((key) => {
-        if (!inputs[key] && this.inputs[key]?.control) {
-          inputs[key] = state.context.inputs[key];
-        }
-      });
-
-      // Normalize inputs based on if input accepts multipleConnections
-      // If not, flatten the value instead of array
-      Object.keys(inputs).forEach((key) => {
-        if (!this.inputs[key]?.multipleConnections) {
-          inputs[key] = Array.isArray(inputs[key])
-            ? inputs[key][0]
-            : inputs[key];
-        }
-      });
-
-      console.log(inputs);
-
-      this.actor.send({
-        type: "RUN",
-        inputs,
-      });
-
-      const subs = this.actor.subscribe((state) => {
-        if (state.matches("complete")) {
-          console.log("COMPLETE", { outputs: state.context.outputs });
-          forward("trigger");
-        }
-      });
-      subs.unsubscribe();
-    } catch (error) {
-      console.log("ERROR", error);
-    }
+    const inputs = this.getInputs();
+    this.actor.send({
+      type: "RUN",
+      inputs,
+    });
+    await this.waitForState("complete");
+    forward('trigger')
   }
 
-  async data(inputs: any) {
-    let state = this.actor.getSnapshot();
-    if (this.inputs.trigger) {
-      this.actor.subscribe((newState) => {
-        state = newState;
-        console.log("state", newState, inputs);
-      });
-      while (state.matches("running")) {
-        console.log("waiting for complete");
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-
+  async data() {
+    await this.waitForState('complete') 
+    const state = this.actor.getSnapshot();
     return state.context.outputs;
   }
 

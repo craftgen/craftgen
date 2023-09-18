@@ -18,7 +18,6 @@ import {
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 import { GoogleIntegrationsScope } from "./settings/integrations/page";
-import { getSheet } from "@/lib/google/spreedsheet";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
