@@ -121,16 +121,16 @@ export const Hero = () => {
 
             <Waitlist>
               <a
-                ref={buttonRef}
-                href="#"
-                onMouseOver={() => setOnButton(true)}
-                onMouseOut={() => setOnButton(false)}
-                title=""
-                className="inline-flex px-8 py-4 mt-8 text-lg font-bold text-white transition-all duration-200 bg-gray-900 border border-transparent rounded sm:mt-10 font-pj hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                role="button"
-              >
-                Join the waitlist for early access
-              </a>
+								ref={buttonRef}
+								href='#'
+								onMouseOver={() => setOnButton(true)}
+								onMouseOut={() => setOnButton(false)}
+								title=''
+								role='button'
+								className='inline-flex px-8 py-4 mt-8 sm:mt-10 text-lg font-bold text-white cursor-pointer hover:scale-105 active:scale-90 transition-all duration-150 select-none rounded 2.3s ease-in-out bg-gray-900 dark:join-waitlist-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+							>
+							Join the waitlist for early access
+							</a>
             </Waitlist>
             <div className="mt-8 sm:mt-16">
               <div className="flex items-center justify-center lg:justify-start">
