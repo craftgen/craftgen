@@ -10,10 +10,10 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { SelectControl } from "../../../ui/control/control-select";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
-import { addRow, getHeaders, getSheets, readRow } from "./actions";
+import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 import { GoogleDriveControl } from "../../../ui/control/control-google-drive";
 import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
 export type GoogleSheetSettings = {
   spreadsheet: CallbackDoc | undefined;
@@ -42,7 +42,10 @@ const GoogleSheetMachine = createMachine({
   initial: "idle",
   types: {} as {
     context: {
-      inputs: Record<string, any[]>;
+      inputs:
+        | Record<string, any[]>
+        | { limit: number; offset: number }
+        | { rowIndex: number };
       outputs: Record<string, any[]>;
       settings: GoogleSheetSettings;
       error: {
@@ -154,11 +157,15 @@ const GoogleSheetMachine = createMachine({
             error: null,
           }),
         },
-        // CONFIG_CHANGE: {
-        //   actions: assign({
-        //     settings: ({ context, event }) => mergeSettings(context, event),
-        //   }),
-        // },
+        CONFIG_CHANGE: {
+          actions: assign({
+            settings: ({ context, event }) => ({
+              ...context.settings,
+              ...event.settings,
+            }),
+            error: null,
+          }),
+        },
         // SET_VALUE: {
         //   actions: assign({
         //     inputs: ({ context, event }) => ({
@@ -187,41 +194,35 @@ const GoogleSheetMachine = createMachine({
 });
 
 const GoogleSheetActionTypes = {
-  addRow: "addRow",
-  readRow: "readRow",
+  addRow: {
+    type: "addRow",
+    label: "Add Row",
+    description: "Add a row to bottom of the Google Sheet",
+    inputs: {},
+  },
+  readRow: {
+    type: "readRow",
+    label: "Read Row",
+    description: "Read a row from the Google Sheet",
+    inputs: {
+      rowIndex: numberSocket,
+    },
+  },
+  readRows: {
+    type: "readRows",
+    label: "Read Rows",
+    description: "Read rows from the Google Sheet, with limit and offset",
+    inputs: {
+      limit: numberSocket,
+      offset: numberSocket,
+    },
+  },
 } as const;
 
 type GoogleSheetActionTypes = keyof typeof GoogleSheetActionTypes;
-export type GoogleSheetMachineContext = ContextFrom<typeof GoogleSheetMachine>;
-
-export const GoogleSheetActions: Record<
-  GoogleSheetActionTypes,
-  ({ input }: { input: ContextFrom<typeof GoogleSheetMachine> }) => Promise<any>
-> = {
-  addRow: async ({
-    input,
-  }: {
-    input: ContextFrom<typeof GoogleSheetMachine>;
-  }): Promise<string> => {
-    console.log("Running addRow", input);
-    await addRow(input);
-
-    return "yes";
-  },
-  readRow: async ({
-    input,
-  }: {
-    input: ContextFrom<typeof GoogleSheetMachine>;
-  }) => {
-    console.log("Running readRow");
-    const row = await readRow(input);
-    console.log(row);
-    return row;
-  },
-} as const;
-
-// type GoogleSheetActionTypes = keyof typeof GoogleSheetActions;
-
+export type GoogleSheetMachineContext = ContextFrom<
+  typeof GoogleSheetMachine
+>["settings"];
 export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
   public action: GoogleSheetActionTypes = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof GoogleSheetMachine>) {
@@ -240,23 +241,53 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       actors: {
         getHeaders: fromPromise(async ({ input, self }) => {
           console.log("getHeaders", input);
-          const headers = await getHeaders(input.context);
+          const headers = await getHeaders(input.context.settings);
           return headers;
         }),
         action: fromPromise(async ({ input, self }) => {
-          const res = match(input as ContextFrom<typeof GoogleSheetMachine>)
-            .with({ settings: { action: "addRow" } }, async (input) => {
-              console.log("addRow", input);
-              await addRow(input);
-              return "yes";
-            })
-            .with({ settings: { action: "readRow" } }, async (input) => {
-              console.log("readRow", input);
-              const row = await readRow(input);
-              console.log(row);
-              return row;
-            })
-            .exhaustive();
+          const res = await match(
+            input as ContextFrom<typeof GoogleSheetMachine>
+          )
+            .with(
+              { settings: { action: "addRow" }, inputs: P.any },
+              async (input) => {
+                const row = await addRow({
+                  settings: input.settings,
+                  inputs: input.inputs,
+                });
+                return row;
+              }
+            )
+            .with(
+              {
+                settings: { action: "readRow" },
+                inputs: { rowIndex: P.number },
+              },
+              async (input) => {
+                const row = await readRow({
+                  settings: input.settings,
+                  rowIndex: input.inputs.rowIndex,
+                });
+                return row;
+              }
+            )
+            .with(
+              {
+                settings: { action: "readRows" },
+                inputs: { limit: P.number, offset: P.number },
+              },
+              async (input) => {
+                const rows = await readRows({
+                  settings: input.settings,
+                  limit: input.inputs.limit,
+                  offset: input.inputs.offset,
+                });
+                return rows;
+              }
+            )
+            .otherwise(() => {
+              throw new Error("Invalid action");
+            });
           return res;
         }),
       },
@@ -269,14 +300,10 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       new SelectControl("addRow", {
         placeholder: "Select an action",
         values: [
-          {
-            key: "addRow",
-            value: "Add Row",
-          },
-          {
-            key: "readRow",
-            value: "Read Row",
-          },
+          ...Object.values(GoogleSheetActionTypes).map((action) => ({
+            key: action.type,
+            value: action.label,
+          })),
         ],
         change: (v) => {
           console.log("change", v);
@@ -345,33 +372,47 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       const action = state.context.settings.action;
       const headers = state.context.settings.sheet?.headers || [];
 
-      if (action === "addRow") {
-        await this.setInputs(
-          headers.reduce((prev, curr) => {
-            return {
-              ...prev,
-              [curr]: stringSocket,
-            };
-          }, {})
-        );
-        await this.setOutputs({});
-      }
-
-      if (action === "readRow") {
-        await this.setInputs({ rowIndex: numberSocket });
-        await this.setOutputs(
-          headers.reduce((prev, curr) => {
-            return {
-              ...prev,
-              [curr]: stringSocket,
-            };
-          }, {})
-        );
-      }
+      // this section handles the inputs and outputs.
+      await match(action)
+        .with("addRow", async () => {
+          await this.setInputs(
+            headers.reduce((prev, curr) => {
+              return {
+                ...prev,
+                [curr]: stringSocket,
+              };
+            }, {})
+          );
+          await this.setOutputs({});
+        })
+        .with("readRow", async () => {
+          await this.setInputs({ rowIndex: numberSocket });
+          await this.setOutputs(
+            headers.reduce((prev, curr) => {
+              return {
+                ...prev,
+                [curr]: stringSocket,
+              };
+            }, {})
+          );
+        })
+        .with("readRows", async () => {
+          await this.setInputs({ limit: numberSocket, offset: numberSocket });
+          await this.setOutputs(
+            headers.reduce((prev, curr) => {
+              return {
+                ...prev,
+                [curr]: stringSocket,
+              };
+            }, {})
+          );
+        })
+        .exhaustive();
     }
     if (state.context.settings.spreadsheet) {
       if (!this.hasControl("sheet")) {
-        const sheets = await getSheets(state.context);
+        const sheets = await getSheets(state.context.settings);
+        console.log(sheets);
         this.addControl(
           "sheet",
           new SelectControl(String(state.context.settings.sheet?.id), {
@@ -440,7 +481,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
     if (this.inputs.trigger) {
       this.actor.subscribe((newState) => {
         state = newState;
-        console.log("state", newState, inputs);
+        console.log("state", newState);
       });
       while (state.matches("running")) {
         console.log("waiting for complete");

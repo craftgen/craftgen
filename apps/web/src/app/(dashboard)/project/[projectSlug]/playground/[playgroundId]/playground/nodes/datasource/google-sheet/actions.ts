@@ -5,7 +5,7 @@ import { Database } from "@seocraft/supabase/db/database.types";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import { cookies } from "next/headers";
-import { GoogleSheetMachineContext } from "./google-sheet";
+import { GoogleSheetMachineContext as GoogleSheetMachineSettingsContext } from "./google-sheet";
 import { Auth } from "googleapis";
 
 type GoogleSheetServiceSettings = {
@@ -38,31 +38,25 @@ class GoogleSpreadSheetService {
     }));
   }
 
-  public async addRow(
-    rowData: any
-  ): Promise<GoogleSpreadsheetRow<Record<string, any>>> {
+  public async addRow(rowData: any) {
     const sheet = await this.getSheet();
     const newRow = await sheet.addRow(rowData);
 
-    console.log("newRow", newRow);
-    return newRow;
+    return newRow.toObject();
   }
 
   public async getRows(params: { limit: number; offset: number }) {
     const sheet = await this.getSheet();
-    return sheet.getRows(params);
+    const result = await sheet.getRows(params);
+    return result.map((r) => r.toObject());
   }
 
   public async getRow(rowIndex: number) {
-    console.log("getRow", rowIndex);
     const sheet = await this.getSheet();
-    console.log("11", sheet);
-
     const result = await sheet.getRows({
       offset: rowIndex,
       limit: 1,
     });
-    console.log("22", result);
 
     const [row] = result;
     return row.toObject();
@@ -75,42 +69,56 @@ class GoogleSpreadSheetService {
   }
 }
 
-const getSheet = async (settings: GoogleSheetMachineContext) => {
+const getSheet = async (settings: GoogleSheetMachineSettingsContext) => {
   const supabase = createServerActionClient<Database>({ cookies });
   const session = await supabase.auth.getSession();
   const auth = await getGoogleAuth({ session: session.data.session! });
 
   return new GoogleSpreadSheetService({
-    spreadsheetId: settings.settings.spreadsheet?.id!,
-    sheetId: settings.settings.sheet?.id || undefined,
+    spreadsheetId: settings.spreadsheet?.id!,
+    sheetId: settings.sheet?.id || undefined,
     auth,
   });
 };
 
-export const getSheets = async (settings: GoogleSheetMachineContext) => {
+export const getSheets = async (
+  settings: GoogleSheetMachineSettingsContext
+) => {
   const spreadsheet = await getSheet(settings);
   return spreadsheet.getSheets();
 };
 
-export const getHeaders = async (settings: GoogleSheetMachineContext) => {
+export const getHeaders = async (
+  settings: GoogleSheetMachineSettingsContext
+) => {
   const spreadsheet = await getSheet(settings);
   return spreadsheet.getHeaders();
 };
 
-export const addRow = async (settings: GoogleSheetMachineContext) => {
-  const spreadsheet = await getSheet(settings);
-  await spreadsheet.addRow(settings.inputs);
+export const addRow = async (params: {
+  settings: GoogleSheetMachineSettingsContext;
+  inputs: Record<string, any>;
+}) => {
+  const spreadsheet = await getSheet(params.settings);
+  return await spreadsheet.addRow(params.inputs);
 };
 
-export const readRows = async (settings: GoogleSheetMachineContext) => {
-  const spreadsheet = await getSheet(settings);
+export const readRows = async (params: {
+  settings: GoogleSheetMachineSettingsContext;
+  limit: number;
+  offset: number;
+}) => {
+  const spreadsheet = await getSheet(params.settings);
   return spreadsheet.getRows({
-    limit: settings.inputs?.limit,
-    offset: settings.inputs?.offset,
+    limit: params.limit,
+    offset: params.offset,
   });
 };
 
-export const readRow = async (settings: GoogleSheetMachineContext) => {
-  const spreadsheet = await getSheet(settings);
-  return spreadsheet.getRow(settings.inputs?.rowIndex! as unknown as number);
+export const readRow = async (params: {
+  settings: GoogleSheetMachineSettingsContext;
+  rowIndex: number;
+}) => {
+  const spreadsheet = await getSheet(params.settings);
+  return spreadsheet.getRow(params.rowIndex);
 };
