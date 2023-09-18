@@ -440,6 +440,27 @@ export interface Database {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          platforms: string[]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          platforms?: string[]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          platforms?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

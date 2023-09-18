@@ -118,6 +118,7 @@
     "react-hook-form": "^7.45.2",
     "react-hotkeys-hook": "^4.4.1",
     "react-lite-youtube-embed": "^2.3.52",
+    "react-particles": "^2.12.2",
     "react-tweet": "^3.0.4",
     "react-use": "^17.4.0",
     "reactflow": "^11.7.4",

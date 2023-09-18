@@ -5,6 +5,8 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@seocraft/supabase/db/database.types";
 import { cookies } from "next/headers";
 import Hero from "./hero";
+import { ModeToggle } from "@/components/theme-toggle";
+import { Waitlist } from "./waitlist";
 
 export default async function Home() {
   // const supabase = createServerComponentClient<Database>({ cookies });
@@ -14,23 +16,18 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start ">
-      <div className="flex items-center justify-between bg-muted w-full h-10 p-4">
+      {/* <div className="flex items-center justify-between bg-muted w-full h-10 p-4">
         <div></div>
         <div>
-          {/* {session ? ( */}
           <Link href="/dashboard" className="font-bold">
             Dashboard
           </Link>
-          {/* ) : ( */}
           <Link href="/login" className="font-bold">
             Login
           </Link>
-          {/* )} */}
         </div>
-      </div>
-      {/* <Scene>
-        <Hero />
-      </Scene> */}
+      </div> */}
+      <ModeToggle />
       <Scene>
         <div className="grid grid-cols-2">
           <div className="flex flex-col p-20 justify-around items-start h-full">
@@ -46,6 +43,7 @@ export default async function Home() {
               a robust content marketing strategy, SEOCRAFT provides the tools
               to craft your success.
             </p>
+            <Waitlist />
           </div>
           <div className="flex items-center justify-center">
             <Image
@@ -58,7 +56,7 @@ export default async function Home() {
           </div>
         </div>
       </Scene>
-      <Scene>
+      {/* <Scene>
         <div>
           <section className="py-12  sm:py-16 lg:py-20 xl:py-24">
             <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
@@ -141,7 +139,7 @@ export default async function Home() {
           strategies that resonate. And the best part? You control the key,
           ensuring full autonomy and flexibility.
         </p>
-      </Scene>
+      </Scene> */}
     </main>
   );
 }

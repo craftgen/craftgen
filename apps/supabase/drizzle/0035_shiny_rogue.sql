@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "waitlist" boolean DEFAULT false NOT NULL;

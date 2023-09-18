@@ -246,6 +246,27 @@
       "when": 1694509134530,
       "tag": "0034_classy_tomorrow_man",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1695029132111,
+      "tag": "0035_shiny_rogue",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1695029280080,
+      "tag": "0036_overconfident_sphinx",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1695029405020,
+      "tag": "0037_ancient_photon",
+      "breakpoints": true
     }
   ]
 }

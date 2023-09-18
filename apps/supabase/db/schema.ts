@@ -21,6 +21,13 @@ export const user = pgTable("user", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const waitlist = pgTable("waitlist", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  platforms: text("platforms").array().notNull().default([]),
+});
+
 export const userRelations = relations(user, ({ many }) => ({
   projectMembers: many(projectMembers),
 }));
