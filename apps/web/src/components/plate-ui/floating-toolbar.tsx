@@ -1,7 +1,7 @@
 import React from 'react';
-import { flip, offset } from '@floating-ui/react';
 import { PortalBody, useComposedRef } from '@udecode/plate-common';
 import {
+  flip, offset,
   useFloatingToolbar,
   useFloatingToolbarState,
 } from '@udecode/plate-floating';
