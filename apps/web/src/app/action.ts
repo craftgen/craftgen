@@ -1,8 +1,18 @@
-import { db, user } from "@seocraft/supabase/db";
+"use server";
 
-export const addToWaitlist = async (email: string) => {
-  db.insert(user).values({
-    id: ''
-    email,
-  });
+import { db, waitlist } from "@seocraft/supabase/db";
+import { ca } from "date-fns/locale";
+
+export const addToWaitlist = async (params: {
+  email: string;
+  platforms?: string[];
+}) => {
+  return await db
+    .insert(waitlist)
+    .values({
+      email: params.email,
+      platforms: params.platforms || [],
+    })
+    .onConflictDoNothing()
+    .returning();
 };

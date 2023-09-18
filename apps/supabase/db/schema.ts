@@ -23,7 +23,7 @@ export const user = pgTable("user", {
 
 export const waitlist = pgTable("waitlist", {
   id: uuid("id").primaryKey().defaultRandom(),
-  email: text("email").notNull(),
+  email: text("email").unique().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   platforms: text("platforms").array().notNull().default([]),
 });

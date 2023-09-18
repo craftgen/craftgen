@@ -6,7 +6,7 @@ import { Database } from "@seocraft/supabase/db/database.types";
 import { cookies } from "next/headers";
 import Hero from "./hero";
 import { ModeToggle } from "@/components/theme-toggle";
-import { Waitlist } from "./waitlist";
+import { Waitlist } from "./waitlist/waitlist";
 
 export default async function Home() {
   // const supabase = createServerComponentClient<Database>({ cookies });

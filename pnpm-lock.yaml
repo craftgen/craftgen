@@ -152,11 +152,11 @@ importers:
       react-dnd: ^16.0.1
       react-dnd-html5-backend: ^16.0.1
       react-dom: 18.2.0
+      react-dom-confetti: ^0.2.0
       react-google-drive-picker: ^1.2.2
       react-hook-form: ^7.45.2
       react-hotkeys-hook: ^4.4.1
       react-lite-youtube-embed: ^2.3.52
-      react-particles: ^2.12.2
       react-tweet: ^3.0.4
       react-use: ^17.4.0
       reactflow: ^11.7.4
@@ -298,11 +298,11 @@ importers:
       react-dnd: 16.0.1_lxttrbyy6ql5nzk2bibe4kcxvi
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.2.0_react@18.2.0
+      react-dom-confetti: 0.2.0_react@18.2.0
       react-google-drive-picker: 1.2.2_biqbaboplfbrettd7655fr4n2y
       react-hook-form: 7.45.2_react@18.2.0
       react-hotkeys-hook: 4.4.1_biqbaboplfbrettd7655fr4n2y
       react-lite-youtube-embed: 2.3.52_biqbaboplfbrettd7655fr4n2y
-      react-particles: 2.12.2_react@18.2.0
       react-tweet: 3.0.4_biqbaboplfbrettd7655fr4n2y
       react-use: 17.4.0_biqbaboplfbrettd7655fr4n2y
       reactflow: 11.7.4_biqbaboplfbrettd7655fr4n2y
@@ -7131,6 +7131,10 @@ packages:
     dependencies:
       esutils: 2.0.3
 
+  /dom-confetti/0.2.2:
+    resolution: {integrity: sha512-+UVH9Y85qmpTnbmFURwLWjqLIykyIrsNSRkPX/eFlBuOURz9RDX8JoZHnajZHyFuCV0w/K3+tZK0ztfoTw6ejg==}
+    dev: false
+
   /dom-helpers/3.4.0:
     resolution: {integrity: sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==}
     dependencies:
@@ -10308,6 +10312,15 @@ packages:
       react: 18.2.0
     dev: false
 
+  /react-dom-confetti/0.2.0_react@18.2.0:
+    resolution: {integrity: sha512-+XRTi+WlCrcRN2dTjdEopOaPFtS7hpaHRRQ0sHiVRGqpchKz4QVh3i+6eLEEpNHYpN2VgPmhjvJ/vnjmUYhlIQ==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      dom-confetti: 0.2.2
+      react: 18.2.0
+    dev: false
+
   /react-dom/18.2.0_react@18.2.0:
     resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}
     peerDependencies:
@@ -10367,16 +10380,6 @@ packages:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-    dev: false
-
-  /react-particles/2.12.2_react@18.2.0:
-    resolution: {integrity: sha512-Bo9DdrBRPFy8uiT7BA8P36Rdmz6GhB/RG9kkWUyZGIsS8AxWyuUjpVxw9Lr23K0LVE2aenAJ0vnqEbbLDpBgQw==}
-    requiresBuild: true
-    peerDependencies:
-      react: '>=16'
-    dependencies:
-      react: 18.2.0
-      tsparticles-engine: 2.12.0
     dev: false
 
   /react-remove-scroll-bar/2.3.4_tznpbkknyqq5lcv5sgrl332jvu:
@@ -11651,11 +11654,6 @@ packages:
 
   /tslib/2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: false
-
-  /tsparticles-engine/2.12.0:
-    resolution: {integrity: sha512-ZjDIYex6jBJ4iMc9+z0uPe7SgBnmb6l+EJm83MPIsOny9lPpetMsnw/8YJ3xdxn8hV+S3myTpTN1CkOVmFv0QQ==}
-    requiresBuild: true
     dev: false
 
   /tsutils/3.21.0_typescript@5.1.6:
