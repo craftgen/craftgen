@@ -38,50 +38,24 @@ import {
   GoogleDriveControlComponent,
 } from "./ui/control/control-google-drive";
 import { NumberControl, NumberControlComponent } from "./ui/control/control-number";
+import { P, match } from "ts-pattern";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
 ): (({ data }: { data: any }) => JSX.Element | null) => {
-  if (data.payload instanceof ButtonControl) {
-    return CustomButton;
-  }
-  if (data.payload instanceof CodeControl) {
-    return CodeEditor;
-  }
-  if (data.payload instanceof ArticleControl) {
-    return ArticleEditor;
-  }
-  if (data.payload instanceof SelectControl) {
-    return SelectControlComponent;
-  }
-  if (data.payload instanceof SWRSelectControl) {
-    return SWRSelectControlComponent;
-  }
-  if (data.payload instanceof TableControl) {
-    return TableControlComponent;
-  }
-  if (data.payload instanceof DataSourceControl) {
-    return DataSourceControlComponent;
-  }
-  if (data.payload instanceof DebugControl) {
-    return DebugControlComponent;
-  }
-  if (data.payload instanceof SocketGeneratorControl) {
-    return SocketGeneratorControlComponent;
-  }
-  if (data.payload instanceof ClassicPreset.InputControl) {
-    return CustomInput;
-  }
-  if (data.payload instanceof NumberControl) {
-    return NumberControlComponent;
-  }
-  if (data.payload instanceof SliderControl) {
-    return SliderControlComponent;
-  }
-
-  if (data.payload instanceof GoogleDriveControl) {
-    return GoogleDriveControlComponent;
-  }
-  return ({ data }) => null;
-  // return ClassicPreset.Control;
+  return match(data.payload)
+    .with(P.instanceOf(ButtonControl), () => CustomButton)
+    .with(P.instanceOf(CodeControl), () => CodeEditor)
+    .with(P.instanceOf(ArticleControl), () => ArticleEditor)
+    .with(P.instanceOf(SelectControl), () => SelectControlComponent)
+    .with(P.instanceOf(SWRSelectControl), () => SWRSelectControlComponent)
+    .with(P.instanceOf(TableControl), () => TableControlComponent)
+    .with(P.instanceOf(DataSourceControl), () => DataSourceControlComponent)
+    .with(P.instanceOf(DebugControl), () => DebugControlComponent)
+    .with(P.instanceOf(SocketGeneratorControl), () => SocketGeneratorControlComponent)
+    .with(P.instanceOf(ClassicPreset.InputControl), () => CustomInput)
+    .with(P.instanceOf(NumberControl), () => NumberControlComponent)
+    .with(P.instanceOf(SliderControl), () => SliderControlComponent)
+    .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
+    .otherwise(() => () => null)
 };
