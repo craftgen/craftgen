@@ -1,11 +1,9 @@
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { ClassicPreset } from "rete";
 
 type SliderControlOptions = {
-  max: number;
-  step: number;
+  max?: number;
   change: (value: number) => void;
 };
 
@@ -22,7 +20,7 @@ export class NumberControl extends ClassicPreset.Control {
   }
 }
 
-export function SliderControlComponenet(props: { data: NumberControl }) {
+export function NumberControlComponent(props: { data: NumberControl }) {
   const [value, setValue] = useState<number>(props.data.value);
   const handleChange = (value: number) => {
     setValue(value);
@@ -32,8 +30,10 @@ export function SliderControlComponenet(props: { data: NumberControl }) {
     setValue(props.data.value);
   }, [props.data.value]);
   return (
-    <div>
-      <Input type="number" value={value} onChange={handleChange} />
-    </div>
+    <Input
+      type="number"
+      value={value}
+      onChange={(e) => handleChange(Number(e.target.value))}
+    />
   );
 }

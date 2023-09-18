@@ -158,8 +158,8 @@ const PromptTemplateNodeMachine = createMachine({
           target: "error",
           actions: assign({
             error: ({ event }) => ({
-              name: event.data.name,
-              message: event.data.message,
+              name: (event.data as Error).name,
+              message: (event.data as Error).message,
             }),
           }),
         },

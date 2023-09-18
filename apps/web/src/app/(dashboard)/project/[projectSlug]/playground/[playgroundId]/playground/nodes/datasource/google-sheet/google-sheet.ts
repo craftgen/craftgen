@@ -99,7 +99,7 @@ const GoogleSheetMachine = createMachine({
                   ...context.settings.sheet,
                   headers: event.output,
                 },
-              };
+              } as GoogleSheetSettings;
             },
           }),
         },
@@ -141,8 +141,8 @@ const GoogleSheetMachine = createMachine({
           target: "error",
           actions: assign({
             error: ({ event }) => ({
-              name: event.data.name,
-              message: event.data.message,
+              name: (event.data as Error).name,
+              message: (event.data as Error).message,
             }),
           }),
         },

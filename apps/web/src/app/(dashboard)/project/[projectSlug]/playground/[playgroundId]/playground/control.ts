@@ -31,12 +31,13 @@ import {
 } from "./ui/control/control-swr-select";
 import {
   SliderControl,
-  SliderControlComponenet,
+  SliderControlComponenet as SliderControlComponent,
 } from "./ui/control/control-slider";
 import {
   GoogleDriveControl,
   GoogleDriveControlComponent,
 } from "./ui/control/control-google-drive";
+import { NumberControl, NumberControlComponent } from "./ui/control/control-number";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -71,8 +72,11 @@ export const getControl = (
   if (data.payload instanceof ClassicPreset.InputControl) {
     return CustomInput;
   }
+  if (data.payload instanceof NumberControl) {
+    return NumberControlComponent;
+  }
   if (data.payload instanceof SliderControl) {
-    return SliderControlComponenet;
+    return SliderControlComponent;
   }
 
   if (data.payload instanceof GoogleDriveControl) {
