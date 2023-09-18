@@ -97,12 +97,18 @@ export function CustomNode<Scheme extends ClassicScheme>(
   }, [props.data]);
 
   const cloneNode = React.useCallback(async () => {
+    console.log("clone node", {
+      data: props.data,
+      name: props.data.ID,
+      state: props.data.actor.getSnapshot(),
+    });
+    const rawState = JSON.stringify(props.data.actor.getSnapshot());
     const newNode = await createNode({
       di: di!,
-      name: props.data.constructor.name as NodeTypes,
+      name: props.data.ID,
       data: {
         ...props.data,
-        state: props.data.actor.getSnapshot(),
+        state: JSON.parse(rawState),
       } as any, //TODO:TYPE
       saveToDB: true,
       playgroundId,

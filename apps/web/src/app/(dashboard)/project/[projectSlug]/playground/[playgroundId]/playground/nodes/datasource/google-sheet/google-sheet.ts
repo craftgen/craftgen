@@ -139,7 +139,7 @@ const GoogleSheetMachine = createMachine({
           actions: assign({
             error: ({ event }) => ({
               name: event.data.name,
-              message: event.dataa.message,
+              message: event.data.message,
             }),
           }),
         },
@@ -323,66 +323,12 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
   }
 
   async syncUI(state: StateFrom<typeof GoogleSheetMachine>) {
-    match(state)
-      .with({ value: "idle" }, async () => {
-        if (this.hasInput("trigger")) this.removeInput("trigger");
-        if (this.hasOutput("trigger")) this.removeOutput("trigger");
-        await this.setInputs({});
-        await this.setOutputs({});
-      })
-      .with(
-        {
-          value: "idle",
-          context: {
-            settings: {
-              spreadsheet: undefined,
-            },
-          },
-        },
-        async () => {}
-        
-      )
-      .with(
-        {
-          value: "idle",
-          context: {
-            settings: {
-              sheet: undefined,
-            },
-          },
-        },
-        async () => {
-          const sheets = await getSheets(state.context);
-          this.addControl(
-            "sheet",
-            new SelectControl(String(state.context.settings.sheet?.id), {
-              placeholder: "Select a sheet",
-              values: sheets.map((sheet) => ({
-                key: String(sheet.id),
-                value: sheet.title,
-              })),
-              change: (v) => {
-                console.log("change", v);
-                this.actor.send({
-                  type: "CONFIG_CHANGE",
-                  settings: {
-                    sheet: {
-                      id: Number(v),
-                      name: sheets.find((sheet) => sheet.id === Number(v))
-                        ?.title,
-                    },
-                  },
-                });
-              },
-            })
-          );
-        }
-      )
-      .with({ value: "loading" }, async () => {})
-      .with({ value: "ready" }, async () => {})
-      .with({ value: "running" }, async () => {})
-      .with({ value: "complete" }, async () => {})
-      .with({ value: "error" }, async () => {});
+    if (state.matches("idle")) {
+      if (this.hasInput("trigger")) this.removeInput("trigger");
+      if (this.hasOutput("trigger")) this.removeOutput("trigger");
+      await this.setInputs({});
+      await this.setOutputs({});
+    }
     if (state.matches("ready")) {
       if (!this.hasInput("trigger"))
         this.addInput(
@@ -423,35 +369,35 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         );
       }
     }
-    // if (state.context.settings.spreadsheet) {
-    //   if (!this.hasControl("sheet")) {
-    //     const sheets = await getSheets(state.context);
-    //     this.addControl(
-    //       "sheet",
-    //       new SelectControl(String(state.context.settings.sheet?.id), {
-    //         placeholder: "Select a sheet",
-    //         values: sheets.map((sheet) => ({
-    //           key: String(sheet.id),
-    //           value: sheet.title,
-    //         })),
-    //         change: (v) => {
-    //           console.log("change", v);
-    //           this.actor.send({
-    //             type: "CONFIG_CHANGE",
-    //             settings: {
-    //               sheet: {
-    //                 id: Number(v),
-    //                 name: sheets.find((sheet) => sheet.id === Number(v))?.title,
-    //               },
-    //             },
-    //           });
-    //         },
-    //       })
-    //     );
-    //   }
-    // } else {
-    //   if (this.hasControl("sheet")) this.removeControl("sheet");
-    // }
+    if (state.context.settings.spreadsheet) {
+      if (!this.hasControl("sheet")) {
+        const sheets = await getSheets(state.context);
+        this.addControl(
+          "sheet",
+          new SelectControl(String(state.context.settings.sheet?.id), {
+            placeholder: "Select a sheet",
+            values: sheets.map((sheet) => ({
+              key: String(sheet.id),
+              value: sheet.title,
+            })),
+            change: (v) => {
+              console.log("change", v);
+              this.actor.send({
+                type: "CONFIG_CHANGE",
+                settings: {
+                  sheet: {
+                    id: Number(v),
+                    name: sheets.find((sheet) => sheet.id === Number(v))?.title,
+                  },
+                },
+              });
+            },
+          })
+        );
+      }
+    } else {
+      if (this.hasControl("sheet")) this.removeControl("sheet");
+    }
     console.log("syncUI", state);
   }
 
