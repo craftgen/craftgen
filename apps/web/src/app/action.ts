@@ -1,13 +1,15 @@
 "use server";
 
 import { db, waitlist } from "@seocraft/supabase/db";
-import { ca } from "date-fns/locale";
+import { Bot } from "grammy";
 
 export const addToWaitlist = async (params: {
   email: string;
   platforms?: string[];
 }) => {
-  return await db
+  console.log(process.env.TELEGRAM_BOT_TOKEN)
+  const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN as string);
+  const User = await db
     .insert(waitlist)
     .values({
       email: params.email,
@@ -15,4 +17,12 @@ export const addToWaitlist = async (params: {
     })
     .onConflictDoNothing()
     .returning();
+  await bot.api.sendMessage(
+    -990898182,
+    `
+    **#SEOCRAFT**
+    New user: ${params.email}
+    `
+  );
+  return User;
 };

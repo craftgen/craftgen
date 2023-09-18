@@ -104,6 +104,7 @@
     "framer-motion": "^10.16.0",
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
+    "grammy": "1.16.2",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.263.0",
     "modelfusion": "^0.27.3",

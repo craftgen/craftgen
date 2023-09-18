@@ -7,9 +7,31 @@ import { motion, spring, useTransform } from "framer-motion";
 
 export const Hero = () => {
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
+  const buttonMouse = useMouse(buttonRef);
   const mouse = useMouse(ref);
   const [cursorText, setCursorText] = useState("JOIN WAITLIST");
   const [cursorVariant, setCursorVariant] = useState("default");
+
+  let buttonMouseXPosition = 0;
+  let buttonMouseYPosition = 0;
+
+  if (buttonMouse.docX !== null) {
+    buttonMouseXPosition = buttonMouse.elX;
+  }
+
+  if (buttonMouse.docY !== null) {
+    buttonMouseYPosition = buttonMouse.elY;
+  }
+  /**
+   *       <div>Mouse position in document - x:{docX} y:{docY}</div>
+      <div>Mouse position in element - x:{elX} y:{elY}</div>
+      <div>Element position- x:{posX} y:{posY}</div>
+      <div>Element dimensions - {elW}x{elH}</div>
+   */
+  const dx = buttonMouse.posX + buttonMouse.elW / 2 - buttonMouse.docX;
+  const dy = buttonMouse.posY + buttonMouse.elH / 2 - buttonMouse.docY;
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
   let mouseXPosition = 0;
   let mouseYPosition = 0;
@@ -24,10 +46,10 @@ export const Hero = () => {
   const variants = {
     default: {
       opacity: 1,
-      height: 10,
-      width: 10,
+      // height: 10,
+      // width: 10,
       fontSize: "16px",
-      backgroundColor: "#1e91d6",
+      // backgroundColor: "#1e91d6",
       x: mouseXPosition,
       y: mouseYPosition,
       transition: {
@@ -58,9 +80,30 @@ export const Hero = () => {
     },
   };
 
-  console.log(mouse);
+  // console.log(mouse);
   return (
     <section className="relative py-12 sm:py-16 lg:pb-40" ref={ref}>
+      <motion.div
+        variants={variants}
+        className="p-4 rounded absolute z-50 text-primary bg-transparent flex items-center"
+        animate={cursorVariant}
+        transition={spring}
+      >
+        <motion.div
+          className="text-4xl"
+          style={{ transform: `rotate(${angle}deg)` }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+          }}
+        >
+          👉
+        </motion.div>
+        <div className="text-foreground font-bold">
+          JOIN WAITLIST
+        </div>
+      </motion.div>
       <div className="absolute bottom-0 right-0 overflow-hidden">
         <img
           className="w-full h-auto origin-bottom-right transform scale-150 lg:w-auto lg:mx-auto lg:object-cover lg:scale-75"
@@ -73,8 +116,9 @@ export const Hero = () => {
         <div className="grid grid-cols-1 gap-y-4 lg:items-center lg:grid-cols-2 xl:grid-cols-2">
           <div className="text-center xl:col-span-1 lg:text-left md:px-16 lg:px-0 xl:pr-20">
             <h1 className="text-4xl font-bold leading-tight  sm:text-5xl sm:leading-tight lg:text-6xl lg:leading-tight font-pj">
-              Craft <span className="hover:text-red-600 cursor-pointer">SEO</span> content on
-              autopilot.
+              Craft{" "}
+              <span className="hover:text-red-600 cursor-pointer">SEO</span>{" "}
+              content on autopilot.
             </h1>
             <p className="mt-2 text-lg text-muted-foreground sm:mt-6 font-inter">
               The ultimate playground for prompt engineers. Craft multi-model AI
@@ -83,6 +127,7 @@ export const Hero = () => {
 
             <Waitlist>
               <a
+                ref={buttonRef}
                 href="#"
                 title=""
                 className="inline-flex px-8 py-4 mt-8 text-lg font-bold text-white transition-all duration-200 bg-gray-900 border border-transparent rounded sm:mt-10 font-pj hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
@@ -142,8 +187,8 @@ export const Hero = () => {
                 <p className="mt-3 text-base leading-7 text-gray-600 font-inter">
                   SEOcraft&apos;s playground brilliantly counters chatbot
                   limitations. It empowers users with a nuanced toolset,
-                  elevating AI from an &apos;operated machine&apos; to a collaboratively
-                  designed masterpiece.
+                  elevating AI from an &apos;operated machine&apos; to a
+                  collaboratively designed masterpiece.
                 </p>
               </blockquote>
 

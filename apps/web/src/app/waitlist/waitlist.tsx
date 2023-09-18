@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { addToWaitlist } from "../action";
-import { MutableRefObject, PropsWithChildren, useRef, useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import { Confettis } from "@/components/confetti";
 import Image from "next/image";
 
@@ -81,12 +81,12 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl">
-                Secure Your Early Access Spot
+                Grab Your Early Access Pass
               </DialogTitle>
               <DialogDescription>
-                Secure your spot on our priority waitlist and gain early access
-                to the most powerful content crafting tool. We are currently in
-                private beta. Join the waitlist to get early access.
+                Join our priority waitlist to be among the first to experience
+                our game-changing content crafting tool, currently in private
+                beta.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
