@@ -10,19 +10,9 @@ export const Hero = () => {
   const buttonRef = useRef<HTMLAnchorElement>(null);
   const buttonMouse = useMouse(buttonRef);
   const mouse = useMouse(ref);
-  const [cursorText, setCursorText] = useState("JOIN WAITLIST");
+  const [onButton, setOnButton] = useState(false);
   const [cursorVariant, setCursorVariant] = useState("default");
 
-  let buttonMouseXPosition = 0;
-  let buttonMouseYPosition = 0;
-
-  if (buttonMouse.docX !== null) {
-    buttonMouseXPosition = buttonMouse.elX;
-  }
-
-  if (buttonMouse.docY !== null) {
-    buttonMouseYPosition = buttonMouse.elY;
-  }
   /**
    *       <div>Mouse position in document - x:{docX} y:{docY}</div>
       <div>Mouse position in element - x:{elX} y:{elY}</div>
@@ -89,20 +79,24 @@ export const Hero = () => {
         animate={cursorVariant}
         transition={spring}
       >
-        <motion.div
-          className="text-4xl"
-          style={{ transform: `rotate(${angle}deg)` }}
-          transition={{
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-          }}
-        >
-          👉
-        </motion.div>
-        <div className="text-foreground font-bold">
-          JOIN WAITLIST
-        </div>
+        {onButton ? (
+          <div className="font-bold text-2xl">YES!</div>
+        ) : (
+          <>
+            <motion.div
+              className="text-4xl"
+              style={{ transform: `rotate(${angle}deg)` }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+              }}
+            >
+              👉
+            </motion.div>
+            <div className="text-foreground font-bold">JOIN WAITLIST</div>
+          </>
+        )}
       </motion.div>
       <div className="absolute bottom-0 right-0 overflow-hidden">
         <img
@@ -129,6 +123,8 @@ export const Hero = () => {
               <a
                 ref={buttonRef}
                 href="#"
+                onMouseOver={() => setOnButton(true)}
+                onMouseOut={() => setOnButton(false)}
                 title=""
                 className="inline-flex px-8 py-4 mt-8 text-lg font-bold text-white transition-all duration-200 bg-gray-900 border border-transparent rounded sm:mt-10 font-pj hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
                 role="button"
