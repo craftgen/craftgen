@@ -11,9 +11,9 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-	title: 'Craft Seo',
-	description:
-		'The ultimate playground for prompt engineers. Craft multi-model AI workflows and set your content generation on autopilot.',
+  title: "SEO Craft - Craft SEO content on autopilot",
+  description:
+    "The ultimate playground for prompt engineers. Craft multi-model AI workflows and set your content generation on autopilot.",
 };
 
 export default async function RootLayout({
