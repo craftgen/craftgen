@@ -1,7 +1,7 @@
-import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Noto_Sans } from "next/font/google";
+import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter-variable" });
 const notoSans = Noto_Sans({
@@ -24,9 +24,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${notoSans.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Providers>
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

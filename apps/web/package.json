@@ -111,6 +111,8 @@
     "next": "13.4.12",
     "next-themes": "^0.2.1",
     "postcss": "8.4.26",
+    "posthog-js": "^1.79.0",
+    "posthog-node": "^3.1.2",
     "react": "18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

@@ -25,6 +25,7 @@ import { addToWaitlist } from "../action";
 import { PropsWithChildren, useState } from "react";
 import { Confettis } from "@/components/confetti";
 import Image from "next/image";
+import { usePostHog } from "posthog-js/react";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -32,6 +33,7 @@ const formSchema = z.object({
 });
 
 export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
+  const posthog = usePostHog();
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,6 +41,9 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
   const [success, setSuccess] = useState(false);
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await addToWaitlist(data);
+    posthog.setPersonProperties({
+      email: data.email,
+    });
     setSuccess(true);
   };
 
