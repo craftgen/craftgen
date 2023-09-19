@@ -9,7 +9,9 @@
     "NEXT_PUBLIC_VERCEL_URL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "TELEGRAM_BOT_TOKEN"
+    "TELEGRAM_BOT_TOKEN",
+    "NEXT_PUBLIC_POSTHOG_KEY",
+    "NEXT_PUBLIC_POSTHOG_HOST"
   ],
   "pipeline": {
     "build": {
