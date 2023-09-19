@@ -25,7 +25,6 @@ export const Hero = () => {
   }
 
   if (mouse.docY !== null) {
-    console.log(mouse);
     mouseYPosition = mouse.elY - 100;
   }
   const variants = {
@@ -65,7 +64,6 @@ export const Hero = () => {
     },
   };
 
-  // console.log(mouse);
   return (
     <section className="relative py-12 sm:py-16 lg:pb-40" ref={ref}>
       <motion.div
