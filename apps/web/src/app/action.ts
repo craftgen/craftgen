@@ -7,7 +7,7 @@ export const addToWaitlist = async (params: {
   email: string;
   platforms?: string[];
 }) => {
-  console.log(process.env.TELEGRAM_BOT_TOKEN)
+  console.log(process.env.TELEGRAM_BOT_TOKEN);
   const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN as string);
   const User = await db
     .insert(waitlist)
@@ -20,9 +20,12 @@ export const addToWaitlist = async (params: {
   await bot.api.sendMessage(
     -990898182,
     `
-    **#SEOCRAFT**
+    *#SEOCRAFT*
     New user: ${params.email}
-    `
+    `,
+    {
+      parse_mode: "MarkdownV2",
+    }
   );
   return User;
 };

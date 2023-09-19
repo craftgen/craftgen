@@ -66,6 +66,9 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
     await deletePlayground({ id: row.original.id });
     mutate(`/api/project/${project?.id}/playgrounds`);
   };
+  const handleClone = async () => {
+    
+  }
 
   return (
     <>
