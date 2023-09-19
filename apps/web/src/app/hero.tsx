@@ -15,10 +15,10 @@ export const Hero = () => {
 
   const dx = buttonMouse.posX + buttonMouse.elW / 2 - buttonMouse.docX;
   const dy = buttonMouse.posY + buttonMouse.elH / 2 - buttonMouse.docY;
-  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI || 70;
 
-  let mouseXPosition = 0;
-  let mouseYPosition = 0;
+  let mouseXPosition = -20;
+  let mouseYPosition = 100;
 
   if (mouse.docX !== null) {
     mouseXPosition = mouse.elX;
@@ -69,7 +69,7 @@ export const Hero = () => {
     <section className="relative py-12 sm:py-16 lg:pb-40" ref={ref}>
       <motion.div
         variants={variants}
-        className="p-4 rounded absolute z-50 text-primary bg-transparent flex items-center"
+        className="p-4 rounded absolute z-50 text-primary bg-transparent flex items-center -top-10"
         animate={cursorVariant}
         transition={spring}
       >
