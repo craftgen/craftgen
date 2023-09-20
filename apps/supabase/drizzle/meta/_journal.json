@@ -281,6 +281,13 @@
       "when": 1695199913846,
       "tag": "0039_fixed_magma",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1695212104018,
+      "tag": "0040_aspiring_namor",
+      "breakpoints": true
     }
   ]
 }

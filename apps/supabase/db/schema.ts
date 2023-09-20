@@ -16,6 +16,7 @@ export const user = pgTable("user", {
   fullName: text("full_name"),
   username: text("username").unique(),
   email: text("email").notNull(),
+  avatar_url: text("avatar_url"),
   google_scopes: text("google_scopes").array().notNull().default([]),
   google_access_token: text("google_access_token"),
   google_refresh_token: text("google_refresh_token"),

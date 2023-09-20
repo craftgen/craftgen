@@ -6,11 +6,6 @@ import { Navbar } from "./navbar";
 import { persistGoogleToken } from "./actions";
 import { Toaster } from "@/components/ui/toaster";
 
-import { CommandMenu } from "./components/command-menu";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 10;
-
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const supabase = createServerComponentClient<Database>({ cookies });
   const {
@@ -23,7 +18,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     await persistGoogleToken();
   }
   return (
-    <main >
+    <main>
       <Navbar session={session} />
       <div className="pt-20 relative">{children}</div>
       {/* <CommandMenu /> */}

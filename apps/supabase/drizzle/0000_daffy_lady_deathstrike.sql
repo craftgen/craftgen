@@ -49,9 +49,22 @@ CREATE TABLE IF NOT EXISTS "user" (
 -- See https://supabase.com/docs/guides/auth/managing-user-data#using-triggers for more details.
 create function public.handle_new_user()
 returns trigger as $$
+declare 
+  new_username text;
+  counter int := 0;
 begin
-  insert into public.user (id, email)
-  values (new.id, new.email);
+	-- Extract part before '@' from email to use as username
+  new_username := split_part(new.email, '@', 1);
+	-- Loop to check uniqueness and append a random number if needed
+  while exists(select 1 from public.user where username = new_username) loop
+    counter := counter + 1;
+    new_username := split_part(new.email, '@', 1) || '_' || counter;
+  end loop;
+
+	-- Insert the new user record
+  insert into public.user (id, email, username, full_name, avatar_url)
+  values (new.id, new.email, new_username, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+
   return new;
 end;
 $$ language plpgsql security definer;
