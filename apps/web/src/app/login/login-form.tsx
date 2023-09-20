@@ -4,9 +4,11 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
 import { BASE_URL } from "@/lib/constants";
 import { Database } from "@seocraft/supabase/db/database.types";
+import { useTheme } from "next-themes";
 
 export const LoginForm = () => {
   const supabase = createClientComponentClient<Database>();
+  const { theme } = useTheme();
 
   return (
     <Auth
@@ -14,15 +16,8 @@ export const LoginForm = () => {
       appearance={{
         theme: ThemeSupa,
       }}
+      theme={theme}
       redirectTo={`${BASE_URL}/api/auth/callback`}
-      // queryParams={{
-      //   access_type: "offline",
-      //   prompt: "consent",
-      // }}
-      // providerScopes={{
-      //   google:
-      //     "https://www.googleapis.com/auth/indexing, https://www.googleapis.com/auth/webmasters.readonly",
-      // }}
       providers={["google"]}
     />
   );

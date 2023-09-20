@@ -23,7 +23,7 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${notoSans.variable}`}>
+      <body className={`${inter.variable} ${notoSans.variable} min-h-screen`}>
         <Providers>
           {children}
         </Providers>
