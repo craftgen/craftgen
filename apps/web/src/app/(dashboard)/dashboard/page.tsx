@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProjectList } from "./project-list";
+import { TemplateList } from "@/components/template-list";
 
 const DashboardPage = () => {
   return (
@@ -14,6 +15,9 @@ const DashboardPage = () => {
         </div>
         <div className="py-4">
           <ProjectList />
+        </div>
+        <div className="py-4">
+          <TemplateList />
         </div>
       </div>
     </div>

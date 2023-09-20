@@ -243,7 +243,9 @@ export const PlaygroundCreateDialog: React.FC<{
               >
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" loading={form.formState.isSubmitting}>
+                Create
+              </Button>
             </DialogFooter>
           </form>
         </Form>

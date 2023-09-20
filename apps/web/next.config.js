@@ -8,6 +8,12 @@ const nextConfig = {
   },
   rewrites: async () => {
     return {
+      beforeFiles: [
+        {
+          source: "/@:username",
+          destination: "/user/:username",
+        },
+      ],
       fallback: [
         {
           source: "/ingest/:path*",

@@ -8,6 +8,7 @@ import { TeamSwitcher } from "./components/team-switcher";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { UserNav } from "./components/user-nav";
 
 export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
   children,
@@ -25,8 +26,9 @@ export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
           </div>
           {params.projectSlug && <TeamSwitcher />}
         </div>
-        <div>
+        <div className="flex px-2 items-center space-x-2">
           <ModeToggle />
+          <UserNav session={session} />
         </div>
       </div>
       <div>{params.projectSlug && <ProjectNavbar session={session} />}</div>

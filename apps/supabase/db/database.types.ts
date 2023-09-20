@@ -419,6 +419,7 @@ export interface Database {
           google_refresh_token: string | null
           google_scopes: string[]
           id: string
+          username: string | null
         }
         Insert: {
           created_at?: string
@@ -428,6 +429,7 @@ export interface Database {
           google_refresh_token?: string | null
           google_scopes?: string[]
           id: string
+          username?: string | null
         }
         Update: {
           created_at?: string
@@ -437,6 +439,7 @@ export interface Database {
           google_refresh_token?: string | null
           google_scopes?: string[]
           id?: string
+          username?: string | null
         }
         Relationships: []
       }
