@@ -1,6 +1,6 @@
 "use server";
 
-import { getDrive,  getWebmaster } from "@/lib/google/auth";
+import { getDrive, getWebmaster } from "@/lib/google/auth";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import {
   and,
@@ -9,6 +9,8 @@ import {
   db,
   eq,
   inArray,
+  nodeData,
+  nodeToPlayground,
   not,
   playground,
   project,
@@ -18,6 +20,7 @@ import {
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 import { GoogleIntegrationsScope } from "./settings/integrations/page";
+import { Connection } from "rete-connection-plugin";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
@@ -123,6 +126,100 @@ export const createPlayground = async ({
 
 export const deletePlayground = async ({ id }: { id: string }) => {
   return await db.delete(playground).where(eq(playground.id, id));
+};
+
+export const clonePlayground = async ({
+  playgroundId,
+  targetProjectId,
+}: {
+  playgroundId: string;
+  targetProjectId: string;
+}) => {
+  return await db.transaction(async (tx) => {
+    const originalPlayground = await tx.query.playground.findFirst({
+      where: (playground, { eq }) => eq(playground.id, playgroundId),
+      with: {
+        project: true,
+      },
+    });
+
+    if (!originalPlayground) throw new Error("Playground not found");
+
+    const [clonePlayground] = await tx
+      .insert(playground)
+      .values({
+        name: `${originalPlayground?.name} (Clone)`,
+        description: originalPlayground.description,
+        public: originalPlayground.public,
+        project_id: targetProjectId,
+        edges: [],
+        nodes: [],
+        layout: originalPlayground.layout,
+      })
+      .returning();
+
+    const edges = originalPlayground.edges;
+
+    /**
+[
+  {
+    "source": "dedd08c0-d1a7-41de-8b41-52220bae41e2",
+    "sourceOutput": "value",
+    "target": "53b78363-03b8-4421-a04a-a4158d09d060",
+    "targetInput": "title"
+  },
+  {
+    "source": "f126eb5b-e82d-4016-8787-8b2a24614267",
+    "sourceOutput": "value",
+    "target": "53b78363-03b8-4421-a04a-a4158d09d060",
+    "targetInput": "description"
+  }
+]
+     */
+
+    const cloneNodes = await Promise.all(
+      originalPlayground.nodes.map(async (node) => {
+        const [ogNode] = await tx
+          .select()
+          .from(nodeData)
+          .where(eq(nodeData.id, node.id))
+          .limit(1);
+        const [cloneNode] = await tx
+          .insert(nodeData)
+          .values({
+            project_id: originalPlayground.project.id,
+            type: ogNode.type,
+            state: ogNode.state,
+          })
+          .returning();
+        await tx.insert(nodeToPlayground).values({
+          node_id: cloneNode.id,
+          playground_id: clonePlayground.id,
+        });
+
+        edges.forEach(async (edge) => {
+          if (edge.source === node.id) {
+            edge.source = cloneNode.id;
+          }
+          if (edge.target === node.id) {
+            edge.target = cloneNode.id;
+          }
+        });
+
+        return {
+          ...node,
+          id: cloneNode.id,
+        };
+      })
+    );
+    return await tx
+      .update(playground)
+      .set({
+        nodes: cloneNodes,
+        edges,
+      })
+      .where(eq(playground.id, clonePlayground.id));
+  });
 };
 
 export const getPlaygrounds = async (projectId: string) => {

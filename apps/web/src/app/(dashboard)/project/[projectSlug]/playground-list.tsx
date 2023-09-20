@@ -1,7 +1,12 @@
 "use client";
 
 import useSWR, { mutate } from "swr";
-import { createPlayground, deletePlayground, getPlaygrounds } from "./actions";
+import {
+  clonePlayground,
+  createPlayground,
+  deletePlayground,
+  getPlaygrounds,
+} from "./actions";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -67,8 +72,13 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
     mutate(`/api/project/${project?.id}/playgrounds`);
   };
   const handleClone = async () => {
-
-  }
+    const res = await clonePlayground({
+      playgroundId: row.original.id,
+      targetProjectId: project?.id!,
+    });
+    mutate(`/api/project/${project?.id}/playgrounds`);
+    console.log(res);
+  };
 
   return (
     <>
@@ -86,7 +96,9 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
           <DropdownMenuItem onSelect={() => setEditDialog(true)}>
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => handleClone()}>
+            Make a copy
+          </DropdownMenuItem>
           <DropdownMenuItem>Favorite</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={handleDelete}>

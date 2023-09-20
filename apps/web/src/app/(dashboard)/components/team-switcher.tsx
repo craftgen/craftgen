@@ -143,7 +143,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selectedTeam.value === team.value
+                          selectedTeam?.value === team.value
                             ? "opacity-100"
                             : "opacity-0"
                         )}

@@ -108,8 +108,25 @@ export const playground = pgTable("playground", {
   description: text("description"),
   public: boolean("public").notNull().default(false),
   layout: json("layout"),
-  edges: json("edges").notNull(),
-  nodes: json("nodes").notNull(),
+  edges: json("edges")
+    .$type<
+      {
+        source: string;
+        sourceOutput: string;
+        target: string;
+        targetInput: string;
+      }[]
+    >()
+    .notNull(),
+  nodes: json("nodes")
+    .$type<
+      {
+        id: string;
+        name: string;
+        data: Record<string, unknown>;
+      }[]
+    >()
+    .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
