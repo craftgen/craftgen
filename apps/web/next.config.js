@@ -13,6 +13,10 @@ const nextConfig = {
           source: "/@:username",
           destination: "/user/:username",
         },
+        {
+          source: "/discord",
+          destination: "https://discord.gg/c5tyy982V5",
+        },
       ],
       fallback: [
         {

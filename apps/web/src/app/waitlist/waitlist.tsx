@@ -61,17 +61,17 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <div>
             <DialogHeader>
               <DialogTitle className="text-4xl">YESS!</DialogTitle>
-              <DialogDescription>
-                Be the first to know when we go live. For real-time updates and
-                insights, follow us on{" "}
+              <DialogDescription className="leading-relaxed py-2">
+                Will be the first to experience our launch! Stay in the loop by
+                following us on{" "}
                 <a
                   href="https://twitter.com/seocraftai"
                   target="_blank"
                   className="font-bold cursor-pointer text-primary"
                 >
                   @seocraftai
-                </a>{" "}
-                to stay up to date.
+                </a>
+                .
               </DialogDescription>
             </DialogHeader>
             <Image
@@ -80,6 +80,17 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
               width={500}
               height={500}
             />
+            <p className="py-4">
+              Ready for more? Join our{" "}
+              <a
+                href="/discord"
+                target="_blank"
+                className="font-bold cursor-pointer text-primary"
+              >
+                Discord community
+              </a>{" "}
+              <b>now!</b>
+            </p>
             <Confettis />
           </div>
         ) : (
