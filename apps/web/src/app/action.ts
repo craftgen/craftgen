@@ -14,7 +14,7 @@ export const addToWaitlist = async (params: {
     })
     .onConflictDoNothing()
     .returning();
-  const messageText = `*\\#SEOCRAFT*\nNew user: ${params.email}`; // Replace `params.email` with the email of the new user
+  const messageText = `*\\#SEOCRAFT*\nNew user: \`${params.email}\``; // Replace `params.email` with the email of the new user
   await fetch(
     `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
     {
