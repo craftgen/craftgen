@@ -1,4 +1,5 @@
-import { useParams } from "next/navigation";
+"use client";
+
 import useSWR from "swr";
 import { getUser } from "../actions";
 import { ResultOf } from "@/lib/type";

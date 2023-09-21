@@ -6,6 +6,9 @@ import { Navbar } from "./navbar";
 import { persistGoogleToken } from "./actions";
 import { Toaster } from "@/components/ui/toaster";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 10;
+
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const supabase = createServerComponentClient<Database>({ cookies });
   const {
