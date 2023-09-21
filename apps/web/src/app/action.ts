@@ -3,12 +3,13 @@
 import { db, waitlist } from "@seocraft/supabase/db";
 import { Bot } from "grammy";
 
+console.log(process.env.TELEGRAM_BOT_TOKEN);
+const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN as string);
+
 export const addToWaitlist = async (params: {
   email: string;
   platforms?: string[];
 }) => {
-  console.log(process.env.TELEGRAM_BOT_TOKEN);
-  const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN as string);
   const User = await db
     .insert(waitlist)
     .values({
