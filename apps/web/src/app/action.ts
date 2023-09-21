@@ -1,10 +1,6 @@
 "use server";
 
 import { db, waitlist } from "@seocraft/supabase/db";
-import { Bot } from "grammy";
-
-console.log(process.env.TELEGRAM_BOT_TOKEN);
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN as string);
 
 export const addToWaitlist = async (params: {
   email: string;
@@ -18,15 +14,23 @@ export const addToWaitlist = async (params: {
     })
     .onConflictDoNothing()
     .returning();
-  await bot.api.sendMessage(
-    -990898182,
-    `
-    *\\#SEOCRAFT*
-    New user: \`${params.email}\`
-    `,
+  const messageText = `*\\#SEOCRAFT*\nNew user: ${params.email}`; // Replace `params.email` with the email of the new user
+  await fetch(
+    `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
     {
-      parse_mode: "MarkdownV2",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: -990898182,
+        text: messageText,
+        parse_mode: "MarkdownV2",
+      }),
     }
-  );
+  )
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.error("Error:", error));
   return User;
 };

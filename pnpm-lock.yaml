@@ -143,7 +143,6 @@ importers:
       framer-motion: ^10.16.0
       google-spreadsheet: ^4.0.3
       googleapis: ^122.0.0
-      grammy: 1.16.2
       lodash-es: ^4.17.21
       lucide-react: ^0.263.0
       modelfusion: ^0.27.3
@@ -293,7 +292,6 @@ importers:
       framer-motion: 10.16.0_biqbaboplfbrettd7655fr4n2y
       google-spreadsheet: 4.0.3
       googleapis: 122.0.0_encoding@0.1.13
-      grammy: 1.16.2_encoding@0.1.13
       lodash-es: 4.17.21
       lucide-react: 0.263.0_react@18.2.0
       modelfusion: 0.27.3_eswsytzjdpbiy6tpo7vvalytje
@@ -2331,10 +2329,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       tabbable: 6.2.0
-    dev: false
-
-  /@grammyjs/types/3.1.1:
-    resolution: {integrity: sha512-nTNYvk+Al/nXZAMTEzPYEyW6pfgYgNuf/gxfx17kCxjHpAYhV+pcmROuD9eOBDLaBDh/hZJkQTIY6S3CfTAC0Q==}
     dev: false
 
   /@headlessui/react/1.7.15_biqbaboplfbrettd7655fr4n2y:
@@ -6105,13 +6099,6 @@ packages:
       - '@types/react'
     dev: false
 
-  /abort-controller/3.0.0:
-    resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
-    engines: {node: '>=6.5'}
-    dependencies:
-      event-target-shim: 5.0.1
-    dev: false
-
   /acorn-jsx/5.3.2_acorn@7.4.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -8337,11 +8324,6 @@ packages:
       es5-ext: 0.10.62
     dev: true
 
-  /event-target-shim/5.0.1:
-    resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
-    engines: {node: '>=6'}
-    dev: false
-
   /eventemitter3/4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
@@ -8857,19 +8839,6 @@ packages:
 
   /graceful-fs/4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
-
-  /grammy/1.16.2_encoding@0.1.13:
-    resolution: {integrity: sha512-Yex12ZuelqDQKH/gJ+6Fy/mdepUUIJtazLCdu+mD/r9j8abqB59hsx3UgmsWcp0k6hITo/G0aui84Y2q8FueyA==}
-    engines: {node: ^12.20.0 || >=14.13.1}
-    dependencies:
-      '@grammyjs/types': 3.1.1
-      abort-controller: 3.0.0
-      debug: 4.3.4
-      node-fetch: 2.7.0_encoding@0.1.13
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: false
 
   /graphemer/1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
