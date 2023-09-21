@@ -112,7 +112,9 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Reserve My Spot!</Button>
+                  <Button type="submit" loading={form.formState.isSubmitting}>
+                    Reserve My Spot!
+                  </Button>
                 </DialogFooter>
               </form>
             </Form>
