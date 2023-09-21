@@ -70,11 +70,22 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
         },
       ];
     }
+    const personalProject = data?.find((p) => p.project.personal);
+    const projects = data?.filter((p) => !p.project.personal);
     return [
+      {
+        label: "Personal Account",
+        teams: [
+          {
+            label: personalProject?.project.name || "Personal",
+            value: personalProject?.project.slug || "personal",
+          },
+        ],
+      },
       {
         label: "Projects",
         teams:
-          data?.map((project) => ({
+          projects?.map((project) => ({
             label: project.project.name,
             value: project.project.slug,
           })) || ([] as { label: string; value: string }[]),
@@ -135,7 +146,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
                         <AvatarImage
                           src={`https://avatar.vercel.sh/${team.value}.png`}
                           alt={team.label}
-                          className="grayscale"
+                          className=""
                         />
                         <AvatarFallback>SC</AvatarFallback>
                       </Avatar>

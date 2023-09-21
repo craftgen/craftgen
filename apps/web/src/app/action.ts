@@ -20,8 +20,8 @@ export const addToWaitlist = async (params: {
   await bot.api.sendMessage(
     -990898182,
     `
-    *#SEOCRAFT*
-    New user: ${params.email}
+    *\\#SEOCRAFT*
+    New user: \`${params.email}\`
     `,
     {
       parse_mode: "MarkdownV2",
