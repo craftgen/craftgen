@@ -52,18 +52,25 @@ returns trigger as $$
 declare 
   new_username text;
   counter int := 0;
+  new_project_id uuid;
 begin
-	-- Extract part before '@' from email to use as username
   new_username := split_part(new.email, '@', 1);
-	-- Loop to check uniqueness and append a random number if needed
+  
   while exists(select 1 from public.user where username = new_username) loop
     counter := counter + 1;
     new_username := split_part(new.email, '@', 1) || '_' || counter;
   end loop;
 
-	-- Insert the new user record
   insert into public.user (id, email, username, full_name, avatar_url)
   values (new.id, new.email, new_username, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+
+  new_project_id := gen_random_uuid();
+
+  insert into public.project (id, name, slug, personal)
+  values (new_project_id, new.raw_user_meta_data->>'full_name', new_username, true);
+
+  insert into public.project_members (id, project_id, user_id, member_role)
+  values (gen_random_uuid(), new_project_id, new.id, 'owner');
 
   return new;
 end;

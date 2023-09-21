@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 
     const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
     const session = AuthResponse.data.session;
+
     if (scopes && session) {
       await db
         .update(user)

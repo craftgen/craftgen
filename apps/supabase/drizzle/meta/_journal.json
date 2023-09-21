@@ -288,6 +288,13 @@
       "when": 1695212104018,
       "tag": "0040_aspiring_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1695279220028,
+      "tag": "0041_daffy_odin",
+      "breakpoints": true
     }
   ]
 }

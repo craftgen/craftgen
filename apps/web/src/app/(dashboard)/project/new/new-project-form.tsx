@@ -171,7 +171,13 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
             </FormItem>
           )}
         />
-        {children ? children : <Button type="submit">Submit</Button>}
+        {children ? (
+          children
+        ) : (
+          <Button type="submit" loading={form.formState.isSubmitting}>
+            Submit
+          </Button>
+        )}
       </form>
     </Form>
   );

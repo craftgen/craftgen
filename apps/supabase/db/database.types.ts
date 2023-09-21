@@ -300,18 +300,21 @@ export interface Database {
         Row: {
           id: string
           name: string
+          personal: boolean
           site: string | null
           slug: string
         }
         Insert: {
           id?: string
           name: string
+          personal?: boolean
           site?: string | null
           slug: string
         }
         Update: {
           id?: string
           name?: string
+          personal?: boolean
           site?: string | null
           slug?: string
         }

@@ -39,6 +39,7 @@ export const project = pgTable("project", {
   name: text("name").notNull(),
   site: text("site").unique(),
   slug: text("slug").notNull().unique(),
+  personal: boolean("personal").notNull().default(false),
 });
 
 export const apiKey = pgTable(
