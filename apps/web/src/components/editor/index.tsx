@@ -75,11 +75,8 @@ import { createTablePlugin } from "@udecode/plate-table";
 import { createLinkPlugin } from "@udecode/plate-link";
 import { linkPlugin } from "./plugins/link-plugin";
 import { captionPlugin } from "./plugins/caption-plugin";
-import { create } from "zustand";
-import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { useDebounce } from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundId]/playground/ui/hooks";
-import { debounce, isEqual } from "lodash-es";
+import {  isEqual } from "lodash-es";
 
 type EditorProps = {
   id: string;

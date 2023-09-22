@@ -8,7 +8,6 @@ import {
   getPlaygrounds,
 } from "./actions";
 import { Button } from "@/components/ui/button";
-import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/data-table";
@@ -26,7 +25,6 @@ import {
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { PlaygroundEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
-import { useToast } from "@/components/ui/use-toast";
 import { PlaygroundCreateDialog } from "./playground-create-dialog";
 
 type Playground = ResultOf<typeof getPlaygrounds>[number];
@@ -135,7 +133,9 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
         </div>
       </div>
       <div>{data && <DataTable columns={columns} data={data!} />}</div>
-      <PlaygroundCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
+      {isOpen && (
+        <PlaygroundCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
+      )}
     </div>
   );
 };

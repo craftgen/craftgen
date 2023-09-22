@@ -23,7 +23,7 @@ const ProjectCard: React.FC<{
   projectMembers: Awaited<ReturnType<typeof getProjects>>[number];
 }> = ({ projectMembers }) => {
   return (
-    <Link href={`/project/${projectMembers.project.slug}`} className="group">
+    <Link href={`/${projectMembers.project.slug}`} className="group">
       <Card className="group-hover:shadow-sm group-hover:shadow-primary/40 transition duration-300">
         <CardHeader className="flex justify-between items-center">
           <h2>{projectMembers.project.name}</h2>

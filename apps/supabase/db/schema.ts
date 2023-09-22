@@ -102,37 +102,46 @@ export const dataRowRelations = relations(dataRow, ({ one }) => ({
   }),
 }));
 
-export const playground = pgTable("playground", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  project_id: uuid("project_id")
-    .notNull()
-    .references(() => project.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  description: text("description"),
-  public: boolean("public").notNull().default(false),
-  layout: json("layout"),
-  edges: json("edges")
-    .$type<
-      {
-        source: string;
-        sourceOutput: string;
-        target: string;
-        targetInput: string;
-      }[]
-    >()
-    .notNull(),
-  nodes: json("nodes")
-    .$type<
-      {
-        id: string;
-        name: string;
-        data: Record<string, unknown>;
-      }[]
-    >()
-    .notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const playground = pgTable(
+  "playground",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    project_id: uuid("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description"),
+    public: boolean("public").notNull().default(false),
+    layout: json("layout"),
+    edges: json("edges")
+      .$type<
+        {
+          source: string;
+          sourceOutput: string;
+          target: string;
+          targetInput: string;
+        }[]
+      >()
+      .notNull(),
+    nodes: json("nodes")
+      .$type<
+        {
+          id: string;
+          name: string;
+          data: Record<string, unknown>;
+        }[]
+      >()
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (p) => {
+    return {
+      slug: unique().on(p.project_id, p.slug),
+    };
+  }
+);
 
 export const playgroundRelations = relations(playground, ({ one, many }) => ({
   project: one(project, {

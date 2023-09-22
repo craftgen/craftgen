@@ -10,12 +10,14 @@ const nextConfig = {
     return {
       beforeFiles: [
         {
-          source: "/@:username",
-          destination: "/user/:username",
-        },
-        {
           source: "/discord",
           destination: "https://discord.gg/c5tyy982V5",
+        },
+      ],
+      afterFiles: [
+        {
+          source: "/:username",
+          destination: "/project/:username",
         },
       ],
       fallback: [

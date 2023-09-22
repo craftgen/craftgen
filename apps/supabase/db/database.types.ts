@@ -261,6 +261,7 @@ export interface Database {
           nodes: Json
           project_id: string
           public: boolean
+          slug: string
           updated_at: string
         }
         Insert: {
@@ -273,6 +274,7 @@ export interface Database {
           nodes: Json
           project_id: string
           public?: boolean
+          slug: string
           updated_at?: string
         }
         Update: {
@@ -285,6 +287,7 @@ export interface Database {
           nodes?: Json
           project_id?: string
           public?: boolean
+          slug?: string
           updated_at?: string
         }
         Relationships: [

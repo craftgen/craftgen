@@ -20,7 +20,6 @@ import {
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 import { GoogleIntegrationsScope } from "./settings/integrations/page";
-import { Connection } from "rete-connection-plugin";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
@@ -97,14 +96,35 @@ export const deleteProjectToken = async (params: { id: string }) => {
   return await db.delete(variable).where(eq(variable.id, params.id));
 };
 
+export const checkSlugAvailable = async (params: {
+  slug: string;
+  projectId: string;
+}): Promise<boolean> => {
+  const exist = await db
+    .select({
+      slug: playground.slug,
+    })
+    .from(playground)
+    .where(
+      and(
+        eq(playground.slug, params.slug),
+        eq(playground.project_id, params.projectId)
+      )
+    )
+    .limit(1);
+  return exist.length === 0;
+};
+
 export const createPlayground = async ({
   project_id,
   name,
+  slug,
   description,
   template,
 }: {
   project_id: string;
   name: string;
+  slug: string;
   description?: string;
   template?: string;
 }) => {
@@ -115,6 +135,7 @@ export const createPlayground = async ({
     .insert(playground)
     .values({
       name,
+      slug,
       description,
       project_id,
       edges: [],
@@ -154,6 +175,7 @@ export const clonePlayground = async ({
         project_id: targetProjectId,
         edges: [],
         nodes: [],
+        slug: `${originalPlayground.slug}-${+new Date()}`,
         layout: originalPlayground.layout,
       })
       .returning();

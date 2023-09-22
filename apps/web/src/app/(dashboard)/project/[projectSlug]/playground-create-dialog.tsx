@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { z } from "zod";
 import {
@@ -27,16 +27,23 @@ import { mutate } from "swr";
 import { useProject } from "./hooks/use-project";
 import { useToast } from "@/components/ui/use-toast";
 import { useParams, useRouter } from "next/navigation";
-import { createPlayground } from "./actions";
-import { useState } from "react";
+import { createPlayground, checkSlugAvailable } from "./actions";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { slugify } from "@/lib/string";
+import { cn } from "@/lib/utils";
+import { debounce, lowerCase } from "lodash-es";
+import { useDebounce } from "react-use";
+import { AlertCircle, Check, X } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   template: z.string().nullable(),
   name: z.string().min(2, {
     message: "Playground Name must be at least 2 characters.",
   }),
+  slug: z.string(),
   description: z.string().default(""),
   public: z.boolean().default(false),
 });
@@ -84,11 +91,41 @@ export const PlaygroundCreateDialog: React.FC<{
   onOpenChange: (isOpen: boolean) => void;
 }> = ({ isOpen, onOpenChange }) => {
   const { data: project } = useProject();
+
+  const debouncedCheckSlugAvailable = debounce(
+    async (slug) =>
+      checkSlugAvailable({
+        slug,
+        projectId: project?.id!,
+      }),
+    500
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(
+      formSchema.refine(
+        async ({ slug }) => {
+          const val = await checkSlugAvailable({
+            slug,
+            projectId: project?.id!,
+          });
+          console.log(val);
+          return val;
+        },
+        {
+          message: "Name is not available.",
+          path: ["name"],
+        }
+      ),
+      {},
+      {
+        mode: "async",
+      }
+    ),
     defaultValues: {
       template: null,
       name: "",
+      slug: "",
       description: "",
       public: false,
     },
@@ -96,12 +133,30 @@ export const PlaygroundCreateDialog: React.FC<{
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const name = form.watch("name");
+  useEffect(() => {
+    form.setValue("slug", slugify(name));
+  }, [name]);
+  const slug = form.watch("slug");
+  const [nameAvailable, setNameAvailable] = useState(true);
+  useDebounce(
+    async () => {
+      const available = await checkSlugAvailable({
+        slug,
+        projectId: project?.id!,
+      });
+      setNameAvailable(available);
+    },
+    500,
+    [slug]
+  );
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log(data);
     const newPlayground = await createPlayground({
       project_id: project?.id!,
       name: data.name,
+      slug: data.slug,
       description: data.description,
     });
     const t = toast({
@@ -119,7 +174,7 @@ export const PlaygroundCreateDialog: React.FC<{
   const handleTemplateChange = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId);
     form.setValue("template", templateId);
-    if (template) {
+    if (template && templateId !== "blank") {
       form.setValue("name", template?.name);
       form.setValue("description", template?.description);
     }
@@ -182,9 +237,48 @@ export const PlaygroundCreateDialog: React.FC<{
                       <FormControl>
                         <Input placeholder="Playground Name" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        This is your public display name.
-                      </FormDescription>
+                      <div className="items-center flex">
+                        {name.length > 2 && (
+                          <>
+                            {!nameAvailable ? (
+                              <>
+                                <Badge variant={"destructive"} className="mx-2">
+                                  <X className="w-4 h-4 inline-block mr-1" />
+                                  {slug}
+                                </Badge>
+                                is not available.
+                              </>
+                            ) : (
+                              <>
+                                {slug !== name ? (
+                                  <Alert>
+                                    <AlertTitle>
+                                      <AlertCircle className="w-4 h-4 inline-block text-yellow-500 mr-1" />
+                                      Your craft will created as <b>{slug}</b>
+                                    </AlertTitle>
+                                    <AlertDescription>
+                                      The repository name can only contain ASCII
+                                      letters, digits, and the characters ., -,
+                                      and _.
+                                    </AlertDescription>
+                                  </Alert>
+                                ) : (
+                                  <>
+                                    <Badge
+                                      variant={"secondary"}
+                                      className={cn("mx-2")}
+                                    >
+                                      <Check className="w-4 h-4 inline-block text-green-500 mr-1" />
+                                      {slug}
+                                    </Badge>
+                                    is available
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
