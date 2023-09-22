@@ -2,16 +2,16 @@
 import "reflect-metadata";
 
 import { Presets, useRete } from "rete-react-plugin";
-import { createEditorFunc } from "./playground/editor";
+import { createEditorFunc } from "./editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { exportEditor } from "./playground/io";
-import { getPlayground, savePlayground, savePlaygroundLayout } from "./action";
+import { exportEditor } from "./io";
+import { getPlayground, savePlayground, savePlaygroundLayout } from "../action";
 import { useParams } from "next/navigation";
 import {
   CraftContext,
   createCraftStore,
   useCraftStore,
-} from "./playground/store";
+} from "./store";
 import { debounce, divide } from "lodash-es";
 import { Maximize } from "lucide-react";
 import { useStore } from "zustand";
@@ -22,20 +22,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getControl } from "./playground/control";
-import { ContextMenuProvider } from "./playground/context-menu";
+import { getControl } from "./control";
+import { ContextMenuProvider } from "./context-menu";
 import * as FlexLayout from "flexlayout-react";
-import { getConnectionSockets } from "./playground/utis";
+import { getConnectionSockets } from "./utis";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import useSWR from "swr";
-import { getPlaygrounds } from "../../actions";
+import { getPlaygrounds } from "../../../actions";
 import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { NodeProps } from "./playground/types";
-import { InputWindow } from "./playground/input/tab";
-import { Socket } from "./playground/sockets";
+import { NodeProps } from "./types";
+import { InputWindow } from "./input/tab";
+import { Socket } from "./sockets";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -106,7 +106,8 @@ export const Playground: React.FC<{
       ),
       projectId: playground.project.id,
       projectSlug: params.projectSlug as string,
-      playgroundId: params.playgroundId as string,
+      playgroundId: playground.id,
+      playgroundSlug: params.playgroundSlug as string,
     })
   );
 

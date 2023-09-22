@@ -1,4 +1,4 @@
-import { getPlayground } from "./action";
+import { getPlayground } from "../action";
 import { Playground } from "./playground";
 import "./rete.css";
 
@@ -9,16 +9,13 @@ const PlaygroundPage = async (props: {
   };
 }) => {
   const playground = await getPlayground({
+    projectSlug: props.params.projectSlug,
     playgroundSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (
     <div>
-      <h1 className="text-2xl">
-        {playground.name} - {playground.slug}
-      </h1>
-      <p>{playground.description}</p>
-      {/* <Playground playground={playground} /> */}
+      <Playground playground={playground} />
     </div>
   );
 };

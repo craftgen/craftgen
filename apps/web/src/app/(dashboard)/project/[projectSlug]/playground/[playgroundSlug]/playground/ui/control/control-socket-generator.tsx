@@ -175,7 +175,7 @@ export function SocketGeneratorControlComponent(props: {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="seocraft" {...field} />
                       </FormControl>
                       <FormDescription>
                         This is your public display name.

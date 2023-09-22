@@ -16,15 +16,39 @@ import { cookies } from "next/headers";
 import { NodeTypes } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
 
-export const getPlayground = async (params: { playgroundSlug: string }) => {
+export const getPlaygroundById = async (playgroundId: string) => {
+  return await db.query.playground.findFirst({
+    where: (playground, { eq }) => eq(playground.id, playgroundId),
+  });
+};
+
+export const getPlayground = async (params: {
+  playgroundSlug: string;
+  projectSlug: string;
+}) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
-  console.log({ params });
-  return await db.query.playground.findFirst({
-    where: (playground, { eq }) => eq(playground.slug, params.playgroundSlug),
-    with: {
-      project: true,
-    },
+  return await db.transaction(async (tx) => {
+    const project = await tx.query.project.findFirst({
+      where: (project, { eq }) => eq(project.slug, params.projectSlug),
+      columns: {
+        id: true,
+      },
+    });
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    const playground = await tx.query.playground.findFirst({
+      where: (playground, { eq, and }) =>
+        and(
+          eq(playground.slug, params.playgroundSlug),
+          eq(playground.project_id, project.id)
+        ),
+      with: {
+        project: true,
+      },
+    });
+    return playground;
   });
 };
 

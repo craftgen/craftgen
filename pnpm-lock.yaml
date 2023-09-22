@@ -144,7 +144,7 @@ importers:
       google-spreadsheet: ^4.0.3
       googleapis: ^122.0.0
       lodash-es: ^4.17.21
-      lucide-react: ^0.263.0
+      lucide-react: ^0.279.0
       modelfusion: ^0.27.3
       next: 13.5.1
       next-themes: ^0.2.1
@@ -293,7 +293,7 @@ importers:
       google-spreadsheet: 4.0.3
       googleapis: 122.0.0_encoding@0.1.13
       lodash-es: 4.17.21
-      lucide-react: 0.263.0_react@18.2.0
+      lucide-react: 0.279.0_react@18.2.0
       modelfusion: 0.27.3_eswsytzjdpbiy6tpo7vvalytje
       next: 13.5.1_ng3hjngmeb53o2yidgazeud7lu
       next-themes: 0.2.1_eu4zfdicevrfvpg4rxtwbxa5qq
@@ -9628,8 +9628,8 @@ packages:
       es5-ext: 0.10.62
     dev: true
 
-  /lucide-react/0.263.0_react@18.2.0:
-    resolution: {integrity: sha512-F+rHswbbI1xuDZ/OzofiJZJVlBPOIYVVST705cPdRLImJ5aOJNXYaFBPNo3qdUV0iEG/4nZeiUtLSHO2qU2ISw==}
+  /lucide-react/0.279.0_react@18.2.0:
+    resolution: {integrity: sha512-LJ8g66+Bxc3t3x9vKTeK3wn3xucrOQGfJ9ou9GsBwCt2offsrT2BB90XrTrIzE1noYYDe2O8jZaRHi6sAHXNxw==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:

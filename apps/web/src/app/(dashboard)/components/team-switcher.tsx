@@ -51,7 +51,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
   const router = useRouter();
   const handleChange = (value: string) => {
     if (value !== params.projectSlug) {
-      router.push(`/project/${value}`);
+      router.push(`/${value}`);
     }
   };
   const [open, setOpen] = useState(false);
@@ -99,9 +99,8 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
         value: params.projectSlug as string,
       };
     }
-    return groups[0].teams.find(
-      (team) => team.value === params.projectSlug
-    ) as Team;
+    const teams = groups.map((group) => group.teams).flat();
+    return teams.find((team) => team.value === params.projectSlug) as Team;
   }, [params.projectSlug, groups]);
 
   return (
@@ -113,7 +112,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
             role="combobox"
             aria-expanded={open}
             aria-label="Select a team"
-            className={cn("w-[280px] justify-between", className)}
+            className={cn("w-[200px] min-w-[160px] justify-between", className)}
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
@@ -126,7 +125,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[280px] p-0">
+        <PopoverContent className="w-[280px] min-w-[160px] p-0">
           <Command>
             <CommandList>
               <CommandInput placeholder="Search team..." />

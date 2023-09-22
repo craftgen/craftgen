@@ -14,10 +14,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) {
-    redirect("/");
-  }
-  if (session.provider_refresh_token && session.provider_token) {
+  if (session?.provider_refresh_token && session?.provider_token) {
     await persistGoogleToken();
   }
   return (

@@ -106,7 +106,7 @@
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
     "lodash-es": "^4.17.21",
-    "lucide-react": "^0.263.0",
+    "lucide-react": "^0.279.0",
     "modelfusion": "^0.27.3",
     "next": "13.5.1",
     "next-themes": "^0.2.1",

@@ -29,7 +29,7 @@ import { CustomSocket } from "./ui/custom-socket";
 import { Schemes } from "./types";
 import { CustomConnection } from "./connection/custom-connection";
 import { importEditor } from "./io";
-import { getPlayground } from "../action";
+import { getPlayground, getPlaygroundById } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
 import { getControl } from "./control";
@@ -193,7 +193,7 @@ export async function createEditor(
       return true;
     },
     async ({ moduleId, overwrites }) => {
-      const data = await getPlayground({ playgroundId: moduleId });
+      const data = await getPlaygroundById(moduleId);
       if (!data) throw new Error(`Module ${moduleId} not found`);
       await importEditor(
         {
