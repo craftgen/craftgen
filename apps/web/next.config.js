@@ -16,8 +16,16 @@ const nextConfig = {
       ],
       afterFiles: [
         {
-          source: "/:username",
-          destination: "/project/:username",
+          source: "/:project",
+          destination: "/project/:project",
+        },
+        {
+          source: "/:project/settings",
+          destination: "/project/:project/settings",
+        },
+        {
+          source: "/:project/:playground",
+          destination: "/project/:project/playground/:playground",
         },
       ],
       fallback: [

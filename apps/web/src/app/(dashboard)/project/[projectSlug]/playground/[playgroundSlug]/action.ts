@@ -16,12 +16,12 @@ import { cookies } from "next/headers";
 import { NodeTypes } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
 
-export const getPlayground = async (params: { playgroundId: string }) => {
+export const getPlayground = async (params: { playgroundSlug: string }) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
   console.log({ params });
   return await db.query.playground.findFirst({
-    where: (playground, { eq }) => eq(playground.id, params.playgroundId),
+    where: (playground, { eq }) => eq(playground.slug, params.playgroundSlug),
     with: {
       project: true,
     },

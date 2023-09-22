@@ -9,6 +9,7 @@ import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { UserNav } from "./components/user-nav";
+import { FeedbackButton } from "./components/feedback-button";
 
 export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
   children,
@@ -27,6 +28,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
           {params.projectSlug && <TeamSwitcher />}
         </div>
         <div className="flex px-2 items-center space-x-2">
+          <FeedbackButton />
           <ModeToggle />
           <UserNav session={session} />
         </div>
@@ -39,15 +41,15 @@ export const Navbar: React.FC<PropsWithChildren<{ session: Session }>> = ({
 const links = [
   {
     name: "Overview",
-    href: (projectSlug: string) => `/project/${projectSlug}`,
+    href: (projectSlug: string) => `/${projectSlug}`,
   },
-  {
-    name: "Articles",
-    href: (projectSlug: string) => `/project/${projectSlug}/articles`,
-  },
+  // {
+  //   name: "Articles",
+  //   href: (projectSlug: string) => `/${projectSlug}/articles`,
+  // },
   {
     name: "Settings",
-    href: (projectSlug: string) => `/project/${projectSlug}/settings`,
+    href: (projectSlug: string) => `/${projectSlug}/settings`,
   },
 ];
 

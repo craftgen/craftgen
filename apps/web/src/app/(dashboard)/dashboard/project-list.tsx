@@ -26,7 +26,12 @@ const ProjectCard: React.FC<{
     <Link href={`/${projectMembers.project.slug}`} className="group">
       <Card className="group-hover:shadow-sm group-hover:shadow-primary/40 transition duration-300">
         <CardHeader className="flex justify-between items-center">
-          <h2>{projectMembers.project.name}</h2>
+          <h2>
+            {projectMembers.project.name}
+            {projectMembers.project.personal && (
+              <span className="text-xs text-muted-foreground"> (Personal)</span>
+            )}
+          </h2>
           <Badge>{projectMembers.role}</Badge>
         </CardHeader>
       </Card>

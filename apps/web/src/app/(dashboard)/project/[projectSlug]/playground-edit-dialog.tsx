@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { z } from "zod";
-import { updatePlayground } from "./playground/[playgroundId]/action";
+import { updatePlayground } from "./playground/[playgroundSlug]/action";
 import {
   Form,
   FormControl,

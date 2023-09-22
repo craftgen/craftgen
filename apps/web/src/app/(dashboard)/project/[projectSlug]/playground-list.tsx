@@ -34,9 +34,7 @@ const columns: ColumnDef<Playground>[] = [
     header: "Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <Link
-        href={`/project/${row.original.project.slug}/playground/${row.original.id}`}
-      >
+      <Link href={`/${row.original.project.slug}/${row.original.slug}`}>
         {row.getValue("name")}
       </Link>
     ),

@@ -5,16 +5,20 @@ import "./rete.css";
 const PlaygroundPage = async (props: {
   params: {
     projectSlug: string;
-    playgroundId: string;
+    playgroundSlug: string;
   };
 }) => {
   const playground = await getPlayground({
-    playgroundId: props.params.playgroundId,
+    playgroundSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (
     <div>
-      <Playground playground={playground} />
+      <h1 className="text-2xl">
+        {playground.name} - {playground.slug}
+      </h1>
+      <p>{playground.description}</p>
+      {/* <Playground playground={playground} /> */}
     </div>
   );
 };
