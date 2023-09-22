@@ -19,7 +19,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   return (
     <main>
-      <Navbar session={session} />
+      <Navbar session={session!} />
       <div className="pt-20 relative">{children}</div>
       {/* <CommandMenu /> */}
       <Toaster />
