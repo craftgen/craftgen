@@ -26,6 +26,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { PlaygroundEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
 import { PlaygroundCreateDialog } from "./playground-create-dialog";
+import { PlusIcon, Rocket } from "lucide-react";
 
 type Playground = ResultOf<typeof getPlaygrounds>[number];
 
@@ -48,6 +49,21 @@ const columns: ColumnDef<Playground>[] = [
     header: "Public",
     accessorKey: "public",
     cell: ({ row }) => (row.getValue("public") ? "Yes" : "No"),
+  },
+  {
+    id: "playground",
+    cell: ({ row }) => (
+      <div className="flex justify-end">
+        <Link
+          href={`/${row.original?.project.slug}/${row.original.slug}/playground`}
+        >
+          <Button variant="outline">
+            <Rocket className="w-4 h-4 mr-2" />
+            Playground
+          </Button>
+        </Link>
+      </div>
+    ),
   },
   {
     id: "actions",
@@ -103,11 +119,13 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <PlaygroundEditDialog
-        isOpen={editDialog}
-        onOpenChange={setEditDialog}
-        playground={row.original}
-      />
+      {editDialog && (
+        <PlaygroundEditDialog
+          isOpen={editDialog}
+          onOpenChange={setEditDialog}
+          playground={row.original}
+        />
+      )}
     </>
   );
 }
@@ -122,15 +140,25 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
   const [isOpen, setOpen] = useState(false);
   return (
     <div className="py-4">
-      <div className="flex justify-between items-center py-4">
-        <h3>Playgrounds</h3>
-        <div>
-          <Button onClick={() => setOpen(true)} size={"sm"}>
-            Create Playground
-          </Button>
-        </div>
+      <div>
+        {data && (
+          <DataTable
+            columns={columns}
+            data={data!}
+            headerRight={
+              <Button
+                onClick={() => setOpen(true)}
+                size={"sm"}
+                className="ml-2"
+                variant={"outline"}
+              >
+                <PlusIcon className="text-muted-foreground" />
+                Create Playground
+              </Button>
+            }
+          />
+        )}
       </div>
-      <div>{data && <DataTable columns={columns} data={data!} />}</div>
       {isOpen && (
         <PlaygroundCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
       )}

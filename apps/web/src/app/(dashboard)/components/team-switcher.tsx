@@ -37,6 +37,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getProjects } from "../dashboard/actions";
 import { useMemo, useState } from "react";
 import { NewProjectForm } from "../project/new/new-project-form";
+import Link from "next/link";
 
 interface TeamSwitcherProps extends PopoverTriggerProps {}
 
@@ -106,25 +107,28 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            role="combobox"
-            aria-expanded={open}
-            aria-label="Select a team"
-            className={cn("w-[200px] min-w-[160px] justify-between", className)}
-          >
-            <Avatar className="mr-2 h-5 w-5">
-              <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedTeam?.value}.png`}
-                alt={selectedTeam?.label}
-              />
-              <AvatarFallback>SC</AvatarFallback>
-            </Avatar>
-            {selectedTeam?.label}
-            <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
+        <Link href={`/${selectedTeam.value}`} className="flex">
+          <Avatar className="mr-2 h-5 w-5">
+            <AvatarImage
+              src={`https://avatar.vercel.sh/${selectedTeam?.value}.png`}
+              alt={selectedTeam?.label}
+            />
+            <AvatarFallback>SC</AvatarFallback>
+          </Avatar>
+          {selectedTeam?.label}
+        </Link>
+        <Button
+          variant="ghost"
+          role="combobox"
+          size="icon"
+          aria-expanded={open}
+          aria-label="Select a team"
+          className={cn(className)}
+        >
+          <PopoverTrigger asChild>
+            <CaretSortIcon className="px-0 h-4 w-4 shrink-0 opacity-50" />
+          </PopoverTrigger>
+        </Button>
         <PopoverContent className="w-[280px] min-w-[160px] p-0">
           <Command>
             <CommandList>

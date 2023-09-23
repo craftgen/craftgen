@@ -21,7 +21,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
     <div className="border-b-2 fixed bg-background w-full z-50">
       <div className="flex items-center justify-between w-full p-2">
         <div className="flex items-center">
-          <div className="flex p-2">
+          <div className="flex p-2 mr-4">
             <Link href="/dashboard">
               <Network />
             </Link>
