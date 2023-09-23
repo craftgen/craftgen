@@ -18,6 +18,8 @@ export type NodeData<T extends AnyStateMachine> = {
   project_id: string;
   name: string;
   type: string;
+  width: number;
+  height: number;
   state?: StateFrom<T>;
 };
 
@@ -59,6 +61,7 @@ export class BaseNode<
     super(label);
     this.id = data.id;
     this.di = di;
+    this.setSize(data);
     const a = machine.provide(machineImplements as any);
     this.actor = createActor(a, {
       id: this.id,
@@ -71,10 +74,16 @@ export class BaseNode<
 
     this.actor.subscribe((state) => {
       this.state = state.value as any;
+      if (this.di.readonly.enabled) return;
       saveDebounced(JSON.stringify(state));
     });
 
     this.actor.start();
+  }
+
+  public setSize(size: { width: number; height: number }) {
+    this.width = size.width;
+    this.height = size.height;
   }
 
   async setInputs(inputs: Record<string, Socket>) {
@@ -145,7 +154,7 @@ export class BaseNode<
    * @param {string} stateValue - The state value to wait for.
    */
   async waitForState(stateValue: string) {
-    let state = this.actor.getSnapshot()
+    let state = this.actor.getSnapshot();
     const sub = this.actor.subscribe((newState) => {
       state = newState;
       console.log("state", newState);

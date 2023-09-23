@@ -11,6 +11,8 @@ import {
   and,
   dataRow,
   gt,
+  projectMembers,
+  user,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { NodeTypes } from "./playground/types";
@@ -28,6 +30,7 @@ export const getPlayground = async (params: {
 }) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
+
   return await db.transaction(async (tx) => {
     const project = await tx.query.project.findFirst({
       where: (project, { eq }) => eq(project.slug, params.projectSlug),
@@ -37,6 +40,23 @@ export const getPlayground = async (params: {
     });
     if (!project) {
       throw new Error("Project not found");
+    }
+    const userId = session?.data?.session?.user?.id;
+    let readonly = true;
+    if (userId) {
+      const [isMember] = await tx
+        .select()
+        .from(projectMembers)
+        .where(
+          and(
+            eq(projectMembers.projectId, project.id),
+            eq(projectMembers.userId, userId)
+          )
+        )
+        .limit(1);
+      if (isMember) {
+        readonly = false;
+      }
     }
     const playground = await tx.query.playground.findFirst({
       where: (playground, { eq, and }) =>
@@ -48,8 +68,20 @@ export const getPlayground = async (params: {
         project: true,
       },
     });
-    return playground;
+    if (!playground) {
+      throw new Error("Playground not found");
+    }
+    return {
+      ...playground,
+      readonly,
+    };
   });
+};
+
+export const getPlaygroundInputsOutputs = async (params: {
+  playgroundId: string;
+}) => {
+  return await db.transaction(async (tx) => {});
 };
 
 export const updatePlayground = async (

@@ -11,6 +11,7 @@ export type ReteStore = {
   playgroundSlug: string;
   projectId: string;
   projectSlug: string;
+  readonly: boolean;
   selectedNodeId: string | null;
   di: DiContainer | null;
   layout: FlexLayout.Model;
@@ -29,6 +30,7 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       projectSlug: "",
       playgroundId: "",
       playgroundSlug: "",
+      readonly: true,
       selectedNodeId: null,
       di: null,
       showControls: false,

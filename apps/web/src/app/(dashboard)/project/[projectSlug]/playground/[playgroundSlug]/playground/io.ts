@@ -15,7 +15,10 @@ export async function createNode({
 }: {
   di: DiContainer;
   name: NodeTypes;
-  data: NonNullable<Awaited<ReturnType<typeof getNodeData>>>;
+  data: NonNullable<Awaited<ReturnType<typeof getNodeData>>> & {
+    width: number;
+    height: number;
+  };
   saveToDB?: boolean;
   playgroundId?: string;
   projectSlug?: string;
@@ -81,7 +84,13 @@ export async function createNode({
 }
 
 export type Data = {
-  nodes: { id: NodeId; name: string; data: Record<string, unknown> }[];
+  nodes: {
+    id: NodeId;
+    name: string;
+    data: Record<string, unknown>;
+    width: number;
+    height: number;
+  }[];
   edges: {
     id: NodeId;
     source: string;
@@ -103,6 +112,8 @@ export async function importEditor(di: DiContainer, data: Data) {
       di,
       name: n.name as any,
       data: {
+        width: n.width,
+        height: n.height,
         ...nodeData,
       },
     });
@@ -140,6 +151,8 @@ export async function exportEditor(editor: NodeEditor<Schemes>) {
       id: n.id,
       name: n.constructor.name,
       data: await n.serialize(),
+      width: n.width,
+      height: n.height,
     });
   }
   for (const c of editor.getConnections()) {

@@ -11,7 +11,8 @@
     "GOOGLE_CLIENT_SECRET",
     "TELEGRAM_BOT_TOKEN",
     "NEXT_PUBLIC_POSTHOG_KEY",
-    "NEXT_PUBLIC_POSTHOG_HOST"
+    "NEXT_PUBLIC_POSTHOG_HOST",
+    "NODE_ENV"
   ],
   "pipeline": {
     "build": {

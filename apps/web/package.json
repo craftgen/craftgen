@@ -136,6 +136,7 @@
     "rete-history-plugin": "^2.0.0",
     "rete-minimap-plugin": "^2.0.0",
     "rete-react-plugin": "^2.0.1",
+    "rete-readonly-plugin": "^2.0.0",
     "rete-render-utils": "^2.0.1",
     "rete-structures": "^2.0.0",
     "slate": "^0.94.1",

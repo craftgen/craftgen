@@ -174,6 +174,7 @@ importers:
       rete-history-plugin: ^2.0.0
       rete-minimap-plugin: ^2.0.0
       rete-react-plugin: ^2.0.1
+      rete-readonly-plugin: ^2.0.0
       rete-render-utils: ^2.0.1
       rete-structures: ^2.0.0
       slate: ^0.94.1
@@ -323,6 +324,7 @@ importers:
       rete-history-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-minimap-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-react-plugin: 2.0.1_4anyjbwzv35n32u2rckkd7tcgq
+      rete-readonly-plugin: 2.0.0_o5wi7v4jj7svmlobzpyx4u5tjq
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
       rete-structures: 2.0.0_rete@2.0.2
       slate: 0.94.1
@@ -11181,6 +11183,19 @@ packages:
       rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
       styled-components: 6.0.7_biqbaboplfbrettd7655fr4n2y
       usehooks-ts: 2.9.1_biqbaboplfbrettd7655fr4n2y
+    dev: false
+
+  /rete-readonly-plugin/2.0.0_o5wi7v4jj7svmlobzpyx4u5tjq:
+    resolution: {integrity: sha512-XDje/lKjXuV+C/bGZAPL9yH4nGoQny3vs29gGPXL3ttIQTAu2dYd1Bu9YI6s0pJ8gNFemLGsVWwMOjtpXPJPfA==}
+    peerDependencies:
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      rete-connection-plugin: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.22.15
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
+      rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
     dev: false
 
   /rete-render-utils/2.0.1_p6ilppr2hwkly36q4t5nxudtxi:

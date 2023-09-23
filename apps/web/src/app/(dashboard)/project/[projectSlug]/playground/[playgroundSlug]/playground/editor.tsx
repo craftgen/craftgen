@@ -22,6 +22,7 @@ import {
   Presets as HistoryPresets,
   HistoryExtensions,
 } from "rete-history-plugin";
+import { ReadonlyPlugin } from "rete-readonly-plugin";
 
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
@@ -48,6 +49,7 @@ export type DiContainer = {
   area: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => Promise<void>;
   editor: NodeEditor<Schemes>;
+  readonly: ReadonlyPlugin<Schemes>;
   engine?: ControlFlowEngine<Schemes>;
   dataFlow?: DataflowEngine<Schemes>;
   arrange?: AutoArrangePlugin<Schemes>;
@@ -61,20 +63,22 @@ export type ModuleMap = Record<
   NonNullable<Awaited<ReturnType<typeof getPlayground>>>
 >;
 
-export const createEditorFunc = (
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,
-  store: ReteStoreInstance
-) => {
-  return (container: HTMLElement) => createEditor(container, playground, store);
+export const createEditorFunc = (params: {
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+  store: ReteStoreInstance;
+}) => {
+  return (container: HTMLElement) => createEditor({ ...params, container });
 };
 
-export async function createEditor(
-  container: HTMLElement,
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>,
-  store: ReteStoreInstance
-) {
+export async function createEditor(params: {
+  container: HTMLElement;
+  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+  store: ReteStoreInstance;
+}) {
+  const readonlyPlugin = new ReadonlyPlugin<Schemes>();
   const editor = new NodeEditor<Schemes>();
-  const area = new AreaPlugin<Schemes, AreaExtra>(container);
+  editor.use(readonlyPlugin.root);
+  const area = new AreaPlugin<Schemes, AreaExtra>(params.container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
   const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
   // const minimap = new MinimapPlugin<Schemes>();
@@ -96,7 +100,7 @@ export async function createEditor(
         node(context) {
           // TODO: fix types some point
           return ({ data, emit }: any) =>
-            CustomNode({ data, emit, store }) as any;
+            CustomNode({ data, emit, store: params.store }) as any;
         },
         socket(context) {
           return CustomSocket;
@@ -125,59 +129,57 @@ export async function createEditor(
   history.addPreset(HistoryPresets.classic.setup());
   HistoryExtensions.keyboard(history);
 
-  // const applier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
-  //   duration: 500,
-  //     timingFunction: easeInOut
-  //   timingFunction: (t) => t,
-  //   async onTick() {
-  //     await AreaExtensions.zoomAt(area, editor.getNodes());
-  //   },
-  // });
-
   arrange.addPreset(ArrangePresets.classic.setup());
-  const inspector = new InspectorPlugin(store);
+  const inspector = new InspectorPlugin(params.store);
 
   editor.use(engine);
   editor.use(dataFlow);
   editor.use(area);
+  area.use(readonlyPlugin.area);
   addCustomBackground(area);
   area.use(inspector);
   area.use(history);
-  area.use(connection);
+
+  if (!params.playground.readonly) {
+    area.use(connection);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useMagneticConnection(connection, {
+      async createConnection(from, to) {
+        if (from.side === to.side) return;
+        const [source, target] =
+          from.side === "output" ? [from, to] : [to, from];
+        const sourceNode = editor.getNode(source.nodeId);
+        const targetNode = editor.getNode(target.nodeId);
+
+        await editor.addConnection(
+          new ClassicPreset.Connection(
+            sourceNode,
+            source.key as never,
+            targetNode,
+            target.key as never
+          )
+        );
+      },
+      display(from, to) {
+        return from.side !== to.side;
+      },
+      offset(socket, position) {
+        const socketRadius = 10;
+
+        return {
+          x:
+            position.x +
+            (socket.side === "input" ? -socketRadius : socketRadius),
+          y: position.y,
+        };
+      },
+    });
+  }
+
   area.use(render);
   area.use(arrange);
 
   AreaExtensions.simpleNodesOrder(area);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useMagneticConnection(connection, {
-    async createConnection(from, to) {
-      if (from.side === to.side) return;
-      const [source, target] = from.side === "output" ? [from, to] : [to, from];
-      const sourceNode = editor.getNode(source.nodeId);
-      const targetNode = editor.getNode(target.nodeId);
-
-      await editor.addConnection(
-        new ClassicPreset.Connection(
-          sourceNode,
-          source.key as never,
-          targetNode,
-          target.key as never
-        )
-      );
-    },
-    display(from, to) {
-      return from.side !== to.side;
-    },
-    offset(socket, position) {
-      const socketRadius = 10;
-
-      return {
-        x:
-          position.x + (socket.side === "input" ? -socketRadius : socketRadius),
-        y: position.y,
-      };
-    },
-  });
 
   AreaExtensions.showInputControl(area);
   const setUI = async () => {
@@ -210,7 +212,7 @@ export async function createEditor(
 
   const graph = structures(editor);
   const di: DiContainer = {
-    store,
+    store: params.store,
     editor,
     area,
     arrange,
@@ -221,17 +223,22 @@ export async function createEditor(
     dataFlow,
     inspector,
     modules,
+    readonly: readonlyPlugin,
   };
 
   await importEditor(di, {
-    nodes: playground.nodes as any,
-    edges: playground.edges as any,
+    nodes: params.playground.nodes as any,
+    edges: params.playground.edges as any,
   });
   await arrange.layout();
 
   AreaExtensions.zoomAt(area, editor.getNodes());
 
-  store.getState().setDi(di);
+  params.store.getState().setDi(di);
+
+  if (params.playground.readonly) {
+    readonlyPlugin.enable();
+  }
 
   return {
     di,

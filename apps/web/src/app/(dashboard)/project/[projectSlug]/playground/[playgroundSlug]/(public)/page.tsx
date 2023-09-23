@@ -1,5 +1,4 @@
 import { getPlayground } from "../action";
-import { ModuleHeader } from "../components/module-header";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -13,7 +12,19 @@ const PlaygroundPage = async (props: {
     playgroundSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
-  return <div>DEMO</div>;
+  return (
+    <div className="h-full flex flex-col">
+      <section className="grid grid-cols-2 divide-x ">
+        <div className="p-2">
+          <h2>Input
+          </h2>
+        </div>
+        <div className="p-2">
+          <h2>Output</h2>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default PlaygroundPage;

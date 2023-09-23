@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
 import { SocketNameType, useSocketConfig } from "../sockets";
-import { useMeasure } from "react-use";
+import { useMeasure, useMouse } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
@@ -70,6 +70,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label, width, height } = props.data;
+
   const {
     di,
     playgroundId,
@@ -182,7 +183,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const state = useSelector(props.data.actor, (state) => state);
   const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
-  React.useEffect(() => {}, [sizes]);
+
+  React.useEffect(() => {
+    props.data.setSize(sizes);
+  }, [sizes.width, sizes.height]);
 
   const { toast } = useToast();
   React.useEffect(() => {

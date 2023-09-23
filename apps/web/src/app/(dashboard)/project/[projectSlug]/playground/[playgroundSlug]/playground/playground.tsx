@@ -1,19 +1,15 @@
 "use client";
 import "reflect-metadata";
 
-import { Presets, useRete } from "rete-react-plugin";
+import { useRete } from "rete-react-plugin";
 import { createEditorFunc } from "./editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportEditor } from "./io";
 import { getPlayground, savePlayground, savePlaygroundLayout } from "../action";
 import { useParams } from "next/navigation";
-import {
-  CraftContext,
-  createCraftStore,
-  useCraftStore,
-} from "./store";
-import { debounce, divide } from "lodash-es";
-import { Maximize } from "lucide-react";
+import { CraftContext, createCraftStore, useCraftStore } from "./store";
+import { debounce } from "lodash-es";
+import { Lock, Maximize } from "lucide-react";
 import { useStore } from "zustand";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,8 +24,6 @@ import * as FlexLayout from "flexlayout-react";
 import { getConnectionSockets } from "./utis";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-import useSWR from "swr";
-import { getPlaygrounds } from "../../../actions";
 import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
@@ -104,6 +98,7 @@ export const Playground: React.FC<{
       layout: FlexLayout.Model.fromJson(
         (playground.layout as FlexLayout.IJsonModel) || defaultLayout
       ),
+      readonly: playground.readonly,
       projectId: playground.project.id,
       projectSlug: params.projectSlug as string,
       playgroundId: playground.id,
@@ -114,10 +109,10 @@ export const Playground: React.FC<{
   const { layout } = useStore(store.current);
 
   useEffect(() => {
+    if (playground.readonly) return;
     const layoutListener = store.current.subscribe(
       (state) => state.layout,
       async (layout) => {
-        console.log("layout changed", { layout });
         await savePlaygroundLayout({
           layout: layout.toJson(),
           playgroundId: playground.id,
@@ -125,9 +120,10 @@ export const Playground: React.FC<{
       }
     );
     return () => layoutListener();
-  }, []);
+  }, [playground.readonly]);
   const debouncedLayoutChange = useCallback(
     debounce(async (layout: FlexLayout.Model) => {
+      if (playground.readonly) return;
       await savePlaygroundLayout({
         layout: layout.toJson(),
         playgroundId: playground.id,
@@ -164,9 +160,6 @@ export const Playground: React.FC<{
             model={layout}
             factory={factory}
             onModelChange={(model) => debouncedLayoutChange(model)}
-            onRenderTab={(node, renderValues) => {
-              // renderValues.buttons.push(<div>X</div>);
-            }}
             realtimeResize
           />
         </div>
@@ -182,13 +175,12 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
   const di = useCraftStore((state) => state.di);
   const projectSlug = useCraftStore((state) => state.projectSlug);
   const playgroundId = useCraftStore((state) => state.playgroundId);
-  const { data, isValidating } = useSWR(
-    `/api/playgrounds/${playground.project.id}`,
-    () => getPlaygrounds(playground.project.id)
-  );
 
   const createEditor = useMemo(() => {
-    return createEditorFunc(playground, store.current);
+    return createEditorFunc({
+      playground,
+      store: store.current,
+    });
   }, [playground, store.current]);
   const [ref, rete] = useRete(createEditor);
   const saveDebounced = debounce(
@@ -203,6 +195,7 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
   );
   const onChange = useCallback(
     async (data: any) => {
+      if (playground.readonly) return;
       const json = await exportEditor(rete?.di.editor!);
       console.log("@@@@@@@", { json });
       saveDebounced({
@@ -252,6 +245,19 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
   return (
     <div className="w-full h-full">
       <div className="absolute top-1 right-1 z-50 flex ">
+        {playground.readonly && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant={"outline"} className="cursor-pointer" size="sm">
+                <Lock className="w-4 h-4 mr-2" />
+                Read Only
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              You don&apos;t have access to edit fork it, to customize
+            </TooltipContent>
+          </Tooltip>
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>
