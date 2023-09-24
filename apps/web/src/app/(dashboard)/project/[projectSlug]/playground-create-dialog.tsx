@@ -164,9 +164,7 @@ export const PlaygroundCreateDialog: React.FC<{
       description: "This may take a few seconds.",
     });
     await mutate(`/api/project/${project?.id}/playgrounds`);
-    router.push(
-      `/project/${params.projectSlug}/playground/${newPlayground.id}`
-    );
+    router.push(`/${params.projectSlug}/${newPlayground.slug}`);
     form.reset();
     onOpenChange(false);
   };

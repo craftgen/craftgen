@@ -106,7 +106,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
     const rawState = JSON.stringify(props.data.actor.getSnapshot());
     const newNode = await createNode({
       di: di!,
-      name: props.data.ID,
+      type: props.data.ID,
       data: {
         ...props.data,
         state: JSON.parse(rawState),
@@ -185,8 +185,15 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
 
   React.useEffect(() => {
-    props.data.setSize(sizes);
-  }, [sizes.width, sizes.height]);
+    const { width, height } = sizes;
+    const { data } = props;
+
+    if (width > 0 || height > 0) {
+      if (data.width !== width || data.height !== height) {
+        data.di.area.resize(data.id, width, height);
+      }
+    }
+  }, [sizes]);
 
   const { toast } = useToast();
   React.useEffect(() => {

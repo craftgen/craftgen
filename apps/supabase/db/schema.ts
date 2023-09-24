@@ -7,7 +7,12 @@ import {
   json,
   unique,
   boolean,
+  primaryKey,
+  integer,
 } from "drizzle-orm/pg-core";
+
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import z from "zod";
 
 import { relations } from "drizzle-orm";
 
@@ -114,25 +119,6 @@ export const playground = pgTable(
     description: text("description"),
     public: boolean("public").notNull().default(false),
     layout: json("layout"),
-    edges: json("edges")
-      .$type<
-        {
-          source: string;
-          sourceOutput: string;
-          target: string;
-          targetInput: string;
-        }[]
-      >()
-      .notNull(),
-    nodes: json("nodes")
-      .$type<
-        {
-          id: string;
-          name: string;
-          data: Record<string, unknown>;
-        }[]
-      >()
-      .notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -143,13 +129,6 @@ export const playground = pgTable(
   }
 );
 
-export const playgroundRelations = relations(playground, ({ one, many }) => ({
-  project: one(project, {
-    fields: [playground.project_id],
-    references: [project.id],
-  }),
-}));
-
 export const nodeData = pgTable("node_data", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
@@ -159,12 +138,57 @@ export const nodeData = pgTable("node_data", {
   state: json("state"),
 });
 
-export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({
-  project: one(project),
-  playgrounds: many(nodeToPlayground),
-}));
+export const playgroundEdge = pgTable(
+  "playground_edge",
+  {
+    playgroundId: uuid("playground_id")
+      .notNull()
+      .references(() => playground.id, {
+        onDelete: "cascade",
+      }),
+    source: uuid("source")
+      .notNull()
+      .references(() => nodeData.id, { onDelete: "cascade" }),
+    sourceOutput: text("source_output").notNull(),
+    target: uuid("target")
+      .notNull()
+      .references(() => nodeData.id, { onDelete: "cascade" }),
+    targetInput: text("target_input").notNull(),
+  },
+  (edge) => {
+    return {
+      pk: primaryKey(
+        edge.source,
+        edge.target,
+        edge.sourceOutput,
+        edge.targetInput
+      ),
+    };
+  }
+);
 
-export const nodeToPlayground = pgTable("node_to_playground", {
+export const selectPlaygroundEdgeSchema = createInsertSchema(playgroundEdge);
+
+export const playgroundEdgeRelations = relations(playgroundEdge, ({ one }) => ({
+  source: one(nodeData, {
+    fields: [playgroundEdge.source],
+    references: [nodeData.id],
+  }),
+  target: one(nodeData, {
+    fields: [playgroundEdge.target],
+    references: [nodeData.id],
+  }),
+  playground: one(playground, {
+    fields: [playgroundEdge.playgroundId],
+    references: [playground.id],
+  }),
+}));
+type Position = {
+  x: number;
+  y: number;
+};
+
+export const playgroundNode = pgTable("playground_node", {
   id: uuid("id").primaryKey().defaultRandom(),
   node_id: uuid("node_id")
     .notNull()
@@ -176,15 +200,48 @@ export const nodeToPlayground = pgTable("node_to_playground", {
     .references(() => playground.id, {
       onDelete: "cascade",
     }),
+  position: json("position").$type<Position>().notNull(),
+  width: integer("width").notNull(),
+  height: integer("height").notNull(),
+  label: text("label").notNull(),
+  color: text("color").notNull(),
+  type: text("type").notNull(),
 });
 
-export const nodeToPlaygroundRelations = relations(
-  nodeToPlayground,
-  ({ one }) => ({
-    node: one(nodeData),
-    playground: one(playground),
-  })
-);
+export const selectPlaygroundNodeSchema = createSelectSchema(playgroundNode, {
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }),
+});
+
+export const playgroundRelations = relations(playground, ({ one, many }) => ({
+  project: one(project, {
+    fields: [playground.project_id],
+    references: [project.id],
+  }),
+  edges: many(playgroundEdge),
+  nodes: many(playgroundNode),
+}));
+
+export const playgroundNodeRelations = relations(playgroundNode, ({ one }) => ({
+  node: one(nodeData, {
+    fields: [playgroundNode.node_id],
+    references: [nodeData.id],
+  }),
+  playground: one(playground, {
+    fields: [playgroundNode.playground_id],
+    references: [playground.id],
+  }),
+}));
+
+export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({
+  project: one(project, {
+    fields: [nodeData.project_id],
+    references: [project.id],
+  }),
+  playgrounds: many(playgroundNode),
+}));
 
 export const projectRelations = relations(project, ({ many, one }) => ({
   nodes: many(nodeData),

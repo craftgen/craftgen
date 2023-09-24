@@ -4,8 +4,15 @@ import "reflect-metadata";
 import { useRete } from "rete-react-plugin";
 import { createEditorFunc } from "./editor";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { exportEditor } from "./io";
-import { getPlayground, savePlayground, savePlaygroundLayout } from "../action";
+import {
+  deleteEdge,
+  deleteNode,
+  getPlayground,
+  updateNodeMeta,
+  saveEdge,
+  saveNode,
+  savePlaygroundLayout,
+} from "../action";
 import { useParams } from "next/navigation";
 import { CraftContext, createCraftStore, useCraftStore } from "./store";
 import { debounce } from "lodash-es";
@@ -35,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { match } from "ts-pattern";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -183,38 +191,47 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
     });
   }, [playground, store.current]);
   const [ref, rete] = useRete(createEditor);
-  const saveDebounced = debounce(
-    (state) =>
-      savePlayground({
-        projectSlug: projectSlug as string,
-        playgroundId: playgroundId as string,
-        nodes: state.nodes,
-        edges: state.edges,
-      }),
-    2000
-  );
-  const onChange = useCallback(
-    async (data: any) => {
-      if (playground.readonly) return;
-      const json = await exportEditor(rete?.di.editor!);
-      console.log("@@@@@@@", { json });
-      saveDebounced({
-        projectSlug: projectSlug as string,
-        playgroundId: playgroundId as string,
-        nodes: json.nodes,
-        edges: json.edges,
-      });
-    },
-    [rete]
-  );
 
   const { toast } = useToast();
 
+  const fn = debounce(updateNodeMeta, 500);
+  const updateMeta = useCallback(
+    async (params: {
+      id: string;
+      position?: { x: number; y: number };
+      width?: number;
+      height?: number;
+    }) => {
+      return fn(params);
+    },
+    []
+  );
+
+  useEffect(() => {
+    rete?.area.addPipe((context) => {
+      match(context)
+        .with({ type: "noderesized" }, ({ data }) => {
+          console.log("noderesized", { data });
+          di?.editor.getNode(data.id).setSize(data.size);
+          updateMeta(data);
+        })
+        .with({ type: "nodetranslated" }, ({ data }) => {
+          if (
+            data.position.x !== data.previous.y ||
+            data.position.y !== data.previous.y
+          ) {
+            updateMeta(data);
+          }
+        });
+
+      return context;
+    });
+  }, [rete]);
+
   useEffect(() => {
     rete?.editor.addPipe((context) => {
-      switch (context.type) {
-        case "connectioncreate": {
-          const { data } = context;
+      match(context)
+        .with({ type: "connectioncreate" }, ({ data }) => {
           const { source, target } = getConnectionSockets(di?.editor!, data);
           if (target && !source.isCompatibleWith(target)) {
             console.log("Sockets are not compatible", "error");
@@ -227,17 +244,49 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
                 </span>
               ),
             });
-            return;
           }
-          break;
-        }
-        case "nodecreated":
-        case "noderemoved":
-        case "connectioncreated":
-        case "connectionremoved":
-          onChange(context);
-        default:
-      }
+        })
+        .with({ type: "nodecreated" }, async ({ data }) => {
+          const size = data.size;
+          console.log("nodecreated", {
+            data,
+            size,
+          });
+          await saveNode({
+            playgroundId: playground.id,
+            data: {
+              id: data.id,
+              type: data.ID,
+              color: "default",
+              label: data.label,
+              position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
+              ...size,
+            },
+          });
+        })
+        .with({ type: "noderemove" }, async ({ data }) => {
+          console.log("noderemove", { data });
+          await deleteNode({
+            playgroundId: playground.id,
+            data: {
+              id: data.id,
+            },
+          });
+        })
+        .with({ type: "connectioncreated" }, async ({ data }) => {
+          console.log("connectioncreated", { data });
+          await saveEdge({
+            playgroundId: playground.id,
+            data: JSON.parse(JSON.stringify(data)),
+          });
+        })
+        .with({ type: "connectionremoved" }, async ({ data }) => {
+          console.log("connectionremoved", { data });
+          await deleteEdge({
+            playgroundId: playground.id,
+            data: JSON.parse(JSON.stringify(data)),
+          });
+        });
 
       return context;
     });

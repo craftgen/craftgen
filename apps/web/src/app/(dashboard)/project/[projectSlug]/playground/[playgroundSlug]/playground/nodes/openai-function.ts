@@ -196,9 +196,6 @@ const OpenAIFunctionCallMachine = createMachine({
 export class OpenAIFunctionCall extends BaseNode<
   typeof OpenAIFunctionCallMachine
 > {
-  height = 420;
-  width = 280;
-
   static ID: "openai-function-call";
 
   constructor(
@@ -413,11 +410,11 @@ export class OpenAIFunctionCall extends BaseNode<
       inputs,
     });
     await this.waitForState("complete");
-    forward('trigger')
+    forward("trigger");
   }
 
   async data() {
-    await this.waitForState('complete') 
+    await this.waitForState("complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

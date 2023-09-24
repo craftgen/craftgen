@@ -4,17 +4,19 @@ import * as Nodes from "./nodes";
 import { DiContainer } from "./editor";
 import { Connection } from "./connection/connection";
 import { createNodeInDB, getNodeData } from "../action";
+import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
+import { z } from "zod";
 
 export async function createNode({
   di,
-  name,
+  type,
   data,
   saveToDB = false,
   playgroundId,
   projectSlug,
 }: {
   di: DiContainer;
-  name: NodeTypes;
+  type: NodeTypes;
   data: NonNullable<Awaited<ReturnType<typeof getNodeData>>> & {
     width: number;
     height: number;
@@ -57,9 +59,9 @@ export async function createNode({
     Shopify: (di, data) => new Nodes.Shopify(di, data),
     Postgres: (di, data) => new Nodes.Postgres(di, data),
   };
-  const matched = nodes[name];
+  const matched = nodes[type];
 
-  if (!matched) throw new Error(`Unsupported node '${name}'`);
+  if (!matched) throw new Error(`Unsupported node '${type}'`);
 
   if (saveToDB) {
     if (!playgroundId) throw new Error("playgroundId is required");
@@ -67,7 +69,7 @@ export async function createNode({
     const nodeInDb = await createNodeInDB({
       playgroundId,
       projectSlug,
-      type: name,
+      type,
     });
     console.log("creating new node with", { data, nodeInDb });
     const node = await matched(di, {
@@ -84,13 +86,7 @@ export async function createNode({
 }
 
 export type Data = {
-  nodes: {
-    id: NodeId;
-    name: string;
-    data: Record<string, unknown>;
-    width: number;
-    height: number;
-  }[];
+  nodes: z.infer<typeof selectPlaygroundNodeSchema>[];
   edges: {
     id: NodeId;
     source: string;
@@ -104,21 +100,22 @@ export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
   for (const n of nodes) {
-    if (di.editor.getNode(n.id)) continue;
-    const nodeData = await getNodeData(n.id);
-    if (!nodeData) throw new Error(`Node data not found for ${n.id}`);
+    if (di.editor.getNode(n.node_id)) continue;
+    const nodeData = await getNodeData(n.node_id);
+    if (!nodeData) throw new Error(`Node data not found for ${n.node_id}`);
 
     const node = await createNode({
       di,
-      name: n.name as any,
+      type: n.type as any,
       data: {
         width: n.width,
         height: n.height,
         ...nodeData,
       },
     });
-    node.id = n.id;
+    node.id = n.node_id;
     await di.editor.addNode(node);
+    di.area.translate(node.id, n.position);
   }
   for (const c of edges) {
     const source = di.editor.getNode(c.source);
@@ -140,32 +137,4 @@ export async function importEditor(di: DiContainer, data: Data) {
       await di.editor.addConnection(conn);
     }
   }
-}
-
-export async function exportEditor(editor: NodeEditor<Schemes>) {
-  const nodes = [];
-  const edges = [];
-
-  for (const n of editor.getNodes()) {
-    nodes.push({
-      id: n.id,
-      name: n.constructor.name,
-      data: await n.serialize(),
-      width: n.width,
-      height: n.height,
-    });
-  }
-  for (const c of editor.getConnections()) {
-    edges.push({
-      source: c.source,
-      sourceOutput: c.sourceOutput,
-      target: c.target,
-      targetInput: c.targetInput,
-    });
-  }
-
-  return {
-    nodes,
-    edges,
-  };
 }

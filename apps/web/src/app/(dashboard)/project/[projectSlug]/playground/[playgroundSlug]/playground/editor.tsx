@@ -230,7 +230,7 @@ export async function createEditor(params: {
     nodes: params.playground.nodes as any,
     edges: params.playground.edges as any,
   });
-  await arrange.layout();
+  // await arrange.layout();
 
   AreaExtensions.zoomAt(area, editor.getNodes());
 
@@ -245,6 +245,7 @@ export async function createEditor(params: {
     editor,
     engine,
     dataflow: dataFlow,
+    area,
     destroy: () => area.destroy(),
   };
 }

@@ -18,8 +18,8 @@ export type NodeData<T extends AnyStateMachine> = {
   project_id: string;
   name: string;
   type: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   state?: StateFrom<T>;
 };
 
@@ -45,10 +45,10 @@ export class BaseNode<
 
   public actor: Actor<AnyStateMachine>;
 
-  width = 240;
-  height = 200;
+  public state: "idle" | "running" | "error" = "idle";
 
-  state: "idle" | "running" | "error" = "idle";
+  public width = 200;
+  public height = 200;
 
   constructor(
     public readonly ID: NodeTypes,
@@ -59,9 +59,11 @@ export class BaseNode<
     machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(label);
+    if (data.width) this.width = data.width;
+    if (data.height) this.height = data.height;
+
     this.id = data.id;
     this.di = di;
-    this.setSize(data);
     const a = machine.provide(machineImplements as any);
     this.actor = createActor(a, {
       id: this.id,
@@ -84,6 +86,13 @@ export class BaseNode<
   public setSize(size: { width: number; height: number }) {
     this.width = size.width;
     this.height = size.height;
+  }
+
+  get size() {
+    return {
+      width: this.width,
+      height: this.height,
+    };
   }
 
   async setInputs(inputs: Record<string, Socket>) {

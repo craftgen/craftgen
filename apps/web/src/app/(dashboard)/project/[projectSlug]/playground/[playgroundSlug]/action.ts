@@ -6,21 +6,26 @@ import {
   eq,
   inArray,
   nodeData,
-  nodeToPlayground,
+  playgroundNode,
   playground,
   and,
   dataRow,
   gt,
   projectMembers,
   user,
+  playgroundEdge,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import { NodeTypes } from "./playground/types";
+import { ConnProps, NodeProps, NodeTypes, Position } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
 
 export const getPlaygroundById = async (playgroundId: string) => {
   return await db.query.playground.findFirst({
     where: (playground, { eq }) => eq(playground.id, playgroundId),
+    with:{
+      nodes: true,
+      edges: true,
+    }
   });
 };
 
@@ -66,6 +71,8 @@ export const getPlayground = async (params: {
         ),
       with: {
         project: true,
+        nodes: true,
+        edges: true,
       },
     });
     if (!playground) {
@@ -111,70 +118,96 @@ export const savePlaygroundLayout = async (params: {
     .returning();
 };
 
-export const savePlayground = async (params: {
-  projectSlug: string;
-  playgroundId: string;
-  nodes: any[];
-  edges: any[];
+export const updateNodeMeta = async (params: {
+  id: string;
+  position?: { x: number; y: number };
+  size?: { width: number; height: number };
 }): Promise<void> => {
-  try {
-    console.log({ nodes: params.nodes, edges: params.edges });
-    const supabase = createServerActionClient({ cookies });
-    const session = await supabase.auth.getSession();
-    await db.transaction(async (tx) => {
-      const project = await tx.query.project.findFirst({
-        where: (project, { eq }) => eq(project.slug, params.projectSlug),
-      });
-      if (!project) {
-        throw new Error("Project not found");
-      }
-      await tx
-        .update(playground)
-        .set({
-          edges: params.edges,
-          nodes: params.nodes,
-          updatedAt: new Date(),
-        })
-        .where(eq(playground.id, params.playgroundId));
+  console.log("nodeMeta", params);
+  await db
+    .update(playgroundNode)
+    .set({
+      ...(params.size && params.size),
+      ...(params.position && { position: params.position }),
+    })
+    .where(eq(playgroundNode.node_id, params.id));
+};
 
-      const playgroundNodes = await tx.query.nodeToPlayground.findMany({
-        where: (nodeToPlayground, { eq }) =>
-          eq(nodeToPlayground.playground_id, params.playgroundId),
-      });
-
-      const nodeToPlaygroundsDelete = playgroundNodes.filter((node) => {
-        return !params.nodes.find((n) => n.id === node.node_id);
-      });
-
-      if (nodeToPlaygroundsDelete.length > 0) {
-        await tx.delete(nodeToPlayground).where(
-          inArray(
-            nodeToPlayground.id,
-            nodeToPlaygroundsDelete.map((node) => node.id)
-          )
-        );
-        // Delete orphaned nodes
-        const orphanNodes = nodeToPlaygroundsDelete.filter(async (node) => {
-          const relation = await tx.query.nodeToPlayground.findMany({
-            where: (nodeToPlayground, { eq }) =>
-              eq(nodeToPlayground.node_id, node.id),
-          });
-          return relation.length === 0;
-        });
-        console.log({ orphanNodes });
-        if (orphanNodes.length > 0) {
-          await tx.delete(nodeData).where(
-            inArray(
-              nodeData.id,
-              orphanNodes.map((node) => node.node_id)
-            )
-          );
-        }
-      }
+export const saveNode = async (params: {
+  playgroundId: string;
+  data: {
+    id: string;
+    type: NodeTypes;
+    width: number;
+    height: number;
+    color: string;
+    label: string;
+    position: Position;
+  };
+}): Promise<void> => {
+  console.log("saveNode", params);
+  await db.transaction(async (tx) => {
+    await tx.insert(playgroundNode).values({
+      playground_id: params.playgroundId,
+      node_id: params.data.id,
+      type: params.data.type,
+      width: params.data.width,
+      height: params.data.height,
+      color: params.data.color,
+      label: params.data.label,
+      position: params.data.position,
     });
-  } catch (err) {
-    console.log(err);
-  }
+  });
+};
+
+export const deleteNode = async (params: {
+  playgroundId: string;
+  data: {
+    id: string;
+  };
+}) => {
+  console.log("deleteNode", params);
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(playgroundNode)
+      .where(
+        and(
+          eq(playgroundNode.playground_id, params.playgroundId),
+          eq(playgroundNode.node_id, params.data.id)
+        )
+      );
+    await tx.delete(nodeData).where(eq(nodeData.id, params.data.id));
+  });
+};
+
+export const saveEdge = async (params: {
+  playgroundId: string;
+  data: ConnProps;
+}) => {
+  await db.insert(playgroundEdge).values({
+    playgroundId: params.playgroundId,
+    source: params.data.source,
+    sourceOutput: params.data.sourceOutput,
+    target: params.data.target,
+    targetInput: params.data.targetInput,
+  });
+};
+
+export const deleteEdge = async (params: {
+  playgroundId: string;
+  data: ConnProps;
+}) => {
+  await db
+    .delete(playgroundEdge)
+    .where(
+      and(
+        eq(playgroundEdge.playgroundId, params.playgroundId),
+        eq(playgroundEdge.source, params.data.source),
+        eq(playgroundEdge.sourceOutput, params.data.sourceOutput),
+        eq(playgroundEdge.target, params.data.target),
+        eq(playgroundEdge.targetInput, params.data.targetInput)
+      )
+    );
 };
 
 export const createNodeInDB = async (params: {
@@ -198,11 +231,6 @@ export const createNodeInDB = async (params: {
         type: params.type,
       })
       .returning();
-
-    await tx.insert(nodeToPlayground).values({
-      node_id: nodes[0].id,
-      playground_id: params.playgroundId,
-    });
     return nodes[0];
   });
 };

@@ -219,46 +219,13 @@ export interface Database {
           }
         ]
       }
-      node_to_playground: {
-        Row: {
-          id: string
-          node_id: string
-          playground_id: string
-        }
-        Insert: {
-          id?: string
-          node_id: string
-          playground_id: string
-        }
-        Update: {
-          id?: string
-          node_id?: string
-          playground_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "node_to_playground_node_id_node_data_id_fk"
-            columns: ["node_id"]
-            referencedRelation: "node_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "node_to_playground_playground_id_playground_id_fk"
-            columns: ["playground_id"]
-            referencedRelation: "playground"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       playground: {
         Row: {
           created_at: string
           description: string | null
-          edges: Json
           id: string
           layout: Json | null
           name: string
-          nodes: Json
           project_id: string
           public: boolean
           slug: string
@@ -267,11 +234,9 @@ export interface Database {
         Insert: {
           created_at?: string
           description?: string | null
-          edges: Json
           id?: string
           layout?: Json | null
           name: string
-          nodes: Json
           project_id: string
           public?: boolean
           slug: string
@@ -280,11 +245,9 @@ export interface Database {
         Update: {
           created_at?: string
           description?: string | null
-          edges?: Json
           id?: string
           layout?: Json | null
           name?: string
-          nodes?: Json
           project_id?: string
           public?: boolean
           slug?: string
@@ -295,6 +258,98 @@ export interface Database {
             foreignKeyName: "playground_project_id_project_id_fk"
             columns: ["project_id"]
             referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      playground_edge: {
+        Row: {
+          playground_id: string
+          source: string
+          source_output: string
+          target: string
+          target_input: string
+        }
+        Insert: {
+          playground_id: string
+          source: string
+          source_output: string
+          target: string
+          target_input: string
+        }
+        Update: {
+          playground_id?: string
+          source?: string
+          source_output?: string
+          target?: string
+          target_input?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playground_edge_playground_id_playground_id_fk"
+            columns: ["playground_id"]
+            referencedRelation: "playground"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playground_edge_source_node_data_id_fk"
+            columns: ["source"]
+            referencedRelation: "node_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playground_edge_target_node_data_id_fk"
+            columns: ["target"]
+            referencedRelation: "node_data"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      playground_node: {
+        Row: {
+          color: string
+          height: number
+          id: string
+          label: string
+          node_id: string
+          playground_id: string
+          position: Json
+          type: string
+          width: number
+        }
+        Insert: {
+          color: string
+          height: number
+          id?: string
+          label: string
+          node_id: string
+          playground_id: string
+          position: Json
+          type: string
+          width: number
+        }
+        Update: {
+          color?: string
+          height?: number
+          id?: string
+          label?: string
+          node_id?: string
+          playground_id?: string
+          position?: Json
+          type?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playground_node_node_id_node_data_id_fk"
+            columns: ["node_id"]
+            referencedRelation: "node_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playground_node_playground_id_playground_id_fk"
+            columns: ["playground_id"]
+            referencedRelation: "playground"
             referencedColumns: ["id"]
           }
         ]
