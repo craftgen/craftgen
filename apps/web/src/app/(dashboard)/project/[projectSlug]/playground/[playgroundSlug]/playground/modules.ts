@@ -3,7 +3,6 @@ import { NodeProps, Schemes } from "./types";
 import { ControlFlowEngine, DataflowEngine } from "rete-engine";
 import { Input, Output } from "./nodes";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
-import { StateFrom, stateIn } from "xstate";
 
 export type Module = {
   editor: NodeEditor<Schemes>;
@@ -15,7 +14,6 @@ export type Module = {
 
 export class Modules {
   constructor(
-    private has: (path: string) => boolean,
     private graph: (params: {
       moduleId: string;
       overwrites: {
@@ -27,9 +25,6 @@ export class Modules {
   ) {}
 
   public findModule = async (path: string): Promise<null | Module> => {
-    console.log("findModule", path, this.has(path));
-    if (!this.has(path)) return null;
-
     const editor = new NodeEditor<Schemes>();
     editor.name = `module_${path}`;
     const dataFlow = createDataFlowEngine();

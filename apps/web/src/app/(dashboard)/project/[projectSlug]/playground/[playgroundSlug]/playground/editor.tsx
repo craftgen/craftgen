@@ -185,29 +185,20 @@ export async function createEditor(params: {
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 
-  const modules = new Modules(
-    (moduleId) => {
-      // const modules = getModuleData();
-      // if (modules[moduleId]) {
-      //   return true;
-      // }
-      return true;
-    },
-    async ({ moduleId, overwrites }) => {
-      const data = await getPlaygroundById(moduleId);
-      if (!data) throw new Error(`Module ${moduleId} not found`);
-      await importEditor(
-        {
-          ...di,
-          ...overwrites,
-        },
-        {
-          nodes: data.nodes as any,
-          edges: data.edges as any,
-        }
-      );
-    }
-  );
+  const modules = new Modules(async ({ moduleId, overwrites }) => {
+    const data = await getPlaygroundById(moduleId);
+    if (!data) throw new Error(`Module ${moduleId} not found`);
+    await importEditor(
+      {
+        ...di,
+        ...overwrites,
+      },
+      {
+        nodes: data.nodes as any,
+        edges: data.edges as any,
+      }
+    );
+  });
 
   const graph = structures(editor);
   const di: DiContainer = {
