@@ -1,27 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { ClassicPreset } from "rete";
 import { Editor } from "@/components/editor";
 import { useEffect, useState } from "react";
 import { MyValue } from "@/lib/plate/plate-types";
-
-type ArticleControlOptions = {
-  initial: MyValue;
-  change: (value: MyValue) => void;
-};
-
-export class ArticleControl extends ClassicPreset.Control {
-  __type = "editor";
-
-  constructor(public value: MyValue, public options: ArticleControlOptions) {
-    super();
-    if (typeof options?.initial !== "undefined") this.value = options.initial;
-  }
-
-  setValue(value: MyValue) {
-    this.value = value;
-    if (this.options?.change) this.options.change(value);
-  }
-}
+import { ArticleControl } from "../../controls/article";
 
 const initialValue: MyValue = [
   {

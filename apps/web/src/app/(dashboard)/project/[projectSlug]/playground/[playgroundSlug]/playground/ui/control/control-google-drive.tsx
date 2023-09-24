@@ -1,41 +1,12 @@
 import { getUser } from "@/app/(dashboard)/project/[projectSlug]/actions";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { ExternalLink, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import useDrivePicker from "react-google-drive-picker";
-import {
-  CallbackDoc,
-  PickerConfiguration,
-} from "react-google-drive-picker/dist/typeDefs";
-import { ClassicPreset } from "rete";
+import type { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import useSWR from "swr";
-
-type GoogleDriveControlSettings = {
-  multiselect?: boolean;
-  viewId?: PickerConfiguration["viewId"];
-  onSelect: (file: CallbackDoc | undefined) => void;
-};
-
-export class GoogleDriveControl extends ClassicPreset.Control {
-  __type = "google-drive";
-
-  constructor(
-    public value: CallbackDoc | undefined,
-    public readonly settings: GoogleDriveControlSettings
-  ) {
-    super();
-  }
-
-  setValue(value: CallbackDoc | undefined) {
-    this.value = value;
-    this.settings.onSelect(value);
-  }
-}
+import { GoogleDriveControl } from "../../controls/google-drive";
 
 export function GoogleDriveControlComponent(props: {
   data: GoogleDriveControl;

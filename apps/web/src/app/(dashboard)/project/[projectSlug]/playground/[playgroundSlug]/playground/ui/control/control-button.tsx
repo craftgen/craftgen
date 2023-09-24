@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ClassicPreset } from "rete";
-
-export class ButtonControl extends ClassicPreset.Control {
-  __type = "ButtonControl";
-
-  constructor(public label: string, public onClick: () => void) {
-    super();
-  }
-}
+import { ButtonControl } from "../../controls/button";
 
 export function CustomButton(props: { data: ButtonControl }) {
   return (

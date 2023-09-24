@@ -1,9 +1,9 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
-import { ButtonControl } from "../ui/control/control-button";
 import { BaseNode, NodeData } from "./base";
 import { createMachine } from "xstate";
 import { triggerSocket } from "../sockets";
+import { ButtonControl } from "../controls/button";
 
 const StartNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */

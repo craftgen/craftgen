@@ -12,7 +12,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
-import { NodeTypes, Schemes, nodesMeta } from "../types";
+import { Schemes, nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
 import { Loader2, Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
@@ -116,7 +116,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
       projectSlug,
     });
     await di?.editor.addNode(newNode);
-    await di?.area.translate(newNode.id, di?.area.area.pointer);
+    await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
 
   const triggerNode = async () => {
@@ -190,7 +190,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
     if (width > 0 || height > 0) {
       if (data.width !== width || data.height !== height) {
-        data.di.area.resize(data.id, width, height);
+        di?.area?.resize(data.id, width, height);
       }
     }
   }, [sizes]);
@@ -347,7 +347,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
                   {JSON.stringify(
                     {
                       state: state,
-                      position: di?.area.nodeViews.get(props.data.id)?.position,
+                      size: props.data.size,
                     },
                     null,
                     2

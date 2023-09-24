@@ -1,7 +1,7 @@
 import { ClassicPreset, NodeEditor, NodeId } from "rete";
 import { Sockets } from "./sockets";
 import { Schemes } from "./types";
-import { JSONSocket } from "./ui/control/control-socket-generator";
+import { JSONSocket } from "./controls/socket-generator";
 
 type Input = ClassicPreset.Input<Sockets>;
 type Output = ClassicPreset.Output<Sockets>;

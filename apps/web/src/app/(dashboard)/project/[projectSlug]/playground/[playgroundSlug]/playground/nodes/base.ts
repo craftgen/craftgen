@@ -76,7 +76,7 @@ export class BaseNode<
 
     this.actor.subscribe((state) => {
       this.state = state.value as any;
-      if (this.di.readonly.enabled) return;
+      if (this.di.readonly?.enabled) return;
       saveDebounced(JSON.stringify(state));
     });
 

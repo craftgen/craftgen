@@ -1,12 +1,5 @@
-import { ClassicPreset } from "rete";
 import useSWR, { mutate } from "swr";
 import { deleteDataRow, getDataSet } from "../../../action";
-
-export class DataSourceControl<T> extends ClassicPreset.Control {
-  constructor(public datasourceId: string) {
-    super();
-  }
-}
 
 const generateColumnDefs = (data: Record<string, any>[]): ColumnDef<any>[] => {
   const uniqueKeys = new Set<string>();
@@ -112,6 +105,7 @@ import { sampleSize } from "lodash-es";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/data-table";
 import { useTable } from "@/components/use-table";
+import { DataSourceControl } from "../../controls/datasource";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

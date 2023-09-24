@@ -4,9 +4,8 @@ import { DiContainer } from "../editor";
 import { isString, set, get } from "lodash-es";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
-import { DebugControl } from "../ui/control/control-debug";
 import { Socket, stringSocket } from "../sockets";
-import { CodeControl } from "../ui/control/control-code";
+import { CodeControl } from "../controls/code";
 
 type Data = {
   value: string;
@@ -205,7 +204,6 @@ export class PromptTemplate extends BaseNode<
   { value: Socket },
   {
     template: CodeControl;
-    debug: DebugControl;
   }
 > {
   constructor(

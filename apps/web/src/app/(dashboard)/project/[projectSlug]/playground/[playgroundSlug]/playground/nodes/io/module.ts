@@ -9,11 +9,11 @@ import {
 } from "../../sockets";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
-import { SWRSelectControl } from "../../ui/control/control-swr-select";
 import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
-import { SelectControl } from "../../ui/control/control-select";
 import { Input as InputNode } from "./input";
-import { JSONSocket } from "../../ui/control/control-socket-generator";
+import { SelectControl } from "../../controls/select";
+import { JSONSocket } from "../../controls/socket-generator";
+import { SWRSelectControl } from "../../controls/swr-select";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */

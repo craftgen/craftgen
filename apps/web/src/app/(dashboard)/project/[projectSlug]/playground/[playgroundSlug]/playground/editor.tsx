@@ -39,17 +39,18 @@ import ELK from "elkjs/lib/elk.bundled.js";
 import { Modules } from "./modules";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { useMagneticConnection } from "./connection";
+import { ResultOf } from "@/lib/type";
 const elk = new ELK();
 
-type AreaExtra = ReactArea2D<Schemes> | MinimapExtra | ContextMenuExtra;
+export type AreaExtra = ReactArea2D<Schemes>;
 
 export type DiContainer = {
   store: any; // TODO: fix types
   graph: ReturnType<typeof structures>;
-  area: AreaPlugin<Schemes, AreaExtra>;
+  area?: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => Promise<void>;
   editor: NodeEditor<Schemes>;
-  readonly: ReadonlyPlugin<Schemes>;
+  readonly?: ReadonlyPlugin<Schemes>;
   engine?: ControlFlowEngine<Schemes>;
   dataFlow?: DataflowEngine<Schemes>;
   arrange?: AutoArrangePlugin<Schemes>;
@@ -58,13 +59,10 @@ export type DiContainer = {
   modules: Modules;
 };
 
-export type ModuleMap = Record<
-  string,
-  NonNullable<Awaited<ReturnType<typeof getPlayground>>>
->;
+export type ModuleMap = Record<string, ResultOf<typeof getPlayground>>;
 
 export const createEditorFunc = (params: {
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+  playground: ResultOf<typeof getPlayground>;
   store: ReteStoreInstance;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
@@ -72,7 +70,7 @@ export const createEditorFunc = (params: {
 
 export async function createEditor(params: {
   container: HTMLElement;
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+  playground: ResultOf<typeof getPlayground>;
   store: ReteStoreInstance;
 }) {
   const readonlyPlugin = new ReadonlyPlugin<Schemes>();

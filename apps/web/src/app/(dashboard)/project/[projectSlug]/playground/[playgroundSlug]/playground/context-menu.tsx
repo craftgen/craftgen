@@ -46,7 +46,7 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     });
     console.log("context createNode", node);
     await di?.editor.addNode(node);
-    await di?.area.translate(node.id, {
+    await di?.area?.translate(node.id, {
       x: position.x,
       y: position.y,
     });

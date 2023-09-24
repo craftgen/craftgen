@@ -7,11 +7,6 @@ import {
   Start,
   TextNode,
   DataSource,
-  DatabaseDelete,
-  DatabaseInsert,
-  DatabaseSelect,
-  DatabaseUpdate,
-  DatabaseUpsert,
   ComposeObject,
   Article,
   Input,
@@ -34,12 +29,6 @@ export const nodes = {
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
   DataSource: DataSource,
-
-  DatabaseDelete: DatabaseDelete,
-  DatabaseInsert: DatabaseInsert,
-  DatabaseSelect: DatabaseSelect,
-  DatabaseUpdate: DatabaseUpdate,
-  DatabaseUpsert: DatabaseUpsert,
 
   ComposeObject: ComposeObject,
   Article: Article,
@@ -100,31 +89,6 @@ export const nodesMeta: Record<
     name: "Data Source",
     description: "Node for handling data sources",
     icon: Icons.database,
-  },
-  DatabaseDelete: {
-    name: "Database Delete",
-    description: "Node for deleting data from the database",
-    icon: Icons["box-select"],
-  },
-  DatabaseInsert: {
-    name: "Database Insert",
-    description: "Node for inserting data into the database",
-    icon: Icons["box-select"],
-  },
-  DatabaseSelect: {
-    name: "Database Select",
-    description: "Node for selecting data from the database",
-    icon: Icons["box-select"],
-  },
-  DatabaseUpdate: {
-    name: "Database Update",
-    description: "Node for updating data in the database",
-    icon: Icons["box-select"],
-  },
-  DatabaseUpsert: {
-    name: "Database Upsert",
-    description: "Node for upserting data in the database",
-    icon: Icons["box-select"],
   },
   ComposeObject: {
     name: "Compose Object",
@@ -194,11 +158,6 @@ export type NodeProps =
   | PromptTemplate
   | OpenAIFunctionCall
   | DataSource
-  | DatabaseDelete
-  | DatabaseInsert
-  | DatabaseSelect
-  | DatabaseUpdate
-  | DatabaseUpsert
   | ComposeObject
   | Article
   | Input

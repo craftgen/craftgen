@@ -2,7 +2,7 @@ import { StateFrom, assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../../base";
 import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
-import { SelectControl } from "../../../ui/control/control-select";
+import { SelectControl } from "../../../controls/select";
 import { objectSocket, triggerSocket } from "../../../sockets";
 
 const PostgresMachine = createMachine({

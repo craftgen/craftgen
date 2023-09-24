@@ -1,30 +1,9 @@
-import { ClassicPreset } from "rete";
-import { useEffect, useRef, useState } from "react";
-import { Drag } from "rete-react-plugin";
+import { useEffect, useState } from "react";
 
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { useMeasure, useSize } from "react-use";
-
-type CodeControlOptions = {
-  initial: string;
-  change: (value: string) => void;
-};
-
-export class CodeControl extends ClassicPreset.Control {
-  __type = "code";
-  value?: string;
-
-  constructor(public language: string, public options: CodeControlOptions) {
-    super();
-    if (typeof options?.initial !== "undefined") this.value = options.initial;
-  }
-
-  setValue(value: string) {
-    this.value = value;
-    if (this.options?.change) this.options.change(value);
-  }
-}
+import { CodeControl } from "../../controls/code";
 
 export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   const [code, setCode] = useState(props.data.value);

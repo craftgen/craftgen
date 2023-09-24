@@ -8,12 +8,12 @@ import {
 import { BaseNode, NodeData } from "../../base";
 import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
-import { SelectControl } from "../../../ui/control/control-select";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
-import { GoogleDriveControl } from "../../../ui/control/control-google-drive";
 import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import { P, match } from "ts-pattern";
+import { SelectControl } from "../../../controls/select";
+import { GoogleDriveControl } from "../../../controls/google-drive";
 
 export type GoogleSheetSettings = {
   spreadsheet: CallbackDoc | undefined;
@@ -449,11 +449,11 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       inputs,
     });
     await this.waitForState("complete");
-    forward('trigger')
+    forward("trigger");
   }
 
   async data() {
-    await this.waitForState('complete') 
+    await this.waitForState("complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

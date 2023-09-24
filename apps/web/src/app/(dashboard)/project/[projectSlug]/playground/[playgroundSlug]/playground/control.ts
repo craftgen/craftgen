@@ -1,44 +1,34 @@
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { Schemes } from "./types";
 import { ClassicPreset } from "rete";
-import { ButtonControl, CustomButton } from "./ui/control/control-button";
-import { CodeControl, CodeEditor } from "./ui/control/control-code";
-import {
-  DebugControl,
-  DebugControlComponent,
-} from "./ui/control/control-debug";
-import {
-  SelectControl,
-  SelectControlComponent,
-} from "./ui/control/control-select";
-import {
-  TableControl,
-  TableControlComponent,
-} from "./ui/control/control-table";
-import { CustomInput } from "./ui/control/custom-input";
-import {
-  DataSourceControl,
-  DataSourceControlComponent,
-} from "./ui/control/control-datasource";
-import {
-  SocketGeneratorControl,
-  SocketGeneratorControlComponent,
-} from "./ui/control/control-socket-generator";
-import { ArticleEditor, ArticleControl } from "./ui/control/control-editor";
-import {
-  SWRSelectControl,
-  SWRSelectControlComponent,
-} from "./ui/control/control-swr-select";
-import {
-  SliderControl,
-  SliderControlComponenet as SliderControlComponent,
-} from "./ui/control/control-slider";
-import {
-  GoogleDriveControl,
-  GoogleDriveControlComponent,
-} from "./ui/control/control-google-drive";
-import { NumberControl, NumberControlComponent } from "./ui/control/control-number";
 import { P, match } from "ts-pattern";
+
+// Control Classes
+import { CodeControl } from "./controls/code";
+import { ButtonControl } from "./controls/button";
+import { DataSourceControl } from "./controls/datasource";
+import { ArticleControl } from "./controls/article";
+import { GoogleDriveControl } from "./controls/google-drive";
+import { NumberControl } from "./controls/number";
+import { SelectControl } from "./controls/select";
+import { SliderControl } from "./controls/slider";
+import { SocketGeneratorControl } from "./controls/socket-generator";
+import { SWRSelectControl } from "./controls/swr-select";
+import { TableControl } from "./controls/table";
+
+// Control Components
+import { CustomButton } from "./ui/control/control-button";
+import { CodeEditor } from "./ui/control/control-code";
+import { SelectControlComponent } from "./ui/control/control-select";
+import { TableControlComponent } from "./ui/control/control-table";
+import { CustomInput } from "./ui/control/custom-input";
+import { DataSourceControlComponent } from "./ui/control/control-datasource";
+import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
+import { ArticleEditor } from "./ui/control/control-editor";
+import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
+import { SliderControlComponenet as SliderControlComponent } from "./ui/control/control-slider";
+import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
+import { NumberControlComponent } from "./ui/control/control-number";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -51,11 +41,13 @@ export const getControl = (
     .with(P.instanceOf(SWRSelectControl), () => SWRSelectControlComponent)
     .with(P.instanceOf(TableControl), () => TableControlComponent)
     .with(P.instanceOf(DataSourceControl), () => DataSourceControlComponent)
-    .with(P.instanceOf(DebugControl), () => DebugControlComponent)
-    .with(P.instanceOf(SocketGeneratorControl), () => SocketGeneratorControlComponent)
+    .with(
+      P.instanceOf(SocketGeneratorControl),
+      () => SocketGeneratorControlComponent
+    )
     .with(P.instanceOf(ClassicPreset.InputControl), () => CustomInput)
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
-    .otherwise(() => () => null)
+    .otherwise(() => () => null);
 };

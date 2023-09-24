@@ -1,25 +1,6 @@
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
-import { ClassicPreset } from "rete";
-
-type SliderControlOptions = {
-  max: number;
-  step: number;
-  change: (value: number) => void;
-};
-
-export class SliderControl extends ClassicPreset.Control {
-  __type = "slider";
-
-  constructor(public value: number, public options: SliderControlOptions) {
-    super();
-  }
-
-  setValue(value: number) {
-    this.value = value;
-    if (this.options?.change) this.options.change(value);
-  }
-}
+import { SliderControl } from "../../controls/slider";
 
 export function SliderControlComponenet(props: { data: SliderControl }) {
   const [value, setValue] = useState<number>(props.data.value);

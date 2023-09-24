@@ -1,14 +1,14 @@
 import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
-import { SelectControl } from "../ui/control/control-select";
 import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
 import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../sockets";
 import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
-import { SliderControl } from "../ui/control/control-slider";
 import { merge, omit } from "lodash-es";
+import { SelectControl } from "../controls/select";
+import { SliderControl } from "../controls/slider";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 

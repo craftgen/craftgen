@@ -4,10 +4,10 @@ import { BaseNode, NodeData } from "./base";
 import { DiContainer } from "../editor";
 import { ClassicPreset } from "rete";
 import { stringSocket, triggerSocket } from "../sockets";
-import { ArticleControl } from "../ui/control/control-editor";
-import { MyValue } from "@/lib/plate/plate-types";
-import { createNode } from "@udecode/plate-common";
-import { createTmpEditor } from "@/components/editor";
+import type { MyValue } from "@/lib/plate/plate-types";
+// import { createNode } from "@udecode/plate-common";
+// import { createTmpEditor } from "@/components/editor";
+import { ArticleControl } from "../controls/article";
 
 const ArticleNodeMachine = createMachine({
   id: "articleNode",
@@ -101,20 +101,26 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
 
     console.log("Article inputs", inputs);
     // const editor = createTmpEditor();
-    const node = createNode("p", inputs.append[0] || "Hello World");
-    node.id = uuidv4();
+    // const node = createNode("p", inputs.append[0] || "Hello World");
+    // node.id = uuidv4();
     this.actor.send({
       type: "change",
-      nodes: [...state.context.nodes, node],
+      nodes: [
+        ...state.context.nodes,
+        {
+          type: "p",
+          id: uuidv4(),
+        },
+      ],
     });
 
-    console.log("editor", node);
+    // console.log("editor", node);
   }
 
   data() {
     const state = this.actor.getSnapshot();
     console.log("ARTICLE State", state);
-    const editor = createTmpEditor();
+    // const editor = createTmpEditor();
     return {};
   }
 

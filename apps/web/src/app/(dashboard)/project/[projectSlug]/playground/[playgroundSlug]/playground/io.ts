@@ -1,11 +1,12 @@
 import { NodeEditor, NodeId } from "rete";
 import { NodeProps, NodeTypes, Schemes } from "./types";
 import * as Nodes from "./nodes";
-import { DiContainer } from "./editor";
+import { AreaExtra, DiContainer } from "./editor";
 import { Connection } from "./connection/connection";
 import { createNodeInDB, getNodeData } from "../action";
 import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
 import { z } from "zod";
+import { AreaPlugin } from "rete-area-plugin";
 
 export async function createNode({
   di,
@@ -38,12 +39,6 @@ export async function createNode({
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
     Replicate: (di, data) => new Nodes.Replicate(di, data),
     DataSource: (di, data) => new Nodes.DataSource(di, data),
-
-    DatabaseDelete: (di, data) => new Nodes.DatabaseDelete(di, data),
-    DatabaseInsert: (di, data) => new Nodes.DatabaseInsert(di, data),
-    DatabaseSelect: (di, data) => new Nodes.DatabaseSelect(di, data),
-    DatabaseUpdate: (di, data) => new Nodes.DatabaseUpdate(di, data),
-    DatabaseUpsert: (di, data) => new Nodes.DatabaseUpsert(di, data),
 
     ComposeObject: (di, data) => new Nodes.ComposeObject(di, data),
 
@@ -115,7 +110,9 @@ export async function importEditor(di: DiContainer, data: Data) {
     });
     node.id = n.node_id;
     await di.editor.addNode(node);
-    di.area.translate(node.id, n.position);
+    if (di.area) {
+      di.area.translate(node.id, n.position);
+    }
   }
   for (const c of edges) {
     const source = di.editor.getNode(c.source);

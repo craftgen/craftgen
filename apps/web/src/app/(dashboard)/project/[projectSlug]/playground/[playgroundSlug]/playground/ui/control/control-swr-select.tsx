@@ -6,26 +6,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useMemo, useState } from "react";
-import { ClassicPreset } from "rete";
 import useSWR from "swr";
-
-export class SWRSelectControl<
-  T extends string,
-  Data
-> extends ClassicPreset.Control {
-  __type = "swr-select";
-
-  constructor(
-    public value: T | undefined,
-    public placeholder: string,
-    public dataKey: string,
-    public dataFetch: () => Promise<Data[]>,
-    public dataTransform: (data: Data[]) => { key: T; value: string }[],
-    public setValue: (value: T) => void
-  ) {
-    super();
-  }
-}
+import { SWRSelectControl } from "../../controls/swr-select";
 
 export function SWRSelectControlComponent<T extends string, Data>(props: {
   data: SWRSelectControl<T, Data>;
