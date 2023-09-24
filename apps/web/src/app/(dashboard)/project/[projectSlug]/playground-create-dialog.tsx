@@ -252,7 +252,10 @@ export const PlaygroundCreateDialog: React.FC<{
                                   <Alert>
                                     <AlertTitle>
                                       <AlertCircle className="w-4 h-4 inline-block text-yellow-500 mr-1" />
-                                      Your craft will created as <b>{slug}</b>
+                                      Your craft will created as{" "}
+                                      <Badge variant={"outline"}>
+                                        <b>{slug}</b>
+                                      </Badge>
                                     </AlertTitle>
                                     <AlertDescription>
                                       The repository name can only contain ASCII

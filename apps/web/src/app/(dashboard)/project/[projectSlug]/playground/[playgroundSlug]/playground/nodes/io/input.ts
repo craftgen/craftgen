@@ -3,7 +3,7 @@ import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
-import { createJsonSchema } from "../../utis";
+import { createJsonSchema } from "../../utils";
 import { JSONSocket, SocketGeneratorControl } from "../../controls/socket-generator";
 
 export const InputNodeMachine = createMachine({

@@ -184,6 +184,7 @@ export async function createEditor(params: {
     await arrange.layout();
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
+
   const modules = new Modules(
     (moduleId) => {
       // const modules = getModuleData();

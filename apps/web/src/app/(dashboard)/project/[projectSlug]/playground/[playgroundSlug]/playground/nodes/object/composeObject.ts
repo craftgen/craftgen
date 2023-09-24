@@ -3,7 +3,7 @@ import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
-import { createJsonSchema } from "../../utis";
+import { createJsonSchema } from "../../utils";
 import { JSONSocket, SocketGeneratorControl } from "../../controls/socket-generator";
 
 const composeObjectMachine = createMachine({

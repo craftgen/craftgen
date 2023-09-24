@@ -16,8 +16,7 @@ const PlaygroundPage = async (props: {
     <div className="h-full flex flex-col">
       <section className="grid grid-cols-2 divide-x ">
         <div className="p-2">
-          <h2>Input
-          </h2>
+          <h2>Input</h2>
         </div>
         <div className="p-2">
           <h2>Output</h2>

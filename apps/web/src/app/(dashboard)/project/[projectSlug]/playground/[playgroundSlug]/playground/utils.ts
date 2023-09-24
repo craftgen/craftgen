@@ -6,6 +6,10 @@ import { JSONSocket } from "./controls/socket-generator";
 type Input = ClassicPreset.Input<Sockets>;
 type Output = ClassicPreset.Output<Sockets>;
 
+export function getInputNodes(editor: NodeEditor<Schemes>) {
+  return editor.getNodes().filter((node) => node.ID === "Input");
+}
+
 export function getConnectionSockets(
   editor: NodeEditor<Schemes>,
   connection: Schemes["Connection"]
