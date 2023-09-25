@@ -22,7 +22,6 @@ import {
   Form,
 } from "@/components/ui/form";
 import { useSelector } from "@xstate/react";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { SocketNameType } from "../sockets";
 
@@ -36,10 +35,19 @@ export const InputWindow: React.FC<{}> = ({}) => {
   }, [di?.editor.getNodes()]);
   const [input, setInput] = useState<NodeProps | null>(null);
 
+  useEffect(() => {
+    if (inputs?.length === 1) {
+      setInput(di?.editor.getNode(inputs[0].id)!);
+    }
+  }, [inputs]);
+
   return (
     <div className="w-full h-full p-4">
       {inputs?.length > 0 ? (
-        <Select onValueChange={(v) => setInput(di?.editor.getNode(v)!)}>
+        <Select
+          onValueChange={(v) => setInput(di?.editor.getNode(v)!)}
+          defaultValue={inputs.length === 1 ? inputs[0].id : undefined}
+        >
           <SelectTrigger>
             <SelectValue placeholder={"Select Input"} />
           </SelectTrigger>
@@ -76,17 +84,10 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
     });
     input.di.engine?.execute(input.id);
   };
-  useEffect(() => {
-    console.log({
-      schema,
-      fields,
-    });
-  }, [schema]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Separator />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {fields?.map((f: any) => (
           <FormField
             key={f.name}

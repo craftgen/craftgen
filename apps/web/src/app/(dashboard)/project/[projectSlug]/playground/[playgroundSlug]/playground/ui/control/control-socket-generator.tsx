@@ -98,12 +98,6 @@ export function SocketGeneratorControlComponent(props: {
             </FormItem>
           )}
         />
-        <Button
-          type="button"
-          onClick={() => append({ name: "", type: "string", description: "" })}
-        >
-          Add Input
-        </Button>
         <ScrollArea className="max-h-fit py-4 flex flex-col">
           {fields.map((field, index) => (
             <div
@@ -207,6 +201,12 @@ export function SocketGeneratorControlComponent(props: {
             </div>
           ))}
         </ScrollArea>
+        <Button
+          type="button"
+          onClick={() => append({ name: "", type: "string", description: "" })}
+        >
+          Add Input
+        </Button>
       </form>
     </Form>
   );
