@@ -269,10 +269,11 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       const editor = new NodeEditor<Schemes>();
       await this.module.apply(editor);
 
-      const { inputs, outputs } = Modules.getPorts(
+      const { inputs, outputs } = Modules.getPorts({
         editor,
-        state.context.inputId
-      );
+        graph: this.module?.graph,
+        inputId: state.context.inputId,
+      });
       this.actor.send({
         type: "SET_CONFIG",
         inputs,
@@ -283,7 +284,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     return true;
   }
 
-  syncPorts(inputs: JSONSocket[], outputs: string[]) {
+  syncPorts(inputs: JSONSocket[], outputs: JSONSocket[]) {
     /**
      * Flush all ports
      */
@@ -311,11 +312,12 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
           },
         })
       );
-      // input.addControl("input", new JSONSocket(item.type, item.name, item.description))
       this.addInput(item.name, input);
     });
-    outputs.forEach((key) => {
-      this.addOutput(key, new ClassicPreset.Output(anySocket, key)); // TODO: match type
+    outputs.forEach((item) => {
+      const socket = getSocketByJsonSchemaType(item.type)!;
+      const output = new ClassicPreset.Output(socket, item.name);
+      this.addOutput(item.name, output);
     });
     this.height =
       110 +

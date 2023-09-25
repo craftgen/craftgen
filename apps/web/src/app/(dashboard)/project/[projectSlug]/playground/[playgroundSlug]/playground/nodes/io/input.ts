@@ -4,7 +4,10 @@ import { DiContainer } from "../../editor";
 import { ClassicPreset } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import { createJsonSchema } from "../../utils";
-import { JSONSocket, SocketGeneratorControl } from "../../controls/socket-generator";
+import {
+  JSONSocket,
+  SocketGeneratorControl,
+} from "../../controls/socket-generator";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */

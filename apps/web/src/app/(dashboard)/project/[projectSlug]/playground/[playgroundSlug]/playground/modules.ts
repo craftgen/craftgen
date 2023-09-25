@@ -1,13 +1,16 @@
 import { ClassicPreset, NodeEditor } from "rete";
-import { NodeProps, Schemes } from "./types";
+import { ConnProps, NodeProps, Schemes } from "./types";
 import { ControlFlowEngine, DataflowEngine } from "rete-engine";
 import { Input, Output } from "./nodes";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
+import { structures } from "rete-structures";
+import { Structures } from "rete-structures/_types/types";
 
 export type Module = {
   editor: NodeEditor<Schemes>;
   engine: ControlFlowEngine<Schemes>;
   dataFlow: DataflowEngine<Schemes>;
+  graph: Structures<NodeProps, ConnProps>;
   apply: (editor: NodeEditor<Schemes>) => Promise<void>;
   exec: (inputId: string, data: Record<string, any>) => Promise<any>;
 };
@@ -20,6 +23,7 @@ export class Modules {
         editor: NodeEditor<Schemes>;
         engine?: ControlFlowEngine<Schemes>;
         dataFlow?: DataflowEngine<Schemes>;
+        graph?: Structures<NodeProps, ConnProps>;
       };
     }) => Promise<void>
   ) {}
@@ -32,19 +36,20 @@ export class Modules {
 
     editor.use(engine);
     editor.use(dataFlow);
+    const graph = structures(editor);
     await this.graph({
       moduleId: path,
-      overwrites: { editor, dataFlow, engine },
+      overwrites: { editor, dataFlow, engine, graph },
     });
 
     return {
       editor,
+      graph,
       dataFlow,
       engine,
       apply: (editor: NodeEditor<Schemes>) =>
         this.graph({ moduleId: path, overwrites: { editor } }),
       exec: async (inputId: string, inputData: Record<string, any>) => {
-        
         const val = await this.execute({
           inputId,
           inputs: inputData,
@@ -129,17 +134,33 @@ export class Modules {
     return this.retrieveOutputs(nodes, dataFlow);
   }
 
-  public static getPorts(editor: NodeEditor<Schemes>, inputId: string) {
+  public static getPorts({
+    editor,
+    inputId,
+    graph,
+  }: {
+    editor: NodeEditor<Schemes>;
+    inputId: string;
+    graph: Structures<NodeProps, ConnProps>;
+  }) {
     const nodes = editor.getNodes();
     const selectedInput = editor.getNode(inputId);
-    const state = selectedInput.actor.getSnapshot();
-    const outputNodes = nodes.filter(Modules.isOutputNode) as Output[];
-    const outputs = outputNodes.map(
-      (n) =>
-        (n.controls.name as ClassicPreset.InputControl<"text">).value as string
-    );
+    const outputNodes = graph
+      .successors(selectedInput.id)
+      .filter((n) => {
+        return Modules.isOutputNode(n);
+      })
+      .nodes();
+    console.log("outputNodes", outputNodes);
+    const inputState = selectedInput.actor.getSnapshot();
+    let outputs = [];
+    if (outputNodes.length > 0) {
+      const output = outputNodes[0];
+      const outputState = output.actor.getSnapshot();
+      outputs = outputState.context.inputs;
+    }
     return {
-      inputs: state.context.outputs,
+      inputs: inputState.context.outputs,
       outputs,
     };
   }
