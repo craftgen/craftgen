@@ -18,14 +18,16 @@ import {
 import { cookies } from "next/headers";
 import { ConnProps, NodeProps, NodeTypes, Position } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
+import { action } from "@/lib/safe-action";
+import { z } from "zod";
 
 export const getPlaygroundById = async (playgroundId: string) => {
   return await db.query.playground.findFirst({
     where: (playground, { eq }) => eq(playground.id, playgroundId),
-    with:{
+    with: {
       nodes: true,
       edges: true,
-    }
+    },
   });
 };
 
@@ -302,16 +304,22 @@ export const getNodeData = async (nodeId: string) => {
   });
 };
 
-export const setNodeData = async ({
-  nodeId,
-  state,
-}: {
-  nodeId: string;
-  state: any;
-}) => {
-  return await db
-    .update(nodeData)
-    .set({ state: JSON.parse(state) })
-    .where(eq(nodeData.id, nodeId))
-    .returning();
-};
+export const setNodeData = action(
+  z.object({
+    nodeId: z.string(),
+    state: z.string().transform((val) => JSON.parse(val)),
+  }),
+  async (params) => {
+    // console.log("setNodeData", {
+    //   nodeId: params.nodeId,
+    //   state: params.state.value,
+    //   context: params.state.context,
+    // });
+
+    return await db
+      .update(nodeData)
+      .set({ state: params.state })
+      .where(eq(nodeData.id, params.nodeId))
+      .returning();
+  }
+);

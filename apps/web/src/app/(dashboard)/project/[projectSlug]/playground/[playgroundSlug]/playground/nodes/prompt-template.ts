@@ -303,7 +303,6 @@ export class PromptTemplate extends BaseNode<
     let state = this.actor.getSnapshot();
     const subs = this.actor.subscribe((newState) => {
       state = newState;
-      console.log("state", newState, inputs);
     });
     while (state.matches("running")) {
       console.log("waiting for complete");

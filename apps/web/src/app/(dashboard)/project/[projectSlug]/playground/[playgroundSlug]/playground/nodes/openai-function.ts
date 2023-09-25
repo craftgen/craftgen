@@ -205,21 +205,25 @@ export class OpenAIFunctionCall extends BaseNode<
     super("OpenAIFunctionCall", "OpenAI", di, data, OpenAIFunctionCallMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
-          console.log("RUNNING", input);
           const store = di.store.getState();
+          const inputs = await input.inputs;
+          console.log("RUNNING", {
+            inputs,
+            settings: input.settings,
+          });
           if (input.settings.resultType === "text") {
             const res = await generateTextFn({
               projectId: store.projectId,
               settings: input.settings.openai,
-              user: await input.inputs.prompt,
+              user: inputs.prompt,
             });
             return { result: res };
           } else {
             const res = await genereteJsonFn({
               projectId: store.projectId,
               settings: input.settings.openai,
-              user: await input.inputs.prompt,
-              schema: await input.inputs.schema[0],
+              user: inputs.prompt,
+              schema: inputs.schema[0],
             });
             return { result: res };
           }

@@ -14,6 +14,7 @@ import { Input as InputNode } from "./input";
 import { SelectControl } from "../../controls/select";
 import { JSONSocket } from "../../controls/socket-generator";
 import { SWRSelectControl } from "../../controls/swr-select";
+import { ConsoleLogWriter } from "@seocraft/supabase/db";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -152,7 +153,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     super("ModuleNode", "Module", di, data, ModuleNodeMachine, {
       actors: {
         execute: fromPromise(async ({ input }) => {
-          console.log("RUNNING", input);
+          console.log("RUNNING", { input, module: this.module });
           const val = await this.module?.exec(input.inputId, input.inputData);
           console.log("RES", val);
           return val;
@@ -204,7 +205,9 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       this.removeControl("module");
     }
     if (state.matches("chooseInput") || state.matches("connected")) {
+      console.log("** SETTING MODULE");
       this.module = await this.di.modules.findModule(state.context.moduleId!);
+      console.log("** MODULE SET", this.module);
     }
     if (state.matches("chooseInput")) {
       if (this.controls.select_input) {

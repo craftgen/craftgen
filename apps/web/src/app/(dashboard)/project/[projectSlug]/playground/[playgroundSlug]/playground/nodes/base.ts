@@ -159,6 +159,7 @@ export class BaseNode<
    * It subscribes to the actor's state changes and checks if the new state matches the given state value.
    * If the state does not match, it waits for 500ms before checking again.
    * Once the state matches the given value, it unsubscribes from the actor's state changes.
+   * If the state does not match the given value within 30 seconds, it throws an error.
    *
    * @param {string} stateValue - The state value to wait for.
    */
@@ -166,11 +167,17 @@ export class BaseNode<
     let state = this.actor.getSnapshot();
     const sub = this.actor.subscribe((newState) => {
       state = newState;
-      console.log("state", newState);
     });
+    const startTime = Date.now();
     while (!state.matches(stateValue)) {
-      console.log("waiting for complete");
+      console.log("waiting for complete", this.ID);
       await new Promise((resolve) => setTimeout(resolve, 500));
+      if (Date.now() - startTime > 30000) {
+        sub.unsubscribe();
+        throw new Error(
+          `State did not match the given value '${stateValue}' within 30 seconds`
+        );
+      }
     }
     sub.unsubscribe();
   }

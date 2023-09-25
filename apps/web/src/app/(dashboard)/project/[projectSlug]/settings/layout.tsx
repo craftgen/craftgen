@@ -5,15 +5,15 @@ import { Separator } from "@/components/ui/separator";
 const sidebarNavItems = [
   {
     title: "Project",
-    href: "/project/[projectSlug]/settings",
+    href: "/[projectSlug]/settings",
   },
   {
     title: "Integrations",
-    href: "/project/[projectSlug]/settings/integrations",
+    href: "/[projectSlug]/settings/integrations",
   },
   {
     title: "Variables",
-    href: "/project/[projectSlug]/settings/tokens",
+    href: "/[projectSlug]/settings/tokens",
   },
 ];
 

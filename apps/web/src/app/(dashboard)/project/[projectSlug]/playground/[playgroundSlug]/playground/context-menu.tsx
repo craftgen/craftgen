@@ -1,5 +1,4 @@
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -7,11 +6,10 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { PropsWithChildren, useRef, useState } from "react";
-import { useCraftStore } from "./store";
+import { useCraftStore } from "./use-store";
 import { createNode } from "./io";
 import { NodeTypes, nodes, nodesMeta } from "./types";
 import { useHotkeys } from "react-hotkeys-hook";

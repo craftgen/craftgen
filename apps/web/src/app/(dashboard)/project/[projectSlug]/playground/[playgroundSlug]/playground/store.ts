@@ -1,10 +1,8 @@
-import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
 import { subscribeWithSelector } from "zustand/middleware";
 
 import { DiContainer } from "./editor";
-import * as FlexLayout from "flexlayout-react";
-import { createContext, useContext } from "react";
+import type * as FlexLayout from "flexlayout-react";
 
 export type ReteStore = {
   playgroundId: string;
@@ -48,14 +46,3 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
   );
 
 export type ReteStoreInstance = ReturnType<typeof createCraftStore>;
-
-export const CraftContext = createContext<ReteStoreInstance | null>(null);
-
-export function useCraftStore<T>(
-  selector: (state: ReteStore) => T,
-  equalityFn?: (left: T, right: T) => boolean
-): T {
-  const store = useContext(CraftContext);
-  if (!store) throw new Error("Missing CraftContext.Provider in the tree");
-  return useStore(store, selector, equalityFn);
-}

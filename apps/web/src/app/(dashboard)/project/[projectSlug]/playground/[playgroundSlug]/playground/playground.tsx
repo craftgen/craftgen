@@ -14,7 +14,8 @@ import {
   savePlaygroundLayout,
 } from "../action";
 import { useParams } from "next/navigation";
-import { CraftContext, createCraftStore, useCraftStore } from "./store";
+import { createCraftStore } from "./store";
+import { CraftContext, useCraftStore } from "./use-store";
 import { debounce } from "lodash-es";
 import { Lock, Maximize } from "lucide-react";
 import { useStore } from "zustand";

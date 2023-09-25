@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useCraftStore } from "../store";
+import { useCraftStore } from "../use-store";
 import { Input as InputNode } from "../nodes";
 import {
   Select,
