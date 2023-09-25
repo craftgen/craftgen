@@ -2,11 +2,7 @@ import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset, NodeEditor } from "rete";
-import {
-  anySocket,
-  getSocketByJsonSchemaType,
-  triggerSocket,
-} from "../../sockets";
+import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
 import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
@@ -161,6 +157,30 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       },
     });
     const state = this.actor.getSnapshot();
+    const store = this.di.store.getState();
+    this.addControl(
+      "module",
+      new SWRSelectControl(
+        state.context.moduleId,
+        "Select Module",
+        `/api/playgrounds/${store.projectId}`, // TODO get from project
+        async () => {
+          return await getPlaygrounds(store.projectId);
+        },
+        (data) => {
+          return data.map((playground) => ({
+            key: playground.id,
+            value: playground.name,
+          }));
+        },
+        (value: string) => {
+          this.actor.send({
+            type: "SET_MODULE",
+            moduleId: value,
+          });
+        }
+      )
+    );
     if (state.context.moduleId && state.context.inputId) {
       this.update();
     }
@@ -176,34 +196,6 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
   }
 
   async syncUI(state: StateFrom<typeof ModuleNodeMachine>) {
-    const store = this.di.store.getState();
-    if (state.matches("idle")) {
-      this.addControl(
-        "module",
-        new SWRSelectControl(
-          state.context.moduleId,
-          "Select Module",
-          `/api/playgrounds/${store.projectId}`, // TODO get from project
-          async () => {
-            return await getPlaygrounds(store.projectId);
-          },
-          (data) => {
-            return data.map((playground) => ({
-              key: playground.id,
-              value: playground.name,
-            }));
-          },
-          (value: string) => {
-            this.actor.send({
-              type: "SET_MODULE",
-              moduleId: value,
-            });
-          }
-        )
-      );
-    } else {
-      this.removeControl("module");
-    }
     if (state.matches("chooseInput") || state.matches("connected")) {
       console.log("** SETTING MODULE");
       this.module = await this.di.modules.findModule(state.context.moduleId!);

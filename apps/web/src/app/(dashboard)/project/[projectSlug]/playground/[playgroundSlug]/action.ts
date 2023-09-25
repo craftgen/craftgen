@@ -90,7 +90,16 @@ export const getPlayground = async (params: {
 export const getPlaygroundInputsOutputs = async (params: {
   playgroundId: string;
 }) => {
-  return await db.transaction(async (tx) => {});
+  return await db.transaction(async (tx) => {
+    tx.select()
+      .from(playgroundNode)
+      .where(
+        and(
+          eq(playgroundNode.playground_id, params.playgroundId),
+          eq(playgroundNode.type, "Input")
+        )
+      );
+  });
 };
 
 export const updatePlayground = async (
