@@ -1,4 +1,4 @@
-import { NodeEditor } from "rete";
+import { ClassicPreset, NodeEditor } from "rete";
 import { Area2D, AreaPlugin } from "rete-area-plugin";
 import {
   ConnectionPlugin,
@@ -9,12 +9,16 @@ import { getElementCenter } from "rete-render-utils";
 import { findNearestPoint, isInsideRect } from "./math";
 import { getNodeRect } from "./utils";
 import { Schemes, Position } from "../types";
-import { Socket } from "../sockets";
+import { Socket, Sockets } from "../sockets";
 
 export { CustomConnection } from "./custom-connection";
 
 type SocketWithPayload = SocketData & {
-  payload?: Socket;
+  payload?: {
+    socket: Socket;
+    input?: ClassicPreset.Input<Sockets>;
+    output?: ClassicPreset.Output<Sockets>;
+  };
 };
 
 type Props = {
@@ -70,7 +74,9 @@ export function useMagneticConnection<S extends Schemes, K = never>(
       const nearestNodes = nearestRects.map(({ id }) => id);
       const nearestSockets = socketsList
         .filter((item) => nearestNodes.includes(item.nodeId))
-        .filter((item) => item.payload?.isCompatibleWith(picked?.payload!));
+        .filter((item) =>
+          item.payload?.socket.isCompatibleWith(picked?.payload?.socket!)
+        );
 
       const socketsPositions = await Promise.all(
         nearestSockets.map(async (socket) => {
