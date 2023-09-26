@@ -410,7 +410,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   );
 }
 
-const ResizeHandle = React.forwardRef<ResizeHandle>((props: any, ref: any) => {
+const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
   const { handleAxis, ...restProps } = props;
   Drag.useNoDrag(ref);
   return (
@@ -421,6 +421,7 @@ const ResizeHandle = React.forwardRef<ResizeHandle>((props: any, ref: any) => {
     ></div>
   );
 });
+ResizeHandle.displayName = "ResizeHandle";
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
   const config = useSocketConfig(input?.socket?.name as SocketNameType);
