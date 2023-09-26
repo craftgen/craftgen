@@ -89,6 +89,7 @@ importers:
       '@types/react': 18.2.15
       '@types/react-dom': 18.2.7
       '@types/react-grid-layout': ^1.3.2
+      '@types/react-resizable': ^3.0.4
       '@types/uuid': ^9.0.2
       '@udecode/plate-alignment': ^23.7.0
       '@udecode/plate-autoformat': ^23.7.0
@@ -163,6 +164,7 @@ importers:
       react-hook-form: ^7.45.2
       react-hotkeys-hook: ^4.4.1
       react-lite-youtube-embed: ^2.3.52
+      react-resizable: ^3.0.5
       react-tweet: ^3.0.4
       react-use: ^17.4.0
       reactflow: ^11.7.4
@@ -241,6 +243,7 @@ importers:
       '@types/react': 18.2.15
       '@types/react-dom': 18.2.7
       '@types/react-grid-layout': 1.3.2
+      '@types/react-resizable': 3.0.4
       '@types/uuid': 9.0.2
       '@udecode/plate-alignment': 23.7.0_fixurrcuqeimglxmewdc3syieq
       '@udecode/plate-autoformat': 23.7.0_fixurrcuqeimglxmewdc3syieq
@@ -314,6 +317,7 @@ importers:
       react-hook-form: 7.45.2_react@18.2.0
       react-hotkeys-hook: 4.4.1_biqbaboplfbrettd7655fr4n2y
       react-lite-youtube-embed: 2.3.52_biqbaboplfbrettd7655fr4n2y
+      react-resizable: 3.0.5_biqbaboplfbrettd7655fr4n2y
       react-tweet: 3.0.4_biqbaboplfbrettd7655fr4n2y
       react-use: 17.4.0_biqbaboplfbrettd7655fr4n2y
       reactflow: 11.7.4_biqbaboplfbrettd7655fr4n2y
@@ -4557,6 +4561,12 @@ packages:
 
   /@types/react-grid-layout/1.3.2:
     resolution: {integrity: sha512-ZzpBEOC1JTQ7MGe1h1cPKSLP4jSWuxc+yvT4TsAlEW9+EFPzAf8nxQfFd7ea9gL17Em7PbwJZAsiwfQQBUklZQ==}
+    dependencies:
+      '@types/react': 18.2.15
+    dev: false
+
+  /@types/react-resizable/3.0.4:
+    resolution: {integrity: sha512-+QguN9CDfC1lthq+4noG1fkxh8cqkV2Fv/Mu3mdknCCBiwwNLecnBdk1MmNNN7uJpT23Nx/aVkYsbt5NuWouFw==}
     dependencies:
       '@types/react': 18.2.15
     dev: false
@@ -10596,6 +10606,18 @@ packages:
       scheduler: 0.23.0
     dev: false
 
+  /react-draggable/4.4.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-OMHzJdyJbYTZo4uQE393fHcqqPYsEtkjfMgvCHr6rejT+Ezn4OZbNyGH50vv+SunC1RMvwOTSWkEODQLzw1M9g==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
+    dependencies:
+      clsx: 1.2.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /react-google-drive-picker/1.2.2_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-x30mYkt9MIwPCgL+fyK75HZ8E6G5L/WGW0bfMG6kbD4NG2kmdlmV9oH5lPa6P6d46y9hj5Y3btAMrZd4JRRkSA==}
     peerDependencies:
@@ -10699,6 +10721,18 @@ packages:
       tslib: 2.5.0
       use-callback-ref: 1.3.0_tznpbkknyqq5lcv5sgrl332jvu
       use-sidecar: 1.1.2_tznpbkknyqq5lcv5sgrl332jvu
+    dev: false
+
+  /react-resizable/3.0.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-vKpeHhI5OZvYn82kXOs1bC8aOXktGU5AmKAgaZS4F5JPburCtbmDPqE7Pzp+1kN4+Wb81LlF33VpGwWwtXem+w==}
+    peerDependencies:
+      react: '>= 16.3'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-draggable: 4.4.5_biqbaboplfbrettd7655fr4n2y
+    transitivePeerDependencies:
+      - react-dom
     dev: false
 
   /react-resize-detector/8.1.0_biqbaboplfbrettd7655fr4n2y:

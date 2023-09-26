@@ -33,7 +33,7 @@ export const InputNodeMachine = createMachine({
         };
   },
   context: {
-    name: "input",
+    name: "Default",
     description: "",
     outputs: [],
     values: {},

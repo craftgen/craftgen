@@ -28,11 +28,15 @@ import {
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
 import { SocketNameType, useSocketConfig } from "../sockets";
-import { useMeasure, useMouse } from "react-use";
+import { useDebounce, useMeasure, useMouse } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Resizable } from "react-resizable";
+import "react-resizable/css/styles.css";
+import { useState } from "react";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -182,18 +186,6 @@ export function CustomNode<Scheme extends ClassicScheme>(
   Drag.useNoDrag(ref2);
 
   const state = useSelector(props.data.actor, (state) => state);
-  const [nodeRef, sizes] = useMeasure<HTMLDivElement>();
-
-  React.useEffect(() => {
-    const { width, height } = sizes;
-    const { data } = props;
-
-    if (width > 0 || height > 0) {
-      if (data.width !== width || data.height !== height) {
-        di?.area?.resize(data.id, width, height);
-      }
-    }
-  }, [sizes]);
 
   const { toast } = useToast();
   React.useEffect(() => {
@@ -225,17 +217,49 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const NodeIcon = React.useMemo(() => {
     return nodesMeta[props.data.ID].icon;
   }, []);
+  const [editLabel, setEditLabel] = React.useState(false);
+  const [size, setSize] = useState({
+    width: props.data.width,
+    height: props.data.height,
+  });
+
+  useDebounce(
+    () => {
+      const { width, height } = size;
+      const { data } = props;
+
+      if (width > 0 || height > 0) {
+        if (data.width !== width || data.height !== height) {
+          di?.area?.resize(data.id, width, height);
+        }
+      }
+    },
+    1000,
+    [size]
+  );
 
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="relative" ref={nodeRef}>
+        <Resizable
+          data-nodetype={props.data.ID}
+          width={size.width}
+          height={size.height}
+          handle={<ResizeHandle />}
+          onResize={(e, { size }) => {
+            setSize(size);
+          }}
+          minConstraints={[200, 200]}
+        >
           <Card
+            style={{
+              width: size.width,
+              height: size.height,
+            }}
             className={cn(
-              width && `w-[${width}px]`,
-              height && `h-[${height}px]`,
+              "group",
               selected && " border-primary",
-              "flex flex-col flex-1 bg-background",
+              "flex flex-col flex-1 bg-background ",
               state.matches("loading") &&
                 "border-blue-300 border-2 animate-pulse",
               state.matches("running") && "border-green-300",
@@ -245,15 +269,30 @@ export function CustomNode<Scheme extends ClassicScheme>(
             <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
               <div className="flex space-x-2 items-center">
                 <NodeIcon className="w-5 h-5" />
-                <CardTitle className="flex">
-                  {label}{" "}
-                  {props.data.action ? (
-                    <span className="text-muted-foreground ml-2 text-sm">
-                      {"/"}
-                      {props.data.action}
-                    </span>
-                  ) : null}
-                </CardTitle>
+                {editLabel ? (
+                  <Input
+                    value={label}
+                    onChange={(v) => console.log(v.bubbles)}
+                  />
+                ) : (
+                  <Drag.NoDrag>
+                    <CardTitle
+                      className="flex"
+                      onDoubleClick={() => {
+                        console.log("double click");
+                        setEditLabel(true);
+                      }}
+                    >
+                      {label}{" "}
+                      {props.data.action ? (
+                        <span className="text-muted-foreground ml-2 text-sm">
+                          {"/"}
+                          {props.data.action}
+                        </span>
+                      ) : null}
+                    </CardTitle>
+                  </Drag.NoDrag>
+                )}
               </div>
               <div className="flex">
                 <Button
@@ -329,35 +368,33 @@ export function CustomNode<Scheme extends ClassicScheme>(
                 })}
               </div>
             </div>
-            <CardFooter>
-              {debug && (
-                <Badge
-                  variant={"outline"}
-                  className="font-mono text-muted hover:text-primary w-full"
-                >
-                  Id: {props.data.id}
-                </Badge>
-              )}
+            <CardFooter className="p-1 px-2 pt-0">
+              <Badge
+                variant={"outline"}
+                className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
+              >
+                {props.data.id}
+              </Badge>
             </CardFooter>
           </Card>
-          <div className="absolute">
-            {debug && (
-              <pre>
-                <code>
-                  {JSON.stringify(
-                    {
-                      state: state,
-                      size: props.data.size,
-                    },
-                    null,
-                    2
-                  )}
-                </code>
-              </pre>
-            )}
-          </div>
-        </div>
+        </Resizable>
       </ContextMenuTrigger>
+      {debug && (
+        <div className="absolute">
+          <pre>
+            <code>
+              {JSON.stringify(
+                {
+                  state: state,
+                  size: props.data.size,
+                },
+                null,
+                2
+              )}
+            </code>
+          </pre>
+        </div>
+      )}
       <ContextMenuContent>
         <ContextMenuItem onClick={cloneNode}>
           Clone
@@ -372,6 +409,18 @@ export function CustomNode<Scheme extends ClassicScheme>(
     </ContextMenu>
   );
 }
+
+const ResizeHandle = React.forwardRef<ResizeHandle>((props: any, ref: any) => {
+  const { handleAxis, ...restProps } = props;
+  Drag.useNoDrag(ref);
+  return (
+    <div
+      ref={ref}
+      className={`w-10 h-10 active:w-full active:h-full active:-m-32  active:bg-none  hidden group-hover:block  react-resizable-handle-${handleAxis} react-resizable-handle`}
+      {...restProps}
+    ></div>
+  );
+});
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
   const config = useSocketConfig(input?.socket?.name as SocketNameType);

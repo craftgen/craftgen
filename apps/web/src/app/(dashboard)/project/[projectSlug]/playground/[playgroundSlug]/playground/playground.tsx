@@ -200,8 +200,7 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
     async (params: {
       id: string;
       position?: { x: number; y: number };
-      width?: number;
-      height?: number;
+      size?: { width: number; height: number };
     }) => {
       return fn(params);
     },
@@ -213,8 +212,12 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
       match(context)
         .with({ type: "noderesized" }, ({ data }) => {
           console.log("noderesized", { data });
-          di?.editor.getNode(data.id).setSize(data.size);
-          updateMeta(data);
+          const size = {
+            width: Math.round(data.size.width),
+            height: Math.round(data.size.height),
+          };
+          di?.editor.getNode(data.id).setSize(size);
+          updateMeta({ id: data.id, size });
         })
         .with({ type: "nodetranslated" }, ({ data }) => {
           if (

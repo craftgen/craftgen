@@ -24,6 +24,7 @@ import {
 import { useSelector } from "@xstate/react";
 import { Input } from "@/components/ui/input";
 import { SocketNameType } from "../sockets";
+import { Play } from "lucide-react";
 
 export const InputWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
@@ -42,7 +43,7 @@ export const InputWindow: React.FC<{}> = ({}) => {
   }, [inputs]);
 
   return (
-    <div className="w-full h-full p-4">
+    <div className="w-full h-full p-4 space-y-4">
       {inputs?.length > 0 ? (
         <Select
           onValueChange={(v) => setInput(di?.editor.getNode(v)!)}
@@ -71,6 +72,10 @@ export const InputWindow: React.FC<{}> = ({}) => {
 };
 
 export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
+  const description = useSelector(
+    input.actor,
+    (state) => state.context.description
+  );
   const schema = useSelector(input.actor, (state) => state.context.schema);
   const fields = useSelector(input.actor, (state) => state.context.outputs);
   const form = useForm({
@@ -87,23 +92,34 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {fields?.map((f: any) => (
-          <FormField
-            key={f.name}
-            control={form.control}
-            name={f.name}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{f.name}</FormLabel>
-                <FormControl>{renderField(f.type, field)}</FormControl>
-                <FormDescription>{f.description}</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-        <Button>Execute</Button>
+      <h3 className="text-muted-foreground">{description}</h3>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex space-y-4 h-full flex-col"
+      >
+        <div className="flex flex-col space-y-2 flex-1">
+          {fields?.map((f: any) => (
+            <FormField
+              key={f.name}
+              control={form.control}
+              name={f.name}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{f.name}</FormLabel>
+                  <FormControl>{renderField(f.type, field)}</FormControl>
+                  <FormDescription>{f.description}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+        </div>
+        <div className="flex items-center justify-end w-full">
+          <Button type="submit">
+            <Play className="w-4 h-4 mr-2" />
+            Execute
+          </Button>
+        </div>
       </form>
     </Form>
   );

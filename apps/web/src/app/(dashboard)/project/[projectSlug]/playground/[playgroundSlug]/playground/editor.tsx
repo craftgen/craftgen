@@ -12,9 +12,7 @@ import {
   Presets as ArrangePresets,
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
-import { MinimapExtra } from "rete-minimap-plugin";
 import { structures } from "rete-structures";
-import { ContextMenuExtra } from "rete-context-menu-plugin";
 import { DataflowEngine, ControlFlowEngine } from "rete-engine";
 import {
   HistoryPlugin,
@@ -78,7 +76,7 @@ export async function createEditor(params: {
   editor.use(readonlyPlugin.root);
   const area = new AreaPlugin<Schemes, AreaExtra>(params.container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-  const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+  const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot, });
   // const minimap = new MinimapPlugin<Schemes>();
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
