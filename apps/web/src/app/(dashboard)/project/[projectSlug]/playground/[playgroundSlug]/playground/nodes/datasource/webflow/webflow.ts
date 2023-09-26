@@ -53,7 +53,7 @@ const WebflowMachine = createMachine({
 export class Webflow extends BaseNode<typeof WebflowMachine> {
   public action: "addRow" | "readRow" = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof WebflowMachine>) {
-    super("Webflow", "Webflow", di, data, WebflowMachine, {
+    super("Webflow",  di, data, WebflowMachine, {
       actions: {
         updateConfig: ({ event }) => {
           console.log("updateConfig", event);

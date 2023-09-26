@@ -46,7 +46,7 @@ export function CustomSocket<T extends Socket>(props: {
     <div title={props.data.socket.name}>
       <Badge
         className={cn(
-          "text-primary-foreground",
+          "text-primary-foreground z-10",
           config?.badge,
           props.meta.side === "input" && "rounded-l-none -ml-1",
           props.meta.side === "output" && "rounded-r-none -mr-1"

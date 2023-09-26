@@ -8,7 +8,7 @@ const replicateMachine = createMachine({
 
 export class Replicate extends BaseNode<typeof replicateMachine> {
   constructor(di: DiContainer, data: NodeData<typeof replicateMachine>) {
-    super("Replicate", "Replicate (coming soon)", di, data, replicateMachine, {});
+    super("Replicate", di, data, replicateMachine, {});
   }
 
   async execute() {}

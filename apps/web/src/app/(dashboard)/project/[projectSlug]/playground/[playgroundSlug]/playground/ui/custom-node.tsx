@@ -73,7 +73,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
-  const { id, label, width, height } = props.data;
+  const { id, label } = props.data;
 
   const {
     di,
@@ -321,11 +321,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
               </div>
             </CardHeader>
             <Separator />
-
             <CardContent className="flex-1 ">
               {/* controls */}
               <section className="@md:block hidden">
-                {showControls &&
+                {true &&
                   controls.map(([key, control]) => {
                     return control ? (
                       <RefControl

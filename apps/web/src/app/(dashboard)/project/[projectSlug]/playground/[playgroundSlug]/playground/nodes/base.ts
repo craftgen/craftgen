@@ -12,15 +12,15 @@ import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
 import { Socket } from "../sockets";
 import { NodeTypes } from "../types";
+import { z } from "zod";
+import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
 
-export type NodeData<T extends AnyStateMachine> = {
-  id: string;
-  project_id: string;
-  name: string;
-  type: string;
-  width?: number;
-  height?: number;
-  state?: StateFrom<T>;
+export type NodeData<T extends AnyStateMachine> = z.infer<
+  typeof selectPlaygroundNodeSchema
+> & {
+  node: {
+    state?: StateFrom<T>;
+  };
 };
 
 export class BaseNode<
@@ -52,13 +52,12 @@ export class BaseNode<
 
   constructor(
     public readonly ID: NodeTypes,
-    label: string,
     di: DiContainer,
     data: NodeData<Machine>,
     machine: Machine,
     machineImplements: MachineImplementationsFrom<Machine>
   ) {
-    super(label);
+    super(data.label);
     if (data.width) this.width = data.width;
     if (data.height) this.height = data.height;
 
@@ -67,7 +66,7 @@ export class BaseNode<
     const a = machine.provide(machineImplements as any);
     this.actor = createActor(a, {
       id: this.id,
-      ...(data?.state !== null && { state: data.state }), // This needs to be stay state.
+      ...(data?.node?.state !== null && { state: data.node?.state }), // This needs to be stay state.
     });
 
     const saveDebounced = debounce((state: string) => {

@@ -44,7 +44,7 @@ const TextNodeMachine = createMachine({
 
 export class TextNode extends BaseNode<typeof TextNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof TextNodeMachine>) {
-    super("TextNode", "text", di, data, TextNodeMachine, {
+    super("TextNode", di, data, TextNodeMachine, {
       actions: {
         updateValue: assign({
           outputs: ({ event }) => ({

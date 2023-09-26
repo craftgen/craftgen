@@ -53,7 +53,7 @@ const PostgresMachine = createMachine({
 export class Postgres extends BaseNode<typeof PostgresMachine> {
   public action: "addRow" | "readRow" = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof PostgresMachine>) {
-    super("Postgres", "Postgres", di, data, PostgresMachine, {
+    super("Postgres", di, data, PostgresMachine, {
       actions: {
         updateConfig: ({ event }) => {
           console.log("updateConfig", event);
@@ -125,10 +125,7 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
   async syncUI(state: StateFrom<typeof PostgresMachine>) {
     if (state.context.settings.action === "addRow") {
       if (!this.inputs["add_row"]) {
-        this.addInput(
-          "add_row",
-          new ClassicPreset.Input(objectSocket, "row")
-        );
+        this.addInput("add_row", new ClassicPreset.Input(objectSocket, "row"));
       }
     } else {
       if (this.inputs["add_row"]) {

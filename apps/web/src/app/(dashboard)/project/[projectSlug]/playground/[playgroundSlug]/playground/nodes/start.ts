@@ -14,7 +14,7 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
   width = 180;
   height = 200;
   constructor(di: DiContainer, data: NodeData<typeof StartNodeMachine>) {
-    super("Start", "Start", di, data, StartNodeMachine, {});
+    super("Start", di, data, StartNodeMachine, {});
 
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
     this.addControl(

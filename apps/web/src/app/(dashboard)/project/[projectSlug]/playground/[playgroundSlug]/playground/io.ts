@@ -1,12 +1,17 @@
-import { NodeEditor, NodeId } from "rete";
-import { NodeProps, NodeTypes, Schemes } from "./types";
+import { NodeId } from "rete";
+import { NodeProps, NodeTypes, nodesMeta } from "./types";
 import * as Nodes from "./nodes";
-import { AreaExtra, DiContainer } from "./editor";
+import { DiContainer } from "./editor";
 import { Connection } from "./connection/connection";
-import { createNodeInDB, getNodeData } from "../action";
+import { createNodeInDB } from "../action";
 import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
 import { z } from "zod";
-import { AreaPlugin } from "rete-area-plugin";
+
+type NodeWithState = z.infer<typeof selectPlaygroundNodeSchema> & {
+  node: {
+    state?: any;
+  };
+};
 
 export async function createNode({
   di,
@@ -18,10 +23,7 @@ export async function createNode({
 }: {
   di: DiContainer;
   type: NodeTypes;
-  data: NonNullable<Awaited<ReturnType<typeof getNodeData>>> & {
-    width: number;
-    height: number;
-  };
+  data: NodeWithState;
   saveToDB?: boolean;
   playgroundId?: string;
   projectSlug?: string;
@@ -72,6 +74,7 @@ export async function createNode({
       id: nodeInDb.id,
       type: nodeInDb.type,
       project_id: nodeInDb.project_id,
+      label: nodesMeta[type].name,
     });
     return node;
   }
@@ -81,7 +84,7 @@ export async function createNode({
 }
 
 export type Data = {
-  nodes: z.infer<typeof selectPlaygroundNodeSchema>[];
+  nodes: NodeWithState[];
   edges: {
     id: NodeId;
     source: string;
@@ -96,16 +99,16 @@ export async function importEditor(di: DiContainer, data: Data) {
 
   for (const n of nodes) {
     if (di.editor.getNode(n.node_id)) continue;
-    const nodeData = await getNodeData(n.node_id);
-    if (!nodeData) throw new Error(`Node data not found for ${n.node_id}`);
+    // const nodeData = await getNodeData(n.node_id);
+    // if (!nodeData) throw new Error(`Node data not found for ${n.node_id}`);
 
     const node = await createNode({
       di,
       type: n.type as any,
       data: {
-        width: n.width,
-        height: n.height,
-        ...nodeData,
+        ...n,
+        // state: (n as any).node.state,
+        // ...nodeData,
       },
     });
     node.id = n.node_id;

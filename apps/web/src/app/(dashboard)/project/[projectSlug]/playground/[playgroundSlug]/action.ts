@@ -25,7 +25,15 @@ export const getPlaygroundById = async (playgroundId: string) => {
   return await db.query.playground.findFirst({
     where: (playground, { eq }) => eq(playground.id, playgroundId),
     with: {
-      nodes: true,
+      nodes: {
+        with: {
+          node: {
+            columns: {
+              state: true,
+            },
+          },
+        },
+      },
       edges: true,
     },
   });
@@ -73,7 +81,15 @@ export const getPlayground = async (params: {
         ),
       with: {
         project: true,
-        nodes: true,
+        nodes: {
+          with: {
+            node: {
+              columns: {
+                state: true,
+              },
+            },
+          },
+        },
         edges: true,
       },
     });

@@ -53,7 +53,7 @@ const WordpressMachine = createMachine({
 export class Wordpress extends BaseNode<typeof WordpressMachine> {
   public action: "addPost" | "readPost" = "addPost";
   constructor(di: DiContainer, data: NodeData<typeof WordpressMachine>) {
-    super("Wordpress", "Wordpress", di, data, WordpressMachine, {
+    super("Wordpress",  di, data, WordpressMachine, {
       actions: {
         updateConfig: ({ event }) => {
           console.log("updateConfig", event);

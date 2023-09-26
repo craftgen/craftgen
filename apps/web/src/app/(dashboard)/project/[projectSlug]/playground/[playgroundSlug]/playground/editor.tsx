@@ -110,7 +110,6 @@ export async function createEditor(params: {
             CustomNode({ data, emit, store: params.store }) as any;
         },
         socket(context) {
-          console.log("SOCKET context:", context);
           const { payload, ...meta } = context;
           return (data) => CustomSocket({ data: payload as any, meta }) as any;
         },

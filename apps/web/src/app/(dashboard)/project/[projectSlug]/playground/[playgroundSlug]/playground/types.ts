@@ -66,7 +66,7 @@ export const nodesMeta: Record<
     icon: Icons.bug,
   },
   TextNode: {
-    name: "Text Node",
+    name: "Text",
     description: "Node for handling text",
     icon: Icons.text,
   },

@@ -210,45 +210,39 @@ export class PromptTemplate extends BaseNode<
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>
   ) {
-    super(
-      "PromptTemplate",
-      "Prompt Template",
-      di,
-      data,
-      PromptTemplateNodeMachine,
-      {
-        actions: {
-          updateValue: assign({
-            template: ({ event }: any) => event.value, // TODO:
-          }),
-        },
-        actors: {
-          parse: fromPromise(async ({ input }) => {
-            let rawTemplate: any[] = [];
-            // try {
-            rawTemplate = Sqrl.parse(input.value, {
-              ...Sqrl.defaultConfig,
-              useWith: true,
-            })
-              .filter((item) => !isString(item))
-              .map((item) => {
-                return (item as any).c; // TODO:TYPE
-              });
-            return rawTemplate;
-          }),
-          render: fromPromise(renderFunc),
-        },
-      }
-    );
+    super("PromptTemplate", di, data, PromptTemplateNodeMachine, {
+      actions: {
+        updateValue: assign({
+          template: ({ event }: any) => event.value, // TODO:
+        }),
+      },
+      actors: {
+        parse: fromPromise(async ({ input }) => {
+          let rawTemplate: any[] = [];
+          // try {
+          rawTemplate = Sqrl.parse(input.value, {
+            ...Sqrl.defaultConfig,
+            useWith: true,
+          })
+            .filter((item) => !isString(item))
+            .map((item) => {
+              return (item as any).c; // TODO:TYPE
+            });
+          return rawTemplate;
+        }),
+        render: fromPromise(renderFunc),
+      },
+    });
     this.actor.subscribe((state) => {
       this.process();
     });
     this.addOutput("value", new ClassicPreset.Output(stringSocket, "Text"));
     const self = this;
+    const state = this.actor.getSnapshot();
     this.addControl(
       "template",
       new CodeControl("handlebars", {
-        initial: data.state?.context?.template || "",
+        initial: state?.context?.template || "",
         change: (value) => {
           self.actor.send({
             type: "change",

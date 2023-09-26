@@ -4,7 +4,10 @@ import { DiContainer } from "../../editor";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
 import { createJsonSchema } from "../../utils";
-import { JSONSocket, SocketGeneratorControl } from "../../controls/socket-generator";
+import {
+  JSONSocket,
+  SocketGeneratorControl,
+} from "../../controls/socket-generator";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -56,7 +59,7 @@ const composeObjectMachine = createMachine({
 
 export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   constructor(di: DiContainer, data: NodeData<typeof composeObjectMachine>) {
-    super("ComposeObject", "Componse Object", di, data, composeObjectMachine, {
+    super("ComposeObject", di, data, composeObjectMachine, {
       actors: {
         process: fromPromise(async ({ input }) => {
           console.log("PROCESSING", input);

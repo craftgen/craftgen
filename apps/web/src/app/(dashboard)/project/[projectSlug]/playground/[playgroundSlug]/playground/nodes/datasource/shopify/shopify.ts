@@ -53,7 +53,7 @@ const ShopifyMachine = createMachine({
 export class Shopify extends BaseNode<typeof ShopifyMachine> {
   public action: "addRow" | "readRow" = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof ShopifyMachine>) {
-    super("Shopify", "Shopify", di, data, ShopifyMachine, {
+    super("Shopify",  di, data, ShopifyMachine, {
       actions: {
         updateConfig: ({ event }) => {
           console.log("updateConfig", event);

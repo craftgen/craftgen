@@ -46,7 +46,7 @@ const NumberMachine = createMachine({
 
 export class Number extends BaseNode<typeof NumberMachine> {
   constructor(di: DiContainer, data: NodeData<typeof NumberMachine>) {
-    super("Number", "Number", di, data, NumberMachine, {
+    super("Number", di, data, NumberMachine, {
       actions: {
         updateValue: assign({
           outputs: ({ event }) => ({
