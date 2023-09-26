@@ -90,7 +90,7 @@
     "@udecode/plate-selection": "^23.7.0",
     "@udecode/plate-table": "^23.7.0",
     "@udecode/slate": "^22.0.2",
-    "@xstate/react": "4.0.0-beta.8",
+    "@xstate/react": "4.0.0-beta.10",
     "ajv": "^8.12.0",
     "ajv-errors": "^3.0.0",
     "autoprefixer": "10.4.14",
@@ -161,7 +161,7 @@
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
-    "xstate": "5.0.0-beta.28",
+    "xstate": "5.0.0-beta.30",
     "zod": "^3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
