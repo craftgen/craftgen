@@ -136,6 +136,7 @@ importers:
       class-variance-authority: ^0.7.0
       clsx: ^2.0.0
       cmdk: ^0.2.0
+      d3-shape: ^3.2.0
       date-fns: ^2.30.0
       dotenv-cli: ^7.2.1
       elkjs: ^0.8.2
@@ -173,6 +174,7 @@ importers:
       rete: ^2.0.2
       rete-area-plugin: ^2.0.0
       rete-auto-arrange-plugin: ^2.0.0
+      rete-connection-path-plugin: ^2.0.0
       rete-connection-plugin: ^2.0.0
       rete-context-menu-plugin: ^2.0.0
       rete-engine: ^2.0.0
@@ -290,6 +292,7 @@ importers:
       class-variance-authority: 0.7.0
       clsx: 2.0.0
       cmdk: 0.2.0_clwdj742dood3wxkovrqay7cta
+      d3-shape: 3.2.0
       date-fns: 2.30.0
       elkjs: 0.8.2
       encoding: 0.1.13
@@ -326,6 +329,7 @@ importers:
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
       rete-auto-arrange-plugin: 2.0.0_ep6dyau3s7cozb6mlt4267ndei
+      rete-connection-path-plugin: 2.0.0_ukq5ildvejbxmxf44xjlbwxvnu
       rete-connection-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-context-menu-plugin: 2.0.0_p6ilppr2hwkly36q4t5nxudtxi
       rete-engine: 2.0.0_rete@2.0.2
@@ -11157,6 +11161,21 @@ packages:
       rete: 2.0.2
       rete-area-plugin: 2.0.0_rete@2.0.2
       web-worker: 1.2.0
+    dev: false
+
+  /rete-connection-path-plugin/2.0.0_ukq5ildvejbxmxf44xjlbwxvnu:
+    resolution: {integrity: sha512-vyCpFKw3gD9BofEPJJNj/v63pziA0PyosyccyfwPQN+re4uptnPt6Ly3fPVNIeC0Eao3w/Wqm0Aa8tpPfCIMzA==}
+    peerDependencies:
+      d3-shape: ^3.0.0
+      rete: ^2.0.1
+      rete-area-plugin: ^2.0.0
+      rete-render-utils: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.22.15
+      d3-shape: 3.2.0
+      rete: 2.0.2
+      rete-area-plugin: 2.0.0_rete@2.0.2
+      rete-render-utils: 2.0.1_p6ilppr2hwkly36q4t5nxudtxi
     dev: false
 
   /rete-connection-plugin/2.0.0_p6ilppr2hwkly36q4t5nxudtxi:

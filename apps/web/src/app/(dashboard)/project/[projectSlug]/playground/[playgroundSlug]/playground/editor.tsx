@@ -2,7 +2,7 @@
 
 import { createRoot } from "react-dom/client";
 import { ClassicPreset, NodeEditor } from "rete";
-import { AreaPlugin, AreaExtensions } from "rete-area-plugin";
+import { AreaPlugin, AreaExtensions, Area2D } from "rete-area-plugin";
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
@@ -21,6 +21,8 @@ import {
   HistoryExtensions,
 } from "rete-history-plugin";
 import { ReadonlyPlugin } from "rete-readonly-plugin";
+import { curveStep, curveMonotoneX, curveLinear, curveNatural } from "d3-shape";
+import { ConnectionPathPlugin } from "rete-connection-path-plugin";
 
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
@@ -76,8 +78,17 @@ export async function createEditor(params: {
   editor.use(readonlyPlugin.root);
   const area = new AreaPlugin<Schemes, AreaExtra>(params.container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-  const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot, });
+  const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
   // const minimap = new MinimapPlugin<Schemes>();
+
+  const pathPlugin = new ConnectionPathPlugin<Schemes, Area2D<Schemes>>({
+    curve: (c) => c.curve || curveMonotoneX,
+    // transformer: () => Transformers.classic({ vertical: false }),
+    // arrow: () => true
+  });
+
+  // @ts-ignore
+  render.use(pathPlugin);
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),
@@ -99,7 +110,9 @@ export async function createEditor(params: {
             CustomNode({ data, emit, store: params.store }) as any;
         },
         socket(context) {
-          return CustomSocket;
+          console.log("SOCKET context:", context);
+          const { payload, ...meta } = context;
+          return (data) => CustomSocket({ data: payload as any, meta }) as any;
         },
         connection(context) {
           return CustomConnection;

@@ -234,7 +234,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
         }
       }
     },
-    1000,
+    100,
     [size]
   );
 
@@ -257,7 +257,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
               height: size.height,
             }}
             className={cn(
-              "group",
+              "group @container",
               selected && " border-primary",
               "flex flex-col flex-1 bg-background ",
               state.matches("loading") &&
@@ -322,19 +322,21 @@ export function CustomNode<Scheme extends ClassicScheme>(
             </CardHeader>
             <Separator />
 
-            <CardContent className="flex-1" onDoubleClick={pinNode}>
+            <CardContent className="flex-1 ">
               {/* controls */}
-              {showControls &&
-                controls.map(([key, control]) => {
-                  return control ? (
-                    <RefControl
-                      key={key}
-                      name="control"
-                      emit={props.emit}
-                      payload={control}
-                    />
-                  ) : null;
-                })}
+              <section className="@md:block hidden">
+                {showControls &&
+                  controls.map(([key, control]) => {
+                    return control ? (
+                      <RefControl
+                        key={key}
+                        name="control"
+                        emit={props.emit}
+                        payload={control}
+                      />
+                    ) : null;
+                  })}
+              </section>
             </CardContent>
             <div className="py-4 grid-cols-2 grid">
               <div>
@@ -416,7 +418,7 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
   return (
     <div
       ref={ref}
-      className={`w-10 h-10 active:w-full active:h-full active:-m-32  active:bg-none  hidden group-hover:block  react-resizable-handle-${handleAxis} react-resizable-handle`}
+      className={`w-10 h-10 active:w-full active:h-full -m-2 active:-m-32  active:bg-none  hidden group-hover:block  react-resizable-handle-${handleAxis} react-resizable-handle`}
       {...restProps}
     ></div>
   );
@@ -424,23 +426,20 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 ResizeHandle.displayName = "ResizeHandle";
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
-  const config = useSocketConfig(input?.socket?.name as SocketNameType);
   return (
     <div
       className="text-left flex items-center select-none "
       data-testid={`input-${inputKey}`}
     >
-      <div>
-        <RefSocket
-          name="input-socket"
-          emit={emit}
-          side="input"
-          socketKey={inputKey}
-          nodeId={id}
-          payload={input.socket}
-        />
-      </div>
-      {input && (
+      <RefSocket
+        name="input-socket"
+        emit={emit}
+        side="input"
+        socketKey={inputKey}
+        nodeId={id}
+        payload={{ socket: input.socket, input } as any}
+      />
+      {/* {input && (
         <Badge
           className={cn("-translate-x-2", config?.badge)}
           data-testid="input-title"
@@ -448,9 +447,9 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
         >
           {input?.label}
         </Badge>
-      )}
+      )} */}
       {/* {input?.control && input?.showControl && (
-        <span className="input-control flex items-center ">
+        <span className="input-control flex items-center @lg:block hidden">
           <Badge className="-translate-x-2" variant={"secondary"}>
             {input.label}
           </Badge>
@@ -469,29 +468,19 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
 };
 
 const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
-  const config = useSocketConfig(output?.socket?.name as SocketNameType);
   return (
     <div
       className="text-right flex items-center justify-end select-none"
       data-testid={`output-${outputKey}`}
     >
-      <Badge
-        className={cn("translate-x-2", config?.badge)}
-        data-testid="output-title"
-        variant={"default"}
-      >
-        {output?.label}
-      </Badge>
-      <div>
-        <RefSocket
-          name="output-socket"
-          side="output"
-          emit={emit}
-          socketKey={outputKey}
-          nodeId={id}
-          payload={output?.socket!}
-        />
-      </div>
+      <RefSocket
+        name="output-socket"
+        side="output"
+        emit={emit}
+        socketKey={outputKey}
+        nodeId={id}
+        payload={{ socket: output?.socket!, output } as any}
+      />
     </div>
   );
 };
