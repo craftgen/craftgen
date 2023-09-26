@@ -224,6 +224,7 @@ export type GoogleSheetMachineContext = ContextFrom<
   typeof GoogleSheetMachine
 >["settings"];
 export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
+  width = 400;
   public action: GoogleSheetActionTypes = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof GoogleSheetMachine>) {
     super("GoogleSheet", "Spreadsheet", di, data, GoogleSheetMachine, {

@@ -131,7 +131,7 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
       const socket = getSocketByJsonSchemaType(item.type)!;
       this.addOutput(
         item.name,
-        new ClassicPreset.Input(socket, item.name, false)
+        new ClassicPreset.Input(socket, item.name, true)
       );
     }
   }
