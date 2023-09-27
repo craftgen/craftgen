@@ -9,9 +9,6 @@ const LogNodeMachine = createMachine({
 });
 
 export class Log extends BaseNode<typeof LogNodeMachine> {
-  width = 180;
-  height = 150;
-
   static ID: "log";
 
   constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {

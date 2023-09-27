@@ -4,7 +4,6 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import {
   db,
   eq,
-  inArray,
   nodeData,
   playgroundNode,
   playground,
@@ -12,11 +11,10 @@ import {
   dataRow,
   gt,
   projectMembers,
-  user,
   playgroundEdge,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import { ConnProps, NodeProps, NodeTypes, Position } from "./playground/types";
+import { ConnProps, NodeTypes, Position } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
 import { action } from "@/lib/safe-action";
 import { z } from "zod";
@@ -157,7 +155,7 @@ export const updateNodeMeta = async (params: {
       ...(params.size && params.size),
       ...(params.position && { position: params.position }),
     })
-    .where(eq(playgroundNode.node_id, params.id));
+    .where(eq(playgroundNode.id, params.id));
 };
 
 export const saveNode = async (params: {
@@ -175,8 +173,8 @@ export const saveNode = async (params: {
   console.log("saveNode", params);
   await db.transaction(async (tx) => {
     await tx.insert(playgroundNode).values({
+      id: params.data.id,
       playground_id: params.playgroundId,
-      node_id: params.data.id,
       type: params.data.type,
       width: params.data.width,
       height: params.data.height,
@@ -200,10 +198,10 @@ export const deleteNode = async (params: {
       .where(
         and(
           eq(playgroundNode.playground_id, params.playgroundId),
-          eq(playgroundNode.node_id, params.data.id)
+          eq(playgroundNode.id, params.data.id)
         )
       );
-    await tx.delete(nodeData).where(eq(nodeData.id, params.data.id));
+    await tx.delete(nodeData).where(eq(nodeData.id, params.data.id)); // TODO check this.
   });
 };
 

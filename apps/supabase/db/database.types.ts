@@ -292,15 +292,15 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "playground_edge_source_node_data_id_fk"
+            foreignKeyName: "playground_edge_source_playground_node_id_fk"
             columns: ["source"]
-            referencedRelation: "node_data"
+            referencedRelation: "playground_node"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "playground_edge_target_node_data_id_fk"
+            foreignKeyName: "playground_edge_target_playground_node_id_fk"
             columns: ["target"]
-            referencedRelation: "node_data"
+            referencedRelation: "playground_node"
             referencedColumns: ["id"]
           }
         ]
@@ -311,7 +311,6 @@ export interface Database {
           height: number
           id: string
           label: string
-          node_id: string
           playground_id: string
           position: Json
           type: string
@@ -320,9 +319,8 @@ export interface Database {
         Insert: {
           color: string
           height: number
-          id?: string
+          id: string
           label: string
-          node_id: string
           playground_id: string
           position: Json
           type: string
@@ -333,7 +331,6 @@ export interface Database {
           height?: number
           id?: string
           label?: string
-          node_id?: string
           playground_id?: string
           position?: Json
           type?: string
@@ -341,8 +338,8 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "playground_node_node_id_node_data_id_fk"
-            columns: ["node_id"]
+            foreignKeyName: "playground_node_id_node_data_id_fk"
+            columns: ["id"]
             referencedRelation: "node_data"
             referencedColumns: ["id"]
           },

@@ -71,7 +71,7 @@ export async function createNode({
     console.log("creating new node with", { data, nodeInDb });
     const node = await matched(di, {
       ...data,
-      id: nodeInDb.id,
+      id: nodeInDb.id, // TODO: this need to be playgroundNode.id
       type: nodeInDb.type,
       project_id: nodeInDb.project_id,
       label: nodesMeta[type].name,
@@ -98,7 +98,7 @@ export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
   for (const n of nodes) {
-    if (di.editor.getNode(n.node_id)) continue;
+    if (di.editor.getNode(n.id)) continue;
     // const nodeData = await getNodeData(n.node_id);
     // if (!nodeData) throw new Error(`Node data not found for ${n.node_id}`);
 
@@ -107,11 +107,8 @@ export async function importEditor(di: DiContainer, data: Data) {
       type: n.type as any,
       data: {
         ...n,
-        // state: (n as any).node.state,
-        // ...nodeData,
       },
     });
-    node.id = n.node_id;
     await di.editor.addNode(node);
     if (di.area) {
       di.area.translate(node.id, n.position);

@@ -148,11 +148,11 @@ export const playgroundEdge = pgTable(
       }),
     source: uuid("source")
       .notNull()
-      .references(() => nodeData.id, { onDelete: "cascade" }),
+      .references(() => playgroundNode.id, { onDelete: "cascade" }),
     sourceOutput: text("source_output").notNull(),
     target: uuid("target")
       .notNull()
-      .references(() => nodeData.id, { onDelete: "cascade" }),
+      .references(() => playgroundNode.id, { onDelete: "cascade" }),
     targetInput: text("target_input").notNull(),
   },
   (edge) => {
@@ -170,13 +170,13 @@ export const playgroundEdge = pgTable(
 export const selectPlaygroundEdgeSchema = createInsertSchema(playgroundEdge);
 
 export const playgroundEdgeRelations = relations(playgroundEdge, ({ one }) => ({
-  source: one(nodeData, {
+  source: one(playgroundNode, {
     fields: [playgroundEdge.source],
-    references: [nodeData.id],
+    references: [playgroundNode.id],
   }),
-  target: one(nodeData, {
+  target: one(playgroundNode, {
     fields: [playgroundEdge.target],
-    references: [nodeData.id],
+    references: [playgroundNode.id],
   }),
   playground: one(playground, {
     fields: [playgroundEdge.playgroundId],
@@ -189,12 +189,12 @@ type Position = {
 };
 
 export const playgroundNode = pgTable("playground_node", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  node_id: uuid("node_id")
-    .notNull()
+  id: uuid("id")
+    .primaryKey()
     .references(() => nodeData.id, {
       onDelete: "cascade",
-    }),
+    })
+    .notNull(),
   playground_id: uuid("playground_id")
     .notNull()
     .references(() => playground.id, {
@@ -226,7 +226,7 @@ export const playgroundRelations = relations(playground, ({ one, many }) => ({
 
 export const playgroundNodeRelations = relations(playgroundNode, ({ one }) => ({
   node: one(nodeData, {
-    fields: [playgroundNode.node_id],
+    fields: [playgroundNode.id],
     references: [nodeData.id],
   }),
   playground: one(playground, {
