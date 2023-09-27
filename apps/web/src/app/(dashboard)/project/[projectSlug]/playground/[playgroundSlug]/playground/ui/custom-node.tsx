@@ -124,7 +124,8 @@ export function CustomNode<Scheme extends ClassicScheme>(
   }, []);
 
   const triggerNode = async () => {
-    di?.engine?.execute(props.data.id);
+    const executionId = String(+new Date());
+    di?.engine?.execute(props.data.id, undefined, executionId);
   };
 
   const pinNode = React.useCallback(async () => {

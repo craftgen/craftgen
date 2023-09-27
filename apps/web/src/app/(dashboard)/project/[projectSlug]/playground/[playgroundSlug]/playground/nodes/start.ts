@@ -26,7 +26,7 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
     );
   }
 
-  execute(_: any, forward: (output: "trigger") => void) {
+  execute(_: any, forward: (output: "trigger") => void, execId?: string) {
     forward("trigger");
   }
 

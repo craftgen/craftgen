@@ -1,8 +1,9 @@
-import { ControlFlowEngine, DataflowEngine } from "rete-engine";
-import { Schemes } from "./types";
+import { DataflowEngine } from "rete-engine";
+import { Schemes } from "../types";
+import { ControlFlowEngine } from "./control-flow-engine";
 
 export const createControlFlowEngine = () => {
-  const engine = new ControlFlowEngine<Schemes>(({ inputs, outputs }) => {
+  const engine = new ControlFlowEngine(({ inputs, outputs }) => {
     return {
       inputs: () =>
         Object.entries(inputs)

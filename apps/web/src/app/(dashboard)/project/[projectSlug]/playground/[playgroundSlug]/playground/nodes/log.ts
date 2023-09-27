@@ -18,11 +18,19 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       "trigger",
       new ClassicPreset.Input(triggerSocket, "Exec", true)
     );
+    this.addInput("foo", new ClassicPreset.Input(triggerSocket, "Foo", true));
     this.addInput("data", new ClassicPreset.Input(anySocket, "Data"));
+
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
   }
 
-  async execute(input: "trigger", forward: (output: "trigger") => void) {
+  async execute(
+    input: "trigger",
+    forward: (output: "trigger") => void,
+    execId?: string
+  ) {
+    console.log("Execute entry", { input, forward, execId });
+
     this.di.dataFlow?.reset();
     const incomers = this.di.graph.incomers(this.id);
 

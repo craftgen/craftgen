@@ -13,7 +13,8 @@ import {
 } from "rete-auto-arrange-plugin";
 import { ReactPlugin, Presets, ReactArea2D } from "rete-react-plugin";
 import { structures } from "rete-structures";
-import { DataflowEngine, ControlFlowEngine } from "rete-engine";
+import { DataflowEngine } from "rete-engine";
+import { ControlFlowEngine } from "./engine/control-flow-engine";
 import {
   HistoryPlugin,
   HistoryActions,
@@ -21,7 +22,7 @@ import {
   HistoryExtensions,
 } from "rete-history-plugin";
 import { ReadonlyPlugin } from "rete-readonly-plugin";
-import { curveStep, curveMonotoneX, curveLinear, curveNatural } from "d3-shape";
+import { curveMonotoneX } from "d3-shape";
 import { ConnectionPathPlugin } from "rete-connection-path-plugin";
 
 import { CustomNode } from "./ui/custom-node";
@@ -37,7 +38,7 @@ import { getControl } from "./control";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { Modules } from "./modules";
-import { createControlFlowEngine, createDataFlowEngine } from "./engine";
+import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { useMagneticConnection } from "./connection";
 import { ResultOf } from "@/lib/type";
 const elk = new ELK();
