@@ -10,7 +10,7 @@ import {
 } from "xstate";
 import { debounce } from "lodash-es";
 import { setNodeData } from "../../action";
-import { Socket } from "../sockets";
+import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { z } from "zod";
 import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
@@ -26,14 +26,14 @@ export type NodeData<T extends AnyStateMachine> = z.infer<
 export class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
-    [key in string]?: Socket;
+    [key in string]?: AllSockets;
   } = {
-    [key in string]?: Socket;
+    [key in string]?: AllSockets;
   },
   Outputs extends {
-    [key in string]?: Socket;
+    [key in string]?: AllSockets;
   } = {
-    [key in string]?: Socket;
+    [key in string]?: AllSockets;
   },
   Controls extends {
     [key in string]?: Control & { name?: string };
@@ -80,6 +80,22 @@ export class BaseNode<
     });
 
     this.actor.start();
+  }
+
+  async execute(input: any, forward: (output: "trigger") => void) {
+    const inputs = await this.getInputs();
+    this.actor.send({
+      type: "RUN",
+      inputs,
+    });
+    await this.waitForState("complete");
+    forward("trigger");
+  }
+
+  async data() {
+    await this.waitForState("complete");
+    const state = this.actor.getSnapshot();
+    return state.context.outputs;
   }
 
   public setSize(size: { width: number; height: number }) {

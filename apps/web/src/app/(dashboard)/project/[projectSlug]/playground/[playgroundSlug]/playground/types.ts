@@ -6,6 +6,7 @@ import {
   PromptTemplate,
   Start,
   TextNode,
+  Number,
   DataSource,
   ComposeObject,
   Article,
@@ -155,6 +156,7 @@ export type NodeProps =
   | Start
   | Log
   | TextNode
+  | Number
   | PromptTemplate
   | OpenAIFunctionCall
   | DataSource

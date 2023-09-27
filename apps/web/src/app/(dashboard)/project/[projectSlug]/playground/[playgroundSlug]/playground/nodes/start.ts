@@ -8,7 +8,36 @@ import { ButtonControl } from "../controls/button";
 const StartNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "startNode",
+  types: {} as {
+    events: {
+      type: "RUN";
+      inputs: any;
+    };
+  },
+  initial: "idle",
+  states: {
+    idle: {
+      on: {
+        RUN: "complete",
+      },
+    },
+    complete: {
+      type: "final",
+    },
+  },
 });
+
+// type StartNodeType = BaseNode<
+//   typeof StartNodeMachine,
+//   {
+//     trigger: typeof triggerSocket;
+//     doc: typeof stringSocket;
+//   },
+//   {
+//     trigger: typeof triggerSocket;
+//     another: typeof triggerSocket;
+//   }
+// >;
 
 export class Start extends BaseNode<typeof StartNodeMachine> {
   width = 180;
@@ -20,19 +49,18 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
     this.addControl(
       "trigger",
       new ButtonControl("Execute", () => {
-        // this._di?.dataFlow?.reset();
         this.di?.engine?.execute(this.id);
       })
     );
   }
 
-  execute(_: any, forward: (output: "trigger") => void, execId?: string) {
-    forward("trigger");
-  }
+  // async execute(_: any, forward: (output: "trigger") => void, execId?: string) {
+  //   forward("trigger");
+  // }
 
-  data() {
-    return {};
-  }
+  // async data() {
+  //   return {};
+  // }
 
   async serialize() {
     return {};

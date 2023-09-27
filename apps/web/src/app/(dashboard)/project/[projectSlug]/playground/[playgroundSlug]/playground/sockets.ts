@@ -19,23 +19,104 @@ export class Socket extends ClassicPreset.Socket {
     return this === socket || this.compatible.includes(socket);
   }
 }
+export class TriggerSocket extends Socket {
+  constructor() {
+    super("Trigger");
+  }
+}
 
-export const triggerSocket = new Socket("Trigger");
+export const triggerSocket = new TriggerSocket();
 
-export const anySocket = new Socket("Any");
+class AnySocket extends Socket {
+  constructor() {
+    super("Any");
+  }
+}
+export const anySocket = new AnySocket();
 
-export const numberSocket = new Socket("Number");
-export const booleanSocket = new Socket("Boolean");
-export const arraySocket = new Socket("Array");
-export const stringSocket = new Socket("String");
-export const objectSocket = new Socket("Object");
-export const eventSocket = new Socket("Event");
-export const audioSocket = new Socket("Audio");
-export const documentSocket = new Socket("Document");
-export const embeddingSocket = new Socket("Embedding");
-export const taskSocket = new Socket("Task");
-export const imageSocket = new Socket("Image");
-export const databaseIdSocket = new Socket("databaseIdSocket");
+class NumberSocket extends Socket {
+  constructor() {
+    super("Number");
+  }
+}
+export const numberSocket = new NumberSocket();
+
+class BooleanSocket extends Socket {
+  constructor() {
+    super("Boolean");
+  }
+}
+export const booleanSocket = new BooleanSocket();
+
+class ArraySocket extends Socket {
+  constructor() {
+    super("Array");
+  }
+}
+export const arraySocket = new ArraySocket();
+
+class StringSocket extends Socket {
+  constructor() {
+    super("String");
+  }
+}
+export const stringSocket = new StringSocket();
+
+class ObjectSocket extends Socket {
+  constructor() {
+    super("Object");
+  }
+}
+export const objectSocket = new ObjectSocket();
+
+class EventSocket extends Socket {
+  constructor() {
+    super("Event");
+  }
+}
+export const eventSocket = new EventSocket();
+
+class AudioSocket extends Socket {
+  constructor() {
+    super("Audio");
+  }
+}
+export const audioSocket = new AudioSocket();
+
+class DocumentSocket extends Socket {
+  constructor() {
+    super("Document");
+  }
+}
+export const documentSocket = new DocumentSocket();
+
+class EmbeddingSocket extends Socket {
+  constructor() {
+    super("Embedding");
+  }
+}
+export const embeddingSocket = new EmbeddingSocket();
+
+class TaskSocket extends Socket {
+  constructor() {
+    super("Task");
+  }
+}
+export const taskSocket = new TaskSocket();
+
+class ImageSocket extends Socket {
+  constructor() {
+    super("Image");
+  }
+}
+export const imageSocket = new ImageSocket();
+
+class DatabaseIdSocket extends Socket {
+  constructor() {
+    super("databaseIdSocket");
+  }
+}
+export const databaseIdSocket = new DatabaseIdSocket();
 
 databaseIdSocket.combineWith(stringSocket);
 
@@ -53,6 +134,9 @@ const sockets = [
   imageSocket,
   databaseIdSocket,
 ] as const;
+
+export type AllSockets = (typeof sockets)[number];
+
 export type SocketNameType =
   | "Trigger"
   | "Any"
