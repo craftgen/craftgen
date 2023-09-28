@@ -153,12 +153,26 @@ export const PlaygroundCreateDialog: React.FC<{
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log(data);
-    const newPlayground = await createPlayground({
-      project_id: project?.id!,
+    const {
+      data: newPlayground,
+      serverError,
+      validationError,
+    } = await createPlayground({
+      projectId: project?.id!,
       name: data.name,
       slug: data.slug,
       description: data.description,
     });
+    if (!newPlayground) {
+      toast({
+        title: "Error",
+        description:
+          serverError ||
+          JSON.stringify(validationError) ||
+          "Something went wrong.",
+      });
+      return;
+    }
     const t = toast({
       title: "Creating playground...",
       description: "This may take a few seconds.",

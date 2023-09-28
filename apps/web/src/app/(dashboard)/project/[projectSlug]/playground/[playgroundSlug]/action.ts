@@ -5,17 +5,18 @@ import {
   db,
   eq,
   nodeData,
-  playgroundNode,
-  playground,
+  workflowNode,
+  workflow,
   and,
   dataRow,
   gt,
   projectMembers,
-  playgroundEdge,
-  playgroundExecution,
+  workflowEdge,
+  workflowExecution,
   desc,
   sql,
   not,
+  workflowVersion,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { ConnProps, NodeTypes, Position } from "./playground/types";
@@ -23,9 +24,9 @@ import * as FlexLayout from "flexlayout-react";
 import { action } from "@/lib/safe-action";
 import { z } from "zod";
 
-export const getPlaygroundById = async (playgroundId: string) => {
-  return await db.query.playground.findFirst({
-    where: (playground, { eq }) => eq(playground.id, playgroundId),
+export const getWorkflowById = async (workflowId: string) => {
+  return await db.query.workflow.findFirst({
+    where: (workflow, { eq }) => eq(workflow.id, workflowId),
     with: {
       nodes: {
         with: {
@@ -41,10 +42,10 @@ export const getPlaygroundById = async (playgroundId: string) => {
   });
 };
 
-export const getPlaygroundVersions = action(
+export const getWorkflowVersions = action(
   z.object({
     projectSlug: z.string(),
-    playgroundSlug: z.string(),
+    workflowSlug: z.string(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
@@ -57,21 +58,22 @@ export const getPlaygroundVersions = action(
       if (!project) {
         throw new Error("Project not found");
       }
-      return await tx.query.playground.findMany({
-        where: (playground, { eq, and }) =>
+      return await tx.query.workflow.findMany({
+        where: (workflow, { eq, and }) =>
           and(
-            eq(playground.project_id, project?.id),
-            not(eq(playground.version, 0)) // This is a hack to not show the latest version.
+            eq(workflow.projectId, project?.id)
+            // TODO:
+            // not(eq(workflow.version, 0)) // This is a hack to not show the latest version.
           ),
-        orderBy: (playground, { desc }) => [desc(playground.version)],
+        // orderBy: (playground, { desc }) => [desc(playground.version)],
       });
     });
   }
 );
 
-export const getPlayground = action(
+export const getWorkflow = action(
   z.object({
-    playgroundSlug: z.string(),
+    workflowSlug: z.string(),
     projectSlug: z.string(),
     version: z.number().optional(),
   }),
@@ -106,12 +108,13 @@ export const getPlayground = action(
           readonly = false;
         }
       }
-      const playground = await tx.query.playground.findFirst({
-        where: (playground, { eq, and }) =>
+      const workflow = await tx.query.workflow.findFirst({
+        where: (workflow, { eq, and }) =>
           and(
-            eq(playground.slug, params.playgroundSlug),
-            eq(playground.project_id, project.id),
-            params.version ? eq(playground.version, params.version) : sql`true`
+            eq(workflow.slug, params.workflowSlug),
+            eq(workflow.projectId, project.id)
+            // TODO:
+            // params.version ? eq(workflow.version, params.version) : sql`true`
           ),
         with: {
           project: true,
@@ -126,13 +129,14 @@ export const getPlayground = action(
           },
           edges: true,
         },
-        orderBy: (playground, { desc }) => [desc(playground.version)],
+        // TODO:
+        // orderBy: (playground, { desc }) => [desc(playground.version)],
       });
-      if (!playground) {
+      if (!workflow) {
         throw new Error("Playground not found");
       }
       return {
-        ...playground,
+        ...workflow,
         readonly,
       };
     });
@@ -144,11 +148,11 @@ export const getPlaygroundInputsOutputs = async (params: {
 }) => {
   return await db.transaction(async (tx) => {
     tx.select()
-      .from(playgroundNode)
+      .from(workflowNode)
       .where(
         and(
-          eq(playgroundNode.playground_id, params.playgroundId),
-          eq(playgroundNode.type, "Input")
+          eq(workflowNode.workflowId, params.playgroundId),
+          eq(workflowNode.type, "Input")
         )
       );
   });
@@ -163,9 +167,9 @@ export const updatePlayground = async (
   }
 ) => {
   return await db
-    .update(playground)
+    .update(workflow)
     .set(args)
-    .where(eq(playground.id, playgroundId))
+    .where(eq(workflow.id, playgroundId))
     .returning();
 };
 
@@ -175,9 +179,9 @@ export const savePlaygroundLayout = async (params: {
 }) => {
   console.log("saving playground layout", params);
   return await db
-    .update(playground)
+    .update(workflow)
     .set({ layout: params.layout })
-    .where(eq(playground.id, params.playgroundId))
+    .where(eq(workflow.id, params.playgroundId))
     .returning();
 };
 
@@ -188,40 +192,48 @@ export const updateNodeMeta = async (params: {
 }): Promise<void> => {
   console.log("nodeMeta", params);
   await db
-    .update(playgroundNode)
+    .update(workflowNode)
     .set({
       ...(params.size && params.size),
       ...(params.position && { position: params.position }),
     })
-    .where(eq(playgroundNode.id, params.id));
+    .where(eq(workflowNode.id, params.id));
 };
 
-export const saveNode = async (params: {
-  playgroundId: string;
-  data: {
-    id: string;
-    type: NodeTypes;
-    width: number;
-    height: number;
-    color: string;
-    label: string;
-    position: Position;
-  };
-}): Promise<void> => {
-  console.log("saveNode", params);
-  await db.transaction(async (tx) => {
-    await tx.insert(playgroundNode).values({
-      id: params.data.id,
-      playground_id: params.playgroundId,
-      type: params.data.type,
-      width: params.data.width,
-      height: params.data.height,
-      color: params.data.color,
-      label: params.data.label,
-      position: params.data.position,
+export const saveNode = action(
+  z.object({
+    workflowId: z.string(),
+    workflowVersionId: z.string(),
+    data: z.object({
+      id: z.string(),
+      type: z.custom<NodeTypes>(),
+      width: z.number(),
+      height: z.number(),
+      color: z.string(),
+      label: z.string(),
+      position: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+    }),
+  }),
+  async (params): Promise<void> => {
+    console.log("saveNode", params);
+    await db.transaction(async (tx) => {
+      await tx.insert(workflowNode).values({
+        id: params.data.id,
+        workflowId: params.workflowId,
+        workflowVersionId: params.workflowVersionId,
+        type: params.data.type,
+        width: params.data.width,
+        height: params.data.height,
+        color: params.data.color,
+        label: params.data.label,
+        position: params.data.position,
+      });
     });
-  });
-};
+  }
+);
 
 export const deleteNode = async (params: {
   playgroundId: string;
@@ -232,43 +244,46 @@ export const deleteNode = async (params: {
   console.log("deleteNode", params);
   await db.transaction(async (tx) => {
     await tx
-      .delete(playgroundNode)
+      .delete(workflowNode)
       .where(
         and(
-          eq(playgroundNode.playground_id, params.playgroundId),
-          eq(playgroundNode.id, params.data.id)
+          eq(workflowNode.workflowId, params.playgroundId),
+          eq(workflowNode.id, params.data.id)
         )
       );
     await tx.delete(nodeData).where(eq(nodeData.id, params.data.id)); // TODO check this.
   });
 };
 
-export const saveEdge = async (params: {
-  playgroundId: string;
-  data: ConnProps;
-}) => {
-  await db.insert(playgroundEdge).values({
-    playgroundId: params.playgroundId,
-    source: params.data.source,
-    sourceOutput: params.data.sourceOutput,
-    target: params.data.target,
-    targetInput: params.data.targetInput,
-  });
-};
+export const saveEdge = action(
+  z.object({
+    workflowId: z.string(),
+    data: z.custom<ConnProps>(),
+  }),
+  async (params) => {
+    await db.insert(workflowEdge).values({
+      workflowId: params.workflowId,
+      source: params.data.source,
+      sourceOutput: params.data.sourceOutput,
+      target: params.data.target,
+      targetInput: params.data.targetInput,
+    });
+  }
+);
 
 export const deleteEdge = async (params: {
   playgroundId: string;
   data: ConnProps;
 }) => {
   await db
-    .delete(playgroundEdge)
+    .delete(workflowEdge)
     .where(
       and(
-        eq(playgroundEdge.playgroundId, params.playgroundId),
-        eq(playgroundEdge.source, params.data.source),
-        eq(playgroundEdge.sourceOutput, params.data.sourceOutput),
-        eq(playgroundEdge.target, params.data.target),
-        eq(playgroundEdge.targetInput, params.data.targetInput)
+        eq(workflowEdge.workflowId, params.playgroundId),
+        eq(workflowEdge.source, params.data.source),
+        eq(workflowEdge.sourceOutput, params.data.sourceOutput),
+        eq(workflowEdge.target, params.data.target),
+        eq(workflowEdge.targetInput, params.data.targetInput)
       )
     );
 };
@@ -390,40 +405,30 @@ export const setNodeData = action(
  */
 export const createRelease = action(
   z.object({
-    playgroundId: z.string(),
+    workflowId: z.string(),
     changeLog: z.string(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
       const [existing] = await tx
         .select()
-        .from(playground)
-        .where(and(eq(playground.id, params.playgroundId)))
+        .from(workflow)
+        .where(and(eq(workflow.id, params.workflowId)))
         .limit(1);
 
       const [{ latestVersion }] = await tx
         .select({
-          latestVersion: playground.version,
+          latestVersion: workflowVersion.version,
         })
-        .from(playground)
-        .where(
-          and(
-            eq(playground.project_id, existing.project_id),
-            eq(playground.slug, existing.slug)
-          )
-        )
-        .orderBy(desc(playground.version))
+        .from(workflowVersion)
+        .where(and(eq(workflowVersion.workflowId, params.workflowId)))
+        .orderBy(desc(workflowVersion.version))
         .limit(1);
 
       const newVersion = await tx
-        .insert(playground)
+        .insert(workflowVersion)
         .values({
-          name: existing.name,
-          description: existing.description,
-          project_id: existing.project_id,
-          layout: existing.layout,
-          public: existing.public,
-          slug: existing.slug,
+          workflowId: params.workflowId,
           publishedAt: new Date(),
           version: latestVersion + 1,
           changeLog: params.changeLog,
@@ -437,16 +442,16 @@ export const createRelease = action(
 
 export const createExecution = action(
   z.object({
-    playgroundId: z.string(),
-    version: z.string().regex(/^(latest|0|[1-9]\d*\.\d+\.\d+)$/),
+    workflowId: z.string(),
+    workflowVersionId: z.string(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
       const execution = await tx
-        .insert(playgroundExecution)
+        .insert(workflowExecution)
         .values({
-          playground_id: params.playgroundId,
-          playground_version: params.version,
+          workflowId: params.workflowId,
+          workflowVersionId: params.workflowVersionId,
         })
         .returning();
       return execution[0];

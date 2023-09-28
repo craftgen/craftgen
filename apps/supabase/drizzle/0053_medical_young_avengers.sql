@@ -1,0 +1,1 @@
+ALTER TABLE "playground" DROP COLUMN IF EXISTS "change_log";

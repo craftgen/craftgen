@@ -298,46 +298,43 @@ export interface Database {
       }
       playground: {
         Row: {
-          change_log: string | null
           created_at: string
           description: string | null
           id: string
           layout: Json | null
           name: string
           project_id: string
+          project_slug: string
           public: boolean
           published_at: string | null
           slug: string
           updated_at: string
-          version: number
         }
         Insert: {
-          change_log?: string | null
           created_at?: string
           description?: string | null
           id?: string
           layout?: Json | null
           name: string
           project_id: string
+          project_slug: string
           public?: boolean
           published_at?: string | null
           slug: string
           updated_at?: string
-          version?: number
         }
         Update: {
-          change_log?: string | null
           created_at?: string
           description?: string | null
           id?: string
           layout?: Json | null
           name?: string
           project_id?: string
+          project_slug?: string
           public?: boolean
           published_at?: string | null
           slug?: string
           updated_at?: string
-          version?: number
         }
         Relationships: [
           {
@@ -345,6 +342,12 @@ export interface Database {
             columns: ["project_id"]
             referencedRelation: "project"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playground_project_slug_project_slug_fk"
+            columns: ["project_slug"]
+            referencedRelation: "project"
+            referencedColumns: ["slug"]
           }
         ]
       }
@@ -435,6 +438,7 @@ export interface Database {
           id: string
           label: string
           playground_id: string
+          playground_version_id: string
           position: Json
           type: string
           width: number
@@ -445,6 +449,7 @@ export interface Database {
           id: string
           label: string
           playground_id: string
+          playground_version_id: string
           position: Json
           type: string
           width: number
@@ -455,6 +460,7 @@ export interface Database {
           id?: string
           label?: string
           playground_id?: string
+          playground_version_id?: string
           position?: Json
           type?: string
           width?: number
@@ -468,6 +474,43 @@ export interface Database {
           },
           {
             foreignKeyName: "playground_node_playground_id_playground_id_fk"
+            columns: ["playground_id"]
+            referencedRelation: "playground"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playground_node_playground_version_id_playground_version_id_fk"
+            columns: ["playground_version_id"]
+            referencedRelation: "playground_version"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      playground_version: {
+        Row: {
+          change_log: string | null
+          id: string
+          playground_id: string
+          published_at: string | null
+          version: number
+        }
+        Insert: {
+          change_log?: string | null
+          id: string
+          playground_id: string
+          published_at?: string | null
+          version?: number
+        }
+        Update: {
+          change_log?: string | null
+          id?: string
+          playground_id?: string
+          published_at?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playground_version_playground_id_playground_id_fk"
             columns: ["playground_id"]
             referencedRelation: "playground"
             referencedColumns: ["id"]

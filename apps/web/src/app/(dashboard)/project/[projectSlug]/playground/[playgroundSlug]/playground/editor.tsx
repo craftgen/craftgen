@@ -31,7 +31,7 @@ import { CustomSocket } from "./ui/custom-socket";
 import { Schemes } from "./types";
 import { CustomConnection } from "./connection/custom-connection";
 import { importEditor } from "./io";
-import { getPlayground, getPlaygroundById } from "../action";
+import { getWorkflow, getWorkflowById } from "../action";
 import { InspectorPlugin } from "./plugins/inspectorPlugin";
 import { ReteStoreInstance } from "./store";
 import { getControl } from "./control";
@@ -60,10 +60,10 @@ export type DiContainer = {
   modules: Modules;
 };
 
-export type ModuleMap = Record<string, ResultOf<typeof getPlayground>>;
+export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
 
 export const createEditorFunc = (params: {
-  playground: ResultOf<typeof getPlayground>;
+  playground: ResultOf<typeof getWorkflow>;
   store: ReteStoreInstance;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
@@ -71,7 +71,7 @@ export const createEditorFunc = (params: {
 
 export async function createEditor(params: {
   container: HTMLElement;
-  playground: ResultOf<typeof getPlayground>;
+  playground: ResultOf<typeof getWorkflow>;
   store: ReteStoreInstance;
 }) {
   const readonlyPlugin = new ReadonlyPlugin<Schemes>();
@@ -197,7 +197,7 @@ export async function createEditor(params: {
   };
 
   const modules = new Modules(async ({ moduleId, overwrites }) => {
-    const data = await getPlaygroundById(moduleId);
+    const data = await getWorkflowById(moduleId);
     if (!data) throw new Error(`Module ${moduleId} not found`);
     await importEditor(
       {

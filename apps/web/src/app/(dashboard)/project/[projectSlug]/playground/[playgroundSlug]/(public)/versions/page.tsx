@@ -1,6 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getPlayground, getPlaygroundVersions } from "../../action";
+import { getWorkflow, getWorkflowVersions } from "../../action";
 import Link from "next/link";
 
 type Props = {
@@ -15,9 +15,9 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { data: playground } = await getPlayground({
+  const { data: playground } = await getWorkflow({
     projectSlug: params.projectSlug,
-    playgroundSlug: params.playgroundSlug,
+    workflowSlug: params.playgroundSlug,
   });
 
   return {
@@ -26,9 +26,9 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const { data: playgroundVersions } = await getPlaygroundVersions({
+  const { data: playgroundVersions } = await getWorkflowVersions({
     projectSlug: props.params.projectSlug,
-    playgroundSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.playgroundSlug,
   });
   return (
     <div className="h-full flex flex-col">

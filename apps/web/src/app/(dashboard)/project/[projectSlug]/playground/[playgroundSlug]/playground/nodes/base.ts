@@ -13,10 +13,10 @@ import { setNodeData } from "../../action";
 import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { z } from "zod";
-import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
+import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 
 export type NodeData<T extends AnyStateMachine> = z.infer<
-  typeof selectPlaygroundNodeSchema
+  typeof selectWorkflowNodeSchema
 > & {
   node: {
     state?: StateFrom<T>;

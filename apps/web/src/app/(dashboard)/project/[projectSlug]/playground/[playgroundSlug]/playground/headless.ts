@@ -1,5 +1,5 @@
 import { ResultOf } from "@/lib/type";
-import { getPlayground, getPlaygroundById } from "../action";
+import { getWorkflow, getWorkflowById } from "../action";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { importEditor } from "./io";
 import { NodeEditor } from "rete";
@@ -8,13 +8,13 @@ import { createCraftStore } from "./store";
 import { Modules } from "./modules";
 
 export async function createHeadlessEditor(
-  params: ResultOf<typeof getPlayground>
+  params: ResultOf<typeof getWorkflow>
 ) {
   const editor = new NodeEditor<Schemes>();
   const engine = createControlFlowEngine();
   const dataFlow = createDataFlowEngine();
   const modules = new Modules(async ({ moduleId, overwrites }) => {
-    const data = await getPlaygroundById(moduleId);
+    const data = await getWorkflowById(moduleId);
     if (!data) throw new Error(`Module ${moduleId} not found`);
     await importEditor(
       {

@@ -10,16 +10,19 @@ import {
   eq,
   inArray,
   nodeData,
-  playgroundNode,
+  workflowNode,
   not,
-  playground,
+  workflow,
   project,
   projectMembers,
   variable,
+  workflowVersion,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { format, sub } from "date-fns";
 import { GoogleIntegrationsScope } from "./settings/integrations/page";
+import { action } from "@/lib/safe-action";
+import { z } from "zod";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
@@ -102,49 +105,62 @@ export const checkSlugAvailable = async (params: {
 }): Promise<boolean> => {
   const exist = await db
     .select({
-      slug: playground.slug,
+      slug: workflow.slug,
     })
-    .from(playground)
+    .from(workflow)
     .where(
       and(
-        eq(playground.slug, params.slug),
-        eq(playground.project_id, params.projectId)
+        eq(workflow.slug, params.slug),
+        eq(workflow.projectId, params.projectId)
       )
     )
     .limit(1);
   return exist.length === 0;
 };
 
-export const createPlayground = async ({
-  project_id,
-  name,
-  slug,
-  description,
-  template,
-}: {
-  project_id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  template?: string;
-}) => {
-  const supabase = createServerActionClient({ cookies });
-  const session = await supabase.auth.getSession();
+export const createPlayground = action(
+  z.object({
+    projectId: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    template: z.string().optional(),
+  }),
+  async ({ projectId, name, slug, description, template }) => {
+    const supabase = createServerActionClient({ cookies });
+    const session = await supabase.auth.getSession();
 
-  const newPlayground = await db
-    .insert(playground)
-    .values({
-      name,
-      slug,
-      description,
-      project_id,
-    })
-    .returning();
-  return newPlayground[0];
-};
+    const newPlayground = await db.transaction(async (tx) => {
+      const project = await tx.query.project.findFirst({
+        where: (project, { eq }) => eq(project.id, projectId),
+        columns: {
+          slug: true,
+        },
+      });
+      if (!project) throw new Error("Project not found");
+      const newP = await tx
+        .insert(workflow)
+        .values({
+          name,
+          slug,
+          description,
+          projectId,
+          projectSlug: project?.slug,
+        })
+        .returning();
+
+      await tx.insert(workflowVersion).values({
+        playgroundId: newP[0].id,
+      });
+      return newP;
+    });
+
+    return newPlayground[0];
+  }
+);
 
 export const deletePlayground = async ({ id }: { id: string }) => {
-  return await db.delete(playground).where(eq(playground.id, id));
+  return await db.delete(workflow).where(eq(workflow.id, id));
 };
 
 export const clonePlayground = async ({
@@ -248,8 +264,8 @@ export const getPlaygrounds = async (projectId: string) => {
   return await db.query.playground.findMany({
     where: (playground, { eq, and }) =>
       and(
-        eq(playground.project_id, projectId),
-        eq(playground.version, 0) // The latest version
+        eq(playground.projectId, projectId)
+        // eq(playground.version, 0) // The latest version
       ),
     with: {
       project: {

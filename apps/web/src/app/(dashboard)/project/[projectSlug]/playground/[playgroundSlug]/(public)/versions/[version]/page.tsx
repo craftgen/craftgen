@@ -1,6 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getPlayground } from "../../../action";
+import { getWorkflow } from "../../../action";
 
 type Props = {
   params: {
@@ -15,9 +15,9 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { data: playground } = await getPlayground({
+  const { data: playground } = await getWorkflow({
     projectSlug: params.projectSlug,
-    playgroundSlug: params.playgroundSlug,
+    workflowSlug: params.playgroundSlug,
   });
 
   return {
@@ -27,9 +27,9 @@ export async function generateMetadata(
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
   // TODO: make amount we fetch configurable
-  const { data: playground } = await getPlayground({
+  const { data: playground } = await getWorkflow({
     projectSlug: props.params.projectSlug,
-    playgroundSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (

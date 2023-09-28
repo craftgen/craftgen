@@ -9,13 +9,15 @@ import {
   boolean,
   primaryKey,
   integer,
-  serial,
 } from "drizzle-orm/pg-core";
+import { createId } from "@paralleldrive/cuid2";
 
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 import z from "zod";
 
 import { relations } from "drizzle-orm";
+
+const createIdWithPrefix = (prefix: string) => () => `${prefix}_${createId()}`;
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey(),
@@ -108,11 +110,15 @@ export const dataRowRelations = relations(dataRow, ({ one }) => ({
   }),
 }));
 
-export const playground = pgTable(
-  "playground",
+export const workflow = pgTable(
+  "workflow",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    project_id: uuid("project_id")
+    // id: uuid("id").primaryKey().defaultRandom(),
+    id: text("id").$defaultFn(createIdWithPrefix("workflow")).primaryKey(),
+    projectSlug: text("project_slug")
+      .notNull()
+      .references(() => project.slug, { onDelete: "cascade" }),
+    projectId: uuid("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
@@ -123,21 +129,37 @@ export const playground = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     publishedAt: timestamp("published_at"),
-    version: integer("version").notNull().default(0), // The version 0 is the latest version.
-    changeLog: text("change_log").default("initial version"),
   },
   (p) => {
     return {
-      slug: unique().on(p.project_id, p.slug, p.version),
+      slug: unique().on(p.projectId, p.slug),
+    };
+  }
+);
+
+export const workflowVersion = pgTable(
+  "workflow_version",
+  {
+    id: text("id").$defaultFn(createIdWithPrefix("w_version")).primaryKey(),
+    workflowId: text("workflow_id")
+      .notNull()
+      .references(() => workflow.id, { onDelete: "cascade" }),
+    version: integer("version").notNull().default(0), // The version 0 is the latest version.
+    publishedAt: timestamp("published_at"),
+    changeLog: text("change_log").default("initial version"),
+  },
+  (workflowVersion) => {
+    return {
+      unique: unique().on(workflowVersion.workflowId, workflowVersion.version),
     };
   }
 );
 
 /**
- * This table is used for store `latest` data for the nodes in the playground;
+ * This table is used for store `latest` data for the nodes in the workflow;
  */
 export const nodeData = pgTable("node_data", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: text("id").$defaultFn(createIdWithPrefix("nodeData")).primaryKey(),
   project_id: uuid("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
@@ -145,64 +167,26 @@ export const nodeData = pgTable("node_data", {
   state: json("state"),
 });
 
-/**
- * This is used for storing the execution data for the nodes in the playground
- */
-export const nodeExecutionData = pgTable("node_execution_data", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  execution_id: uuid("execution_id")
-    .notNull()
-    .references(() => playgroundExecution.id, { onDelete: "cascade" }),
-  node_id: uuid("node_id")
-    .notNull()
-    .references(() => nodeData.id, { onDelete: "cascade" }),
-  state: json("state"),
-});
-
-export const executionGraph = pgTable("execution_graph", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  execution_id: uuid("execution_id")
-    .notNull()
-    .references(() => playgroundExecution.id, { onDelete: "cascade" }),
-  source_node_execution_data_id: uuid("source_node_id")
-    .notNull()
-    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
-  target_node_execution_data_id: uuid("target_node_id")
-    .notNull()
-    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const executionGraphRelations = relations(executionGraph, ({ one }) => ({
-  execution: one(playgroundExecution, {
-    fields: [executionGraph.execution_id],
-    references: [playgroundExecution.id],
-  }),
-  sourceNodeExecutionData: one(nodeExecutionData, {
-    fields: [executionGraph.source_node_execution_data_id],
-    references: [nodeExecutionData.id],
-  }),
-  targetNodeExecutionData: one(nodeExecutionData, {
-    fields: [executionGraph.target_node_execution_data_id],
-    references: [nodeExecutionData.id],
-  }),
-}));
-
-export const playgroundEdge = pgTable(
-  "playground_edge",
+export const workflowEdge = pgTable(
+  "workflow_edge",
   {
-    playgroundId: uuid("playground_id")
+    workflowId: text("workflow_id")
       .notNull()
-      .references(() => playground.id, {
+      .references(() => workflow.id, {
         onDelete: "cascade",
       }),
-    source: uuid("source")
+    workflowVersionId: text("workflow_version_id")
       .notNull()
-      .references(() => playgroundNode.id, { onDelete: "cascade" }),
+      .references(() => workflowVersion.id, {
+        onDelete: "cascade",
+      }),
+    source: text("source")
+      .notNull()
+      .references(() => workflowNode.id, { onDelete: "cascade" }),
     sourceOutput: text("source_output").notNull(),
-    target: uuid("target")
+    target: text("target")
       .notNull()
-      .references(() => playgroundNode.id, { onDelete: "cascade" }),
+      .references(() => workflowNode.id, { onDelete: "cascade" }),
     targetInput: text("target_input").notNull(),
   },
   (edge) => {
@@ -217,20 +201,20 @@ export const playgroundEdge = pgTable(
   }
 );
 
-export const selectPlaygroundEdgeSchema = createInsertSchema(playgroundEdge);
+export const selectWorkflowEdgeSchema = createInsertSchema(workflowEdge);
 
-export const playgroundEdgeRelations = relations(playgroundEdge, ({ one }) => ({
-  source: one(playgroundNode, {
-    fields: [playgroundEdge.source],
-    references: [playgroundNode.id],
+export const workflowEdgeRelations = relations(workflowEdge, ({ one }) => ({
+  source: one(workflowNode, {
+    fields: [workflowEdge.source],
+    references: [workflowNode.id],
   }),
-  target: one(playgroundNode, {
-    fields: [playgroundEdge.target],
-    references: [playgroundNode.id],
+  target: one(workflowNode, {
+    fields: [workflowEdge.target],
+    references: [workflowNode.id],
   }),
-  playground: one(playground, {
-    fields: [playgroundEdge.playgroundId],
-    references: [playground.id],
+  workflow: one(workflow, {
+    fields: [workflowEdge.workflowId],
+    references: [workflow.id],
   }),
 }));
 type Position = {
@@ -238,16 +222,23 @@ type Position = {
   y: number;
 };
 
-export const playgroundNode = pgTable("playground_node", {
-  id: uuid("id")
-    .primaryKey()
-    .references(() => nodeData.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  playground_id: uuid("playground_id")
+// TODO: Check this out.
+// id: uuid("id")
+//   .primaryKey()
+//   .references(() => nodeData.id, {   TODO: Check this out.
+//     onDelete: "cascade",
+//   })
+//   .notNull(),
+export const workflowNode = pgTable("workflow_node", {
+  id: text("id").$defaultFn(createIdWithPrefix("node")).primaryKey(),
+  workflowId: text("workflow_id")
     .notNull()
-    .references(() => playground.id, {
+    .references(() => workflow.id, {
+      onDelete: "cascade",
+    }),
+  workflowVersionId: text("workflow_version_id")
+    .notNull()
+    .references(() => workflowVersion.id, {
       onDelete: "cascade",
     }),
   position: json("position").$type<Position>().notNull(),
@@ -258,14 +249,18 @@ export const playgroundNode = pgTable("playground_node", {
   type: text("type").notNull(),
 });
 
-export const playgroundExecution = pgTable("playground_execution", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  playground_id: uuid("playground_id")
+export const workflowExecution = pgTable("workflow_execution", {
+  id: text("id").$defaultFn(createIdWithPrefix("execution")).primaryKey(),
+  workflowId: text("workflow_id")
     .notNull()
-    .references(() => playground.id, {
+    .references(() => workflow.id, {
       onDelete: "cascade",
     }),
-  playground_version: text("playground_version").notNull(),
+  workflowVersionId: text("workflow_version_id")
+    .notNull()
+    .references(() => workflowVersion.id, {
+      onDelete: "cascade",
+    }),
   status: text("status")
     .$type<"active" | "done" | "error" | "stopped">()
     .default("active")
@@ -275,40 +270,88 @@ export const playgroundExecution = pgTable("playground_execution", {
   finishedAt: timestamp("finished_at"),
 });
 
-export const playgroundExecutionRelations = relations(
-  playgroundExecution,
+export const workflowExecutionRelations = relations(
+  workflowExecution,
   ({ one }) => ({
-    playground: one(playground, {
-      fields: [playgroundExecution.playground_id],
-      references: [playground.id],
+    workflow: one(workflow, {
+      fields: [workflowExecution.workflowId],
+      references: [workflow.id],
     }),
   })
 );
 
-export const selectPlaygroundNodeSchema = createSelectSchema(playgroundNode, {
+export const workflowExecutionStep = pgTable("workflow_execution_step", {
+  id: text("id").$defaultFn(createIdWithPrefix("execution_step")).primaryKey(),
+  workflowExecutionId: text("workflow_execution_id")
+    .notNull()
+    .references(() => workflowExecution.id, { onDelete: "cascade" }),
+  source_node_execution_data_id: text("source_node_id")
+    .notNull()
+    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
+  target_node_execution_data_id: text("target_node_id")
+    .notNull()
+    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+/**
+ * This is used for storing the execution data for the nodes in the workflow
+ */
+export const nodeExecutionData = pgTable("node_execution_data", {
+  id: text("id")
+    .$defaultFn(createIdWithPrefix("node_execution_data"))
+    .primaryKey(),
+  workflowExecutionId: text("workflow_execution_id")
+    .notNull()
+    .references(() => workflowExecution.id, { onDelete: "cascade" }),
+  nodeId: text("node_id")
+    .notNull()
+    .references(() => nodeData.id, { onDelete: "cascade" }),
+  state: json("state"),
+});
+
+// export const workflowExecutionStepRelations = relations(
+//   workflowExecutionStep,
+//   ({ one }) => ({
+//     execution: one(workflowExecution, {
+//       fields: [workflowExecutionStep.workflowExecutionId],
+//       references: [workflowExecution.id],
+//     }),
+//     sourceNodeExecutionData: one(nodeExecutionData, {
+//       fields: [workflowExecutionStep.source_node_execution_data_id],
+//       references: [nodeExecutionData.id],
+//     }),
+//     targetNodeExecutionData: one(nodeExecutionData, {
+//       fields: [workflowExecutionStep.target_node_execution_data_id],
+//       references: [nodeExecutionData.id],
+//     }),
+//   })
+// );
+
+export const selectWorkflowNodeSchema = createSelectSchema(workflowNode, {
   position: z.object({
     x: z.number(),
     y: z.number(),
   }),
 });
 
-export const playgroundRelations = relations(playground, ({ one, many }) => ({
+export const workflowRelations = relations(workflow, ({ one, many }) => ({
   project: one(project, {
-    fields: [playground.project_id],
+    fields: [workflow.projectId],
     references: [project.id],
   }),
-  edges: many(playgroundEdge),
-  nodes: many(playgroundNode),
+  versions: many(workflowVersion),
+  edges: many(workflowEdge),
+  nodes: many(workflowNode),
 }));
 
-export const playgroundNodeRelations = relations(playgroundNode, ({ one }) => ({
+export const workflowNodeRelations = relations(workflowNode, ({ one }) => ({
   node: one(nodeData, {
-    fields: [playgroundNode.id],
+    fields: [workflowNode.id],
     references: [nodeData.id],
   }),
-  playground: one(playground, {
-    fields: [playgroundNode.playground_id],
-    references: [playground.id],
+  workflow: one(workflow, {
+    fields: [workflowNode.workflowId],
+    references: [workflow.id],
   }),
 }));
 
@@ -317,12 +360,12 @@ export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({
     fields: [nodeData.project_id],
     references: [project.id],
   }),
-  playgrounds: many(playgroundNode),
+  workflows: many(workflowNode),
 }));
 
 export const projectRelations = relations(project, ({ many, one }) => ({
   nodes: many(nodeData),
-  playground: many(playground),
+  workflows: many(workflow),
   members: many(projectMembers),
   articles: many(article),
   datasets: many(dataSet),

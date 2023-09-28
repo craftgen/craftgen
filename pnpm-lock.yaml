@@ -18,12 +18,13 @@ importers:
 
   apps/supabase:
     specifiers:
+      '@paralleldrive/cuid2': ^2.2.2
       '@supabase/supabase-js': ^2.32.0
       '@types/node': ^20.4.10
       '@types/pg': ^8.10.2
       dotenv-cli: ^7.2.1
-      drizzle-kit: ^0.19.12
-      drizzle-orm: ^0.28.2
+      drizzle-kit: ^0.19.13
+      drizzle-orm: ^0.28.6
       drizzle-zod: ^0.5.1
       jose: ^4.14.4
       pg: ^8.11.2
@@ -32,9 +33,10 @@ importers:
       typescript: ^5.1.6
       zod: ^3.21.4
     dependencies:
+      '@paralleldrive/cuid2': 2.2.2
       '@types/pg': 8.10.2
-      drizzle-orm: 0.28.2_2pygkiannzxgmvxudlj5yuvoma
-      drizzle-zod: 0.5.1_43i6jhtcyqirhlnaerke7hnqma
+      drizzle-orm: 0.28.6_2pygkiannzxgmvxudlj5yuvoma
+      drizzle-zod: 0.5.1_3pmk3x44fnl7x7q5nldbohkgja
       jose: 4.14.4
       pg: 8.11.2
       postgres: 3.3.5
@@ -43,7 +45,7 @@ importers:
       '@supabase/supabase-js': 2.32.0
       '@types/node': 20.4.10
       dotenv-cli: 7.2.1
-      drizzle-kit: 0.19.12
+      drizzle-kit: 0.19.13
       tsx: 3.12.7
       typescript: 5.1.6
 
@@ -2588,6 +2590,11 @@ packages:
     dev: false
     optional: true
 
+  /@noble/hashes/1.3.2:
+    resolution: {integrity: sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==}
+    engines: {node: '>= 16'}
+    dev: false
+
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -2605,6 +2612,12 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@paralleldrive/cuid2/2.2.2:
+    resolution: {integrity: sha512-ZOBkgDwEdoYVlSeRbYYXs0S9MejQofiVYoTbKzy/6GQa39/q5tQU2IX46+shYnUkpEl3wc+J6wRlar7r2EK2xA==}
+    dependencies:
+      '@noble/hashes': 1.3.2
+    dev: false
 
   /@pkgr/utils/2.4.0:
     resolution: {integrity: sha512-2OCURAmRtdlL8iUDTypMrrxfwe8frXTeXaxGsVOaYtc/wrUyk8Z/0OBetM7cdlsy7ZFWlMX72VogKeh+A4Xcjw==}
@@ -7300,8 +7313,8 @@ packages:
       wordwrap: 1.0.0
     dev: true
 
-  /drizzle-kit/0.19.12:
-    resolution: {integrity: sha512-rcsmh5gUIkvuD0WrbEc+aLpqY2q2J8ltynRcJiJo2l01hhsYvPnX0sgxWlFXlfAIa5ZXNw2nJZhYlslI6tG3MA==}
+  /drizzle-kit/0.19.13:
+    resolution: {integrity: sha512-Rba5VW1O2JfJlwVBeZ8Zwt2E2us5oZ08PQBDiVSGlug53TOc8hzXjblZFuF+dnll9/RQEHrkzBmJFgqTvn5Rxg==}
     hasBin: true
     dependencies:
       '@drizzle-team/studio': 0.0.5
@@ -7320,8 +7333,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm/0.28.2_2pygkiannzxgmvxudlj5yuvoma:
-    resolution: {integrity: sha512-QRyuzvpJr7GE6LpvZ/sg2nAKNg2if1uGGkgFTiXn4auuYId//vVJe6HBsDTktfKfcaDGzIYos+/f+PS5EkBmrg==}
+  /drizzle-orm/0.28.6_2pygkiannzxgmvxudlj5yuvoma:
+    resolution: {integrity: sha512-yBe+F9htrlYER7uXgDJUQsTHFoIrI5yMm5A0bg0GiZ/kY5jNXTWoEy4KQtg35cE27sw1VbgzoMWHAgCckUUUww==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -7387,13 +7400,13 @@ packages:
       postgres: 3.3.5
     dev: false
 
-  /drizzle-zod/0.5.1_43i6jhtcyqirhlnaerke7hnqma:
+  /drizzle-zod/0.5.1_3pmk3x44fnl7x7q5nldbohkgja:
     resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
     peerDependencies:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
-      drizzle-orm: 0.28.2_2pygkiannzxgmvxudlj5yuvoma
+      drizzle-orm: 0.28.6_2pygkiannzxgmvxudlj5yuvoma
       zod: 3.21.4
     dev: false
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { getPlayground } from "../action";
+import type { getWorkflow } from "../action";
 import { ResultOfAction } from "@/lib/type";
 import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";
@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 
 type ModuleHeaderProps = {
-  playground: ResultOfAction<typeof getPlayground>;
+  playground: ResultOfAction<typeof getWorkflow>;
 };
 
 export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {

@@ -1,4 +1,4 @@
-import { getPlayground } from "../action";
+import { getWorkflow } from "../action";
 import { ModuleHeader } from "../components/module-header";
 
 const PlaygroundLayout = async (props: {
@@ -9,9 +9,9 @@ const PlaygroundLayout = async (props: {
   children: React.ReactNode;
 }) => {
   // TODO: make amount we fetch configurable
-  const { data: playground } = await getPlayground({
+  const { data: playground } = await getWorkflow({
     projectSlug: props.params.projectSlug,
-    playgroundSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (

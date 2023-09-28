@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   deleteEdge,
   deleteNode,
-  getPlayground,
+  getWorkflow,
   updateNodeMeta,
   saveEdge,
   saveNode,
@@ -100,7 +100,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  playground: ResultOfAction<typeof getPlayground>;
+  playground: ResultOfAction<typeof getWorkflow>;
 }> = ({ playground }) => {
   const params = useParams();
   const store = useRef(
@@ -258,7 +258,7 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
             size,
           });
           await saveNode({
-            playgroundId: playground.id,
+            workflowId: playground.id,
             data: {
               id: data.id,
               type: data.ID,
@@ -281,7 +281,7 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
           await saveEdge({
-            playgroundId: playground.id,
+            workflowId: playground.id,
             data: JSON.parse(JSON.stringify(data)),
           });
         })

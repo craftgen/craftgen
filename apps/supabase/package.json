@@ -20,8 +20,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@types/pg": "^8.10.2",
-    "drizzle-orm": "^0.28.2",
+    "drizzle-orm": "^0.28.6",
     "drizzle-zod": "^0.5.1",
     "jose": "^4.14.4",
     "pg": "^8.11.2",
@@ -32,7 +33,7 @@
     "@supabase/supabase-js": "^2.32.0",
     "@types/node": "^20.4.10",
     "dotenv-cli": "^7.2.1",
-    "drizzle-kit": "^0.19.12",
+    "drizzle-kit": "^0.19.13",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   }

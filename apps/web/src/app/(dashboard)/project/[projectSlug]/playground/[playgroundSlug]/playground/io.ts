@@ -4,10 +4,10 @@ import * as Nodes from "./nodes";
 import { DiContainer } from "./editor";
 import { Connection } from "./connection/connection";
 import { createNodeInDB } from "../action";
-import { selectPlaygroundNodeSchema } from "@seocraft/supabase/db";
+import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 import { z } from "zod";
 
-type NodeWithState = z.infer<typeof selectPlaygroundNodeSchema> & {
+type NodeWithState = z.infer<typeof selectWorkflowNodeSchema> & {
   node: {
     state?: any;
   };

@@ -34,7 +34,7 @@ export const CreateReleaseButton = (props: {
   const onSubmitHandler = async (data: z.infer<typeof schema>) => {
     console.log("triggered release", props);
     const release = await createRelease({
-      playgroundId: props.playgroundId,
+      workflowId: props.playgroundId,
       changeLog: data.changeLog,
     });
     setOpen(false);

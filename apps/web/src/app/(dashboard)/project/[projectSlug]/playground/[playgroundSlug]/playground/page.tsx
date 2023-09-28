@@ -1,4 +1,4 @@
-import { getPlayground } from "../action";
+import { getWorkflow } from "../action";
 import { Playground } from "./playground";
 import "./rete.css";
 import { CreateReleaseButton } from "./components/create-release-button";
@@ -9,9 +9,9 @@ const PlaygroundPage = async (props: {
     playgroundSlug: string;
   };
 }) => {
-  const { data: playground } = await getPlayground({
+  const { data: playground } = await getWorkflow({
     projectSlug: props.params.projectSlug,
-    playgroundSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (
