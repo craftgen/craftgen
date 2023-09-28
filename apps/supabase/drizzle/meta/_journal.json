@@ -344,6 +344,27 @@
       "when": 1695790659148,
       "tag": "0048_real_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "5",
+      "when": 1695881717811,
+      "tag": "0049_hot_wind_dancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "5",
+      "when": 1695886766734,
+      "tag": "0050_wealthy_tiger_shark",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "5",
+      "when": 1695890263796,
+      "tag": "0051_medical_nekra",
+      "breakpoints": true
     }
   ]
 }

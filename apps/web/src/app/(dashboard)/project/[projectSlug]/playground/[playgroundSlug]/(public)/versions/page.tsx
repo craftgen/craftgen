@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getPlayground } from "../action";
+import { getPlayground, getPlaygroundVersions } from "../../action";
+import Link from "next/link";
 
 type Props = {
   params: {
@@ -24,25 +25,27 @@ export async function generateMetadata(
   };
 }
 
-const PlaygroundPage: React.FC<Props> = async (props) => {
-  // TODO: make amount we fetch configurable
-  const { data: playground } = await getPlayground({
+const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
+  const { data: playgroundVersions } = await getPlaygroundVersions({
     projectSlug: props.params.projectSlug,
     playgroundSlug: props.params.playgroundSlug,
   });
-  if (!playground) return <div>Not found</div>;
   return (
     <div className="h-full flex flex-col">
-      <section className="grid grid-cols-2 divide-x ">
-        <div className="p-2">
-          <h2>Input</h2>
-        </div>
-        <div className="p-2">
-          <h2>Output</h2>
-        </div>
+      <section className="grid grid-cols-1 divide-y ">
+        {playgroundVersions?.map((version) => (
+          <div className="p-2" key={version.id}>
+            <Link
+              href={`/${props.params.projectSlug}/${version.slug}/versions/${version.version}`}
+            >
+              <h2 className="text-mono">v{version.version}</h2>
+            </Link>
+            <p className="text-muted-foreground">{version.changeLog}</p>
+          </div>
+        ))}
       </section>
     </div>
   );
 };
 
-export default PlaygroundPage;
+export default PlaygroundVersionsPage;

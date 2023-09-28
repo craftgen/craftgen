@@ -9,6 +9,7 @@ import {
   boolean,
   primaryKey,
   integer,
+  serial,
 } from "drizzle-orm/pg-core";
 
 import { createSelectSchema, createInsertSchema } from "drizzle-zod";
@@ -121,14 +122,20 @@ export const playground = pgTable(
     layout: json("layout"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    publishedAt: timestamp("published_at"),
+    version: integer("version").notNull().default(0), // The version 0 is the latest version.
+    changeLog: text("change_log").default("initial version"),
   },
   (p) => {
     return {
-      slug: unique().on(p.project_id, p.slug),
+      slug: unique().on(p.project_id, p.slug, p.version),
     };
   }
 );
 
+/**
+ * This table is used for store `latest` data for the nodes in the playground;
+ */
 export const nodeData = pgTable("node_data", {
   id: uuid("id").primaryKey().defaultRandom(),
   project_id: uuid("project_id")
@@ -137,6 +144,49 @@ export const nodeData = pgTable("node_data", {
   type: text("type").notNull(),
   state: json("state"),
 });
+
+/**
+ * This is used for storing the execution data for the nodes in the playground
+ */
+export const nodeExecutionData = pgTable("node_execution_data", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  execution_id: uuid("execution_id")
+    .notNull()
+    .references(() => playgroundExecution.id, { onDelete: "cascade" }),
+  node_id: uuid("node_id")
+    .notNull()
+    .references(() => nodeData.id, { onDelete: "cascade" }),
+  state: json("state"),
+});
+
+export const executionGraph = pgTable("execution_graph", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  execution_id: uuid("execution_id")
+    .notNull()
+    .references(() => playgroundExecution.id, { onDelete: "cascade" }),
+  source_node_execution_data_id: uuid("source_node_id")
+    .notNull()
+    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
+  target_node_execution_data_id: uuid("target_node_id")
+    .notNull()
+    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const executionGraphRelations = relations(executionGraph, ({ one }) => ({
+  execution: one(playgroundExecution, {
+    fields: [executionGraph.execution_id],
+    references: [playgroundExecution.id],
+  }),
+  sourceNodeExecutionData: one(nodeExecutionData, {
+    fields: [executionGraph.source_node_execution_data_id],
+    references: [nodeExecutionData.id],
+  }),
+  targetNodeExecutionData: one(nodeExecutionData, {
+    fields: [executionGraph.target_node_execution_data_id],
+    references: [nodeExecutionData.id],
+  }),
+}));
 
 export const playgroundEdge = pgTable(
   "playground_edge",
@@ -207,6 +257,33 @@ export const playgroundNode = pgTable("playground_node", {
   color: text("color").notNull(),
   type: text("type").notNull(),
 });
+
+export const playgroundExecution = pgTable("playground_execution", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  playground_id: uuid("playground_id")
+    .notNull()
+    .references(() => playground.id, {
+      onDelete: "cascade",
+    }),
+  playground_version: text("playground_version").notNull(),
+  status: text("status")
+    .$type<"active" | "done" | "error" | "stopped">()
+    .default("active")
+    .notNull(),
+  startedAt: timestamp("timestamp").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  finishedAt: timestamp("finished_at"),
+});
+
+export const playgroundExecutionRelations = relations(
+  playgroundExecution,
+  ({ one }) => ({
+    playground: one(playground, {
+      fields: [playgroundExecution.playground_id],
+      references: [playground.id],
+    }),
+  })
+);
 
 export const selectPlaygroundNodeSchema = createSelectSchema(playgroundNode, {
   position: z.object({

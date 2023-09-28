@@ -46,7 +46,7 @@ const OpenAIFunctionCallMachine = createMachine({
       },
       resultType: "text",
     },
-    validApiKey: null,
+    // validApiKey: null,
     error: null,
   },
   types: {} as {
@@ -57,7 +57,7 @@ const OpenAIFunctionCallMachine = createMachine({
         openai: OpenAIChatSettings;
         resultType: "json" | "text";
       };
-      validApiKey: boolean | null;
+      // validApiKey: boolean | null;
       error: {
         name: string;
         message: string;

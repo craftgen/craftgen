@@ -1,0 +1,1 @@
+ALTER TABLE "playground" ADD COLUMN "change_log" text DEFAULT 'initial version';

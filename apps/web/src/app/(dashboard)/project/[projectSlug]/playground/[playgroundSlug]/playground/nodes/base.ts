@@ -89,6 +89,9 @@ export class BaseNode<
       inputs,
     });
     await this.waitForState("complete");
+    console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
+    this.actor.start();
+    console.log("Starting actor again");
     forward("trigger");
   }
 

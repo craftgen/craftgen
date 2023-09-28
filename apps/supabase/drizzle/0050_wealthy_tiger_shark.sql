@@ -1,0 +1,1 @@
+ALTER TABLE "playground" ADD COLUMN "published_at" timestamp;

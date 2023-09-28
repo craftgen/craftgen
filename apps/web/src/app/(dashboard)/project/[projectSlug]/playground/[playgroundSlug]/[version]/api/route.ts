@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { getPlayground, getPlaygroundById } from "../action";
-import { createHeadlessEditor } from "../playground/headless";
-import { ModuleNode } from "../playground/nodes";
+import { getPlayground } from "../../action";
+import { createHeadlessEditor } from "../../playground/headless";
+import { ModuleNode } from "../../playground/nodes";
 
 export async function POST(
   request: Request,
-  { params }: { params: { projectSlug: string; playgroundSlug: string } }
+  {
+    params,
+  }: {
+    params: { projectSlug: string; playgroundSlug: string; version: string };
+  }
 ) {
   const input = await request.json();
   console.log("req", input, params);

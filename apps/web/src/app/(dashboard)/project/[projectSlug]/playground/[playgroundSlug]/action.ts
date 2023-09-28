@@ -12,6 +12,10 @@ import {
   gt,
   projectMembers,
   playgroundEdge,
+  playgroundExecution,
+  desc,
+  sql,
+  not,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { ConnProps, NodeTypes, Position } from "./playground/types";
@@ -37,69 +41,103 @@ export const getPlaygroundById = async (playgroundId: string) => {
   });
 };
 
-export const getPlayground = async (params: {
-  playgroundSlug: string;
-  projectSlug: string;
-}) => {
-  const supabase = createServerActionClient({ cookies });
-  const session = await supabase.auth.getSession();
-
-  return await db.transaction(async (tx) => {
-    const project = await tx.query.project.findFirst({
-      where: (project, { eq }) => eq(project.slug, params.projectSlug),
-      columns: {
-        id: true,
-      },
-    });
-    if (!project) {
-      throw new Error("Project not found");
-    }
-    const userId = session?.data?.session?.user?.id;
-    let readonly = true;
-    if (userId) {
-      const [isMember] = await tx
-        .select()
-        .from(projectMembers)
-        .where(
-          and(
-            eq(projectMembers.projectId, project.id),
-            eq(projectMembers.userId, userId)
-          )
-        )
-        .limit(1);
-      if (isMember) {
-        readonly = false;
+export const getPlaygroundVersions = action(
+  z.object({
+    projectSlug: z.string(),
+    playgroundSlug: z.string(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const project = await tx.query.project.findFirst({
+        where: (project, { eq }) => eq(project.slug, params.projectSlug),
+        columns: {
+          id: true,
+        },
+      });
+      if (!project) {
+        throw new Error("Project not found");
       }
-    }
-    const playground = await tx.query.playground.findFirst({
-      where: (playground, { eq, and }) =>
-        and(
-          eq(playground.slug, params.playgroundSlug),
-          eq(playground.project_id, project.id)
-        ),
-      with: {
-        project: true,
-        nodes: {
-          with: {
-            node: {
-              columns: {
-                state: true,
+      return await tx.query.playground.findMany({
+        where: (playground, { eq, and }) =>
+          and(
+            eq(playground.project_id, project?.id),
+            not(eq(playground.version, 0)) // This is a hack to not show the latest version.
+          ),
+        orderBy: (playground, { desc }) => [desc(playground.version)],
+      });
+    });
+  }
+);
+
+export const getPlayground = action(
+  z.object({
+    playgroundSlug: z.string(),
+    projectSlug: z.string(),
+    version: z.number().optional(),
+  }),
+  async (params) => {
+    const supabase = createServerActionClient({ cookies });
+    const session = await supabase.auth.getSession();
+
+    return await db.transaction(async (tx) => {
+      const project = await tx.query.project.findFirst({
+        where: (project, { eq }) => eq(project.slug, params.projectSlug),
+        columns: {
+          id: true,
+        },
+      });
+      if (!project) {
+        throw new Error("Project not found");
+      }
+      const userId = session?.data?.session?.user?.id;
+      let readonly = true;
+      if (userId) {
+        const [isMember] = await tx
+          .select()
+          .from(projectMembers)
+          .where(
+            and(
+              eq(projectMembers.projectId, project.id),
+              eq(projectMembers.userId, userId)
+            )
+          )
+          .limit(1);
+        if (isMember) {
+          readonly = false;
+        }
+      }
+      const playground = await tx.query.playground.findFirst({
+        where: (playground, { eq, and }) =>
+          and(
+            eq(playground.slug, params.playgroundSlug),
+            eq(playground.project_id, project.id),
+            params.version ? eq(playground.version, params.version) : sql`true`
+          ),
+        with: {
+          project: true,
+          nodes: {
+            with: {
+              node: {
+                columns: {
+                  state: true,
+                },
               },
             },
           },
+          edges: true,
         },
-        edges: true,
-      },
+        orderBy: (playground, { desc }) => [desc(playground.version)],
+      });
+      if (!playground) {
+        throw new Error("Playground not found");
+      }
+      return {
+        ...playground,
+        readonly,
+      };
     });
-    if (!playground) {
-      throw new Error("Playground not found");
-    }
-    return {
-      ...playground,
-      readonly,
-    };
-  });
-};
+  }
+);
 
 export const getPlaygroundInputsOutputs = async (params: {
   playgroundId: string;
@@ -344,5 +382,74 @@ export const setNodeData = action(
       .set({ state: params.state })
       .where(eq(nodeData.id, params.nodeId))
       .returning();
+  }
+);
+/**
+ * Creating realease basically clonening the current state of the playground.
+ * This is used to create a new version of the playground.
+ */
+export const createRelease = action(
+  z.object({
+    playgroundId: z.string(),
+    changeLog: z.string(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const [existing] = await tx
+        .select()
+        .from(playground)
+        .where(and(eq(playground.id, params.playgroundId)))
+        .limit(1);
+
+      const [{ latestVersion }] = await tx
+        .select({
+          latestVersion: playground.version,
+        })
+        .from(playground)
+        .where(
+          and(
+            eq(playground.project_id, existing.project_id),
+            eq(playground.slug, existing.slug)
+          )
+        )
+        .orderBy(desc(playground.version))
+        .limit(1);
+
+      const newVersion = await tx
+        .insert(playground)
+        .values({
+          name: existing.name,
+          description: existing.description,
+          project_id: existing.project_id,
+          layout: existing.layout,
+          public: existing.public,
+          slug: existing.slug,
+          publishedAt: new Date(),
+          version: latestVersion + 1,
+          changeLog: params.changeLog,
+        })
+        .returning();
+
+      return newVersion[0];
+    });
+  }
+);
+
+export const createExecution = action(
+  z.object({
+    playgroundId: z.string(),
+    version: z.string().regex(/^(latest|0|[1-9]\d*\.\d+\.\d+)$/),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const execution = await tx
+        .insert(playgroundExecution)
+        .values({
+          playground_id: params.playgroundId,
+          playground_version: params.version,
+        })
+        .returning();
+      return execution[0];
+    });
   }
 );

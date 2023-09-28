@@ -44,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { match } from "ts-pattern";
+import { ResultOf, ResultOfAction } from "@/lib/type";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -99,7 +100,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  playground: NonNullable<Awaited<ReturnType<typeof getPlayground>>>;
+  playground: ResultOfAction<typeof getPlayground>;
 }> = ({ playground }) => {
   const params = useParams();
   const store = useRef(

@@ -167,6 +167,49 @@ export interface Database {
           }
         ]
       }
+      execution_graph: {
+        Row: {
+          created_at: string
+          execution_id: string
+          id: string
+          source_node_id: string
+          target_node_id: string
+        }
+        Insert: {
+          created_at?: string
+          execution_id: string
+          id?: string
+          source_node_id: string
+          target_node_id: string
+        }
+        Update: {
+          created_at?: string
+          execution_id?: string
+          id?: string
+          source_node_id?: string
+          target_node_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_graph_execution_id_playground_execution_id_fk"
+            columns: ["execution_id"]
+            referencedRelation: "playground_execution"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_graph_source_node_id_node_execution_data_id_fk"
+            columns: ["source_node_id"]
+            referencedRelation: "node_execution_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_graph_target_node_id_node_execution_data_id_fk"
+            columns: ["target_node_id"]
+            referencedRelation: "node_execution_data"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       link: {
         Row: {
           article_id: string | null
@@ -219,8 +262,43 @@ export interface Database {
           }
         ]
       }
+      node_execution_data: {
+        Row: {
+          execution_id: string
+          id: string
+          node_id: string
+          state: Json | null
+        }
+        Insert: {
+          execution_id: string
+          id?: string
+          node_id: string
+          state?: Json | null
+        }
+        Update: {
+          execution_id?: string
+          id?: string
+          node_id?: string
+          state?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "node_execution_data_execution_id_playground_execution_id_fk"
+            columns: ["execution_id"]
+            referencedRelation: "playground_execution"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "node_execution_data_node_id_node_data_id_fk"
+            columns: ["node_id"]
+            referencedRelation: "node_data"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       playground: {
         Row: {
+          change_log: string | null
           created_at: string
           description: string | null
           id: string
@@ -228,10 +306,13 @@ export interface Database {
           name: string
           project_id: string
           public: boolean
+          published_at: string | null
           slug: string
           updated_at: string
+          version: number
         }
         Insert: {
+          change_log?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -239,10 +320,13 @@ export interface Database {
           name: string
           project_id: string
           public?: boolean
+          published_at?: string | null
           slug: string
           updated_at?: string
+          version?: number
         }
         Update: {
+          change_log?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -250,8 +334,10 @@ export interface Database {
           name?: string
           project_id?: string
           public?: boolean
+          published_at?: string | null
           slug?: string
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -301,6 +387,43 @@ export interface Database {
             foreignKeyName: "playground_edge_target_playground_node_id_fk"
             columns: ["target"]
             referencedRelation: "playground_node"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      playground_execution: {
+        Row: {
+          finished_at: string | null
+          id: string
+          playground_id: string
+          playground_version: string
+          status: string
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          playground_id: string
+          playground_version: string
+          status?: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          playground_id?: string
+          playground_version?: string
+          status?: string
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playground_execution_playground_id_playground_id_fk"
+            columns: ["playground_id"]
+            referencedRelation: "playground"
             referencedColumns: ["id"]
           }
         ]

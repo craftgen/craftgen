@@ -9,7 +9,7 @@ const PlaygroundLayout = async (props: {
   children: React.ReactNode;
 }) => {
   // TODO: make amount we fetch configurable
-  const playground = await getPlayground({
+  const { data: playground } = await getPlayground({
     projectSlug: props.params.projectSlug,
     playgroundSlug: props.params.playgroundSlug,
   });

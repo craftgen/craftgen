@@ -2,30 +2,28 @@
 
 import Link from "next/link";
 import type { getPlayground } from "../action";
-import { ResultOf } from "@/lib/type";
-import {
-  Check,
-  Copy,
-  GitFork,
-  Rocket,
-  RocketIcon,
-  Slash,
-  Star,
-} from "lucide-react";
+import { ResultOfAction } from "@/lib/type";
+import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 
 type ModuleHeaderProps = {
-  playground: ResultOf<typeof getPlayground>;
+  playground: ResultOfAction<typeof getPlayground>;
 };
 
 export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
+  const segment = useSelectedLayoutSegment();
   const [state, copyToClipboard] = useCopyToClipboard();
   const moduleId = useMemo(() => {
     return `${playground.project.slug}/${playground.slug}`;
   }, [playground.project.slug, playground.slug]);
+  const router = useRouter();
   return (
     <section id="header">
       <div className="flex flex-col sm:flex-row justify-between items-start">
@@ -54,6 +52,7 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
             )}
           </Button>
         </div>
+
         <div className="space-x-2 flex items-center">
           <Button variant={"outline"}>
             <GitFork className="w-4 h-4 mr-2" />
@@ -71,10 +70,45 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
           </Link>
         </div>
       </div>
-      <p>{playground.description}</p>
-      <Badge variant={"outline"}>
-        {playground.public ? "Public" : "Private"}
-      </Badge>
+      <div className="space-y-2">
+        <div className="flex  flex-row w-full text-sm h-5 space-x-2">
+          <span className="mr-2 bg-muted rounded p-1 flex items-center font-mono">
+            v{playground.version}
+          </span>
+          <Separator orientation="vertical" />
+          <Badge variant={"outline"}>
+            {playground.public ? "Public" : "Private"}
+          </Badge>
+          {playground.publishedAt && (
+            <>
+              <Separator orientation="vertical" />
+              <span>
+                Published{" "}
+                {formatDistanceToNow(playground.publishedAt, {
+                  addSuffix: true,
+                })}
+              </span>
+            </>
+          )}
+        </div>
+        <p className="line-clamp-1">{playground.description}</p>
+      </div>
+
+      <Tabs
+        className="mt-4"
+        defaultValue={segment ?? "demo"}
+        onValueChange={(v) => {
+          const path = v === "demo" ? "" : `/${v}`;
+          router.push(`/${moduleId}${path}`);
+        }}
+      >
+        <TabsList>
+          <TabsTrigger value="demo">Demo</TabsTrigger>
+          <TabsTrigger value="api">API</TabsTrigger>
+          <TabsTrigger value="examples">Examples</TabsTrigger>
+          <TabsTrigger value="versions">Versions</TabsTrigger>
+        </TabsList>
+      </Tabs>
     </section>
   );
 };

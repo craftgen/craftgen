@@ -1,11 +1,12 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getPlayground } from "../action";
+import { getPlayground } from "../../../action";
 
 type Props = {
   params: {
     projectSlug: string;
     playgroundSlug: string;
+    version: string;
   };
   searchParams: { [key: string]: string | string[] | undefined };
 };
@@ -24,7 +25,7 @@ export async function generateMetadata(
   };
 }
 
-const PlaygroundPage: React.FC<Props> = async (props) => {
+const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
   // TODO: make amount we fetch configurable
   const { data: playground } = await getPlayground({
     projectSlug: props.params.projectSlug,
@@ -33,16 +34,11 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
   if (!playground) return <div>Not found</div>;
   return (
     <div className="h-full flex flex-col">
-      <section className="grid grid-cols-2 divide-x ">
-        <div className="p-2">
-          <h2>Input</h2>
-        </div>
-        <div className="p-2">
-          <h2>Output</h2>
-        </div>
+      <section className="grid grid-cols-2 divide-x">
+        Versions {props.params.version}
       </section>
     </div>
   );
 };
 
-export default PlaygroundPage;
+export default PlaygroundVersionsPage;

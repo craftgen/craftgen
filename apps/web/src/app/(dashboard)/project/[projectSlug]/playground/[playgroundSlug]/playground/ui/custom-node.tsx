@@ -124,7 +124,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
   }, []);
 
   const triggerNode = async () => {
-    const executionId = String(+new Date());
+    // const executionId = String(+new Date());
+    const execution =  createExecution({
+      playgroundId: playgroundId!,
+    })
     di?.engine?.execute(props.data.id, undefined, executionId);
   };
 
