@@ -19,7 +19,8 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const di = useCraftStore((store) => store.di);
-  const playgroundId = useCraftStore((store) => store.playgroundId);
+  const playgroundId = useCraftStore((store) => store.workflowId);
+  const workflowVersionId = useCraftStore((store) => store.workflowVersionId);
   const projectSlug = useCraftStore((store) => store.projectSlug);
   const position = useCraftStore((store) => store.position);
   const [open, setOpen] = useState(false);
@@ -37,9 +38,12 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     const node = await createNode({
       di: di!,
       type: name,
-      data,
+      data: {
+        ...data,
+        workflowVersionId,
+      },
       saveToDB: true,
-      playgroundId: playgroundId,
+      workflowId: playgroundId,
       projectSlug: projectSlug,
     });
     console.log("context createNode", node);

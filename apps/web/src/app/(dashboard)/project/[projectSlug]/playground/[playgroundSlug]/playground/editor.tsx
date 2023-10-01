@@ -40,7 +40,7 @@ import ELK from "elkjs/lib/elk.bundled.js";
 import { Modules } from "./modules";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { useMagneticConnection } from "./connection";
-import { ResultOf } from "@/lib/type";
+import { ResultOf, ResultOfAction } from "@/lib/type";
 const elk = new ELK();
 
 export type AreaExtra = ReactArea2D<Schemes>;
@@ -63,7 +63,7 @@ export type DiContainer = {
 export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
 
 export const createEditorFunc = (params: {
-  playground: ResultOf<typeof getWorkflow>;
+  workflow: ResultOfAction<typeof getWorkflow>;
   store: ReteStoreInstance;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
@@ -71,7 +71,7 @@ export const createEditorFunc = (params: {
 
 export async function createEditor(params: {
   container: HTMLElement;
-  playground: ResultOf<typeof getWorkflow>;
+  workflow: ResultOfAction<typeof getWorkflow>;
   store: ReteStoreInstance;
 }) {
   const readonlyPlugin = new ReadonlyPlugin<Schemes>();
@@ -149,7 +149,7 @@ export async function createEditor(params: {
   area.use(inspector);
   area.use(history);
 
-  if (!params.playground.readonly) {
+  if (!params.workflow.readonly) {
     area.use(connection);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMagneticConnection(connection, {
@@ -228,8 +228,8 @@ export async function createEditor(params: {
   };
 
   await importEditor(di, {
-    nodes: params.playground.nodes as any,
-    edges: params.playground.edges as any,
+    nodes: params.workflow.versions[0].nodes, // TODO:
+    edges: params.workflow.versions[0].edges as any, //TODO: fix this types.
   });
   // await arrange.layout();
 
@@ -237,7 +237,7 @@ export async function createEditor(params: {
 
   params.store.getState().setDi(di);
 
-  if (params.playground.readonly) {
+  if (params.workflow.readonly) {
     readonlyPlugin.enable();
   }
 

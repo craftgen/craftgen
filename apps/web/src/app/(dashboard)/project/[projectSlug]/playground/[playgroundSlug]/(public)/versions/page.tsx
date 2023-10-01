@@ -1,6 +1,9 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getWorkflow, getWorkflowVersions } from "../../action";
+import {
+  getWorkflow,
+  getWorkflowVersions as getWorkflowWithVersions,
+} from "../../action";
 import Link from "next/link";
 
 type Props = {
@@ -26,17 +29,18 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const { data: playgroundVersions } = await getWorkflowVersions({
+  const { data: workflow } = await getWorkflowWithVersions({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
+  console.log(workflow)
   return (
     <div className="h-full flex flex-col">
       <section className="grid grid-cols-1 divide-y ">
-        {playgroundVersions?.map((version) => (
+        {workflow?.versions.map((version) => (
           <div className="p-2" key={version.id}>
             <Link
-              href={`/${props.params.projectSlug}/${version.slug}/versions/${version.version}`}
+              href={`/${workflow.projectSlug}/${workflow.slug}/versions/${version.version}`}
             >
               <h2 className="text-mono">v{version.version}</h2>
             </Link>

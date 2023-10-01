@@ -8,7 +8,7 @@ import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 import { z } from "zod";
 
 type NodeWithState = z.infer<typeof selectWorkflowNodeSchema> & {
-  node: {
+  context: {
     state?: any;
   };
 };
@@ -18,14 +18,14 @@ export async function createNode({
   type,
   data,
   saveToDB = false,
-  playgroundId,
+  workflowId,
   projectSlug,
 }: {
   di: DiContainer;
   type: NodeTypes;
   data: NodeWithState;
   saveToDB?: boolean;
-  playgroundId?: string;
+  workflowId?: string;
   projectSlug?: string;
 }) {
   type NodeMappingFunctions = {
@@ -61,20 +61,22 @@ export async function createNode({
   if (!matched) throw new Error(`Unsupported node '${type}'`);
 
   if (saveToDB) {
-    if (!playgroundId) throw new Error("playgroundId is required");
+    if (!workflowId) throw new Error("playgroundId is required");
     if (!projectSlug) throw new Error("projectSlug is required");
-    const nodeInDb = await createNodeInDB({
-      playgroundId,
+    if (!data.workflowVersionId)
+      throw new Error("workflowVersionId is required");
+    const { data: workflowNodeInDB } = await createNodeInDB({
+      workflowId,
+      workflowVersionId: data.workflowVersionId,
       projectSlug,
       type,
+      state: data.context?.state,
     });
-    console.log("creating new node with", { data, nodeInDb });
+    if (!workflowNodeInDB) throw new Error("Failed to create node in DB");
+    console.log("creating new node with", { data, nodeInDb: workflowNodeInDB });
+
     const node = await matched(di, {
-      ...data,
-      id: nodeInDb.id, // TODO: this need to be playgroundNode.id
-      type: nodeInDb.type,
-      project_id: nodeInDb.project_id,
-      label: nodesMeta[type].name,
+      ...workflowNodeInDB,
     });
     return node;
   }
@@ -99,9 +101,6 @@ export async function importEditor(di: DiContainer, data: Data) {
 
   for (const n of nodes) {
     if (di.editor.getNode(n.id)) continue;
-    // const nodeData = await getNodeData(n.node_id);
-    // if (!nodeData) throw new Error(`Node data not found for ${n.node_id}`);
-
     const node = await createNode({
       di,
       type: n.type as any,

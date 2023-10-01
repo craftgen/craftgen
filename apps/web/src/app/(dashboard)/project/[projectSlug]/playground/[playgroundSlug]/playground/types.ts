@@ -7,7 +7,6 @@ import {
   Start,
   TextNode,
   Number,
-  DataSource,
   ComposeObject,
   Article,
   Input,
@@ -29,7 +28,6 @@ export const nodes = {
   Number: Number,
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
-  DataSource: DataSource,
 
   ComposeObject: ComposeObject,
   Article: Article,
@@ -85,11 +83,6 @@ export const nodesMeta: Record<
     name: "OpenAI Function Call",
     description: "Node for making OpenAI function calls",
     icon: Icons.openAI,
-  },
-  DataSource: {
-    name: "Data Source",
-    description: "Node for handling data sources",
-    icon: Icons.database,
   },
   ComposeObject: {
     name: "Compose Object",
@@ -159,7 +152,6 @@ export type NodeProps =
   | Number
   | PromptTemplate
   | OpenAIFunctionCall
-  | DataSource
   | ComposeObject
   | Article
   | Input

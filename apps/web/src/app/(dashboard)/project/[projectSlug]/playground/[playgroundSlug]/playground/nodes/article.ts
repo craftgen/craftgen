@@ -117,7 +117,7 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
     // console.log("editor", node);
   }
 
-  data() {
+  async data() {
     const state = this.actor.getSnapshot();
     console.log("ARTICLE State", state);
     // const editor = createTmpEditor();

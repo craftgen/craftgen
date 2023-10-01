@@ -1,1 +1,0 @@
-ALTER TABLE "node_data" RENAME COLUMN "data" TO "state";

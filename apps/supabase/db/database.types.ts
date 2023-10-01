@@ -34,228 +34,31 @@ export interface Database {
   }
   public: {
     Tables: {
-      article: {
-        Row: {
-          article_status: Database["public"]["Enums"]["article_status"]
-          created_at: string
-          id: string
-          project_id: string
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          article_status?: Database["public"]["Enums"]["article_status"]
-          created_at?: string
-          id?: string
-          project_id: string
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          article_status?: Database["public"]["Enums"]["article_status"]
-          created_at?: string
-          id?: string
-          project_id?: string
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "article_project_id_project_id_fk"
-            columns: ["project_id"]
-            referencedRelation: "project"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      article_metadata: {
-        Row: {
-          article_id: string
-          id: string
-        }
-        Insert: {
-          article_id: string
-          id: string
-        }
-        Update: {
-          article_id?: string
-          id?: string
-        }
-        Relationships: []
-      }
-      article_node: {
-        Row: {
-          article_id: string
-          data: Json
-          id: string
-          type: string
-        }
-        Insert: {
-          article_id: string
-          data: Json
-          id?: string
-          type: string
-        }
-        Update: {
-          article_id?: string
-          data?: Json
-          id?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "article_node_article_id_article_id_fk"
-            columns: ["article_id"]
-            referencedRelation: "article"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      data_row: {
-        Row: {
-          data: Json
-          data_set_id: string
-          id: string
-        }
-        Insert: {
-          data: Json
-          data_set_id: string
-          id?: string
-        }
-        Update: {
-          data?: Json
-          data_set_id?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "data_row_data_set_id_data_set_id_fk"
-            columns: ["data_set_id"]
-            referencedRelation: "data_set"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      data_set: {
-        Row: {
-          description: string | null
-          id: string
-          name: string
-          project_id: string
-        }
-        Insert: {
-          description?: string | null
-          id?: string
-          name: string
-          project_id: string
-        }
-        Update: {
-          description?: string | null
-          id?: string
-          name?: string
-          project_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "data_set_project_id_project_id_fk"
-            columns: ["project_id"]
-            referencedRelation: "project"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      execution_graph: {
-        Row: {
-          created_at: string
-          execution_id: string
-          id: string
-          source_node_id: string
-          target_node_id: string
-        }
-        Insert: {
-          created_at?: string
-          execution_id: string
-          id?: string
-          source_node_id: string
-          target_node_id: string
-        }
-        Update: {
-          created_at?: string
-          execution_id?: string
-          id?: string
-          source_node_id?: string
-          target_node_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "execution_graph_execution_id_playground_execution_id_fk"
-            columns: ["execution_id"]
-            referencedRelation: "playground_execution"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "execution_graph_source_node_id_node_execution_data_id_fk"
-            columns: ["source_node_id"]
-            referencedRelation: "node_execution_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "execution_graph_target_node_id_node_execution_data_id_fk"
-            columns: ["target_node_id"]
-            referencedRelation: "node_execution_data"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      link: {
-        Row: {
-          article_id: string | null
-          article_node_id: string
-          id: string
-          type: string
-          url: string
-        }
-        Insert: {
-          article_id?: string | null
-          article_node_id: string
-          id: string
-          type: string
-          url: string
-        }
-        Update: {
-          article_id?: string | null
-          article_node_id?: string
-          id?: string
-          type?: string
-          url?: string
-        }
-        Relationships: []
-      }
-      node_data: {
+      context: {
         Row: {
           id: string
+          previous_context_id: string | null
           project_id: string
           state: Json | null
           type: string
         }
         Insert: {
-          id?: string
+          id: string
+          previous_context_id?: string | null
           project_id: string
           state?: Json | null
           type: string
         }
         Update: {
           id?: string
+          previous_context_id?: string | null
           project_id?: string
           state?: Json | null
           type?: string
         }
         Relationships: [
           {
-            foreignKeyName: "node_data_project_id_project_id_fk"
+            foreignKeyName: "context_project_id_project_id_fk"
             columns: ["project_id"]
             referencedRelation: "project"
             referencedColumns: ["id"]
@@ -264,255 +67,34 @@ export interface Database {
       }
       node_execution_data: {
         Row: {
-          execution_id: string
+          context_id: string
           id: string
-          node_id: string
           state: Json | null
+          workflow_execution_id: string
         }
         Insert: {
-          execution_id: string
-          id?: string
-          node_id: string
+          context_id: string
+          id: string
           state?: Json | null
+          workflow_execution_id: string
         }
         Update: {
-          execution_id?: string
+          context_id?: string
           id?: string
-          node_id?: string
           state?: Json | null
+          workflow_execution_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "node_execution_data_execution_id_playground_execution_id_fk"
-            columns: ["execution_id"]
-            referencedRelation: "playground_execution"
+            foreignKeyName: "node_execution_data_context_id_context_id_fk"
+            columns: ["context_id"]
+            referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "node_execution_data_node_id_node_data_id_fk"
-            columns: ["node_id"]
-            referencedRelation: "node_data"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      playground: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          layout: Json | null
-          name: string
-          project_id: string
-          project_slug: string
-          public: boolean
-          published_at: string | null
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          layout?: Json | null
-          name: string
-          project_id: string
-          project_slug: string
-          public?: boolean
-          published_at?: string | null
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          layout?: Json | null
-          name?: string
-          project_id?: string
-          project_slug?: string
-          public?: boolean
-          published_at?: string | null
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "playground_project_id_project_id_fk"
-            columns: ["project_id"]
-            referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playground_project_slug_project_slug_fk"
-            columns: ["project_slug"]
-            referencedRelation: "project"
-            referencedColumns: ["slug"]
-          }
-        ]
-      }
-      playground_edge: {
-        Row: {
-          playground_id: string
-          source: string
-          source_output: string
-          target: string
-          target_input: string
-        }
-        Insert: {
-          playground_id: string
-          source: string
-          source_output: string
-          target: string
-          target_input: string
-        }
-        Update: {
-          playground_id?: string
-          source?: string
-          source_output?: string
-          target?: string
-          target_input?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "playground_edge_playground_id_playground_id_fk"
-            columns: ["playground_id"]
-            referencedRelation: "playground"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playground_edge_source_playground_node_id_fk"
-            columns: ["source"]
-            referencedRelation: "playground_node"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playground_edge_target_playground_node_id_fk"
-            columns: ["target"]
-            referencedRelation: "playground_node"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      playground_execution: {
-        Row: {
-          finished_at: string | null
-          id: string
-          playground_id: string
-          playground_version: string
-          status: string
-          timestamp: string
-          updated_at: string
-        }
-        Insert: {
-          finished_at?: string | null
-          id?: string
-          playground_id: string
-          playground_version: string
-          status?: string
-          timestamp?: string
-          updated_at?: string
-        }
-        Update: {
-          finished_at?: string | null
-          id?: string
-          playground_id?: string
-          playground_version?: string
-          status?: string
-          timestamp?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "playground_execution_playground_id_playground_id_fk"
-            columns: ["playground_id"]
-            referencedRelation: "playground"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      playground_node: {
-        Row: {
-          color: string
-          height: number
-          id: string
-          label: string
-          playground_id: string
-          playground_version_id: string
-          position: Json
-          type: string
-          width: number
-        }
-        Insert: {
-          color: string
-          height: number
-          id: string
-          label: string
-          playground_id: string
-          playground_version_id: string
-          position: Json
-          type: string
-          width: number
-        }
-        Update: {
-          color?: string
-          height?: number
-          id?: string
-          label?: string
-          playground_id?: string
-          playground_version_id?: string
-          position?: Json
-          type?: string
-          width?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "playground_node_id_node_data_id_fk"
-            columns: ["id"]
-            referencedRelation: "node_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playground_node_playground_id_playground_id_fk"
-            columns: ["playground_id"]
-            referencedRelation: "playground"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playground_node_playground_version_id_playground_version_id_fk"
-            columns: ["playground_version_id"]
-            referencedRelation: "playground_version"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      playground_version: {
-        Row: {
-          change_log: string | null
-          id: string
-          playground_id: string
-          published_at: string | null
-          version: number
-        }
-        Insert: {
-          change_log?: string | null
-          id: string
-          playground_id: string
-          published_at?: string | null
-          version?: number
-        }
-        Update: {
-          change_log?: string | null
-          id?: string
-          playground_id?: string
-          published_at?: string | null
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "playground_version_playground_id_playground_id_fk"
-            columns: ["playground_id"]
-            referencedRelation: "playground"
+            foreignKeyName: "node_execution_data_workflow_execution_id_workflow_execution_id"
+            columns: ["workflow_execution_id"]
+            referencedRelation: "workflow_execution"
             referencedColumns: ["id"]
           }
         ]
@@ -526,7 +108,7 @@ export interface Database {
           slug: string
         }
         Insert: {
-          id?: string
+          id: string
           name: string
           personal?: boolean
           site?: string | null
@@ -549,7 +131,7 @@ export interface Database {
           project_id: string
         }
         Insert: {
-          id?: string
+          id: string
           key: string
           name: string
           project_id: string
@@ -577,7 +159,7 @@ export interface Database {
           user_id: string
         }
         Insert: {
-          id?: string
+          id: string
           member_role?: Database["public"]["Enums"]["member_role"]
           project_id: string
           user_id: string
@@ -612,7 +194,7 @@ export interface Database {
           value: string | null
         }
         Insert: {
-          id?: string
+          id: string
           is_system?: boolean
           key: string
           project_id: string
@@ -642,7 +224,7 @@ export interface Database {
           full_name: string | null
           google_access_token: string | null
           google_refresh_token: string | null
-          google_scopes: string[]
+          google_scopes: string[] | null
           id: string
           username: string | null
         }
@@ -653,7 +235,7 @@ export interface Database {
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
-          google_scopes?: string[]
+          google_scopes?: string[] | null
           id: string
           username?: string | null
         }
@@ -664,7 +246,7 @@ export interface Database {
           full_name?: string | null
           google_access_token?: string | null
           google_refresh_token?: string | null
-          google_scopes?: string[]
+          google_scopes?: string[] | null
           id?: string
           username?: string | null
         }
@@ -675,21 +257,306 @@ export interface Database {
           created_at: string
           email: string
           id: string
-          platforms: string[]
+          platforms: string[] | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
-          platforms?: string[]
+          platforms?: string[] | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
-          platforms?: string[]
+          platforms?: string[] | null
         }
         Relationships: []
+      }
+      workflow: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          layout: Json | null
+          name: string
+          project_id: string
+          project_slug: string
+          public: boolean
+          published_at: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id: string
+          layout?: Json | null
+          name: string
+          project_id: string
+          project_slug: string
+          public?: boolean
+          published_at?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          layout?: Json | null
+          name?: string
+          project_id?: string
+          project_slug?: string
+          public?: boolean
+          published_at?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_project_slug_project_slug_fk"
+            columns: ["project_slug"]
+            referencedRelation: "project"
+            referencedColumns: ["slug"]
+          }
+        ]
+      }
+      workflow_edge: {
+        Row: {
+          source: string
+          source_output: string
+          target: string
+          target_input: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Insert: {
+          source: string
+          source_output: string
+          target: string
+          target_input: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Update: {
+          source?: string
+          source_output?: string
+          target?: string
+          target_input?: string
+          workflow_id?: string
+          workflow_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_edge_source_workflow_node_id_fk"
+            columns: ["source"]
+            referencedRelation: "workflow_node"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_edge_target_workflow_node_id_fk"
+            columns: ["target"]
+            referencedRelation: "workflow_node"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_edge_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_edge_workflow_version_id_workflow_version_id_fk"
+            columns: ["workflow_version_id"]
+            referencedRelation: "workflow_version"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      workflow_execution: {
+        Row: {
+          finished_at: string | null
+          id: string
+          status: string
+          timestamp: string
+          updated_at: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id: string
+          status?: string
+          timestamp?: string
+          updated_at?: string
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          status?: string
+          timestamp?: string
+          updated_at?: string
+          workflow_id?: string
+          workflow_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_execution_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_workflow_version_id_workflow_version_id_fk"
+            columns: ["workflow_version_id"]
+            referencedRelation: "workflow_version"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      workflow_execution_step: {
+        Row: {
+          created_at: string
+          id: string
+          source_node_id: string
+          target_node_id: string
+          workflow_execution_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          source_node_id: string
+          target_node_id: string
+          workflow_execution_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source_node_id?: string
+          target_node_id?: string
+          workflow_execution_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_execution_step_source_node_id_node_execution_data_id_f"
+            columns: ["source_node_id"]
+            referencedRelation: "node_execution_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_step_target_node_id_node_execution_data_id_f"
+            columns: ["target_node_id"]
+            referencedRelation: "node_execution_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_step_workflow_execution_id_workflow_executio"
+            columns: ["workflow_execution_id"]
+            referencedRelation: "workflow_execution"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      workflow_node: {
+        Row: {
+          color: string
+          context_id: string
+          height: number
+          id: string
+          label: string
+          position: Json
+          type: string
+          width: number
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Insert: {
+          color: string
+          context_id: string
+          height: number
+          id: string
+          label: string
+          position: Json
+          type: string
+          width: number
+          workflow_id: string
+          workflow_version_id: string
+        }
+        Update: {
+          color?: string
+          context_id?: string
+          height?: number
+          id?: string
+          label?: string
+          position?: Json
+          type?: string
+          width?: number
+          workflow_id?: string
+          workflow_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_node_context_id_context_id_fk"
+            columns: ["context_id"]
+            referencedRelation: "context"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_node_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_node_workflow_version_id_workflow_version_id_fk"
+            columns: ["workflow_version_id"]
+            referencedRelation: "workflow_version"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      workflow_version: {
+        Row: {
+          change_log: string | null
+          id: string
+          previous_workflow_version_id: string | null
+          published_at: string | null
+          version: number
+          workflow_id: string
+        }
+        Insert: {
+          change_log?: string | null
+          id: string
+          previous_workflow_version_id?: string | null
+          published_at?: string | null
+          version?: number
+          workflow_id: string
+        }
+        Update: {
+          change_log?: string | null
+          id?: string
+          previous_workflow_version_id?: string | null
+          published_at?: string | null
+          version?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_version_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -699,7 +566,6 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      article_status: "draft" | "published" | "archived"
       member_role: "owner" | "admin" | "editor" | "viewer"
     }
     CompositeTypes: {

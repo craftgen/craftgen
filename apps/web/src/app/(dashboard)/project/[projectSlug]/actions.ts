@@ -4,12 +4,10 @@ import { getDrive, getWebmaster } from "@/lib/google/auth";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import {
   and,
-  article,
-  articleNode,
   db,
   eq,
   inArray,
-  nodeData,
+  context,
   workflowNode,
   not,
   workflow,
@@ -148,9 +146,8 @@ export const createPlayground = action(
           projectSlug: project?.slug,
         })
         .returning();
-
       await tx.insert(workflowVersion).values({
-        playgroundId: newP[0].id,
+        workflowId: newP[0].id,
       });
       return newP;
     });
@@ -159,7 +156,7 @@ export const createPlayground = action(
   }
 );
 
-export const deletePlayground = async ({ id }: { id: string }) => {
+export const deleteWorkflow = async ({ id }: { id: string }) => {
   return await db.delete(workflow).where(eq(workflow.id, id));
 };
 
@@ -259,12 +256,12 @@ export const clonePlayground = async ({
   //   });
 };
 
-export const getPlaygrounds = async (projectId: string) => {
+export const getWorkflows = async (projectId: string) => {
   console.log("PROEJCT>", projectId);
-  return await db.query.playground.findMany({
-    where: (playground, { eq, and }) =>
+  return await db.query.workflow.findMany({
+    where: (workflow, { eq, and }) =>
       and(
-        eq(playground.projectId, projectId)
+        eq(workflow.projectId, projectId)
         // eq(playground.version, 0) // The latest version
       ),
     with: {
@@ -341,129 +338,4 @@ export const getSearchQueries = async ({ siteUrl }: { siteUrl: string }) => {
     },
   });
   return res.data;
-};
-
-export const getArticles = async ({ projectId }: { projectId: string }) => {
-  const articles = await db.query.article.findMany({
-    where: (article, { eq }) => eq(article.projectId, projectId),
-    with: {
-      project: true,
-      metadata: true,
-    },
-  });
-  return articles.map((article) => {
-    return {
-      ...article,
-      link: `/project/${article.project.slug}/articles/${article.slug}`,
-      originalLink: `${article.project.site}${article.slug}`,
-    };
-  });
-};
-export const getArticle = async ({
-  projectId,
-  articleSlug,
-}: {
-  projectId: string;
-  articleSlug: string[];
-}) => {
-  return await db.query.article.findFirst({
-    where: (article, { eq, and }) =>
-      and(
-        eq(article.slug, articleSlug.join("/")),
-        eq(article.projectId, projectId)
-      ),
-    with: {
-      project: true,
-      metadata: true,
-      nodes: true,
-    },
-  });
-};
-export const updateArticle = async ({
-  id,
-  nodes,
-  title,
-  slug,
-}: {
-  id: string;
-  title?: string;
-  slug?: string;
-  nodes: any[];
-}) => {
-  console.log("NODES", nodes, id);
-  return await db.transaction(async (tx) => {
-    const existingArticle = await tx.query.article.findFirst({
-      where: (article, { eq }) => eq(article.id, id),
-      with: {
-        nodes: true,
-        project: true,
-      },
-    });
-    console.log("EXISTING", existingArticle);
-    if (title || slug) {
-      const updates = {
-        ...(title && { title }),
-        ...(slug && { slug }),
-      };
-      await tx.update(article).set(updates).where(eq(article.id, id));
-    }
-
-    await tx.delete(articleNode).where(
-      and(
-        eq(articleNode.articleId, id),
-        not(
-          inArray(
-            articleNode.id,
-            nodes.map((node) => node.id)
-          )
-        )
-      )
-    );
-
-    nodes.forEach(async (node) => {
-      console.log("node", node);
-      await tx
-        .insert(articleNode)
-        .values({
-          id: node.id,
-          type: node.type,
-          data: node,
-          articleId: id,
-        })
-        .onConflictDoUpdate({
-          target: articleNode.id,
-          set: {
-            type: node.type,
-            data: node,
-          },
-        });
-    });
-    return await tx.query.article.findFirst({
-      where: (article, { eq }) => eq(article.id, id),
-      with: {
-        nodes: true,
-        project: true,
-      },
-    });
-  });
-};
-
-export const createArticle = async ({
-  projectId,
-  title = "New Article",
-  slug = `new-article-${+new Date()}`,
-}: {
-  projectId: string;
-  title?: string;
-  slug?: string;
-}) => {
-  const newArticle = await db
-    .insert(article)
-    .values({
-      title: title,
-      slug,
-      projectId,
-    })
-    .returning();
-  return newArticle[0];
 };

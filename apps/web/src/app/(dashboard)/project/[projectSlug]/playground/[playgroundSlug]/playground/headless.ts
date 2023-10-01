@@ -1,4 +1,4 @@
-import { ResultOf } from "@/lib/type";
+import { ResultOfAction } from "@/lib/type";
 import { getWorkflow, getWorkflowById } from "../action";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { importEditor } from "./io";
@@ -8,7 +8,7 @@ import { createCraftStore } from "./store";
 import { Modules } from "./modules";
 
 export async function createHeadlessEditor(
-  params: ResultOf<typeof getWorkflow>
+  params: ResultOfAction<typeof getWorkflow>
 ) {
   const editor = new NodeEditor<Schemes>();
   const engine = createControlFlowEngine();
@@ -36,7 +36,7 @@ export async function createHeadlessEditor(
 
   const store = createCraftStore({
     di,
-    playgroundId: params.id,
+    workflowId: params.id,
     projectId: params.project.id,
   });
 
@@ -50,8 +50,8 @@ export async function createHeadlessEditor(
       editor,
     } as any,
     {
-      nodes: params.nodes,
-      edges: params.edges as any,
+      nodes: params.version.nodes,
+      edges: params.version.edges as any,
     }
   );
   return di;

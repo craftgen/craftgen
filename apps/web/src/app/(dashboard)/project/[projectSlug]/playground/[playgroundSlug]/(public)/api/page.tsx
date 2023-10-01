@@ -1,4 +1,4 @@
-export const PlaygroundAPIPage = () => {
+const PlaygroundAPIPage = () => {
   return <div>Coming Soon</div>;
 };
 

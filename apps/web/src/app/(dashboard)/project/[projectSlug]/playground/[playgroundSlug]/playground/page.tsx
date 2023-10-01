@@ -2,6 +2,7 @@ import { getWorkflow } from "../action";
 import { Playground } from "./playground";
 import "./rete.css";
 import { CreateReleaseButton } from "./components/create-release-button";
+// import { VersionHistory } from "./components/version-history";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -9,23 +10,28 @@ const PlaygroundPage = async (props: {
     playgroundSlug: string;
   };
 }) => {
-  const { data: playground } = await getWorkflow({
+  const { data: workflow } = await getWorkflow({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
+    published: false,
   });
-  if (!playground) return <div>Not found</div>;
+  if (!workflow) return <div>Not found</div>;
   return (
     <div>
       <div className="flex items-center w-full justify-end">
         <CreateReleaseButton
-          playgroundId={playground.id}
-          nextVersion={playground.version + 1}
+          playgroundId={workflow.id}
+          version={workflow.currentVersion}
         />
         <span>
-          {playground.version === 0 ? "Latest" : `v${playground.version}`}
+          {workflow.currentVersion !== 0 ? `v${workflow.currentVersion}` : null}
         </span>
+        {/* <VersionHistory
+          projectSlug={props.params.projectSlug}
+          workflowSlug={props.params.playgroundSlug}
+        /> */}
       </div>
-      <Playground playground={playground} />
+      <Playground workflow={workflow} />
     </div>
   );
 };

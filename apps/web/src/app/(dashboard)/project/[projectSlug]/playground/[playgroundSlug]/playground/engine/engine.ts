@@ -20,7 +20,7 @@ export interface ControlFlowEngineNode<T extends BaseNode<any>> {
 // }
 
 export const createControlFlowEngine = () => {
-  const engine = new ControlFlowEngine(({ inputs, outputs }) => {
+  const engine = new ControlFlowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>
         Object.entries(inputs)

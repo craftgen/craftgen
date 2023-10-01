@@ -1,10 +1,11 @@
 import { ClassicPreset, NodeEditor } from "rete";
 import { ConnProps, NodeProps, Schemes } from "./types";
-import { ControlFlowEngine, DataflowEngine } from "rete-engine";
+import { DataflowEngine } from "rete-engine";
 import { Input, Output } from "./nodes";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { structures } from "rete-structures";
 import { Structures } from "rete-structures/_types/types";
+import { ControlFlowEngine } from "./engine/control-flow-engine";
 
 export type Module = {
   editor: NodeEditor<Schemes>;

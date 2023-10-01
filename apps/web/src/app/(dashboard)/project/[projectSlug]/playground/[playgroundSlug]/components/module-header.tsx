@@ -73,7 +73,7 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
       <div className="space-y-2">
         <div className="flex  flex-row w-full text-sm h-5 space-x-2">
           <span className="mr-2 bg-muted rounded p-1 flex items-center font-mono">
-            v{playground.version}
+            v{playground.currentVersion}
           </span>
           <Separator orientation="vertical" />
           <Badge variant={"outline"}>

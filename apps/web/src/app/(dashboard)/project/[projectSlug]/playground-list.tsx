@@ -3,9 +3,8 @@
 import useSWR, { mutate } from "swr";
 import {
   clonePlayground,
-  createPlayground,
-  deletePlayground,
-  getPlaygrounds,
+  deleteWorkflow,
+  getWorkflows,
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
@@ -28,7 +27,7 @@ import { useProject } from "./hooks/use-project";
 import { PlaygroundCreateDialog } from "./playground-create-dialog";
 import { PlusIcon, Rocket } from "lucide-react";
 
-type Playground = ResultOf<typeof getPlaygrounds>[number];
+type Playground = ResultOf<typeof getWorkflows>[number];
 
 const columns: ColumnDef<Playground>[] = [
   {
@@ -80,7 +79,7 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
   const { data: project } = useProject();
   const [editDialog, setEditDialog] = React.useState(false);
   const handleDelete = async () => {
-    await deletePlayground({ id: row.original.id });
+    await deleteWorkflow({ id: row.original.id });
     mutate(`/api/project/${project?.id}/playgrounds`);
   };
   const handleClone = async () => {
@@ -135,7 +134,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
 }) => {
   const { data, isLoading } = useSWR(
     `/api/project/${projectId}/playgrounds`,
-    () => getPlaygrounds(projectId)
+    () => getWorkflows(projectId)
   );
   const [isOpen, setOpen] = useState(false);
   return (

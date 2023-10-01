@@ -25,7 +25,7 @@ export const user = pgTable("user", {
   username: text("username").unique(),
   email: text("email").notNull(),
   avatar_url: text("avatar_url"),
-  google_scopes: text("google_scopes").array().notNull().default([]),
+  google_scopes: text("google_scopes").array(),
   google_access_token: text("google_access_token"),
   google_refresh_token: text("google_refresh_token"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -35,7 +35,7 @@ export const waitlist = pgTable("waitlist", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").unique().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  platforms: text("platforms").array().notNull().default([]),
+  platforms: text("platforms").array(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -43,7 +43,7 @@ export const userRelations = relations(user, ({ many }) => ({
 }));
 
 export const project = pgTable("project", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: text("id").$defaultFn(createIdWithPrefix("project")).primaryKey(),
   name: text("name").notNull(),
   site: text("site").unique(),
   slug: text("slug").notNull().unique(),
@@ -53,8 +53,8 @@ export const project = pgTable("project", {
 export const apiKey = pgTable(
   "project_api_key",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    project_id: uuid("project_id")
+    id: text("id").$defaultFn(createIdWithPrefix("key")).primaryKey(),
+    project_id: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
@@ -68,8 +68,8 @@ export const apiKey = pgTable(
 export const variable = pgTable(
   "project_variable",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    project_id: uuid("project_id")
+    id: text("id").$defaultFn(createIdWithPrefix("variable")).primaryKey(),
+    project_id: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     key: text("key").notNull(),
@@ -81,35 +81,6 @@ export const variable = pgTable(
   })
 );
 
-export const dataSet = pgTable("data_set", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  project_id: uuid("project_id")
-    .notNull()
-    .references(() => project.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  description: text("description"),
-});
-
-export const dataSetRelations = relations(dataSet, ({ one, many }) => ({
-  project: one(project),
-  rows: many(dataRow),
-}));
-
-export const dataRow = pgTable("data_row", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  data_set_id: uuid("data_set_id")
-    .notNull()
-    .references(() => dataSet.id, { onDelete: "cascade" }),
-  data: json("data").notNull(),
-});
-
-export const dataRowRelations = relations(dataRow, ({ one }) => ({
-  dataSet: one(dataSet, {
-    fields: [dataRow.data_set_id],
-    references: [dataSet.id],
-  }),
-}));
-
 export const workflow = pgTable(
   "workflow",
   {
@@ -118,7 +89,7 @@ export const workflow = pgTable(
     projectSlug: text("project_slug")
       .notNull()
       .references(() => project.slug, { onDelete: "cascade" }),
-    projectId: uuid("project_id")
+    projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
@@ -140,13 +111,15 @@ export const workflow = pgTable(
 export const workflowVersion = pgTable(
   "workflow_version",
   {
-    id: text("id").$defaultFn(createIdWithPrefix("w_version")).primaryKey(),
+    id: text("id").$defaultFn(createIdWithPrefix("version")).primaryKey(),
     workflowId: text("workflow_id")
       .notNull()
       .references(() => workflow.id, { onDelete: "cascade" }),
+
+    previousVersionId: text("previous_workflow_version_id"),
     version: integer("version").notNull().default(0), // The version 0 is the latest version.
     publishedAt: timestamp("published_at"),
-    changeLog: text("change_log").default("initial version"),
+    changeLog: text("change_log").default("Workin in progress"),
   },
   (workflowVersion) => {
     return {
@@ -155,14 +128,31 @@ export const workflowVersion = pgTable(
   }
 );
 
+export const workflowVersionRelations = relations(
+  workflowVersion,
+  ({ one, many }) => ({
+    workflow: one(workflow, {
+      fields: [workflowVersion.workflowId],
+      references: [workflow.id],
+    }),
+    edges: many(workflowEdge),
+    nodes: many(workflowNode),
+    previousVersion: one(workflowVersion, {
+      fields: [workflowVersion.previousVersionId],
+      references: [workflowVersion.id],
+    }),
+  })
+);
+
 /**
  * This table is used for store `latest` data for the nodes in the workflow;
  */
-export const nodeData = pgTable("node_data", {
-  id: text("id").$defaultFn(createIdWithPrefix("nodeData")).primaryKey(),
-  project_id: uuid("project_id")
+export const context = pgTable("context", {
+  id: text("id").$defaultFn(createIdWithPrefix("context")).primaryKey(),
+  project_id: text("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
+  previousContextId: text("previous_context_id"),
   type: text("type").notNull(),
   state: json("state"),
 });
@@ -216,19 +206,16 @@ export const workflowEdgeRelations = relations(workflowEdge, ({ one }) => ({
     fields: [workflowEdge.workflowId],
     references: [workflow.id],
   }),
+  workflowVersion: one(workflowVersion, {
+    fields: [workflowEdge.workflowVersionId],
+    references: [workflowVersion.id],
+  }),
 }));
 type Position = {
   x: number;
   y: number;
 };
 
-// TODO: Check this out.
-// id: uuid("id")
-//   .primaryKey()
-//   .references(() => nodeData.id, {   TODO: Check this out.
-//     onDelete: "cascade",
-//   })
-//   .notNull(),
 export const workflowNode = pgTable("workflow_node", {
   id: text("id").$defaultFn(createIdWithPrefix("node")).primaryKey(),
   workflowId: text("workflow_id")
@@ -239,6 +226,11 @@ export const workflowNode = pgTable("workflow_node", {
   workflowVersionId: text("workflow_version_id")
     .notNull()
     .references(() => workflowVersion.id, {
+      onDelete: "cascade",
+    }),
+  contextId: text("context_id")
+    .notNull()
+    .references(() => context.id, {
       onDelete: "cascade",
     }),
   position: json("position").$type<Position>().notNull(),
@@ -297,35 +289,33 @@ export const workflowExecutionStep = pgTable("workflow_execution_step", {
  * This is used for storing the execution data for the nodes in the workflow
  */
 export const nodeExecutionData = pgTable("node_execution_data", {
-  id: text("id")
-    .$defaultFn(createIdWithPrefix("node_execution_data"))
-    .primaryKey(),
+  id: text("id").$defaultFn(createIdWithPrefix("node_execution")).primaryKey(),
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecution.id, { onDelete: "cascade" }),
-  nodeId: text("node_id")
+  contextId: text("context_id")
     .notNull()
-    .references(() => nodeData.id, { onDelete: "cascade" }),
+    .references(() => context.id, { onDelete: "cascade" }),
   state: json("state"),
 });
 
-// export const workflowExecutionStepRelations = relations(
-//   workflowExecutionStep,
-//   ({ one }) => ({
-//     execution: one(workflowExecution, {
-//       fields: [workflowExecutionStep.workflowExecutionId],
-//       references: [workflowExecution.id],
-//     }),
-//     sourceNodeExecutionData: one(nodeExecutionData, {
-//       fields: [workflowExecutionStep.source_node_execution_data_id],
-//       references: [nodeExecutionData.id],
-//     }),
-//     targetNodeExecutionData: one(nodeExecutionData, {
-//       fields: [workflowExecutionStep.target_node_execution_data_id],
-//       references: [nodeExecutionData.id],
-//     }),
-//   })
-// );
+export const workflowExecutionStepRelations = relations(
+  workflowExecutionStep,
+  ({ one }) => ({
+    execution: one(workflowExecution, {
+      fields: [workflowExecutionStep.workflowExecutionId],
+      references: [workflowExecution.id],
+    }),
+    sourceNodeExecutionData: one(nodeExecutionData, {
+      fields: [workflowExecutionStep.source_node_execution_data_id],
+      references: [nodeExecutionData.id],
+    }),
+    targetNodeExecutionData: one(nodeExecutionData, {
+      fields: [workflowExecutionStep.target_node_execution_data_id],
+      references: [nodeExecutionData.id],
+    }),
+  })
+);
 
 export const selectWorkflowNodeSchema = createSelectSchema(workflowNode, {
   position: z.object({
@@ -345,30 +335,36 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
 }));
 
 export const workflowNodeRelations = relations(workflowNode, ({ one }) => ({
-  node: one(nodeData, {
-    fields: [workflowNode.id],
-    references: [nodeData.id],
+  context: one(context, {
+    fields: [workflowNode.contextId],
+    references: [context.id],
   }),
   workflow: one(workflow, {
     fields: [workflowNode.workflowId],
     references: [workflow.id],
   }),
+  workflowVersion: one(workflowVersion, {
+    fields: [workflowNode.workflowVersionId],
+    references: [workflowVersion.id],
+  }),
 }));
 
-export const nodeDataRelations = relations(nodeData, ({ one, many }) => ({
+export const contextRelations = relations(context, ({ one, many }) => ({
   project: one(project, {
-    fields: [nodeData.project_id],
+    fields: [context.project_id],
     references: [project.id],
+  }),
+  previousContext: one(context, {
+    fields: [context.previousContextId],
+    references: [context.id],
   }),
   workflows: many(workflowNode),
 }));
 
 export const projectRelations = relations(project, ({ many, one }) => ({
-  nodes: many(nodeData),
+  nodes: many(context),
   workflows: many(workflow),
   members: many(projectMembers),
-  articles: many(article),
-  datasets: many(dataSet),
   variables: many(variable),
   apiKeys: many(apiKey),
 }));
@@ -381,8 +377,8 @@ export const memberRoleEnum = pgEnum("member_role", [
 ]);
 
 export const projectMembers = pgTable("project_members", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  projectId: uuid("project_id")
+  id: text("id").$defaultFn(createIdWithPrefix("member")).primaryKey(),
+  projectId: text("project_id")
     .notNull()
     .references(() => project.id),
   userId: uuid("user_id")
@@ -403,69 +399,3 @@ export const projectMemberRelations = relations(projectMembers, ({ one }) => ({
     references: [user.id],
   }),
 }));
-
-export const articleStatusEnum = pgEnum("article_status", [
-  "draft",
-  "published",
-  "archived",
-]);
-
-export const article = pgTable(
-  "article",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: uuid("project_id")
-      .notNull()
-      .references(() => project.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
-    slug: text("slug").notNull(),
-    status: articleStatusEnum("article_status").notNull().default("draft"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (t) => ({
-    slug: unique("slug").on(t.projectId, t.slug),
-  })
-);
-
-export const articleRelations = relations(article, ({ one, many }) => ({
-  project: one(project, {
-    fields: [article.projectId],
-    references: [project.id],
-  }),
-  metadata: one(articleMetadata, {
-    fields: [article.id],
-    references: [articleMetadata.id],
-  }),
-  nodes: many(articleNode),
-}));
-
-export const articleNode = pgTable("article_node", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  articleId: uuid("article_id")
-    .notNull()
-    .references(() => article.id, { onDelete: "cascade" }),
-  type: text("type").notNull(),
-  data: json("data").notNull(),
-});
-
-export const Link = pgTable("link", {
-  id: uuid("id").primaryKey(),
-  articleNodeId: uuid("article_node_id").notNull(),
-  type: text("type").$type<"internal" | "external">().notNull(),
-  url: text("url").notNull(),
-  article: uuid("article_id"),
-});
-
-export const articleNodeRelations = relations(articleNode, ({ many, one }) => ({
-  links: many(Link),
-  article: one(article, {
-    fields: [articleNode.articleId],
-    references: [article.id],
-  }),
-}));
-
-export const articleMetadata = pgTable("article_metadata", {
-  id: uuid("id").primaryKey(),
-  articleId: uuid("article_id").notNull(),
-});

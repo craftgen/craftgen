@@ -5,10 +5,11 @@ import { DiContainer } from "./editor";
 import type * as FlexLayout from "flexlayout-react";
 
 export type ReteStore = {
-  playgroundId: string;
-  playgroundSlug: string;
+  workflowId: string;
+  workflowSlug: string;
   projectId: string;
   projectSlug: string;
+  workflowVersionId: string;
   readonly: boolean;
   selectedNodeId: string | null;
   di: DiContainer | null;
@@ -26,8 +27,9 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
     subscribeWithSelector((set, get) => ({
       projectId: "",
       projectSlug: "",
-      playgroundId: "",
-      playgroundSlug: "",
+      workflowId: "",
+      workflowSlug: "",
+      workflowVersionId: "",
       readonly: true,
       selectedNodeId: null,
       di: null,

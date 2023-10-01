@@ -11,7 +11,7 @@ import * as jose from "jose";
 const connectionString = process.env.POSTGRES_URL;
 // const pool = new Pool({ connectionString: connectionString });
 const postgresSql = postgres(connectionString as string, { max: 1 });
-export const db = drizzle(postgresSql, { schema, logger: true });
+export const db = drizzle(postgresSql, { schema, logger: false });
 export * from "drizzle-orm";
 
 export function authDB<T>(

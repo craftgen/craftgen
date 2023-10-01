@@ -77,7 +77,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const {
     di,
-    playgroundId,
+    workflowId: playgroundId,
     projectSlug,
     showControls,
     layout,
@@ -113,10 +113,12 @@ export function CustomNode<Scheme extends ClassicScheme>(
       type: props.data.ID,
       data: {
         ...props.data,
-        state: JSON.parse(rawState),
+        context: {
+          state: JSON.parse(rawState),
+        }
       } as any, //TODO:TYPE
       saveToDB: true,
-      playgroundId,
+      workflowId: playgroundId,
       projectSlug,
     });
     await di?.editor.addNode(newNode);
@@ -125,9 +127,9 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const triggerNode = async () => {
     // const executionId = String(+new Date());
-    const execution =  createExecution({
+    const execution = createExecution({
       playgroundId: playgroundId!,
-    })
+    });
     di?.engine?.execute(props.data.id, undefined, executionId);
   };
 
@@ -325,9 +327,11 @@ export function CustomNode<Scheme extends ClassicScheme>(
               </div>
             </CardHeader>
             <Separator />
-            <CardContent className="flex-1 ">
+            <CardContent className="flex-1">
               {/* controls */}
-              <section className="@md:block hidden">
+              <section
+                className={cn("hidden", size.height > 240 && "@xs:block my-2")}
+              >
                 {true &&
                   controls.map(([key, control]) => {
                     return control ? (

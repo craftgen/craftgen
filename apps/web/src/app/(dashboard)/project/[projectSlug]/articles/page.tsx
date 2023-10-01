@@ -1,5 +1,4 @@
-import { getArticles, getProject } from "../actions";
-import { ArticleList } from "./article-list";
+import { getProject } from "../actions";
 
 const ArticlesPage = async ({
   params,
@@ -9,14 +8,7 @@ const ArticlesPage = async ({
   };
 }) => {
   const project = await getProject(params.projectSlug as string);
-  const articles = await getArticles({ projectId: project?.id! });
-  return (
-    <div className="flex flex-col items-center mt-8">
-      <div className="max-w-6xl w-full">
-        <ArticleList articles={articles} projectId={project?.id!} />
-      </div>
-    </div>
-  );
+  return null;
 };
 
 export default ArticlesPage;

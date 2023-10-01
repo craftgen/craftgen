@@ -4,25 +4,23 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import {
   db,
   eq,
-  nodeData,
+  context,
   workflowNode,
   workflow,
   and,
-  dataRow,
-  gt,
   projectMembers,
   workflowEdge,
   workflowExecution,
   desc,
   sql,
-  not,
   workflowVersion,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import { ConnProps, NodeTypes, Position } from "./playground/types";
+import { ConnProps, NodeTypes, Position, nodesMeta } from "./playground/types";
 import * as FlexLayout from "flexlayout-react";
 import { action } from "@/lib/safe-action";
 import { z } from "zod";
+import { isEqual } from "lodash-es";
 
 export const getWorkflowById = async (workflowId: string) => {
   return await db.query.workflow.findFirst({
@@ -30,7 +28,7 @@ export const getWorkflowById = async (workflowId: string) => {
     with: {
       nodes: {
         with: {
-          node: {
+          context: {
             columns: {
               state: true,
             },
@@ -49,23 +47,26 @@ export const getWorkflowVersions = action(
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const project = await tx.query.project.findFirst({
-        where: (project, { eq }) => eq(project.slug, params.projectSlug),
-        columns: {
-          id: true,
-        },
-      });
-      if (!project) {
-        throw new Error("Project not found");
-      }
-      return await tx.query.workflow.findMany({
+      return await tx.query.workflow.findFirst({
         where: (workflow, { eq, and }) =>
           and(
-            eq(workflow.projectId, project?.id)
-            // TODO:
-            // not(eq(workflow.version, 0)) // This is a hack to not show the latest version.
+            eq(workflow.slug, params.workflowSlug),
+            eq(workflow.projectSlug, params.projectSlug)
           ),
-        // orderBy: (playground, { desc }) => [desc(playground.version)],
+        columns: {
+          id: true,
+          slug: true,
+          projectSlug: true,
+        },
+        with: {
+          versions: {
+            where: (workflowVersion, { eq, and, isNotNull }) =>
+              and(isNotNull(workflowVersion.publishedAt)),
+            orderBy: (workflowVersion, { desc }) => [
+              desc(workflowVersion.version),
+            ],
+          },
+        },
       });
     });
   }
@@ -76,8 +77,10 @@ export const getWorkflow = action(
     workflowSlug: z.string(),
     projectSlug: z.string(),
     version: z.number().optional(),
+    published: z.boolean().optional().default(true),
   }),
   async (params) => {
+    console.log("GET WORKFLOW", { params });
     const supabase = createServerActionClient({ cookies });
     const session = await supabase.auth.getSession();
 
@@ -113,30 +116,47 @@ export const getWorkflow = action(
           and(
             eq(workflow.slug, params.workflowSlug),
             eq(workflow.projectId, project.id)
-            // TODO:
-            // params.version ? eq(workflow.version, params.version) : sql`true`
           ),
         with: {
           project: true,
-          nodes: {
+          versions: {
+            where: (workflowVersion, { and, eq, isNotNull }) =>
+              and(
+                params.version
+                  ? eq(workflowVersion.version, params.version)
+                  : sql`true`,
+                params.published
+                  ? isNotNull(workflowVersion.publishedAt)
+                  : sql`true`
+              ),
+            orderBy: (workflowVersion, { desc }) => [
+              desc(workflowVersion.version),
+            ],
+            limit: 1,
             with: {
-              node: {
-                columns: {
-                  state: true,
+              edges: true,
+              nodes: {
+                with: {
+                  context: {
+                    columns: {
+                      state: true,
+                    },
+                  },
                 },
               },
             },
           },
-          edges: true,
         },
-        // TODO:
-        // orderBy: (playground, { desc }) => [desc(playground.version)],
       });
       if (!workflow) {
         throw new Error("Playground not found");
       }
+
       return {
         ...workflow,
+        currentVersion:
+          workflow.versions.length > 0 ? workflow.versions[0].version : 0,
+        version: workflow.versions[0],
         readonly,
       };
     });
@@ -206,6 +226,7 @@ export const saveNode = action(
     workflowVersionId: z.string(),
     data: z.object({
       id: z.string(),
+      contextId: z.string(),
       type: z.custom<NodeTypes>(),
       width: z.number(),
       height: z.number(),
@@ -220,49 +241,73 @@ export const saveNode = action(
   async (params): Promise<void> => {
     console.log("saveNode", params);
     await db.transaction(async (tx) => {
-      await tx.insert(workflowNode).values({
-        id: params.data.id,
-        workflowId: params.workflowId,
-        workflowVersionId: params.workflowVersionId,
-        type: params.data.type,
-        width: params.data.width,
-        height: params.data.height,
-        color: params.data.color,
-        label: params.data.label,
-        position: params.data.position,
-      });
+      await tx
+        .insert(workflowNode)
+        .values({
+          id: params.data.id,
+          workflowId: params.workflowId,
+          workflowVersionId: params.workflowVersionId,
+          contextId: params.data.contextId,
+          type: params.data.type,
+          width: params.data.width,
+          height: params.data.height,
+          color: params.data.color,
+          label: params.data.label,
+          position: params.data.position,
+        })
+        .onConflictDoUpdate({
+          target: workflowNode.id,
+          set: {
+            contextId: params.data.contextId,
+            type: params.data.type,
+            width: params.data.width,
+            height: params.data.height,
+            color: params.data.color,
+            label: params.data.label,
+            position: params.data.position,
+          },
+        });
     });
   }
 );
 
-export const deleteNode = async (params: {
-  playgroundId: string;
-  data: {
-    id: string;
-  };
-}) => {
-  console.log("deleteNode", params);
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(workflowNode)
-      .where(
-        and(
-          eq(workflowNode.workflowId, params.playgroundId),
-          eq(workflowNode.id, params.data.id)
+export const deleteNode = action(
+  z.object({
+    workflowId: z.string(),
+    workflowVersionId: z.string(),
+    data: z.object({
+      id: z.string(),
+    }),
+  }),
+  async (params) => {
+    console.log("deleteNode", params);
+    await db.transaction(async (tx) => {
+      const [node] = await tx
+        .delete(workflowNode)
+        .where(
+          and(
+            eq(workflowNode.workflowId, params.workflowId),
+            eq(workflowNode.workflowVersionId, params.workflowVersionId),
+            eq(workflowNode.id, params.data.id)
+          )
         )
-      );
-    await tx.delete(nodeData).where(eq(nodeData.id, params.data.id)); // TODO check this.
-  });
-};
+        .returning();
+      // TODO check this. Delete context if it's not attached to any published version.
+      await tx.delete(context).where(eq(context.id, node.contextId));
+    });
+  }
+);
 
 export const saveEdge = action(
   z.object({
     workflowId: z.string(),
+    workflowVersionId: z.string(),
     data: z.custom<ConnProps>(),
   }),
   async (params) => {
     await db.insert(workflowEdge).values({
       workflowId: params.workflowId,
+      workflowVersionId: params.workflowVersionId,
       source: params.data.source,
       sourceOutput: params.data.sourceOutput,
       target: params.data.target,
@@ -271,131 +316,103 @@ export const saveEdge = action(
   }
 );
 
-export const deleteEdge = async (params: {
-  playgroundId: string;
-  data: ConnProps;
-}) => {
-  await db
-    .delete(workflowEdge)
-    .where(
-      and(
-        eq(workflowEdge.workflowId, params.playgroundId),
-        eq(workflowEdge.source, params.data.source),
-        eq(workflowEdge.sourceOutput, params.data.sourceOutput),
-        eq(workflowEdge.target, params.data.target),
-        eq(workflowEdge.targetInput, params.data.targetInput)
-      )
-    );
-};
-
-export const createNodeInDB = async (params: {
-  playgroundId: string;
-  projectSlug: string;
-  type: NodeTypes;
-}) => {
-  const supabase = createServerActionClient({ cookies });
-
-  const project = await db.query.project.findFirst({
-    where: (project, { eq }) => eq(project.slug, params.projectSlug),
-  });
-  if (!project) {
-    throw new Error("Project not found");
-  }
-  return await db.transaction(async (tx) => {
-    const nodes = await tx
-      .insert(nodeData)
-      .values({
-        project_id: project?.id,
-        type: params.type,
-      })
-      .returning();
-    return nodes[0];
-  });
-};
-
-export const getDataSets = async (projectId: string) => {
-  return await db.query.dataSet.findMany({
-    where: (dataSet, { eq }) => eq(dataSet.project_id, projectId),
-  });
-};
-
-export const getDataSet = async (dataSetId: string) => {
-  try {
-    return await db.query.dataSet.findFirst({
-      where: (dataSet, { eq }) => eq(dataSet.id, dataSetId),
-      with: {
-        rows: true,
-      },
-    });
-  } catch (err) {
-    console.log("err", err);
-  }
-};
-
-export const insertDataSet = async (params: { id: string; data: any }) => {
-  return await db.transaction(async (tx) => {
-    const row = tx
-      .insert(dataRow)
-      .values({
-        data_set_id: params.id,
-        data: params.data,
-      })
-      .returning();
-
-    return row;
-  });
-};
-
-export const deleteDataRow = async (params: { id: string }) => {
-  return await db.delete(dataRow).where(eq(dataRow.id, params.id));
-};
-
-export const getDatasetPaginated = async (params: {
-  datasetId: string;
-  cursor?: string;
-  limit?: number;
-}) => {
-  const cursorCondition = params.cursor
-    ? gt(dataRow.id, params.cursor)
-    : undefined;
-  console.log("cursorCondition", cursorCondition);
-  const data = await db
-    .select()
-    .from(dataRow)
-    .where(and(eq(dataRow.data_set_id, params.datasetId), cursorCondition))
-    .orderBy(dataRow.id)
-    .limit(params?.limit || 10);
-
-  return {
-    data,
-    nextCursor: data[data.length - 1]?.id,
-  };
-};
-
-export const getNodeData = async (nodeId: string) => {
-  console.log("getNodeData", { nodeId });
-
-  return await db.query.nodeData.findFirst({
-    where: (nodeData, { eq }) => eq(nodeData.id, nodeId),
-  });
-};
-
-export const setNodeData = action(
+export const deleteEdge = action(
   z.object({
-    nodeId: z.string(),
+    workflowId: z.string(),
+    workflowVersionId: z.string(),
+    data: z.custom<ConnProps>(),
+  }),
+  async (params) => {
+    await db
+      .delete(workflowEdge)
+      .where(
+        and(
+          eq(workflowEdge.workflowId, params.workflowId),
+          eq(workflowEdge.workflowVersionId, params.workflowVersionId),
+          eq(workflowEdge.source, params.data.source),
+          eq(workflowEdge.sourceOutput, params.data.sourceOutput),
+          eq(workflowEdge.target, params.data.target),
+          eq(workflowEdge.targetInput, params.data.targetInput)
+        )
+      );
+  }
+);
+
+export const createNodeInDB = action(
+  z.object({
+    workflowId: z.string(),
+    workflowVersionId: z.string(),
+    projectSlug: z.string(),
+    type: z.custom<NodeTypes>(),
+    state: z.any().optional(),
+  }),
+  async (params) => {
+    console.log("createNodeInDB", params);
+    const project = await db.query.project.findFirst({
+      where: (project, { eq }) => eq(project.slug, params.projectSlug),
+    });
+    if (!project) {
+      throw new Error("Project not found");
+    }
+    return await db.transaction(async (tx) => {
+      const [contextUnit] = await tx
+        .insert(context)
+        .values({
+          project_id: project?.id,
+          type: params.type,
+          ...(params.state && { state: params.state }),
+        })
+        .returning();
+      const workflowNodeUnit = await tx
+        .insert(workflowNode)
+        .values({
+          workflowId: params.workflowId,
+          contextId: contextUnit.id,
+          color: "default",
+          height: 200,
+          width: 200,
+          label: nodesMeta[params.type].name,
+          position: { x: 0, y: 0 },
+          workflowVersionId: params.workflowVersionId,
+          type: params.type,
+        })
+        .returning();
+      return tx.query.workflowNode.findFirst({
+        where: (workflowNode, { eq }) =>
+          eq(workflowNode.id, workflowNodeUnit[0].id),
+        with: {
+          context: {
+            columns: {
+              state: true,
+            },
+          },
+        },
+      });
+    });
+  }
+);
+
+export const getContext = action(
+  z.object({ contextId: z.string() }),
+  async ({ contextId }) => {
+    console.log("getContext", { contextId });
+
+    return await db.query.context.findFirst({
+      where: (context, { eq }) => eq(context.id, contextId),
+    });
+  }
+);
+
+export const setContext = action(
+  z.object({
+    contextId: z.string(),
     state: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
-    // console.log("setNodeData", {
-    //   nodeId: params.nodeId,
-    //   state: params.state.value,
-    //   context: params.state.context,
-    // });
-
     return await db
-      .update(nodeData)
+      .update(context)
       .set({ state: params.state })
-      .where(eq(nodeData.id, params.nodeId))
+      .where(eq(context.id, params.contextId))
       .returning();
   }
 );
@@ -410,14 +427,9 @@ export const createRelease = action(
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(workflow)
-        .where(and(eq(workflow.id, params.workflowId)))
-        .limit(1);
-
-      const [{ latestVersion }] = await tx
+      const [{ latestVersionId, latestVersion }] = await tx
         .select({
+          latestVersionId: workflowVersion.id,
           latestVersion: workflowVersion.version,
         })
         .from(workflowVersion)
@@ -425,15 +437,105 @@ export const createRelease = action(
         .orderBy(desc(workflowVersion.version))
         .limit(1);
 
+      // Publish the latest version
+      await tx
+        .update(workflowVersion)
+        .set({ publishedAt: new Date(), changeLog: params.changeLog })
+        .where(
+          and(
+            eq(workflowVersion.workflowId, params.workflowId),
+            eq(workflowVersion.version, latestVersion)
+          )
+        );
+
       const newVersion = await tx
         .insert(workflowVersion)
         .values({
           workflowId: params.workflowId,
-          publishedAt: new Date(),
           version: latestVersion + 1,
-          changeLog: params.changeLog,
+          previousVersionId: latestVersionId,
         })
         .returning();
+
+      // Copy nodes
+      const previousWorkflowVersionWithGraph =
+        await tx.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq }) =>
+            eq(workflowVersion.id, latestVersionId),
+          with: {
+            nodes: {
+              with: {
+                context: {
+                  with: {
+                    previousContext: true,
+                  },
+                },
+              },
+            },
+            edges: true,
+          },
+        });
+      if (!previousWorkflowVersionWithGraph) {
+        throw new Error("Could not find workflow version");
+      }
+
+      const edges = previousWorkflowVersionWithGraph.edges;
+
+      console.log("COPYING NODES", previousWorkflowVersionWithGraph.nodes);
+      // copy over nodes;
+      await Promise.all(
+        previousWorkflowVersionWithGraph.nodes.map(async ({ id, ...node }) => {
+          const { context: contextState, ...workflowNodeMeta } = node;
+          let contextId;
+          const previousContextState = contextState.previousContext?.state;
+          if (isEqual(previousContextState, contextState.state)) {
+            console.log("REUSING CONTEXT");
+            contextId = contextState.previousContext?.id;
+          } else {
+            console.log("CREATING NEW CONTEXT");
+            const [cloneContext] = await tx
+              .insert(context)
+              .values({
+                type: contextState.type,
+                project_id: contextState.project_id,
+                previousContextId: contextState.id,
+                state: contextState.state,
+              })
+              .returning();
+            contextId = cloneContext.id;
+          }
+          if (!contextId) {
+            throw new Error("Could not find or create context");
+          }
+
+          const [cloneNode] = await tx
+            .insert(workflowNode)
+            .values({
+              ...workflowNodeMeta,
+              contextId,
+              workflowVersionId: newVersion[0].id,
+            })
+            .returning();
+          edges.forEach(async (edge) => {
+            if (edge.source === id) {
+              edge.source = cloneNode.id;
+            }
+            if (edge.target === id) {
+              edge.target = cloneNode.id;
+            }
+          });
+        })
+      );
+
+      console.log("COPYING EDGES", edges);
+      if (edges.length > 0) {
+        await tx.insert(workflowEdge).values(
+          edges.map((edge) => ({
+            ...edge,
+            workflowVersionId: newVersion[0].id,
+          }))
+        );
+      }
 
       return newVersion[0];
     });

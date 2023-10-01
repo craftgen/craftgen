@@ -1,1 +1,0 @@
-ALTER TABLE "playground" ALTER COLUMN "layout" SET DEFAULT '[{"i":"inspector","x":0,"y":0,"w":2,"h":2},{"i":"rete","x":2,"y":0,"w":10,"h":12,"minW":4}]'::json;

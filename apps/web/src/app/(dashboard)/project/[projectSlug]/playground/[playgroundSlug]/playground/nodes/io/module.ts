@@ -5,7 +5,7 @@ import { ClassicPreset, NodeEditor } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
-import { getPlaygrounds } from "@/app/(dashboard)/project/[projectSlug]/actions";
+import { getWorkflows } from "@/app/(dashboard)/project/[projectSlug]/actions";
 import { Input as InputNode } from "./input";
 import { SelectControl } from "../../controls/select";
 import { JSONSocket } from "../../controls/socket-generator";
@@ -165,7 +165,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
         "Select Module",
         `/api/playgrounds/${store.projectId}`, // TODO get from project
         async () => {
-          return await getPlaygrounds(store.projectId);
+          return await getWorkflows(store.projectId);
         },
         (data) => {
           return data.map((playground) => ({

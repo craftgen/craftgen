@@ -9,7 +9,7 @@ import {
   createActor,
 } from "xstate";
 import { debounce } from "lodash-es";
-import { setNodeData } from "../../action";
+import { setContext } from "../../action";
 import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { z } from "zod";
@@ -18,7 +18,8 @@ import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 export type NodeData<T extends AnyStateMachine> = z.infer<
   typeof selectWorkflowNodeSchema
 > & {
-  node: {
+  workflowVersionId?: string;
+  context: {
     state?: StateFrom<T>;
   };
 };
@@ -50,6 +51,10 @@ export class BaseNode<
   public width = 200;
   public height = 200;
 
+  readonly workflowId: string;
+  readonly workflowVersionId: string;
+  readonly contextId: string;
+
   constructor(
     public readonly ID: NodeTypes,
     di: DiContainer,
@@ -58,19 +63,23 @@ export class BaseNode<
     machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(data.label);
+    console.log("NODE BASE", { data });
     if (data.width) this.width = data.width;
     if (data.height) this.height = data.height;
-
     this.id = data.id;
     this.di = di;
+    this.workflowVersionId = data.workflowVersionId;
+    this.workflowId = data.workflowId;
+    this.contextId = data.contextId;
+
     const a = machine.provide(machineImplements as any);
     this.actor = createActor(a, {
-      id: this.id,
-      ...(data?.node?.state !== null && { state: data.node?.state }), // This needs to be stay state.
+      id: this.contextId,
+      ...(data?.context?.state !== null && { state: data.context?.state }), // This needs to be stay state.
     });
 
     const saveDebounced = debounce((state: string) => {
-      setNodeData({ nodeId: this.id, state });
+      setContext({ contextId: this.contextId, state });
     }, 1000);
 
     this.actor.subscribe((state) => {

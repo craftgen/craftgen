@@ -1,1 +1,0 @@
-ALTER TABLE "project_api_key" ALTER COLUMN "key" DROP NOT NULL;

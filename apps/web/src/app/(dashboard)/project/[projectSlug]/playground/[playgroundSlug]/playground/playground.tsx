@@ -44,7 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { match } from "ts-pattern";
-import { ResultOf, ResultOfAction } from "@/lib/type";
+import { ResultOfAction } from "@/lib/type";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -100,43 +100,44 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  playground: ResultOfAction<typeof getWorkflow>;
-}> = ({ playground }) => {
+  workflow: ResultOfAction<typeof getWorkflow>;
+}> = ({ workflow }) => {
   const params = useParams();
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
-        (playground.layout as FlexLayout.IJsonModel) || defaultLayout
+        (workflow.layout as FlexLayout.IJsonModel) || defaultLayout
       ),
-      readonly: playground.readonly,
-      projectId: playground.project.id,
+      readonly: workflow.readonly,
+      projectId: workflow.project.id,
       projectSlug: params.projectSlug as string,
-      playgroundId: playground.id,
-      playgroundSlug: params.playgroundSlug as string,
+      workflowId: workflow.id,
+      workflowSlug: params.playgroundSlug as string,
+      workflowVersionId: workflow.version.id,
     })
   );
 
   const { layout } = useStore(store.current);
 
   useEffect(() => {
-    if (playground.readonly) return;
+    if (workflow.readonly) return;
     const layoutListener = store.current.subscribe(
       (state) => state.layout,
       async (layout) => {
         await savePlaygroundLayout({
           layout: layout.toJson(),
-          playgroundId: playground.id,
+          playgroundId: workflow.id,
         });
       }
     );
     return () => layoutListener();
-  }, [playground.readonly]);
+  }, [workflow.readonly]);
   const debouncedLayoutChange = useCallback(
     debounce(async (layout: FlexLayout.Model) => {
-      if (playground.readonly) return;
+      if (workflow.readonly) return;
       await savePlaygroundLayout({
         layout: layout.toJson(),
-        playgroundId: playground.id,
+        playgroundId: workflow.id,
       });
     }, 2000),
     [layout]
@@ -152,7 +153,7 @@ export const Playground: React.FC<{
       return <InspectorWindow />;
     }
     if (component === "rete") {
-      return <Composer playground={playground} store={store} />;
+      return <Composer workflow={workflow} store={store} />;
     }
     if (component === "inspectorNode") {
       return <InspectorNode nodeId={config.nodeId} />;
@@ -178,20 +179,20 @@ export const Playground: React.FC<{
   );
 };
 
-const Composer: React.FC<{ playground: any; store: any }> = ({
-  playground,
-  store,
-}) => {
+const Composer: React.FC<{
+  workflow: ResultOfAction<typeof getWorkflow>;
+  store: any;
+}> = ({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
   const projectSlug = useCraftStore((state) => state.projectSlug);
-  const playgroundId = useCraftStore((state) => state.playgroundId);
+  const playgroundId = useCraftStore((state) => state.workflowId);
 
   const createEditor = useMemo(() => {
     return createEditorFunc({
-      playground,
+      workflow,
       store: store.current,
     });
-  }, [playground, store.current]);
+  }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);
 
   const { toast } = useToast();
@@ -232,6 +233,9 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
       return context;
     });
   }, [rete]);
+  const workflowVersionId = useMemo(() => {
+    return workflow.versions[0].id;
+  }, [workflow.versions]);
 
   useEffect(() => {
     rete?.editor.addPipe((context) => {
@@ -257,13 +261,16 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
             data,
             size,
           });
+          // TODO:
           await saveNode({
-            workflowId: playground.id,
+            workflowId: workflow.id,
+            workflowVersionId,
             data: {
               id: data.id,
               type: data.ID,
               color: "default",
               label: data.label,
+              contextId: data.contextId,
               position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
               ...size,
             },
@@ -272,7 +279,8 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
         .with({ type: "noderemove" }, async ({ data }) => {
           console.log("noderemove", { data });
           await deleteNode({
-            playgroundId: playground.id,
+            workflowId: workflow.id,
+            workflowVersionId,
             data: {
               id: data.id,
             },
@@ -281,14 +289,16 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
           await saveEdge({
-            workflowId: playground.id,
+            workflowId: workflow.id,
+            workflowVersionId,
             data: JSON.parse(JSON.stringify(data)),
           });
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });
           await deleteEdge({
-            playgroundId: playground.id,
+            workflowId: workflow.id,
+            workflowVersionId,
             data: JSON.parse(JSON.stringify(data)),
           });
         });
@@ -299,7 +309,7 @@ const Composer: React.FC<{ playground: any; store: any }> = ({
   return (
     <div className="w-full h-full">
       <div className="absolute top-1 right-1 z-50 flex ">
-        {playground.readonly && (
+        {workflow.readonly && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant={"outline"} className="cursor-pointer" size="sm">

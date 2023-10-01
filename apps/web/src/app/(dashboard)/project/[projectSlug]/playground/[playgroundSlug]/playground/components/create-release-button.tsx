@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   changeLog: z.string(),
@@ -26,17 +27,22 @@ const schema = z.object({
 
 export const CreateReleaseButton = (props: {
   playgroundId: string;
-  nextVersion: number;
+  version: number;
 }) => {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
   });
+  const router = useRouter();
   const onSubmitHandler = async (data: z.infer<typeof schema>) => {
     console.log("triggered release", props);
-    const release = await createRelease({
+    const { data: newVersion } = await createRelease({
       workflowId: props.playgroundId,
       changeLog: data.changeLog,
     });
+    if (newVersion) {
+      router.refresh();
+    }
+    form.reset();
     setOpen(false);
   };
   const [open, setOpen] = useState(false);
@@ -61,11 +67,11 @@ export const CreateReleaseButton = (props: {
               <DialogTitle>
                 Release version{" "}
                 <Badge variant={"outline"} className="text-xl">
-                  {props.nextVersion}
+                  {props.version}
                 </Badge>
               </DialogTitle>
               <DialogDescription>
-                Add a change log to describe what's new in this release.
+                Add a change log to describe what&apos;s new in this release.
               </DialogDescription>
             </DialogHeader>
             <FormField
