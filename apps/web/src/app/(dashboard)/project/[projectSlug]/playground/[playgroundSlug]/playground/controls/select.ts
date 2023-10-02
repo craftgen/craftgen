@@ -1,4 +1,4 @@
-import { ClassicPreset } from "rete";
+import { BaseControl } from "./base";
 export type SelectControlOptions<T extends string> = {
   change: (value: T) => void;
   disabled?: boolean;
@@ -6,14 +6,14 @@ export type SelectControlOptions<T extends string> = {
   values: { key: T; value: string }[];
 };
 
-export class SelectControl<T extends string> extends ClassicPreset.Control {
+export class SelectControl<T extends string> extends BaseControl {
   __type = "select";
 
   constructor(
     public value: T | undefined,
     public options: SelectControlOptions<T>
   ) {
-    super();
+    super(200);
     this.options.disabled = this.options.disabled ?? false;
   }
 

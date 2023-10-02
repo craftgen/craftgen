@@ -148,14 +148,6 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
     console.log("syncUI", state);
   }
 
-  execute(_: any, forward: (output: "trigger") => void) {
-    forward("trigger");
-  }
-
-  async data() {
-    return {};
-  }
-
   async serialize() {
     return {};
   }

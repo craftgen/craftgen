@@ -19,47 +19,46 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 import { Key } from "ts-key-enum";
 
-export const UserNav: React.FC<{ session: Session }> = ({session}) => {
-  const {data: user} = useUser()
+export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
+  const { data: user } = useUser();
   const avatarFallbackInitials = useMemo(() => {
-    if (!user) return 'S'
-    const [firstName, lastName] = (user?.fullName || 'S C').split(' ')
-    return `${firstName[0]}${lastName[0]}`
-  }, [user?.fullName])
-  const router = useRouter()
+    if (!user) return "S";
+    const [firstName, lastName] = (user?.fullName || "S C").split(" ");
+    return `${firstName[0]}${lastName[0]}`;
+  }, [user?.fullName]);
+  const router = useRouter();
 
   const handleProfileClick = () => {
     router.push(`/@${user?.username}`);
-  }
+  };
 
   const handleBillingClick = () => {
     router.push(`/billing`);
-  }
+  };
 
-  useHotkeys(`${Key.Meta}+${Key.Shift}+p`, handleProfileClick)
+  useHotkeys(`${Key.Meta}+${Key.Shift}+p`, handleProfileClick);
 
-  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar>
+          <Avatar className="w-8 h-8">
             <AvatarImage
               src={user?.avatar_url || session.user?.user_metadata.avatar_url}
               alt={user?.fullName || session.user?.user_metadata.full_name}
             />
-            <AvatarFallback>
-              {avatarFallbackInitials}
-            </AvatarFallback>
+            <AvatarFallback>{avatarFallbackInitials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">@{user?.username}</p>
+            <p className="text-sm font-medium leading-none">
+              @{user?.username}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email} 
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

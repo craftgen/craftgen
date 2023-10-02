@@ -148,6 +148,7 @@ export const createPlayground = action(
         .returning();
       await tx.insert(workflowVersion).values({
         workflowId: newP[0].id,
+        projectId: newP[0].projectId,
       });
       return newP;
     });

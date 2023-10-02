@@ -156,7 +156,13 @@ export type NodeProps =
   | Article
   | Input
   | Output
-  | ModuleNode;
+  | ModuleNode
+  | Replicate
+  | GoogleSheet
+  | Shopify
+  | Webflow
+  | Wordpress
+  | Postgres;
 
 export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;

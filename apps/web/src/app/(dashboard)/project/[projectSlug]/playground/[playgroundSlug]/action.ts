@@ -14,6 +14,8 @@ import {
   desc,
   sql,
   workflowVersion,
+  workflowExecutionStep,
+  nodeExecutionData,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { ConnProps, NodeTypes, Position, nodesMeta } from "./playground/types";
@@ -224,6 +226,7 @@ export const saveNode = action(
   z.object({
     workflowId: z.string(),
     workflowVersionId: z.string(),
+    projectId: z.string(),
     data: z.object({
       id: z.string(),
       contextId: z.string(),
@@ -247,6 +250,7 @@ export const saveNode = action(
           id: params.data.id,
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
+          projectId: params.projectId,
           contextId: params.data.contextId,
           type: params.data.type,
           width: params.data.width,
@@ -366,6 +370,7 @@ export const createNodeInDB = action(
       const workflowNodeUnit = await tx
         .insert(workflowNode)
         .values({
+          projectId: project?.id,
           workflowId: params.workflowId,
           contextId: contextUnit.id,
           color: "default",
@@ -409,6 +414,7 @@ export const setContext = action(
     state: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
+    console.log("setContext", params);
     return await db
       .update(context)
       .set({ state: params.state })
@@ -416,6 +422,13 @@ export const setContext = action(
       .returning();
   }
 );
+
+export const unreleasedChanges = action(z.object({}), async () => {
+  return await db.query.workflow.findMany({
+    where: (workflow, { isNull }) => isNull(workflow.publishedAt),
+  });
+});
+
 /**
  * Creating realease basically clonening the current state of the playground.
  * This is used to create a new version of the playground.
@@ -427,10 +440,11 @@ export const createRelease = action(
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const [{ latestVersionId, latestVersion }] = await tx
+      const [{ latestVersionId, latestVersion, projectId }] = await tx
         .select({
           latestVersionId: workflowVersion.id,
           latestVersion: workflowVersion.version,
+          projectId: workflow.projectId,
         })
         .from(workflowVersion)
         .where(and(eq(workflowVersion.workflowId, params.workflowId)))
@@ -454,6 +468,7 @@ export const createRelease = action(
           workflowId: params.workflowId,
           version: latestVersion + 1,
           previousVersionId: latestVersionId,
+          projectId,
         })
         .returning();
 
@@ -554,6 +569,81 @@ export const createExecution = action(
         .values({
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
+        })
+        .returning();
+      return execution[0];
+    });
+  }
+);
+
+export const createExecutionNode = action(
+  z.object({
+    contextId: z.string(),
+    state: z.string().transform((val) => JSON.parse(val)),
+    workflowId: z.string(),
+    workflowNodeId: z.string(),
+    workflowExecutionId: z.string(),
+    workflowVersionId: z.string(),
+    projectId: z.string(),
+    type: z.custom<NodeTypes>(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const context = await tx.query.context.findFirst({
+        where: (context, { eq }) => eq(context.id, params.contextId),
+      });
+      if (!context) {
+        throw new Error("Context not found");
+      }
+      const executionNodeState = await tx
+        .insert(nodeExecutionData)
+        .values({
+          contextId: params.contextId,
+          workflowExecutionId: params.workflowExecutionId,
+          projectId: params.projectId,
+          workflowId: params.workflowId,
+          state: params.state,
+          type: context.type,
+          workflowNodeId: params.workflowNodeId,
+          workflowVersionId: params.workflowVersionId,
+        })
+        .returning();
+      return executionNodeState[0];
+    });
+  }
+);
+
+export const updateExecutionNode = action(
+  z.object({
+    id: z.string(),
+    state: z.string().transform((val) => JSON.parse(val)),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const executionNodeState = await tx
+        .update(nodeExecutionData)
+        .set({
+          state: params.state,
+        })
+        .where(eq(nodeExecutionData.id, params.id))
+        .returning();
+      return executionNodeState[0];
+    });
+  }
+);
+
+export const createExecutionStep = action(
+  z.object({
+    source_node_execution_data_id: z.string(),
+    workflowExecutionId: z.string(),
+    target_node_execution_data_id: z.string(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const execution = await tx
+        .insert(workflowExecutionStep)
+        .values({
+          ...params,
         })
         .returning();
       return execution[0];

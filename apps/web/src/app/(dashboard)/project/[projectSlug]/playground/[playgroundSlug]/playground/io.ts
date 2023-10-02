@@ -40,7 +40,6 @@ export async function createNode({
     PromptTemplate: (di, data) => new Nodes.PromptTemplate(di, data),
     OpenAIFunctionCall: (di, data) => new Nodes.OpenAIFunctionCall(di, data),
     Replicate: (di, data) => new Nodes.Replicate(di, data),
-    DataSource: (di, data) => new Nodes.DataSource(di, data),
 
     ComposeObject: (di, data) => new Nodes.ComposeObject(di, data),
 

@@ -67,13 +67,6 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
     this.addOutput("value", new ClassicPreset.Output(stringSocket, "Value"));
   }
 
-  execute() {}
-
-  data() {
-    const state = this.actor.getSnapshot();
-    return state.context.outputs;
-  }
-
   async serialize() {
     return {};
   }

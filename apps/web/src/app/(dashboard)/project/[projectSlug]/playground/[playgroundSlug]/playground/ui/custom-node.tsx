@@ -27,8 +27,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
-import { SocketNameType, useSocketConfig } from "../sockets";
-import { useDebounce, useMeasure, useMouse } from "react-use";
+import { useDebounce } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
@@ -37,6 +36,9 @@ import { Input } from "@/components/ui/input";
 import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState } from "react";
+import { createExecution } from "../../action";
+import { ControlWrapper } from "../playground";
+import { Label } from "@/components/ui/label";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -77,7 +79,8 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const {
     di,
-    workflowId: playgroundId,
+    workflowId,
+    workflowVersionId,
     projectSlug,
     showControls,
     layout,
@@ -115,10 +118,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
         ...props.data,
         context: {
           state: JSON.parse(rawState),
-        }
+        },
       } as any, //TODO:TYPE
       saveToDB: true,
-      workflowId: playgroundId,
+      workflowId: workflowId,
       projectSlug,
     });
     await di?.editor.addNode(newNode);
@@ -127,10 +130,15 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const triggerNode = async () => {
     // const executionId = String(+new Date());
-    const execution = createExecution({
-      playgroundId: playgroundId!,
+    const { data: execution } = await createExecution({
+      workflowId: workflowId!,
+      workflowVersionId,
     });
-    di?.engine?.execute(props.data.id, undefined, executionId);
+    if (!execution) {
+      throw new Error("Execution not created");
+    }
+    console.log("EXECUTION created", execution);
+    di?.engine?.execute(props.data.id, undefined, execution.id);
   };
 
   const pinNode = React.useCallback(async () => {
@@ -263,9 +271,10 @@ export function CustomNode<Scheme extends ClassicScheme>(
               height: size.height,
             }}
             className={cn(
+              "",
               "group @container",
               selected && " border-primary",
-              "flex flex-col flex-1 bg-background ",
+              "flex flex-col flex-1 glass",
               state.matches("loading") &&
                 "border-blue-300 border-2 animate-pulse",
               state.matches("running") && "border-green-300",
@@ -330,19 +339,29 @@ export function CustomNode<Scheme extends ClassicScheme>(
             <CardContent className="flex-1">
               {/* controls */}
               <section
-                className={cn("hidden", size.height > 240 && "@xs:block my-2")}
+                className={cn(
+                  "hidden",
+                  size.height > props.data.minHeightForControls &&
+                    "@xs:block my-2 space-y-2"
+                )}
               >
-                {true &&
-                  controls.map(([key, control]) => {
-                    return control ? (
-                      <RefControl
-                        key={key}
-                        name="control"
-                        emit={props.emit}
-                        payload={control}
-                      />
-                    ) : null;
-                  })}
+                {controls.map(([key, control]) => {
+                  return control ? (
+                    <div className="space-y-1 flex flex-col" key={key}>
+                      <Label htmlFor={control.id} className="capitalize">
+                        {key}
+                      </Label>
+                      <Drag.NoDrag>
+                        <RefControl
+                          key={key}
+                          name="control"
+                          emit={props.emit}
+                          payload={control}
+                        />
+                      </Drag.NoDrag>
+                    </div>
+                  ) : null;
+                })}
               </section>
             </CardContent>
             <div className="py-4 grid-cols-2 grid">

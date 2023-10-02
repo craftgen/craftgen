@@ -37,7 +37,7 @@
   --color-border-tab-selected: var(--color-text);
   --color-border-tab-selected-background: var(--color-4);
   --color-border-tab-unselected: gray;
-  --color-border-tab-unselected-background: var(--color-2);
+  --color-border-tab-unselected-background: transparent;
   --color-splitter: hsl(var(--primary-foreground));
   --color-splitter-hover: var(--color-4);
   --color-splitter-drag: var(--color-5);

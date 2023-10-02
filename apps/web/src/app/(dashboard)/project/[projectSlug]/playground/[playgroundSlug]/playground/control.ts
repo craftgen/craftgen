@@ -6,7 +6,6 @@ import { P, match } from "ts-pattern";
 // Control Classes
 import { CodeControl } from "./controls/code";
 import { ButtonControl } from "./controls/button";
-import { DataSourceControl } from "./controls/datasource";
 import { ArticleControl } from "./controls/article";
 import { GoogleDriveControl } from "./controls/google-drive";
 import { NumberControl } from "./controls/number";
@@ -22,7 +21,6 @@ import { CodeEditor } from "./ui/control/control-code";
 import { SelectControlComponent } from "./ui/control/control-select";
 import { TableControlComponent } from "./ui/control/control-table";
 import { CustomInput } from "./ui/control/custom-input";
-import { DataSourceControlComponent } from "./ui/control/control-datasource";
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
 import { ArticleEditor } from "./ui/control/control-editor";
 import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
@@ -40,7 +38,6 @@ export const getControl = (
     .with(P.instanceOf(SelectControl), () => SelectControlComponent)
     .with(P.instanceOf(SWRSelectControl), () => SWRSelectControlComponent)
     .with(P.instanceOf(TableControl), () => TableControlComponent)
-    .with(P.instanceOf(DataSourceControl), () => DataSourceControlComponent)
     .with(
       P.instanceOf(SocketGeneratorControl),
       () => SocketGeneratorControlComponent

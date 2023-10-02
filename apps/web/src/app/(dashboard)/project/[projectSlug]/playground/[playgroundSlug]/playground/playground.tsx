@@ -17,7 +17,13 @@ import { useParams } from "next/navigation";
 import { createCraftStore } from "./store";
 import { CraftContext, useCraftStore } from "./use-store";
 import { debounce } from "lodash-es";
-import { Lock, Maximize } from "lucide-react";
+import {
+  FileClock,
+  LayoutDashboard,
+  Lock,
+  MousePointerSquareDashed,
+  Shrink,
+} from "lucide-react";
 import { useStore } from "zustand";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,47 +51,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { match } from "ts-pattern";
 import { ResultOfAction } from "@/lib/type";
+import { LogsTab } from "./logs/logs-tab";
+import { Icons } from "@/components/icons";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
-  borders: [],
+  borders: [
+    {
+      type: "border",
+      location: "left",
+      children: [
+        {
+          type: "tab",
+          name: "Inspector",
+          component: "inspector",
+          enableClose: false,
+        },
+        {
+          type: "tab",
+          name: "Inputs",
+          component: "inputWindow",
+          enableClose: false,
+        },
+      ],
+    },
+    {
+      type: "border",
+      location: "bottom",
+      children: [
+        {
+          type: "tab",
+          name: "Logs",
+          component: "logs",
+          icon: "/next.svg",
+          enableClose: false,
+        },
+      ],
+    },
+  ],
   layout: {
     type: "row",
     weight: 100,
     children: [
       {
-        type: "row",
-        weight: 50,
-        children: [
-          {
-            type: "tabset",
-            weight: 100,
-            children: [
-              {
-                type: "tab",
-                name: "Inspector",
-                component: "inspector",
-                enableClose: false,
-              },
-            ],
-          },
-          {
-            type: "tabset",
-            weight: 100,
-            children: [
-              {
-                type: "tab",
-                name: "Inputs",
-                component: "inputWindow",
-                enableClose: false,
-              },
-            ],
-          },
-        ],
-      },
-      {
         type: "tabset",
-        weight: 50,
+        weight: 100,
         children: [
           {
             type: "tab",
@@ -117,7 +127,7 @@ export const Playground: React.FC<{
     })
   );
 
-  const { layout } = useStore(store.current);
+  const { layout, di } = useStore(store.current);
 
   useEffect(() => {
     if (workflow.readonly) return;
@@ -156,10 +166,15 @@ export const Playground: React.FC<{
       return <Composer workflow={workflow} store={store} />;
     }
     if (component === "inspectorNode") {
+      const node = di?.editor.getNode(config.nodeId);
+      if (!node) return null;
       return <InspectorNode nodeId={config.nodeId} />;
     }
     if (component === "inputWindow") {
       return <InputWindow />;
+    }
+    if (component === "logs") {
+      return <LogsTab workflow={workflow} />;
     }
   };
 
@@ -171,6 +186,39 @@ export const Playground: React.FC<{
             model={layout}
             factory={factory}
             onModelChange={(model) => debouncedLayoutChange(model)}
+            onRenderTab={(node, renderValues) => {
+              const component = node.getComponent();
+              match(component)
+                .with("rete", () => {
+                  renderValues.leading = (
+                    <LayoutDashboard className="w-4 h-4" />
+                  );
+                })
+                .with("inspector", () => {
+                  renderValues.leading = (
+                    <MousePointerSquareDashed className="w-4 h-4" />
+                  );
+                })
+                .with("inputWindow", () => {
+                  renderValues.leading = <Icons.input className="w-4 h-4" />;
+                })
+                .with("logs", () => {
+                  renderValues.leading = <FileClock className="w-4 h-4" />;
+                });
+            }}
+            onRenderTabSet={(node, renderValues) => {
+              // renderValues.stickyButtons = [<FileClock className="w-4 h-4" />];
+              // // renderValues.buttons.push(<Icons.add className="w-4 h-4" />);
+              // renderValues.centerContent = (
+              //   <Icons.alignCenter className="w-4 h-4" />
+              // );
+              // renderValues.headerContent = (
+              //   <Icons.alignLeft className="w-4 h-4" />
+              // );
+              // renderValues.headerButtons.push(
+              //   <Icons.bold className="w-4 h-4" />
+              // );
+            }}
             realtimeResize
           />
         </div>
@@ -265,6 +313,7 @@ const Composer: React.FC<{
           await saveNode({
             workflowId: workflow.id,
             workflowVersionId,
+            projectId: workflow.project.id,
             data: {
               id: data.id,
               type: data.ID,
@@ -325,7 +374,7 @@ const Composer: React.FC<{
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>
-              <Maximize />
+              <Shrink />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Center the content</TooltipContent>
@@ -342,6 +391,14 @@ const InspectorWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
   const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
+  const setSelectedNode = useCraftStore((state) => state.setSelectedNodeId);
+  useEffect(() => {
+    if (!selectedNodeId) return;
+    const node = di?.editor.getNode(selectedNodeId);
+    if (!node) {
+      setSelectedNode(null);
+    }
+  }, [selectedNodeId]);
 
   const handlePinTab = () => {
     const selectedNode = selectedNodeId && di?.editor.getNode(selectedNodeId);
@@ -382,16 +439,17 @@ const InspectorWindow: React.FC<{}> = ({}) => {
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   const di = useCraftStore((state) => state.di);
   const node = di?.editor.getNode(nodeId) as NodeProps;
+  if (!node) return null;
   const [updateCounter, setUpdateCounter] = useState(0);
-  useEffect(() => {
-    if (!node) return;
-    const sub = node.actor.subscribe(() => {
-      debounce(() => {
-        setUpdateCounter((prev) => prev + 1);
-      }, 100)();
-    });
-    return sub.unsubscribe;
-  }, [node]);
+  // useEffect(() => {
+  //   if (!node) return;
+  //   const sub = node.actor.subscribe(() => {
+  //     debounce(() => {
+  //       setUpdateCounter((prev) => prev + 1);
+  //     }, 100)();
+  //   });
+  //   return sub.unsubscribe;
+  // }, [node]);
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
   const outputs = useMemo(() => {
@@ -498,7 +556,7 @@ export const DynamicInputsForm: React.FC<{
   );
 };
 
-const ControlWrapper: React.FC<{ control: any; label: string }> = ({
+export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   control,
   label,
 }) => {
@@ -510,7 +568,11 @@ const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   });
   return (
     <>
-      <div ref={ref} className="space-y-1 flex flex-col">
+      <div
+        ref={ref}
+        className="space-y-1 flex flex-col"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <Label htmlFor={control.id} className="capitalize">
           {label}
         </Label>

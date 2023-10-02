@@ -152,7 +152,7 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
     forward("trigger");
   }
 
-  async data() {
+  async nodeData() {
     return {};
   }
 

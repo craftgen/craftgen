@@ -7,9 +7,14 @@ import {
   MachineImplementationsFrom,
   StateFrom,
   createActor,
+  waitFor,
 } from "xstate";
 import { debounce } from "lodash-es";
-import { setContext } from "../../action";
+import {
+  createExecutionNode,
+  setContext,
+  updateExecutionNode,
+} from "../../action";
 import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { z } from "zod";
@@ -54,28 +59,32 @@ export class BaseNode<
   readonly workflowId: string;
   readonly workflowVersionId: string;
   readonly contextId: string;
+  readonly projectId: string;
 
   constructor(
     public readonly ID: NodeTypes,
     di: DiContainer,
-    data: NodeData<Machine>,
-    machine: Machine,
-    machineImplements: MachineImplementationsFrom<Machine>
+    public nodeData: NodeData<Machine>,
+    public machine: Machine,
+    public machineImplements: MachineImplementationsFrom<Machine>
   ) {
-    super(data.label);
-    console.log("NODE BASE", { data });
-    if (data.width) this.width = data.width;
-    if (data.height) this.height = data.height;
-    this.id = data.id;
-    this.di = di;
-    this.workflowVersionId = data.workflowVersionId;
-    this.workflowId = data.workflowId;
-    this.contextId = data.contextId;
+    super(nodeData.label);
+    console.log("NODE BASE", { data: nodeData });
+    if (nodeData.width) this.width = nodeData.width;
+    if (nodeData.height) this.height = nodeData.height;
+    this.workflowVersionId = nodeData.workflowVersionId;
+    this.workflowId = nodeData.workflowId;
+    this.contextId = nodeData.contextId;
+    this.projectId = nodeData.projectId;
 
-    const a = machine.provide(machineImplements as any);
+    this.id = nodeData.id;
+    this.di = di;
+    const a = this.machine.provide(this.machineImplements as any);
     this.actor = createActor(a, {
       id: this.contextId,
-      ...(data?.context?.state !== null && { state: data.context?.state }), // This needs to be stay state.
+      ...(this.nodeData?.context?.state !== null && {
+        state: this.nodeData.context?.state,
+      }), // This needs to be stay state.
     });
 
     const saveDebounced = debounce((state: string) => {
@@ -91,21 +100,96 @@ export class BaseNode<
     this.actor.start();
   }
 
-  async execute(input: any, forward: (output: "trigger") => void) {
+  get minHeightForControls(): number {
+    return Object.keys(this.controls)?.length * 70 + 150 || 200;
+  }
+
+  private async createExecutionState({ executionId }: { executionId: string }) {
+    const { data: executionState } = await createExecutionNode({
+      contextId: this.contextId,
+      projectId: this.projectId,
+      type: this.ID,
+      workflowId: this.workflowId,
+      workflowVersionId: this.workflowVersionId,
+      workflowExecutionId: executionId,
+      workflowNodeId: this.id,
+      state: JSON.stringify(this.actor.getSnapshot()),
+    });
+    if (!executionState) throw new Error("Execution state not created");
+    return executionState;
+  }
+
+  async execute(
+    input: any,
+    forward: (output: "trigger") => void,
+    executionId: string
+  ) {
+    console.log("EXECUTING", this.ID, executionId);
+    const executionState = await this.createExecutionState({ executionId });
+    // console.log("STATE", { executionState });
+    const a = this.machine.provide(this.machineImplements as any);
+    this.actor = createActor(a, {
+      state: executionState?.state,
+      devTools: true,
+    });
+    const subs = this.actor.subscribe({
+      next: async (state) => {
+        console.log("EXECUTION ACTOR STATE", state);
+        await updateExecutionNode({
+          id: executionState?.id,
+          state: JSON.stringify(state),
+        });
+      },
+      complete: () => {
+        console.log("finito");
+        forward("trigger");
+        const snap = this.actor.getSnapshot();
+        subs.unsubscribe();
+        const a = this.machine.provide(this.machineImplements as any);
+        this.actor = createActor(a, {
+          id: this.contextId,
+          ...(this.nodeData?.context?.state !== null && {
+            // state: this.nodeData.context?.state,
+            input: {
+              ...snap.context,
+            },
+          }), // This needs to be stay state.
+        });
+
+        const saveDebounced = debounce((state: string) => {
+          setContext({ contextId: this.contextId, state });
+        }, 1000);
+
+        this.actor.subscribe((state) => {
+          this.state = state.value as any;
+          if (this.di.readonly?.enabled) return;
+          saveDebounced(JSON.stringify(state));
+        });
+
+        this.actor.start();
+      },
+    });
+    this.actor.start();
     const inputs = await this.getInputs();
+    console.log("INPUTS", inputs);
     this.actor.send({
       type: "RUN",
       inputs,
     });
-    await this.waitForState("complete");
+    // await waitFor(this.actor, (state) => state.value === "complete");
+    // forward("trigger");
+    // executionActor.send({
+    //   type: "RUN",
+    //   inputs,
+    // });
     console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
-    this.actor.start();
-    console.log("Starting actor again");
-    forward("trigger");
   }
 
-  async data() {
-    await this.waitForState("complete");
+  /**
+   * This function should be sync
+   * @returns The outputs of the current node.
+   */
+  data() {
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }
@@ -190,14 +274,14 @@ export class BaseNode<
    *
    * @param {string} stateValue - The state value to wait for.
    */
-  async waitForState(stateValue: string) {
-    let state = this.actor.getSnapshot();
-    const sub = this.actor.subscribe((newState) => {
+  async waitForState(actor: Actor<AnyStateMachine>, stateValue: string) {
+    let state = actor.getSnapshot();
+    const sub = actor.subscribe((newState) => {
       state = newState;
     });
     const startTime = Date.now();
     while (!state.matches(stateValue)) {
-      console.log("waiting for complete", this.ID);
+      console.log("waiting for complete", this.ID, state.value);
       await new Promise((resolve) => setTimeout(resolve, 500));
       if (Date.now() - startTime > 30000) {
         sub.unsubscribe();

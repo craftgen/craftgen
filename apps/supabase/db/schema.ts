@@ -115,7 +115,9 @@ export const workflowVersion = pgTable(
     workflowId: text("workflow_id")
       .notNull()
       .references(() => workflow.id, { onDelete: "cascade" }),
-
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
     previousVersionId: text("previous_workflow_version_id"),
     version: integer("version").notNull().default(0), // The version 0 is the latest version.
     publishedAt: timestamp("published_at"),
@@ -140,6 +142,10 @@ export const workflowVersionRelations = relations(
     previousVersion: one(workflowVersion, {
       fields: [workflowVersion.previousVersionId],
       references: [workflowVersion.id],
+    }),
+    project: one(project, {
+      fields: [workflowVersion.projectId],
+      references: [project.id],
     }),
   })
 );
@@ -233,6 +239,11 @@ export const workflowNode = pgTable("workflow_node", {
     .references(() => context.id, {
       onDelete: "cascade",
     }),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => project.id, {
+      onDelete: "cascade",
+    }),
   position: json("position").$type<Position>().notNull(),
   width: integer("width").notNull(),
   height: integer("height").notNull(),
@@ -296,8 +307,47 @@ export const nodeExecutionData = pgTable("node_execution_data", {
   contextId: text("context_id")
     .notNull()
     .references(() => context.id, { onDelete: "cascade" }),
-  state: json("state"),
+  workflowId: text("workflow_id")
+    .notNull()
+    .references(() => workflow.id, { onDelete: "cascade" }),
+  workflowVersionId: text("workflow_version_id")
+    .notNull()
+    .references(() => workflowVersion.id, { onDelete: "cascade" }),
+  projectId: text("project_id")
+    .notNull()
+    .references(() => project.id, { onDelete: "cascade" }),
+  workflowNodeId: text("workflow_node_id")
+    .notNull()
+    .references(() => workflowNode.id),
+  type: text("type").notNull(),
+  state: json("state").notNull(),
 });
+
+export const nodeExecutionDataRelations = relations(
+  nodeExecutionData,
+  ({ one }) => ({
+    context: one(context, {
+      fields: [nodeExecutionData.contextId],
+      references: [context.id],
+    }),
+    workflow: one(workflow, {
+      fields: [nodeExecutionData.workflowId],
+      references: [workflow.id],
+    }),
+    workflowVersion: one(workflowVersion, {
+      fields: [nodeExecutionData.workflowVersionId],
+      references: [workflowVersion.id],
+    }),
+    workflowNode: one(workflowNode, {
+      fields: [nodeExecutionData.workflowNodeId],
+      references: [workflowNode.id],
+    }),
+    workflowExecution: one(workflowExecution, {
+      fields: [nodeExecutionData.workflowExecutionId],
+      references: [workflowExecution.id],
+    }),
+  })
+);
 
 export const workflowExecutionStepRelations = relations(
   workflowExecutionStep,
@@ -346,6 +396,10 @@ export const workflowNodeRelations = relations(workflowNode, ({ one }) => ({
   workflowVersion: one(workflowVersion, {
     fields: [workflowNode.workflowVersionId],
     references: [workflowVersion.id],
+  }),
+  project: one(project, {
+    fields: [workflowNode.projectId],
+    references: [project.id],
   }),
 }));
 

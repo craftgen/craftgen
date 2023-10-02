@@ -18,7 +18,12 @@ const StartNodeMachine = createMachine({
   states: {
     idle: {
       on: {
-        RUN: "complete",
+        RUN: {
+          target: "complete",
+          actions: () => {
+            console.log("RUNNING");
+          },
+        },
       },
     },
     complete: {
@@ -53,14 +58,6 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
       })
     );
   }
-
-  // async execute(_: any, forward: (output: "trigger") => void, execId?: string) {
-  //   forward("trigger");
-  // }
-
-  // async data() {
-  //   return {};
-  // }
 
   async serialize() {
     return {};

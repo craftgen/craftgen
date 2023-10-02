@@ -77,6 +77,15 @@
     background: #4f90f22d;
     border: 1px solid #4f90f2;
   }
+  .glass {
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
 }
 
 @layer utilities {
@@ -98,13 +107,13 @@
 }
 
 @layer components {
-	.join-waitlist-button {
-		background: linear-gradient(
-				180deg,
-				rgba(104, 9, 229, 0) 0%,
-				rgba(60, 8, 126, 0.32) 100%
-			),
-			rgba(40, 5, 117, 0.12);
-		box-shadow: inset 0 0 12px #bf97ff3d;
-	}
+  .join-waitlist-button {
+    background: linear-gradient(
+        180deg,
+        rgba(104, 9, 229, 0) 0%,
+        rgba(60, 8, 126, 0.32) 100%
+      ),
+      rgba(40, 5, 117, 0.12);
+    box-shadow: inset 0 0 12px #bf97ff3d;
+  }
 }

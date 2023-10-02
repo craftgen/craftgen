@@ -158,6 +158,7 @@ const GoogleSheetMachine = createMachine({
           }),
         },
         CONFIG_CHANGE: {
+          // actions: 'updateConfig', // TODO
           actions: assign({
             settings: ({ context, event }) => ({
               ...context.settings,
@@ -449,12 +450,12 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       type: "RUN",
       inputs,
     });
-    await this.waitForState("complete");
+    await this.waitForState(this.actor, "complete");
     forward("trigger");
   }
 
-  async data() {
-    await this.waitForState("complete");
+  async nodeData() {
+    await this.waitForState(this.actor, "complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

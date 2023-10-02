@@ -5,13 +5,22 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { anySocket, triggerSocket } from "../sockets";
 
 const LogNodeMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QBsD2UB0BLCywGIAlAVQDkBtABgF1FQAHVWLAFy1QDs6QAPRARgDMlDAFZKEygBZBsgEz9pggDQgAnogCcADjHb5Adn0TtmgGwGAvpdVpMAJwCuHDlg5R8ETmGwcAbqgA1j52GE4ublAIbgEAxgCGbJxU1CncjMxJXEi8iFKU-BiUolIGlGaiZfxyUnKqGgj8BlIYmqKC1fxmpaIWzda26GHOru74YPb2qPYY9MiJAGbTALYYoeGjUTGoCVkpaTkZrOzZoHwI+YXFpeWVBTV16ojahVKa70YFBqLaZl0DIFCsVQyzmYBYBB4sBYiR88QWEPsAApFBIAJT4IEgsEQg4MJjHTjcc75TQYORyCraKTabTNTT8fj1RByIwYbSUd6UUxyEqM0Siaw2EAcVAQODcOzpAlZYmIAC0ZmZCEVRUk6o1lCswtCODw0syJzlF0eDSEIn4MjkggMZUpHNKAPWI0iBsJp1yCAeGEU-EqbwFUikZi1yu0ojEoh0trklEEmgKxSdQ2BoLwELdspy53aIgs-ATcgTxTMNuVsbkYnNUnE-H0NX4ycwEym9kzRuziFzGHzheLvTLT0acYwpQqlu6WsEJUFQqAA */
   id: "log",
-  context: {
-    inputs: {},
-    outputs: {},
-    error: {},
-  },
+  context: ({ input }) => ({
+    ...input,
+  }),
   types: {} as {
+    input: {
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+      error: any;
+    };
+    context: {
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+      error: any;
+    };
     events: {
       type: "RUN";
       inputs: any;
@@ -30,6 +39,12 @@ const LogNodeMachine = createMachine({
       },
     },
     running: {
+      entry: [
+        // Inline action
+        ({ context, event }) => {
+          console.log(context, event);
+        },
+      ],
       invoke: {
         src: "run",
         input: ({ context }) => ({
@@ -40,6 +55,11 @@ const LogNodeMachine = createMachine({
           actions: assign({
             outputs: ({ event }) => event.output,
           }),
+        },
+        onSnapshot: {
+          actions: (...args) => {
+            console.log("LogNodeMachine SNAPSHOT", args);
+          },
         },
         onError: {
           target: "error",
@@ -67,6 +87,8 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     super("Log", di, data, LogNodeMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
+          // fake timeout
+          await new Promise((resolve) => setTimeout(resolve, 3000));
           console.log("LogNodeMachine RUNNING", input);
           return input.inputs;
         }),
@@ -77,37 +99,10 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       "trigger",
       new ClassicPreset.Input(triggerSocket, "Exec", true)
     );
-    this.addInput("foo", new ClassicPreset.Input(triggerSocket, "Foo", true));
-    this.addInput("data", new ClassicPreset.Input(anySocket, "Data"));
-
     this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
+    this.addInput("data", new ClassicPreset.Input(anySocket, "Data"));
+    this.addOutput("data", new ClassicPreset.Output(anySocket, "Data"));
   }
-
-  // async execute(
-  //   input: "trigger",
-  //   forward: (output: "trigger") => void,
-  //   execId?: string
-  // ) {
-  //   console.log("Execute entry", { input, forward, execId });
-
-  //   this.di.dataFlow?.reset();
-  //   const incomers = this.di.graph.incomers(this.id);
-
-  //   incomers.nodes().forEach(async (n) => {
-  //     await this.di.dataFlow?.fetch(n.id);
-  //   });
-  //   const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-  //     data: Promise<any>[];
-  //   };
-
-  //   const inputData = await Promise.all(inputs.data);
-  //   console.log(inputData);
-  //   forward("trigger");
-  // }
-
-  // async data() {
-  //   return {};
-  // }
 
   serialize() {
     return {};

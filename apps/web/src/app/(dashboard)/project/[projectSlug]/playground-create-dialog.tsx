@@ -27,7 +27,7 @@ import { mutate } from "swr";
 import { useProject } from "./hooks/use-project";
 import { useToast } from "@/components/ui/use-toast";
 import { useParams, useRouter } from "next/navigation";
-import { createPlayground, checkSlugAvailable } from "./actions";
+import { createPlayground as createWorkflow, checkSlugAvailable } from "./actions";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -86,7 +86,7 @@ const templates = [
   },
 ];
 
-export const PlaygroundCreateDialog: React.FC<{
+export const WorkflowCreateDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }> = ({ isOpen, onOpenChange }) => {
@@ -157,7 +157,7 @@ export const PlaygroundCreateDialog: React.FC<{
       data: newPlayground,
       serverError,
       validationError,
-    } = await createPlayground({
+    } = await createWorkflow({
       projectId: project?.id!,
       name: data.name,
       slug: data.slug,
@@ -193,7 +193,7 @@ export const PlaygroundCreateDialog: React.FC<{
   };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="h-1/2">
+      <DialogContent className="min-h-1/2">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>

@@ -134,7 +134,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
   async execute() {}
 
-  async data(inputs: { [key: string]: [string | number | boolean] }) {
+  async nodeData(inputs: { [key: string]: [string | number | boolean] }) {
     const state = this.actor.getSnapshot();
     const flatten = Object.entries(inputs).reduce((acc, [key, value]) => {
       const flattenValue = Array.isArray(value) ? value[0] : value;

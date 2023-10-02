@@ -100,7 +100,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
     forward("trigger");
   }
 
-  async data() {
+  async nodeData() {
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

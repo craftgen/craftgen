@@ -69,20 +69,35 @@ export interface Database {
         Row: {
           context_id: string
           id: string
-          state: Json | null
+          project_id: string
+          state: Json
+          type: string
           workflow_execution_id: string
+          workflow_id: string
+          workflow_node_id: string
+          workflow_version_id: string
         }
         Insert: {
           context_id: string
           id: string
-          state?: Json | null
+          project_id: string
+          state: Json
+          type: string
           workflow_execution_id: string
+          workflow_id: string
+          workflow_node_id: string
+          workflow_version_id: string
         }
         Update: {
           context_id?: string
           id?: string
-          state?: Json | null
+          project_id?: string
+          state?: Json
+          type?: string
           workflow_execution_id?: string
+          workflow_id?: string
+          workflow_node_id?: string
+          workflow_version_id?: string
         }
         Relationships: [
           {
@@ -92,9 +107,33 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "node_execution_data_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "node_execution_data_workflow_execution_id_workflow_execution_id"
             columns: ["workflow_execution_id"]
             referencedRelation: "workflow_execution"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "node_execution_data_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "node_execution_data_workflow_node_id_workflow_node_id_fk"
+            columns: ["workflow_node_id"]
+            referencedRelation: "workflow_node"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "node_execution_data_workflow_version_id_workflow_version_id_fk"
+            columns: ["workflow_version_id"]
+            referencedRelation: "workflow_version"
             referencedColumns: ["id"]
           }
         ]
@@ -474,6 +513,7 @@ export interface Database {
           id: string
           label: string
           position: Json
+          project_id: string
           type: string
           width: number
           workflow_id: string
@@ -486,6 +526,7 @@ export interface Database {
           id: string
           label: string
           position: Json
+          project_id: string
           type: string
           width: number
           workflow_id: string
@@ -498,6 +539,7 @@ export interface Database {
           id?: string
           label?: string
           position?: Json
+          project_id?: string
           type?: string
           width?: number
           workflow_id?: string
@@ -508,6 +550,12 @@ export interface Database {
             foreignKeyName: "workflow_node_context_id_context_id_fk"
             columns: ["context_id"]
             referencedRelation: "context"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_node_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
@@ -529,6 +577,7 @@ export interface Database {
           change_log: string | null
           id: string
           previous_workflow_version_id: string | null
+          project_id: string
           published_at: string | null
           version: number
           workflow_id: string
@@ -537,6 +586,7 @@ export interface Database {
           change_log?: string | null
           id: string
           previous_workflow_version_id?: string | null
+          project_id: string
           published_at?: string | null
           version?: number
           workflow_id: string
@@ -545,11 +595,18 @@ export interface Database {
           change_log?: string | null
           id?: string
           previous_workflow_version_id?: string | null
+          project_id?: string
           published_at?: string | null
           version?: number
           workflow_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workflow_version_project_id_project_id_fk"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "workflow_version_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]

@@ -142,7 +142,7 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
     forward("trigger");
   }
 
-  data() {
+  nodeData() {
     const state = this.actor.getSnapshot();
     console.log(`[${state.context.name}] Input data`, state.context.values);
     return {

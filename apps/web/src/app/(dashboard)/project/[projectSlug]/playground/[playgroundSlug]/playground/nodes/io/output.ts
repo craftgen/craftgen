@@ -141,7 +141,7 @@ export class Output extends BaseNode<typeof OutputNodeMachine> {
     // forward("trigger");
   }
 
-  async data(inputs: any) {
+  async nodeData(inputs: any) {
     console.log("Output data", inputs);
     return {
       value: inputs["value"],

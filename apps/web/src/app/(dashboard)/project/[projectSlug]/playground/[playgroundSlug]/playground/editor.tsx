@@ -2,7 +2,12 @@
 
 import { createRoot } from "react-dom/client";
 import { ClassicPreset, NodeEditor } from "rete";
-import { AreaPlugin, AreaExtensions, Area2D } from "rete-area-plugin";
+import {
+  AreaPlugin,
+  AreaExtensions,
+  Area2D,
+  Drag as AreaDrag,
+} from "rete-area-plugin";
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
@@ -90,6 +95,20 @@ export async function createEditor(params: {
 
   // @ts-ignore
   render.use(pathPlugin);
+
+  // area.area.setDragHandler(
+  //   new AreaDrag({
+  //     down: (e) => {
+  //       if (e.pointerType === "mouse" && e.button === 1) return false;
+  //       e.preventDefault();
+  //       return true;
+  //     },
+
+  //     move: (e) => {
+  //       return true;
+  //     },
+  //   })
+  // );
 
   AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
     accumulating: AreaExtensions.accumulateOnCtrl(),

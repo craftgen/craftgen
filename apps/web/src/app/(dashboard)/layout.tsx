@@ -18,9 +18,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     await persistGoogleToken();
   }
   return (
-    <main>
+    <main className="flex flex-col">
       <Navbar session={session!} />
-      <div className="pt-20 relative">{children}</div>
+      <div className="relative flex-1 mt-12">{children}</div>
       {/* <CommandMenu /> */}
       <Toaster />
     </main>

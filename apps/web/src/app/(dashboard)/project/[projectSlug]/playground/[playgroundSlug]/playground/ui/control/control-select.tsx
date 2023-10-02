@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SelectControl } from "../../controls/select";
 
 export function SelectControlComponent<T extends string>(props: {
@@ -21,9 +21,15 @@ export function SelectControlComponent<T extends string>(props: {
     setValue(value);
     props.data.setValue(value);
   };
+  const [open, setOpen] = useState(false);
 
   return (
-    <Select onValueChange={handleChange} defaultValue={props.data.value}>
+    <Select
+      onValueChange={handleChange}
+      defaultValue={props.data.value}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <SelectTrigger className="min-w-[5rem] w-full" id={props.data.id}>
         <SelectValue placeholder={props.data.options.placeholder} />
       </SelectTrigger>

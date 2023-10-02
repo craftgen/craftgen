@@ -24,7 +24,7 @@ import {
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { PlaygroundEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
-import { PlaygroundCreateDialog } from "./playground-create-dialog";
+import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { PlusIcon, Rocket } from "lucide-react";
 
 type Playground = ResultOf<typeof getWorkflows>[number];
@@ -159,7 +159,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
         )}
       </div>
       {isOpen && (
-        <PlaygroundCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
+        <WorkflowCreateDialog isOpen={isOpen} onOpenChange={setOpen} />
       )}
     </div>
   );

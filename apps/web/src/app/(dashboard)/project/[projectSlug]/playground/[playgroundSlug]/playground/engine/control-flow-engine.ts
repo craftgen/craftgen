@@ -85,7 +85,6 @@ export class ControlFlowEngine<
    * @param input Input key that will be considered as the initiator of the execution
    */
   public execute(nodeId: NodeId, input?: string, execId?: string) {
-    console.log("ControlFlowEngine execute", { nodeId, input, execId });
     this.controlflow.execute(nodeId, input, execId);
   }
 }

@@ -46,7 +46,7 @@ const OpenAIFunctionCallMachine = createMachine({
       },
       resultType: "text",
     },
-    // validApiKey: null,
+    validApiKey: null,
     error: null,
   },
   types: {} as {
@@ -57,7 +57,7 @@ const OpenAIFunctionCallMachine = createMachine({
         openai: OpenAIChatSettings;
         resultType: "json" | "text";
       };
-      // validApiKey: boolean | null;
+      validApiKey: boolean | null;
       error: {
         name: string;
         message: string;
@@ -413,12 +413,12 @@ export class OpenAIFunctionCall extends BaseNode<
       type: "RUN",
       inputs,
     });
-    await this.waitForState("complete");
+    await this.waitForState(this.actor, "complete");
     forward("trigger");
   }
 
   async data() {
-    await this.waitForState("complete");
+    await this.waitForState(this.actor, "complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

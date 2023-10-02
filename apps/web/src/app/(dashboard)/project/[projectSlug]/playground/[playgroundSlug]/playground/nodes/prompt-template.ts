@@ -289,7 +289,7 @@ export class PromptTemplate extends BaseNode<
 
   execute() {}
 
-  async data(inputs: { [key: string]: [string | number] }) {
+  async nodeData(inputs: { [key: string]: [string | number] }) {
     this.actor.send({
       type: "render",
       inputs,

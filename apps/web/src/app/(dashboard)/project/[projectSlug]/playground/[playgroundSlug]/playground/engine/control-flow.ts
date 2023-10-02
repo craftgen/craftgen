@@ -78,7 +78,6 @@ export class ControlFlow<Schemes extends ClassicScheme> {
     if (input && !inputKeys.includes(input))
       throw new Error("inputs don't have a key");
 
-    console.log("TheSETUP?", setup);
     setup.execute(
       input,
       (output) => {

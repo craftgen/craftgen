@@ -155,7 +155,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
     forward("trigger");
   }
 
-  async data() {
+  async nodeData() {
     return {};
   }
 

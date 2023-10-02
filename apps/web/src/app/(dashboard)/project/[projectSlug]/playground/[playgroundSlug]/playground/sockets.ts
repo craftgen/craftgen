@@ -273,6 +273,7 @@ export const useSocketConfig = (name: SocketNameType) => {
 };
 
 sockets.forEach((socket) => {
+  if (socket.name === "Trigger") return;
   anySocket.combineWith(socket);
   socket.combineWith(anySocket);
 });

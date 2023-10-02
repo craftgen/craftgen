@@ -152,7 +152,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     forward("trigger");
   }
 
-  async data() {
+  async nodeData() {
     return {};
   }
 
