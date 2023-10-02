@@ -13,22 +13,20 @@ export function SelectControlComponent<T extends string>(props: {
 }) {
   const [value, setValue] = useState<T | undefined>(props.data.value);
 
+  const handleChange = (value: any) => {
+    props.data.setValue(value);
+    setValue(value);
+  };
+
   useEffect(() => {
     setValue(props.data.value);
   }, [props.data.value]);
 
-  const handleChange = (value: any) => {
-    setValue(value);
-    props.data.setValue(value);
-  };
-  const [open, setOpen] = useState(false);
-
   return (
     <Select
+      value={value}
       onValueChange={handleChange}
       defaultValue={props.data.value}
-      open={open}
-      onOpenChange={setOpen}
     >
       <SelectTrigger className="min-w-[5rem] w-full" id={props.data.id}>
         <SelectValue placeholder={props.data.options.placeholder} />

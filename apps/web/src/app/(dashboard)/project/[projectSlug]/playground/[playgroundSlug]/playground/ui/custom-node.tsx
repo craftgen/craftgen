@@ -21,9 +21,14 @@ import { useStore } from "zustand";
 import { ReteStoreInstance } from "../store";
 import {
   ContextMenu,
+  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
@@ -429,10 +434,21 @@ export function CustomNode<Scheme extends ClassicScheme>(
           <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onClick={pinNode}>Pin</ContextMenuItem>
+
         <ContextMenuItem onClick={deleteNode}>
           Delete
           <ContextMenuShortcut>⌫</ContextMenuShortcut>
         </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>Controllers</ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-48">
+            <ContextMenuCheckboxItem checked>
+              Show Bookmarks Bar
+              <ContextMenuShortcut>⌘⇧B</ContextMenuShortcut>
+            </ContextMenuCheckboxItem>
+          </ContextMenuSubContent>
+        </ContextMenuSub>
       </ContextMenuContent>
     </ContextMenu>
   );
