@@ -233,21 +233,6 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     }
   }
 
-  async execute(_: any, forward: (output: "trigger") => void) {
-    this.di.dataFlow?.reset();
-    const inputs = await this.di?.dataFlow?.fetchInputs(this.id);
-    this.actor.send({
-      type: "RUN",
-      inputData: inputs,
-    });
-
-    this.actor.subscribe((state) => {
-      if (state.matches("complete")) {
-        console.log("COMPLETE", { message: state.context.message });
-        forward("trigger");
-      }
-    });
-  }
 
   async update() {
     const state = this.actor.getSnapshot();
@@ -315,21 +300,6 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       25 * (Object.keys(this.inputs).length + Object.keys(this.outputs).length);
   }
 
-  async nodeData(inputs: Record<string, any>) {
-    let state = this.actor.getSnapshot();
-    if (this.inputs.trigger) {
-      this.actor.subscribe((newState) => {
-        state = newState;
-      });
-      while (state.matches("running")) {
-        console.log("waiting for complete");
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-    return {
-      message: state.context.message,
-    };
-  }
 
   async serialize() {
     return {};

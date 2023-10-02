@@ -13,7 +13,7 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
 
   async execute() {}
 
-  async nodeData() {
+  async data() {
     return {};
   }
 

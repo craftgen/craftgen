@@ -134,25 +134,25 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
   async execute() {}
 
-  async nodeData(inputs: { [key: string]: [string | number | boolean] }) {
-    const state = this.actor.getSnapshot();
-    const flatten = Object.entries(inputs).reduce((acc, [key, value]) => {
-      const flattenValue = Array.isArray(value) ? value[0] : value;
-      return {
-        ...acc,
-        [key]: flattenValue,
-      };
-    }, {});
+  // async nodeData(inputs: { [key: string]: [string | number | boolean] }) {
+  //   const state = this.actor.getSnapshot();
+  //   const flatten = Object.entries(inputs).reduce((acc, [key, value]) => {
+  //     const flattenValue = Array.isArray(value) ? value[0] : value;
+  //     return {
+  //       ...acc,
+  //       [key]: flattenValue,
+  //     };
+  //   }, {});
 
-    return {
-      object: flatten,
-      schema: {
-        name: state.context.name,
-        description: state.context.description,
-        ...state.context.schema,
-      },
-    };
-  }
+  //   return {
+  //     object: flatten,
+  //     schema: {
+  //       name: state.context.name,
+  //       description: state.context.description,
+  //       ...state.context.schema,
+  //     },
+  //   };
+  // }
 
   serialize() {
     return {

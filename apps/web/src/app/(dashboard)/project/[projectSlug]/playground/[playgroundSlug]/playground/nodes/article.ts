@@ -117,12 +117,12 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
     // console.log("editor", node);
   }
 
-  async nodeData() {
-    const state = this.actor.getSnapshot();
-    console.log("ARTICLE State", state);
-    // const editor = createTmpEditor();
-    return {};
-  }
+  // async nodeData() {
+  //   const state = this.actor.getSnapshot();
+  //   console.log("ARTICLE State", state);
+  //   // const editor = createTmpEditor();
+  //   return {};
+  // }
 
   async serialize() {
     return {};

@@ -454,7 +454,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
     forward("trigger");
   }
 
-  async nodeData() {
+  async data() {
     await this.waitForState(this.actor, "complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;

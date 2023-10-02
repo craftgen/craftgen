@@ -76,7 +76,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
     this.addOutput("value", new ClassicPreset.Output(numberSocket, "Value"));
   }
 
-  execute(
+  async execute(
     trigger: "increment" | "decrement" | "reset",
     forward: (output: "trigger") => void
   ) {
@@ -100,7 +100,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
     forward("trigger");
   }
 
-  async nodeData() {
+  async data() {
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }

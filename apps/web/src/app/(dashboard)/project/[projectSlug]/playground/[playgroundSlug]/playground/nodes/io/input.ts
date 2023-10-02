@@ -136,19 +136,19 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
     }
   }
 
-  execute(_: any, forward: (output: "trigger") => void) {
-    const state = this.actor.getSnapshot();
-    console.log(`[${state.context.name}] Input execute`, state.context.values);
-    forward("trigger");
-  }
+  // asyexecute(_: any, forward: (output: "trigger") => void) {
+  //   const state = this.actor.getSnapshot();
+  //   console.log(`[${state.context.name}] Input execute`, state.context.values);
+  //   forward("trigger");
+  // }
 
-  nodeData() {
-    const state = this.actor.getSnapshot();
-    console.log(`[${state.context.name}] Input data`, state.context.values);
-    return {
-      ...state.context.values,
-    };
-  }
+  // nodeData() {
+  //   const state = this.actor.getSnapshot();
+  //   console.log(`[${state.context.name}] Input data`, state.context.values);
+  //   return {
+  //     ...state.context.values,
+  //   };
+  // }
 
   async serialize() {
     return {};

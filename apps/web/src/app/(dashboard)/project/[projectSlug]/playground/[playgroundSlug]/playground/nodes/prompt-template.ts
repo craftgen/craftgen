@@ -287,24 +287,24 @@ export class PromptTemplate extends BaseNode<
     }
   }
 
-  execute() {}
+  // execute() {}
 
-  async nodeData(inputs: { [key: string]: [string | number] }) {
-    this.actor.send({
-      type: "render",
-      inputs,
-    });
-    let state = this.actor.getSnapshot();
-    const subs = this.actor.subscribe((newState) => {
-      state = newState;
-    });
-    while (state.matches("running")) {
-      console.log("waiting for complete");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-    subs.unsubscribe();
-    return state.context.outputs;
-  }
+  // async nodeData(inputs: { [key: string]: [string | number] }) {
+  //   this.actor.send({
+  //     type: "render",
+  //     inputs,
+  //   });
+  //   let state = this.actor.getSnapshot();
+  //   const subs = this.actor.subscribe((newState) => {
+  //     state = newState;
+  //   });
+  //   while (state.matches("running")) {
+  //     console.log("waiting for complete");
+  //     await new Promise((resolve) => setTimeout(resolve, 500));
+  //   }
+  //   subs.unsubscribe();
+  //   return state.context.outputs;
+  // }
 
   async serialize(): Promise<Data> {
     const state = this.actor.getSnapshot();

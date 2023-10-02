@@ -135,18 +135,18 @@ export class Output extends BaseNode<typeof OutputNodeMachine> {
     }
   }
 
-  execute(_: any, forward: (output: "trigger") => void) {
-    const state = this.actor.getSnapshot();
-    console.log(`${state.context.name} Output execute`, state.context.value);
-    // forward("trigger");
-  }
+  // execute(_: any, forward: (output: "trigger") => void) {
+  //   const state = this.actor.getSnapshot();
+  //   console.log(`${state.context.name} Output execute`, state.context.value);
+  //   // forward("trigger");
+  // }
 
-  async nodeData(inputs: any) {
-    console.log("Output data", inputs);
-    return {
-      value: inputs["value"],
-    };
-  }
+  // async nodeData(inputs: any) {
+  //   console.log("Output data", inputs);
+  //   return {
+  //     value: inputs["value"],
+  //   };
+  // }
 
   async serialize() {
     return {};

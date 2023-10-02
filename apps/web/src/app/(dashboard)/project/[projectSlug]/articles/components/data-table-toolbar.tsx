@@ -9,7 +9,6 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { priorities, statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { createArticle, updateArticle } from "../../actions";
 import { useParams } from "next/navigation";
 import { useProject } from "../../hooks/use-project";
 
@@ -69,9 +68,9 @@ const NewArticleButton = () => {
 
   const handleNewArticle = () => {
     if (!project) return;
-    const article = createArticle({
-      projectId: project?.id,
-    });
+    // const article = createArticle({
+    //   projectId: project?.id,
+    // });
   };
   return (
     <Button className="ml-4" size={"sm"} onClick={handleNewArticle}>

@@ -148,13 +148,6 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
     console.log("syncUI", state);
   }
 
-  execute(_: any, forward: (output: "trigger") => void) {
-    forward("trigger");
-  }
-
-  async nodeData() {
-    return {};
-  }
 
   async serialize() {
     return {};
