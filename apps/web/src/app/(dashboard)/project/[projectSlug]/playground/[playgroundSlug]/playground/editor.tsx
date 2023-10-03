@@ -33,7 +33,7 @@ import { ConnectionPathPlugin } from "rete-connection-path-plugin";
 import { CustomNode } from "./ui/custom-node";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomSocket } from "./ui/custom-socket";
-import { Schemes } from "./types";
+import { ConnProps, NodeProps, Schemes } from "./types";
 import { CustomConnection } from "./connection/custom-connection";
 import { importEditor } from "./io";
 import { getWorkflow, getWorkflowById } from "../action";
@@ -46,13 +46,14 @@ import { Modules } from "./modules";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { useMagneticConnection } from "./connection";
 import { ResultOf, ResultOfAction } from "@/lib/type";
+import { Structures } from "rete-structures/_types/types";
 const elk = new ELK();
 
 export type AreaExtra = ReactArea2D<Schemes>;
 
 export type DiContainer = {
   store: any; // TODO: fix types
-  graph: ReturnType<typeof structures>;
+  graph: Structures<NodeProps, ConnProps>;
   area?: AreaPlugin<Schemes, AreaExtra>;
   setUI: () => Promise<void>;
   editor: NodeEditor<Schemes>;
@@ -84,7 +85,12 @@ export async function createEditor(params: {
   editor.use(readonlyPlugin.root);
   const area = new AreaPlugin<Schemes, AreaExtra>(params.container);
   const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-  const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+  const render = new ReactPlugin<Schemes, AreaExtra>({
+    createRoot: (container) =>
+      createRoot(container, {
+        identifierPrefix: "rete-",
+      }),
+  });
   // const minimap = new MinimapPlugin<Schemes>();
 
   const pathPlugin = new ConnectionPathPlugin<Schemes, Area2D<Schemes>>({

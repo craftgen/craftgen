@@ -3,6 +3,7 @@ import { ClassicPreset } from "rete";
 export type CodeControlOptions = {
   initial: string;
   change: (value: string) => void;
+  theme?: string;
 };
 
 export class CodeControl extends ClassicPreset.Control {

@@ -87,8 +87,6 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     super("Log", di, data, LogNodeMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
-          // fake timeout
-          await new Promise((resolve) => setTimeout(resolve, 3000));
           console.log("LogNodeMachine RUNNING", input);
           return input.inputs;
         }),

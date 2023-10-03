@@ -87,7 +87,6 @@ export function CustomNode<Scheme extends ClassicScheme>(
     workflowId,
     workflowVersionId,
     projectSlug,
-    showControls,
     layout,
     setSelectedNodeId,
   } = useStore(props.store);

@@ -69,6 +69,8 @@ export async function createNode({
       workflowVersionId: data.workflowVersionId,
       projectSlug,
       type,
+      height: data.width,
+      width: data.height,
       state: data.context?.state,
     });
     if (!workflowNodeInDB) throw new Error("Failed to create node in DB");

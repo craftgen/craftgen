@@ -173,7 +173,7 @@ const PromptTemplateNodeMachine = createMachine({
   },
 });
 
-const renderFunc = async ({
+const renderFunc = ({
   input,
 }: {
   input: {
@@ -243,6 +243,7 @@ export class PromptTemplate extends BaseNode<
       "template",
       new CodeControl("handlebars", {
         initial: state?.context?.template || "",
+        theme: this.di.store.getState().theme,
         change: (value) => {
           self.actor.send({
             type: "change",
@@ -253,6 +254,7 @@ export class PromptTemplate extends BaseNode<
     );
     this.process();
   }
+  
 
   process() {
     const state = this.actor.getSnapshot();
@@ -289,7 +291,8 @@ export class PromptTemplate extends BaseNode<
 
   // execute() {}
 
-  // async nodeData(inputs: { [key: string]: [string | number] }) {
+  // data(inputs: { [key: string]: [string | number] }) {
+  //   console.log("PromptTemplateNodeMachine RUNNING", inputs);
   //   this.actor.send({
   //     type: "render",
   //     inputs,
@@ -298,10 +301,10 @@ export class PromptTemplate extends BaseNode<
   //   const subs = this.actor.subscribe((newState) => {
   //     state = newState;
   //   });
-  //   while (state.matches("running")) {
-  //     console.log("waiting for complete");
-  //     await new Promise((resolve) => setTimeout(resolve, 500));
-  //   }
+  //   // while (state.matches("running")) {
+  //   //   console.log("waiting for complete");
+  //   //   await new Promise((resolve) => setTimeout(resolve, 500));
+  //   // }
   //   subs.unsubscribe();
   //   return state.context.outputs;
   // }

@@ -418,6 +418,8 @@ export class OpenAIFunctionCall extends BaseNode<
   }
 
   async data() {
+    const inputs = this.getInputs();
+
     await this.waitForState(this.actor, "complete");
     const state = this.actor.getSnapshot();
     return state.context.outputs;

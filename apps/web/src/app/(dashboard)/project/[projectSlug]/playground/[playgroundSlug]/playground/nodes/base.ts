@@ -176,12 +176,6 @@ export class BaseNode<
       type: "RUN",
       inputs,
     });
-    // await waitFor(this.actor, (state) => state.value === "complete");
-    // forward("trigger");
-    // executionActor.send({
-    //   type: "RUN",
-    //   inputs,
-    // });
     console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
   }
 
@@ -189,7 +183,9 @@ export class BaseNode<
    * This function should be sync
    * @returns The outputs of the current node.
    */
-  data() {
+  async data() {
+    const inputs = await this.di.dataFlow?.fetchInputs(this.id);
+    this.log("INPUTS", inputs);
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }
@@ -324,6 +320,6 @@ export class BaseNode<
   }
 
   log(...args: any[]) {
-    console.log(`[${this.di.editor.name}] - [${this.label}]`, ...args);
+    console.log(`[${this.ID}]`, ...args);
   }
 }

@@ -349,6 +349,8 @@ export const createNodeInDB = action(
     projectSlug: z.string(),
     type: z.custom<NodeTypes>(),
     state: z.any().optional(),
+    height: z.number().optional(),
+    width: z.number().optional(),
   }),
   async (params) => {
     console.log("createNodeInDB", params);
@@ -374,8 +376,8 @@ export const createNodeInDB = action(
           workflowId: params.workflowId,
           contextId: contextUnit.id,
           color: "default",
-          height: 200,
-          width: 200,
+          height: params.height || 200,
+          width: params.width || 200,
           label: nodesMeta[params.type].name,
           position: { x: 0, y: 0 },
           workflowVersionId: params.workflowVersionId,

@@ -61,6 +61,7 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
         initial: state?.context?.outputs?.value || "",
         change(value) {
           self.actor.send({ type: "change", value });
+          updateTree();
         },
       })
     );

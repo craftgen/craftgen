@@ -12,24 +12,21 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     setCode(props.data.value);
   }, [props.data.value]);
 
-  // const ref = useRef(null);
-  // Drag.useNoDrag(ref);
-
   const handleChange = (value: any) => {
     setCode(value);
     props.data.setValue(value as T);
   };
-  const { theme } = useTheme();
   const [ref, { height }] = useMeasure<HTMLDivElement>();
   return (
-    // <div ref={ref} className="flex-1 h-full w-full  bg-red-500">
-    //   {height}
     <Editor
+      loading={null}
+      keepCurrentModel={true}
+      value={code}
       defaultValue={code}
-      theme={theme === "dark" ? "vs-dark" : "light"}
+      theme={props.data.options.theme === "dark" ? "vs-dark" : "light"}
       language={props.data.language}
-      className="min-h-[20rem] h-full border object-fill rounded "
-      height={height - 200}
+      className="h-full border object-fill rounded "
+      height={200}
       options={{
         minimap: {
           enabled: false,
@@ -41,6 +38,5 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
       }}
       onChange={handleChange}
     />
-    // </div>
   );
 }

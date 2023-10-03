@@ -16,6 +16,8 @@ export type ReteStore = {
   layout: FlexLayout.Model;
   showControls: boolean;
   position: { x: number; y: number };
+  theme: string;
+  setTheme: (theme: string) => void;
   setPosition: (position: { x: number; y: number }) => void;
   toggleControls: () => void;
   setLayout: (layout: FlexLayout.Model) => void;
@@ -34,6 +36,8 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       selectedNodeId: null,
       di: null,
       showControls: false,
+      theme: "dark",
+      setTheme: (theme) => set({ theme }),
       layout: {} as FlexLayout.Model,
       position: { x: 0, y: 0 },
       setPosition: (position: { x: number; y: number }) => set({ position }),

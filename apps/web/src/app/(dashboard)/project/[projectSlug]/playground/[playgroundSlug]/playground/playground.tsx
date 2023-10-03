@@ -53,6 +53,7 @@ import { match } from "ts-pattern";
 import { ResultOfAction } from "@/lib/type";
 import { LogsTab } from "./logs/logs-tab";
 import { Icons } from "@/components/icons";
+import { useTheme } from "next-themes";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -113,11 +114,13 @@ export const Playground: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
   const params = useParams();
+  const { theme } = useTheme();
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
         (workflow.layout as FlexLayout.IJsonModel) || defaultLayout
       ),
+      theme,
       readonly: workflow.readonly,
       projectId: workflow.project.id,
       projectSlug: params.projectSlug as string,
@@ -127,7 +130,10 @@ export const Playground: React.FC<{
     })
   );
 
-  const { layout, di } = useStore(store.current);
+  const { layout, di, setTheme } = useStore(store.current);
+  useEffect(() => {
+    setTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (workflow.readonly) return;
