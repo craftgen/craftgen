@@ -200,7 +200,7 @@ export class BaseNode<
    * This function should be sync
    * @returns The outputs of the current node.
    */
-  async data(inputs: any) {
+  async data(inputs?: any) {
     const state = this.actor.getSnapshot();
     this.count++;
     return state.context.outputs;
