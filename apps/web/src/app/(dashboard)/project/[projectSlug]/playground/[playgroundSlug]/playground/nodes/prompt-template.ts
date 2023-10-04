@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
 import { DiContainer } from "../editor";
-import { isString, set, get } from "lodash-es";
+import { isString, set, get, isEqual } from "lodash-es";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { Socket, stringSocket } from "../sockets";
@@ -39,10 +39,6 @@ const PromptTemplateNodeMachine = createMachine({
           value: string;
         }
       | {
-          type: "render";
-          inputs: any;
-        }
-      | {
           type: "SET_VALUE";
           inputs: Record<string, any[]>;
         },
@@ -51,14 +47,18 @@ const PromptTemplateNodeMachine = createMachine({
     idle: {
       invoke: {
         src: "parse",
-        input: ({ context }: any) => ({ value: context.template }), //TODO:XSTATE
+        input: ({ context }) => ({
+          template: context.template,
+          inputs: context.inputs,
+        }),
         onError: {
           target: "error",
         },
         onDone: {
           target: "ready",
           actions: assign({
-            variables: ({ event }) => event.output,
+            variables: ({ event }) => event.output.variables,
+            outputs: ({ event }) => ({ value: event.output.rendered }),
           }),
         },
       },
@@ -74,6 +74,7 @@ const PromptTemplateNodeMachine = createMachine({
               ...event.inputs,
             }),
           }),
+          reenter: true,
         },
       },
     },
@@ -95,15 +96,6 @@ const PromptTemplateNodeMachine = createMachine({
     ready: {
       on: {
         change: "typing",
-        render: {
-          target: "running",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
-        },
         SET_VALUE: {
           actions: assign({
             inputs: ({ context, event }) => ({
@@ -111,6 +103,7 @@ const PromptTemplateNodeMachine = createMachine({
               ...event.inputs,
             }),
           }),
+          target: "idle",
         },
       },
     },
@@ -125,15 +118,15 @@ const PromptTemplateNodeMachine = createMachine({
           target: "typing",
           actions: "updateValue",
         },
-        render: {
-          target: "running",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
-        },
+        // render: {
+        //   target: "running",
+        //   actions: assign({
+        //     inputs: ({ context, event }) => ({
+        //       ...context.inputs,
+        //       ...event.inputs,
+        //     }),
+        //   }),
+        // },
         SET_VALUE: {
           target: "ready",
           actions: assign({
@@ -145,7 +138,6 @@ const PromptTemplateNodeMachine = createMachine({
         },
       },
     },
-
     running: {
       invoke: {
         src: "render",
@@ -218,9 +210,9 @@ export class PromptTemplate extends BaseNode<
       },
       actors: {
         parse: fromPromise(async ({ input }) => {
-          let rawTemplate: any[] = [];
+          let variables: any[] = [];
           // try {
-          rawTemplate = Sqrl.parse(input.value, {
+          variables = Sqrl.parse(input.template, {
             ...Sqrl.defaultConfig,
             useWith: true,
           })
@@ -228,21 +220,36 @@ export class PromptTemplate extends BaseNode<
             .map((item) => {
               return (item as any).c; // TODO:TYPE
             });
-          return rawTemplate;
+          try {
+            const rendered = renderFunc({ input });
+            return {
+              variables,
+              rendered,
+            };
+          } catch (e) {
+            console.log(e);
+            return {
+              variables,
+              rendered: input.template,
+            };
+          }
         }),
         render: fromPromise(renderFunc),
       },
     });
+
+    let prev = this.actor.getSnapshot();
     this.actor.subscribe((state) => {
       this.process();
+      prev = state;
     });
+
     this.addOutput("value", new ClassicPreset.Output(stringSocket, "Text"));
     const self = this;
-    const state = this.actor.getSnapshot();
     this.addControl(
       "template",
       new CodeControl("handlebars", {
-        initial: state?.context?.template || "",
+        initial: prev?.context?.template || "",
         theme: this.di.store.getState().theme,
         change: (value) => {
           self.actor.send({
@@ -252,9 +259,9 @@ export class PromptTemplate extends BaseNode<
         },
       })
     );
+
     this.process();
   }
-  
 
   process() {
     const state = this.actor.getSnapshot();
@@ -290,24 +297,13 @@ export class PromptTemplate extends BaseNode<
   }
 
   // execute() {}
-
-  // data(inputs: { [key: string]: [string | number] }) {
-  //   console.log("PromptTemplateNodeMachine RUNNING", inputs);
-  //   this.actor.send({
-  //     type: "render",
-  //     inputs,
-  //   });
-  //   let state = this.actor.getSnapshot();
-  //   const subs = this.actor.subscribe((newState) => {
-  //     state = newState;
-  //   });
-  //   // while (state.matches("running")) {
-  //   //   console.log("waiting for complete");
-  //   //   await new Promise((resolve) => setTimeout(resolve, 500));
-  //   // }
-  //   subs.unsubscribe();
-  //   return state.context.outputs;
-  // }
+  async compute(inputs: { [key: string]: [string | number] }) {
+    console.log("PromptTemplate COMPUTE", inputs);
+    this.actor.send({
+      type: "SET_VALUE",
+      inputs: inputs,
+    });
+  }
 
   async serialize(): Promise<Data> {
     const state = this.actor.getSnapshot();

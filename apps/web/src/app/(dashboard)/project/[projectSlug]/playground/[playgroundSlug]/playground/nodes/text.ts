@@ -59,9 +59,8 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
       "value",
       new ClassicPreset.InputControl("text", {
         initial: state?.context?.outputs?.value || "",
-        change(value) {
+        async change(value) {
           self.actor.send({ type: "change", value });
-          updateTree();
         },
       })
     );

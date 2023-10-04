@@ -141,7 +141,6 @@ export function CustomNode<Scheme extends ClassicScheme>(
     if (!execution) {
       throw new Error("Execution not created");
     }
-    console.log("EXECUTION created", execution);
     di?.engine?.execute(props.data.id, undefined, execution.id);
   };
 

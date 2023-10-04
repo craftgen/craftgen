@@ -69,7 +69,6 @@ export class ControlFlow<Schemes extends ClassicScheme> {
    * @param input Input key that will be considered as the initiator of the execution
    */
   public execute(nodeId: NodeId, input?: string, execId?: string) {
-    console.log("Execute entry", { nodeId, input, execId });
     const setup = this.setups.get(nodeId);
 
     if (!setup) throw new Error("node is not initialized");

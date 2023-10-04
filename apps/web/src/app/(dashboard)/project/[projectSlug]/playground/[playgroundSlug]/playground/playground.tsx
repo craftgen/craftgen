@@ -132,7 +132,7 @@ export const Playground: React.FC<{
 
   const { layout, di, setTheme } = useStore(store.current);
   useEffect(() => {
-    setTheme(theme);
+    setTheme(theme || "light");
   }, [theme]);
 
   useEffect(() => {
@@ -343,6 +343,7 @@ const Composer: React.FC<{
         })
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
+          await di?.editor.getNode(data.target).data();
           await saveEdge({
             workflowId: workflow.id,
             workflowVersionId,

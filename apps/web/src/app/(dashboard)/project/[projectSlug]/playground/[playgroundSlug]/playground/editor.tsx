@@ -270,7 +270,7 @@ export async function createEditor(params: {
     di,
     editor,
     engine,
-    dataflow: dataFlow,
+    dataFlow,
     area,
     destroy: () => area.destroy(),
   };

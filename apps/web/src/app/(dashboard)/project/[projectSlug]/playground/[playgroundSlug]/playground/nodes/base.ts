@@ -7,9 +7,8 @@ import {
   MachineImplementationsFrom,
   StateFrom,
   createActor,
-  waitFor,
 } from "xstate";
-import { debounce } from "lodash-es";
+import { debounce, isEqual } from "lodash-es";
 import {
   createExecutionNode,
   setContext,
@@ -61,6 +60,8 @@ export class BaseNode<
   readonly contextId: string;
   readonly projectId: string;
 
+  public count = 0;
+
   constructor(
     public readonly ID: NodeTypes,
     di: DiContainer,
@@ -69,7 +70,6 @@ export class BaseNode<
     public machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(nodeData.label);
-    console.log("NODE BASE", { data: nodeData });
     if (nodeData.width) this.width = nodeData.width;
     if (nodeData.height) this.height = nodeData.height;
     this.workflowVersionId = nodeData.workflowVersionId;
@@ -91,17 +91,33 @@ export class BaseNode<
       setContext({ contextId: this.contextId, state });
     }, 1000);
 
-    this.actor.subscribe((state) => {
+    let prev = this.actor.getSnapshot();
+    this.actor.subscribe(async (state) => {
       this.state = state.value as any;
-      if (this.di.readonly?.enabled) return;
-      saveDebounced(JSON.stringify(state));
+      if (!isEqual(prev.context.outputs, state.context.outputs)) {
+        this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
+        await this.updateAncestors();
+      }
+      prev = state;
+
+      if (!this.di.readonly?.enabled) {
+        saveDebounced(JSON.stringify(state));
+      }
     });
 
     this.actor.start();
   }
 
-  get minHeightForControls(): number {
-    return Object.keys(this.controls)?.length * 70 + 150 || 200;
+  public async updateAncestors() {
+    // console.group("updateAncestors", this.ID, this.id);
+    const outgoers = this.di.graph.outgoers(this.id).nodes();
+    for (const node of outgoers) {
+      // console.log("calling data on", node.ID, node.id);
+      const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
+      await node.compute(inputs);
+    }
+
+    // console.groupEnd();
   }
 
   private async createExecutionState({ executionId }: { executionId: string }) {
@@ -124,7 +140,6 @@ export class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
-    console.log("EXECUTING", this.ID, executionId);
     const executionState = await this.createExecutionState({ executionId });
     // console.log("STATE", { executionState });
     const a = this.machine.provide(this.machineImplements as any);
@@ -134,7 +149,6 @@ export class BaseNode<
     });
     const subs = this.actor.subscribe({
       next: async (state) => {
-        console.log("EXECUTION ACTOR STATE", state);
         await updateExecutionNode({
           id: executionState?.id,
           state: JSON.stringify(state),
@@ -179,15 +193,25 @@ export class BaseNode<
     console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
   }
 
+  get identifier() {
+    return `${this.ID}-${this.id.substring(5, 10)}`;
+  }
   /**
    * This function should be sync
    * @returns The outputs of the current node.
    */
-  async data() {
-    const inputs = await this.di.dataFlow?.fetchInputs(this.id);
-    this.log("INPUTS", inputs);
+  async data(inputs: any) {
     const state = this.actor.getSnapshot();
+    this.count++;
     return state.context.outputs;
+  }
+
+  async compute(inputs: any) {
+    // this.debug.log("process", inputs);
+  }
+
+  get minHeightForControls(): number {
+    return Object.keys(this.controls)?.length * 70 + 150 || 200;
   }
 
   public setSize(size: { width: number; height: number }) {
@@ -317,9 +341,5 @@ export class BaseNode<
       }
     });
     return inputs;
-  }
-
-  log(...args: any[]) {
-    console.log(`[${this.ID}]`, ...args);
   }
 }
