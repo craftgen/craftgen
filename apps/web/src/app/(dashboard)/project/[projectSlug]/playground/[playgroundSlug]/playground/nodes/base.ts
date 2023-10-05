@@ -18,6 +18,7 @@ import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { z } from "zod";
 import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
+import { BaseControl } from "../controls/base";
 
 export type NodeData<T extends AnyStateMachine> = z.infer<
   typeof selectWorkflowNodeSchema
@@ -41,9 +42,9 @@ export class BaseNode<
     [key in string]?: AllSockets;
   },
   Controls extends {
-    [key in string]?: Control & { name?: string };
+    [key in string]?: BaseControl & { name?: string };
   } = {
-    [key in string]?: Control & { name?: string };
+    [key in string]?: BaseControl & { name?: string };
   }
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   public di: DiContainer;
@@ -154,10 +155,15 @@ export class BaseNode<
           state: JSON.stringify(state),
         });
       },
-      complete: () => {
+      complete: async () => {
         console.log("finito");
         forward("trigger");
         const snap = this.actor.getSnapshot();
+        await updateExecutionNode({
+          id: executionState?.id,
+          state: JSON.stringify(snap),
+          complete: true,
+        });
         subs.unsubscribe();
         const a = this.machine.provide(this.machineImplements as any);
         this.actor = createActor(a, {
@@ -211,6 +217,13 @@ export class BaseNode<
   }
 
   get minHeightForControls(): number {
+    let min = 200;
+    Object.values(this.controls).forEach((control) => {
+      control?.minHeight && (min += control.minHeight);
+    });
+
+    return min;
+
     return Object.keys(this.controls)?.length * 70 + 150 || 200;
   }
 

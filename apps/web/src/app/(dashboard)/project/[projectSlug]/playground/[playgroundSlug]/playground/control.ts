@@ -27,6 +27,8 @@ import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
 import { SliderControlComponenet as SliderControlComponent } from "./ui/control/control-slider";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { NumberControlComponent } from "./ui/control/control-number";
+import { TextareControl } from "./controls/textarea";
+import { CustomTextarea } from "./ui/control/custom-textarea";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -43,6 +45,7 @@ export const getControl = (
       () => SocketGeneratorControlComponent
     )
     .with(P.instanceOf(ClassicPreset.InputControl), () => CustomInput)
+    .with(P.instanceOf(TextareControl), () => CustomTextarea)
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)

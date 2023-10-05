@@ -13,7 +13,7 @@ export class SelectControl<T extends string> extends BaseControl {
     public value: T | undefined,
     public options: SelectControlOptions<T>
   ) {
-    super(200);
+    super(55);
     this.options.disabled = this.options.disabled ?? false;
   }
 

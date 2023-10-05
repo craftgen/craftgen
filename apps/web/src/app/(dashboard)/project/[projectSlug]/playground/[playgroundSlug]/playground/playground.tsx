@@ -60,31 +60,12 @@ const defaultLayout: FlexLayout.IJsonModel = {
   borders: [
     {
       type: "border",
-      location: "left",
-      children: [
-        {
-          type: "tab",
-          name: "Inspector",
-          component: "inspector",
-          enableClose: false,
-        },
-        {
-          type: "tab",
-          name: "Inputs",
-          component: "inputWindow",
-          enableClose: false,
-        },
-      ],
-    },
-    {
-      type: "border",
       location: "bottom",
       children: [
         {
           type: "tab",
           name: "Logs",
           component: "logs",
-          icon: "/next.svg",
           enableClose: false,
         },
       ],
@@ -95,8 +76,38 @@ const defaultLayout: FlexLayout.IJsonModel = {
     weight: 100,
     children: [
       {
+        type: "row",
+        weight: 20,
+        children: [
+          {
+            type: "tabset",
+            weight: 63.88557806912991,
+            children: [
+              {
+                type: "tab",
+                name: "Inspector",
+                component: "inspector",
+                enableClose: false,
+              },
+            ],
+          },
+          {
+            type: "tabset",
+            weight: 36.11442193087009,
+            children: [
+              {
+                type: "tab",
+                name: "Inputs",
+                component: "inputWindow",
+                enableClose: false,
+              },
+            ],
+          },
+        ],
+      },
+      {
         type: "tabset",
-        weight: 100,
+        weight: 80,
         children: [
           {
             type: "tab",
@@ -565,13 +576,13 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   return (
     <>
       <div
-        ref={ref}
         className="space-y-1 flex flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <Label htmlFor={control.id} className="capitalize">
           {label}
         </Label>
+        <span ref={ref}></span>
         <ControlElement data={control} />
       </div>
     </>

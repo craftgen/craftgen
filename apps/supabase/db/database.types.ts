@@ -67,33 +67,45 @@ export interface Database {
       }
       node_execution_data: {
         Row: {
+          completed_at: string | null
           context_id: string
+          created_at: string
+          duration: number | null
           id: string
           project_id: string
           state: Json
           type: string
+          updated_at: string
           workflow_execution_id: string
           workflow_id: string
           workflow_node_id: string
           workflow_version_id: string
         }
         Insert: {
+          completed_at?: string | null
           context_id: string
+          created_at?: string
+          duration?: number | null
           id: string
           project_id: string
           state: Json
           type: string
+          updated_at?: string
           workflow_execution_id: string
           workflow_id: string
           workflow_node_id: string
           workflow_version_id: string
         }
         Update: {
+          completed_at?: string | null
           context_id?: string
+          created_at?: string
+          duration?: number | null
           id?: string
           project_id?: string
           state?: Json
           type?: string
+          updated_at?: string
           workflow_execution_id?: string
           workflow_id?: string
           workflow_node_id?: string
@@ -421,7 +433,8 @@ export interface Database {
       }
       workflow_execution: {
         Row: {
-          finished_at: string | null
+          completed_at: string | null
+          duration: number | null
           id: string
           status: string
           timestamp: string
@@ -430,7 +443,8 @@ export interface Database {
           workflow_version_id: string
         }
         Insert: {
-          finished_at?: string | null
+          completed_at?: string | null
+          duration?: number | null
           id: string
           status?: string
           timestamp?: string
@@ -439,7 +453,8 @@ export interface Database {
           workflow_version_id: string
         }
         Update: {
-          finished_at?: string | null
+          completed_at?: string | null
+          duration?: number | null
           id?: string
           status?: string
           timestamp?: string

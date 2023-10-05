@@ -1,4 +1,5 @@
 import { ClassicPreset } from "rete";
+import { BaseControl } from "./base";
 
 export type CodeControlOptions = {
   initial: string;
@@ -6,12 +7,12 @@ export type CodeControlOptions = {
   theme?: string;
 };
 
-export class CodeControl extends ClassicPreset.Control {
+export class CodeControl extends BaseControl {
   __type = "code";
   value?: string;
 
   constructor(public language: string, public options: CodeControlOptions) {
-    super();
+    super(200);
     if (typeof options?.initial !== "undefined") this.value = options.initial;
   }
 

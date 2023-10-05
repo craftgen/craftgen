@@ -619,6 +619,7 @@ export const updateExecutionNode = action(
   z.object({
     id: z.string(),
     state: z.string().transform((val) => JSON.parse(val)),
+    complete: z.boolean().optional(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
@@ -626,6 +627,7 @@ export const updateExecutionNode = action(
         .update(nodeExecutionData)
         .set({
           state: params.state,
+          ...(params.complete && { completedAt: new Date() }),
         })
         .where(eq(nodeExecutionData.id, params.id))
         .returning();

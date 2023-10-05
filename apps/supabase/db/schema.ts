@@ -143,6 +143,7 @@ export const workflowVersionRelations = relations(
       fields: [workflowVersion.previousVersionId],
       references: [workflowVersion.id],
     }),
+    executions: many(workflowExecution),
     project: one(project, {
       fields: [workflowVersion.projectId],
       references: [project.id],
@@ -270,16 +271,23 @@ export const workflowExecution = pgTable("workflow_execution", {
     .notNull(),
   startedAt: timestamp("timestamp").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  finishedAt: timestamp("finished_at"),
+  completedAt: timestamp("completed_at"),
+  duration: integer("duration"),
 });
 
 export const workflowExecutionRelations = relations(
   workflowExecution,
-  ({ one }) => ({
+  ({ one, many }) => ({
     workflow: one(workflow, {
       fields: [workflowExecution.workflowId],
       references: [workflow.id],
     }),
+    workflowVersion: one(workflowVersion, {
+      fields: [workflowExecution.workflowVersionId],
+      references: [workflowVersion.id],
+    }),
+    steps: many(workflowExecutionStep),
+    executionData: many(nodeExecutionData),
   })
 );
 
@@ -321,6 +329,10 @@ export const nodeExecutionData = pgTable("node_execution_data", {
     .references(() => workflowNode.id),
   type: text("type").notNull(),
   state: json("state").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+  duration: integer("duration"),
 });
 
 export const nodeExecutionDataRelations = relations(

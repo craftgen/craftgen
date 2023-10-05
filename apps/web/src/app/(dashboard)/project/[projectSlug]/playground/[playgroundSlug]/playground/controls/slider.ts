@@ -1,4 +1,4 @@
-import { ClassicPreset } from "rete";
+import { BaseControl } from "./base";
 
 export type SliderControlOptions = {
   max: number;
@@ -6,11 +6,11 @@ export type SliderControlOptions = {
   change: (value: number) => void;
 };
 
-export class SliderControl extends ClassicPreset.Control {
+export class SliderControl extends BaseControl {
   __type = "slider";
 
   constructor(public value: number, public options: SliderControlOptions) {
-    super();
+    super(55);
   }
 
   setValue(value: number) {
