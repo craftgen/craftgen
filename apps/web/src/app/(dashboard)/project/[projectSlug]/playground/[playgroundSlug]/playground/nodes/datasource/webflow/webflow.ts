@@ -4,6 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
+import { InputControl } from "../../../controls/input";
 
 const WebflowMachine = createMachine({
   id: "webflow",
@@ -53,7 +54,7 @@ const WebflowMachine = createMachine({
 export class Webflow extends BaseNode<typeof WebflowMachine> {
   public action: "addRow" | "readRow" = "addRow";
   constructor(di: DiContainer, data: NodeData<typeof WebflowMachine>) {
-    super("Webflow",  di, data, WebflowMachine, {
+    super("Webflow", di, data, WebflowMachine, {
       actions: {
         updateConfig: ({ event }) => {
           console.log("updateConfig", event);
@@ -102,8 +103,7 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
     // this.addControl('webflowID', )
     this.addControl(
       "webflowID",
-      new ClassicPreset.InputControl("text", {
-        initial: state.context.settings.webflowId,
+      new InputControl(state.context.settings.webflowId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -147,7 +147,6 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
 
     console.log("syncUI", state);
   }
-
 
   async serialize() {
     return {};

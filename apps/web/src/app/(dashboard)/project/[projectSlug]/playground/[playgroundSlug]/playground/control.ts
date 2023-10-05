@@ -1,6 +1,5 @@
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { Schemes } from "./types";
-import { ClassicPreset } from "rete";
 import { P, match } from "ts-pattern";
 
 // Control Classes
@@ -29,6 +28,7 @@ import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { NumberControlComponent } from "./ui/control/control-number";
 import { TextareControl } from "./controls/textarea";
 import { CustomTextarea } from "./ui/control/custom-textarea";
+import { InputControl } from "./controls/input";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -44,7 +44,7 @@ export const getControl = (
       P.instanceOf(SocketGeneratorControl),
       () => SocketGeneratorControlComponent
     )
-    .with(P.instanceOf(ClassicPreset.InputControl), () => CustomInput)
+    .with(P.instanceOf(InputControl), () => CustomInput)
     .with(P.instanceOf(TextareControl), () => CustomTextarea)
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)

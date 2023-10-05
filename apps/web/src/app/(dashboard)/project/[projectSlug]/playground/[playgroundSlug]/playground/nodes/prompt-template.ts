@@ -7,6 +7,7 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { Socket, stringSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
+import { InputControl } from "../controls/input";
 
 type Data = {
   value: string;
@@ -300,8 +301,7 @@ export class PromptTemplate extends BaseNode<
       if (this.hasInput(item)) continue;
       const input = new ClassicPreset.Input(stringSocket, item, false);
       input.addControl(
-        new ClassicPreset.InputControl("text", {
-          initial: state.context.inputs[item] || "",
+        new InputControl(state.context.inputs[item], {
           change: (value) => {
             console.log(value);
             this.actor.send({

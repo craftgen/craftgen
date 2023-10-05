@@ -1,9 +1,6 @@
-import { ClassicPreset } from "rete";
+import { BaseControl } from "./base";
 
-export class SWRSelectControl<
-  T extends string,
-  Data
-> extends ClassicPreset.Control {
+export class SWRSelectControl<T extends string, Data> extends BaseControl {
   __type = "swr-select";
 
   constructor(
@@ -14,6 +11,6 @@ export class SWRSelectControl<
     public dataTransform: (data: Data[]) => { key: T; value: string }[],
     public setValue: (value: T) => void
   ) {
-    super();
+    super(55);
   }
 }

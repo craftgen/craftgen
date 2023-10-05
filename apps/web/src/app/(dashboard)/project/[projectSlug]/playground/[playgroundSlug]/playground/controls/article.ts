@@ -1,16 +1,16 @@
-import { ClassicPreset } from "rete";
 import type { MyValue } from "@/lib/plate/plate-types";
+import { BaseControl } from "./base";
 
 export type ArticleControlOptions = {
   initial: MyValue;
   change: (value: MyValue) => void;
 };
 
-export class ArticleControl extends ClassicPreset.Control {
+export class ArticleControl extends BaseControl {
   __type = "editor";
 
   constructor(public value: MyValue, public options: ArticleControlOptions) {
-    super();
+    super(500);
     if (typeof options?.initial !== "undefined") this.value = options.initial;
   }
 

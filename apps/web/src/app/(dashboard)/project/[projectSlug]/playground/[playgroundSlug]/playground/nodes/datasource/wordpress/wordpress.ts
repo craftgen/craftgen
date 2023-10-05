@@ -4,6 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
+import { InputControl } from "../../../controls/input";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -102,8 +103,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
     // this.addControl('wordpressID', )
     this.addControl(
       "wordpressID",
-      new ClassicPreset.InputControl("text", {
-        initial: state.context.settings.wordpressId,
+      new InputControl(state.context.settings.wordpressId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",

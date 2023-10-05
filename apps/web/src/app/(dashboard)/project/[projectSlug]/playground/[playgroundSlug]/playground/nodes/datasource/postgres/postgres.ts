@@ -4,6 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { SelectControl } from "../../../controls/select";
 import { objectSocket, triggerSocket } from "../../../sockets";
+import { InputControl } from "../../../controls/input";
 
 const PostgresMachine = createMachine({
   id: "postgres",
@@ -102,8 +103,7 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
     // this.addControl('postgresID', )
     this.addControl(
       "postgresID",
-      new ClassicPreset.InputControl("text", {
-        initial: state.context.settings.postgresId,
+      new InputControl(state.context.settings.postgresId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",

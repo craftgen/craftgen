@@ -419,7 +419,7 @@ export const setContext = action(
     console.log("setContext", params);
     return await db
       .update(context)
-      .set({ state: params.state })
+      .set({ state: params.state as any })
       .where(eq(context.id, params.contextId))
       .returning();
   }
@@ -646,7 +646,7 @@ export const updateExecutionNode = action(
       const executionNodeState = await tx
         .update(nodeExecutionData)
         .set({
-          state: params.state,
+          state: params.state as any,
           ...(params.complete && { completedAt: new Date() }),
         })
         .where(eq(nodeExecutionData.id, params.id))

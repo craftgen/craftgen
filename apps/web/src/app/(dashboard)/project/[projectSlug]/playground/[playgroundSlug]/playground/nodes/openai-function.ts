@@ -9,6 +9,7 @@ import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { merge, omit } from "lodash-es";
 import { SelectControl } from "../controls/select";
 import { SliderControl } from "../controls/slider";
+import { InputControl } from "../controls/input";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -337,8 +338,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
     const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
     input.addControl(
-      new ClassicPreset.InputControl("text", {
-        initial: state.context.inputs?.prompt || "",
+      new InputControl(state.context.inputs?.prompt, {
         change: (value) => {
           this.actor.send({
             type: "SET_VALUE",

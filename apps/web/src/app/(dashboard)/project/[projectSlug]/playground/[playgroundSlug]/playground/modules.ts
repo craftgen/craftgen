@@ -91,10 +91,8 @@ export class Modules {
     const outputs = await Promise.all(
       outputNodes.map(async (outNode) => {
         const data = await dataFlow.fetch(outNode.id);
-
-        const key = (
-          outNode.controls["name"] as ClassicPreset.InputControl<"text">
-        ).value;
+        // TODO: fix here;
+        const key = outNode.actor.getSnapshot().context.name;
 
         if (!key) throw new Error("cannot get output node name");
 

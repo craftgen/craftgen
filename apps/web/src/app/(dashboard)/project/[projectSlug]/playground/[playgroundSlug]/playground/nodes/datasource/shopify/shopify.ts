@@ -4,6 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
+import { InputControl } from "../../../controls/input";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -102,8 +103,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     // this.addControl('spreedsheetID', )
     this.addControl(
       "spreedsheetID",
-      new ClassicPreset.InputControl("text", {
-        initial: state.context.settings.spreadsheetId,
+      new InputControl(state.context.settings.spreadsheetId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",

@@ -59,7 +59,6 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
     this.addControl(
       "value",
       new TextareControl(state?.context?.outputs?.value, {
-        rows: 5,
         async change(value) {
           self.actor.send({ type: "change", value });
         },

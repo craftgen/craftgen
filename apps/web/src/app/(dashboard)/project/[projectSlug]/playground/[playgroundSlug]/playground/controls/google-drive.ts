@@ -2,7 +2,7 @@ import {
   CallbackDoc,
   PickerConfiguration,
 } from "react-google-drive-picker/dist/typeDefs";
-import { ClassicPreset } from "rete";
+import { BaseControl } from "./base";
 
 export type GoogleDriveControlSettings = {
   multiselect?: boolean;
@@ -10,14 +10,14 @@ export type GoogleDriveControlSettings = {
   onSelect: (file: CallbackDoc | undefined) => void;
 };
 
-export class GoogleDriveControl extends ClassicPreset.Control {
+export class GoogleDriveControl extends BaseControl {
   __type = "google-drive";
 
   constructor(
     public value: CallbackDoc | undefined,
     public readonly settings: GoogleDriveControlSettings
   ) {
-    super();
+    super(150);
   }
 
   setValue(value: CallbackDoc | undefined) {

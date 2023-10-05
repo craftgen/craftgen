@@ -1,10 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { ClassicPreset } from "rete";
+import { InputControl } from "../../controls/input";
 
-export function CustomInput(props: {
-  data: ClassicPreset.InputControl<"text">;
-}) {
+export function CustomInput(props: { data: InputControl }) {
   const [value, setValue] = useState(props.data.value);
 
   useEffect(() => {
@@ -14,7 +12,7 @@ export function CustomInput(props: {
   return (
     <Input
       id={props.data.id}
-      disabled={props.data.readonly}
+      disabled={props.data.options.readonly}
       value={value}
       onChange={(e) => {
         setValue(e.target.value as string);

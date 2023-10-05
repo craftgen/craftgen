@@ -1,4 +1,3 @@
-import { ClassicPreset } from "rete";
 import { BaseControl } from "./base";
 
 export type CodeControlOptions = {

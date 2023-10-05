@@ -13,7 +13,7 @@ export function CustomTextarea(props: { data: TextareControl }) {
     <Textarea
       id={props.data.id}
       disabled={props.data.options.readonly}
-      rows={props.data.options.rows}
+      rows={3}
       value={value}
       className="resize-none hover:resize"
       onChange={(e) => {
