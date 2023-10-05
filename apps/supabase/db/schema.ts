@@ -151,6 +151,16 @@ export const workflowVersionRelations = relations(
   })
 );
 
+const shapeOfState = z.object({
+  state: z.string(),
+  status: z.enum(["active", "error", "done"]),
+  context: z.object({
+    inputs: z.any(),
+    settings: z.any(),
+    outputs: z.any(),
+  }),
+});
+
 /**
  * This table is used for store `latest` data for the nodes in the workflow;
  */
@@ -161,7 +171,7 @@ export const context = pgTable("context", {
     .references(() => project.id, { onDelete: "cascade" }),
   previousContextId: text("previous_context_id"),
   type: text("type").notNull(),
-  state: json("state"),
+  state: json("state").$type<z.infer<typeof shapeOfState>>(),
 });
 
 export const workflowEdge = pgTable(
@@ -328,7 +338,7 @@ export const nodeExecutionData = pgTable("node_execution_data", {
     .notNull()
     .references(() => workflowNode.id),
   type: text("type").notNull(),
-  state: json("state").notNull(),
+  state: json("state").$type<z.infer<typeof shapeOfState>>().notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),

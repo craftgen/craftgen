@@ -2,6 +2,7 @@ import { ClassicPreset } from "rete";
 
 import * as z from "zod";
 import { types } from "../sockets";
+import { BaseControl } from "./base";
 
 export type SocketGeneratorControlOptions = {
   connectionType: "input" | "output";
@@ -19,13 +20,13 @@ export type SocketGeneratorControlOptions = {
 export type JSONSocket = z.infer<typeof socketSchema>;
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;
 
-export class SocketGeneratorControl extends ClassicPreset.Control {
+export class SocketGeneratorControl extends BaseControl {
   __type = "socket-generator";
   name: string;
   description?: string;
   sockets: JSONSocket[] = [];
   constructor(public params: SocketGeneratorControlOptions) {
-    super();
+    super(300);
     this.sockets = params.initial.sockets;
     this.name = params.initial.name;
     this.description = params.initial.description;

@@ -55,6 +55,10 @@ export type DiContainer = {
   store: any; // TODO: fix types
   graph: Structures<NodeProps, ConnProps>;
   area?: AreaPlugin<Schemes, AreaExtra>;
+  areaControl?: {
+    zoomAtNodes(nodeIds?: string[]): Promise<void>;
+    nodeSelector?: ReturnType<typeof AreaExtensions.selectableNodes>;
+  };
   setUI: () => Promise<void>;
   editor: NodeEditor<Schemes>;
   readonly?: ReadonlyPlugin<Schemes>;
@@ -116,9 +120,13 @@ export async function createEditor(params: {
   //   })
   // );
 
-  AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
-    accumulating: AreaExtensions.accumulateOnCtrl(),
-  });
+  const nodeSelector = AreaExtensions.selectableNodes(
+    area,
+    AreaExtensions.selector(),
+    {
+      accumulating: AreaExtensions.accumulateOnCtrl(),
+    }
+  );
   AreaExtensions.restrictor(area, {
     scaling: () => ({ min: 0.4, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
@@ -236,11 +244,24 @@ export async function createEditor(params: {
     );
   });
 
+  const areaControl = {
+    async zoomAtNodes(nodeIds: string[] = []) {
+      AreaExtensions.zoomAt(
+        area,
+        editor
+          .getNodes()
+          .filter((n) => (nodeIds.length > 0 ? nodeIds.includes(n.id) : true))
+      );
+    },
+    nodeSelector,
+  };
+
   const graph = structures(editor);
   const di: DiContainer = {
     store: params.store,
     editor,
     area,
+    areaControl,
     arrange,
     graph,
     setUI,

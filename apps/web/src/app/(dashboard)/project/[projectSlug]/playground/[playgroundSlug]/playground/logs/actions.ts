@@ -16,7 +16,7 @@ export const getLogs = action(
           with: {
             steps: true,
             executionData: {
-              orderBy: (exec, { asc }) => [asc(exec.createdAt)],
+              orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
             },
           },
         },

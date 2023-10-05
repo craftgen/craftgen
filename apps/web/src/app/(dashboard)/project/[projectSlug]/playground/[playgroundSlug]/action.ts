@@ -566,51 +566,71 @@ export const createExecution = action(
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const execution = await tx
+      const workflowVersion = await tx.query.workflowVersion.findFirst({
+        where: (workflowVersion, { eq }) =>
+          eq(workflowVersion.id, params.workflowVersionId),
+        with: {
+          nodes: {
+            with: {
+              context: true,
+            },
+          },
+        },
+      });
+      if (!workflowVersion) {
+        throw new Error("Workflow version not found");
+      }
+      const [execution] = await tx
         .insert(workflowExecution)
         .values({
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
         })
         .returning();
-      return execution[0];
+      const nodeExecutionDataSnap = workflowVersion.nodes.map((node) => ({
+        contextId: node.contextId,
+        workflowExecutionId: execution.id,
+        projectId: workflowVersion.projectId,
+        workflowId: params.workflowId,
+        state: node.context.state!,
+        type: node.context.type,
+        workflowNodeId: node.id,
+        workflowVersionId: params.workflowVersionId,
+      }));
+      const nodeexecutions = await tx
+        .insert(nodeExecutionData)
+        .values(nodeExecutionDataSnap)
+        .returning();
+      console.log("nodeexecutions", nodeexecutions);
+      return execution;
     });
   }
 );
 
-export const createExecutionNode = action(
+export const getExecutionNode = action(
   z.object({
     contextId: z.string(),
-    state: z.string().transform((val) => JSON.parse(val)),
     workflowId: z.string(),
     workflowNodeId: z.string(),
     workflowExecutionId: z.string(),
     workflowVersionId: z.string(),
     projectId: z.string(),
-    type: z.custom<NodeTypes>(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const context = await tx.query.context.findFirst({
-        where: (context, { eq }) => eq(context.id, params.contextId),
-      });
-      if (!context) {
-        throw new Error("Context not found");
-      }
-      const executionNodeState = await tx
-        .insert(nodeExecutionData)
-        .values({
-          contextId: params.contextId,
-          workflowExecutionId: params.workflowExecutionId,
-          projectId: params.projectId,
-          workflowId: params.workflowId,
-          state: params.state,
-          type: context.type,
-          workflowNodeId: params.workflowNodeId,
-          workflowVersionId: params.workflowVersionId,
-        })
-        .returning();
-      return executionNodeState[0];
+      const [executionNodeState] = await tx
+        .select()
+        .from(nodeExecutionData)
+        .where(
+          and(
+            eq(nodeExecutionData.contextId, params.contextId),
+            eq(
+              nodeExecutionData.workflowExecutionId,
+              params.workflowExecutionId
+            )
+          )
+        );
+      return executionNodeState;
     });
   }
 );

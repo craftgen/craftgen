@@ -25,6 +25,7 @@ import { useSelector } from "@xstate/react";
 import { Input } from "@/components/ui/input";
 import { SocketNameType } from "../sockets";
 import { Play } from "lucide-react";
+import { createExecution } from "../../action";
 
 export const InputWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
@@ -82,12 +83,24 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
     resolver: ajvResolver(schema),
   });
   const onSubmit = async (data: any) => {
+    // const { data: execution } = await createExecution({
+    //   workflowId: workflowId!,
+    //   workflowVersionId,
+    // });
     console.log(data);
     input.actor.send({
       type: "SET_VALUE",
       values: data,
     });
     input.di.engine?.execute(input.id);
+    // const { data: execution } = await createExecution({
+    //   workflowId: workflowId!,
+    //   workflowVersionId,
+    // });
+    // if (!execution) {
+    //   throw new Error("Execution not created");
+    // }
+    // di?.engine?.execute(props.data.id, undefined, execution.id);
   };
 
   return (

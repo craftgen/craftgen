@@ -35,25 +35,24 @@ const OpenAIFunctionCallMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgDMBXDAYwBcdkM9SsAbegOhwnrAGIBhAeQDkAYgEkA4gH0uACQCCfEQFEA2gAYAuolCpksHJWoaQAD0QAmAJwBWJgGYA7BeUBGE44BsADjP3bAGhABPRGtXK0trR2V7d0dbazMAX3i-NExcQhIKKho6RhY2TgAlAFU+FXUkEC0dPQwDYwQAFncTJhDXE1dnMxjIiws-QMaG6yYzc1cJ22dlC2sLROT0bHxiMhraBmYAJxIMHAwoDghqMBYMADdkAGtTlOX0tayN3J2MPYOEfcu6GrKygyquiydUQTRabQ6XR69n6AUQ0SYDTMyOaDXaJjizgWIDuaVWmWoz22u32hzAWy2yC2TFQ9Cw5AIVIAtkxcSsMuscsS3qTPhdkD8sn81ADtED9BV6rZbK4mCYOhZ3A1bCYmg1lCYBqZ3MpEbNlGYJsF3FM5ti2Q8CdlNkxyZSthxiqURRVATUQQgdWZWtYTDrbMp3K4mo5HFqEPLvWFHA1nAHmnYTOalniOU8uUxSMgmbSwORCiV-q6xe7JYgYu5RuYA2iLK5bF7rOHVVYTMpwuZPCbHBYk0kcSn2Y9CRmszn2PmOIZYOR6acsAR81sABQRZTKACUHAt+M5NrHufzRc0JeBZYQFarXmUtfrjfDaMcTB77QN0sV9dViX7GGQEDgBg7mmI6bKK1RnqA9R4K44bQcmqRDlaRJ5OwYHirU57WMqcptHM0TSk0TZwo09aIso6KuIafomLYDTwfcu7pjarzvFAaGlpBiCdC0NFYWi1jttYAm+MRLhPgG4SxpROrBq49GpsO1q5HaVLsRBRiIGYN5MA4DaOEqtF+l4zbWJWsyyVMIRuPM-ZAYpyEHhOYBqRKnGNJqxGhk+7gWD2DT6i47bdN+8RAA */
   id: "openai-function-call",
   initial: "initial",
-  context: ({ input }) => ({
-    ...input,
-    validApiKey: null,
-    error: null,
-  }),
-  // context: {
-  //   inputs: {},
-  //   outputs: {},
-  //   settings: {
-  //     openai: {
-  //       model: "gpt-3.5-turbo",
-  //       temperature: 0.7,
-  //       maxCompletionTokens: 1000,
-  //     },
-  //     resultType: "text",
-  //   },
-  //   validApiKey: null,
-  //   error: null,
-  // },
+  context: ({ input }) =>
+    merge(
+      {
+        inputs: {},
+        outputs: {},
+        settings: {
+          openai: {
+            model: "gpt-3.5-turbo",
+            temperature: 0.7,
+            maxCompletionTokens: 1000,
+          },
+          resultType: "text",
+        },
+        validApiKey: null,
+        error: null,
+      },
+      input
+    ),
   types: {} as {
     input: {
       inputs: Record<string, any>;

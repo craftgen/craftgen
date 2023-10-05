@@ -1,11 +1,12 @@
 import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
 import { DiContainer } from "../editor";
-import { isString, set, get, isEqual } from "lodash-es";
+import { isString, set, get, isEqual, merge } from "lodash-es";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { Socket, stringSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
+import { match } from "ts-pattern";
 
 type Data = {
   value: string;
@@ -15,25 +16,41 @@ const PromptTemplateNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYzAZgoBGZQE5LANktmA7E5tuAHO4A0IACeiD7etpYArN4u9gAsNt4RjgC+yQH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCBbWdo4u7p4+-kGIET4UyjZJlvbuljZOZjap6XWC2WVNdPQyABakzDDdSCC9uh2Gt0Mjtg7Orh5evm4BwcPKZQUNyxexgmxrDzeexOby7O77LLCURsHCBZBSKCnC5XMA3bQPAbPRAw2IUVbeWKwxzRGJ-RBOJxkpxrCLKCIRMzQyyueEZA7I3IUNEYq70YywHBC0jlQioAAUdmUAEp6PykY1UejMfi7n1HoNEN5lGTYpTnFYbJYfFb6QhvDYKKCwW4vJYHCMdmkEQINUc2IVitjLtc1D19UTQENYm4ge83JZYpZfPY3CC7YnTR4IpmzFsbFY+YiGv6KIGqvRUGBmBBCrr7v0WIbhkyKEzlEyEysQTY7Zy3BQIst7GMYTyvXtfSWUWWihWIORSPWI03iQgY3HHAmkym07E7UyzBR7B73k4PTYJz76ocZ1XSBBAowWHlpLxalPb0L74-Wlx2gYGjLoSq5RgyVKLCCZjKDyJoeGaB4Om8axUiO3i+BEsRFp+gqUD+T7liURyVNUH43rhbD4X+sjyJ06hhrcDYGmuMbWGCYLGg4EKTH2oJOhE548majLnnC3rqtO35gA+T7nCGeIMQSjZPGB9omk65pbBs1oOpYdrGkeAlWJhVpmPECTYeRmoUPhjCLsBynNoyEQUBYebOMo25MnpswIFEzICco3gbJ4ebeG4lkCtZtlVjWdaKXqIEqSYDJOC5blMkkCScsFdpmmE0Huh4KHbnEqTesw6C1vAjHFl+hDhklzZ4E4dp4C57GdV19jRJFfozvkjWOSxZh9soR5LEkgLQkyjhUn1kmUCKmJDcxqn2FEbZGR4rhaVydoeE4tixAJLJcrNC31QGc6oKtkYpQg1oufMuleJsPiOH2rpOrtnlcjmbg5pdFE2dJj53aBD0TIOWxslyxnofuvlpvYMNWLEsQwWY8wY+VyRAA */
   id: "prompt-template",
   initial: "idle",
-  context: {
-    template: "",
-    variables: [],
-    inputs: {},
-    outputs: {},
-    error: null,
-  },
-  types: {
-    context: {} as {
-      template: string;
-      variables: string[];
+  context: ({ input }) =>
+    merge(
+      {
+        inputs: {},
+        outputs: {},
+        settings: {
+          template: "",
+          variables: [],
+        },
+        error: null,
+      },
+      input
+    ),
+  types: {} as {
+    input: {
+      settings: {
+        template: string;
+        variables: string[];
+      };
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+    };
+    context: {
+      settings: {
+        template: string;
+        variables: string[];
+      };
       inputs: Record<string, any[]>;
       outputs: Record<string, any>;
       error: {
         name: string;
         message: string;
       } | null;
-    },
-    events: {} as
+    };
+    events:
       | {
           type: "change";
           value: string;
@@ -41,14 +58,14 @@ const PromptTemplateNodeMachine = createMachine({
       | {
           type: "SET_VALUE";
           inputs: Record<string, any[]>;
-        },
+        };
   },
   states: {
     idle: {
       invoke: {
         src: "parse",
         input: ({ context }) => ({
-          template: context.template,
+          template: context.settings.template,
           inputs: context.inputs,
         }),
         onError: {
@@ -57,7 +74,10 @@ const PromptTemplateNodeMachine = createMachine({
         onDone: {
           target: "ready",
           actions: assign({
-            variables: ({ event }) => event.output.variables,
+            settings: ({ context, event }) => ({
+              ...context.settings,
+              variables: event.output.variables,
+            }),
             outputs: ({ event }) => ({ value: event.output.rendered }),
           }),
         },
@@ -118,15 +138,6 @@ const PromptTemplateNodeMachine = createMachine({
           target: "typing",
           actions: "updateValue",
         },
-        // render: {
-        //   target: "running",
-        //   actions: assign({
-        //     inputs: ({ context, event }) => ({
-        //       ...context.inputs,
-        //       ...event.inputs,
-        //     }),
-        //   }),
-        // },
         SET_VALUE: {
           target: "ready",
           actions: assign({
@@ -142,7 +153,7 @@ const PromptTemplateNodeMachine = createMachine({
       invoke: {
         src: "render",
         input: ({ context }) => ({
-          template: context.template,
+          template: context.settings.template,
           inputs: context.inputs,
         }),
         onError: {
@@ -205,7 +216,16 @@ export class PromptTemplate extends BaseNode<
     super("PromptTemplate", di, data, PromptTemplateNodeMachine, {
       actions: {
         updateValue: assign({
-          template: ({ event }: any) => event.value, // TODO:
+          settings: ({ event, context }) => {
+            return match(event)
+              .with({ type: "change" }, ({ value }) => {
+                return {
+                  ...context.settings,
+                  template: value,
+                };
+              })
+              .run();
+          },
         }),
       },
       actors: {
@@ -265,7 +285,8 @@ export class PromptTemplate extends BaseNode<
 
   process() {
     const state = this.actor.getSnapshot();
-    const rawTemplate: string[] = state.context.variables;
+    console.log("PromptTemplate PROCESS", state);
+    const rawTemplate: string[] = state.context.settings.variables;
     for (const item of Object.keys(this.inputs)) {
       if (rawTemplate.includes(item)) continue;
       const connections = this.di.editor

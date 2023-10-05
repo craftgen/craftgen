@@ -1,5 +1,4 @@
 import { ClassicPreset } from "rete";
-import { Control } from "rete/_types/presets/classic";
 import { DiContainer } from "../editor";
 import {
   Actor,
@@ -10,7 +9,7 @@ import {
 } from "xstate";
 import { debounce, isEqual } from "lodash-es";
 import {
-  createExecutionNode,
+  getExecutionNode,
   setContext,
   updateExecutionNode,
 } from "../../action";
@@ -121,16 +120,14 @@ export class BaseNode<
     // console.groupEnd();
   }
 
-  private async createExecutionState({ executionId }: { executionId: string }) {
-    const { data: executionState } = await createExecutionNode({
+  private async getExecutionState({ executionId }: { executionId: string }) {
+    const { data: executionState } = await getExecutionNode({
       contextId: this.contextId,
       projectId: this.projectId,
-      type: this.ID,
       workflowId: this.workflowId,
       workflowVersionId: this.workflowVersionId,
       workflowExecutionId: executionId,
       workflowNodeId: this.id,
-      state: JSON.stringify(this.actor.getSnapshot()),
     });
     if (!executionState) throw new Error("Execution state not created");
     return executionState;
@@ -141,7 +138,7 @@ export class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
-    const executionState = await this.createExecutionState({ executionId });
+    const executionState = await this.getExecutionState({ executionId });
     // console.log("STATE", { executionState });
     const a = this.machine.provide(this.machineImplements as any);
     this.actor = createActor(a, {
@@ -223,8 +220,6 @@ export class BaseNode<
     });
 
     return min;
-
-    return Object.keys(this.controls)?.length * 70 + 150 || 200;
   }
 
   public setSize(size: { width: number; height: number }) {

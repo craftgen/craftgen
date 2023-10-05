@@ -249,9 +249,6 @@ const Composer: React.FC<{
   store: any;
 }> = ({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
-  const projectSlug = useCraftStore((state) => state.projectSlug);
-  const playgroundId = useCraftStore((state) => state.workflowId);
-
   const createEditor = useMemo(() => {
     return createEditorFunc({
       workflow,
