@@ -643,15 +643,24 @@ export const updateExecutionNode = action(
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
-      const executionNodeState = await tx
+      const [executionNodeState] = await tx
         .update(nodeExecutionData)
         .set({
           state: params.state as any,
           ...(params.complete && { completedAt: new Date() }),
+          updatedAt: new Date(),
         })
         .where(eq(nodeExecutionData.id, params.id))
         .returning();
-      return executionNodeState[0];
+      await tx
+        .update(workflowExecution)
+        .set({
+          updatedAt: new Date(),
+        })
+        .where(
+          eq(workflowExecution.id, executionNodeState.workflowExecutionId)
+        );
+      return executionNodeState;
     });
   }
 );
