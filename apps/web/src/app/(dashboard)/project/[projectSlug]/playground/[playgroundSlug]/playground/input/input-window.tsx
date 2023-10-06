@@ -88,27 +88,31 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     resolver: ajvResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    const nodes = input.di.editor.getNodes().map((n) => {
-      return {
-        id: n.id,
-        type: n.ID,
-        contextId: n.contextId,
-        state: JSON.stringify(n.actor.getSnapshot()),
-      };
-    });
-    const { data: execution } = await createExecution({
-      workflowId: input.nodeData.workflowId,
-      workflowVersionId: input.nodeData.workflowVersionId,
-      nodes,
-      input: {
-        id: input.id,
-        values: data,
-      },
-    });
-    if (!execution) {
-      throw new Error("Execution not created");
+    try {
+      const nodes = input.di.editor.getNodes().map((n) => {
+        return {
+          id: n.id,
+          type: n.ID,
+          contextId: n.contextId,
+          state: JSON.stringify(n.actor.getSnapshot()),
+        };
+      });
+      const { data: execution } = await createExecution({
+        workflowId: input.nodeData.workflowId,
+        workflowVersionId: input.nodeData.workflowVersionId,
+        nodes,
+        input: {
+          id: input.id,
+          values: data,
+        },
+      });
+      if (!execution) {
+        throw new Error("Execution not created");
+      }
+      input.di.engine?.execute(input.id, undefined, execution?.id);
+    } catch (e) {
+      console.log(e);
     }
-    input.di.engine?.execute(input.id, undefined, execution?.id);
   };
 
   return (
