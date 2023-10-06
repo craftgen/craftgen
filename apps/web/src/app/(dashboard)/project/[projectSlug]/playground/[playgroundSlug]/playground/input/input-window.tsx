@@ -82,13 +82,12 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     (state) => state.context.outputSockets
   );
   const form = useForm({
+    defaultValues: {
+      ...input.actor.getSnapshot().context.inputs,
+    },
     resolver: ajvResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    // input.actor.send({
-    //   type: "SET_VALUE",
-    //   values: data,
-    // });
     const { data: execution } = await createExecution({
       workflowId: input.nodeData.workflowId,
       workflowVersionId: input.nodeData.workflowVersionId,
@@ -141,10 +140,11 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
 export const renderField = (type: string, field: ControllerRenderProps) => {
   switch (type) {
     case "string":
-      return <Input placeholder="seocraft" {...field} />;
+      return <Input defaultValue={""} placeholder="seocraft" {...field} />;
     case "number":
       return (
         <Input
+          defaultValue={0}
           type="number"
           placeholder="123"
           {...field}
@@ -152,7 +152,7 @@ export const renderField = (type: string, field: ControllerRenderProps) => {
         />
       );
     case "boolean":
-      return <Input type="checkbox" {...field} />;
+      return <Input type="checkbox" {...field} />; // TODO: Check this guy out
     default:
       return null;
   }

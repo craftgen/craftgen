@@ -56,11 +56,6 @@ const LogNodeMachine = createMachine({
             outputs: ({ event }) => event.output,
           }),
         },
-        onSnapshot: {
-          actions: (...args) => {
-            console.log("LogNodeMachine SNAPSHOT", args);
-          },
-        },
         onError: {
           target: "error",
           actions: assign({

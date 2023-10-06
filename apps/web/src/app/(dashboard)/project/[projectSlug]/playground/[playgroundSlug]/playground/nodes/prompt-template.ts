@@ -4,7 +4,7 @@ import { DiContainer } from "../editor";
 import { isString, set, get, isEqual, merge } from "lodash-es";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
-import { Socket, stringSocket } from "../sockets";
+import { Socket, stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
@@ -58,6 +58,10 @@ const PromptTemplateNodeMachine = createMachine({
         }
       | {
           type: "SET_VALUE";
+          inputs: Record<string, any[]>;
+        }
+      | {
+          type: "RUN";
           inputs: Record<string, any[]>;
         };
   },
@@ -121,7 +125,6 @@ const PromptTemplateNodeMachine = createMachine({
       on: {
         change: {
           target: "typing",
-          actions: "updateValue",
         },
         SET_VALUE: {
           target: "idle",
@@ -145,6 +148,15 @@ const PromptTemplateNodeMachine = createMachine({
             }),
           }),
           target: "idle",
+        },
+        RUN: {
+          target: "idle",
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
         },
       },
     },
@@ -174,16 +186,7 @@ const renderFunc = ({
   return rendered;
 };
 
-export class PromptTemplate extends BaseNode<
-  typeof PromptTemplateNodeMachine,
-  {
-    [key: string]: Socket;
-  },
-  { value: Socket },
-  {
-    template: CodeControl;
-  }
-> {
+export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
   constructor(
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>
@@ -238,6 +241,14 @@ export class PromptTemplate extends BaseNode<
       this.process();
       prev = state;
     });
+    this.addInput(
+      "trigger",
+      new ClassicPreset.Input(triggerSocket, "Trigger", true)
+    );
+    this.addOutput(
+      "trigger",
+      new ClassicPreset.Output(triggerSocket, "Trigger")
+    );
 
     this.addOutput("value", new ClassicPreset.Output(stringSocket, "Text"));
     const self = this;
@@ -263,6 +274,7 @@ export class PromptTemplate extends BaseNode<
     console.log("PromptTemplate PROCESS", state);
     const rawTemplate: string[] = state.context.settings.variables;
     for (const item of Object.keys(this.inputs)) {
+      if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate.includes(item)) continue;
       const connections = this.di.editor
         .getConnections()
@@ -291,7 +303,6 @@ export class PromptTemplate extends BaseNode<
     }
   }
 
-  // execute() {}
   async compute(inputs: { [key: string]: [string | number] }) {
     console.log("PromptTemplate COMPUTE", inputs);
     this.actor.send({

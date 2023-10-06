@@ -90,7 +90,7 @@ export const InputNodeMachine = createMachine({
       },
     },
     complete: {
-      type: "final",
+      // type: "final", // TODO: we inject complete "final" in the execution instance.
       output: ({ context }) => ({
         outputs: context.outputs,
       }),

@@ -351,13 +351,16 @@ const Composer: React.FC<{
         })
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
-          await di?.editor.getNode(data.target).data();
-          const res = await saveEdge({
+          await saveEdge({
             workflowId: workflow.id,
             workflowVersionId,
             data: JSON.parse(JSON.stringify(data)),
           });
-          console.log("connnnnn", res);
+          try {
+            await di?.editor.getNode(data.target).data(); // is this about connecttinos.
+          } catch (e) {
+            console.log("Failed to update", e);
+          }
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });

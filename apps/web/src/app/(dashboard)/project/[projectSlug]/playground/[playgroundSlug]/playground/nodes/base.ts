@@ -8,7 +8,7 @@ import {
   createActor,
   waitFor,
 } from "xstate";
-import { debounce, isEqual } from "lodash-es";
+import { debounce, isEqual, set } from "lodash-es";
 import {
   getExecutionNode,
   setContext,
@@ -142,7 +142,11 @@ export class BaseNode<
   ) {
     console.group(this.identifier, "BEFORE", this.actor.getSnapshot());
     const executionState = await this.getExecutionState({ executionId });
-    const a = this.machine.provide(this.machineImplements as any);
+    const execMachine = this.machine;
+    set(execMachine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
+
+    console.log(this.identifier, execMachine.config);
+    const a = execMachine.provide(this.machineImplements as any);
     this.actor = createActor(a, {
       state: executionState?.state,
     });
@@ -167,11 +171,11 @@ export class BaseNode<
           complete: true,
         });
         subs.unsubscribe();
+
         const a = this.machine.provide(this.machineImplements as any);
         this.actor = createActor(a, {
           id: this.contextId,
           ...(this.nodeData?.context?.state !== null && {
-            // state: this.nodeData.context?.state,
             input: {
               ...snap.context,
             },
@@ -211,12 +215,23 @@ export class BaseNode<
    */
   async data(inputs?: any) {
     this.count++;
+    console.log(this.identifier, "Calling DATA");
     inputs = inputs || (await this.getInputs());
     let state = this.actor.getSnapshot();
-    if (state.context.inputs && !isEqual(state.context.inputs, inputs)) {
-      console.log(this.identifier, "inputs are not matching computing", inputs);
+    if (
+      state.context.inputs &&
+      !isEqual(state.context.inputs, inputs) &&
+      this.ID !== "Input"
+    ) {
+      console.log(
+        this.identifier,
+        "inputs are not matching computing",
+        inputs,
+        state.context.inputs
+      );
       await this.compute(inputs);
     }
+    console.log(this.identifier, "actor in data", this.actor);
     await waitFor(this.actor, (state) => state.matches("complete"));
     state = this.actor.getSnapshot();
     return state.context.outputs;
@@ -343,36 +358,46 @@ export class BaseNode<
    * Finally, it returns the inputs.
    */
   async getInputs() {
-    // this.di.dataFlow?.reset();
-    if (this.ID === "Input") {
-      return this.actor.getSnapshot().context.inputs;
-    }
-
-    const ancestors = this.di.graph.ancestors((n) => n.id === this.id).nodes();
-    for (const node of ancestors) {
-      console.log(this.identifier, "calling data on", node.ID, node.id);
-      const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
-      await node.compute(inputs);
-    }
-
-    const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-      [x: string]: string;
-    };
-    console.log(this.identifier, "inputs from data flow", inputs);
-    const state = this.actor.getSnapshot();
-    Object.keys(this.inputs).forEach((key) => {
-      if (!inputs[key] && this.inputs[key]?.control) {
-        inputs[key] = state.context.inputs[key];
+    try {
+      console.log(this.identifier, "getInputs calling");
+      this.di.dataFlow?.reset();
+      if (this.ID === "Input") {
+        return this.actor.getSnapshot().context.inputs;
       }
-    });
 
-    // Normalize inputs based on if input accepts multipleConnections
-    // If not, flatten the value instead of array
-    Object.keys(inputs).forEach((key) => {
-      if (!this.inputs[key]?.multipleConnections) {
-        inputs[key] = Array.isArray(inputs[key]) ? inputs[key][0] : inputs[key];
-      }
-    });
-    return inputs;
+      // const ancestors = this.di.graph
+      //   .ancestors((n) => n.id === this.id)
+      //   .nodes();
+      // for (const node of ancestors) {
+      //   console.log(this.identifier, "calling data on", node.ID, node.id);
+      //   const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
+      //   await node.compute(inputs);
+      // }
+
+      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
+        [x: string]: string;
+      };
+      console.log(this.identifier, "inputs from data flow", inputs);
+      const state = this.actor.getSnapshot();
+      Object.keys(this.inputs).forEach((key) => {
+        if (!inputs[key] && this.inputs[key]?.control) {
+          inputs[key] = state.context.inputs[key];
+        }
+      });
+
+      // Normalize inputs based on if input accepts multipleConnections
+      // If not, flatten the value instead of array
+      Object.keys(inputs).forEach((key) => {
+        if (!this.inputs[key]?.multipleConnections) {
+          inputs[key] = Array.isArray(inputs[key])
+            ? inputs[key][0]
+            : inputs[key];
+        }
+      });
+      console.log(this.identifier, "getInputs called", inputs);
+      return inputs;
+    } catch (e) {
+      console.trace(e);
+    }
   }
 }
