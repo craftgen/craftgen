@@ -1,13 +1,12 @@
 "use server";
 
 import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
+import { db, eq, workflowExecution } from "@seocraft/supabase/db";
 import { z } from "zod";
 
 export const getLogs = action(
   z.object({ worfklowId: z.string(), workflowVersionId: z.string() }),
   async (params) => {
-    console.log("params", params);
     const a = await db.query.workflowVersion.findFirst({
       where: (workflowVersion, { eq }) =>
         eq(workflowVersion.id, params.workflowVersionId),
@@ -22,8 +21,17 @@ export const getLogs = action(
         },
       },
     });
-    console.log("111", a);
 
     return a;
+  }
+);
+
+export const deleteExecution = action(
+  z.object({ executionId: z.string() }),
+  async (params) => {
+    return await db
+      .delete(workflowExecution)
+      .where(eq(workflowExecution.id, params.executionId))
+      .returning();
   }
 );

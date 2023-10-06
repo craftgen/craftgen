@@ -2,11 +2,12 @@
 
 import { ResultOfAction } from "@/lib/type";
 import { getWorkflow } from "../../action";
-import useSWR from "swr";
-import { getLogs } from "./actions";
+import useSWR, { mutate } from "swr";
+import { deleteExecution, getLogs } from "./actions";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useCraftStore } from "../use-store";
+import { Trash } from "lucide-react";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
@@ -23,6 +24,10 @@ export const LogsTab: React.FC<{
     }
   );
   const di = useCraftStore((state) => state.di);
+  const handleDeleteExecution = (executionId: string) => {
+    deleteExecution({ executionId });
+    mutate("/api/executions");
+  };
 
   return (
     <div className="p-4">
@@ -31,7 +36,18 @@ export const LogsTab: React.FC<{
         <div key={execution.id}>
           <Separator />
           <div key={execution.id}>
-            <h3>{execution.id}</h3>
+            <div className="flex w-full justify-between items-center">
+              <h3>{execution.id}</h3>
+              <div>
+                <Button
+                  size={"icon"}
+                  variant={"destructive"}
+                  onClick={() => handleDeleteExecution(execution.id)}
+                >
+                  <Trash />
+                </Button>
+              </div>
+            </div>
             <ul className="ml-4">
               {execution.executionData.map((nodeData) => (
                 <li

@@ -7,14 +7,14 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { Socket, stringSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
-import { InputControl } from "../controls/input";
+import { InputControl } from "../controls/input.control";
 
 type Data = {
   value: string;
 };
 
 const PromptTemplateNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYzAZgoBGZQE5LANktmA7E5tuAHO4A0IACeiD7etpYArN4u9gAsNt4RjgC+yQH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCBbWdo4u7p4+-kGIET4UyjZJlvbuljZOZjap6XWC2WVNdPQyABakzDDdSCC9uh2Gt0Mjtg7Orh5evm4BwcPKZQUNyxexgmxrDzeexOby7O77LLCURsHCBZBSKCnC5XMA3bQPAbPRAw2IUVbeWKwxzRGJ-RBOJxkpxrCLKCIRMzQyyueEZA7I3IUNEYq70YywHBC0jlQioAAUdmUAEp6PykY1UejMfi7n1HoNEN5lGTYpTnFYbJYfFb6QhvDYKKCwW4vJYHCMdmkEQINUc2IVitjLtc1D19UTQENYm4ge83JZYpZfPY3CC7YnTR4IpmzFsbFY+YiGv6KIGqvRUGBmBBCrr7v0WIbhkyKEzlEyEysQTY7Zy3BQIst7GMYTyvXtfSWUWWihWIORSPWI03iQgY3HHAmkym07E7UyzBR7B73k4PTYJz76ocZ1XSBBAowWHlpLxalPb0L74-Wlx2gYGjLoSq5RgyVKLCCZjKDyJoeGaB4Om8axUiO3i+BEsRFp+gqUD+T7liURyVNUH43rhbD4X+sjyJ06hhrcDYGmuMbWGCYLGg4EKTH2oJOhE548majLnnC3rqtO35gA+T7nCGeIMQSjZPGB9omk65pbBs1oOpYdrGkeAlWJhVpmPECTYeRmoUPhjCLsBynNoyEQUBYebOMo25MnpswIFEzICco3gbJ4ebeG4lkCtZtlVjWdaKXqIEqSYDJOC5blMkkCScsFdpmmE0Huh4KHbnEqTesw6C1vAjHFl+hDhklzZ4E4dp4C57GdV19jRJFfozvkjWOSxZh9soR5LEkgLQkyjhUn1kmUCKmJDcxqn2FEbZGR4rhaVydoeE4tixAJLJcrNC31QGc6oKtkYpQg1oufMuleJsPiOH2rpOrtnlcjmbg5pdFE2dJj53aBD0TIOWxslyxnofuvlpvYMNWLEsQwWY8wY+VyRAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYArAA4KARmXKzAditmALADYPTywBoQAJ6IFo4UAJxObmHKAMxhblFmHrYAvin+-Nj4hCTkbOIMYKgYqBQi5ABm6KiYZRhZQrlitGCS0nL6SmoaRsg6egZGpgiWNvaOLu5ePhb+QQgxFmEUMVZRVla2nsreXmkZ9YI55c109DIAFqTMMD1IIH26nYb3w6N2Ds6unt5+geYOCg+MKuCy2DzRMxWRb7B6HbLCUT5Fr0ADKAFEACoAfQAagBBAAyAFV0XdtE9Bq9gstvBYXGEIhZnGFnHNEDFvBQwcpmWZbLYLGC4m5YZkjoi8hQcAFkFIoOcrjcwOSHv1nkNEE5bE4gdZ6T4PJ5bGEPOyRmYzBQrE4YrFBU4IptVmL4Y0TmwZXKbvRjLAcFLSBVCKgABTjACU9HFCKantl8tVjwGLE1CAsXKsHiWbisDicHmUOvNmwouYzBZibnB3jCFldAljHooRRKiuutzUvXVVNAwwsUW52a22qNRai5pi-IoXjckTCNc8WYbDWOSJbxWqaKxeKJpKTPdT1JG1g+sQcpo2Hhixf+I2vFChMTiw4FzPr6Thjfd65kAjohDtsqB6UkefbBIOGZgnO4JuOOYTmmCNgQlm8R5j4F4rhKcYUH+JBgIBGI4gSJJkl29zJhqx7vOMXxTL8sx3nBHjWraN5mDeDj2GEMRpJ+zDoBAcC9G6a55N2oEvOBCB4LY5p4CxDhKcpylbFhTbrgUEkplJJiIHO5pLjOtj8rYMROCEbhmAu6k-lKXrytpVHSdqVoONm0JuM+lggpOHHhJEHgcfynimtetliZQrbVE5vZ6QgcExNauaMqyRoRNqfm2GWgXBVsEJ0hFkqUHhIgEWAsVgfF1bKHY4KLFmvIeNCCF3mCywmqhubKBhyhhHxKRAA */
   id: "prompt-template",
   initial: "idle",
   context: ({ input }) =>
@@ -73,7 +73,7 @@ const PromptTemplateNodeMachine = createMachine({
           target: "error",
         },
         onDone: {
-          target: "ready",
+          target: "complete",
           actions: assign({
             settings: ({ context, event }) => ({
               ...context.settings,
@@ -86,7 +86,6 @@ const PromptTemplateNodeMachine = createMachine({
       on: {
         change: {
           target: "typing",
-          actions: "updateValue",
         },
         SET_VALUE: {
           actions: assign({
@@ -99,7 +98,6 @@ const PromptTemplateNodeMachine = createMachine({
         },
       },
     },
-
     typing: {
       entry: {
         type: "updateValue",
@@ -111,20 +109,6 @@ const PromptTemplateNodeMachine = createMachine({
         change: {
           target: "typing", // self-loop to reset the timer
           actions: "updateValue",
-        },
-      },
-    },
-    ready: {
-      on: {
-        change: "typing",
-        SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
-          target: "idle",
         },
       },
     },
@@ -140,7 +124,7 @@ const PromptTemplateNodeMachine = createMachine({
           actions: "updateValue",
         },
         SET_VALUE: {
-          target: "ready",
+          target: "idle",
           actions: assign({
             inputs: ({ context, event }) => ({
               ...context.inputs,
@@ -150,27 +134,17 @@ const PromptTemplateNodeMachine = createMachine({
         },
       },
     },
-    running: {
-      invoke: {
-        src: "render",
-        input: ({ context }) => ({
-          template: context.settings.template,
-          inputs: context.inputs,
-        }),
-        onError: {
-          target: "error",
+    complete: {
+      on: {
+        change: "typing",
+        SET_VALUE: {
           actions: assign({
-            error: ({ event }) => ({
-              name: (event.data as Error).name,
-              message: (event.data as Error).message,
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
             }),
           }),
-        },
-        onDone: {
-          target: "ready",
-          actions: assign({
-            outputs: ({ event }) => ({ value: event.output }),
-          }),
+          target: "idle",
         },
       },
     },
@@ -270,7 +244,7 @@ export class PromptTemplate extends BaseNode<
     this.addControl(
       "template",
       new CodeControl("handlebars", {
-        initial: prev?.context?.template || "",
+        initial: prev?.context?.settings.template || "",
         theme: this.di.store.getState().theme,
         change: (value) => {
           self.actor.send({

@@ -352,11 +352,12 @@ const Composer: React.FC<{
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
           await di?.editor.getNode(data.target).data();
-          await saveEdge({
+          const res = await saveEdge({
             workflowId: workflow.id,
             workflowVersionId,
             data: JSON.parse(JSON.stringify(data)),
           });
+          console.log("connnnnn", res);
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });

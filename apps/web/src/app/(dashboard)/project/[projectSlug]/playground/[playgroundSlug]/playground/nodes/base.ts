@@ -6,6 +6,7 @@ import {
   MachineImplementationsFrom,
   StateFrom,
   createActor,
+  waitFor,
 } from "xstate";
 import { debounce, isEqual } from "lodash-es";
 import {
@@ -98,6 +99,7 @@ export class BaseNode<
         this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         await this.updateAncestors();
       }
+
       prev = state;
 
       if (!this.di.readonly?.enabled) {
@@ -109,15 +111,15 @@ export class BaseNode<
   }
 
   public async updateAncestors() {
-    // console.group("updateAncestors", this.ID, this.id);
+    await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
+
     const outgoers = this.di.graph.outgoers(this.id).nodes();
+    console.log(this.identifier, "updateAncestors", outgoers);
     for (const node of outgoers) {
       // console.log("calling data on", node.ID, node.id);
       const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
       await node.compute(inputs);
     }
-
-    // console.groupEnd();
   }
 
   private async getExecutionState({ executionId }: { executionId: string }) {
@@ -138,12 +140,15 @@ export class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
+    console.group(this.identifier, "BEFORE", this.actor.getSnapshot());
     const executionState = await this.getExecutionState({ executionId });
-    // console.log("STATE", { executionState });
     const a = this.machine.provide(this.machineImplements as any);
     this.actor = createActor(a, {
       state: executionState?.state,
-      devTools: true,
+    });
+    console.log(this.identifier, "EXECUTION STATE", {
+      state: this.actor.getSnapshot(),
+      executionState,
     });
     const subs = this.actor.subscribe({
       next: async (state) => {
@@ -153,7 +158,7 @@ export class BaseNode<
         });
       },
       complete: async () => {
-        console.log("finito");
+        console.log(this.identifier, "finito");
         forward("trigger");
         const snap = this.actor.getSnapshot();
         await updateExecutionNode({
@@ -188,12 +193,13 @@ export class BaseNode<
     });
     this.actor.start();
     const inputs = await this.getInputs();
-    console.log("INPUTS", inputs);
+    console.log(this.identifier, "INPUTS", inputs);
     this.actor.send({
       type: "RUN",
       inputs,
     });
     console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
+    console.groupEnd();
   }
 
   get identifier() {
@@ -204,8 +210,15 @@ export class BaseNode<
    * @returns The outputs of the current node.
    */
   async data(inputs?: any) {
-    const state = this.actor.getSnapshot();
     this.count++;
+    inputs = inputs || (await this.getInputs());
+    let state = this.actor.getSnapshot();
+    if (state.context.inputs && !isEqual(state.context.inputs, inputs)) {
+      console.log(this.identifier, "inputs are not matching computing", inputs);
+      await this.compute(inputs);
+    }
+    await waitFor(this.actor, (state) => state.matches("complete"));
+    state = this.actor.getSnapshot();
     return state.context.outputs;
   }
 
@@ -330,10 +343,22 @@ export class BaseNode<
    * Finally, it returns the inputs.
    */
   async getInputs() {
-    this.di.dataFlow?.reset();
+    // this.di.dataFlow?.reset();
+    if (this.ID === "Input") {
+      return this.actor.getSnapshot().context.inputs;
+    }
+
+    const ancestors = this.di.graph.ancestors((n) => n.id === this.id).nodes();
+    for (const node of ancestors) {
+      console.log(this.identifier, "calling data on", node.ID, node.id);
+      const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
+      await node.compute(inputs);
+    }
+
     const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
       [x: string]: string;
     };
+    console.log(this.identifier, "inputs from data flow", inputs);
     const state = this.actor.getSnapshot();
     Object.keys(this.inputs).forEach((key) => {
       if (!inputs[key] && this.inputs[key]?.control) {

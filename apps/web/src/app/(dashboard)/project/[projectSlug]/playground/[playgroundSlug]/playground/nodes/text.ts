@@ -13,7 +13,7 @@ const TextNodeMachine = createMachine({
       value: "",
     },
   },
-  initial: "idle",
+  initial: "complete",
   types: {
     events: {} as {
       type: "change";
@@ -21,22 +21,22 @@ const TextNodeMachine = createMachine({
     },
   },
   states: {
-    idle: {
-      on: {
-        change: {
-          target: "typing",
-          actions: "updateValue",
-        },
-      },
-    },
     typing: {
+      entry: ["updateValue"],
       after: {
-        500: "idle",
+        200: "complete",
       },
       on: {
         change: {
           target: "typing", // self-loop to reset the timer
-          actions: "updateValue",
+          reenter: true,
+        },
+      },
+    },
+    complete: {
+      on: {
+        change: {
+          target: "typing",
         },
       },
     },

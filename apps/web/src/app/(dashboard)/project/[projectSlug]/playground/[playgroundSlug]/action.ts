@@ -82,7 +82,6 @@ export const getWorkflow = action(
     published: z.boolean().optional().default(true),
   }),
   async (params) => {
-    console.log("GET WORKFLOW", { params });
     const supabase = createServerActionClient({ cookies });
     const session = await supabase.auth.getSession();
 
@@ -199,7 +198,6 @@ export const savePlaygroundLayout = async (params: {
   playgroundId: string;
   layout: FlexLayout.IJsonModel;
 }) => {
-  console.log("saving playground layout", params);
   return await db
     .update(workflow)
     .set({ layout: params.layout })
@@ -416,7 +414,6 @@ export const setContext = action(
     state: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
-    console.log("setContext", params);
     return await db
       .update(context)
       .set({ state: params.state as any })
@@ -563,6 +560,12 @@ export const createExecution = action(
   z.object({
     workflowId: z.string(),
     workflowVersionId: z.string(),
+    input: z
+      .object({
+        id: z.string(),
+        values: z.any(),
+      })
+      .optional(),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
@@ -587,16 +590,31 @@ export const createExecution = action(
           workflowVersionId: params.workflowVersionId,
         })
         .returning();
-      const nodeExecutionDataSnap = workflowVersion.nodes.map((node) => ({
-        contextId: node.contextId,
-        workflowExecutionId: execution.id,
-        projectId: workflowVersion.projectId,
-        workflowId: params.workflowId,
-        state: node.context.state!,
-        type: node.context.type,
-        workflowNodeId: node.id,
-        workflowVersionId: params.workflowVersionId,
-      }));
+      const nodeExecutionDataSnap = workflowVersion.nodes.map((node) => {
+        let state = node.context.state!;
+        if (params.input && node.id === params.input.id) {
+          state = {
+            ...state,
+            context: {
+              ...state.context,
+              inputs: params.input.values,
+              outputs: params.input.values,
+            },
+          };
+          console.log("ADDED THE INPUTS", state);
+        }
+        return {
+          contextId: node.contextId,
+          workflowExecutionId: execution.id,
+          projectId: workflowVersion.projectId,
+          workflowId: params.workflowId,
+          state,
+          type: node.context.type,
+          workflowNodeId: node.id,
+          workflowVersionId: params.workflowVersionId,
+        };
+      });
+
       const nodeexecutions = await tx
         .insert(nodeExecutionData)
         .values(nodeExecutionDataSnap)
