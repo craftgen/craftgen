@@ -101,6 +101,7 @@ export type Data = {
 export async function importEditor(di: DiContainer, data: Data) {
   const { nodes, edges } = data;
 
+  console.log(nodes);
   for (const n of nodes) {
     if (di.editor.getNode(n.id)) continue;
     const node = await createNode({

@@ -81,6 +81,7 @@ export class BaseNode<
     this.id = nodeData.id;
     this.di = di;
     const a = this.machine.provide(this.machineImplements as any);
+    console.log(this.identifier, "CREATING ACTOR", this.nodeData.context.state);
     this.actor = createActor(a, {
       id: this.contextId,
       ...(this.nodeData?.context?.state !== null && {
@@ -121,7 +122,7 @@ export class BaseNode<
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
-    console.trace(this.identifier, "updateAncestors", outgoers);
+    console.log(this.identifier, "updateAncestors", outgoers);
     for (const node of outgoers) {
       // console.log("calling data on", node.ID, node.id);
       const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
