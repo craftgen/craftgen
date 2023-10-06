@@ -346,7 +346,7 @@ export const createNodeInDB = action(
     workflowVersionId: z.string(),
     projectSlug: z.string(),
     type: z.custom<NodeTypes>(),
-    state: z.any().optional(),
+    context: z.any().optional(),
     height: z.number().optional(),
     width: z.number().optional(),
   }),
@@ -364,7 +364,7 @@ export const createNodeInDB = action(
         .values({
           project_id: project?.id,
           type: params.type,
-          ...(params.state && { state: params.state }),
+          ...(params.context && { state: params.context }),
         })
         .returning();
       const workflowNodeUnit = await tx
@@ -401,7 +401,6 @@ export const getContext = action(
   z.object({ contextId: z.string() }),
   async ({ contextId }) => {
     console.log("getContext", { contextId });
-
     return await db.query.context.findFirst({
       where: (context, { eq }) => eq(context.id, contextId),
     });

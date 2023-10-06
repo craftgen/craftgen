@@ -84,8 +84,10 @@ export class BaseNode<
     this.actor = createActor(a, {
       id: this.contextId,
       ...(this.nodeData?.context?.state !== null && {
-        state: this.nodeData.context?.state,
-      }), // This needs to be stay state.
+        input: {
+          ...this.nodeData.context.state,
+        },
+      }),
     });
 
     const saveDebounced = debounce((state: string) => {
@@ -95,7 +97,10 @@ export class BaseNode<
     let prev = this.actor.getSnapshot();
     this.actor.subscribe(async (state) => {
       this.state = state.value as any;
-      if (!isEqual(prev.context.outputs, state.context.outputs)) {
+      if (
+        !isEqual(prev.context.outputs, state.context.outputs) &&
+        state.matches("complete")
+      ) {
         this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         await this.updateAncestors();
       }
@@ -103,18 +108,20 @@ export class BaseNode<
       prev = state;
 
       if (!this.di.readonly?.enabled) {
-        saveDebounced(JSON.stringify(state));
+        saveDebounced(JSON.stringify(state.context));
       }
     });
 
     this.actor.start();
   }
 
+  private setActor() {}
+
   public async updateAncestors() {
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
-    console.log(this.identifier, "updateAncestors", outgoers);
+    console.trace(this.identifier, "updateAncestors", outgoers);
     for (const node of outgoers) {
       // console.log("calling data on", node.ID, node.id);
       const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.

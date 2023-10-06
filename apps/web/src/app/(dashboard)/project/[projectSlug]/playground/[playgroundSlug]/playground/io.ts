@@ -60,6 +60,7 @@ export async function createNode({
   if (!matched) throw new Error(`Unsupported node '${type}'`);
 
   if (saveToDB) {
+    console.log("CREATING BRAND NEW NODE", data);
     if (!workflowId) throw new Error("playgroundId is required");
     if (!projectSlug) throw new Error("projectSlug is required");
     if (!data.workflowVersionId)
@@ -71,7 +72,7 @@ export async function createNode({
       type,
       height: data.width,
       width: data.height,
-      state: data.context?.state,
+      context: data.context?.state,
     });
     if (!workflowNodeInDB) throw new Error("Failed to create node in DB");
     console.log("creating new node with", { data, nodeInDb: workflowNodeInDB });
