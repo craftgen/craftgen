@@ -8,36 +8,56 @@ import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
+import { merge } from "lodash-es";
+import { getControlBySocket } from "../../control";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "InputNode",
+  context: ({ input }) =>
+    merge(
+      {
+        name: "Default",
+        description: "",
+        inputs: {},
+        outputs: {},
+        outputSockets: [],
+        schema: {},
+      },
+      input
+    ),
   types: {} as {
+    input: {
+      name: string;
+      description: string;
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+      outputSockets: JSONSocket[];
+      schema: any;
+    };
     context: {
       name: string;
       description: string;
-      outputs: JSONSocket[];
-      values: {};
-      schema: any;
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+      outputSockets: JSONSocket[];
+      schema: Record<string, any>;
     };
     events:
       | {
           type: "CHANGE";
           name: string;
           description: string;
-          outputs: JSONSocket[];
+          outputSockets: JSONSocket[];
         }
       | {
           type: "SET_VALUE";
           values: Record<string, any>;
+        }
+      | {
+          type: "RUN";
+          inputs: Record<string, any>;
         };
-  },
-  context: {
-    name: "Default",
-    description: "",
-    outputs: [],
-    values: {},
-    schema: {},
   },
   initial: "idle",
   states: {
@@ -47,20 +67,33 @@ export const InputNodeMachine = createMachine({
       },
       on: {
         SET_VALUE: {
+          target: "complete",
           actions: assign({
-            values: ({ event }) => event.values,
+            outputs: ({ event }) => event.values,
           }),
         },
         CHANGE: {
           target: "idle",
           actions: assign({
-            outputs: ({ event }) => event.outputs,
+            outputSockets: ({ event }) => event.outputSockets,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
           }),
           reenter: true,
         },
+        RUN: {
+          target: "complete",
+          actions: assign({
+            outputs: ({ event }) => event.inputs,
+          }),
+        },
       },
+    },
+    complete: {
+      type: "final",
+      output: ({ context }) => ({
+        outputs: context.outputs,
+      }),
     },
   },
 });
@@ -70,7 +103,7 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
     super("Input", di, data, InputNodeMachine, {
       actions: {
         create_schema: assign({
-          schema: ({ context }) => createJsonSchema(context.outputs),
+          schema: ({ context }) => createJsonSchema(context.outputSockets),
         }),
       },
     });
@@ -87,14 +120,14 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.outputs,
+        sockets: state.context.outputSockets,
       },
       onChange: ({ sockets, name, description }) => {
         this.actor.send({
           type: "CHANGE",
           name,
           description,
-          outputs: sockets,
+          outputSockets: sockets,
         });
       },
     });
@@ -107,7 +140,7 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
   }
   process() {
     const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.outputs as JSONSocket[];
+    const rawTemplate = state.context.outputSockets as JSONSocket[];
 
     for (const item of Object.keys(this.outputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
@@ -129,10 +162,8 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addOutput(
-        item.name,
-        new ClassicPreset.Input(socket, item.name, true)
-      );
+      const output = new ClassicPreset.Output(socket, item.name, true);
+      this.addOutput(item.name, output);
     }
   }
 

@@ -4,7 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
-import { InputControl } from "../../../controls/input";
+import { InputControl } from "../../../controls/input.control";
 
 const WebflowMachine = createMachine({
   id: "webflow",

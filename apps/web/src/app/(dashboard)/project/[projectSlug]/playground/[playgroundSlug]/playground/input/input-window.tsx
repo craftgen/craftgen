@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { NodeProps } from "../types";
 import { ControllerRenderProps, useForm } from "react-hook-form";
 import { ajvResolver } from "@hookform/resolvers/ajv";
 import { Button } from "@/components/ui/button";
@@ -35,11 +34,11 @@ export const InputWindow: React.FC<{}> = ({}) => {
       di?.editor.getNodes().filter((node) => node instanceof InputNode) || []
     );
   }, [di?.editor.getNodes()]);
-  const [input, setInput] = useState<NodeProps | null>(null);
+  const [input, setInput] = useState<InputNode | null>(null);
 
   useEffect(() => {
     if (inputs?.length === 1) {
-      setInput(di?.editor.getNode(inputs[0].id)!);
+      setInput(di?.editor.getNode(inputs[0].id) as InputNode);
     }
   }, [inputs]);
 
@@ -47,7 +46,7 @@ export const InputWindow: React.FC<{}> = ({}) => {
     <div className="w-full h-full p-4 space-y-4">
       {inputs?.length > 0 ? (
         <Select
-          onValueChange={(v) => setInput(di?.editor.getNode(v)!)}
+          onValueChange={(v) => setInput(di?.editor.getNode(v) as InputNode)}
           defaultValue={inputs.length === 1 ? inputs[0].id : undefined}
         >
           <SelectTrigger>
@@ -72,35 +71,36 @@ export const InputWindow: React.FC<{}> = ({}) => {
   );
 };
 
-export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
+export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
   const description = useSelector(
     input.actor,
     (state) => state.context.description
   );
   const schema = useSelector(input.actor, (state) => state.context.schema);
-  const fields = useSelector(input.actor, (state) => state.context.outputs);
+  const fields = useSelector(
+    input.actor,
+    (state) => state.context.outputSockets
+  );
   const form = useForm({
     resolver: ajvResolver(schema),
   });
   const onSubmit = async (data: any) => {
-    // const { data: execution } = await createExecution({
-    //   workflowId: workflowId!,
-    //   workflowVersionId,
+    // input.actor.send({
+    //   type: "SET_VALUE",
+    //   values: data,
     // });
-    console.log(data);
-    input.actor.send({
-      type: "SET_VALUE",
-      values: data,
+    const { data: execution } = await createExecution({
+      workflowId: input.nodeData.workflowId,
+      workflowVersionId: input.nodeData.workflowVersionId,
+      input: {
+        id: input.id,
+        values: data,
+      },
     });
-    input.di.engine?.execute(input.id);
-    // const { data: execution } = await createExecution({
-    //   workflowId: workflowId!,
-    //   workflowVersionId,
-    // });
-    // if (!execution) {
-    //   throw new Error("Execution not created");
-    // }
-    // di?.engine?.execute(props.data.id, undefined, execution.id);
+    if (!execution) {
+      throw new Error("Execution not created");
+    }
+    input.di.engine?.execute(input.id, undefined, execution?.id);
   };
 
   return (
@@ -128,7 +128,7 @@ export const DynamicForm: React.FC<{ input: NodeProps }> = ({ input }) => {
           ))}
         </div>
         <div className="flex items-center justify-end w-full">
-          <Button type="submit">
+          <Button type="submit" loading={form.formState.isSubmitting}>
             <Play className="w-4 h-4 mr-2" />
             Execute
           </Button>

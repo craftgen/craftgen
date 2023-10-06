@@ -9,7 +9,7 @@ import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { merge, omit } from "lodash-es";
 import { SelectControl } from "../controls/select";
 import { SliderControl } from "../controls/slider";
-import { InputControl } from "../controls/input";
+import { InputControl } from "../controls/input.control";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 

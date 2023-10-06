@@ -42,7 +42,7 @@ import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { NodeProps } from "./types";
-import { InputWindow } from "./input/tab";
+import { InputWindow } from "./input/input-window";
 import { Socket } from "./sockets";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { Label } from "@/components/ui/label";

@@ -4,7 +4,7 @@ import { DiContainer } from "../../../editor";
 import { ClassicPreset } from "rete";
 import { SelectControl } from "../../../controls/select";
 import { objectSocket, triggerSocket } from "../../../sockets";
-import { InputControl } from "../../../controls/input";
+import { InputControl } from "../../../controls/input.control";
 
 const PostgresMachine = createMachine({
   id: "postgres",
