@@ -134,9 +134,21 @@ export function CustomNode<Scheme extends ClassicScheme>(
 
   const triggerNode = async () => {
     // const executionId = String(+new Date());
+    const nodes = di?.editor.getNodes().map((n) => {
+      return {
+        id: n.id,
+        type: n.ID,
+        contextId: n.contextId,
+        state: JSON.stringify(n.actor.getSnapshot()),
+      };
+    });
+    if (!nodes) {
+      throw new Error("No nodes");
+    }
     const { data: execution } = await createExecution({
       workflowId: workflowId!,
       workflowVersionId,
+      nodes,
     });
     if (!execution) {
       throw new Error("Execution not created");

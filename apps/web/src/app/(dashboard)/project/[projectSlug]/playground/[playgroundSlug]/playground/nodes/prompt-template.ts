@@ -182,6 +182,7 @@ const renderFunc = ({
   }, {} as Record<string, string>);
   const rendered = Sqrl.render(input.template, values, {
     useWith: true,
+
   });
   return rendered;
 };

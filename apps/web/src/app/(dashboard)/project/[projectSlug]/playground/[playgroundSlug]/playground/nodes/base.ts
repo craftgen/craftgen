@@ -152,9 +152,9 @@ export class BaseNode<
     const executionState = await this.getExecutionState({ executionId });
     const execMachine = this.machine;
     set(execMachine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
-
-    console.log(this.identifier, execMachine.config);
+    console.log(this.identifier, execMachine);
     const a = execMachine.provide(this.machineImplements as any);
+    console.log(this.identifier, execMachine.config, a);
     this.actor = createActor(a, {
       state: executionState?.state,
     });
@@ -210,7 +210,8 @@ export class BaseNode<
       type: "RUN",
       inputs,
     });
-    console.log("complete", this.ID, this.actor.getSnapshot().context.outputs);
+    await waitFor(this.actor, (state) => state.matches("complete"));
+    console.log(this.identifier, "complete", this.actor.getSnapshot());
     console.groupEnd();
   }
 

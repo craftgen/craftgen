@@ -578,6 +578,14 @@ export const createExecution = action(
   z.object({
     workflowId: z.string(),
     workflowVersionId: z.string(),
+    nodes: z.array(
+      z.object({
+        id: z.string(),
+        contextId: z.string(),
+        type: z.custom<NodeTypes>(),
+        state: z.string().transform((val) => JSON.parse(val)),
+      })
+    ),
     input: z
       .object({
         id: z.string(),
@@ -608,28 +616,25 @@ export const createExecution = action(
           workflowVersionId: params.workflowVersionId,
         })
         .returning();
-      const nodeExecutionDataSnap = workflowVersion.nodes.map((node) => {
-        let state = node.context.state!;
-        if (params.input && node.id === params.input.id) {
-          state = {
-            ...state,
-            context: {
-              ...state.context,
-              inputs: params.input.values,
-              outputs: params.input.values,
-            },
-          };
-          console.log("ADDED THE INPUTS", state);
-        }
+      const nodeExecutionDataSnap = params.nodes.map((node) => {
+        // let state = node.context.state!;
+        // if (params.input && node.id === params.input.id) {
+        //   state = {
+        //     ...state,
+        //     inputs: params.input.values,
+        //     outputs: params.input.values,
+        //   };
+        //   console.log("ADDED THE INPUTS", state);
+        // }
         return {
           contextId: node.contextId,
           workflowExecutionId: execution.id,
           projectId: workflowVersion.projectId,
           workflowId: params.workflowId,
-          state,
-          type: node.context.type,
-          workflowNodeId: node.id,
           workflowVersionId: params.workflowVersionId,
+          state: node.state,
+          type: node.type,
+          workflowNodeId: node.id,
         };
       });
 
