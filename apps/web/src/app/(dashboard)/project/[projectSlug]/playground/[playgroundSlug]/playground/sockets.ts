@@ -1,5 +1,8 @@
 import { useCallback } from "react";
 import { ClassicPreset } from "rete";
+import { P, match } from "ts-pattern";
+import { InputControl } from "./controls/input.control";
+import { NumberControl } from "./controls/number";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -34,7 +37,7 @@ class AnySocket extends Socket {
 }
 export const anySocket = new AnySocket();
 
-class NumberSocket extends Socket {
+export class NumberSocket extends Socket {
   constructor() {
     super("Number");
   }
@@ -55,7 +58,7 @@ class ArraySocket extends Socket {
 }
 export const arraySocket = new ArraySocket();
 
-class StringSocket extends Socket {
+export class StringSocket extends Socket {
   constructor() {
     super("String");
   }
@@ -279,3 +282,22 @@ sockets.forEach((socket) => {
 });
 
 export type Sockets = (typeof sockets)[number];
+
+export const getControlBySocket = (
+  socket: AllSockets,
+  value: any,
+  onChange: (v: any) => void
+) => {
+  return match(socket)
+    .with(P.instanceOf(StringSocket), () => {
+      return new InputControl(value, {
+        change: onChange,
+      });
+    })
+    .with(P.instanceOf(NumberSocket), () => {
+      return new NumberControl(value, {
+        change: onChange,
+      });
+    })
+    .run();
+};

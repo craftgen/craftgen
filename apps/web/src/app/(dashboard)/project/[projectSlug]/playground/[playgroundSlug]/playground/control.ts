@@ -1,3 +1,7 @@
+/**
+ * This file is also called in client side.
+ */
+
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { Schemes } from "./types";
 import { P, match } from "ts-pattern";
@@ -29,7 +33,6 @@ import { NumberControlComponent } from "./ui/control/control-number";
 import { TextareControl } from "./controls/textarea";
 import { CustomTextarea } from "./ui/control/custom-textarea";
 import { InputControl } from "./controls/input.control";
-import { SocketType } from "./sockets";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -51,11 +54,4 @@ export const getControl = (
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .otherwise(() => () => null);
-};
-
-export const getControlBySocket = (socket: SocketType) => {
-  return match(socket)
-    .with("stringSocket", () => CustomInput)
-    .with("numberSocket", () => NumberControl)
-    .run();
 };

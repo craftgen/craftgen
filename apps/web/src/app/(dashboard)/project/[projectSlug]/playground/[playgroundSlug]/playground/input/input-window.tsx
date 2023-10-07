@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCraftStore } from "../use-store";
-import { Input as InputNode } from "../nodes";
+import { InputNode } from "../nodes";
 import {
   Select,
   SelectContent,
@@ -77,6 +77,10 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     input.actor,
     (state) => state.context.description
   );
+  const { projectSlug, workflowSlug } = useCraftStore((state) => ({
+    projectSlug: state.projectSlug,
+    workflowSlug: state.workflowSlug,
+  }));
   const schema = useSelector(input.actor, (state) => state.context.schema);
   const fields = useSelector(
     input.actor,
@@ -88,10 +92,7 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     },
     resolver: ajvResolver(schema),
   });
-  const { projectSlug, workflowSlug } = useCraftStore((state) => ({
-    projectSlug: state.projectSlug,
-    workflowSlug: state.workflowSlug,
-  }));
+
   const router = useRouter();
   const onSubmit = async (data: any) => {
     try {

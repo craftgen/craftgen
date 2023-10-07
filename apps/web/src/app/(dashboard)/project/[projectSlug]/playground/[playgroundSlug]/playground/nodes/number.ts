@@ -5,6 +5,7 @@ import { assign, createMachine } from "xstate";
 import { numberSocket, triggerSocket } from "../sockets";
 import { match, P } from "ts-pattern";
 import { NumberControl } from "../controls/number";
+import { Input, Output } from "../input-output";
 
 const NumberMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
@@ -65,15 +66,12 @@ export class Number extends BaseNode<typeof NumberMachine> {
         },
       })
     );
-    this.addInput("increment", new ClassicPreset.Input(triggerSocket, "+"));
-    this.addInput("decrement", new ClassicPreset.Input(triggerSocket, "-"));
-    this.addInput("reset", new ClassicPreset.Input(triggerSocket, "reset"));
+    this.addInput("increment", new Input(triggerSocket, "+"));
+    this.addInput("decrement", new Input(triggerSocket, "-"));
+    this.addInput("reset", new Input(triggerSocket, "reset"));
 
-    this.addOutput(
-      "trigger",
-      new ClassicPreset.Output(triggerSocket, "trigger")
-    );
-    this.addOutput("value", new ClassicPreset.Output(numberSocket, "Value"));
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
+    this.addOutput("value", new Output(numberSocket, "Value"));
   }
 
   async execute(

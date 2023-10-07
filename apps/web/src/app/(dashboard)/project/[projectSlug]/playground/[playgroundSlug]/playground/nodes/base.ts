@@ -19,6 +19,7 @@ import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
 import { BaseControl } from "../controls/base";
 import { ResultOfAction } from "@/lib/type";
+import { Input, Output } from "../input-output";
 
 type Node = ResultOfAction<typeof getWorkflow>["version"]["nodes"][number];
 export type NodeData<T extends AnyStateMachine> = Node & {
@@ -60,6 +61,14 @@ export class BaseNode<
   readonly projectId: string;
 
   public count = 0;
+
+  public inputs: {
+    [key in keyof Inputs]?: Input<Exclude<Inputs[key], undefined>>;
+  } = {};
+
+  public outputs: {
+    [key in keyof Outputs]?: Output<Exclude<Outputs[key], undefined>>;
+  } = {};
 
   constructor(
     public readonly ID: NodeTypes,
@@ -238,7 +247,7 @@ export class BaseNode<
     if (
       state.context.inputs &&
       !isEqual(state.context.inputs, inputs) &&
-      this.ID !== "Input"
+      this.ID !== "InputNode"
     ) {
       console.log(
         this.identifier,
@@ -287,7 +296,7 @@ export class BaseNode<
           this.inputs[key]?.socket;
         }
       } else {
-        this.addInput(key, new ClassicPreset.Input(socket as any, key, false));
+        this.addInput(key, new Input(socket as any, key, false));
       }
     });
 
@@ -315,10 +324,7 @@ export class BaseNode<
           this.outputs[key]?.socket;
         }
       } else {
-        this.addOutput(
-          key,
-          new ClassicPreset.Output(socket as any, key, false)
-        );
+        this.addOutput(key, new Output(socket as any, key, false));
       }
     });
 
@@ -378,7 +384,7 @@ export class BaseNode<
     try {
       console.log(this.identifier, "getInputs calling");
       this.di.dataFlow?.reset();
-      if (this.ID === "Input") {
+      if (this.ID === "InputNode") {
         return this.actor.getSnapshot().context.inputs;
       }
 

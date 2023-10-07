@@ -1,16 +1,17 @@
 import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
-import { ClassicPreset, NodeEditor } from "rete";
+import { NodeEditor } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import { Module, Modules } from "../../modules";
 import { Schemes } from "../../types";
 import { getWorkflows } from "@/app/(dashboard)/project/[projectSlug]/actions";
-import { Input as InputNode } from "./input.node";
+import { InputNode as InputNode } from "./input.node";
 import { SelectControl } from "../../controls/select";
 import { JSONSocket } from "../../controls/socket-generator";
 import { SWRSelectControl } from "../../controls/swr-select";
 import { InputControl } from "../../controls/input.control";
+import { Input, Output } from "../../input-output";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -185,11 +186,8 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       this.update();
     }
     this.syncUI(state);
-    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
-    this.addOutput(
-      "trigger",
-      new ClassicPreset.Output(triggerSocket, "trigger")
-    );
+    this.addInput("trigger", new Input(triggerSocket, "trigger"));
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
     this.actor.subscribe((state) => this.syncUI(state));
 
     this.syncPorts(state.context.inputs, state.context.outputs);
@@ -275,7 +273,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
     inputs.forEach((item) => {
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const input = new ClassicPreset.Input(socket, item.name);
+      const input = new Input(socket, item.name);
       input.addControl(
         new InputControl(item.description || "", {
           change: (value) => {
@@ -291,7 +289,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     });
     outputs.forEach((item) => {
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const output = new ClassicPreset.Output(socket, item.name);
+      const output = new Output(socket, item.name);
       this.addOutput(item.name, output);
     });
     this.height =

@@ -8,6 +8,7 @@ import {
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { createJsonSchema } from "../../utils";
+import { Input } from "../../input-output";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -65,9 +66,9 @@ const OutputNodeMachine = createMachine({
   },
 });
 
-export class Output extends BaseNode<typeof OutputNodeMachine> {
+export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof OutputNodeMachine>) {
-    super("Output", di, data, OutputNodeMachine, {
+    super("OutputNode", di, data, OutputNodeMachine, {
       actions: {
         create_schema: assign({
           schema: ({ context }) => createJsonSchema(context.inputs),
@@ -75,7 +76,7 @@ export class Output extends BaseNode<typeof OutputNodeMachine> {
       },
     });
     const state = this.actor.getSnapshot();
-    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
+    this.addInput("trigger", new Input(triggerSocket, "trigger"));
 
     const inputGenerator = new SocketGeneratorControl({
       connectionType: "input",
@@ -130,7 +131,7 @@ export class Output extends BaseNode<typeof OutputNodeMachine> {
       const socket = getSocketByJsonSchemaType(item.type)!;
       this.addInput(
         item.name,
-        new ClassicPreset.Input(socket, item.name, false)
+        new Input(socket, item.name, false)
       );
     }
   }

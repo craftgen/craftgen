@@ -2,14 +2,18 @@ import { assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { ClassicPreset } from "rete";
-import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
+import {
+  getControlBySocket,
+  getSocketByJsonSchemaType,
+  triggerSocket,
+} from "../../sockets";
 import { createJsonSchema } from "../../utils";
 import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { merge } from "lodash-es";
-import { getControlBySocket } from "../../control";
+import { Input, Output } from "../../input-output";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -67,9 +71,18 @@ export const InputNodeMachine = createMachine({
       },
       on: {
         SET_VALUE: {
-          target: "complete",
           actions: assign({
-            outputs: ({ event }) => event.values,
+            outputs: ({ context, event }) => {
+              Object.keys(context.outputs).forEach((key) => {
+                if (!context.outputSockets.find((i) => i.name === key)) {
+                  delete context.outputs[key];
+                }
+              });
+              return {
+                ...context.outputs,
+                ...event.values,
+              };
+            },
           }),
         },
         CHANGE: {
@@ -98,9 +111,9 @@ export const InputNodeMachine = createMachine({
   },
 });
 
-export class Input extends BaseNode<typeof InputNodeMachine> {
+export class InputNode extends BaseNode<typeof InputNodeMachine> {
   constructor(di: DiContainer, data: NodeData<typeof InputNodeMachine>) {
-    super("Input", di, data, InputNodeMachine, {
+    super("InputNode", di, data, InputNodeMachine, {
       actions: {
         create_schema: assign({
           schema: ({ context }) => createJsonSchema(context.outputSockets),
@@ -110,7 +123,7 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
     const state = this.actor.getSnapshot();
     this.addOutput(
       "trigger",
-      new ClassicPreset.Output(triggerSocket, "trigger")
+      new Output(triggerSocket, "trigger")
     );
     const outputGenerator = new SocketGeneratorControl({
       connectionType: "output",
@@ -152,6 +165,16 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
       this.removeOutput(item);
     }
 
+    for (const input of Object.keys(this.inputs)) {
+      if (input === "trigger") continue; // don't remove the trigger socket
+      if (rawTemplate.find((i: JSONSocket) => i.name === input)) continue;
+      const connections = this.di.editor
+        .getConnections()
+        .filter((c) => c.source === this.id && c.sourceOutput === input);
+      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+      this.removeInput(input);
+    }
+
     for (const item of rawTemplate) {
       if (this.hasOutput(item.name)) {
         const output = this.outputs[item.name];
@@ -160,9 +183,32 @@ export class Input extends BaseNode<typeof InputNodeMachine> {
         }
         continue;
       }
-
+      if (this.hasInput(item.name)) {
+        const input = this.inputs[item.name];
+        if (input) {
+          input.socket = getSocketByJsonSchemaType(item.type)!;
+        }
+        continue;
+      }
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const output = new ClassicPreset.Output(socket, item.name, true);
+
+      const input = new Input(socket, item.name, true, false);
+      const controller = getControlBySocket(
+        socket,
+        state.context.outputs[item.name],
+        (v) => {
+          this.actor.send({
+            type: "SET_VALUE",
+            values: {
+              [item.name]: v,
+            },
+          });
+        }
+      );
+      input.addControl(controller);
+      this.addInput(item.name, input);
+
+      const output = new Output(socket, item.name, true);
       this.addOutput(item.name, output);
     }
   }

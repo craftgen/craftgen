@@ -8,6 +8,7 @@ import { Socket, stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
+import { Input, Output } from "../input-output";
 
 type Data = {
   value: string;
@@ -182,7 +183,6 @@ const renderFunc = ({
   }, {} as Record<string, string>);
   const rendered = Sqrl.render(input.template, values, {
     useWith: true,
-
   });
   return rendered;
 };
@@ -242,16 +242,10 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
       this.process();
       prev = state;
     });
-    this.addInput(
-      "trigger",
-      new ClassicPreset.Input(triggerSocket, "Trigger", true)
-    );
-    this.addOutput(
-      "trigger",
-      new ClassicPreset.Output(triggerSocket, "Trigger")
-    );
+    this.addInput("trigger", new Input(triggerSocket, "Trigger", true));
+    this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
 
-    this.addOutput("value", new ClassicPreset.Output(stringSocket, "Text"));
+    this.addOutput("value", new Output(stringSocket, "Text"));
     const self = this;
     this.addControl(
       "template",
@@ -286,7 +280,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
 
     for (const item of rawTemplate) {
       if (this.hasInput(item)) continue;
-      const input = new ClassicPreset.Input(stringSocket, item, false);
+      const input = new Input(stringSocket, item, false);
       input.addControl(
         new InputControl(state.context.inputs[item], {
           change: (value) => {

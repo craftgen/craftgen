@@ -8,6 +8,7 @@ import type { MyValue } from "@/lib/plate/plate-types";
 // import { createNode } from "@udecode/plate-common";
 // import { createTmpEditor } from "@/components/editor";
 import { ArticleControl } from "../controls/article";
+import { Input, Output } from "../input-output";
 
 const ArticleNodeMachine = createMachine({
   id: "articleNode",
@@ -56,15 +57,9 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
     });
 
     const state = this.actor.getSnapshot();
-    this.addInput("save", new ClassicPreset.Input(triggerSocket, "Save"));
-    this.addOutput(
-      "trigger",
-      new ClassicPreset.Output(triggerSocket, "Trigger")
-    );
-    this.addInput(
-      "append",
-      new ClassicPreset.Input(stringSocket, "Append", true)
-    );
+    this.addInput("save", new Input(triggerSocket, "Save"));
+    this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
+    this.addInput("append", new Input(stringSocket, "Append", true));
     const articleController = new ArticleControl(state.context.nodes, {
       initial: state?.context?.nodes || [],
       change: (nodes) => {
@@ -79,13 +74,10 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
       articleController.value = state.context.nodes;
     });
     this.addControl("article", articleController);
-    this.addOutput(
-      "Markdown",
-      new ClassicPreset.Output(stringSocket, "Markdown")
-    );
+    this.addOutput("Markdown", new Output(stringSocket, "Markdown"));
 
-    this.addOutput("HTML", new ClassicPreset.Output(stringSocket, "HTML"));
-    this.addOutput("JSON", new ClassicPreset.Output(stringSocket, "JSON"));
+    this.addOutput("HTML", new Output(stringSocket, "HTML"));
+    this.addOutput("JSON", new Output(stringSocket, "JSON"));
   }
 
   async execute() {

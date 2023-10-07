@@ -1,7 +1,7 @@
-import { ClassicPreset, NodeEditor } from "rete";
+import {  NodeEditor } from "rete";
 import { ConnProps, NodeProps, Schemes } from "./types";
 import { DataflowEngine } from "rete-engine";
-import { Input, Output } from "./nodes";
+import { InputNode, OutputNode } from "./nodes";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
 import { structures } from "rete-structures";
 import { Structures } from "rete-structures/_types/types";
@@ -74,20 +74,20 @@ export class Modules {
   private static isInputNode<S extends Schemes>(
     node: S["Node"]
   ): node is S["Node"] & { inputValue: any } {
-    return node instanceof Input;
+    return node instanceof InputNode;
   }
 
   private static isOutputNode<S extends Schemes>(
     node: S["Node"]
   ): node is S["Node"] & { outputValue: any } {
-    return node instanceof Output;
+    return node instanceof OutputNode;
   }
 
   private async retrieveOutputs(
     nodes: Schemes["Node"][],
     dataFlow: DataflowEngine<Schemes>
   ) {
-    const outputNodes = nodes.filter(Modules.isOutputNode) as Output[];
+    const outputNodes = nodes.filter(Modules.isOutputNode) as OutputNode[];
     const outputs = await Promise.all(
       outputNodes.map(async (outNode) => {
         const data = await dataFlow.fetch(outNode.id);

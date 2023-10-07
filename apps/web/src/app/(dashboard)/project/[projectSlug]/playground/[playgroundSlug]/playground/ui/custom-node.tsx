@@ -9,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ClassicScheme, RenderEmit, Presets, Drag } from "rete-react-plugin";
+import { RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNode } from "../io";
 import { Key } from "ts-key-enum";
 import { Schemes, nodesMeta } from "../types";
@@ -42,10 +42,7 @@ import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState } from "react";
 import { createExecution } from "../../action";
-import { ControlWrapper } from "../playground";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
-import { P } from "ts-pattern";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -75,15 +72,12 @@ type Props<S extends Schemes> = {
 };
 export type NodeComponent = (props: Props<Schemes>) => JSX.Element;
 
-export function CustomNode<Scheme extends ClassicScheme>(
-  props: Props<Schemes>
-) {
+export function CustomNode(props: Props<Schemes>) {
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, label } = props.data;
-
   const {
     di,
     workflowId,
@@ -92,6 +86,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
     layout,
     setSelectedNodeId,
     workflowExecutionId,
+    setWorkflowExecutionId,
   } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
@@ -155,10 +150,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
       if (!execution) {
         throw new Error("Execution not created");
       }
-      // TODO
-      // router.push(
-      //   `/${projectSlug}/${workflowId}/playground?execution=${execution.id}`
-      // );
+      setWorkflowExecutionId(execution.id);
     } else {
       di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
     }
@@ -393,7 +385,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
               <div>
                 {/* Inputs */}
                 {inputs.map(([key, input]) => {
-                  if (!input) return null;
+                  if (!input || !input.showSocket) return null;
                   return (
                     <RenderInput
                       emit={props.emit}

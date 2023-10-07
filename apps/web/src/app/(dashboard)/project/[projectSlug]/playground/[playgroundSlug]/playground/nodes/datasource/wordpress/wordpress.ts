@@ -5,6 +5,7 @@ import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
+import { Input } from "../../../input-output";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -68,10 +69,10 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
     });
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
+    this.addInput("trigger", new Input(triggerSocket, "trigger"));
     this.addOutput(
       "trigger",
-      new ClassicPreset.Output(triggerSocket, "trigger")
+      new Output(triggerSocket, "trigger")
     );
 
     this.addControl(
@@ -127,7 +128,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
       if (!this.inputs["add_post"]) {
         this.addInput(
           "add_post",
-          new ClassicPreset.Input(objectSocket, "post")
+          new Input(objectSocket, "post")
         );
       }
     } else {
@@ -139,7 +140,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
       if (!this.outputs["read_post"]) {
         this.addOutput(
           "read_post",
-          new ClassicPreset.Output(objectSocket, "post")
+          new Output(objectSocket, "post")
         );
       }
     } else {

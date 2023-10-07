@@ -1,10 +1,10 @@
 import { StateFrom, assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../../base";
 import { DiContainer } from "../../../editor";
-import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
+import { Input, Output } from "../../../input-output";
 
 const WebflowMachine = createMachine({
   id: "webflow",
@@ -68,11 +68,8 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
     });
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-    this.addInput("trigger", new ClassicPreset.Input(triggerSocket, "trigger"));
-    this.addOutput(
-      "trigger",
-      new ClassicPreset.Output(triggerSocket, "trigger")
-    );
+    this.addInput("trigger", new Input(triggerSocket, "trigger"));
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
     this.addControl(
       "action",
@@ -125,7 +122,7 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
   async syncUI(state: StateFrom<typeof WebflowMachine>) {
     if (state.context.settings.action === "addRow") {
       if (!this.inputs["add_row"]) {
-        this.addInput("add_row", new ClassicPreset.Input(objectSocket, "row"));
+        this.addInput("add_row", new Input(objectSocket, "row"));
       }
     } else {
       if (this.inputs["add_row"]) {
@@ -134,10 +131,7 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
     }
     if (state.context.settings.action === "readRow") {
       if (!this.outputs["read_row"]) {
-        this.addOutput(
-          "read_row",
-          new ClassicPreset.Output(objectSocket, "row")
-        );
+        this.addOutput("read_row", new Output(objectSocket, "row"));
       }
     } else {
       if (this.outputs["read_row"]) {

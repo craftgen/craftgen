@@ -13,7 +13,7 @@ import {
   saveNode,
   savePlaygroundLayout,
 } from "../action";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { createCraftStore } from "./store";
 import { CraftContext, useCraftStore } from "./use-store";
 import { debounce } from "lodash-es";
@@ -128,6 +128,7 @@ export const Playground: React.FC<{
   const searchParams = useSearchParams();
   const executionId = searchParams.get("execution");
   const { theme } = useTheme();
+  const router = useRouter();
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
@@ -144,6 +145,17 @@ export const Playground: React.FC<{
     })
   );
 
+  useEffect(() => {
+    const current = store.current.getState().workflowExecutionId;
+    if (current !== current) {
+      router.push(
+        `/${params.projectSlug}/${params.playgroundSlug}/playground?execution=${executionId}`
+      );
+      store.current.setState({
+        workflowExecutionId: executionId,
+      });
+    }
+  }, [executionId]);
   const { layout, di, setTheme } = useStore(store.current);
   useEffect(() => {
     setTheme(theme || "light");

@@ -9,8 +9,8 @@ import {
   Number,
   ComposeObject,
   Article,
-  Input,
-  Output,
+  InputNode,
+  OutputNode,
   ModuleNode,
   Shopify,
   Webflow,
@@ -32,9 +32,9 @@ export const nodes = {
   ComposeObject: ComposeObject,
   Article: Article,
 
-  Input: Input,
-  Output: Output,
-  ModuleNode: ModuleNode,
+  InputNode,
+  OutputNode,
+  ModuleNode,
 
   Replicate: Replicate,
 
@@ -94,12 +94,12 @@ export const nodesMeta: Record<
     description: "Node for handling articles",
     icon: Icons.newspaper,
   },
-  Input: {
+  InputNode: {
     name: "Input",
     description: "Node for handling inputs",
     icon: Icons.input,
   },
-  Output: {
+  OutputNode: {
     name: "Output",
     description: "Node for handling outputs",
     icon: Icons.output,
@@ -154,8 +154,8 @@ export type NodeProps =
   | OpenAIFunctionCall
   | ComposeObject
   | Article
-  | Input
-  | Output
+  | InputNode
+  | OutputNode
   | ModuleNode
   | Replicate
   | GoogleSheet

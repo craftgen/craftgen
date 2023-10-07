@@ -9,8 +9,8 @@ export { ComposeObject } from "./object/composeObject";
 
 export { Article } from "./article";
 
-export { Input } from "./io/input.node";
-export { Output } from "./io/output";
+export { InputNode } from "./io/input.node";
+export { OutputNode } from "./io/output";
 
 export { ModuleNode } from "./io/module";
 export { Replicate } from "./replicate";

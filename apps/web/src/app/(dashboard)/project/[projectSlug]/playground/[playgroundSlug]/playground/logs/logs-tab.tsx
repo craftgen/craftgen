@@ -67,7 +67,7 @@ export const LogsTab: React.FC<{
                 </Button>
               </div>
             </div>
-            <ul className="ml-4 hidden">
+            <ul className="ml-4">
               {execution.executionData.map((nodeData) => (
                 <li
                   key={nodeData.id}

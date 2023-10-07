@@ -45,8 +45,8 @@ export async function createNode({
 
     Article: (di, data) => new Nodes.Article(di, data),
 
-    Input: (di, data) => new Nodes.Input(di, data),
-    Output: (di, data) => new Nodes.Output(di, data),
+    InputNode: (di, data) => new Nodes.InputNode(di, data),
+    OutputNode: (di, data) => new Nodes.OutputNode(di, data),
 
     ModuleNode: (di, data) => new Nodes.ModuleNode(di, data),
     GoogleSheet: (di, data) => new Nodes.GoogleSheet(di, data),

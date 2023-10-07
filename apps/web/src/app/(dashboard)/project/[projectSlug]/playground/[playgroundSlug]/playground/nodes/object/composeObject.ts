@@ -8,6 +8,7 @@ import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
+import { Input, Output } from "../../input-output";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -69,8 +70,8 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       },
     });
 
-    this.addOutput("object", new ClassicPreset.Output(objectSocket, "Object"));
-    this.addOutput("schema", new ClassicPreset.Output(objectSocket, "Schema"));
+    this.addOutput("object", new Output(objectSocket, "Object"));
+    this.addOutput("schema", new Output(objectSocket, "Schema"));
 
     const state = this.actor.getSnapshot();
     const inputGenerator = new SocketGeneratorControl({
@@ -127,7 +128,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       const socket = getSocketByJsonSchemaType(item.type)!;
       this.addInput(
         item.name,
-        new ClassicPreset.Input(socket, item.name, false)
+        new Input(socket, item.name, false)
       );
     }
   }

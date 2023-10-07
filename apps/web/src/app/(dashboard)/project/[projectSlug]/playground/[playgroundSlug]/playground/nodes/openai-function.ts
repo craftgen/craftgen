@@ -10,6 +10,7 @@ import { merge, omit } from "lodash-es";
 import { SelectControl } from "../controls/select";
 import { SliderControl } from "../controls/slider";
 import { InputControl } from "../controls/input.control";
+import { Input, Output } from "../input-output";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -247,11 +248,11 @@ export class OpenAIFunctionCall extends BaseNode<
     });
     this.addInput(
       "trigger",
-      new ClassicPreset.Input(triggerSocket, "Exec", true)
+      new Input(triggerSocket, "Exec", true)
     );
     const state = this.actor.getSnapshot();
 
-    this.addOutput("trigger", new ClassicPreset.Output(triggerSocket, "Exec"));
+    this.addOutput("trigger", new Output(triggerSocket, "Exec"));
 
     this.addControl(
       "model",
@@ -336,7 +337,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
     this.syncUI(state);
 
-    const input = new ClassicPreset.Input(stringSocket, "Prompt", false);
+    const input = new Input(stringSocket, "Prompt", false);
     input.addControl(
       new InputControl(state.context.inputs?.prompt, {
         change: (value) => {
@@ -352,7 +353,7 @@ export class OpenAIFunctionCall extends BaseNode<
     this.addInput("prompt", input);
     this.addOutput(
       "result",
-      new ClassicPreset.Output(
+      new Output(
         state.context.settings.resultType === "json"
           ? objectSocket
           : stringSocket,
@@ -400,7 +401,7 @@ export class OpenAIFunctionCall extends BaseNode<
       if (this.inputs?.schema) return;
       this.addInput(
         "schema",
-        new ClassicPreset.Input(objectSocket, "Schema", true)
+        new Input(objectSocket, "Schema", true)
       );
     } else {
       if (this.inputs?.schema) {

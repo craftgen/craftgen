@@ -7,13 +7,13 @@ import {
 } from "xstate";
 import { BaseNode, NodeData } from "../../base";
 import { DiContainer } from "../../../editor";
-import { ClassicPreset } from "rete";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import { P, match } from "ts-pattern";
 import { SelectControl } from "../../../controls/select";
 import { GoogleDriveControl } from "../../../controls/google-drive";
+import { Input, Output } from "../../../input-output";
 
 export type GoogleSheetSettings = {
   spreadsheet: CallbackDoc | undefined;
@@ -362,13 +362,13 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
       if (!this.hasInput("trigger"))
         this.addInput(
           "trigger",
-          new ClassicPreset.Input(triggerSocket, "trigger")
+          new Input(triggerSocket, "trigger")
         );
 
       if (!this.hasOutput("trigger"))
         this.addOutput(
           "trigger",
-          new ClassicPreset.Output(triggerSocket, "trigger")
+          new Output(triggerSocket, "trigger")
         );
 
       const action = state.context.settings.action;
