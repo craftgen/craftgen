@@ -5,7 +5,7 @@ import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
-import { Input } from "../../../input-output";
+import { Input, Output } from "../../../input-output";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -70,10 +70,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput(
-      "trigger",
-      new Output(triggerSocket, "trigger")
-    );
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
     this.addControl(
       "action",
@@ -126,10 +123,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
   async syncUI(state: StateFrom<typeof WordpressMachine>) {
     if (state.context.settings.action === "addPost") {
       if (!this.inputs["add_post"]) {
-        this.addInput(
-          "add_post",
-          new Input(objectSocket, "post")
-        );
+        this.addInput("add_post", new Input(objectSocket, "post"));
       }
     } else {
       if (this.inputs["add_post"]) {
@@ -138,10 +132,7 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
     }
     if (state.context.settings.action === "readPost") {
       if (!this.outputs["read_post"]) {
-        this.addOutput(
-          "read_post",
-          new Output(objectSocket, "post")
-        );
+        this.addOutput("read_post", new Output(objectSocket, "post"));
       }
     } else {
       if (this.outputs["read_post"]) {

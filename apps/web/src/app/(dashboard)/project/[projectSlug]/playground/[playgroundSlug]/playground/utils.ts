@@ -7,7 +7,7 @@ type Input = ClassicPreset.Input<Sockets>;
 type Output = ClassicPreset.Output<Sockets>;
 
 export function getInputNodes(editor: NodeEditor<Schemes>) {
-  return editor.getNodes().filter((node) => node.ID === "Input");
+  return editor.getNodes().filter((node) => node.ID === "InputNode");
 }
 
 export function getConnectionSockets(
