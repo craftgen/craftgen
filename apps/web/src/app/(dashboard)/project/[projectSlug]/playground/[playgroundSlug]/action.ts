@@ -16,6 +16,7 @@ import {
   workflowVersion,
   workflowExecutionStep,
   nodeExecutionData,
+  shapeOfState,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 import { ConnProps, NodeTypes, Position, nodesMeta } from "./playground/types";
@@ -79,6 +80,7 @@ export const getWorkflow = action(
     workflowSlug: z.string(),
     projectSlug: z.string(),
     version: z.number().optional(),
+    executionId: z.string().optional(),
     published: z.boolean().optional().default(true),
   }),
   async (params) => {
@@ -138,6 +140,19 @@ export const getWorkflow = action(
               edges: true,
               nodes: {
                 with: {
+                  nodeExectutions: {
+                    where: (nodeExecutionData, { eq }) =>
+                      params.executionId
+                        ? eq(
+                            nodeExecutionData.workflowExecutionId,
+                            params.executionId
+                          )
+                        : sql`true`,
+                    limit: 1,
+                    orderBy: (nodeExecutionData, { desc }) => [
+                      desc(nodeExecutionData.createdAt),
+                    ],
+                  },
                   context: {
                     columns: {
                       state: true,
@@ -583,7 +598,12 @@ export const createExecution = action(
         id: z.string(),
         contextId: z.string(),
         type: z.custom<NodeTypes>(),
-        state: z.string().transform((val) => JSON.parse(val)),
+        state: z
+          .string()
+          .transform(
+            (val): z.infer<typeof shapeOfState> =>
+              JSON.parse(val) as z.infer<typeof shapeOfState>
+          ),
       })
     ),
     input: z
@@ -617,22 +637,24 @@ export const createExecution = action(
         })
         .returning();
       const nodeExecutionDataSnap = params.nodes.map((node) => {
-        // let state = node.context.state!;
-        // if (params.input && node.id === params.input.id) {
-        //   state = {
-        //     ...state,
-        //     inputs: params.input.values,
-        //     outputs: params.input.values,
-        //   };
-        //   console.log("ADDED THE INPUTS", state);
-        // }
+        let state = node.state as unknown as z.infer<typeof shapeOfState>;
+        if (params.input && node.id === params.input.id) {
+          state = {
+            ...state,
+            context: {
+              inputs: params.input.values,
+              outputs: params.input.values,
+            },
+          };
+          console.log("ADDED THE INPUTS", state);
+        }
         return {
           contextId: node.contextId,
           workflowExecutionId: execution.id,
           projectId: workflowVersion.projectId,
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
-          state: node.state,
+          state,
           type: node.type,
           workflowNodeId: node.id,
         };

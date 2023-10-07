@@ -8,10 +8,15 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useCraftStore } from "../use-store";
 import { Trash } from "lucide-react";
+import Link from "next/link";
+import { useSearchParam } from "react-use";
+import { useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
+  const searchParams = useSearchParams();
   const { data, error } = useSWR(
     "/api/executions",
     () =>
@@ -29,6 +34,13 @@ export const LogsTab: React.FC<{
     mutate("/api/executions");
   };
 
+  const isActiveView = useCallback(
+    (executionId: string) => {
+      return searchParams.get("execution") === executionId;
+    },
+    [searchParams.get("execution")]
+  );
+
   return (
     <div className="p-4">
       <h1>Logs</h1>
@@ -37,7 +49,14 @@ export const LogsTab: React.FC<{
           <Separator />
           <div key={execution.id}>
             <div className="flex w-full justify-between items-center">
-              <h3>{execution.id}</h3>
+              <Link
+                href={`/${workflow.projectSlug}/${workflow.slug}/playground?execution=${execution.id}`}
+              >
+                <h3>{execution.id}</h3>
+                {isActiveView(execution.id) && (
+                  <div className="animate-pulse">Active</div>
+                )}
+              </Link>
               <div>
                 <Button
                   size={"icon"}
@@ -48,7 +67,7 @@ export const LogsTab: React.FC<{
                 </Button>
               </div>
             </div>
-            <ul className="ml-4">
+            <ul className="ml-4 hidden">
               {execution.executionData.map((nodeData) => (
                 <li
                   key={nodeData.id}

@@ -18,6 +18,7 @@ export const getLogs = action(
               orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
             },
           },
+          orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
         },
       },
     });

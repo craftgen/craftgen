@@ -14,7 +14,7 @@ import { createNode } from "../io";
 import { Key } from "ts-key-enum";
 import { Schemes, nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
-import { Loader2, Play, Wrench } from "lucide-react";
+import { CheckCircle, Loader2, Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
@@ -44,6 +44,8 @@ import { useState } from "react";
 import { createExecution } from "../../action";
 import { ControlWrapper } from "../playground";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+import { P } from "ts-pattern";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -89,6 +91,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
     projectSlug,
     layout,
     setSelectedNodeId,
+    workflowExecutionId,
   } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
@@ -131,29 +134,34 @@ export function CustomNode<Scheme extends ClassicScheme>(
     await di?.editor.addNode(newNode);
     await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
-
   const triggerNode = async () => {
-    // const executionId = String(+new Date());
-    const nodes = di?.editor.getNodes().map((n) => {
-      return {
-        id: n.id,
-        type: n.ID,
-        contextId: n.contextId,
-        state: JSON.stringify(n.actor.getSnapshot()),
-      };
-    });
-    if (!nodes) {
-      throw new Error("No nodes");
+    if (!workflowExecutionId) {
+      const nodes = di?.editor.getNodes().map((n) => {
+        return {
+          id: n.id,
+          type: n.ID,
+          contextId: n.contextId,
+          state: JSON.stringify(n.actor.getSnapshot()),
+        };
+      });
+      if (!nodes) {
+        throw new Error("No nodes");
+      }
+      const { data: execution } = await createExecution({
+        workflowId: workflowId!,
+        workflowVersionId,
+        nodes,
+      });
+      if (!execution) {
+        throw new Error("Execution not created");
+      }
+      // TODO
+      // router.push(
+      //   `/${projectSlug}/${workflowId}/playground?execution=${execution.id}`
+      // );
+    } else {
+      di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
     }
-    const { data: execution } = await createExecution({
-      workflowId: workflowId!,
-      workflowVersionId,
-      nodes,
-    });
-    if (!execution) {
-      throw new Error("Execution not created");
-    }
-    di?.engine?.execute(props.data.id, undefined, execution.id);
   };
 
   const pinNode = React.useCallback(async () => {
@@ -292,7 +300,7 @@ export function CustomNode<Scheme extends ClassicScheme>(
               "flex flex-col flex-1 glass",
               state.matches("loading") &&
                 "border-blue-300 border-2 animate-pulse",
-              state.matches("running") && "border-green-300",
+              state.matches("running") && "border-yellow-300",
               state.matches("error") && "border-red-600 border-2"
             )}
           >
@@ -339,13 +347,15 @@ export function CustomNode<Scheme extends ClassicScheme>(
                   variant={"ghost"}
                   size="icon"
                 >
-                  {state.matches("running") ? (
+                  {state.matches("running") && (
                     <Loader2
                       size={14}
                       className="animate-spin text-green-400"
                     />
-                  ) : (
-                    <Play size={14} />
+                  )}
+                  <Play size={14} />
+                  {state.matches("complete") && (
+                    <CheckCircle size={14} className="text-green-400" />
                   )}
                 </Button>
               </div>

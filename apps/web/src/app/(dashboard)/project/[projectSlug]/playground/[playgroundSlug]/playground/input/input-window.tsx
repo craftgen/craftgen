@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { SocketNameType } from "../sockets";
 import { Play } from "lucide-react";
 import { createExecution } from "../../action";
+import { useRouter } from "next/navigation";
 
 export const InputWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
@@ -87,6 +88,11 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     },
     resolver: ajvResolver(schema),
   });
+  const { projectSlug, workflowSlug } = useCraftStore((state) => ({
+    projectSlug: state.projectSlug,
+    workflowSlug: state.workflowSlug,
+  }));
+  const router = useRouter();
   const onSubmit = async (data: any) => {
     try {
       const nodes = input.di.editor.getNodes().map((n) => {
@@ -109,7 +115,10 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
       if (!execution) {
         throw new Error("Execution not created");
       }
-      input.di.engine?.execute(input.id, undefined, execution?.id);
+      router.push(
+        `/${projectSlug}/${workflowSlug}/playground?execution=${execution.id}`
+      );
+      // input.di.engine?.execute(input.id, undefined, execution?.id);
     } catch (e) {
       console.log(e);
     }

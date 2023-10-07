@@ -151,13 +151,13 @@ export const workflowVersionRelations = relations(
   })
 );
 
-const shapeOfContext = z.object({
+export const shapeOfContext = z.object({
   inputs: z.any(),
   settings: z.any(),
   outputs: z.any(),
 });
 
-const shapeOfState = z.object({
+export const shapeOfState = z.object({
   state: z.string(),
   status: z.enum(["active", "error", "done"]),
   context: shapeOfContext,
@@ -408,24 +408,28 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
   nodes: many(workflowNode),
 }));
 
-export const workflowNodeRelations = relations(workflowNode, ({ one }) => ({
-  context: one(context, {
-    fields: [workflowNode.contextId],
-    references: [context.id],
-  }),
-  workflow: one(workflow, {
-    fields: [workflowNode.workflowId],
-    references: [workflow.id],
-  }),
-  workflowVersion: one(workflowVersion, {
-    fields: [workflowNode.workflowVersionId],
-    references: [workflowVersion.id],
-  }),
-  project: one(project, {
-    fields: [workflowNode.projectId],
-    references: [project.id],
-  }),
-}));
+export const workflowNodeRelations = relations(
+  workflowNode,
+  ({ one, many }) => ({
+    context: one(context, {
+      fields: [workflowNode.contextId],
+      references: [context.id],
+    }),
+    nodeExectutions: many(nodeExecutionData),
+    workflow: one(workflow, {
+      fields: [workflowNode.workflowId],
+      references: [workflow.id],
+    }),
+    workflowVersion: one(workflowVersion, {
+      fields: [workflowNode.workflowVersionId],
+      references: [workflowVersion.id],
+    }),
+    project: one(project, {
+      fields: [workflowNode.projectId],
+      references: [project.id],
+    }),
+  })
+);
 
 export const contextRelations = relations(context, ({ one, many }) => ({
   project: one(project, {

@@ -10,6 +10,7 @@ export type ReteStore = {
   projectId: string;
   projectSlug: string;
   workflowVersionId: string;
+  workflowExecutionId: string | null;
   readonly: boolean;
   selectedNodeId: string | null;
   di: DiContainer | null;
@@ -32,6 +33,7 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       workflowId: "",
       workflowSlug: "",
       workflowVersionId: "",
+      workflowExecutionId: null,
       readonly: true,
       selectedNodeId: null,
       di: null,

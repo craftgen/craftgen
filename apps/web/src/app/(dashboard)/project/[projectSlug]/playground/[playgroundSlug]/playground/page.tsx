@@ -10,10 +10,15 @@ const PlaygroundPage = async (props: {
     projectSlug: string;
     playgroundSlug: string;
   };
+  searchParams: {
+    execution?: string;
+    version?: string;
+  };
 }) => {
   const { data: workflow } = await getWorkflow({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
+    executionId: props.searchParams.execution,
     published: false,
   });
   if (!workflow) return <div>Not found</div>;

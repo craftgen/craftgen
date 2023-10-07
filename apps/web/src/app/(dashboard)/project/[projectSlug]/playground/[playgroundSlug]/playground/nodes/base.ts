@@ -11,19 +11,17 @@ import {
 import { debounce, isEqual, set } from "lodash-es";
 import {
   getExecutionNode,
+  getWorkflow,
   setContext,
   updateExecutionNode,
 } from "../../action";
 import { AllSockets, Socket } from "../sockets";
 import { NodeTypes } from "../types";
-import { z } from "zod";
-import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 import { BaseControl } from "../controls/base";
+import { ResultOfAction } from "@/lib/type";
 
-export type NodeData<T extends AnyStateMachine> = z.infer<
-  typeof selectWorkflowNodeSchema
-> & {
-  workflowVersionId?: string;
+type Node = ResultOfAction<typeof getWorkflow>["version"]["nodes"][number];
+export type NodeData<T extends AnyStateMachine> = Node & {
   context: {
     state?: StateFrom<T>;
   };
@@ -82,14 +80,24 @@ export class BaseNode<
     this.di = di;
     const a = this.machine.provide(this.machineImplements as any);
     console.log(this.identifier, "CREATING ACTOR", this.nodeData.context.state);
-    this.actor = createActor(a, {
-      id: this.contextId,
-      ...(this.nodeData?.context?.state !== null && {
-        input: {
-          ...this.nodeData.context.state,
-        },
-      }),
-    });
+    const store = this.di.store.getState();
+    console.log(this.identifier, "STORE", store);
+
+    if (this.nodeData?.nodeExectutions?.length > 0) {
+      this.actor = createActor(a, {
+        id: this.contextId,
+        state: this.nodeData.nodeExectutions[0].state,
+      });
+    } else {
+      this.actor = createActor(a, {
+        id: this.contextId,
+        ...(this.nodeData?.context?.state !== null && {
+          input: {
+            ...this.nodeData.context.state,
+          },
+        }),
+      });
+    }
 
     const saveDebounced = debounce((state: string) => {
       setContext({ contextId: this.contextId, state });

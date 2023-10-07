@@ -13,7 +13,7 @@ import {
   saveNode,
   savePlaygroundLayout,
 } from "../action";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { createCraftStore } from "./store";
 import { CraftContext, useCraftStore } from "./use-store";
 import { debounce } from "lodash-es";
@@ -125,6 +125,8 @@ export const Playground: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const executionId = searchParams.get("execution");
   const { theme } = useTheme();
   const store = useRef(
     createCraftStore({
@@ -138,6 +140,7 @@ export const Playground: React.FC<{
       workflowId: workflow.id,
       workflowSlug: params.playgroundSlug as string,
       workflowVersionId: workflow.version.id,
+      workflowExecutionId: executionId,
     })
   );
 
