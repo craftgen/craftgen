@@ -642,6 +642,7 @@ export const createExecution = action(
           state = {
             ...state,
             context: {
+              ...state.context, // bring the rest
               inputs: params.input.values,
               outputs: params.input.values,
             },

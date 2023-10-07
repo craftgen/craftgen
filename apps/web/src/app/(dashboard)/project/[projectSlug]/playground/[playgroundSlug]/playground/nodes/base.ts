@@ -258,7 +258,10 @@ export class BaseNode<
       await this.compute(inputs);
     }
     console.log(this.identifier, "actor in data", this.actor);
-    await waitFor(this.actor, (state) => state.matches("complete"));
+    if (state.matches("running")) {
+      console.log(this.identifier, "waiting for complete");
+      await waitFor(this.actor, (state) => state.matches("complete"));
+    }
     state = this.actor.getSnapshot();
     return state.context.outputs;
   }

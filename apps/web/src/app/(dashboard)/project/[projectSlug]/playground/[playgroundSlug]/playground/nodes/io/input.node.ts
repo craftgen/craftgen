@@ -72,6 +72,17 @@ export const InputNodeMachine = createMachine({
       on: {
         SET_VALUE: {
           actions: assign({
+            inputs: ({ context, event }) => {
+              Object.keys(context.inputs).forEach((key) => {
+                if (!context.outputSockets.find((i) => i.name === key)) {
+                  delete context.inputs[key];
+                }
+              });
+              return {
+                ...context.inputs,
+                ...event.values,
+              };
+            },
             outputs: ({ context, event }) => {
               Object.keys(context.outputs).forEach((key) => {
                 if (!context.outputSockets.find((i) => i.name === key)) {
@@ -103,7 +114,6 @@ export const InputNodeMachine = createMachine({
       },
     },
     complete: {
-      // type: "final", // TODO: we inject complete "final" in the execution instance.
       output: ({ context }) => ({
         outputs: context.outputs,
       }),
@@ -121,10 +131,7 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       },
     });
     const state = this.actor.getSnapshot();
-    this.addOutput(
-      "trigger",
-      new Output(triggerSocket, "trigger")
-    );
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
     const outputGenerator = new SocketGeneratorControl({
       connectionType: "output",
       name: "Output Sockets",
@@ -207,6 +214,14 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       );
       input.addControl(controller);
       this.addInput(item.name, input);
+      if (!state.context.inputs[item.name]) {
+        this.actor.send({
+          type: "SET_VALUE",
+          values: {
+            [item.name]: "",
+          },
+        });
+      }
 
       const output = new Output(socket, item.name, true);
       this.addOutput(item.name, output);
