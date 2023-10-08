@@ -3,6 +3,7 @@ import { Playground } from "./playground";
 import "./rete.css";
 import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
+import { redirect, usePathname, useSearchParams } from "next/navigation";
 // import { VersionHistory } from "./components/version-history";
 
 const PlaygroundPage = async (props: {
@@ -21,6 +22,7 @@ const PlaygroundPage = async (props: {
     executionId: props.searchParams.execution,
     published: false,
   });
+  
   if (!workflow) return <div>Not found</div>;
   return (
     <div className="border-t-1 border-red-400">

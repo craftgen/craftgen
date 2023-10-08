@@ -89,6 +89,7 @@ export function CustomNode(props: Props<Schemes>) {
     setWorkflowExecutionId,
   } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
+  const status = useSelector(props.data.actor, (state) => state.status);
 
   sortByIndex(inputs);
   sortByIndex(outputs);
@@ -130,6 +131,14 @@ export function CustomNode(props: Props<Schemes>) {
     await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
+    console.log({ workflowExecutionId, status });
+    if (status === "done") {
+      toast({
+        title: "Error",
+        description: "Actor is stopped",
+      });
+      return;
+    }
     if (!workflowExecutionId) {
       const nodes = di?.editor.getNodes().map((n) => {
         return {
@@ -336,6 +345,7 @@ export function CustomNode(props: Props<Schemes>) {
                 <Button
                   ref={ref2}
                   onClick={triggerNode}
+                  disabled={!state.matches("idle")}
                   variant={"ghost"}
                   size="icon"
                 >
@@ -345,7 +355,7 @@ export function CustomNode(props: Props<Schemes>) {
                       className="animate-spin text-green-400"
                     />
                   )}
-                  <Play size={14} />
+                  {state.matches("idle") && <Play size={14} />}
                   {state.matches("complete") && (
                     <CheckCircle size={14} className="text-green-400" />
                   )}

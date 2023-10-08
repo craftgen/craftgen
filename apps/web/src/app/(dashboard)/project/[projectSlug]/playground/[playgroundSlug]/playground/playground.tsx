@@ -13,7 +13,13 @@ import {
   saveNode,
   savePlaygroundLayout,
 } from "../action";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import {
+  redirect,
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { createCraftStore } from "./store";
 import { CraftContext, useCraftStore } from "./use-store";
 import { debounce } from "lodash-es";
@@ -54,6 +60,7 @@ import { ResultOfAction } from "@/lib/type";
 import { LogsTab } from "./logs/logs-tab";
 import { Icons } from "@/components/icons";
 import { useTheme } from "next-themes";
+import { checkExecutionExist } from "./actions";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -127,7 +134,9 @@ export const Playground: React.FC<{
   const params = useParams();
   const searchParams = useSearchParams();
   const executionId = searchParams.get("execution");
+
   const { theme } = useTheme();
+  const pathname = usePathname();
   const router = useRouter();
   const store = useRef(
     createCraftStore({
@@ -146,16 +155,23 @@ export const Playground: React.FC<{
   );
 
   useEffect(() => {
-    const current = store.current.getState().workflowExecutionId;
-    if (current !== current) {
-      router.push(
-        `/${params.projectSlug}/${params.playgroundSlug}/playground?execution=${executionId}`
-      );
-      store.current.setState({
-        workflowExecutionId: executionId,
-      });
-    }
-  }, [executionId]);
+    const subb = store.current.subscribe(
+      (state) => state.workflowExecutionId,
+      async (workflowExecutionId) => {
+        console.log("running", workflowExecutionId);
+        const params = new URLSearchParams(searchParams);
+        if (workflowExecutionId) params.set("execution", workflowExecutionId);
+        if (!workflowExecutionId) params.delete("execution");
+        if (params.get("execution") === executionId) return;
+        if (params.get("execution") === workflow.execution?.id) {
+          params.delete("execution");
+        }
+        router.push(pathname + "?" + params.toString());
+      }
+    );
+    return subb;
+  }, []);
+
   const { layout, di, setTheme } = useStore(store.current);
   useEffect(() => {
     setTheme(theme || "light");

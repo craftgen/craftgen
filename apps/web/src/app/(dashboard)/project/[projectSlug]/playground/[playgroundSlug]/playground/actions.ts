@@ -1,6 +1,7 @@
 "use server";
 
-import { db } from "@seocraft/supabase/db";
+import { action } from "@/lib/safe-action";
+import { db, workflowExecution } from "@seocraft/supabase/db";
 import {
   OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,
@@ -23,6 +24,18 @@ const getApiKeyFromProject = async (projectId: string) => {
 
   return apiKey;
 };
+
+export const checkExecutionExist = action(
+  z.object({ executionId: z.string() }),
+  async ({ executionId }) => {
+    const execution = await db.query.workflowExecution.findFirst({
+      where: (workflowExecution, { eq }) =>
+        eq(workflowExecution.id, executionId),
+    });
+    if (!execution) throw new Error("Execution not found");
+    return execution;
+  }
+);
 
 import * as z from "zod";
 /**

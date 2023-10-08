@@ -137,6 +137,13 @@ export const getWorkflow = action(
             ],
             limit: 1,
             with: {
+              executions: {
+                where: (workflowExecution, { eq }) =>
+                  params.executionId
+                    ? eq(workflowExecution.id, params.executionId)
+                    : sql`false`,
+                limit: 1,
+              },
               edges: true,
               nodes: {
                 with: {
@@ -147,7 +154,7 @@ export const getWorkflow = action(
                             nodeExecutionData.workflowExecutionId,
                             params.executionId
                           )
-                        : sql`true`,
+                        : sql`false`,
                     limit: 1,
                     orderBy: (nodeExecutionData, { desc }) => [
                       desc(nodeExecutionData.createdAt),
@@ -173,6 +180,7 @@ export const getWorkflow = action(
         currentVersion:
           workflow.versions.length > 0 ? workflow.versions[0].version : 0,
         version: workflow.versions[0],
+        execution: workflow?.versions[0]?.executions[0],
         readonly,
       };
     });
