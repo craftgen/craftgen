@@ -299,5 +299,9 @@ export const getControlBySocket = (
         change: onChange,
       });
     })
-    .run();
+    .otherwise(() => {
+      return new InputControl(value, {
+        change: onChange,
+      });
+    });
 };

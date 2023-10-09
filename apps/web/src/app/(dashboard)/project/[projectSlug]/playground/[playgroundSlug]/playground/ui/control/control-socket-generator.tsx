@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { UseFieldArrayAppend, useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,6 +27,14 @@ import {
   SocketGeneratorControl,
   formSchema,
 } from "../../controls/socket-generator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;
@@ -110,107 +118,134 @@ export function SocketGeneratorControlComponent(props: {
           )}
         />
         <ScrollArea className="max-h-fit py-4 flex flex-col">
-          {fields.map((field, index) => (
-            <div
-              key={`field.${index}`}
-              className="flex flex-col border p-2 relative @container rounded shadow mb-4"
-            >
-              <div className="absolute top-2 right-2">
-                <Button
-                  type={"button"}
-                  variant={"ghost"}
-                  onClick={() => handleRemove(index)}
-                >
-                  <X />
-                </Button>
-              </div>
-              <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
-                <FormField
-                  control={form.control}
-                  name={`sockets.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="seocraft" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This is your public display name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`sockets.${index}.type`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        defaultValue={field.value}
+          <Accordion type="multiple">
+            {fields.map((field, index) => (
+              <AccordionItem value={`field.${index}`} key={`field.${index}`}>
+                <AccordionTrigger>
+                  <Badge>{field.type}</Badge>
+                  {field.name}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-col border p-2 relative @container rounded shadow mb-4">
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        type={"button"}
+                        variant={"ghost"}
+                        onClick={() => handleRemove(index)}
                       >
-                        <FormControl>
-                          <SelectTrigger className="min-w-fit">
-                            <SelectValue placeholder="Select type for field" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {types?.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>This is type for field.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`sockets.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Description for the field"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        This is your public display name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`sockets.${index}.required`}
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          className="mx-4"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Required</FormLabel>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          ))}
+                        <X />
+                      </Button>
+                    </div>
+                    <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
+                      <FormField
+                        control={form.control}
+                        name={`sockets.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="seocraft"
+                                {...field}
+                                autoComplete="false"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              This is your public display name.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`sockets.${index}.type`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Type</FormLabel>
+                            <Select
+                              value={field.value}
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                              }}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="min-w-fit">
+                                  <SelectValue placeholder="Select type for field" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {types?.map((type) => (
+                                  <SelectItem key={type} value={type}>
+                                    {type}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              This is type for field.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`sockets.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Description for the field"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Description for the field.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`sockets.${index}.required`}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Required</FormLabel>
+                              <FormDescription>
+                                Make this field required.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                          // <FormItem className="flex items-center space-y-0">
+                          //   <FormControl>
+                          //     <Checkbox
+                          //       className="mx-4"
+                          //       checked={field.value}
+                          //       onCheckedChange={field.onChange}
+                          //     />
+                          //   </FormControl>
+                          //   <FormLabel>Required</FormLabel>
+                          //   <FormMessage />
+                          // </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </ScrollArea>
         <Button type="button" onClick={handleAppend}>
           Add Input
@@ -219,3 +254,109 @@ export function SocketGeneratorControlComponent(props: {
     </Form>
   );
 }
+
+const FieldItem: React.FC<{
+  index: number;
+  handleRemove: (index: number) => void;
+}> = ({ index, handleRemove }) => {
+  const form = useFormContext();
+  console.log(form);
+  return (
+    <div
+      key={`field.${index}`}
+      className="flex flex-col border p-2 relative @container rounded shadow mb-4"
+    >
+      <div className="absolute top-2 right-2">
+        <Button
+          type={"button"}
+          variant={"ghost"}
+          onClick={() => handleRemove(index)}
+        >
+          <X />
+        </Button>
+      </div>
+      <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
+        <FormField
+          control={form.control}
+          name={`sockets.${index}.name`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="seocraft" {...field} autoComplete="false" />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`sockets.${index}.type`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Type</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="min-w-fit">
+                    <SelectValue placeholder="Select type for field" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {types?.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>This is type for field.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`sockets.${index}.description`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="Description for the field" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`sockets.${index}.required`}
+          render={({ field }) => (
+            <FormItem className="flex items-center space-y-0">
+              <FormControl>
+                <Checkbox
+                  className="mx-4"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormLabel>Required</FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+};
