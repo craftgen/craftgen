@@ -161,7 +161,7 @@
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
-    "xstate": "5.0.0-beta.30",
+    "xstate": "5.0.0-beta.33",
     "zod": "^3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
