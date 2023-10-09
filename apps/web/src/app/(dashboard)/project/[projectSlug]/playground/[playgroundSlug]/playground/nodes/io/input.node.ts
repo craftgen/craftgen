@@ -1,7 +1,6 @@
 import { assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
-import { ClassicPreset } from "rete";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
@@ -114,11 +113,11 @@ export const InputNodeMachine = createMachine({
       },
     },
     complete: {
-      output: ({ context }) => ({
-        outputs: context.outputs,
-      }),
+      type: "final",
+      output: ({ context }) => context.outputs,
     },
   },
+  output: ({ context }) => context.outputs,
 });
 
 export class InputNode extends BaseNode<typeof InputNodeMachine> {

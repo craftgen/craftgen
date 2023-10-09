@@ -1,7 +1,6 @@
 import { createMachine, assign } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
-import { ClassicPreset } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import {
   JSONSocket,
@@ -9,16 +8,38 @@ import {
 } from "../../controls/socket-generator";
 import { createJsonSchema } from "../../utils";
 import { Input } from "../../input-output";
+import { merge } from "lodash-es";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "OutputNode",
+  context: ({ input }) =>
+    merge(
+      {
+        name: "Output",
+        description: "",
+        inputSockets: [],
+        inputs: {},
+        outputs: {},
+        schema: {},
+      },
+      input
+    ),
   types: {} as {
+    input: {
+      name: string;
+      description: string;
+      inputSockets: JSONSocket[];
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+      schema: any;
+    };
     context: {
       name: string;
       description: string;
-      inputs: JSONSocket[];
-      values: {};
+      inputSockets: JSONSocket[];
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
       schema: any;
     };
     events:
@@ -26,19 +47,16 @@ const OutputNodeMachine = createMachine({
           type: "CHANGE";
           name: string;
           description: string;
-          inputs: JSONSocket[];
+          inputSockets: JSONSocket[];
         }
       | {
           type: "SET_VALUE";
           values: Record<string, any>;
+        }
+      | {
+          type: "RUN";
+          inputs: Record<string, any>;
         };
-  },
-  context: {
-    name: "output",
-    description: "",
-    inputs: [],
-    values: {},
-    schema: {},
   },
   initial: "idle",
   states: {
@@ -49,20 +67,28 @@ const OutputNodeMachine = createMachine({
       on: {
         SET_VALUE: {
           actions: assign({
-            values: ({ event }) => event.values,
+            inputs: ({ event }) => event.values,
+            outputs: ({ event }) => event.values,
           }),
         },
         CHANGE: {
           target: "idle",
           actions: assign({
-            inputs: ({ event }) => event.inputs,
+            inputSockets: ({ event }) => event.inputSockets,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
           }),
           reenter: true,
         },
+        RUN: {
+          target: "complete",
+          actions: assign({
+            outputs: ({ event }) => event.inputs,
+          }),
+        },
       },
     },
+    complete: {},
   },
 });
 
@@ -71,13 +97,15 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
     super("OutputNode", di, data, OutputNodeMachine, {
       actions: {
         create_schema: assign({
-          schema: ({ context }) => createJsonSchema(context.inputs),
+          schema: ({ context }) => {
+            console.trace("create schema", context.inputSockets);
+            return createJsonSchema(context.inputSockets);
+          },
         }),
       },
     });
     const state = this.actor.getSnapshot();
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
-
     const inputGenerator = new SocketGeneratorControl({
       connectionType: "input",
       name: "Input Sockets",
@@ -86,14 +114,14 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.inputs,
+        sockets: state.context.inputSockets,
       },
       onChange: ({ sockets, name, description }) => {
         this.actor.send({
           type: "CHANGE",
           name,
           description,
-          inputs: sockets,
+          inputSockets: sockets,
         });
       },
     });
@@ -107,7 +135,7 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
 
   process() {
     const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.inputs as JSONSocket[];
+    const rawTemplate = state.context.inputSockets as JSONSocket[];
 
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
@@ -129,25 +157,9 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addInput(
-        item.name,
-        new Input(socket, item.name, false)
-      );
+      this.addInput(item.name, new Input(socket, item.name, false));
     }
   }
-
-  // execute(_: any, forward: (output: "trigger") => void) {
-  //   const state = this.actor.getSnapshot();
-  //   console.log(`${state.context.name} Output execute`, state.context.value);
-  //   // forward("trigger");
-  // }
-
-  // async nodeData(inputs: any) {
-  //   console.log("Output data", inputs);
-  //   return {
-  //     value: inputs["value"],
-  //   };
-  // }
 
   async serialize() {
     return {};

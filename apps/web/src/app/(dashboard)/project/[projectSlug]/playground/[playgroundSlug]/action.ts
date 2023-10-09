@@ -160,11 +160,7 @@ export const getWorkflow = action(
                       desc(nodeExecutionData.createdAt),
                     ],
                   },
-                  context: {
-                    columns: {
-                      state: true,
-                    },
-                  },
+                  context: true,
                 },
               },
             },
@@ -251,6 +247,7 @@ export const saveNode = action(
     data: z.object({
       id: z.string(),
       contextId: z.string(),
+      context: z.string().transform((val) => JSON.parse(val)),
       type: z.custom<NodeTypes>(),
       width: z.number(),
       height: z.number(),
@@ -265,6 +262,24 @@ export const saveNode = action(
   async (params): Promise<void> => {
     console.log("saveNode", params);
     await db.transaction(async (tx) => {
+      const [contextOfTheNode] = await tx
+        .select()
+        .from(context)
+        .where(eq(context.id, params.data.contextId))
+        .limit(1);
+      /// This is happens when user deletes the node and then tries to undo it.
+      if (!contextOfTheNode) {
+        // reincarnate the context
+        const [contextUnit] = await tx
+          .insert(context)
+          .values({
+            id: params.data.contextId,
+            project_id: params.projectId,
+            type: params.data.type,
+            state: {},
+          })
+          .returning();
+      }
       await tx
         .insert(workflowNode)
         .values({
@@ -337,7 +352,7 @@ export const deleteNode = action(
           )
         )
         .returning();
-      await tx.delete(context).where(eq(context.id, node.contextId));
+      await tx.delete(context).where(eq(context.id, node.contextId)); // TODO: soft delete
     });
   }
 );
@@ -455,6 +470,7 @@ export const setContext = action(
     state: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
+    console.log("SET CONTEXT", params);
     return await db
       .update(context)
       .set({ state: params.state as any })

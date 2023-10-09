@@ -191,10 +191,10 @@ const OpenAIFunctionCallMachine = createMachine({
       },
     },
     complete: {
-      type: "final",
-      output: ({ context }) => context.outputs,
+      type: 'final'
     },
   },
+  // output: ({ context }) => context.outputs,
 });
 
 export class OpenAIFunctionCall extends BaseNode<
@@ -246,10 +246,7 @@ export class OpenAIFunctionCall extends BaseNode<
         }),
       },
     });
-    this.addInput(
-      "trigger",
-      new Input(triggerSocket, "Exec", true)
-    );
+    this.addInput("trigger", new Input(triggerSocket, "Exec", true));
     const state = this.actor.getSnapshot();
 
     this.addOutput("trigger", new Output(triggerSocket, "Exec"));
@@ -399,10 +396,7 @@ export class OpenAIFunctionCall extends BaseNode<
     }
     if (state.context.settings.resultType === "json") {
       if (this.inputs?.schema) return;
-      this.addInput(
-        "schema",
-        new Input(objectSocket, "Schema", true)
-      );
+      this.addInput("schema", new Input(objectSocket, "Schema", true));
     } else {
       if (this.inputs?.schema) {
         this.removeInput("schema");

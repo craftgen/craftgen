@@ -441,6 +441,7 @@ export function CustomNode(props: Props<Schemes>) {
               {JSON.stringify(
                 {
                   state: state,
+                  node: props.data.nodeData,
                   size: props.data.size,
                 },
                 null,

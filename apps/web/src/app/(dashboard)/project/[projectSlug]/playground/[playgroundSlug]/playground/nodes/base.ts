@@ -88,7 +88,7 @@ export class BaseNode<
     this.id = nodeData.id;
     this.di = di;
     const a = this.machine.provide(this.machineImplements as any);
-    console.log(this.identifier, "CREATING ACTOR", this.nodeData.context.state);
+    console.log(this.identifier, "CREATING ACTOR", this.nodeData);
     const store = this.di.store.getState();
     console.log(this.identifier, "STORE", store);
 
@@ -109,11 +109,15 @@ export class BaseNode<
     }
 
     const saveDebounced = debounce((state: string) => {
-      setContext({ contextId: this.contextId, state });
+      setContext({
+        contextId: this.contextId,
+        state,
+      });
     }, 1000);
 
     let prev = this.actor.getSnapshot();
     this.actor.subscribe(async (state) => {
+      console.log(this.identifier, "STATE", state);
       this.state = state.value as any;
       if (
         !isEqual(prev.context.outputs, state.context.outputs) &&
@@ -124,7 +128,6 @@ export class BaseNode<
       }
 
       prev = state;
-
       if (!this.di.readonly?.enabled) {
         saveDebounced(JSON.stringify(state.context));
       }
@@ -133,7 +136,28 @@ export class BaseNode<
     this.actor.start();
   }
 
-  private setActor() {}
+  private async setActor() {
+    const a = this.machine.provide(this.machineImplements as any);
+    console.log(this.identifier, "CREATING ACTOR", this.nodeData);
+    const store = this.di.store.getState();
+    console.log(this.identifier, "STORE", store);
+
+    if (this.nodeData?.nodeExectutions?.length > 0) {
+      this.actor = createActor(a, {
+        id: this.contextId,
+        state: this.nodeData.nodeExectutions[0].state,
+      });
+    } else {
+      this.actor = createActor(a, {
+        id: this.contextId,
+        ...(this.nodeData?.context?.state !== null && {
+          input: {
+            ...this.nodeData.context.state,
+          },
+        }),
+      });
+    }
+  }
 
   public async updateAncestors() {
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete

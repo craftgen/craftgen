@@ -74,6 +74,7 @@ const LogNodeMachine = createMachine({
     },
     error: {},
   },
+  output: ({ context }) => context.outputs,
 });
 
 export class Log extends BaseNode<typeof LogNodeMachine> {

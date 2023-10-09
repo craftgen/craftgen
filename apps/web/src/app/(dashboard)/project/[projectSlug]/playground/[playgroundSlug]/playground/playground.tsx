@@ -365,6 +365,7 @@ const Composer: React.FC<{
               color: "default",
               label: data.label,
               contextId: data.contextId,
+              context: JSON.stringify(data.actor.getSnapshot().context),
               position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
               ...size,
             },

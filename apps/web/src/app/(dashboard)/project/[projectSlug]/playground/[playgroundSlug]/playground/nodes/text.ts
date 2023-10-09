@@ -1,4 +1,3 @@
-import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
 import { BaseNode, NodeData } from "./base";
 import { assign, createMachine } from "xstate";
