@@ -41,12 +41,12 @@ export class SocketGeneratorControl extends BaseControl {
 }
 
 export const socketSchema = z.object({
-  name: z.string().min(1).max(4),
+  name: z.string().min(1),
   type: z.enum(types),
   description: z.string().optional(),
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
-  required: z.boolean().default(false).optional(),
+  required: z.boolean().default(false),
 });
 
 export const formSchema = z.object({

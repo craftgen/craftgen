@@ -97,15 +97,17 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
     super("OutputNode", di, data, OutputNodeMachine, {
       actions: {
         create_schema: assign({
-          schema: ({ context }) => {
-            console.trace("create schema", context.inputSockets);
-            return createJsonSchema(context.inputSockets);
-          },
+          schema: ({ context }) => createJsonSchema(context.inputSockets),
         }),
       },
     });
     const state = this.actor.getSnapshot();
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
+    console.log("INITIAL", {
+      name: state.context.name,
+      description: state.context.description,
+      sockets: state.context.inputSockets,
+    });
     const inputGenerator = new SocketGeneratorControl({
       connectionType: "input",
       name: "Input Sockets",
@@ -117,6 +119,7 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
         sockets: state.context.inputSockets,
       },
       onChange: ({ sockets, name, description }) => {
+        console.log("CHANGED", { sockets, name, description });
         this.actor.send({
           type: "CHANGE",
           name,

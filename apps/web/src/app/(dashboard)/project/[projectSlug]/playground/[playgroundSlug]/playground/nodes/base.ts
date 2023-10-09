@@ -212,7 +212,9 @@ export class BaseNode<
       },
       complete: async () => {
         console.log(this.identifier, "finito");
-        forward("trigger");
+        if (this.outputs.trigger) {
+          forward("trigger");
+        }
         const snap = this.actor.getSnapshot();
         await updateExecutionNode({
           id: executionState?.id,

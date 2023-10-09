@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { UseFieldArrayAppend, useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { types } from "../../sockets";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,9 +59,20 @@ export function SocketGeneratorControlComponent(props: {
     const fieldsValue = form.getValues();
     props.data.setValue(fieldsValue);
   };
-  useEffect(() => {
+  const handleAppend = () => {
+    append({
+      name: "",
+      type: "string",
+      description: "",
+      required: true,
+    });
     onSubmit();
-  }, [fields.length]);
+  };
+  const handleRemove = (index: number) => {
+    remove(index);
+    onSubmit();
+  };
+
   return (
     <Form {...form}>
       <form
@@ -108,7 +119,7 @@ export function SocketGeneratorControlComponent(props: {
                 <Button
                   type={"button"}
                   variant={"ghost"}
-                  onClick={() => remove(index)}
+                  onClick={() => handleRemove(index)}
                 >
                   <X />
                 </Button>
@@ -201,10 +212,7 @@ export function SocketGeneratorControlComponent(props: {
             </div>
           ))}
         </ScrollArea>
-        <Button
-          type="button"
-          onClick={() => append({ name: "", type: "string", description: "" })}
-        >
+        <Button type="button" onClick={handleAppend}>
           Add Input
         </Button>
       </form>
