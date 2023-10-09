@@ -41,7 +41,7 @@ import { Input } from "@/components/ui/input";
 import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState } from "react";
-import { createExecution } from "../../action";
+import { createExecution, updateNodeMeta } from "../../action";
 import { Label } from "@/components/ui/label";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -77,7 +77,7 @@ export function CustomNode(props: Props<Schemes>) {
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
-  const { id, label } = props.data;
+  const { id } = props.data;
   const {
     di,
     workflowId,
@@ -276,6 +276,19 @@ export function CustomNode(props: Props<Schemes>) {
     [size]
   );
 
+  useDebounce(
+    async () => {
+      if (props.data.label !== props.data.nodeData.label) {
+        await updateNodeMeta({
+          id: props.data.id,
+          label: props.data.label,
+        });
+      }
+    },
+    1000,
+    [props.data.label]
+  );
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -310,8 +323,9 @@ export function CustomNode(props: Props<Schemes>) {
                 <NodeIcon className="w-5 h-5" />
                 {editLabel ? (
                   <Input
-                    value={label}
-                    onChange={(v) => console.log(v.bubbles)}
+                    defaultValue={props.data.label}
+                    autoFocus
+                    onChange={(v) => props.data.setLabel(v.target.value)}
                   />
                 ) : (
                   <Drag.NoDrag>
@@ -322,7 +336,7 @@ export function CustomNode(props: Props<Schemes>) {
                         setEditLabel(true);
                       }}
                     >
-                      {label}{" "}
+                      {props.data.label}{" "}
                       {props.data.action ? (
                         <span className="text-muted-foreground ml-2 text-sm">
                           {"/"}
@@ -504,30 +518,6 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
         nodeId={id}
         payload={{ socket: input.socket, input } as any}
       />
-      {/* {input && (
-        <Badge
-          className={cn("-translate-x-2", config?.badge)}
-          data-testid="input-title"
-          variant={"default"}
-        >
-          {input?.label}
-        </Badge>
-      )} */}
-      {/* {input?.control && input?.showControl && (
-        <span className="input-control flex items-center @lg:block hidden">
-          <Badge className="-translate-x-2" variant={"secondary"}>
-            {input.label}
-          </Badge>
-          <div className="mr-2">
-            <RefControl
-              key={inputKey}
-              name="input-control"
-              emit={emit}
-              payload={input.control}
-            />
-          </div>
-        </span>
-      )} */}
     </div>
   );
 };

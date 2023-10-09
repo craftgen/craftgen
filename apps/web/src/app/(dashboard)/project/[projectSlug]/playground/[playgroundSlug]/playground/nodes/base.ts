@@ -373,6 +373,10 @@ export class BaseNode<
     });
   }
 
+  async setLabel(label: string) {
+    this.label = label;
+  }
+
   /**
    * This function waits for the actor's state to match a given state value.
    * It subscribes to the actor's state changes and checks if the new state matches the given state value.

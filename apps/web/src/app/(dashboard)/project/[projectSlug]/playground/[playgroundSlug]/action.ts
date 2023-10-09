@@ -228,6 +228,7 @@ export const updateNodeMeta = async (params: {
   id: string;
   position?: { x: number; y: number };
   size?: { width: number; height: number };
+  label?: string;
 }): Promise<void> => {
   console.log("nodeMeta", params);
   await db
@@ -235,6 +236,7 @@ export const updateNodeMeta = async (params: {
     .set({
       ...(params.size && params.size),
       ...(params.position && { position: params.position }),
+      ...(params.label && { label: params.label }),
     })
     .where(eq(workflowNode.id, params.id));
 };
