@@ -47,7 +47,7 @@ export const nodes = {
 } as const;
 
 export const nodesMeta: Record<
-  keyof typeof nodes,
+  NodeTypes,
   {
     name: string;
     description: string;

@@ -9,14 +9,23 @@ import { Button } from "@/components/ui/button";
 import { useCraftStore } from "../use-store";
 import { Trash } from "lucide-react";
 import Link from "next/link";
-import { useSearchParam } from "react-use";
 import { useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { NodeTypes, nodesMeta } from "../types";
+import { workflow } from "@seocraft/supabase/db";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
-  const searchParams = useSearchParams();
   const { data, error } = useSWR(
     "/api/executions",
     () =>
@@ -29,6 +38,23 @@ export const LogsTab: React.FC<{
     }
   );
   const di = useCraftStore((state) => state.di);
+
+  return (
+    <div className="p-4">
+      <h1>Logs</h1>
+      <Accordion type="multiple">
+        {data?.executions.map((execution) => (
+          <ExecutionItem key={execution.id} execution={execution} />
+        ))}
+      </Accordion>
+    </div>
+  );
+};
+
+type Execution = ResultOfAction<typeof getLogs>["executions"][number];
+
+const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
+  const searchParams = useSearchParams();
   const handleDeleteExecution = (executionId: string) => {
     deleteExecution({ executionId });
     mutate("/api/executions");
@@ -40,89 +66,98 @@ export const LogsTab: React.FC<{
     },
     [searchParams.get("execution")]
   );
-
   return (
-    <div className="p-4">
-      <h1>Logs</h1>
-      {data?.executions.map((execution) => (
-        <div key={execution.id}>
-          <Separator />
-          <div key={execution.id}>
-            <div className="flex w-full justify-between items-center">
-              <Link
-                href={`/${workflow.projectSlug}/${workflow.slug}/playground?execution=${execution.id}`}
-              >
-                <h3>{execution.id}</h3>
-                {isActiveView(execution.id) && (
-                  <div className="animate-pulse">Active</div>
-                )}
-              </Link>
-              <div>
-                <Button
-                  size={"icon"}
-                  variant={"destructive"}
-                  onClick={() => handleDeleteExecution(execution.id)}
-                >
-                  <Trash />
-                </Button>
-              </div>
-            </div>
-            <ul className="ml-4">
-              {execution.executionData.map((nodeData) => (
-                <li
-                  key={nodeData.id}
-                  className="my-2"
-                  onMouseOver={() => {
-                    di?.areaControl?.nodeSelector?.select(
-                      nodeData.workflowNodeId,
-                      false
-                    );
-                    di?.areaControl?.zoomAtNodes([nodeData.workflowNodeId]);
-                  }}
-                  onMouseOut={() => {
-                    di?.areaControl?.nodeSelector?.unselect(
-                      nodeData.workflowNodeId
-                    );
-                    di?.areaControl?.zoomAtNodes();
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-bold">
-                      {nodeData.type} || {nodeData.state.status}
-                    </h2>
-                    <div></div>
-                  </div>
-                  <div className="grid grid-cols-2">
-                    <div>
-                      <code className="break-all">
-                        {JSON.stringify(nodeData.state.context.inputs, null, 2)}
-                      </code>
-                      <code>
-                        {JSON.stringify(
-                          nodeData.state.context.settings,
-                          null,
-                          2
-                        )}
-                      </code>
-                    </div>
-                    <div>
-                      <code>
-                        {JSON.stringify(
-                          nodeData.state.context.outputs,
-                          null,
-                          2
-                        )}
-                      </code>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+    <AccordionItem value={execution.id}>
+      <AccordionTrigger>
+        <div className="flex w-full justify-between items-center">
+          <Link href={execution.url}>
+            <h3>{execution.id}</h3>
+          </Link>
+          {isActiveView(execution.id) && (
+            <div className="animate-pulse">Active</div>
+          )}
+          <div>
+            <Button
+              size={"icon"}
+              variant={"ghost"}
+              onClick={() => handleDeleteExecution(execution.id)}
+            >
+              <Trash className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="border p-2">
+          <ul className="ml space-y-2">
+            {execution.executionData.map((nodeData) => (
+              <ExecutionNodeItem key={nodeData.id} nodeData={nodeData} />
+            ))}
+          </ul>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+type NodeState = Execution["executionData"][number];
+
+const ExecutionNodeItem: React.FC<{
+  nodeData: NodeState;
+}> = ({ nodeData }) => {
+  const nodeName = useMemo(() => {
+    const type = nodeData.type as NodeTypes;
+    return nodesMeta[type].name;
+  }, [nodeData.type]);
+  return (
+    <li key={nodeData.id} className="my-2 p-2 rounded border">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold">{nodeName}</h2>
+        <div>
+          <Badge
+            className={cn(
+              "ml-2",
+              nodeData.state.status === "done" && "bg-green-400"
+            )}
+          >
+            {nodeData.state.status}
+          </Badge>
+        </div>
+      </div>
+      <div className="grid grid-cols-2">
+        <div>
+          <LogsTable record={nodeData.state.context.inputs} />
+          <LogsTable record={nodeData.state.context?.settings || {}} />
+        </div>
+        <div>
+          <LogsTable record={nodeData.state.context.outputs} />
+        </div>
+      </div>
+    </li>
+  );
+};
+
+const LogsTable: React.FC<{ record: Record<string, any> }> = ({ record }) => {
+  const columns = React.useMemo(() => {
+    return Object.keys(record).map((key) => ({
+      Header: key,
+      accessor: key,
+    }));
+  }, [record]);
+  return (
+    <div className="grid gap-2">
+      {columns.map((column) => (
+        <div className="flex flex-row even:bg-muted" key={column.accessor}>
+          <div className="font-bold min-w-[6rem]">{column.Header}</div>
+          <div className="flex-1">
+            {typeof record[column.accessor] === "string" ? (
+              <div>{record[column.accessor]}</div>
+            ) : (
+              <code>{JSON.stringify(record[column.accessor], null, 2)}</code>
+            )}
           </div>
         </div>
       ))}
-
-      {/* {JSON.stringify(data, null, 2)} */}
     </div>
   );
 };

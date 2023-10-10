@@ -1,7 +1,13 @@
 "use server";
 
 import { action } from "@/lib/safe-action";
-import { db, eq, workflowExecution } from "@seocraft/supabase/db";
+import {
+  db,
+  eq,
+  sql,
+  workflow,
+  workflowExecution,
+} from "@seocraft/supabase/db";
 import { z } from "zod";
 
 export const getLogs = action(
@@ -11,6 +17,18 @@ export const getLogs = action(
       where: (workflowVersion, { eq }) =>
         eq(workflowVersion.id, params.workflowVersionId),
       with: {
+        workflow: {
+          with: {
+            project: {
+              columns: {
+                slug: true,
+              },
+            },
+          },
+          columns: {
+            slug: true,
+          },
+        },
         executions: {
           with: {
             steps: true,
@@ -22,8 +40,18 @@ export const getLogs = action(
         },
       },
     });
-
-    return a;
+    if (!a) {
+      throw new Error("Workflow not found");
+    }
+    return {
+      ...a,
+      executions: a?.executions.map((execution) => {
+        return {
+          url: `/${a.workflow.project.slug}/${a.workflow.slug}/playground?execution=${execution.id}`,
+          ...execution,
+        };
+      }),
+    };
   }
 );
 
