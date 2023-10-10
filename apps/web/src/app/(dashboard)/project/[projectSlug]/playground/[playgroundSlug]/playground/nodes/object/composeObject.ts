@@ -36,6 +36,7 @@ const composeObjectMachine = createMachine({
         name: "name",
         type: "string",
         description: "Name of the object",
+        required: true,
       },
     ],
     schema: {},
@@ -126,10 +127,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addInput(
-        item.name,
-        new Input(socket, item.name, false)
-      );
+      this.addInput(item.name, new Input(socket, item.name, false));
     }
   }
 
