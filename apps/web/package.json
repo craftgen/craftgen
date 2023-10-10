@@ -165,9 +165,15 @@
     "xstate": "5.0.0-beta.33",
     "zod": "^3.21.4",
     "zod-to-json-schema": "^3.21.4",
-    "zustand": "^4.3.9"
+    "zustand": "^4.3.9",
+    "@trigger.dev/sdk": "^2.1.9",
+    "@trigger.dev/nextjs": "^2.1.9",
+    "@trigger.dev/react": "^2.1.9"
   },
   "devDependencies": {
     "dotenv-cli": "^7.2.1"
+  },
+  "trigger.dev": {
+    "endpointId": "seocraft-4L3U"
   }
 }
