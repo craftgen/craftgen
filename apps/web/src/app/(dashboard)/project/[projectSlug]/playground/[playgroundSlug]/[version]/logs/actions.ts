@@ -47,7 +47,7 @@ export const getLogs = action(
       ...a,
       executions: a?.executions.map((execution) => {
         return {
-          url: `/${a.workflow.project.slug}/${a.workflow.slug}/playground?execution=${execution.id}`,
+          url: `/${a.workflow.project.slug}/${a.workflow.slug}/${a.version}?execution=${execution.id}`,
           ...execution,
         };
       }),

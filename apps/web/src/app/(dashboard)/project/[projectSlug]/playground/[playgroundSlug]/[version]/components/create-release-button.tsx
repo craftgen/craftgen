@@ -53,7 +53,7 @@ export const CreateReleaseButton = (props: {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"secondary"} size={"sm"} className="mx-2">
+        <Button  size={"sm"} className="mx-2">
           <RocketIcon className="w-4 h-4 mr-2" /> Release
         </Button>
       </DialogTrigger>

@@ -172,7 +172,12 @@ export const Playground: React.FC<{
     return subb;
   }, []);
 
-  const { layout, di, setTheme } = useStore(store.current);
+  const { layout, di, setTheme, setWorkflowExecutionId } = useStore(
+    store.current
+  );
+  useEffect(() => {
+    setWorkflowExecutionId(searchParams.get("execution"));
+  }, [searchParams.get("execution")]);
   useEffect(() => {
     setTheme(theme || "light");
   }, [theme]);

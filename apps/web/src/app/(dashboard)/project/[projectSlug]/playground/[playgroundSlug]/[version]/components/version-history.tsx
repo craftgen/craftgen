@@ -39,7 +39,7 @@ export const VersionHistory: React.FC<{
       </SelectTrigger>
       <SelectContent>
         {data?.data?.versions.map((version) => (
-          <SelectItem value={String(version.version)}>
+          <SelectItem key={version.id} value={String(version.version)}>
             v{version.version} {!version.publishedAt && "(Draft)"}
           </SelectItem>
         ))}

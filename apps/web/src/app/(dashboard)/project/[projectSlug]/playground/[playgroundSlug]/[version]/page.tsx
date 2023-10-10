@@ -4,6 +4,7 @@ import "./rete.css";
 import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
 import { VersionHistory } from "./components/version-history";
+import { RestoreVersionButton } from "./components/restore-version-button";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -30,10 +31,14 @@ const PlaygroundPage = async (props: {
         <MenubarDemo />
         <div className="flex space-x-2 items-center">
           <VersionHistory workflow={workflow} />
-          <CreateReleaseButton
-            playgroundId={workflow.id}
-            version={workflow.currentVersion}
-          />
+          {!workflow.version.publishedAt ? (
+            <CreateReleaseButton
+              playgroundId={workflow.id}
+              version={workflow.currentVersion}
+            />
+          ) : (
+            <RestoreVersionButton />
+          )}
         </div>
       </div>
       <Playground workflow={workflow} />
