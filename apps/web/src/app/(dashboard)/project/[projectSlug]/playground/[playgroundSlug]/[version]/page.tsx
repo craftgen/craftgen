@@ -28,11 +28,13 @@ const PlaygroundPage = async (props: {
     <div className="border-t-1 border-red-400">
       <div className="flex items-center w-full justify-between border-b-2 ">
         <MenubarDemo />
-        <VersionHistory workflow={workflow} />
-        <CreateReleaseButton
-          playgroundId={workflow.id}
-          version={workflow.currentVersion}
-        />
+        <div className="flex space-x-2 items-center">
+          <VersionHistory workflow={workflow} />
+          <CreateReleaseButton
+            playgroundId={workflow.id}
+            version={workflow.currentVersion}
+          />
+        </div>
       </div>
       <Playground workflow={workflow} />
     </div>

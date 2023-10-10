@@ -25,7 +25,8 @@ import { Input } from "@/components/ui/input";
 import { SocketNameType } from "../sockets";
 import { Play } from "lucide-react";
 import { createExecution } from "../../action";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { workflow } from "@seocraft/supabase/db";
 
 export const InputWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
@@ -103,6 +104,7 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
   });
 
   const router = useRouter();
+  const pathname = usePathname();
   const onSubmit = async (data: any) => {
     try {
       const nodes = input.di.editor.getNodes().map((n) => {
@@ -125,9 +127,8 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
       if (!execution) {
         throw new Error("Execution not created");
       }
-      router.push(
-        `/${projectSlug}/${workflowSlug}/playground?execution=${execution.id}`
-      );
+
+      router.push(`${pathname}?execution=${execution.id}`);
       // input.di.engine?.execute(input.id, undefined, execution?.id);
     } catch (e) {
       console.log(e);

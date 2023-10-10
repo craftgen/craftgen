@@ -18,37 +18,32 @@ export const VersionHistory: React.FC<{
 }> = ({ workflow }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-
-  const { data } = useSWR(open ? "/api/workflow/versions" : null, () =>
+  const { data, error } = useSWR("/api/workflow/versions", () =>
     getWorkflowVersions({
       projectSlug: workflow.projectSlug,
       workflowSlug: workflow.slug,
     })
   );
-  console.log(data);
-  console.log(workflow);
   const handleChange = (value: string) => {
     router.push(`/${workflow.projectSlug}/${workflow.slug}/${value}`);
   };
   return (
-    <div>
-      <Select
-        defaultValue={String(workflow.currentVersion)}
-        onValueChange={handleChange}
-        open={open}
-        onOpenChange={setOpen}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Select a version" />
-        </SelectTrigger>
-        <SelectContent>
-          {data?.data?.versions.map((version) => (
-            <SelectItem value={String(version.version)}>
-              v{version.version}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select
+      defaultValue={String(workflow.currentVersion)}
+      onValueChange={handleChange}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder="Select a version" />
+      </SelectTrigger>
+      <SelectContent>
+        {data?.data?.versions.map((version) => (
+          <SelectItem value={String(version.version)}>
+            v{version.version} {!version.publishedAt && "(Draft)"}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };

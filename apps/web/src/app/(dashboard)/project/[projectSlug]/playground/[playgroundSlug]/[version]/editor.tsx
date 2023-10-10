@@ -277,7 +277,7 @@ export async function createEditor(params: {
     nodes: params.workflow.versions[0].nodes, // TODO:
     edges: params.workflow.versions[0].edges as any, //TODO: fix this types.
   });
-  // await arrange.layout();
+  await arrange.layout();
 
   AreaExtensions.zoomAt(area, editor.getNodes());
 

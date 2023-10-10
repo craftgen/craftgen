@@ -277,7 +277,6 @@ export const getWorkflow = action(
         throw new Error("Playground not found");
       }
 
-      console.log(JSON.stringify(workflow, null, 2));
       const version = workflow?.versions[0];
       if (version && version.publishedAt) {
         readonly = true;
