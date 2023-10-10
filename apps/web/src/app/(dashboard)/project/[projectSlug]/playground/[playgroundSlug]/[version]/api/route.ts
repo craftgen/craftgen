@@ -17,6 +17,7 @@ export async function POST(
   const workflow = await getWorkflow({
     workflowSlug: params.playgroundSlug,
     projectSlug: params.projectSlug,
+    version: Number(params.version),
   });
   console.log("playground", workflow);
   if (!workflow.data) {
