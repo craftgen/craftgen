@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ResultOfAction } from "@/lib/type";
-import { createExecution, getWorkflow, getWorkflowMeta } from "../../action";
+import { getWorkflowMeta } from "../../action";
 import { useForm } from "react-hook-form";
 import { ajvResolver } from "@hookform/resolvers/ajv";
 import { ContextFrom } from "xstate";
@@ -19,7 +19,6 @@ import {
 import { Play } from "lucide-react";
 import { renderField } from "../../[version]/input/input-window";
 import { Button } from "@/components/ui/button";
-import { NodeTypes } from "../../[version]/types";
 import { useRouter } from "next/navigation";
 
 export const InputForm: React.FC<{
@@ -38,34 +37,34 @@ export const InputForm: React.FC<{
   const onSubmit = async (data: any) => {
     console.log(data);
     return;
-    try {
-      const nodes = workflow.version.nodes.map((n) => {
-        return {
-          id: n.id,
-          type: n.type as NodeTypes,
-          contextId: n.contextId,
-          state: JSON.stringify(n.context.state),
-        };
-      });
-      const { data: execution } = await createExecution({
-        workflowId: workflow.id,
-        workflowVersionId: workflow.version.id,
-        nodes,
-        input: {
-          id: inputs[0].id,
-          values: data,
-        },
-      });
-      if (!execution) {
-        throw new Error("Execution not created");
-      }
-      console.log(execution);
-      router.push(
-        `/${workflow.project.slug}/${workflow.slug}/playground?execution=${execution.id}`
-      );
-    } catch (e) {
-      console.log(e);
-    }
+    //   try {
+    //     const nodes = workflow.version.nodes.map((n) => {
+    //       return {
+    //         id: n.id,
+    //         type: n.type as NodeTypes,
+    //         contextId: n.contextId,
+    //         state: JSON.stringify(n.context.state),
+    //       };
+    //     });
+    //     const { data: execution } = await createExecution({
+    //       workflowId: workflow.id,
+    //       workflowVersionId: workflow.version.id,
+    //       nodes,
+    //       input: {
+    //         id: inputs[0].id,
+    //         values: data,
+    //       },
+    //     });
+    //     if (!execution) {
+    //       throw new Error("Execution not created");
+    //     }
+    //     console.log(execution);
+    //     router.push(
+    //       `/${workflow.project.slug}/${workflow.slug}/playground?execution=${execution.id}`
+    //     );
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
   };
 
   return (
