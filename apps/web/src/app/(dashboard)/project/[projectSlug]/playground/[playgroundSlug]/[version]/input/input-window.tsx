@@ -31,9 +31,8 @@ export const InputWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
 
   const inputs = useMemo(() => {
-    return (
-      di?.editor.getNodes().filter((node) => node instanceof InputNode) || []
-    );
+    return (di?.editor.getNodes().filter((node) => node instanceof InputNode) ||
+      []) as InputNode[];
   }, [di?.editor.getNodes()]);
   const [input, setInput] = useState<InputNode | null>(null);
 
@@ -43,11 +42,21 @@ export const InputWindow: React.FC<{}> = ({}) => {
     }
   }, [inputs]);
 
+  return <InputHandler inputs={inputs} input={input} setInput={setInput} />;
+};
+
+export const InputHandler: React.FC<{
+  inputs: InputNode[];
+  input: InputNode | null;
+  setInput: (input: InputNode | null) => void;
+}> = ({ inputs, input, setInput }) => {
   return (
     <div className="w-full h-full p-4 space-y-4">
       {inputs?.length > 0 ? (
         <Select
-          onValueChange={(v) => setInput(di?.editor.getNode(v) as InputNode)}
+          onValueChange={(v) =>
+            setInput(inputs.find((i) => i.id === v) as InputNode)
+          }
           defaultValue={inputs.length === 1 ? inputs[0].id : undefined}
         >
           <SelectTrigger>

@@ -4,7 +4,6 @@ import { ResultOfAction } from "@/lib/type";
 import { getWorkflow } from "../../action";
 import useSWR, { mutate } from "swr";
 import { deleteExecution, getLogs } from "./actions";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useCraftStore } from "../use-store";
 import { Trash } from "lucide-react";
@@ -15,7 +14,6 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { NodeTypes, nodesMeta } from "../types";
-import { workflow } from "@seocraft/supabase/db";
 import {
   Accordion,
   AccordionContent,
@@ -37,8 +35,6 @@ export const LogsTab: React.FC<{
       refreshInterval: 1000,
     }
   );
-  const di = useCraftStore((state) => state.di);
-
   return (
     <div className="p-4">
       <h1>Logs</h1>

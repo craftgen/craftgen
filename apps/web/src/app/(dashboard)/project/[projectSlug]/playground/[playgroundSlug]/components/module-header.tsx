@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { getWorkflow } from "../action";
+import type { getWorkflowMeta } from "../action";
 import { ResultOfAction } from "@/lib/type";
 import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";
@@ -14,15 +14,18 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 
 type ModuleHeaderProps = {
-  playground: ResultOfAction<typeof getWorkflow>;
+  workflow: ResultOfAction<typeof getWorkflowMeta>;
 };
 
-export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
+export const ModuleHeader = ({
+  workflow: workflow,
+  ...props
+}: ModuleHeaderProps) => {
   const segment = useSelectedLayoutSegment();
   const [state, copyToClipboard] = useCopyToClipboard();
   const moduleId = useMemo(() => {
-    return `${playground.project.slug}/${playground.slug}`;
-  }, [playground.project.slug, playground.slug]);
+    return `${workflow.project.slug}/${workflow.slug}`;
+  }, [workflow.project.slug, workflow.slug]);
   const router = useRouter();
   return (
     <section id="header">
@@ -30,14 +33,14 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
         <div className="flex">
           <h1 className="text-base sm:text-2xl flex space-x-1 items-center font-mono">
             <Link
-              href={`/${playground.project.slug}`}
+              href={`/${workflow.project.slug}`}
               className="text-muted-foreground"
             >
-              {playground.project.slug}
+              {workflow.project.slug}
             </Link>
             <Slash className="-rotate-12 text-muted-foreground" />
-            <Link href={`/${playground.project.slug}/${playground.slug}`}>
-              {playground.name}
+            <Link href={`/${workflow.project.slug}/${workflow.slug}`}>
+              {workflow.name}
             </Link>
           </h1>
           <Button
@@ -62,7 +65,7 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
             <Star className="w-4 h-4 mr-2" />
             Star
           </Button>
-          <Link href={`/${moduleId}/playground`}>
+          <Link href={`/${moduleId}/${workflow.version?.version}`}>
             <Button variant="outline">
               <Rocket className="w-4 h-4 mr-2" />
               Playground
@@ -73,25 +76,25 @@ export const ModuleHeader = ({ playground, ...props }: ModuleHeaderProps) => {
       <div className="space-y-2">
         <div className="flex  flex-row w-full text-sm h-5 space-x-2">
           <span className="mr-2 bg-muted rounded p-1 flex items-center font-mono">
-            v{playground.currentVersion}
+            v{workflow.version?.version}
           </span>
           <Separator orientation="vertical" />
           <Badge variant={"outline"}>
-            {playground.public ? "Public" : "Private"}
+            {workflow.public ? "Public" : "Private"}
           </Badge>
-          {playground.publishedAt && (
+          {workflow.publishedAt && (
             <>
               <Separator orientation="vertical" />
               <span>
                 Published{" "}
-                {formatDistanceToNow(playground.publishedAt, {
+                {formatDistanceToNow(workflow.publishedAt, {
                   addSuffix: true,
                 })}
               </span>
             </>
           )}
         </div>
-        <p className="line-clamp-1">{playground.description}</p>
+        <p className="line-clamp-1">{workflow.description}</p>
       </div>
 
       <Tabs

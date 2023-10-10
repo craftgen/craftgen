@@ -154,7 +154,7 @@ export const createPlayground = action(
 );
 
 export const deleteWorkflow = async ({ id }: { id: string }) => {
-  return await db.delete(workflow).where(eq(workflow.id, id));
+  return await db.delete(workflow).where(eq(workflow.id, id)).returning();
 };
 
 export const clonePlayground = async ({

@@ -119,7 +119,7 @@ export const workflowVersion = pgTable(
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     previousVersionId: text("previous_workflow_version_id"),
-    version: integer("version").notNull().default(0), // The version 0 is the latest version.
+    version: integer("version").notNull().default(0), 
     publishedAt: timestamp("published_at"),
     changeLog: text("change_log").default("Workin in progress"),
   },

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getWorkflow } from "../../action";
-import { createHeadlessEditor } from "../../playground/headless";
-import { ModuleNode } from "../../playground/nodes";
+import { createHeadlessEditor } from "../headless";
+import { ModuleNode } from "../nodes";
 
 export async function POST(
   request: Request,

@@ -19,7 +19,7 @@ import {
   shapeOfState,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import { ConnProps, NodeTypes, Position, nodesMeta } from "./playground/types";
+import { ConnProps, NodeTypes, Position, nodesMeta } from "./[version]/types";
 import * as FlexLayout from "flexlayout-react";
 import { action } from "@/lib/safe-action";
 import { z } from "zod";
@@ -63,8 +63,8 @@ export const getWorkflowVersions = action(
         },
         with: {
           versions: {
-            where: (workflowVersion, { eq, and, isNotNull }) =>
-              and(isNotNull(workflowVersion.publishedAt)),
+            // where: (workflowVersion, { eq, and, isNotNull }) =>
+            //   and(isNotNull(workflowVersion.publishedAt)),
             orderBy: (workflowVersion, { desc }) => [
               desc(workflowVersion.version),
             ],
@@ -75,11 +75,114 @@ export const getWorkflowVersions = action(
   }
 );
 
-export const getWorkflow = action(
+export const getWorkflowMeta = action(
   z.object({
     workflowSlug: z.string(),
     projectSlug: z.string(),
     version: z.number().optional(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const workflow = await tx.query.workflow.findFirst({
+        where: (workflow, { eq, and }) =>
+          and(
+            eq(workflow.slug, params.workflowSlug),
+            eq(workflow.projectSlug, params.projectSlug)
+          ),
+        with: {
+          project: true,
+        },
+      });
+      if (!workflow) {
+        throw new Error("Workflow not found");
+      }
+
+      let version;
+      if (params.version) {
+        version = await tx.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq, and }) =>
+            and(
+              eq(workflowVersion.workflowId, workflow?.id),
+              eq(workflowVersion.version, params.version!)
+            ),
+        });
+      } else {
+        version = await tx.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq, and, isNotNull }) =>
+            and(
+              eq(workflowVersion.workflowId, workflow?.id),
+              isNotNull(workflowVersion.publishedAt)
+            ),
+          orderBy: (workflowVersion, { desc }) => [
+            desc(workflowVersion.version),
+          ],
+        });
+      }
+
+      return {
+        ...workflow,
+        version,
+      };
+    });
+  }
+);
+
+export const getWorkflowInputOutput = action(
+  z.object({
+    workflowSlug: z.string(),
+    projectSlug: z.string(),
+    version: z.number(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      const workflow = await tx.query.workflow.findFirst({
+        where: (workflow, { eq, and }) =>
+          and(
+            eq(workflow.slug, params.workflowSlug),
+            eq(workflow.projectSlug, params.projectSlug)
+          ),
+        with: {
+          versions: {
+            where: (workflowVersion, { eq }) =>
+              eq(workflowVersion.version, params.version),
+            with: {
+              nodes: {
+                where: (workflowNode, { eq, or }) =>
+                  or(
+                    eq(workflowNode.type, "InputNode"),
+                    eq(workflowNode.type, "OutputNode")
+                  ),
+                with: {
+                  context: {
+                    columns: {
+                      state: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      const inputs = workflow?.versions[0]?.nodes.filter(
+        (node) => node.type === "InputNode"
+      );
+      const outputs = workflow?.versions[0]?.nodes.filter(
+        (node) => node.type === "OutputNode"
+      );
+      return {
+        inputs,
+        outputs,
+      };
+    });
+  }
+);
+
+export const getWorkflow = action(
+  z.object({
+    workflowSlug: z.string(),
+    projectSlug: z.string(),
+    version: z.number(),
     executionId: z.string().optional(),
     published: z.boolean().optional().default(true),
   }),
@@ -110,10 +213,12 @@ export const getWorkflow = action(
             )
           )
           .limit(1);
+
         if (isMember) {
           readonly = false;
         }
       }
+
       const workflow = await tx.query.workflow.findFirst({
         where: (workflow, { eq, and }) =>
           and(
@@ -124,14 +229,15 @@ export const getWorkflow = action(
           project: true,
           versions: {
             where: (workflowVersion, { and, eq, isNotNull }) =>
-              and(
-                params.version
-                  ? eq(workflowVersion.version, params.version)
-                  : sql`true`,
-                params.published
-                  ? isNotNull(workflowVersion.publishedAt)
-                  : sql`true`
-              ),
+              eq(workflowVersion.version, params.version),
+            // and(
+            //   params.version
+            //     ? eq(workflowVersion.version, params.version)
+            //     : sql`true`
+            //   // params.published
+            //   //   ? isNotNull(workflowVersion.publishedAt)
+            //   //   : sql`true`
+            // ),
             orderBy: (workflowVersion, { desc }) => [
               desc(workflowVersion.version),
             ],
@@ -171,11 +277,17 @@ export const getWorkflow = action(
         throw new Error("Playground not found");
       }
 
+      console.log(JSON.stringify(workflow, null, 2));
+      const version = workflow?.versions[0];
+      if (version && version.publishedAt) {
+        readonly = true;
+      }
+
       return {
         ...workflow,
         currentVersion:
           workflow.versions.length > 0 ? workflow.versions[0].version : 0,
-        version: workflow.versions[0],
+        version,
         execution: workflow?.versions[0]?.executions[0],
         readonly,
       };

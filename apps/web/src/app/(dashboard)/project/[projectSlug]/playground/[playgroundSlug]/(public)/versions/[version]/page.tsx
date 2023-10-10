@@ -1,6 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getWorkflow } from "../../../action";
+import { getWorkflow, getWorkflowMeta } from "../../../action";
 
 type Props = {
   params: {
@@ -15,7 +15,7 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { data: playground } = await getWorkflow({
+  const { data: playground } = await getWorkflowMeta({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
   });
@@ -27,15 +27,17 @@ export async function generateMetadata(
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
   // TODO: make amount we fetch configurable
-  const { data: playground } = await getWorkflow({
+  const { data: workflow } = await getWorkflowMeta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
+    version: Number(props.params.version),
   });
-  if (!playground) return <div>Not found</div>;
+  if (!workflow) return <div>Not found</div>;
   return (
     <div className="h-full flex flex-col">
-      <section className="grid grid-cols-2 divide-x">
-        Versions {props.params.version}
+      <section className="flex flex-col divide-y">
+        <h1 className="text-2xl">Version {workflow.version?.version}</h1>
+        <p>{workflow.version?.changeLog}</p>
       </section>
     </div>
   );

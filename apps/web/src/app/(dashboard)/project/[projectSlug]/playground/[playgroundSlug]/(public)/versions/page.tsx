@@ -5,6 +5,7 @@ import {
   getWorkflowVersions as getWorkflowWithVersions,
 } from "../../action";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 type Props = {
   params: {
@@ -21,6 +22,7 @@ export async function generateMetadata(
   const { data: playground } = await getWorkflow({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
+    version: Number(searchParams.version),
   });
 
   return {
@@ -33,17 +35,19 @@ const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
-  console.log(workflow)
   return (
     <div className="h-full flex flex-col">
       <section className="grid grid-cols-1 divide-y ">
         {workflow?.versions.map((version) => (
           <div className="p-2" key={version.id}>
-            <Link
-              href={`/${workflow.projectSlug}/${workflow.slug}/versions/${version.version}`}
-            >
-              <h2 className="text-mono">v{version.version}</h2>
-            </Link>
+            <div className="flex">
+              <Link
+                href={`/${workflow.projectSlug}/${workflow.slug}/versions/${version.version}`}
+              >
+                <h2 className="text-mono">v{version.version}</h2>
+              </Link>
+              {!version.publishedAt && <Badge variant={'outline'}>Canary</Badge>}
+            </div>
             <p className="text-muted-foreground">{version.changeLog}</p>
           </div>
         ))}

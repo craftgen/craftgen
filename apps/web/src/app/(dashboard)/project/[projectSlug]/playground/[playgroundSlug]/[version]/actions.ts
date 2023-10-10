@@ -1,7 +1,7 @@
 "use server";
 
 import { action } from "@/lib/safe-action";
-import { db, workflowExecution } from "@seocraft/supabase/db";
+import { db } from "@seocraft/supabase/db";
 import {
   OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,

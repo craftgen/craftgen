@@ -1,4 +1,4 @@
-import { getWorkflow } from "../action";
+import { getWorkflowMeta } from "../action";
 import { ModuleHeader } from "../components/module-header";
 
 const PlaygroundLayout = async (props: {
@@ -9,14 +9,14 @@ const PlaygroundLayout = async (props: {
   children: React.ReactNode;
 }) => {
   // TODO: make amount we fetch configurable
-  const { data: playground } = await getWorkflow({
+  const { data: playground } = await getWorkflowMeta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
   if (!playground) return <div>Not found</div>;
   return (
     <div className="max-w-7xl mx-auto py-2 sm:py-5 px-4">
-      <ModuleHeader playground={playground} />
+      <ModuleHeader workflow={playground} />
       {props.children}
     </div>
   );

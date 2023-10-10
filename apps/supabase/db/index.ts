@@ -1,17 +1,19 @@
-// import { drizzle } from "drizzle-orm/node-postgres";
-import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-// import { Pool } from "pg";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
+// import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
+// import postgres from "postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
 import { sql } from "drizzle-orm";
 export * from "./schema";
 import { Session } from "@supabase/supabase-js";
 import * as jose from "jose";
 
+
+// TODO: https://github.com/drizzle-team/drizzle-orm/issues/928#issuecomment-1739105895
 const connectionString = process.env.POSTGRES_URL;
-// const pool = new Pool({ connectionString: connectionString });
-const postgresSql = postgres(connectionString as string);
-export const db: PostgresJsDatabase<typeof schema> = drizzle(postgresSql, {
+const pool = new Pool({ connectionString: connectionString });
+// const postgresSql = postgres(connectionString as string);
+export const db = drizzle(pool, {
   schema,
   logger: false,
 });
@@ -19,7 +21,7 @@ export * from "drizzle-orm";
 
 export function authDB<T>(
   session: Session,
-  cb: (sql: PostgresJsDatabase) => T | Promise<T>
+  cb: (sql: NodePgDatabase) => T | Promise<T>
 ): Promise<T> {
   // You can add a validation here for the accessToken - we rely on supabase for now
   const jwtClaim = jose.decodeJwt(session.access_token);

@@ -27,7 +27,10 @@ import { mutate } from "swr";
 import { useProject } from "./hooks/use-project";
 import { useToast } from "@/components/ui/use-toast";
 import { useParams, useRouter } from "next/navigation";
-import { createPlayground as createWorkflow, checkSlugAvailable } from "./actions";
+import {
+  createPlayground as createWorkflow,
+  checkSlugAvailable,
+} from "./actions";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -178,7 +181,7 @@ export const WorkflowCreateDialog: React.FC<{
       description: "This may take a few seconds.",
     });
     await mutate(`/api/project/${project?.id}/playgrounds`);
-    router.push(`/${params.projectSlug}/${newPlayground.slug}/playground`);
+    router.push(`/${params.projectSlug}/${newPlayground.slug}/0`);
     form.reset();
     onOpenChange(false);
   };
