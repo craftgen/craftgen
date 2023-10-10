@@ -57,12 +57,13 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
           <h2 className="text-3xl font-bold">Output</h2>
           {/* {JSON.stringify(data?.outputs[0].context.state)} */}
           <div className="space-y-2 pt-4">
-            {Object.keys(output).map((o: any) => (
-              <div key={o} className="space-y-2">
-                <div className="font-bold">{o}</div>
-                <div className="bg-muted/40 p-2 rounded">{output[o]}</div>
-              </div>
-            ))}
+            {output &&
+              Object.keys(output).map((o: any) => (
+                <div key={o} className="space-y-2">
+                  <div className="font-bold">{o}</div>
+                  <div className="bg-muted/40 p-2 rounded">{output[o]}</div>
+                </div>
+              ))}
           </div>
           {/* <InputForm
             workflow={workflow}

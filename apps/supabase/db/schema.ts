@@ -119,7 +119,7 @@ export const workflowVersion = pgTable(
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     previousVersionId: text("previous_workflow_version_id"),
-    version: integer("version").notNull().default(0), 
+    version: integer("version").notNull().default(0),
     publishedAt: timestamp("published_at"),
     changeLog: text("change_log").default("Workin in progress"),
   },
@@ -340,7 +340,7 @@ export const nodeExecutionData = pgTable("node_execution_data", {
     .notNull()
     .references(() => workflowNode.id),
   type: text("type").notNull(),
-  state: json("state").$type<z.infer<typeof shapeOfState>>().notNull(),
+  state: json("state").$type<z.infer<typeof shapeOfState>>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),

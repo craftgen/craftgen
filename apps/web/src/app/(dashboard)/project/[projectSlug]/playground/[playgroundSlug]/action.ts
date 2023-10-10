@@ -742,7 +742,8 @@ export const createExecution = action(
           .transform(
             (val): z.infer<typeof shapeOfState> =>
               JSON.parse(val) as z.infer<typeof shapeOfState>
-          ),
+          )
+          .nullable(),
       })
     ),
     input: z

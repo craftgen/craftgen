@@ -73,7 +73,7 @@ export interface Database {
           duration: number | null
           id: string
           project_id: string
-          state: Json
+          state: Json | null
           type: string
           updated_at: string
           workflow_execution_id: string
@@ -88,7 +88,7 @@ export interface Database {
           duration?: number | null
           id: string
           project_id: string
-          state: Json
+          state?: Json | null
           type: string
           updated_at?: string
           workflow_execution_id: string
@@ -103,7 +103,7 @@ export interface Database {
           duration?: number | null
           id?: string
           project_id?: string
-          state?: Json
+          state?: Json | null
           type?: string
           updated_at?: string
           workflow_execution_id?: string

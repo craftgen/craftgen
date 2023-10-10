@@ -134,18 +134,18 @@ export function CustomNode(props: Props<Schemes>) {
     console.log({ workflowExecutionId, status });
     if (status === "done") {
       toast({
-        title: "Error",
-        description: "Actor is stopped",
+        title: "Creating new execution",
+        description: "",
       });
-      return;
+      // return;
     }
-    if (!workflowExecutionId) {
+    if (!workflowExecutionId || status === "done") {
       const nodes = di?.editor.getNodes().map((n) => {
         return {
           id: n.id,
           type: n.ID,
           contextId: n.contextId,
-          state: JSON.stringify(n.actor.getSnapshot()),
+          state: null,
         };
       });
       if (!nodes) {
@@ -160,6 +160,7 @@ export function CustomNode(props: Props<Schemes>) {
         throw new Error("Execution not created");
       }
       setWorkflowExecutionId(execution.id);
+      // di?.engine?.execute(props.data.id, undefined, execution.id);
     } else {
       di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
     }

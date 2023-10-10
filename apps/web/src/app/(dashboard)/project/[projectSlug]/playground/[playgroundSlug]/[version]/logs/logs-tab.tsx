@@ -113,20 +113,20 @@ const ExecutionNodeItem: React.FC<{
           <Badge
             className={cn(
               "ml-2",
-              nodeData.state.status === "done" && "bg-green-400"
+              nodeData?.state?.status === "done" && "bg-green-400"
             )}
           >
-            {nodeData.state.status}
+            {nodeData?.state?.status}
           </Badge>
         </div>
       </div>
       <div className="grid grid-cols-2">
         <div>
-          <LogsTable record={nodeData.state.context.inputs} />
-          <LogsTable record={nodeData.state.context?.settings || {}} />
+          <LogsTable record={nodeData?.state?.context?.inputs || {}} />
+          <LogsTable record={nodeData?.state?.context?.settings || {}} />
         </div>
         <div>
-          <LogsTable record={nodeData.state.context.outputs} />
+          <LogsTable record={nodeData?.state?.context?.outputs || {}} />
         </div>
       </div>
     </li>

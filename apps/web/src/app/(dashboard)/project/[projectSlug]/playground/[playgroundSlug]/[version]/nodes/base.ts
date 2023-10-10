@@ -70,6 +70,8 @@ export class BaseNode<
     [key in keyof Outputs]?: Output<Exclude<Outputs[key], undefined>>;
   } = {};
 
+  public isExecution: boolean;
+
   constructor(
     public readonly ID: NodeTypes,
     di: DiContainer,
@@ -93,10 +95,30 @@ export class BaseNode<
     console.log(this.identifier, "STORE", store);
 
     if (this.nodeData?.nodeExectutions?.length > 0) {
+      console.log(this.identifier, "CREATING ACTOR WITH STATE", {
+        ...(this.nodeData.nodeExectutions?.[0].state
+          ? {
+              state: this.nodeData.nodeExectutions[0].state,
+            }
+          : {
+              input: {
+                ...this.nodeData.context.state,
+              },
+            }),
+      });
       this.actor = createActor(a, {
         id: this.contextId,
-        state: this.nodeData.nodeExectutions[0].state,
+        ...(this.nodeData.nodeExectutions?.[0].state
+          ? {
+              state: this.nodeData.nodeExectutions[0].state,
+            }
+          : {
+              input: {
+                ...this.nodeData.context.state,
+              },
+            }),
       });
+      this.isExecution = true;
     } else {
       this.actor = createActor(a, {
         id: this.contextId,
@@ -106,6 +128,7 @@ export class BaseNode<
           },
         }),
       });
+      this.isExecution = false;
     }
 
     const saveDebounced = debounce((state: string) => {
@@ -129,7 +152,9 @@ export class BaseNode<
 
       prev = state;
       if (!this.di.readonly?.enabled) {
-        saveDebounced(JSON.stringify(state.context));
+        if (!this.isExecution) {
+          saveDebounced(JSON.stringify(state.context));
+        }
       }
     });
 

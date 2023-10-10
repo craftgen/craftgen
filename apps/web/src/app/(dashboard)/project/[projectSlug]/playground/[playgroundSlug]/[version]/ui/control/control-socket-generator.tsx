@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
 import { useEffect, useMemo } from "react";
-import { X } from "lucide-react";
+import { Trash2Icon, X } from "lucide-react";
 import { types } from "../../sockets";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -118,24 +118,25 @@ export function SocketGeneratorControlComponent(props: {
           )}
         />
         <ScrollArea className="max-h-fit py-4 flex flex-col">
-          <Accordion type="multiple">
+          <Accordion type="multiple" className="border rounded p-2">
             {fields.map((field, index) => (
               <AccordionItem value={`field.${index}`} key={`field.${index}`}>
                 <AccordionTrigger>
-                  <Badge>{field.type}</Badge>
-                  {field.name}
+                  <div className="flex items-center justify-between w-full">
+                    <Badge>{field.type}</Badge>
+                    {field.name || `Untitled Field`}
+                    <Button
+                      type={"button"}
+                      variant={"ghost"}
+                      onClick={() => handleRemove(index)}
+                    >
+                      <Trash2Icon className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col border p-2 relative @container rounded shadow mb-4">
-                    <div className="absolute top-2 right-2">
-                      <Button
-                        type={"button"}
-                        variant={"ghost"}
-                        onClick={() => handleRemove(index)}
-                      >
-                        <X />
-                      </Button>
-                    </div>
+                    <div className="absolute top-2 right-2"></div>
                     <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
                       <FormField
                         control={form.control}
@@ -213,7 +214,7 @@ export function SocketGeneratorControlComponent(props: {
                         control={form.control}
                         name={`sockets.${index}.required`}
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
                             <div className="space-y-0.5">
                               <FormLabel>Required</FormLabel>
                               <FormDescription>
