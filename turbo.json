@@ -12,7 +12,9 @@
     "TELEGRAM_BOT_TOKEN",
     "NEXT_PUBLIC_POSTHOG_KEY",
     "NEXT_PUBLIC_POSTHOG_HOST",
-    "NODE_ENV"
+    "NODE_ENV",
+    "TRIGGER_API_KEY",
+    "TRIGGER_API_URL"
   ],
   "pipeline": {
     "build": {
