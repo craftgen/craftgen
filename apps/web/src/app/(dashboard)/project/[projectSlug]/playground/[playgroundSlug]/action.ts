@@ -472,7 +472,6 @@ export const setContext = action(
     state: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
-    console.log("SET CONTEXT", params);
     return await db
       .update(context)
       .set({ state: params.state as any })
@@ -506,9 +505,12 @@ export const createRelease = action(
         })
         .from(workflowVersion)
         .where(and(eq(workflowVersion.workflowId, params.workflowId)))
+        .leftJoin(workflow, eq(workflow.id, workflowVersion.workflowId))
         .orderBy(desc(workflowVersion.version))
         .limit(1);
-
+      if (!projectId) {
+        throw new Error("Project not found");
+      }
       // Publish the latest version
       await tx
         .update(workflowVersion)
