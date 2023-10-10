@@ -288,6 +288,9 @@ export function CustomNode(props: Props<Schemes>) {
     1000,
     [props.data.label]
   );
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    props.data.setLabel(e.target.value);
+  };
 
   return (
     <ContextMenu>
@@ -325,14 +328,18 @@ export function CustomNode(props: Props<Schemes>) {
                   <Input
                     defaultValue={props.data.label}
                     autoFocus
-                    onChange={(v) => props.data.setLabel(v.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        setEditLabel(false);
+                      }
+                    }}
+                    onChange={handleLabelChange}
                   />
                 ) : (
                   <Drag.NoDrag>
                     <CardTitle
                       className="flex"
                       onDoubleClick={() => {
-                        console.log("double click");
                         setEditLabel(true);
                       }}
                     >
