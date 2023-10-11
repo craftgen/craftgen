@@ -15,7 +15,7 @@ type Data = {
 };
 
 const PromptTemplateNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRACYArAA4KARmXKzAditmALADYPTywBoQAJ6IFo4UAJxObmHKAMxhblFmHrYAvin+-Nj4hCTkbOIMYKgYqBQi5ABm6KiYZRhZQrlitGCS0nL6SmoaRsg6egZGpgiWNvaOLu5ePhb+QQgxFmEUMVZRVla2nsreXmkZ9YI55c109DIAFqTMMD1IIH26nYb3w6N2Ds6unt5+geYOCg+MKuCy2DzRMxWRb7B6HbLCUT5Fr0ADKAFEACoAfQAagBBAAyAFV0XdtE9Bq9gstvBYXGEIhZnGFnHNEDFvBQwcpmWZbLYLGC4m5YZkjoi8hQcAFkFIoOcrjcwOSHv1nkNEE5bE4gdZ6T4PJ5bGEPOyRmYzBQrE4YrFBU4IptVmL4Y0TmwZXKbvRjLAcFLSBVCKgABTjACU9HFCKantl8tVjwGLE1CAsXKsHiWbisDicHmUOvNmwouYzBZibnB3jCFldAljHooRRKiuutzUvXVVNAwwsUW52a22qNRai5pi-IoXjckTCNc8WYbDWOSJbxWqaKxeKJpKTPdT1JG1g+sQcpo2Hhixf+I2vFChMTiw4FzPr6Thjfd65kAjohDtsqB6UkefbBIOGZgnO4JuOOYTmmCNgQlm8R5j4F4rhKcYUH+JBgIBGI4gSJJkl29zJhqx7vOMXxTL8sx3nBHjWraN5mDeDj2GEMRpJ+zDoBAcC9G6a55N2oEvOBCB4LY5p4CxDhKcpylbFhTbrgUEkplJJiIHO5pLjOtj8rYMROCEbhmAu6k-lKXrytpVHSdqVoONm0JuM+lggpOHHhJEHgcfynimtetliZQrbVE5vZ6QgcExNauaMqyRoRNqfm2GWgXBVsEJ0hFkqUHhIgEWAsVgfF1bKHY4KLFmvIeNCCF3mCywmqhubKBhyhhHxKRAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
   id: "prompt-template",
   initial: "idle",
   context: ({ input }) =>
@@ -78,7 +78,6 @@ const PromptTemplateNodeMachine = createMachine({
           target: "error",
         },
         onDone: {
-          target: "complete",
           actions: assign({
             settings: ({ context, event }) => ({
               ...context.settings,
@@ -100,6 +99,37 @@ const PromptTemplateNodeMachine = createMachine({
             }),
           }),
           reenter: true,
+        },
+        RUN: {
+          target: "running",
+          actions: assign({
+            inputs: ({ context, event }) => ({
+              ...context.inputs,
+              ...event.inputs,
+            }),
+          }),
+        },
+      },
+    },
+    running: {
+      invoke: {
+        src: "parse",
+        input: ({ context }) => ({
+          template: context.settings.template,
+          inputs: context.inputs,
+        }),
+        onError: {
+          target: "error",
+        },
+        onDone: {
+          target: "complete",
+          actions: assign({
+            settings: ({ context, event }) => ({
+              ...context.settings,
+              variables: event.output.variables,
+            }),
+            outputs: ({ event }) => ({ value: event.output.rendered }),
+          }),
         },
       },
     },
@@ -298,13 +328,13 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     }
   }
 
-  async compute(inputs: { [key: string]: [string | number] }) {
-    console.log("PromptTemplate COMPUTE", inputs);
-    this.actor.send({
-      type: "SET_VALUE",
-      inputs: inputs,
-    });
-  }
+  // async compute(inputs: { [key: string]: [string | number] }) {
+  //   console.log("PromptTemplate COMPUTE", inputs);
+  //   this.actor.send({
+  //     type: "SET_VALUE",
+  //     inputs: inputs,
+  //   });
+  // }
 
   async serialize(): Promise<Data> {
     const state = this.actor.getSnapshot();

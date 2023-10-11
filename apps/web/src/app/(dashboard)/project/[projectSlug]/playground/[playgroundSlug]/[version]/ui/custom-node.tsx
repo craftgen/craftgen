@@ -154,7 +154,6 @@ export function CustomNode(props: Props<Schemes>) {
       const { data: execution } = await createExecution({
         workflowId: workflowId!,
         workflowVersionId,
-        nodes,
       });
       if (!execution) {
         throw new Error("Execution not created");
@@ -462,7 +461,9 @@ export function CustomNode(props: Props<Schemes>) {
             <code>
               {JSON.stringify(
                 {
+                  isExection: props.data.isExecution,
                   state: state,
+                  executionNode: props.data.executionNode,
                   node: props.data.nodeData,
                   size: props.data.size,
                 },

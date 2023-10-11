@@ -580,12 +580,12 @@ export const getContext = action(
 export const setContext = action(
   z.object({
     contextId: z.string(),
-    state: z.string().transform((val) => JSON.parse(val)),
+    context: z.string().transform((val) => JSON.parse(val)),
   }),
   async (params) => {
     return await db
       .update(context)
-      .set({ state: params.state as any })
+      .set({ state: params.context as any })
       .where(eq(context.id, params.contextId))
       .returning();
   }
@@ -732,20 +732,6 @@ export const createExecution = action(
   z.object({
     workflowId: z.string(),
     workflowVersionId: z.string(),
-    nodes: z.array(
-      z.object({
-        id: z.string(),
-        contextId: z.string(),
-        type: z.custom<NodeTypes>(),
-        state: z
-          .string()
-          .transform(
-            (val): z.infer<typeof shapeOfState> =>
-              JSON.parse(val) as z.infer<typeof shapeOfState>
-          )
-          .nullable(),
-      })
-    ),
     input: z
       .object({
         id: z.string(),
@@ -776,30 +762,44 @@ export const createExecution = action(
           workflowVersionId: params.workflowVersionId,
         })
         .returning();
-      const nodeExecutionDataSnap = params.nodes.map((node) => {
-        let state = node.state as unknown as z.infer<typeof shapeOfState>;
-        if (params.input && node.id === params.input.id) {
-          state = {
-            ...state,
-            context: {
-              ...state.context, // bring the rest
-              inputs: params.input.values,
-              outputs: params.input.values,
-            },
-          };
-          console.log("ADDED THE INPUTS", state);
-        }
+
+      const nodeExecutionDataSnap = workflowVersion.nodes.map((node) => {
         return {
           contextId: node.contextId,
           workflowExecutionId: execution.id,
           projectId: workflowVersion.projectId,
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
-          state,
-          type: node.type,
           workflowNodeId: node.id,
+          state: null,
+          type: node.type,
         };
       });
+
+      // const nodeExecutionDataSnap = params.nodes.map((node) => {
+      //   let state = node.state as unknown as z.infer<typeof shapeOfState>;
+      //   if (params.input && node.id === params.input.id) {
+      //     state = {
+      //       ...state,
+      //       context: {
+      //         ...state.context, // bring the rest
+      //         inputs: params.input.values,
+      //         outputs: params.input.values,
+      //       },
+      //     };
+      //     console.log("ADDED THE INPUTS", state);
+      //   }
+      //   return {
+      //     contextId: node.contextId,
+      //     workflowExecutionId: execution.id,
+      //     projectId: workflowVersion.projectId,
+      //     workflowId: params.workflowId,
+      //     workflowVersionId: params.workflowVersionId,
+      //     state,
+      //     type: node.type,
+      //     workflowNodeId: node.id,
+      //   };
+      // });
 
       const nodeexecutions = await tx
         .insert(nodeExecutionData)

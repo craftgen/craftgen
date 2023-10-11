@@ -65,7 +65,7 @@ export const ModuleHeader = ({
             <Star className="w-4 h-4 mr-2" />
             Star
           </Button>
-          <Link href={`/${moduleId}/${workflow.version?.version}`}>
+          <Link href={`/${moduleId}/${workflow.version?.version || 0}`}>
             <Button variant="outline">
               <Rocket className="w-4 h-4 mr-2" />
               Playground
@@ -76,7 +76,7 @@ export const ModuleHeader = ({
       <div className="space-y-2">
         <div className="flex  flex-row w-full text-sm h-5 space-x-2">
           <span className="mr-2 bg-muted rounded p-1 flex items-center font-mono">
-            v{workflow.version?.version}
+            v{workflow.version?.version || 0}
           </span>
           <Separator orientation="vertical" />
           <Badge variant={"outline"}>

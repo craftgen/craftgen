@@ -1,7 +1,10 @@
 import { eventTrigger } from "@trigger.dev/sdk";
 import { client } from "@/trigger";
 import { z } from "zod";
-import { getWorkflow } from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundSlug]/action";
+import {
+  createExecution,
+  getWorkflow,
+} from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundSlug]/action";
 
 client.defineJob({
   id: "execute-workflow",
@@ -13,6 +16,7 @@ client.defineJob({
       workflowSlug: z.string(),
       projectSlug: z.string(),
       version: z.string(),
+      input: z.any(),
     }),
   }),
   run: async (payload, io, ctx) => {
@@ -25,6 +29,11 @@ client.defineJob({
     if (!workflow.data) {
       throw new Error("Workflow not found");
     }
+
+    createExecution({
+      workflowId: workflow.data.id,
+      workflowVersionId: workflow.data.version.id,
+    });
   },
 });
 

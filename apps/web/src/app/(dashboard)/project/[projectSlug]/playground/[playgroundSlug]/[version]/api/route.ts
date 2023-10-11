@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getWorkflow } from "../../action";
 import { createHeadlessEditor } from "../headless";
 import { ModuleNode } from "../nodes";
+import { client } from "@/trigger";
 
 export async function POST(
   request: Request,
@@ -23,6 +24,15 @@ export async function POST(
   if (!workflow.data) {
     throw new Error("Workflow not found");
   }
+
+  await client.sendEvent({
+    name: "workflow.execute",
+    payload: {
+      workflowSlug: params.playgroundSlug,
+      projectSlug: params.projectSlug,
+      version: params.version,
+    },
+  });
 
   const di = await createHeadlessEditor(workflow.data);
   const a = JSON.parse(
