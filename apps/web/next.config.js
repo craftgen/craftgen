@@ -13,6 +13,10 @@ const nextConfig = {
           source: "/discord",
           destination: "https://discord.gg/c5tyy982V5",
         },
+        {
+          source: "/ingest/:path*",
+          destination: "https://app.posthog.com/:path*",
+        },
       ],
       afterFiles: [
         {
@@ -28,12 +32,12 @@ const nextConfig = {
           destination: "/project/:project/playground/:playground*",
         },
       ],
-      fallback: [
-        {
-          source: "/ingest/:path*",
-          destination: "https://app.posthog.com/:path*",
-        },
-      ],
+      // fallback: [
+      //   {
+      //     source: "/ingest/:path*",
+      //     destination: "https://app.posthog.com/:path*",
+      //   },
+      // ],
     };
   },
 };
