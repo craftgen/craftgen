@@ -14,6 +14,7 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
+import { WORKFLOW_NODE_TRIGGER } from "@/jobs/workflow-execution-step";
 
 const getApiKeyFromProject = async (projectId: string) => {
   const apiKey = await getApiKeyValue({
@@ -34,6 +35,19 @@ export const checkExecutionExist = action(
     });
     if (!execution) throw new Error("Execution not found");
     return execution;
+  }
+);
+
+export const triggerWorkflowExecutionStep = action(
+  z.object({
+    executionId: z.string(),
+    workflowNodeId: z.string(),
+    workflowSlug: z.string(),
+    projectSlug: z.string(),
+    version: z.number(),
+  }),
+  async (params) => {
+    await WORKFLOW_NODE_TRIGGER.send(params);
   }
 );
 

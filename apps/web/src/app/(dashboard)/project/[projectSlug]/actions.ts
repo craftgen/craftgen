@@ -254,14 +254,13 @@ export const clonePlayground = async ({
 };
 
 export const getWorkflows = async (projectId: string) => {
-  console.log("PROEJCT>", projectId);
-  return await db.query.workflow.findMany({
-    where: (workflow, { eq, and }) =>
-      and(
-        eq(workflow.projectId, projectId)
-        // eq(playground.version, 0) // The latest version
-      ),
+  const workflow = await db.query.workflow.findMany({
+    where: (workflow, { eq, and }) => and(eq(workflow.projectId, projectId)),
     with: {
+      versions: {
+        orderBy: (workflowVersion, { desc }) => [desc(workflowVersion.version)],
+        limit: 1,
+      },
       project: {
         columns: {
           slug: true,
@@ -269,6 +268,10 @@ export const getWorkflows = async (projectId: string) => {
       },
     },
   });
+  return workflow.map((w) => ({
+    ...w,
+    version: w.versions[0],
+  }));
 };
 
 export const getUser = async () => {

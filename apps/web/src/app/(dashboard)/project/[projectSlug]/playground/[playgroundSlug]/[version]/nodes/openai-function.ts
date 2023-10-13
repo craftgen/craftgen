@@ -1,4 +1,3 @@
-import { ClassicPreset } from "rete";
 import { DiContainer } from "../editor";
 import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
@@ -191,7 +190,7 @@ const OpenAIFunctionCallMachine = createMachine({
       },
     },
     complete: {
-      type: 'final'
+      type: "final",
     },
   },
   // output: ({ context }) => context.outputs,
@@ -209,7 +208,6 @@ export class OpenAIFunctionCall extends BaseNode<
     super("OpenAIFunctionCall", di, data, OpenAIFunctionCallMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
-          const store = di.store.getState();
           const inputs = await input.inputs;
           console.log("RUNNING", {
             inputs,
@@ -217,14 +215,14 @@ export class OpenAIFunctionCall extends BaseNode<
           });
           if (input.settings.resultType === "text") {
             const res = await generateTextFn({
-              projectId: store.projectId,
+              projectId: data.projectId,
               settings: input.settings.openai,
               user: inputs.prompt,
             });
             return { result: res };
           } else {
             const res = await genereteJsonFn({
-              projectId: store.projectId,
+              projectId: data.projectId,
               settings: input.settings.openai,
               user: inputs.prompt,
               schema: inputs.schema[0],
@@ -233,11 +231,9 @@ export class OpenAIFunctionCall extends BaseNode<
           }
         }),
         check_api_key: fromPromise(async () => {
-          console.log("CHECKING API KEY", di.store.getState().projectId);
-          const store = di.store.getState();
           const validApiKey = await getApiKeyValue({
             apiKey: "OPENAI_API_KEY",
-            projectId: store.projectId,
+            projectId: data.projectId,
           });
           console.log("VALID API KEY", validApiKey);
           if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");

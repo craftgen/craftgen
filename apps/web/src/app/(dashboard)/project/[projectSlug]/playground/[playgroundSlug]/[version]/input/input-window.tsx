@@ -114,12 +114,13 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
           id: input.id,
           values: data,
         },
+        headless: true,
       });
       if (!execution) {
         throw new Error("Execution not created");
       }
 
-      router.push(`${pathname}?execution=${execution.id}`);
+      // router.push(`${pathname}?execution=${execution.id}`);
       // input.di.engine?.execute(input.id, undefined, execution?.id);
     } catch (e) {
       console.log(e);

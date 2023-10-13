@@ -18,7 +18,7 @@ import {
   Postgres,
 } from "./nodes";
 import { Icon, Icons } from "@/components/icons";
-import { Replicate } from "./nodes/replicate";
+import { Replicate } from "./nodes/replicate/replicate";
 import { GoogleSheet } from "./nodes/datasource/google-sheet/google-sheet";
 
 export const nodes = {

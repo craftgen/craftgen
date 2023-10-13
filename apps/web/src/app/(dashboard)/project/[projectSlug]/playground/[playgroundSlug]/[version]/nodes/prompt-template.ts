@@ -112,6 +112,9 @@ const PromptTemplateNodeMachine = createMachine({
       },
     },
     running: {
+      after: {
+        500: "idle",
+      },
       invoke: {
         src: "parse",
         input: ({ context }) => ({
@@ -281,7 +284,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
       "template",
       new CodeControl("handlebars", {
         initial: prev?.context?.settings.template || "",
-        theme: this.di.store.getState().theme,
+        theme: "dark",
         change: (value) => {
           self.actor.send({
             type: "change",

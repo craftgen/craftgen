@@ -6,6 +6,7 @@ import { NodeEditor } from "rete";
 import { Schemes } from "./types";
 import { createCraftStore } from "./store";
 import { Modules } from "./modules";
+import { DiContainer } from "./editor";
 
 export async function createHeadlessEditor(
   params: ResultOfAction<typeof getWorkflow>
@@ -18,7 +19,7 @@ export async function createHeadlessEditor(
     if (!data) throw new Error(`Module ${moduleId} not found`);
     await importEditor(
       {
-        ...di,
+        ...(di as DiContainer),
         ...overwrites,
       },
       {
@@ -32,27 +33,23 @@ export async function createHeadlessEditor(
     engine,
     dataFlow,
     modules,
-  } as any;
+    headless: true,
+  };
 
   const store = createCraftStore({
-    di,
+    di: di as DiContainer,
     workflowId: params.id,
     projectId: params.project.id,
   });
 
-  di.store = store;
+  (di as any).store = store;
 
   editor.use(engine);
   editor.use(dataFlow);
 
-  await importEditor(
-    {
-      editor,
-    } as any,
-    {
-      nodes: params.version.nodes,
-      edges: params.version.edges as any,
-    }
-  );
+  await importEditor(di as any, {
+    nodes: params.version.nodes,
+    edges: params.version.edges as any,
+  });
   return di;
 }

@@ -1,11 +1,7 @@
 "use client";
 
 import useSWR, { mutate } from "swr";
-import {
-  clonePlayground,
-  deleteWorkflow,
-  getWorkflows,
-} from "./actions";
+import { clonePlayground, deleteWorkflow, getWorkflows } from "./actions";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -54,7 +50,7 @@ const columns: ColumnDef<Playground>[] = [
     cell: ({ row }) => (
       <div className="flex justify-end">
         <Link
-          href={`/${row.original?.project.slug}/${row.original.slug}/playground`}
+          href={`/${row.original?.project.slug}/${row.original.slug}/${row.original.version.version}`}
         >
           <Button variant="outline">
             <Rocket className="w-4 h-4 mr-2" />

@@ -52,6 +52,7 @@ const elk = new ELK();
 export type AreaExtra = ReactArea2D<Schemes>;
 
 export type DiContainer = {
+  headless: boolean;
   store: any; // TODO: fix types
   graph: Structures<NodeProps, ConnProps>;
   area?: AreaPlugin<Schemes, AreaExtra>;

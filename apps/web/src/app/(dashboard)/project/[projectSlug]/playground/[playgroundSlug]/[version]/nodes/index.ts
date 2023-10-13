@@ -13,7 +13,7 @@ export { InputNode } from "./io/input.node";
 export { OutputNode } from "./io/output";
 
 export { ModuleNode } from "./io/module";
-export { Replicate } from "./replicate";
+export { Replicate } from "./replicate/replicate";
 
 // DATASOURCES
 export { GoogleSheet } from "./datasource/google-sheet/google-sheet";

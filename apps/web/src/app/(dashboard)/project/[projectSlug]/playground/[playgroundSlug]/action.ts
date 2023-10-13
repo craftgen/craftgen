@@ -16,14 +16,14 @@ import {
   workflowVersion,
   workflowExecutionStep,
   nodeExecutionData,
-  shapeOfState,
 } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
-import { ConnProps, NodeTypes, Position, nodesMeta } from "./[version]/types";
+import { ConnProps, NodeTypes, nodesMeta } from "./[version]/types";
 import * as FlexLayout from "flexlayout-react";
 import { action } from "@/lib/safe-action";
 import { z } from "zod";
 import { isEqual } from "lodash-es";
+import { WORKFLOW_TRIGGER } from "@/jobs/events";
 
 export const getWorkflowById = async (workflowId: string) => {
   return await db.query.workflow.findFirst({
@@ -228,16 +228,8 @@ export const getWorkflow = action(
         with: {
           project: true,
           versions: {
-            where: (workflowVersion, { and, eq, isNotNull }) =>
+            where: (workflowVersion, { eq }) =>
               eq(workflowVersion.version, params.version),
-            // and(
-            //   params.version
-            //     ? eq(workflowVersion.version, params.version)
-            //     : sql`true`
-            //   // params.published
-            //   //   ? isNotNull(workflowVersion.publishedAt)
-            //   //   : sql`true`
-            // ),
             orderBy: (workflowVersion, { desc }) => [
               desc(workflowVersion.version),
             ],
@@ -265,6 +257,21 @@ export const getWorkflow = action(
                     orderBy: (nodeExecutionData, { desc }) => [
                       desc(nodeExecutionData.createdAt),
                     ],
+                  },
+                  workflowVersion: {
+                    columns: {
+                      version: true,
+                    },
+                  },
+                  project: {
+                    columns: {
+                      slug: true,
+                    },
+                  },
+                  workflow: {
+                    columns: {
+                      slug: true,
+                    },
                   },
                   context: true,
                 },
@@ -732,12 +739,11 @@ export const createExecution = action(
   z.object({
     workflowId: z.string(),
     workflowVersionId: z.string(),
-    input: z
-      .object({
-        id: z.string(),
-        values: z.any(),
-      })
-      .optional(),
+    input: z.object({
+      id: z.string(),
+      values: z.any(),
+    }),
+    headless: z.boolean().optional().default(false),
   }),
   async (params) => {
     return await db.transaction(async (tx) => {
@@ -748,6 +754,16 @@ export const createExecution = action(
           nodes: {
             with: {
               context: true,
+            },
+          },
+          project: {
+            columns: {
+              slug: true,
+            },
+          },
+          workflow: {
+            columns: {
+              slug: true,
             },
           },
         },
@@ -775,37 +791,18 @@ export const createExecution = action(
           type: node.type,
         };
       });
+      await tx.insert(nodeExecutionData).values(nodeExecutionDataSnap);
 
-      // const nodeExecutionDataSnap = params.nodes.map((node) => {
-      //   let state = node.state as unknown as z.infer<typeof shapeOfState>;
-      //   if (params.input && node.id === params.input.id) {
-      //     state = {
-      //       ...state,
-      //       context: {
-      //         ...state.context, // bring the rest
-      //         inputs: params.input.values,
-      //         outputs: params.input.values,
-      //       },
-      //     };
-      //     console.log("ADDED THE INPUTS", state);
-      //   }
-      //   return {
-      //     contextId: node.contextId,
-      //     workflowExecutionId: execution.id,
-      //     projectId: workflowVersion.projectId,
-      //     workflowId: params.workflowId,
-      //     workflowVersionId: params.workflowVersionId,
-      //     state,
-      //     type: node.type,
-      //     workflowNodeId: node.id,
-      //   };
-      // });
-
-      const nodeexecutions = await tx
-        .insert(nodeExecutionData)
-        .values(nodeExecutionDataSnap)
-        .returning();
-      console.log("nodeexecutions", nodeexecutions);
+      if (params.headless) {
+        await WORKFLOW_TRIGGER.send({
+          projectSlug: workflowVersion.project.slug,
+          workflowSlug: workflowVersion.workflow.slug,
+          version: workflowVersion.version,
+          executionId: execution.id,
+          workflowNodeId: params.input.id,
+          values: params.input.values,
+        });
+      }
       return execution;
     });
   }

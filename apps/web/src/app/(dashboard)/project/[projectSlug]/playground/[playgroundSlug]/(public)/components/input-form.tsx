@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { ResultOfAction } from "@/lib/type";
-import { getWorkflowMeta } from "../../action";
+import { createExecution, getWorkflowMeta } from "../../action";
 import { useForm } from "react-hook-form";
 import { ajvResolver } from "@hookform/resolvers/ajv";
 import { ContextFrom } from "xstate";
@@ -33,9 +33,16 @@ export const InputForm: React.FC<{
   });
 
   const fields = useMemo(() => input?.outputSockets, [input?.outputSockets]);
-  const router = useRouter();
   const onSubmit = async (data: any) => {
     console.log(data);
+    // const { data: execution } = await createExecution({
+    //   workflowId: workflow.id,
+    //   workflowVersionId: workflow.version.id,
+    //   input: {
+    //     id: input.id,
+    //     values: data,
+    //   },
+    // });
     return;
     //   try {
     //     const nodes = workflow.version.nodes.map((n) => {

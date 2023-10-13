@@ -60,7 +60,6 @@ import { ResultOfAction } from "@/lib/type";
 import { LogsTab } from "./logs/logs-tab";
 import { Icons } from "@/components/icons";
 import { useTheme } from "next-themes";
-import { checkExecutionExist } from "./actions";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},

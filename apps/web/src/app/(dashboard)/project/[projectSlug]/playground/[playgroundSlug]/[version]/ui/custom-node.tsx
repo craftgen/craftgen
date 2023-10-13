@@ -151,9 +151,17 @@ export function CustomNode(props: Props<Schemes>) {
       if (!nodes) {
         throw new Error("No nodes");
       }
-      const { data: execution } = await createExecution({
+      const {
+        data: execution,
+        serverError,
+        validationError,
+      } = await createExecution({
         workflowId: workflowId!,
         workflowVersionId,
+        input: {
+          id: props.data.id,
+        },
+        headless: props.data.di.headless,
       });
       if (!execution) {
         throw new Error("Execution not created");

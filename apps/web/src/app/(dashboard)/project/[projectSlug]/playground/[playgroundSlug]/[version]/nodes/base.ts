@@ -5,7 +5,6 @@ import {
   AnyStateMachine,
   ContextFrom,
   MachineImplementationsFrom,
-  MachineSnapshot,
   SnapshotFrom,
   StateFrom,
   createActor,
@@ -23,6 +22,7 @@ import { NodeTypes } from "../types";
 import { BaseControl } from "../controls/base";
 import { ResultOfAction } from "@/lib/type";
 import { Input, Output } from "../input-output";
+import { triggerWorkflowExecutionStep } from "../actions";
 
 type Node = ResultOfAction<typeof getWorkflow>["version"]["nodes"][number];
 export type NodeData<T extends AnyStateMachine> = Node & {
@@ -96,16 +96,18 @@ export class BaseNode<
     this.isExecution = this.nodeData?.nodeExectutions?.length > 0;
     this.executionNode = this.nodeData?.nodeExectutions?.[0];
 
-    const saveStateDebounced = debounce(
-      async ({ state }: { state: SnapshotFrom<AnyStateMachine> }) => {
-        console.log(this.identifier, "SAVING EXECUTION STATE");
-        await updateExecutionNode({
-          id: this.executionNode?.id!,
-          state: JSON.stringify(state),
-        });
-      },
-      1000
-    );
+    const saveStateDebounced = async ({
+      state,
+    }: {
+      state: SnapshotFrom<AnyStateMachine>;
+    }) => {
+      console.log(this.identifier, "SAVING EXECUTION STATE");
+      const res = await updateExecutionNode({
+        id: this.executionNode?.id!,
+        state: JSON.stringify(state),
+      });
+      console.log(res);
+    };
 
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
@@ -175,10 +177,10 @@ export class BaseNode<
         }
 
         prev = state;
-        if (!this.di.readonly?.enabled) {
-          if (this.isExecution) {
-            saveStateDebounced({ state });
-          } else {
+        if (this.isExecution) {
+          saveStateDebounced({ state });
+        } else {
+          if (!this.di.readonly?.enabled) {
             saveContextDebounced({ context: state.context });
           }
         }
@@ -187,29 +189,6 @@ export class BaseNode<
 
     this.actor.start();
   }
-
-  // private async setActor() {
-  //   const a = this.machine.provide(this.machineImplements as any);
-  //   console.log(this.identifier, "CREATING ACTOR", this.nodeData);
-  //   const store = this.di.store.getState();
-  //   console.log(this.identifier, "STORE", store);
-
-  //   if (this.nodeData?.nodeExectutions?.length > 0) {
-  //     this.actor = createActor(a, {
-  //       id: this.contextId,
-  //       state: this.nodeData.nodeExectutions[0].state,
-  //     });
-  //   } else {
-  //     this.actor = createActor(a, {
-  //       id: this.contextId,
-  //       ...(this.nodeData?.context?.state !== null && {
-  //         input: {
-  //           ...this.nodeData.context.state,
-  //         },
-  //       }),
-  //     });
-  //   }
-  // }
 
   public async updateAncestors() {
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
@@ -304,11 +283,16 @@ export class BaseNode<
     // });
     // this.actor.start();
 
-    // EARLY RETURN IF NODE IS RUNNING
+    // EARLY RETURN IF NODE IS COMPLETE
     if (this.actor.getSnapshot().matches("complete")) {
       console.log(this.identifier, "finito Execute", this.outputs);
       if (this.outputs.trigger) {
-        forward("trigger");
+        if (this.di.headless) {
+          await this.triggerSuccesors(executionId);
+        } else {
+          forward("trigger");
+        }
+        return;
       }
     }
 
@@ -321,11 +305,32 @@ export class BaseNode<
     this.actor.subscribe({
       complete: async () => {
         console.log(this.identifier, "finito Execute", this.outputs);
-
         if (this.outputs.trigger) {
-          forward("trigger");
+          if (this.di.headless) {
+            await this.triggerSuccesors(executionId);
+          } else {
+            forward("trigger");
+          }
         }
       },
+    });
+  }
+
+  async triggerSuccesors(executionId: string) {
+    const cons = this.di.editor.getConnections().filter((c) => {
+      return c.source === this.id && c.sourceOutput === "trigger";
+    });
+
+    cons.forEach(async (con) => {
+      const node = this.di.editor.getNode(con.target);
+      if (!node) return;
+      await triggerWorkflowExecutionStep({
+        executionId,
+        workflowNodeId: node.id,
+        projectSlug: this.nodeData.project.slug,
+        workflowSlug: this.nodeData.workflow.slug,
+        version: this.nodeData.workflowVersion.version,
+      });
     });
   }
 
