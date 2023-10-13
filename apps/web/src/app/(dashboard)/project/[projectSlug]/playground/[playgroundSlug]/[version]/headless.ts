@@ -7,9 +7,11 @@ import { Schemes } from "./types";
 import { createCraftStore } from "./store";
 import { Modules } from "./modules";
 import { DiContainer } from "./editor";
+import { structures } from "rete-structures";
 
 export async function createHeadlessEditor(
-  params: ResultOfAction<typeof getWorkflow>
+  params: ResultOfAction<typeof getWorkflow>,
+  overwrites?: Partial<DiContainer>,
 ) {
   const editor = new NodeEditor<Schemes>();
   const engine = createControlFlowEngine();
@@ -28,12 +30,16 @@ export async function createHeadlessEditor(
       }
     );
   });
+  const graph = structures(editor);
   const di = {
     editor,
     engine,
     dataFlow,
     modules,
+    graph,
     headless: true,
+    logger: console,
+    ...overwrites,
   };
 
   const store = createCraftStore({

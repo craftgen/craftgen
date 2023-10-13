@@ -96,22 +96,9 @@ export class BaseNode<
     this.isExecution = this.nodeData?.nodeExectutions?.length > 0;
     this.executionNode = this.nodeData?.nodeExectutions?.[0];
 
-    const saveStateDebounced = async ({
-      state,
-    }: {
-      state: SnapshotFrom<AnyStateMachine>;
-    }) => {
-      console.log(this.identifier, "SAVING EXECUTION STATE");
-      const res = await updateExecutionNode({
-        id: this.executionNode?.id!,
-        state: JSON.stringify(state),
-      });
-      console.log(res);
-    };
-
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
-        console.log(this.identifier, "SAVING CONTEXT STATE");
+        this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
         setContext({
           contextId: this.contextId,
           context: JSON.stringify(context),
@@ -119,7 +106,6 @@ export class BaseNode<
       },
       1000
     );
-
     if (this.isExecution) {
       const isHasState = this.executionNode.state;
       const actorInput = {
@@ -133,20 +119,16 @@ export class BaseNode<
               },
             }),
       };
-      console.log(
-        this.identifier,
-        "CREATING EXECTION ACTOR WITH STATE",
-        actorInput
-      );
+      this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
       set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
       const a = this.machine.provide(this.machineImplements as any);
       this.actor = createActor(a, {
-        id: this.contextId,
+        id: this.executionNode.id,
         ...actorInput,
       });
       // Initial state for the execution node.
       if (!isHasState) {
-        saveStateDebounced({ state: this.actor.getSnapshot() });
+        this.saveState({ state: this.actor.getSnapshot() });
       }
     } else {
       const a = this.machine.provide(this.machineImplements as any);
@@ -163,10 +145,9 @@ export class BaseNode<
     let prev = this.actor.getSnapshot();
     this.actor.subscribe({
       complete: async () => {
-        console.log(this.identifier, "finito main");
+        this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state) => {
-        console.log(this.identifier, "STATE", state);
         this.state = state.value as any;
         if (
           !isEqual(prev.context.outputs, state.context.outputs) &&
@@ -178,7 +159,7 @@ export class BaseNode<
 
         prev = state;
         if (this.isExecution) {
-          saveStateDebounced({ state });
+          this.saveState({ state });
         } else {
           if (!this.di.readonly?.enabled) {
             saveContextDebounced({ context: state.context });
@@ -194,9 +175,9 @@ export class BaseNode<
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
-    console.log(this.identifier, "updateAncestors", outgoers);
+    this.di.logger.log(this.identifier, "updateAncestors", outgoers);
     for (const node of outgoers) {
-      // console.log("calling data on", node.ID, node.id);
+      // this.di.logger.log("calling data on", node.ID, node.id);
       const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
       await node.compute(inputs);
     }
@@ -215,12 +196,19 @@ export class BaseNode<
     return executionState;
   }
 
+  async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
+    return await updateExecutionNode({
+      id: this.executionNode?.id!,
+      state: JSON.stringify(state),
+    });
+  }
+
   async execute(
     input: any,
     forward: (output: "trigger") => void,
     executionId: string
   ) {
-    console.group(this.identifier, "EXECUTE", {
+    this.di.logger.log(this.identifier, "EXECUTE", {
       input,
       executionId,
       state: this.actor.getSnapshot(),
@@ -228,13 +216,13 @@ export class BaseNode<
     // const executionState = await this.getExecutionState({ executionId });
     // const execMachine = this.machine;
     // set(execMachine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
-    // console.log(this.identifier, execMachine);
+    // this.di.logger.log(this.identifier, execMachine);
     // const a = execMachine.provide(this.machineImplements as any);
-    // console.log(this.identifier, execMachine.config, a);
+    // this.di.logger.log(this.identifier, execMachine.config, a);
     // this.actor = createActor(a, {
     //   state: executionState?.state,
     // });
-    // console.log(this.identifier, "EXECUTION STATE", {
+    // this.di.logger.log(this.identifier, "EXECUTION STATE", {
     //   state: this.actor.getSnapshot(),
     //   executionState,
     // });
@@ -246,7 +234,7 @@ export class BaseNode<
     //     });
     //   },
     //   complete: async () => {
-    //     console.log(this.identifier, "finito");
+    //     this.di.logger.log(this.identifier, "finito");
     //     if (this.outputs.trigger) {
     //       forward("trigger");
     //     }
@@ -285,8 +273,9 @@ export class BaseNode<
 
     // EARLY RETURN IF NODE IS COMPLETE
     if (this.actor.getSnapshot().matches("complete")) {
-      console.log(this.identifier, "finito Execute", this.outputs);
+      this.di.logger.log(this.identifier, "finito Execute", this.outputs);
       if (this.outputs.trigger) {
+        // forward("trigger");
         if (this.di.headless) {
           await this.triggerSuccesors(executionId);
         } else {
@@ -297,15 +286,16 @@ export class BaseNode<
     }
 
     const inputs = await this.getInputs();
-    console.log(this.identifier, "INPUTS", inputs);
+    this.di.logger.log(this.identifier, "INPUTS", inputs);
     this.actor.send({
       type: "RUN",
       inputs,
     });
     this.actor.subscribe({
       complete: async () => {
-        console.log(this.identifier, "finito Execute", this.outputs);
+        this.di.logger.log(this.identifier, "finito Execute", this.outputs);
         if (this.outputs.trigger) {
+          // forward("trigger");
           if (this.di.headless) {
             await this.triggerSuccesors(executionId);
           } else {
@@ -313,6 +303,9 @@ export class BaseNode<
           }
         }
       },
+    });
+    await waitFor(this.actor, (state) => state.matches("complete"), {
+      timeout: 1000 * 60 * 5,
     });
   }
 
@@ -343,7 +336,7 @@ export class BaseNode<
    */
   async data(inputs?: any) {
     this.count++;
-    console.log(this.identifier, "Calling DATA");
+    this.di.logger.log(this.identifier, "Calling DATA");
     inputs = inputs || (await this.getInputs());
     let state = this.actor.getSnapshot();
     if (
@@ -351,7 +344,7 @@ export class BaseNode<
       !isEqual(state.context.inputs, inputs) &&
       this.ID !== "InputNode"
     ) {
-      console.log(
+      this.di.logger.log(
         this.identifier,
         "inputs are not matching computing",
         inputs,
@@ -359,9 +352,9 @@ export class BaseNode<
       );
       await this.compute(inputs);
     }
-    console.log(this.identifier, "actor in data", this.actor);
+    this.di.logger.log(this.identifier, "actor in data", this.actor);
     if (state.matches("running")) {
-      console.log(this.identifier, "waiting for complete");
+      this.di.logger.log(this.identifier, "waiting for complete");
       await waitFor(this.actor, (state) => state.matches("complete"));
     }
     state = this.actor.getSnapshot();
@@ -469,7 +462,7 @@ export class BaseNode<
     });
     const startTime = Date.now();
     while (!state.matches(stateValue)) {
-      console.log("waiting for complete", this.ID, state.value);
+      this.di.logger.log("waiting for complete", this.ID, state.value);
       await new Promise((resolve) => setTimeout(resolve, 500));
       if (Date.now() - startTime > 30000) {
         sub.unsubscribe();
@@ -491,7 +484,7 @@ export class BaseNode<
    */
   async getInputs() {
     try {
-      console.log(this.identifier, "getInputs calling");
+      this.di.logger.log(this.identifier, "getInputs calling");
       this.di.dataFlow?.reset();
       if (this.ID === "InputNode") {
         return this.actor.getSnapshot().context.inputs;
@@ -501,7 +494,7 @@ export class BaseNode<
       //   .ancestors((n) => n.id === this.id)
       //   .nodes();
       // for (const node of ancestors) {
-      //   console.log(this.identifier, "calling data on", node.ID, node.id);
+      //   this.di.logger.log(this.identifier, "calling data on", node.ID, node.id);
       //   const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
       //   await node.compute(inputs);
       // }
@@ -509,7 +502,7 @@ export class BaseNode<
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
         [x: string]: string;
       };
-      console.log(this.identifier, "inputs from data flow", inputs);
+      this.di.logger.log(this.identifier, "inputs from data flow", inputs);
       const state = this.actor.getSnapshot();
       Object.keys(this.inputs).forEach((key) => {
         if (!inputs[key] && this.inputs[key]?.control) {
@@ -526,10 +519,10 @@ export class BaseNode<
             : inputs[key];
         }
       });
-      console.log(this.identifier, "getInputs called", inputs);
+      this.di.logger.log(this.identifier, "getInputs called", inputs);
       return inputs;
     } catch (e) {
-      console.trace(e);
+      this.di.logger.error(e);
     }
   }
 }

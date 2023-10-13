@@ -26,30 +26,25 @@ client.defineJob({
     }
     io.logger.info("Workflow", workflow.data);
 
-    const di = await createHeadlessEditor(workflow.data);
+    const di = await createHeadlessEditor(workflow.data, { logger: io.logger });
     const entryNode = di.editor.getNode(payload.workflowNodeId);
     if (!entryNode) {
       throw new Error("Entry node not found");
     }
-    io.runTask(
-      `execute-${entryNode.ID}-${entryNode.id}-${payload.executionId}`,
-      async () => {
-        let state = entryNode.actor.getSnapshot();
-        entryNode.actor.subscribe({
-          next: (data) => {
-            io.logger.info("STATE", data);
-            state = data;
-          },
-          complete: () => {
-            io.logger.log("COMPLETE", state.output);
-          },
-        });
-        di.engine.execute(entryNode.id, undefined, payload.executionId);
-        await waitFor(entryNode.actor, (state) => state.matches("complete"), {
-          timeout: 1000 * 60 * 5,
-        });
-        io.logger.info("STATE", state);
-      }
-    );
+    let state = entryNode.actor.getSnapshot();
+    entryNode.actor.subscribe({
+      next: (data) => {
+        io.logger.info("STATE", data);
+        state = data;
+      },
+      complete: () => {
+        io.logger.log("COMPLETE", state.output);
+      },
+    });
+    di.engine.execute(entryNode.id, undefined, payload.executionId);
+    await waitFor(entryNode.actor, (state) => state.matches("complete"), {
+      timeout: 1000 * 60 * 5,
+    });
+    io.logger.info("STATE", state);
   },
 });

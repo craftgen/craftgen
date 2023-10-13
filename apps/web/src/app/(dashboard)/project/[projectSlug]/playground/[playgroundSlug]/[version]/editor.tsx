@@ -53,6 +53,7 @@ export type AreaExtra = ReactArea2D<Schemes>;
 
 export type DiContainer = {
   headless: boolean;
+  logger?: any; // TODO: fix types
   store: any; // TODO: fix types
   graph: Structures<NodeProps, ConnProps>;
   area?: AreaPlugin<Schemes, AreaExtra>;
@@ -259,6 +260,8 @@ export async function createEditor(params: {
 
   const graph = structures(editor);
   const di: DiContainer = {
+    headless: false,
+    logger: console,
     store: params.store,
     editor,
     area,

@@ -19,7 +19,6 @@ import {
 import { Play } from "lucide-react";
 import { renderField } from "../../[version]/input/input-window";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 export const InputForm: React.FC<{
   workflow: ResultOfAction<typeof getWorkflowMeta>;
