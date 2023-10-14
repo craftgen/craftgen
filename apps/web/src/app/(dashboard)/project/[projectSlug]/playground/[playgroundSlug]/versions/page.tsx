@@ -3,7 +3,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import {
   getWorkflow,
   getWorkflowVersions as getWorkflowWithVersions,
-} from "../../action";
+} from "../action";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
@@ -46,7 +46,9 @@ const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
               >
                 <h2 className="text-mono">v{version.version}</h2>
               </Link>
-              {!version.publishedAt && <Badge variant={'outline'}>Canary</Badge>}
+              {!version.publishedAt && (
+                <Badge variant={"outline"}>Canary</Badge>
+              )}
             </div>
             <p className="text-muted-foreground">{version.changeLog}</p>
           </div>

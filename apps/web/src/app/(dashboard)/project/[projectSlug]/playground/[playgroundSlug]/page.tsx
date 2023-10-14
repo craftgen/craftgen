@@ -1,10 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import {
-  getWorkflow,
-  getWorkflowInputOutput,
-  getWorkflowMeta,
-} from "../action";
+import { getWorkflowInputOutput, getWorkflowMeta } from "./action";
 import { InputForm } from "./components/input-form";
 
 type Props = {

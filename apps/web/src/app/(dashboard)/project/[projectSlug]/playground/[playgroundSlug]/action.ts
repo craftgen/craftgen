@@ -82,8 +82,11 @@ export const getWorkflowMeta = action(
     version: z.number().optional(),
   }),
   async (params) => {
-    // console.log(JSON.stringify({ params }, null, 2));
-    // return await db.transaction(async (tx) => {
+    const supabase = createServerActionClient({ cookies });
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const workflow = await db.query.workflow.findFirst({
       where: (workflow, { eq, and }) =>
         and(
@@ -96,6 +99,26 @@ export const getWorkflowMeta = action(
     });
     if (!workflow) {
       throw new Error("Workflow not found");
+    }
+    if (!workflow.public && !user) {
+      throw new Error("Workflow not found");
+    }
+
+    if (!workflow.public && user) {
+      // check if user is a member of the project
+      const [isMember] = await db
+        .select()
+        .from(projectMembers)
+        .where(
+          and(
+            eq(projectMembers.projectId, workflow.projectId),
+            eq(projectMembers.userId, user?.id)
+          )
+        )
+        .limit(1);
+      if (!isMember) {
+        throw new Error("Workflow not found");
+      }
     }
 
     let version;
@@ -122,7 +145,6 @@ export const getWorkflowMeta = action(
       ...workflow,
       version,
     };
-    // });
   }
 );
 
