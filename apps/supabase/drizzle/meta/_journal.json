@@ -43,6 +43,13 @@
       "when": 1697274604474,
       "tag": "0005_eager_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1697278321495,
+      "tag": "0006_nifty_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

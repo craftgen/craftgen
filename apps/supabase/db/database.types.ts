@@ -328,6 +328,7 @@ export interface Database {
         Row: {
           created_at: string
           description: string | null
+          featured: boolean
           id: string
           layout: Json | null
           name: string
@@ -341,6 +342,7 @@ export interface Database {
         Insert: {
           created_at?: string
           description?: string | null
+          featured?: boolean
           id: string
           layout?: Json | null
           name: string
@@ -354,6 +356,7 @@ export interface Database {
         Update: {
           created_at?: string
           description?: string | null
+          featured?: boolean
           id?: string
           layout?: Json | null
           name?: string

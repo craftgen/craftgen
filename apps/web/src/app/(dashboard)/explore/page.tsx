@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProjectList } from "./project-list";
-import { TemplateList } from "@/components/template-list";
+import { WorkflowList } from "@/components/template-list";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { getFeaturedWorkflows } from "./actions";
 
 const DashboardPage = async () => {
   const cookieStore = cookies();
@@ -11,6 +12,8 @@ const DashboardPage = async () => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const featuredWorkflows = await getFeaturedWorkflows();
 
   return (
     <div className="flex flex-col w-full items-center">
@@ -29,7 +32,7 @@ const DashboardPage = async () => {
           </>
         )}
         <div className="py-4">
-          <TemplateList />
+          <WorkflowList workflows={featuredWorkflows} />
         </div>
       </div>
     </div>

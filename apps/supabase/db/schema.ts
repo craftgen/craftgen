@@ -97,6 +97,7 @@ export const workflow = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     publishedAt: timestamp("published_at"),
+    featured: boolean("featured").notNull().default(false),
   },
   (p) => {
     return {
@@ -403,6 +404,7 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
   versions: many(workflowVersion),
   edges: many(workflowEdge),
   nodes: many(workflowNode),
+  executions: many(workflowExecution),
 }));
 
 export const workflowNodeRelations = relations(

@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/command";
 import useSWR from "swr";
 import { useParams, useRouter } from "next/navigation";
-import { getProjects } from "../dashboard/actions";
+import { getUserProjects } from "../explore/actions";
 import { useMemo, useState } from "react";
 import { NewProjectForm } from "../project/new/new-project-form";
 import Link from "next/link";
@@ -47,7 +47,7 @@ type Team = {
 };
 
 export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
-  const { data, isLoading } = useSWR("/api/projects", getProjects);
+  const { data, isLoading } = useSWR("/api/projects", getUserProjects);
   const params = useParams();
   const router = useRouter();
   const handleChange = (value: string) => {

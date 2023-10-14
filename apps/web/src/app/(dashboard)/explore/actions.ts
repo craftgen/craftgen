@@ -4,7 +4,7 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { db } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
 
-export const getProjects = async () => {
+export const getUserProjects = async () => {
   const supabase = createServerActionClient({ cookies });
   const {
     data: { user },
@@ -16,6 +16,23 @@ export const getProjects = async () => {
     where: (projectMembers, { eq }) => eq(projectMembers.userId, user?.id),
     with: {
       project: true,
+    },
+  });
+};
+
+export const getFeaturedWorkflows = async () => {
+  return await db.query.workflow.findMany({
+    where: (workflow, { eq, and }) =>
+      and(eq(workflow.featured, true), eq(workflow.public, true)),
+    with: {
+      project: true,
+      versions: {
+        columns: {
+          version: true,
+        },
+        orderBy: (version, { desc }) => desc(version.version),
+        limit: 1,
+      },
     },
   });
 };
