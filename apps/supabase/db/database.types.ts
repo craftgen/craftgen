@@ -370,12 +370,6 @@ export interface Database {
             columns: ["project_id"]
             referencedRelation: "project"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workflow_project_slug_project_slug_fk"
-            columns: ["project_slug"]
-            referencedRelation: "project"
-            referencedColumns: ["slug"]
           }
         ]
       }

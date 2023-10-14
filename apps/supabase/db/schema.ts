@@ -86,8 +86,7 @@ export const workflow = pgTable(
   {
     id: text("id").$defaultFn(createIdWithPrefix("workflow")).primaryKey(),
     projectSlug: text("project_slug")
-      .notNull()
-      .references(() => project.slug, { onDelete: "cascade" }),
+      .notNull(),
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
