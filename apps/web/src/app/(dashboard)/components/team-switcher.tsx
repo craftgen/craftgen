@@ -101,13 +101,19 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
       };
     }
     const teams = groups.map((group) => group.teams).flat();
-    return teams.find((team) => team.value === params.projectSlug) as Team;
+    const founedTeam = teams.find(
+      (team) => team.value === params.projectSlug
+    ) as Team;
+    if (!founedTeam) {
+      return teams[0];
+    }
+    return founedTeam;
   }, [params.projectSlug, groups]);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen}>
-        <Link href={`/${selectedTeam.value}`} className="flex">
+        <Link href={`/${selectedTeam?.value}`} className="flex">
           <Avatar className="mr-2 h-5 w-5">
             <AvatarImage
               src={`https://avatar.vercel.sh/${selectedTeam?.value}.png`}
