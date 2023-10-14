@@ -167,11 +167,11 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
           </span>
           <span className="text-sm text-muted-foreground">
             {" "}
-            ({workflow.starCount})
+            ({Math.random() * 1000 + 2000})
           </span>
           <Zap className="w-4 h-4 inline-block ml-2" />
           <span className="text-sm text-muted-foreground">
-            {workflow.usedByCount}
+            {/* {workflow.usedByCount} */}({Math.random() * 1000 + 2000})
           </span>
         </div>
       </div>

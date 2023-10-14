@@ -3,7 +3,7 @@ import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "./base";
 import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../sockets";
-import { getApiKeyValue, generateTextFn, genereteJsonFn } from "../actions";
+import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { merge, omit } from "lodash-es";
 import { SelectControl } from "../controls/select";
@@ -232,11 +232,11 @@ export class OpenAIFunctionCall extends BaseNode<
         }),
         check_api_key: fromPromise(async () => {
           // TODO: fix this later;
-          // const validApiKey = await getApiKeyValue({
-          //   apiKey: "OPENAI_API_KEY",
-          //   projectId: data.projectId,
-          // });
-          // if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
+          const validApiKey = await checkAPIKeyExist({
+            key: "OPENAI_API_KEY",
+            projectId: data.projectId,
+          });
+          if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
 
           return true;
         }),
