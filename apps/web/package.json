@@ -120,7 +120,6 @@
     "next": "13.5.4",
     "next-safe-action": "^3.3.0",
     "next-themes": "^0.2.1",
-    "pg-native": "^3.0.1",
     "postcss": "8.4.26",
     "posthog-js": "^1.79.0",
     "posthog-node": "^3.1.2",

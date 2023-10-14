@@ -6,11 +6,14 @@ import { cookies } from "next/headers";
 
 export const getProjects = async () => {
   const supabase = createServerActionClient({ cookies });
-  const session = await supabase.auth.getSession();
-  // if (!session.data.session?.user.id) throw new Error("No user id");
-  if (!session.data.session?.user?.id) throw new Error("No user id");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return [];
+  }
   return await db.query.projectMembers.findMany({
-    where: (pm, { eq }) => eq(pm.userId, session.data.session?.user?.id),
+    where: (projectMembers, { eq }) => eq(projectMembers.userId, user?.id),
     with: {
       project: true,
     },
