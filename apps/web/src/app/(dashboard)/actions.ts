@@ -62,7 +62,4 @@ export const persistGoogleToken = async () => {
       google_refresh_token: session?.data.session.provider_refresh_token,
     });
   }
-  const personalProject = await db.query.project.findFirst({
-    where: (project, { eq, and }) => and(eq(project.personal, true)),
-  });
 };

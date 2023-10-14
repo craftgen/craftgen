@@ -28,8 +28,8 @@ const nextConfig = {
           destination: "/project/:project/settings/:path*",
         },
         {
-          source: "/:project/:playground*",
-          destination: "/project/:project/playground/:playground*",
+          source: "/:project/:playground/:path*",
+          destination: "/project/:project/playground/:playground/:path*",
         },
       ],
       // fallback: [

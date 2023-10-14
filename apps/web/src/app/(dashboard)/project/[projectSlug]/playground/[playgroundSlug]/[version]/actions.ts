@@ -280,13 +280,17 @@ export const generateTextFn = async ({
 export const getApiKeyValue = async (params: {
   projectId: string;
   apiKey: string;
-}): Promise<string | null> => {
+}): Promise<boolean> => {
   const variable = await db.query.variable.findFirst({
     where: (variable, { eq, and }) =>
       and(
         eq(variable.key, params.apiKey),
         eq(variable.project_id, params.projectId)
       ),
+      columns: {
+        value: true,
+      }
+    
   });
-  return variable?.value!;
+  return !!variable?.value;
 };

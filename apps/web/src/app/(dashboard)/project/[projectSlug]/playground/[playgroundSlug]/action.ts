@@ -82,48 +82,47 @@ export const getWorkflowMeta = action(
     version: z.number().optional(),
   }),
   async (params) => {
-    return await db.transaction(async (tx) => {
-      const workflow = await tx.query.workflow.findFirst({
-        where: (workflow, { eq, and }) =>
-          and(
-            eq(workflow.slug, params.workflowSlug),
-            eq(workflow.projectSlug, params.projectSlug)
-          ),
-        with: {
-          project: true,
-        },
-      });
-      if (!workflow) {
-        throw new Error("Workflow not found");
-      }
-
-      let version;
-      if (params.version) {
-        version = await tx.query.workflowVersion.findFirst({
-          where: (workflowVersion, { eq, and }) =>
-            and(
-              eq(workflowVersion.workflowId, workflow?.id),
-              eq(workflowVersion.version, params.version!)
-            ),
-        });
-      } else {
-        version = await tx.query.workflowVersion.findFirst({
-          where: (workflowVersion, { eq, and, isNotNull }) =>
-            and(
-              eq(workflowVersion.workflowId, workflow?.id),
-              isNotNull(workflowVersion.publishedAt)
-            ),
-          orderBy: (workflowVersion, { desc }) => [
-            desc(workflowVersion.version),
-          ],
-        });
-      }
-
-      return {
-        ...workflow,
-        version,
-      };
+    // console.log(JSON.stringify({ params }, null, 2));
+    // return await db.transaction(async (tx) => {
+    const workflow = await db.query.workflow.findFirst({
+      where: (workflow, { eq, and }) =>
+        and(
+          eq(workflow.slug, params.workflowSlug),
+          eq(workflow.projectSlug, params.projectSlug)
+        ),
+      with: {
+        project: true,
+      },
     });
+    if (!workflow) {
+      throw new Error("Workflow not found");
+    }
+
+    let version;
+    if (params.version) {
+      version = await db.query.workflowVersion.findFirst({
+        where: (workflowVersion, { eq, and }) =>
+          and(
+            eq(workflowVersion.workflowId, workflow?.id),
+            eq(workflowVersion.version, params.version!)
+          ),
+      });
+    } else {
+      version = await db.query.workflowVersion.findFirst({
+        where: (workflowVersion, { eq, and, isNotNull }) =>
+          and(
+            eq(workflowVersion.workflowId, workflow?.id),
+            isNotNull(workflowVersion.publishedAt)
+          ),
+        orderBy: (workflowVersion, { desc }) => [desc(workflowVersion.version)],
+      });
+    }
+
+    return {
+      ...workflow,
+      version,
+    };
+    // });
   }
 );
 

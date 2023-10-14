@@ -235,10 +235,9 @@ export class OpenAIFunctionCall extends BaseNode<
             apiKey: "OPENAI_API_KEY",
             projectId: data.projectId,
           });
-          console.log("VALID API KEY", validApiKey);
           if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
 
-          return !!validApiKey;
+          return validApiKey;
         }),
       },
     });
