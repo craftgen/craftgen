@@ -28,17 +28,17 @@ const nextConfig = {
           source: "/:project/settings/:path*",
           destination: "/project/:project/settings/:path*",
         },
+      ],
+      fallback: [
+        {
+          source: "/:project/:playground/:path*",
+          destination: "/project/:project/playground/:playground/:path*",
+        },
         // {
-        //   source: "/:project/:playground/:path*",
-        //   destination: "/project/:project/playground/:playground/:path*",
+        //   source: "/ingest/:path*",
+        //   destination: "https://app.posthog.com/:path*",
         // },
       ],
-      // fallback: [
-      //   {
-      //     source: "/ingest/:path*",
-      //     destination: "https://app.posthog.com/:path*",
-      //   },
-      // ],
     };
   },
 };

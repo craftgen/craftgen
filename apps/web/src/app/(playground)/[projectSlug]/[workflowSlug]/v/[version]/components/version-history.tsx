@@ -27,7 +27,7 @@ export const VersionHistory: React.FC<{
     })
   );
   const handleChange = (value: string) => {
-    router.push(`/${workflow.projectSlug}/${workflow.slug}/${value}`);
+    router.push(`/${workflow.projectSlug}/${workflow.slug}/v/${value}`);
   };
   return (
     <Select

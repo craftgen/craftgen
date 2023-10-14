@@ -65,7 +65,7 @@ export const ModuleHeader = ({
             <Star className="w-4 h-4 mr-2" />
             Star
           </Button>
-          <Link href={`/${moduleId}/${workflow.version?.version || 0}`}>
+          <Link href={`/${moduleId}/v/${workflow.version?.version || 0}`}>
             <Button variant="outline">
               <Rocket className="w-4 h-4 mr-2" />
               Playground

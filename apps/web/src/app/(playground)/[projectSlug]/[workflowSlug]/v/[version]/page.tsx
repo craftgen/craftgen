@@ -33,7 +33,7 @@ const PlaygroundPage = async (props: {
   if (!workflow) return <div>Not found</div>;
   if (!workflow.execution && props.searchParams.execution) {
     redirect(
-      `/${props.params.projectSlug}/${props.params.workflowSlug}/${props.params.version}`
+      `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`
     );
   }
   return (
