@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     serverActions: true,
+    serverComponentsExternalPackages: ["pg-native"],
   },
   images: {
     unoptimized: true,
