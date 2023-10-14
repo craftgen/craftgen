@@ -9,6 +9,7 @@
     "drizzle:generate": "drizzle-kit generate:pg",
     "drop": "drizzle-kit drop",
     "introspect": "drizzle-kit introspect:pg",
+    "introspect:prod": "pnpm with-env:prod drizzle-kit introspect:pg",
     "supa:generate": "supabase gen types typescript --local > db/database.types.ts",
     "studio": "drizzle-kit studio",
     "migrate": "pnpm with-env tsx ./db/migration.ts && pnpm run supa:generate",

@@ -6,7 +6,6 @@ import {
   getWorkflowMeta,
 } from "../action";
 import { InputForm } from "./components/input-form";
-import { useMemo } from "react";
 
 type Props = {
   params: {

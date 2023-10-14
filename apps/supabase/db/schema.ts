@@ -84,7 +84,6 @@ export const variable = pgTable(
 export const workflow = pgTable(
   "workflow",
   {
-    // id: uuid("id").primaryKey().defaultRandom(),
     id: text("id").$defaultFn(createIdWithPrefix("workflow")).primaryKey(),
     projectSlug: text("project_slug")
       .notNull()

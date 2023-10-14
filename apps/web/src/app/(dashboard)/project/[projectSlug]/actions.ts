@@ -20,7 +20,7 @@ import { z } from "zod";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
-    where: (project, { eq }) => eq(project.slug, projectSlug),
+    where: (p, { eq }) => eq(p.slug, projectSlug),
   });
 };
 

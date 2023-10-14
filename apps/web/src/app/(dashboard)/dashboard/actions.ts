@@ -8,9 +8,9 @@ export const getProjects = async () => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
   // if (!session.data.session?.user.id) throw new Error("No user id");
+  if (!session.data.session?.user?.id) throw new Error("No user id");
   return await db.query.projectMembers.findMany({
-    where: (projectMembers, { eq }) =>
-      eq(projectMembers.userId, session.data.session?.user.id!),
+    where: (pm, { eq }) => eq(pm.userId, session.data.session?.user?.id),
     with: {
       project: true,
     },
