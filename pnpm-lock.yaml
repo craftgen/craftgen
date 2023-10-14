@@ -157,7 +157,7 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6(@types/react-dom@18.2.7)(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
       '@seocraft/supabase':
-        specifier: workspace:*
+        specifier: '*'
         version: link:../supabase
       '@supabase/auth-helpers-nextjs':
         specifier: ^0.8.1
