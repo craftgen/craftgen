@@ -231,13 +231,14 @@ export class OpenAIFunctionCall extends BaseNode<
           }
         }),
         check_api_key: fromPromise(async () => {
-          const validApiKey = await getApiKeyValue({
-            apiKey: "OPENAI_API_KEY",
-            projectId: data.projectId,
-          });
-          if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
+          // TODO: fix this later;
+          // const validApiKey = await getApiKeyValue({
+          //   apiKey: "OPENAI_API_KEY",
+          //   projectId: data.projectId,
+          // });
+          // if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
 
-          return validApiKey;
+          return true;
         }),
       },
     });

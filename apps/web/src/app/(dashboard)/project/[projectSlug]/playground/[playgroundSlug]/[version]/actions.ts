@@ -16,15 +16,6 @@ import {
 } from "modelfusion";
 import { WORKFLOW_NODE_TRIGGER } from "@/jobs/workflow-execution-step";
 
-const getApiKeyFromProject = async (projectId: string) => {
-  const apiKey = await getApiKeyValue({
-    projectId,
-    apiKey: "OPENAI_API_KEY",
-  });
-  if (!apiKey) throw new Error("Missing API Key, `OPENAI_API_KEY`");
-
-  return apiKey;
-};
 
 export const checkExecutionExist = action(
   z.object({ executionId: z.string() }),
@@ -277,20 +268,26 @@ export const generateTextFn = async ({
   return text;
 };
 
-export const getApiKeyValue = async (params: {
+const getApiKeyFromProject = async (projectId: string) => {
+  const apiKey = await getApiKeyValue({
+    projectId,
+    apiKey: "OPENAI_API_KEY",
+  });
+  if (!apiKey) throw new Error("Missing API Key, `OPENAI_API_KEY`");
+
+  return apiKey;
+};
+
+const getApiKeyValue = async (params: {
   projectId: string;
   apiKey: string;
-}): Promise<boolean> => {
+}): Promise<string | null> => {
   const variable = await db.query.variable.findFirst({
     where: (variable, { eq, and }) =>
       and(
         eq(variable.key, params.apiKey),
         eq(variable.project_id, params.projectId)
       ),
-      columns: {
-        value: true,
-      }
-    
   });
-  return !!variable?.value;
+  return variable?.value!;
 };
