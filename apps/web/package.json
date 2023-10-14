@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "pnpm with-env next dev",
+    "dev:prod": "pnpm with-env:prod next dev",
     "build": "pnpm with-env next build",
     "start": "next start",
     "lint": "next lint",
-    "with-env": "dotenv -e ../.env --"
+    "with-env": "dotenv -e ../.env --",
+    "with-env:prod": "dotenv -e ../.env.prod --"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.1",

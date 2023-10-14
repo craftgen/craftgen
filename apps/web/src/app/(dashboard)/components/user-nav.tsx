@@ -18,6 +18,7 @@ import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 import { Key } from "ts-key-enum";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
@@ -35,6 +36,13 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const handleBillingClick = () => {
     router.push(`/billing`);
   };
+  const supabase = createClientComponentClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+  useHotkeys(`${Key.Meta}+${Key.Shift}+q`, handleLogout);
 
   useHotkeys(`${Key.Meta}+${Key.Shift}+p`, handleProfileClick);
 
@@ -79,7 +87,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={handleLogout}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

@@ -5,12 +5,18 @@ import { sql } from "drizzle-orm";
 export * from "./schema";
 import { Session } from "@supabase/supabase-js";
 import * as jose from "jose";
-
+// import postgres from "postgres";
 
 // TODO: https://github.com/drizzle-team/drizzle-orm/issues/928#issuecomment-1739105895
 const connectionString = process.env.POSTGRES_URL;
-const pool = new Pool({ connectionString: connectionString });
+
+// const getClient = (): any => {
+//   const client = postgres(connectionString as string);
+//   return client;
+// };
 // const postgresSql = postgres(connectionString as string);
+const pool = new Pool({ connectionString: connectionString });
+// const client = getClient();
 export const db = drizzle(pool, {
   schema,
   logger: false,
