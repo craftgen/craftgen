@@ -1,12 +1,10 @@
 import { client } from "@/trigger";
-import { getWorkflow } from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundSlug]/action";
-import { createHeadlessEditor } from "@/app/(dashboard)/project/[projectSlug]/playground/[playgroundSlug]/[version]/headless";
 import { WORKFLOW_TRIGGER } from "./workflow-trigger";
 import { eventTrigger } from "@trigger.dev/sdk";
 import { waitFor } from "xstate";
-import { WORKFLOW_NODE_TRIGGER } from "./workflow-execution-step";
-import { z } from "zod";
 import { isEqual } from "lodash-es";
+import { getWorkflow } from "@/actions/get-workflow";
+import { createHeadlessEditor } from "@/core/headless";
 
 client.defineJob({
   id: WORKFLOW_TRIGGER.name,

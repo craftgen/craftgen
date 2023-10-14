@@ -1,7 +1,8 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { getWorkflowInputOutput, getWorkflowMeta } from "./action";
 import { InputForm } from "./components/input-form";
+import { getWorkflowMeta } from "@/actions/get-workflow-meta";
+import { getWorkflowInputOutput } from "@/actions/get-workflow-input-output";
 
 type Props = {
   params: {

@@ -1,11 +1,9 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import {
-  getWorkflow,
-  getWorkflowVersions as getWorkflowWithVersions,
-} from "../action";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { getWorkflow } from "@/actions/get-workflow";
+import { getWorkflowVersions } from "@/actions/get-workflow-versions";
 
 type Props = {
   params: {
@@ -31,7 +29,7 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const { data: workflow } = await getWorkflowWithVersions({
+  const { data: workflow } = await getWorkflowVersions({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });

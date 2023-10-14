@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getWorkflowMeta } from "./action";
 import { ModuleHeader } from "./components/module-header";
+import { getWorkflowMeta } from "@/actions/get-workflow-meta";
 
 const PlaygroundLayout = async (props: {
   params: {

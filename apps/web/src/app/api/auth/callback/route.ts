@@ -5,7 +5,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Database } from "@seocraft/supabase/db/database.types";
 import { BASE_URL } from "@/lib/constants";
-import { db, eq, user } from "@seocraft/supabase/db";
+import {
+  and,
+  db,
+  eq,
+  project,
+  projectMembers,
+  user,
+} from "@seocraft/supabase/db";
 
 // export const runtime = "edge";
 
@@ -34,17 +41,22 @@ export async function GET(request: NextRequest) {
   if (redirect) {
     return NextResponse.redirect(`${BASE_URL}/${redirect}`);
   }
-
-  const project = await db.query.project.findFirst({
-    where: (project) => eq(project.personal, true),
-    with: {
-      members: {
-        where: (projectMembers) => eq(projectMembers.userId, session?.user.id!),
-      },
-    },
-  });
-  if (!project) {
+  const [projectS] = await db
+    .select()
+    .from(project)
+    .leftJoin(
+      projectMembers,
+      and(
+        eq(projectMembers.userId, session?.user.id!),
+        eq(projectMembers.projectId, project.id)
+      )
+    )
+    .where(
+      and(eq(project.personal, true), eq(project.id, projectMembers.projectId))
+    )
+    .limit(1);
+  if (!projectS.project) {
     return NextResponse.redirect(`${BASE_URL}/explore`);
   }
-  return NextResponse.redirect(`${BASE_URL}/${project.slug}`);
+  return NextResponse.redirect(`${BASE_URL}/${projectS.project.slug}`);
 }

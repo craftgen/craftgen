@@ -2,11 +2,9 @@
 
 import { useMemo } from "react";
 import { ResultOfAction } from "@/lib/type";
-import { createExecution, getWorkflowMeta } from "../action";
 import { useForm } from "react-hook-form";
 import { ajvResolver } from "@hookform/resolvers/ajv";
 import { ContextFrom } from "xstate";
-import { InputNodeMachine } from "../[version]/nodes/io/input.node";
 import {
   Form,
   FormField,
@@ -17,8 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Play } from "lucide-react";
-import { renderField } from "../[version]/input/input-window";
 import { Button } from "@/components/ui/button";
+import type { getWorkflowMeta } from "@/actions/get-workflow-meta";
+import { InputNodeMachine } from "@/core/nodes/io/input.node";
+import { renderField } from "@/core/control-utils";
 
 export const InputForm: React.FC<{
   workflow: ResultOfAction<typeof getWorkflowMeta>;

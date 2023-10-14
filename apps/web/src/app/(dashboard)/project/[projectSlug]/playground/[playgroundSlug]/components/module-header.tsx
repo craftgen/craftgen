@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { getWorkflowMeta } from "../action";
+import type { getWorkflowMeta } from "@/actions/get-workflow-meta";
 import { ResultOfAction } from "@/lib/type";
 import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";

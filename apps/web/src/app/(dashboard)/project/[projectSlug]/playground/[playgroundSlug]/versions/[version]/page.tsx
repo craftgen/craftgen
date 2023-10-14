@@ -1,6 +1,5 @@
+import { getWorkflowMeta } from "@/actions/get-workflow-meta";
 import type { Metadata, ResolvingMetadata } from "next";
-
-import { getWorkflowMeta } from "../../action";
 
 type Props = {
   params: {

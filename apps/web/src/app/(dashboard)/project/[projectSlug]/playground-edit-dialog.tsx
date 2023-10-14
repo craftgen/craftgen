@@ -11,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { z } from "zod";
-import { updatePlayground } from "./playground/[playgroundSlug]/action";
 import {
   Form,
   FormControl,
@@ -26,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { mutate } from "swr";
 import { useProject } from "./hooks/use-project";
+import { updateWorkflowMeta } from "@/actions/update-workflow-meta";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -35,25 +35,25 @@ const formSchema = z.object({
   public: z.boolean().default(false),
 });
 
-export const PlaygroundEditDialog: React.FC<{
+export const WorkflowEditDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  playground: any;
-}> = ({ isOpen, onOpenChange, playground }) => {
+  workflow: any;
+}> = ({ isOpen, onOpenChange, workflow }) => {
   const { data: project } = useProject();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: playground?.name,
-      description: playground?.description || "",
-      public: playground?.public,
+      name: workflow?.name,
+      description: workflow?.description || "",
+      public: workflow?.public,
     },
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await updatePlayground(playground.id, data);
+    await updateWorkflowMeta(workflow.id, data);
     await mutate(`/api/project/${project?.id}/playgrounds`);
-    await mutate(`/api/playground/${playground.id}`);
+    await mutate(`/api/playground/${workflow.id}`);
     form.reset();
     onOpenChange(false);
   };
@@ -63,7 +63,7 @@ export const PlaygroundEditDialog: React.FC<{
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
-              <DialogTitle>Playground: {playground.name}</DialogTitle>
+              <DialogTitle>Playground: {workflow.name}</DialogTitle>
               <DialogDescription>Edit the your playground.</DialogDescription>
             </DialogHeader>
             <div>

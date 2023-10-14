@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { PlaygroundEditDialog } from "./playground-edit-dialog";
+import { WorkflowEditDialog } from "./playground-edit-dialog";
 import { useProject } from "./hooks/use-project";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { PlusIcon, Rocket } from "lucide-react";
@@ -115,10 +115,10 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
         </DropdownMenuContent>
       </DropdownMenu>
       {editDialog && (
-        <PlaygroundEditDialog
+        <WorkflowEditDialog
           isOpen={editDialog}
           onOpenChange={setEditDialog}
-          playground={row.original}
+          workflow={row.original}
         />
       )}
     </>
