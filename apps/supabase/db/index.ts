@@ -1,6 +1,4 @@
 import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
-// import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
-// import postgres from "postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 import { sql } from "drizzle-orm";
