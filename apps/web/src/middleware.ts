@@ -5,6 +5,14 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const supabase = createMiddlewareClient<Database>({ req, res });
-  await supabase.auth.getSession();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error) {
+    res.cookies.delete("sb-siwhcblzmpihqdvvooqz-auth-token");
+    return ["error", res];
+  }
   return res;
 }

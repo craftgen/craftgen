@@ -14,25 +14,37 @@ export async function GET(request: NextRequest) {
   const scopes = requestUrl.searchParams.get("scopeKeys")?.split(",");
   const code = requestUrl.searchParams.get("code");
 
-  if (code) {
-    const supabase = createRouteHandlerClient<Database>({ cookies });
+  if (!code) {
+    return NextResponse.json({ error: "No code provided" }, { status: 400 });
+  }
 
-    const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
-    const session = AuthResponse.data.session;
+  const supabase = createRouteHandlerClient<Database>({ cookies });
 
-    if (scopes && session) {
-      await db
-        .update(user)
-        .set({ google_scopes: scopes })
-        .where(eq(user.id, session?.user.id));
-    }
+  const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
+  const session = AuthResponse.data.session;
+
+  if (scopes && session) {
+    await db
+      .update(user)
+      .set({ google_scopes: scopes })
+      .where(eq(user.id, session?.user.id));
   }
 
   const redirect = requestUrl.searchParams.get("redirect");
-
-  if (!redirect) {
-    return NextResponse.redirect(`${BASE_URL}/dashboard`);
+  if (redirect) {
+    return NextResponse.redirect(`${BASE_URL}/${redirect}`);
   }
 
-  return NextResponse.redirect(`${BASE_URL}/${redirect}`);
+  const project = await db.query.project.findFirst({
+    where: (project) => eq(project.personal, true),
+    with: {
+      members: {
+        where: (projectMembers) => eq(projectMembers.userId, session?.user.id!),
+      },
+    },
+  });
+  if (!project) {
+    return NextResponse.redirect(`${BASE_URL}/explore`);
+  }
+  return NextResponse.redirect(`${BASE_URL}/${project.slug}`);
 }
