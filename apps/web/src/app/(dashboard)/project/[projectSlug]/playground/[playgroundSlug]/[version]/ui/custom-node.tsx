@@ -167,7 +167,7 @@ export function CustomNode(props: Props<Schemes>) {
         throw new Error("Execution not created");
       }
       setWorkflowExecutionId(execution.id);
-      // di?.engine?.execute(props.data.id, undefined, execution.id);
+      di?.engine?.execute(props.data.id, undefined, execution.id);
     } else {
       di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
     }

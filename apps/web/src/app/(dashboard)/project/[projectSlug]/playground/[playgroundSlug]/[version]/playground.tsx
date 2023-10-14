@@ -226,6 +226,9 @@ export const Playground: React.FC<{
       return <InputWindow />;
     }
     if (component === "logs") {
+      if (workflow.readonly) {
+        return <LoginToContinue />;
+      }
       return <LogsTab workflow={workflow} />;
     }
   };
@@ -438,6 +441,21 @@ const Composer: React.FC<{
       <ContextMenuProvider>
         <div ref={ref} className="w-full h-full " />
       </ContextMenuProvider>
+    </div>
+  );
+};
+
+const LoginToContinue: React.FC<{}> = ({}) => {
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full">
+      <h2 className="text-2xl font-bold mb-4">Please login to continue</h2>
+      <Button
+        onClick={() => {
+          redirect("/login");
+        }}
+      >
+        Login
+      </Button>
     </div>
   );
 };

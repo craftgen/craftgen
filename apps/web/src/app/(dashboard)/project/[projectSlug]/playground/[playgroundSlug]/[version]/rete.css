@@ -7,7 +7,7 @@
   --color-background: hsl(var(--background));
   --color-base: hsl(var(--card));
   --color-1: hsl(var(--muted), 2);
-  --color-2: #1a1a1a;
+  --color-2: hsl(var(--card));
   --color-3: #262626;
   --color-4: hsl(var(--muted));
   --color-5: #404040;
