@@ -1,11 +1,9 @@
 import { Playground } from "./playground";
 import "@/core/rete.css";
-import { CreateReleaseButton } from "./components/create-release-button";
-import { MenubarDemo } from "./components/menubar";
-import { VersionHistory } from "./components/version-history";
-import { RestoreVersionButton } from "./components/restore-version-button";
 import { redirect } from "next/navigation";
 import { getWorkflow } from "@/actions/get-workflow";
+import { cookies } from "next/headers";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -17,12 +15,8 @@ const PlaygroundPage = async (props: {
     execution?: string;
   };
 }) => {
-  console.log({
-    projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.workflowSlug,
-    executionId: props.searchParams.execution,
-    version: Number(props.params.version),
-  });
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
   const { data: workflow } = await getWorkflow({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
@@ -36,9 +30,10 @@ const PlaygroundPage = async (props: {
       `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`
     );
   }
-  return (
-      <Playground workflow={workflow} />
-  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return <Playground workflow={workflow} session={session} />;
 };
 
 export default PlaygroundPage;

@@ -46,6 +46,8 @@ import { MenubarDemo } from "./components/menubar";
 import { CreateReleaseButton } from "./components/create-release-button";
 import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
+import { UserNav } from "@/app/(dashboard)/components/user-nav";
+import { Session } from "@supabase/supabase-js";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -115,7 +117,8 @@ const defaultLayout: FlexLayout.IJsonModel = {
 
 export const Playground: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
-}> = ({ workflow }) => {
+  session: Session | null;
+}> = ({ workflow, session }) => {
   const params = useParams();
   const searchParams = useSearchParams();
   const executionId = searchParams.get("execution");
@@ -225,9 +228,10 @@ export const Playground: React.FC<{
     <CraftContext.Provider value={store?.current}>
       <TooltipProvider>
         <div className="h-screen">
-          <div className="flex items-center w-full justify-between border-b-2 h-10">
-            <MenubarDemo />
+          <div className="flex items-center w-full justify-between border-b-2 h-10 px-2">
+            <MenubarDemo  />
             <div className="flex space-x-2 items-center">
+              {session && <UserNav session={session} />}
               <VersionHistory workflow={workflow} />
               {!workflow.version.publishedAt ? (
                 <CreateReleaseButton
