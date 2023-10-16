@@ -11,5 +11,5 @@ export const RestoreVersionButton = ({}) => {
       description: "Coming soon.",
     });
   };
-  return <Button onClick={handleRestoreVersion}>Restore</Button>;
+  return <Button onClick={handleRestoreVersion} variant={'outline'}>Restore</Button>;
 };

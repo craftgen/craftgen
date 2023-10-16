@@ -156,16 +156,20 @@ export const Composer: React.FC<{
   return (
     <div className="w-full h-full">
       <div className="absolute top-1 right-1 z-50 flex ">
-        {workflow.readonly && (
+        {workflow.readonly && workflow.version.publishedAt && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant={"outline"} className="cursor-pointer" size="sm">
-                <Lock className="w-4 h-4 mr-2" />
-                Read Only
+              <Button
+                variant={"outline"}
+                className="cursor-pointer group"
+                size="sm"
+              >
+                <Lock className="w-4 h-4 group-hover:mr-2" />
+                <span className="hidden group-hover:block">Read Only</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              You don&apos;t have access to edit fork it, to customize
+              This workflow is read-only because it is published.
             </TooltipContent>
           </Tooltip>
         )}

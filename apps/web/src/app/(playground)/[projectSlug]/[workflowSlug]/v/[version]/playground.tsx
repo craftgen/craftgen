@@ -229,7 +229,7 @@ export const Playground: React.FC<{
       <TooltipProvider>
         <div className="h-screen">
           <div className="flex items-center w-full justify-between border-b-2 h-10 px-2">
-            <MenubarDemo  />
+            <MenubarDemo />
             <div className="flex space-x-2 items-center">
               {session && <UserNav session={session} />}
               <VersionHistory workflow={workflow} />

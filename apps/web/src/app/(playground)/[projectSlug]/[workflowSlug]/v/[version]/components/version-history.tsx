@@ -36,7 +36,7 @@ export const VersionHistory: React.FC<{
       open={open}
       onOpenChange={setOpen}
     >
-      <SelectTrigger>
+      <SelectTrigger className="h-8 font-mono">
         <SelectValue placeholder="Select a version" />
       </SelectTrigger>
       <SelectContent>
