@@ -37,7 +37,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const router = useRouter();
 
   const handleProfileClick = () => {
-    router.push(`/@${user?.username}`);
+    router.push(`/${user?.username}`);
   };
 
   const handleBillingClick = () => {

@@ -238,7 +238,7 @@ export async function createEditor(params: {
       options: {
         "elk.spacing.nodeNode": 100,
         "spacing.nodeNodeBetweenLayers": 100,
-      },
+      } as any,
     });
 
   AreaExtensions.showInputControl(area);
