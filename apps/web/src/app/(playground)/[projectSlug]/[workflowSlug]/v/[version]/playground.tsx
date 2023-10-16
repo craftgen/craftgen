@@ -49,6 +49,7 @@ import { VersionHistory } from "./components/version-history";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Session } from "@supabase/supabase-js";
 import { ActorStatus } from "xstate";
+import { Textarea } from "@/components/ui/textarea";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -156,7 +157,7 @@ export const Playground: React.FC<{
           params.delete("execution");
         }
 
-        router.replace(pathname + "?" + params.toString());
+        router.replace(pathname + "?" + params.toString(),);
       }
     );
     return subb;
@@ -178,6 +179,7 @@ export const Playground: React.FC<{
       }
     }
   }, [di, workflow]);
+
   useEffect(() => {
     setWorkflowExecutionId(searchParams.get("execution"));
   }, [searchParams.get("execution")]);
@@ -440,6 +442,9 @@ export const renderFieldValueBaseOnSocketType = (
 ) => {
   switch (socket.name) {
     case "String":
+      if (value.length > 100) {
+        return <Textarea value={value} rows={10} />;
+      }
       return <Input value={value} readOnly />;
 
     default:

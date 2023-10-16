@@ -402,22 +402,6 @@ export class OpenAIFunctionCall extends BaseNode<
     }
   }
 
-  // async execute(input: any, forward: (output: "trigger") => void) {
-  //   const inputs = this.getInputs();
-  //   this.actor.send({
-  //     type: "RUN",
-  //     inputs,
-  //   });
-  //   await this.waitForState(this.actor, "complete");
-  //   forward("trigger");
-  // }
-
-  // async data() {
-  //   // const inputs = this.getInputs();
-  //   // await this.waitForState(this.actor, "complete");
-  //   const state = this.actor.getSnapshot();
-  //   return state.context.outputs;
-  // }
 
   serialize() {
     return {};

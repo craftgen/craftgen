@@ -72,6 +72,7 @@ export class BaseNode<
   } = {};
 
   public isExecution: boolean;
+  public isReady: boolean = false;
   executionNode: Node["nodeExectutions"][number] | undefined;
 
   constructor(
@@ -152,7 +153,10 @@ export class BaseNode<
           state.matches("complete")
         ) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-          await this.updateAncestors();
+          if (!this.isExecution) {
+            // Only update ancestors if this is not an execution node
+            await this.updateAncestors();
+          }
         }
 
         prev = state;
@@ -167,6 +171,7 @@ export class BaseNode<
     });
 
     this.actor.start();
+    this.isReady = true;
   }
 
   public async updateAncestors() {
@@ -182,6 +187,7 @@ export class BaseNode<
   }
 
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
+    console.log(this.identifier, "SAVING STATE");
     return await updateExecutionNode({
       id: this.executionNode?.id!,
       state: JSON.stringify(state),
