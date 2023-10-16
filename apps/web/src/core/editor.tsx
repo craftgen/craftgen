@@ -175,7 +175,13 @@ export async function createEditor(params: {
   history.addPreset(HistoryPresets.classic.setup());
   HistoryExtensions.keyboard(history);
 
-  arrange.addPreset(ArrangePresets.classic.setup());
+  arrange.addPreset(
+    ArrangePresets.classic.setup({
+      spacing: 100,
+      top: 20,
+      // bottom: 15,
+    })
+  );
   const inspector = new InspectorPlugin(params.store);
 
   editor.use(engine);
@@ -227,9 +233,17 @@ export async function createEditor(params: {
 
   AreaExtensions.simpleNodesOrder(area);
 
+  const layout = async () =>
+    await arrange.layout({
+      options: {
+        "elk.spacing.nodeNode": 100,
+        "spacing.nodeNodeBetweenLayers": 100,
+      },
+    });
+
   AreaExtensions.showInputControl(area);
   const setUI = async () => {
-    await arrange.layout();
+    await layout();
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 
@@ -283,7 +297,7 @@ export async function createEditor(params: {
     nodes: params.workflow.versions[0].nodes, // TODO:
     edges: params.workflow.versions[0].edges as any, //TODO: fix this types.
   });
-  await arrange.layout();
+  await layout();
 
   AreaExtensions.zoomAt(area, editor.getNodes());
 

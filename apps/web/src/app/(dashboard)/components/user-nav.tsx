@@ -4,12 +4,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Session } from "@supabase/supabase-js";
@@ -19,6 +24,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 import { Key } from "ts-key-enum";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useTheme } from "next-themes";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
@@ -45,6 +52,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   useHotkeys(`${Key.Meta}+${Key.Shift}+q`, handleLogout);
 
   useHotkeys(`${Key.Meta}+${Key.Shift}+p`, handleProfileClick);
+  const { setTheme, theme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -85,6 +93,33 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>New Team</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <span>Toggle theme</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuCheckboxItem
+                  checked={theme === "light"}
+                  onCheckedChange={() => setTheme("light")}
+                >
+                  Light
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={theme === "dark"}
+                  onCheckedChange={() => setTheme("dark")}
+                >
+                  Dark
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={theme === "system"}
+                  onCheckedChange={() => setTheme("system")}
+                >
+                  System
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleLogout}>
