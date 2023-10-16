@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;
@@ -118,10 +119,21 @@ export function SocketGeneratorControlComponent(props: {
           )}
         />
         <ScrollArea className="max-h-fit py-4 flex flex-col">
-          <Accordion type="multiple" className="border rounded p-2">
+          <Accordion
+            type="multiple"
+            className={cn(
+              "border rounded p-2",
+              fields.length === 0 && "border-dashed"
+            )}
+          >
+            {fields.length === 0 && (
+              <div className="items-center justify-center flex text-muted-foreground text-sm">
+                No fields added yet
+              </div>
+            )}
             {fields.map((field, index) => (
               <AccordionItem value={`field.${index}`} key={`field.${index}`}>
-                <AccordionTrigger>
+                <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center justify-between w-full">
                     <Badge>{field.type}</Badge>
                     {field.name || `Untitled Field`}
