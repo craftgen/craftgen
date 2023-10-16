@@ -50,6 +50,7 @@ export const createExecution = action(
         .values({
           workflowId: params.workflowId,
           workflowVersionId: params.workflowVersionId,
+          entryWorkflowNodeId: params.input.id,
         })
         .returning();
 

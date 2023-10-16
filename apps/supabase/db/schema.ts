@@ -279,6 +279,10 @@ export const workflowExecution = pgTable("workflow_execution", {
     .$type<"active" | "done" | "error" | "stopped">()
     .default("active")
     .notNull(),
+  entryWorkflowNodeId: text("entry_node_id")
+    .references(() => workflowNode.id)
+    .notNull(),
+  exitWorkflowNodeId: text("exit_node_id").references(() => workflowNode.id),
   startedAt: timestamp("timestamp").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),

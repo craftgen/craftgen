@@ -48,6 +48,7 @@ import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Session } from "@supabase/supabase-js";
+import { ActorStatus } from "xstate";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -154,15 +155,29 @@ export const Playground: React.FC<{
         if (params.get("execution") === workflow.execution?.id) {
           params.delete("execution");
         }
-        router.push(pathname + "?" + params.toString());
+
+        router.replace(pathname + "?" + params.toString());
       }
     );
     return subb;
   }, []);
 
-  const { layout, di, setTheme, setWorkflowExecutionId } = useStore(
-    store.current
-  );
+  const { layout, di, setTheme, setWorkflowExecutionId, workflowExecutionId } =
+    useStore(store.current);
+
+  useEffect(() => {
+    const entryNodeId = workflow.execution?.entryWorkflowNodeId;
+    if (workflowExecutionId && entryNodeId) {
+      const isNotComplete = di?.graph
+        .successors(entryNodeId)
+        .nodes()
+        .some((n) => n.actor.status === ActorStatus.Running);
+      console.log({ isNotComplete });
+      if (isNotComplete) {
+        di?.engine?.execute(entryNodeId, undefined, workflowExecutionId);
+      }
+    }
+  }, [di, workflow]);
   useEffect(() => {
     setWorkflowExecutionId(searchParams.get("execution"));
   }, [searchParams.get("execution")]);

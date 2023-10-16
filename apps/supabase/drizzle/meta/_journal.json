@@ -50,6 +50,13 @@
       "when": 1697278321495,
       "tag": "0006_nifty_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1697443237052,
+      "tag": "0007_nervous_alex_wilder",
+      "breakpoints": true
     }
   ]
 }

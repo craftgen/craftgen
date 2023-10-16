@@ -5,7 +5,7 @@ import useSWR, { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
@@ -50,9 +50,16 @@ export const LogsTab: React.FC<{
 type Execution = ResultOfAction<typeof getLogs>["executions"][number];
 
 const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const handleDeleteExecution = (executionId: string) => {
     deleteExecution({ executionId });
+    if (isActiveView(executionId)) {
+      const search = new URLSearchParams(searchParams);
+      search.delete("execution");
+      router.replace(`${pathname}?${search.toString()}`);
+    }
     mutate("/api/executions");
   };
 

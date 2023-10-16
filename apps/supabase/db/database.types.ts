@@ -432,6 +432,8 @@ export interface Database {
         Row: {
           completed_at: string | null
           duration: number | null
+          entry_node_id: string
+          exit_node_id: string | null
           id: string
           status: string
           timestamp: string
@@ -442,6 +444,8 @@ export interface Database {
         Insert: {
           completed_at?: string | null
           duration?: number | null
+          entry_node_id: string
+          exit_node_id?: string | null
           id: string
           status?: string
           timestamp?: string
@@ -452,6 +456,8 @@ export interface Database {
         Update: {
           completed_at?: string | null
           duration?: number | null
+          entry_node_id?: string
+          exit_node_id?: string | null
           id?: string
           status?: string
           timestamp?: string
@@ -460,6 +466,18 @@ export interface Database {
           workflow_version_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workflow_execution_entry_node_id_workflow_node_id_fk"
+            columns: ["entry_node_id"]
+            referencedRelation: "workflow_node"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_exit_node_id_workflow_node_id_fk"
+            columns: ["exit_node_id"]
+            referencedRelation: "workflow_node"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "workflow_execution_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
