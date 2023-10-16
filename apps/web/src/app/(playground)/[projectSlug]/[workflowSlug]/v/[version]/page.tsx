@@ -37,23 +37,7 @@ const PlaygroundPage = async (props: {
     );
   }
   return (
-    <div className="border-t-1 border-red-400">
-      <div className="flex items-center w-full justify-between border-b-2 ">
-        <MenubarDemo />
-        <div className="flex space-x-2 items-center">
-          <VersionHistory workflow={workflow} />
-          {!workflow.version.publishedAt ? (
-            <CreateReleaseButton
-              playgroundId={workflow.id}
-              version={workflow.currentVersion}
-            />
-          ) : (
-            <RestoreVersionButton />
-          )}
-        </div>
-      </div>
       <Playground workflow={workflow} />
-    </div>
   );
 };
 

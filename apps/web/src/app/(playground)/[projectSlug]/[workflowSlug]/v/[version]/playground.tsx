@@ -42,6 +42,10 @@ import { useTheme } from "next-themes";
 import { getWorkflow } from "@/actions/get-workflow";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { Composer } from "@/core/composer";
+import { MenubarDemo } from "./components/menubar";
+import { CreateReleaseButton } from "./components/create-release-button";
+import { RestoreVersionButton } from "./components/restore-version-button";
+import { VersionHistory } from "./components/version-history";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -220,46 +224,62 @@ export const Playground: React.FC<{
   return (
     <CraftContext.Provider value={store?.current}>
       <TooltipProvider>
-        <div className="w-full h-full bg-muted/20 min-h-[calc(100vh-5rem)] py-1 px-1 relative">
-          <FlexLayout.Layout
-            model={layout}
-            factory={factory}
-            onModelChange={(model) => debouncedLayoutChange(model)}
-            onRenderTab={(node, renderValues) => {
-              const component = node.getComponent();
-              match(component)
-                .with("rete", () => {
-                  renderValues.leading = (
-                    <LayoutDashboard className="w-4 h-4" />
-                  );
-                })
-                .with("inspector", () => {
-                  renderValues.leading = (
-                    <MousePointerSquareDashed className="w-4 h-4" />
-                  );
-                })
-                .with("inputWindow", () => {
-                  renderValues.leading = <Icons.input className="w-4 h-4" />;
-                })
-                .with("logs", () => {
-                  renderValues.leading = <FileClock className="w-4 h-4" />;
-                });
-            }}
-            onRenderTabSet={(node, renderValues) => {
-              // renderValues.stickyButtons = [<FileClock className="w-4 h-4" />];
-              // // renderValues.buttons.push(<Icons.add className="w-4 h-4" />);
-              // renderValues.centerContent = (
-              //   <Icons.alignCenter className="w-4 h-4" />
-              // );
-              // renderValues.headerContent = (
-              //   <Icons.alignLeft className="w-4 h-4" />
-              // );
-              // renderValues.headerButtons.push(
-              //   <Icons.bold className="w-4 h-4" />
-              // );
-            }}
-            realtimeResize
-          />
+        <div className="h-screen">
+          <div className="flex items-center w-full justify-between border-b-2 h-10">
+            <MenubarDemo />
+            <div className="flex space-x-2 items-center">
+              <VersionHistory workflow={workflow} />
+              {!workflow.version.publishedAt ? (
+                <CreateReleaseButton
+                  playgroundId={workflow.id}
+                  version={workflow.currentVersion}
+                />
+              ) : (
+                <RestoreVersionButton />
+              )}
+            </div>
+          </div>
+          <div className="w-full h-[calc(100vh-2.5rem)] bg-muted/20 py-1 px-1 relative">
+            <FlexLayout.Layout
+              model={layout}
+              factory={factory}
+              onModelChange={(model) => debouncedLayoutChange(model)}
+              onRenderTab={(node, renderValues) => {
+                const component = node.getComponent();
+                match(component)
+                  .with("rete", () => {
+                    renderValues.leading = (
+                      <LayoutDashboard className="w-4 h-4" />
+                    );
+                  })
+                  .with("inspector", () => {
+                    renderValues.leading = (
+                      <MousePointerSquareDashed className="w-4 h-4" />
+                    );
+                  })
+                  .with("inputWindow", () => {
+                    renderValues.leading = <Icons.input className="w-4 h-4" />;
+                  })
+                  .with("logs", () => {
+                    renderValues.leading = <FileClock className="w-4 h-4" />;
+                  });
+              }}
+              onRenderTabSet={(node, renderValues) => {
+                // renderValues.stickyButtons = [<FileClock className="w-4 h-4" />];
+                // // renderValues.buttons.push(<Icons.add className="w-4 h-4" />);
+                // renderValues.centerContent = (
+                //   <Icons.alignCenter className="w-4 h-4" />
+                // );
+                // renderValues.headerContent = (
+                //   <Icons.alignLeft className="w-4 h-4" />
+                // );
+                // renderValues.headerButtons.push(
+                //   <Icons.bold className="w-4 h-4" />
+                // );
+              }}
+              realtimeResize
+            />
+          </div>
         </div>
       </TooltipProvider>
     </CraftContext.Provider>
