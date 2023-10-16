@@ -139,7 +139,6 @@ export function CustomNode(props: Props<Schemes>) {
         title: "Creating new execution",
         description: "",
       });
-      // return;
     }
     if (!workflowExecutionId || status === "done") {
       const nodes = di?.editor.getNodes().map((n) => {

@@ -132,7 +132,7 @@ export async function createEditor(params: {
     }
   );
   AreaExtensions.restrictor(area, {
-    scaling: () => ({ min: 0.1, max: 1.2 }),
+    scaling: () => ({ min: 0.18, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
   AreaExtensions.snapGrid(area, {
@@ -177,9 +177,9 @@ export async function createEditor(params: {
 
   arrange.addPreset(
     ArrangePresets.classic.setup({
-      spacing: 100,
-      top: 20,
-      // bottom: 15,
+      spacing: 40,
+      top: 100,
+      bottom: 100,
     })
   );
   const inspector = new InspectorPlugin(params.store);
