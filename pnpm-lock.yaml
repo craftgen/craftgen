@@ -24,8 +24,83 @@ importers:
         specifier: 1.10.13
         version: 1.10.13
 
+  apps/core:
+    dependencies:
+      '@types/lodash-es':
+        specifier: ^4.17.8
+        version: 4.17.8
+      d3-shape:
+        specifier: ^3.2.0
+        version: 3.2.0
+      elkjs:
+        specifier: ^0.8.2
+        version: 0.8.2
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-google-drive-picker:
+        specifier: ^1.2.2
+        version: 1.2.2(react-dom@18.2.0)(react@18.2.0)
+      rete:
+        specifier: ^2.0.2
+        version: 2.0.2
+      rete-area-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(rete@2.0.2)
+      rete-auto-arrange-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(elkjs@0.8.2)(rete-area-plugin@2.0.0)(rete@2.0.2)(web-worker@1.2.0)
+      rete-connection-path-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(d3-shape@3.2.0)(rete-area-plugin@2.0.0)(rete-render-utils@2.0.1)(rete@2.0.2)
+      rete-connection-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(rete-area-plugin@2.0.0)(rete@2.0.2)
+      rete-engine:
+        specifier: ^2.0.0
+        version: 2.0.0(rete@2.0.2)
+      rete-history-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(rete-area-plugin@2.0.0)(rete@2.0.2)
+      rete-react-plugin:
+        specifier: ^2.0.1
+        version: 2.0.1(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.0)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.0.7)
+      rete-readonly-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(rete-area-plugin@2.0.0)(rete-connection-plugin@2.0.0)(rete@2.0.2)
+      rete-render-utils:
+        specifier: ^2.0.1
+        version: 2.0.1(rete-area-plugin@2.0.0)(rete@2.0.2)
+      rete-structures:
+        specifier: ^2.0.0
+        version: 2.0.0(rete@2.0.2)
+      tailwind-styled-components:
+        specifier: ^2.2.0
+        version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
+      ts-pattern:
+        specifier: ^5.0.5
+        version: 5.0.5
+      xstate:
+        specifier: 5.0.0-beta.34
+        version: 5.0.0-beta.34
+      zod:
+        specifier: ^3.21.4
+        version: 3.22.3
+      zustand:
+        specifier: ^4.3.9
+        version: 4.3.9(react@18.2.0)
+
   apps/extension:
     dependencies:
+      '@seocraft/core':
+        specifier: '*'
+        version: link:../core
       plasmo:
         specifier: 0.83.0
         version: 0.83.0(react-dom@18.2.0)(react@18.2.0)
@@ -10048,7 +10123,7 @@ packages:
       hanji: 0.0.5
       json-diff: 0.9.0
       minimatch: 7.4.6
-      zod: 3.21.4
+      zod: 3.22.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -14772,7 +14847,7 @@ packages:
     peerDependencies:
       rete: ^2.0.0
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
       rete: 2.0.2
     dev: false
 
@@ -14784,7 +14859,7 @@ packages:
       rete-area-plugin: ^2.0.0
       web-worker: ^1.2.0
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
       elkjs: 0.8.2
       rete: 2.0.2
       rete-area-plugin: 2.0.0(rete@2.0.2)
@@ -14843,7 +14918,7 @@ packages:
       rete: ^2.0.1
       rete-area-plugin: ^2.0.0
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
       rete: 2.0.2
       rete-area-plugin: 2.0.0(rete@2.0.2)
     dev: false
@@ -14869,7 +14944,7 @@ packages:
       rete-render-utils: ^2.0.0
       styled-components: ^5.3.6 || ^6
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       rete: 2.0.2
@@ -14898,7 +14973,7 @@ packages:
       rete: ^2.0.0
       rete-area-plugin: ^2.0.0
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
       rete: 2.0.2
       rete-area-plugin: 2.0.0(rete@2.0.2)
     dev: false
@@ -14915,7 +14990,7 @@ packages:
     resolution: {integrity: sha512-VZhyWl0E3dzcRRiN5OIVK4CIVcADZHO4XCFs85fjoi4ZYCPcB3P608wzq5MbdlYOfptPyuvKOrRqgFCtILdKIw==}
     requiresBuild: true
     dependencies:
-      '@babel/runtime': 7.21.5
+      '@babel/runtime': 7.22.15
     dev: false
 
   /reusify@1.0.4:
@@ -16599,6 +16674,10 @@ packages:
     resolution: {integrity: sha512-zHwbY2d2GGrsIySUCybrlq6YAPGM20yKpvliroDqfSbwa255Z1d7RYLkbbxiLx8SnEwDpWVple7JTXkjOw3JLA==}
     dev: false
 
+  /xstate@5.0.0-beta.34:
+    resolution: {integrity: sha512-blGMNp1kogr7dC96hLnulXF5OS8lddlW1or4wUTqaDHYKZACdTvCuAuT3yTrNcDDR/ihZJtFc0NvMfZ8PBsJRg==}
+    dev: false
+
   /xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -16653,10 +16732,10 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
-    dev: false
 
   /zustand@3.7.2(react@18.2.0):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}

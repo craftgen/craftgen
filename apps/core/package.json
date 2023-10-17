@@ -1,0 +1,37 @@
+{
+  "name": "@seocraft/core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash-es": "^4.17.8",
+    "d3-shape": "^3.2.0",
+    "elkjs": "^0.8.2",
+    "lodash-es": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "18.2.0",
+    "react-google-drive-picker": "^1.2.2",
+    "rete": "^2.0.2",
+    "rete-area-plugin": "^2.0.0",
+    "rete-auto-arrange-plugin": "^2.0.0",
+    "rete-connection-path-plugin": "^2.0.0",
+    "rete-connection-plugin": "^2.0.0",
+    "rete-engine": "^2.0.0",
+    "rete-history-plugin": "^2.0.0",
+    "rete-react-plugin": "^2.0.1",
+    "rete-readonly-plugin": "^2.0.0",
+    "rete-render-utils": "^2.0.1",
+    "rete-structures": "^2.0.0",
+    "tailwind-styled-components": "^2.2.0",
+    "ts-pattern": "^5.0.5",
+    "xstate": "5.0.0-beta.34",
+    "zod": "^3.21.4",
+    "zustand": "^4.3.9"
+  }
+}
