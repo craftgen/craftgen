@@ -1,4 +1,5 @@
 import { GetSchemes, NodeEditor } from "rete";
+import * as z from "zod";
 import { Structures } from "rete-structures/_types/types";
 
 import { Connection } from "./connection/connection";
@@ -79,6 +80,22 @@ export type Schemes = GetSchemes<NodeProps, ConnProps>;
 export type Position = { x: number; y: number };
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
+export const updateExecutionNodeParamSchema = z.object({
+  id: z.string(),
+  state: z.string(),
+});
+export const setContextParamSchema = z.object({
+  contextId: z.string(),
+  context: z.string(),
+});
+
+export interface WorkflowAPI {
+  updateExecutionNode: (
+    params: z.infer<typeof updateExecutionNodeParamSchema>
+  ) => Promise<void>;
+  setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
+}
+
 export type DiContainer = {
   headless: boolean;
   logger: any; // TODO: fix types
@@ -87,4 +104,5 @@ export type DiContainer = {
   engine: ControlFlowEngine<Schemes>;
   dataFlow: DataflowEngine<Schemes>;
   modules: Modules;
+  api: WorkflowAPI;
 };

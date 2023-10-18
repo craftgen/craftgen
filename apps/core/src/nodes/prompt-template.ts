@@ -1,14 +1,13 @@
-import { ClassicPreset } from "rete";
 import * as Sqrl from "squirrelly";
-import { DiContainer } from "../editor";
-import { isString, set, get, isEqual, merge } from "lodash-es";
-import { BaseNode, NodeData } from "./base";
+import { isString, set, get, merge } from "lodash-es";
+import type { BaseNode, NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
-import { Socket, stringSocket, triggerSocket } from "../sockets";
+import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
 import { Input, Output } from "../input-output";
+import type { DiContainer } from "../types";
 
 type Data = {
   value: string;

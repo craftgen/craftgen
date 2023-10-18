@@ -1,16 +1,24 @@
-import { NodeId } from "rete";
-import { DiContainer, NodeProps, NodeTypes } from "./types";
+import type { NodeId } from "rete";
+import type { DiContainer, NodeProps, NodeTypes } from "./types";
 import * as Nodes from "./nodes";
 import { Connection } from "./connection/connection";
-import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
+// import { selectWorkflowNodeSchema } from "@seocraft/supabase/db";
 import { z } from "zod";
-import { createNode } from "@/actions/create-node";
+// import { createNode } from "@/actions/create-node";
 
-type NodeWithState = z.infer<typeof selectWorkflowNodeSchema> & {
+type NodeWithState = {
+  id: NodeId;
+  type: NodeTypes;
   context: {
     state?: any;
   };
 };
+
+// type NodeWithState = z.infer<typeof selectWorkflowNodeSchema> & {
+//   context: {
+//     state?: any;
+//   };
+// };
 
 export async function createNodeInstance({
   di,
@@ -58,29 +66,29 @@ export async function createNodeInstance({
 
   if (!matched) throw new Error(`Unsupported node '${type}'`);
 
-  if (saveToDB) {
-    console.log("CREATING BRAND NEW NODE", data);
-    if (!workflowId) throw new Error("playgroundId is required");
-    if (!projectSlug) throw new Error("projectSlug is required");
-    if (!data.workflowVersionId)
-      throw new Error("workflowVersionId is required");
-    const { data: workflowNodeInDB } = await createNode({
-      workflowId,
-      workflowVersionId: data.workflowVersionId,
-      projectSlug,
-      type,
-      height: data.width,
-      width: data.height,
-      context: data.context?.state,
-    });
-    if (!workflowNodeInDB) throw new Error("Failed to create node in DB");
-    console.log("creating new node with", { data, nodeInDb: workflowNodeInDB });
+  // if (saveToDB) {
+  //   console.log("CREATING BRAND NEW NODE", data);
+  //   if (!workflowId) throw new Error("playgroundId is required");
+  //   if (!projectSlug) throw new Error("projectSlug is required");
+  //   if (!data.workflowVersionId)
+  //     throw new Error("workflowVersionId is required");
+  //   const { data: workflowNodeInDB } = await createNode({
+  //     workflowId,
+  //     workflowVersionId: data.workflowVersionId,
+  //     projectSlug,
+  //     type,
+  //     height: data.width,
+  //     width: data.height,
+  //     context: data.context?.state,
+  //   });
+  //   if (!workflowNodeInDB) throw new Error("Failed to create node in DB");
+  //   console.log("creating new node with", { data, nodeInDb: workflowNodeInDB });
 
-    const node = await matched(di, {
-      ...workflowNodeInDB,
-    });
-    return node;
-  }
+  //   const node = await matched(di, {
+  //     ...workflowNodeInDB,
+  //   });
+  //   return node;
+  // }
 
   const node = await matched(di, data);
   return node;

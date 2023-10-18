@@ -35,9 +35,18 @@ importers:
       elkjs:
         specifier: ^0.8.2
         version: 0.8.2
+      google-spreadsheet:
+        specifier: ^4.0.3
+        version: 4.0.3
+      googleapis:
+        specifier: ^122.0.0
+        version: 122.0.0(encoding@0.1.13)
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      modelfusion:
+        specifier: ^0.27.3
+        version: 0.27.3(zod-to-json-schema@3.21.4)(zod@3.22.3)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -47,6 +56,9 @@ importers:
       react-google-drive-picker:
         specifier: ^1.2.2
         version: 1.2.2(react-dom@18.2.0)(react@18.2.0)
+      replicate:
+        specifier: ^0.16.1
+        version: 0.16.1
       rete:
         specifier: ^2.0.2
         version: 2.0.2
@@ -80,12 +92,18 @@ importers:
       rete-structures:
         specifier: ^2.0.0
         version: 2.0.0(rete@2.0.2)
+      squirrelly:
+        specifier: ^9.0.0
+        version: 9.0.0
       tailwind-styled-components:
         specifier: ^2.2.0
         version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
       ts-pattern:
         specifier: ^5.0.5
         version: 5.0.5
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
       xstate:
         specifier: 5.0.0-beta.34
         version: 5.0.0-beta.34
@@ -98,6 +116,9 @@ importers:
 
   apps/extension:
     dependencies:
+      '@plasmohq/messaging':
+        specifier: ^0.5.0
+        version: 0.5.0(react@18.2.0)
       '@seocraft/core':
         specifier: '*'
         version: link:../core
@@ -193,6 +214,9 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.5.1
         version: 4.5.1(monaco-editor@0.41.0)(react-dom@18.2.0)(react@18.2.0)
+      '@plasmohq/messaging':
+        specifier: ^0.5.0
+        version: 0.5.0(react@18.2.0)
       '@radix-ui/react-accordion':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.2.7)(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
@@ -4059,6 +4083,18 @@ packages:
 
   /@plasmohq/init@0.7.0:
     resolution: {integrity: sha512-P75g48dqOGneJ+n0AcqnLE/TYflcaPc3B7h6EopnCBBYUDnCNBMwYmKAkaf5pnhsEB0ybPS6TU1C2DTGfqaW7A==}
+    dev: false
+
+  /@plasmohq/messaging@0.5.0(react@18.2.0):
+    resolution: {integrity: sha512-cYF750rguJDvnyJls2IHVAJTPVFtCEaMHMhnRsENfGaNqcRfXVfzwBGOABPg3k1iSBWBYLySh3Ht7QvFSnB3RQ==}
+    peerDependencies:
+      react: ^16.8.6 || ^17 || ^18
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      nanoid: 4.0.2
+      react: 18.2.0
     dev: false
 
   /@plasmohq/parcel-bundler@0.5.5:
@@ -13106,6 +13142,25 @@ packages:
       zod-to-json-schema: 3.21.4(zod@3.21.4)
     dev: false
 
+  /modelfusion@0.27.3(zod-to-json-schema@3.21.4)(zod@3.22.3):
+    resolution: {integrity: sha512-6MRg+aoJEEgz0DeZTs8/0mmF32V5nErVfBW4sihZpsWzKxKkf95cwVOIjyxsEuw03FvT/H4k5pYo7FxpZm24JA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@pinecone-database/pinecone': '*'
+      zod: ^3
+      zod-to-json-schema: ^3
+    peerDependenciesMeta:
+      '@pinecone-database/pinecone':
+        optional: true
+    dependencies:
+      eventsource-parser: 1.0.0
+      js-tiktoken: 1.0.7
+      nanoid: 3.3.6
+      secure-json-parse: 2.7.0
+      zod: 3.22.3
+      zod-to-json-schema: 3.21.4(zod@3.22.3)
+    dev: false
+
   /monaco-editor@0.41.0:
     resolution: {integrity: sha512-1o4olnZJsiLmv5pwLEAmzHTE/5geLKQ07BrGxlF4Ri/AXAc2yyDGZwHjiTqD8D/ROKUZmwMA28A+yEowLNOEcA==}
     dev: false
@@ -13186,6 +13241,12 @@ packages:
   /nanoid@3.3.6:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: false
+
+  /nanoid@4.0.2:
+    resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
+    engines: {node: ^14 || ^16 || >=18}
     hasBin: true
     dev: false
 
@@ -16728,6 +16789,14 @@ packages:
       zod: ^3.21.4
     dependencies:
       zod: 3.21.4
+    dev: false
+
+  /zod-to-json-schema@3.21.4(zod@3.22.3):
+    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.22.3
     dev: false
 
   /zod@3.21.4:

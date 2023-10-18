@@ -1,10 +1,10 @@
 import { assign, createMachine } from "xstate";
 import { v4 as uuidv4 } from "uuid";
-import { BaseNode, NodeData } from "./base";
-import { DiContainer } from "../editor";
+import type { BaseNode, NodeData } from "./base";
+import type { DiContainer } from "../types";
 import { ClassicPreset } from "rete";
 import { stringSocket, triggerSocket } from "../sockets";
-import type { MyValue } from "@/lib/plate/plate-types";
+// import type { MyValue } from "@/lib/plate/plate-types";
 // import { createNode } from "@udecode/plate-common";
 // import { createTmpEditor } from "@/components/editor";
 import { ArticleControl } from "../controls/article";
@@ -15,11 +15,11 @@ const ArticleNodeMachine = createMachine({
   initial: "idle",
   types: {} as {
     context: {
-      nodes: MyValue;
+      nodes: any;
     };
     events: {
       type: "change";
-      nodes: MyValue;
+      nodes: any;
     };
   },
   context: {

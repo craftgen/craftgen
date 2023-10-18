@@ -1,7 +1,7 @@
 import { DiContainer } from "@/core/editor";
 import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { BaseNode, NodeData } from "../base";
-import { StateFrom, assign, createMachine, fromPromise } from "xstate";
+import { StateFrom, assign, createMachine, fromPromise, ActorStatus } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "@/core/sockets";
 // import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";
 import { MISSING_API_KEY_ERROR } from "@/lib/error";

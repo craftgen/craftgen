@@ -1,14 +1,14 @@
-import { StateFrom, assign, createMachine, fromPromise } from "xstate";
-import { BaseNode, NodeData } from "../base";
-import { DiContainer } from "../../editor";
+import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
+import { BaseNode, type NodeData } from "../base";
+import type { DiContainer } from "../../types";
 import { NodeEditor } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
-import { Module, Modules } from "../../modules";
-import { Schemes } from "../../types";
-import { getWorkflows } from "@/app/(dashboard)/project/[projectSlug]/actions";
+import { type Module, Modules } from "../../modules";
+import type { Schemes } from "../../types";
+// import { getWorkflows } from "@/app/(dashboard)/project/[projectSlug]/actions";
 import { InputNode as InputNode } from "./input.node";
 import { SelectControl } from "../../controls/select";
-import { JSONSocket } from "../../controls/socket-generator";
+import type { JSONSocket } from "../../controls/socket-generator";
 import { SWRSelectControl } from "../../controls/swr-select";
 import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
@@ -166,7 +166,8 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
         "Select Module",
         `/api/playgrounds/${store.projectId}`, // TODO get from project
         async () => {
-          return await getWorkflows(store.projectId);
+          return [];
+          // return await getWorkflows(store.projectId); // TODO pass api from top down.
         },
         (data) => {
           return data.map((playground) => ({

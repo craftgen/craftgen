@@ -1,25 +1,23 @@
 import { ClassicPreset } from "rete";
-import { DiContainer } from "../editor";
+import { type DiContainer } from "../types";
 import {
   Actor,
-  AnyStateMachine,
-  ContextFrom,
-  MachineImplementationsFrom,
-  SnapshotFrom,
-  StateFrom,
+  type AnyStateMachine,
+  type ContextFrom,
+  type MachineImplementationsFrom,
+  type SnapshotFrom,
+  type StateFrom,
   createActor,
   waitFor,
 } from "xstate";
 import { debounce, isEqual, set } from "lodash-es";
-import { AllSockets, Socket } from "../sockets";
-import { NodeTypes } from "../types";
+import { type AllSockets, Socket } from "../sockets";
+import { type NodeTypes } from "../types";
 import { BaseControl } from "../controls/base";
 import { ResultOfAction } from "@/lib/type";
 import { Input, Output } from "../input-output";
 import { triggerWorkflowExecutionStep } from "@/actions/trigger-workflow-exection-step";
 
-import { setContext } from "@/actions/update-context";
-import { updateExecutionNode } from "@/actions/update-execution-node";
 import { getWorkflow } from "@/actions/get-workflow";
 
 type Node = ResultOfAction<typeof getWorkflow>["version"]["nodes"][number];
@@ -98,7 +96,7 @@ export class BaseNode<
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
         this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
-        setContext({
+        this.di.api.setContext({
           contextId: this.contextId,
           context: JSON.stringify(context),
         });
@@ -188,7 +186,7 @@ export class BaseNode<
 
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
     console.log(this.identifier, "SAVING STATE");
-    return await updateExecutionNode({
+    return await this.di.api.updateExecutionNode({
       id: this.executionNode?.id!,
       state: JSON.stringify(state),
     });

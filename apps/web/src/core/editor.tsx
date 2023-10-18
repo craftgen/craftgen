@@ -7,6 +7,7 @@ import {
   AreaExtensions,
   Area2D,
   Drag as AreaDrag,
+  Zoom,
 } from "rete-area-plugin";
 import {
   ConnectionPlugin,
@@ -132,9 +133,11 @@ export async function createEditor(params: {
     }
   );
   AreaExtensions.restrictor(area, {
-    scaling: () => ({ min: 0.18, max: 1 }),
+    scaling: () => ({ min: 0.2, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
+
+  area.area.setZoomHandler(new Zoom(0.03));
   AreaExtensions.snapGrid(area, {
     size: 20,
   });

@@ -1,6 +1,6 @@
 import { StateFrom, assign, createMachine } from "xstate";
 import { BaseNode, NodeData } from "../../base";
-import { DiContainer } from "../../../editor";
+import { DiContainer } from "../../../types";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";

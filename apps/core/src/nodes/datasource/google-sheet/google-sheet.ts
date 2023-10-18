@@ -6,7 +6,7 @@ import {
   fromPromise,
 } from "xstate";
 import { BaseNode, NodeData } from "../../base";
-import { DiContainer } from "../../../editor";
+import { DiContainer } from "../../../types";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
