@@ -1,19 +1,38 @@
 import {
-  ContextFrom,
-  StateFrom,
+  type ContextFrom,
+  type StateFrom,
   assign,
   createMachine,
   fromPromise,
 } from "xstate";
-import { BaseNode, NodeData } from "../../base";
-import { DiContainer } from "../../../types";
+import { BaseNode, type NodeData } from "../../base";
+import { type DiContainer } from "../../../types";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
-import { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import { P, match } from "ts-pattern";
 import { SelectControl } from "../../../controls/select";
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { Input, Output } from "../../../input-output";
+
+export type CallbackDoc = {
+  downloadUrl?: string;
+  uploadState?: string;
+  description: string;
+  driveSuccess: boolean;
+  embedUrl: string;
+  iconUrl: string;
+  id: string;
+  isShared: boolean;
+  lastEditedUtc: number;
+  mimeType: string;
+  name: string;
+  rotation: number;
+  rotationDegree: number;
+  serviceId: string;
+  sizeBytes: number;
+  type: string;
+  url: string;
+};
 
 export type GoogleSheetSettings = {
   spreadsheet: CallbackDoc | undefined;
@@ -221,7 +240,7 @@ const GoogleSheetActionTypes = {
 } as const;
 
 type GoogleSheetActionTypes = keyof typeof GoogleSheetActionTypes;
-export type GoogleSheetMachineContext = ContextFrom<
+export type GoogleSheetMachineSettingsContext = ContextFrom<
   typeof GoogleSheetMachine
 >["settings"];
 export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
@@ -360,16 +379,10 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
     }
     if (state.matches("ready")) {
       if (!this.hasInput("trigger"))
-        this.addInput(
-          "trigger",
-          new Input(triggerSocket, "trigger")
-        );
+        this.addInput("trigger", new Input(triggerSocket, "trigger"));
 
       if (!this.hasOutput("trigger"))
-        this.addOutput(
-          "trigger",
-          new Output(triggerSocket, "trigger")
-        );
+        this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
       const action = state.context.settings.action;
       const headers = state.context.settings.sheet?.headers || [];

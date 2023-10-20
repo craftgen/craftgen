@@ -50,6 +50,7 @@ import { ResultOf, ResultOfAction } from "@/lib/type";
 import { Structures } from "rete-structures/_types/types";
 import { getWorkflow } from "@/actions/get-workflow";
 import { getWorkflowById } from "@/actions/get-workflow-by-id";
+import { setupPanningBoundary } from "./plugins/panningBoundary";
 const elk = new ELK();
 
 export type AreaExtra = ReactArea2D<Schemes>;
@@ -124,10 +125,12 @@ export async function createEditor(params: {
   //     },
   //   })
   // );
+  const selector = AreaExtensions.selector();
+
 
   const nodeSelector = AreaExtensions.selectableNodes(
     area,
-    AreaExtensions.selector(),
+    selector,
     {
       accumulating: AreaExtensions.accumulateOnCtrl(),
     }
@@ -135,6 +138,12 @@ export async function createEditor(params: {
   AreaExtensions.restrictor(area, {
     scaling: () => ({ min: 0.2, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
+  });
+  const panningBoundary = setupPanningBoundary({
+    area,
+    selector,
+    padding: 50,
+    intensity: 3
   });
 
   area.area.setZoomHandler(new Zoom(0.03));

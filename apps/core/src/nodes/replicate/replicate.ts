@@ -1,6 +1,6 @@
 import { createMachine, fromPromise } from "xstate";
-import { BaseNode, NodeData } from "../base";
-import { DiContainer } from "../../editor";
+import { BaseNode, type NodeData } from "../base";
+import { type DiContainer } from "../../types";
 import { getModelVersion } from "./replicate.actions";
 
 const replicateMachine = createMachine({

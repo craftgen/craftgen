@@ -1,5 +1,5 @@
-import { DiContainer } from "../editor";
-import { BaseNode, NodeData } from "./base";
+import { type DiContainer } from "../types";
+import { BaseNode, type NodeData } from "./base";
 import { assign, createMachine } from "xstate";
 import { stringSocket } from "../sockets";
 import { TextareControl } from "../controls/textarea";

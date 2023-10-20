@@ -1,6 +1,6 @@
-import { GetSchemes, NodeEditor } from "rete";
+import { type GetSchemes, NodeEditor } from "rete";
 import * as z from "zod";
-import { Structures } from "rete-structures/_types/types";
+import { type Structures } from "rete-structures/_types/types";
 
 import { Connection } from "./connection/connection";
 import {
@@ -88,12 +88,35 @@ export const setContextParamSchema = z.object({
   contextId: z.string(),
   context: z.string(),
 });
+export const checkAPIKeyExistParamSchema = z.object({
+  key: z.string(),
+  projectId: z.string(),
+});
+export const getAPIKeyParamSchema = z.object({
+  key: z.string(),
+  projectId: z.string(),
+});
+
+export const triggerWorkflowExecutionStepParamSchema = z.object({
+  workflowSlug: z.string(),
+  projectSlug: z.string(),
+  executionId: z.string(),
+  version: z.number(),
+  workflowNodeId: z.string(),
+});
 
 export interface WorkflowAPI {
   updateExecutionNode: (
     params: z.infer<typeof updateExecutionNodeParamSchema>
   ) => Promise<void>;
   setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
+  getAPIKey: (params: z.infer<typeof getAPIKeyParamSchema>) => Promise<string>;
+  checkAPIKeyExist: (
+    params: z.infer<typeof checkAPIKeyExistParamSchema>
+  ) => Promise<boolean>;
+  triggerWorkflowExecutionStep: (
+    params: z.infer<typeof triggerWorkflowExecutionStepParamSchema>
+  ) => Promise<void>;
 }
 
 export type DiContainer = {

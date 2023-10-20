@@ -1,6 +1,6 @@
 import { assign, createMachine } from "xstate";
-import { BaseNode, NodeData } from "../base";
-import { DiContainer } from "../../editor";
+import { BaseNode, type NodeData } from "../base";
+import { type DiContainer } from "../../types";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
@@ -8,7 +8,7 @@ import {
 } from "../../sockets";
 import { createJsonSchema } from "../../utils";
 import {
-  JSONSocket,
+  type JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { merge } from "lodash-es";

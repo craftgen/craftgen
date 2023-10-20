@@ -1,12 +1,12 @@
-import { getApiKeyValue } from "@/actions/get-apikey";
-import { turnJSONSchemaToZodSchema } from "@/lib/json-schema-to-zod";
+// import { getApiKeyValue } from "@/actions/get-apikey";
+import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
 import {
   OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,
   OpenAIChatFunctionPrompt,
   OpenAIChatMessage,
   OpenAIChatModel,
-  OpenAIChatSettings,
+  type OpenAIChatSettings,
   generateJson,
   generateText,
   retryWithExponentialBackoff,
@@ -29,9 +29,9 @@ export const genereteJsonFn = async ({
     description: schema.description,
     schema: turnJSONSchemaToZodSchema(schema),
   };
-  const {data: apiKey}= await getApiKeyValue({
+  const { data: apiKey } = await getApiKeyValue({
     projectId,
-    apiKey:  'OPENAI_API_KEY',
+    apiKey: "OPENAI_API_KEY",
   });
   if (!apiKey) {
     throw new Error("API Key not found");
@@ -65,13 +65,13 @@ export const generateTextFn = async ({
   user: string;
   settings: OpenAIChatSettings;
 }) => {
-  const {data: apiKey}= await getApiKeyValue({
+  const { data: apiKey } = await getApiKeyValue({
     projectId,
-    apiKey:  'OPENAI_API_KEY',
+    apiKey: "OPENAI_API_KEY",
   });
   if (!apiKey) {
     throw new Error("API Key not found");
-  };
+  }
   const api = new OpenAIApiConfiguration({
     apiKey: apiKey,
     throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),

@@ -1,17 +1,16 @@
-import { DiContainer } from "@/core/editor";
-import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
-import { BaseNode, NodeData } from "../base";
-import { StateFrom, assign, createMachine, fromPromise } from "xstate";
-import { objectSocket, stringSocket, triggerSocket } from "@/core/sockets";
+import type { DiContainer } from "../../types";
+import { OPENAI_CHAT_MODELS, type OpenAIChatSettings } from "modelfusion";
+import { BaseNode, type NodeData } from "../base";
+import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
+import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 // import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";
-import { MISSING_API_KEY_ERROR } from "@/lib/error";
+// import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { merge, omit } from "lodash-es";
-import { SelectControl } from "@/core/controls/select";
-import { SliderControl } from "@/core/controls/slider";
-import { InputControl } from "@/core/controls/input.control";
-import { Input, Output } from "@/core/input-output";
+import { SelectControl } from "../../controls/select";
+import { SliderControl } from "../../controls/slider";
+import { InputControl } from "../../controls/input.control";
+import { Input, Output } from "../../input-output";
 import { generateTextFn, genereteJsonFn } from "./actions";
-import { checkAPIKeyExist } from "@/actions/check-apikey-exist";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -234,11 +233,12 @@ export class OpenAIFunctionCall extends BaseNode<
         }),
         check_api_key: fromPromise(async () => {
           // TODO: fix this later;
-          const validApiKey = await checkAPIKeyExist({
+          const validApiKey = await this.di.api.checkAPIKeyExist({
             key: "OPENAI_API_KEY",
             projectId: data.projectId,
           });
-          if (!validApiKey) throw new MISSING_API_KEY_ERROR("OPENAI_API_KEY");
+          if (!validApiKey)
+            throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
 
           return true;
         }),
@@ -401,7 +401,6 @@ export class OpenAIFunctionCall extends BaseNode<
       }
     }
   }
-
 
   serialize() {
     return {};

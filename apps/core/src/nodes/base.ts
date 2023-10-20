@@ -16,7 +16,6 @@ import { type NodeTypes } from "../types";
 import { BaseControl } from "../controls/base";
 import { ResultOfAction } from "@/lib/type";
 import { Input, Output } from "../input-output";
-import { triggerWorkflowExecutionStep } from "@/actions/trigger-workflow-exection-step";
 
 import { getWorkflow } from "@/actions/get-workflow";
 
@@ -306,7 +305,7 @@ export class BaseNode<
     cons.forEach(async (con) => {
       const node = this.di.editor.getNode(con.target);
       if (!node) return;
-      await triggerWorkflowExecutionStep({
+      await this.di.api.triggerWorkflowExecutionStep({
         executionId,
         workflowNodeId: node.id,
         projectSlug: this.nodeData.project.slug,
