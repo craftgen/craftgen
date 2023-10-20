@@ -287,7 +287,7 @@ export async function createEditor(params: {
     padding: 50,
     intensity: 3
   });
-  
+
   const graph = structures(editor);
   const di: DiContainer = {
     headless: false,
@@ -327,6 +327,9 @@ export async function createEditor(params: {
     engine,
     dataFlow,
     area,
-    destroy: () => area.destroy(),
+    destroy: () => {
+      area.destroy()
+      panningBoundary.destroy();
+    },
   };
 }
