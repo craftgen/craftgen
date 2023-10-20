@@ -1,6 +1,6 @@
 import { assign, createMachine } from "xstate";
 import { v4 as uuidv4 } from "uuid";
-import type { BaseNode, NodeData } from "./base";
+import { BaseNode, type NodeData } from "./base";
 import type { DiContainer } from "../types";
 import { ClassicPreset } from "rete";
 import { stringSocket, triggerSocket } from "../sockets";

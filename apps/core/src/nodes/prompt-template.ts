@@ -1,6 +1,6 @@
 import * as Sqrl from "squirrelly";
 import { isString, set, get, merge } from "lodash-es";
-import type { BaseNode, NodeData } from "./base";
+import { BaseNode, type NodeData } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";

@@ -125,6 +125,11 @@ export function SocketGeneratorControlComponent(props: {
               "border rounded p-2",
               fields.length === 0 && "border-dashed"
             )}
+            defaultValue={
+              fields.length === 1
+                ? fields.map((_, index) => `field.${index}`)
+                : []
+            }
           >
             {fields.length === 0 && (
               <div className="items-center justify-center flex text-muted-foreground text-sm">

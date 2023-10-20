@@ -2,7 +2,7 @@ import {  NodeEditor } from "rete";
 import { ConnProps, NodeProps, Schemes } from "./types";
 import { DataflowEngine } from "rete-engine";
 import { InputNode, OutputNode } from "./nodes";
-import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
+import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { structures } from "rete-structures";
 import { Structures } from "rete-structures/_types/types";
 import { ControlFlowEngine } from "./engine/control-flow-engine";

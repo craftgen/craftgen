@@ -1,5 +1,5 @@
 // import { ResultOfAction } from "@/lib/type";
-import { createControlFlowEngine, createDataFlowEngine } from "./engine/engine";
+import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { importEditor } from "./io";
 import { NodeEditor } from "rete";
 import type { DiContainer, Schemes } from "./types";

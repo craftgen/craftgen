@@ -36,7 +36,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import { debounce, lowerCase } from "lodash-es";
+import { debounce } from "lodash-es";
 import { useDebounce } from "react-use";
 import { AlertCircle, Check, X } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -119,7 +119,7 @@ export const WorkflowCreateDialog: React.FC<{
           message: "Name is not available.",
           path: ["name"],
         }
-      ),
+      ) as any, //TODO: fix this
       {},
       {
         mode: "async",
@@ -181,7 +181,7 @@ export const WorkflowCreateDialog: React.FC<{
       description: "This may take a few seconds.",
     });
     await mutate(`/api/project/${project?.id}/playgrounds`);
-    router.push(`/${params.projectSlug}/${newPlayground.slug}/0`);
+    router.push(`/${params.projectSlug}/${newPlayground.slug}/v/0`);
     form.reset();
     onOpenChange(false);
   };
