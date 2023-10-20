@@ -1,10 +1,10 @@
 "use server";
 
 // import { getGoogleAuth } from "@/lib/google/auth";
-import { Database } from "@seocraft/supabase/db/database.types";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+// import { Database } from "@seocraft/supabase/db/database.types";
+// import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 import { type GoogleSheetMachineSettingsContext } from "./google-sheet";
 import { Auth } from "googleapis";
 

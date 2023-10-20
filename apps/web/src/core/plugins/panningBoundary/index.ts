@@ -55,10 +55,11 @@ export function setupPanningBoundary(props: Props) {
     const x = position.x - velocity.x / transform.k;
     const y = position.y - velocity.y / transform.k;
 
-    await Promise.all([
+    const res =  await Promise.all([
       area.area.translate(transform.x + velocity.x, transform.y + velocity.y),
-      area.translate(pickedNode.id, { x, y })
+      area.translate(pickedNode.id, { x , y })
     ]);
+    console.log(res)
   });
 
   area.addPipe((context) => {

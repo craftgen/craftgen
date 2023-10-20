@@ -11,12 +11,12 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    // if (typeof window !== "undefined") {
       // browser code
       if (time === 0) {
         window.close();
       }
-    }
+    // }
   }, [time]);
   return (
     <div className="flex items-center justify-center w-full h-screen flex-col">
