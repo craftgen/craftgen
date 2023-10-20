@@ -139,12 +139,6 @@ export async function createEditor(params: {
     scaling: () => ({ min: 0.2, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
-  const panningBoundary = setupPanningBoundary({
-    area,
-    selector,
-    padding: 50,
-    intensity: 3
-  });
 
   area.area.setZoomHandler(new Zoom(0.03));
   AreaExtensions.snapGrid(area, {
@@ -259,6 +253,7 @@ export async function createEditor(params: {
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
 
+
   const modules = new Modules(async ({ moduleId, overwrites }) => {
     const data = await getWorkflowById(moduleId);
     if (!data) throw new Error(`Module ${moduleId} not found`);
@@ -286,6 +281,13 @@ export async function createEditor(params: {
     nodeSelector,
   };
 
+  const panningBoundary = setupPanningBoundary({
+    area,
+    selector,
+    padding: 50,
+    intensity: 3
+  });
+  
   const graph = structures(editor);
   const di: DiContainer = {
     headless: false,
