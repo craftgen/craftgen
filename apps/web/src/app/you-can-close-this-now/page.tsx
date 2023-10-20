@@ -12,10 +12,10 @@ const Page = () => {
   }, []);
   useEffect(() => {
     // if (typeof window !== "undefined") {
-      // browser code
-      if (time === 0) {
-        window.close();
-      }
+    // browser code
+    // if (time === 0) {
+    //   window.close();
+    // }
     // }
   }, [time]);
   return (
