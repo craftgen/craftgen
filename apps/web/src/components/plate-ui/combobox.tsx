@@ -67,7 +67,7 @@ export function ComboboxContent<TData extends Data = NoData>(
   return (
     <Popover.Root open>
       <Popover.PopoverAnchor
-        virtualRef={createVirtualRef(editor, targetRange ?? undefined)}
+        virtualRef={createVirtualRef(editor, targetRange ?? undefined) as any}
       />
 
       <Popover.Portal container={portalElement}>

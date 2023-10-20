@@ -696,6 +696,9 @@ importers:
         specifier: ^4.3.9
         version: 4.3.9(react@18.2.0)
     devDependencies:
+      '@types/web':
+        specifier: ^0.0.117
+        version: 0.0.117
       dotenv-cli:
         specifier: ^7.2.1
         version: 7.2.1
