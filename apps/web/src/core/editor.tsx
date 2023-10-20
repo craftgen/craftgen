@@ -235,6 +235,12 @@ export async function createEditor(params: {
 
   area.use(render);
   area.use(arrange);
+  const panningBoundary = setupPanningBoundary({
+    area,
+    selector,
+    padding: 30,
+    intensity: 3
+  });
 
   AreaExtensions.simpleNodesOrder(area);
 
@@ -280,12 +286,6 @@ export async function createEditor(params: {
     nodeSelector,
   };
 
-  const panningBoundary = setupPanningBoundary({
-    area,
-    selector,
-    padding: 50,
-    intensity: 3
-  });
 
   const graph = structures(editor);
   const di: DiContainer = {
