@@ -13,9 +13,9 @@ const Page = () => {
   useEffect(() => {
     // if (typeof window !== "undefined") {
     // browser code
-    // if (time === 0) {
-    //   window.close();
-    // }
+    if (time === 0) {
+      window.close();
+    }
     // }
   }, [time]);
   return (

@@ -6,5 +6,6 @@
       "testingFramework": "vitest",
       "command": "echo \"Configure your test command here. The variable $TEST_FILE_NAME will have the file name of the test that should be executed.\""
     }
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
