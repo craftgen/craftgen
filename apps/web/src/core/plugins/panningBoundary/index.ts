@@ -1,9 +1,10 @@
 import { NodeEditor } from "rete";
-import { AreaPlugin, Selector } from "rete-area-plugin";
+import { AreaPlugin} from "rete-area-plugin";
 import { getFrameWeight } from "./frame";
 import { animate, watchPointerMove } from "./utils";
 import { AreaExtra } from "@/core/editor";
 import { Schemes } from "@/core/types";
+import { Selector } from "rete-area-plugin/_types/extensions";
 
 type Props = {
   area: AreaPlugin<Schemes, AreaExtra>;
@@ -39,14 +40,15 @@ export function setupPanningBoundary(props: Props) {
 
     if (!view) return;
 
-    const { dragHandler, position } = view;
+    const { position } = view;
+    const dragHandler = view.dragHandler as any;
 
     dragHandler.pointerStart = {
       x: pageX + velocity.x,
       y: pageY + velocity.y
     };
     dragHandler.startPosition = {
-      ...view.dragHandler.config.getCurrentPosition()
+      ...dragHandler.config.getCurrentPosition()
     };
 
     const { transform } = area.area;

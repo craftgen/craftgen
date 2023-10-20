@@ -12,7 +12,7 @@
     "with-env:prod": "dotenv -e ../.env.prod --"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.1.1",
+    "@hookform/resolvers": "^3.3.0",
     "@liveblocks/client": "^1.1.6",
     "@liveblocks/zustand": "^1.1.6",
     "@monaco-editor/react": "^4.5.1",
@@ -169,7 +169,7 @@
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
     "xstate": "5.0.0-beta.33",
-    "zod": "^3.21.4",
+    "zod": "3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
   },

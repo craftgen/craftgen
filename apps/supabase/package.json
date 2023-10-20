@@ -28,7 +28,7 @@
     "jose": "^4.14.4",
     "pg": "^8.11.2",
     "postgres": "^3.3.5",
-    "zod": "^3.21.4"
+    "zod": "3.21.4"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.32.0",

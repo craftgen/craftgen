@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // add Bun type definitions
-    "types": ["bun-types"],
+    "types": ["bun-types", "web"],
 
     // enable latest features
     "lib": ["esnext"],

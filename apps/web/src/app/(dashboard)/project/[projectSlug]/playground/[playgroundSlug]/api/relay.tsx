@@ -9,7 +9,7 @@ export const RelayTesting = () => {
   const handleMessage = async () => {
     setCount(count + 1);
     const resp = await sendToBackgroundViaRelay({
-      name: "workflow-execute" as any,
+      name: "workflow-execute" as never,
       body: {
         count,
         name: "test",

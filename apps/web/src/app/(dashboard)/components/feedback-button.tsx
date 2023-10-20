@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import { sendFeedback } from "../actions";
-import { placeholder } from "@seocraft/supabase/db";
 import { useMemo, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 const formSchema = z.object({

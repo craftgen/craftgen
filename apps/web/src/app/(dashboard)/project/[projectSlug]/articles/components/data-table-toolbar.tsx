@@ -9,7 +9,6 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { priorities, statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { useParams } from "next/navigation";
 import { useProject } from "../../hooks/use-project";
 
 interface DataTableToolbarProps<TData> {
@@ -27,9 +26,11 @@ export function DataTableToolbar<TData>({
         <Input
           placeholder="Filter tasks..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => {
+            table
+              .getColumn("title")
+              ?.setFilterValue((event.target as any).value);
+          }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
         {table.getColumn("status") && (

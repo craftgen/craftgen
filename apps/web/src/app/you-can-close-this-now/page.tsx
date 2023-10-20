@@ -11,8 +11,11 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
   useEffect(() => {
-    if (time === 0) {
-      window.close();
+    if (typeof window !== "undefined") {
+      // browser code
+      if (time === 0) {
+        window.close();
+      }
     }
   }, [time]);
   return (

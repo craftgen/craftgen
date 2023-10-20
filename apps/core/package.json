@@ -39,11 +39,12 @@
     "ts-pattern": "^5.0.5",
     "uuid": "^9.0.0",
     "xstate": "5.0.0-beta.34",
-    "zod": "^3.21.4",
+    "zod": "3.21.4",
     "zustand": "^4.3.9"
   },
   "devDependencies": {
     "@types/jest": "^29.5.6",
+    "@types/web": "^0.0.117",
     "bun-types": "^1.0.6",
     "jest": "^29.7.0"
   }

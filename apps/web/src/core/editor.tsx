@@ -6,7 +6,6 @@ import {
   AreaPlugin,
   AreaExtensions,
   Area2D,
-  Drag as AreaDrag,
   Zoom,
 } from "rete-area-plugin";
 import {
