@@ -2,7 +2,6 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { BaseNode, NodeData } from "../base";
 import { DiContainer } from "../../editor";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
-import { ClassicPreset } from "rete";
 import { createJsonSchema } from "../../utils";
 import {
   JSONSocket,

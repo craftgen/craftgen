@@ -1,5 +1,5 @@
 import { NodeEditor } from "rete";
-import { AreaPlugin} from "rete-area-plugin";
+import { AreaPlugin } from "rete-area-plugin";
 import { getFrameWeight } from "./frame";
 import { animate, watchPointerMove } from "./utils";
 import { AreaExtra } from "@/core/editor";
@@ -30,14 +30,14 @@ export function setupPanningBoundary(props: Props) {
     );
     const velocity = {
       x: (weights.left - weights.right) * intensity,
-      y: (weights.top - weights.bottom) * intensity
+      y: (weights.top - weights.bottom) * intensity,
     };
 
     const pickedNode = editor
       .getNodes()
       .find((n) => selector.isPicked({ label: "node", id: n.id }));
     const view = pickedNode && area.nodeViews.get(pickedNode.id);
-
+    console.log(view);
     if (!view) return;
 
     const { position } = view;
@@ -45,10 +45,10 @@ export function setupPanningBoundary(props: Props) {
 
     dragHandler.pointerStart = {
       x: pageX + velocity.x,
-      y: pageY + velocity.y
+      y: pageY + velocity.y,
     };
     dragHandler.startPosition = {
-      ...dragHandler.config.getCurrentPosition()
+      ...dragHandler.config.getCurrentPosition(),
     };
 
     const { transform } = area.area;
@@ -57,7 +57,7 @@ export function setupPanningBoundary(props: Props) {
 
     await Promise.all([
       area.area.translate(transform.x + velocity.x, transform.y + velocity.y),
-      area.translate(pickedNode.id, { x , y })
+      area.translate(pickedNode.id, { x, y }),
     ]);
   });
 
@@ -70,6 +70,6 @@ export function setupPanningBoundary(props: Props) {
   return {
     destroy() {
       pointermove.destroy();
-    }
+    },
   };
 }

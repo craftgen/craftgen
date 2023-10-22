@@ -2,12 +2,7 @@
 
 import { createRoot } from "react-dom/client";
 import { ClassicPreset, NodeEditor } from "rete";
-import {
-  AreaPlugin,
-  AreaExtensions,
-  Area2D,
-  Zoom,
-} from "rete-area-plugin";
+import { AreaPlugin, AreaExtensions, Area2D, Zoom } from "rete-area-plugin";
 import {
   ConnectionPlugin,
   Presets as ConnectionPresets,
@@ -126,14 +121,9 @@ export async function createEditor(params: {
   // );
   const selector = AreaExtensions.selector();
 
-
-  const nodeSelector = AreaExtensions.selectableNodes(
-    area,
-    selector,
-    {
-      accumulating: AreaExtensions.accumulateOnCtrl(),
-    }
-  );
+  const nodeSelector = AreaExtensions.selectableNodes(area, selector, {
+    accumulating: AreaExtensions.accumulateOnCtrl(),
+  });
   AreaExtensions.restrictor(area, {
     scaling: () => ({ min: 0.2, max: 1 }),
     // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
@@ -141,7 +131,7 @@ export async function createEditor(params: {
 
   area.area.setZoomHandler(new Zoom(0.03));
   AreaExtensions.snapGrid(area, {
-    size: 20,
+    size: 1,
   });
 
   render.addPreset(
@@ -239,7 +229,7 @@ export async function createEditor(params: {
     area,
     selector,
     padding: 30,
-    intensity: 3
+    intensity: 3,
   });
 
   AreaExtensions.simpleNodesOrder(area);
@@ -257,7 +247,6 @@ export async function createEditor(params: {
     await layout();
     AreaExtensions.zoomAt(area, editor.getNodes());
   };
-
 
   const modules = new Modules(async ({ moduleId, overwrites }) => {
     const data = await getWorkflowById(moduleId);
@@ -285,7 +274,6 @@ export async function createEditor(params: {
     },
     nodeSelector,
   };
-
 
   const graph = structures(editor);
   const di: DiContainer = {
@@ -327,7 +315,7 @@ export async function createEditor(params: {
     dataFlow,
     area,
     destroy: () => {
-      area.destroy()
+      area.destroy();
       panningBoundary.destroy();
     },
   };
