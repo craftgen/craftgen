@@ -116,17 +116,6 @@ test("Throw if the edges are not valid", async () => {
   ).toThrow();
 });
 
-const snap = TextNode.parse({
-  ...nodeAreaDefaults,
-  id: "1",
-  context: {
-    value: "Hello",
-    outputs: {
-      value: "Hello",
-    },
-  },
-});
-
 test("Can add valid edges", async () => {
   const editor = new Editor({
     config: {

@@ -69,9 +69,17 @@ const TextNodeMachine = createMachine({
   },
 });
 
-export class TextNode extends BaseNode<typeof TextNodeMachine> {
+export type TextNode = ParsedNode<"TextNode", typeof TextNodeMachine>;
+
+export class TextNodeImpl extends BaseNode<typeof TextNodeMachine> {
   static nodeType = "TextNode";
-  static machine = TextNodeMachine;
+  static parse(params: SetOptional<TextNode, "type">): TextNode {
+    return {
+      ...params,
+      type: "TextNode",
+    };
+  }
+  // static machine = TextNodeMachine;
 
   constructor(di: DiContainer, data: NodeData<typeof TextNodeMachine>) {
     super("TextNode", di, data, TextNodeMachine, {
@@ -96,14 +104,5 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
 
   async serialize() {
     return {};
-  }
-
-  static parse(
-    params: SetOptional<ParsedNode<typeof TextNodeMachine, "TextNode">, "type">
-  ): ParsedNode<typeof TextNodeMachine, "TextNode"> {
-    return {
-      ...params,
-      type: "TextNode",
-    };
   }
 }

@@ -229,7 +229,7 @@ const renderFunc = ({
 };
 
 export type PromptTemplateNode = ParsedNode<
-  "TextNode",
+  "PromptTemplate",
   typeof PromptTemplateNodeMachine
 >;
 
@@ -240,7 +240,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
   ): PromptTemplateNode {
     return {
       ...params,
-      type: "TextNode",
+      type: "PromptTemplate",
     };
   }
 
