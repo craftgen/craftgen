@@ -1,13 +1,22 @@
 import * as Sqrl from "squirrelly";
 import { isString, set, get, merge } from "lodash-es";
-import { BaseNode, type NodeData } from "./base";
-import { assign, createMachine, fromPromise } from "xstate";
+import { BaseNode, ParsedNode, type NodeData } from "./base";
+import {
+  AnyActorLogic,
+  AnyStateMachine,
+  ContextFrom,
+  SnapshotFrom,
+  assign,
+  createMachine,
+  fromPromise,
+} from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
 import { Input, Output } from "../input-output";
-import type { DiContainer } from "../types";
+import type { DiContainer, Node } from "../types";
+import { SetOptional } from "type-fest";
 
 type Data = {
   value: string;
@@ -219,7 +228,22 @@ const renderFunc = ({
   return rendered;
 };
 
+export type PromptTemplateNode = ParsedNode<
+  "TextNode",
+  typeof PromptTemplateNodeMachine
+>;
+
 export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
+  static nodeType = "PromptTemplate" as const;
+  static parse(
+    params: SetOptional<PromptTemplateNode, "type">
+  ): PromptTemplateNode {
+    return {
+      ...params,
+      type: "TextNode",
+    };
+  }
+
   constructor(
     di: DiContainer,
     data: NodeData<typeof PromptTemplateNodeMachine>

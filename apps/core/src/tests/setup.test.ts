@@ -188,11 +188,13 @@ test("Setups the editor", async () => {
     content: {
       nodes: [
         {
+          ...nodeAreaDefaults,
           context: {},
           id: "1",
           type: "TextNode",
         },
         {
+          ...nodeAreaDefaults,
           context: {},
           id: "2",
           type: "OpenAIFunctionCall",
@@ -225,6 +227,7 @@ test("Test execution", async () => {
     content: {
       nodes: [
         {
+          ...nodeAreaDefaults,
           context: {
             state: {
               value: "Hello",
@@ -234,6 +237,7 @@ test("Test execution", async () => {
           type: "TextNode",
         },
         {
+          ...nodeAreaDefaults,
           id: "2",
           context: {
             state: {

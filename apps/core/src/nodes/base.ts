@@ -24,16 +24,16 @@ export type NodeData<T extends AnyStateMachine> = Node & {
   };
 };
 export type ParsedNode<
-  Machine extends AnyActorLogic,
-  NodeType extends string
-> = {
+  NodeType extends string,
+  Machine extends AnyActorLogic
+> = Node & {
   id: string;
   type: NodeType; // Or a more specific type if possible
   context: ContextFrom<Machine>;
   state?: PersistedStateFrom<Machine>;
 };
 
-export class BaseNode<
+export abstract class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
     [key in string]?: AllSockets;
@@ -51,6 +51,8 @@ export class BaseNode<
     [key in string]?: BaseControl & { name?: string };
   }
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
+  static nodeType: string;
+
   public di: DiContainer;
 
   public actor: Actor<AnyStateMachine>;

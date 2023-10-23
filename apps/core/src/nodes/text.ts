@@ -1,6 +1,6 @@
 import { type DiContainer, type Node } from "../types";
-import { BaseNode, ParsedNode, type NodeData } from "./base";
-import { ContextFrom, PersistedStateFrom, assign, createMachine } from "xstate";
+import { BaseNode, type ParsedNode, type NodeData } from "./base";
+import { assign, createMachine } from "xstate";
 import { stringSocket } from "../sockets";
 import { TextareControl } from "../controls/textarea";
 import { merge } from "lodash-es";
@@ -106,30 +106,4 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
       type: "TextNode",
     };
   }
-
-  // static parse(
-  //   params: Omit<Node, "type"> & {
-  //     id: string;
-  //     context: ContextFrom<typeof TextNodeMachine>;
-  //     state?: PersistedStateFrom<typeof TextNodeMachine>;
-  //   }
-  // ): ParsedNode<typeof TextNodeMachine, "TextNode"> {
-  //   return {
-  //     ...params,
-  //     type: "TextNode",
-  //   };
-  // }
-
-  // static parse(
-  //   params: Omit<Node, "type"> & {
-  //     id: string;
-  //     context: ContextFrom<typeof TextNodeMachine>;
-  //     state?: SnapshotFrom<typeof TextNodeMachine>;
-  //   }
-  // ) {
-  //   return {
-  //     ...params,
-  //     type: "TextNode",
-  //   };
-  // }
 }
