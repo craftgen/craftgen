@@ -5,7 +5,7 @@ import {
   AnyStateMachine,
   ContextFrom,
   MachineImplementationsFrom,
-  SnapshotFrom,
+  PersistedStateFrom,
   StateFrom,
   createActor,
   waitFor,
@@ -127,7 +127,7 @@ export class BaseNode<
       });
       // Initial state for the execution node.
       if (!isHasState) {
-        this.saveState({ state: this.actor.getSnapshot() });
+        this.saveState({ state: this.actor.getPersistedState()! });
       }
     } else {
       const a = this.machine.provide(this.machineImplements as any);
@@ -161,7 +161,7 @@ export class BaseNode<
 
         prev = state;
         if (this.isExecution) {
-          this.saveState({ state });
+          this.saveState({ state: this.actor.getPersistedState()! });
         } else {
           if (!this.di.readonly?.enabled) {
             saveContextDebounced({ context: state.context });
@@ -186,7 +186,7 @@ export class BaseNode<
     }
   }
 
-  async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
+  async saveState({ state }: { state: PersistedStateFrom<AnyStateMachine> }) {
     console.log(this.identifier, "SAVING STATE");
     return await updateExecutionNode({
       id: this.executionNode?.id!,

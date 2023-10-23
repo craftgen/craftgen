@@ -37,7 +37,6 @@ export function setupPanningBoundary(props: Props) {
       .getNodes()
       .find((n) => selector.isPicked({ label: "node", id: n.id }));
     const view = pickedNode && area.nodeViews.get(pickedNode.id);
-    console.log(view);
     if (!view) return;
 
     const { position } = view;

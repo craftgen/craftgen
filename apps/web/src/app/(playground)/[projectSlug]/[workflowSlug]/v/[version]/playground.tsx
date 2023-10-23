@@ -157,7 +157,7 @@ export const Playground: React.FC<{
           params.delete("execution");
         }
 
-        router.replace(pathname + "?" + params.toString(),);
+        router.replace(pathname + "?" + params.toString());
       }
     );
     return subb;
@@ -438,15 +438,26 @@ const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
 
 export const renderFieldValueBaseOnSocketType = (
   socket: Socket,
-  value: any
+  value: any | undefined
 ) => {
+  let renderedValue = value;
+  if (renderedValue === undefined) {
+    switch (socket.name) {
+      case "String":
+        renderedValue = "";
+      case "Number":
+        renderedValue = 0;
+      default:
+    }
+  }
   switch (socket.name) {
     case "String":
-      if (value.length > 100) {
-        return <Textarea value={value} rows={10} />;
+      if (renderedValue.length > 100) {
+        return <Textarea value={renderedValue} rows={10} />;
       }
-      return <Input value={value} readOnly />;
-
+      return <Input value={renderedValue} readOnly />;
+    case "Number":
+      return <Input type="number" value={renderedValue} readOnly />;
     default:
       return null;
   }

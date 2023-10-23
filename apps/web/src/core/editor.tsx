@@ -131,7 +131,8 @@ export async function createEditor(params: {
 
   area.area.setZoomHandler(new Zoom(0.03));
   AreaExtensions.snapGrid(area, {
-    size: 1,
+    dynamic: false,
+    size: 20,
   });
 
   render.addPreset(

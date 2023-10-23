@@ -26,6 +26,9 @@ importers:
 
   apps/core:
     dependencies:
+      '@types/d3-shape':
+        specifier: ^3.1.3
+        version: 3.1.3
       '@types/lodash-es':
         specifier: ^4.17.8
         version: 4.17.8
@@ -101,6 +104,9 @@ importers:
       ts-pattern:
         specifier: ^5.0.5
         version: 5.0.5
+      type-fest:
+        specifier: ^4.5.0
+        version: 4.5.0
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
@@ -674,6 +680,9 @@ importers:
       ts-pattern:
         specifier: ^5.0.5
         version: 5.0.5
+      type-fest:
+        specifier: ^4.5.0
+        version: 4.5.0
       typescript:
         specifier: 5.1.6
         version: 5.1.6
@@ -16172,6 +16181,11 @@ packages:
   /type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
+    dev: false
+
+  /type-fest@4.5.0:
+    resolution: {integrity: sha512-diLQivFzddJl4ylL3jxSkEc39Tpw7o1QeEHIPxVwryDK2lpB7Nqhzhuo6v5/Ls08Z0yPSAhsyAWlv1/H0ciNmw==}
+    engines: {node: '>=16'}
     dev: false
 
   /type@1.2.0:
