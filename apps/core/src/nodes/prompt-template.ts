@@ -258,7 +258,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
               rendered,
             };
           } catch (e) {
-            console.log(e);
             return {
               variables,
               rendered: input.template,
@@ -298,7 +297,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
 
   process() {
     const state = this.actor.getSnapshot();
-    console.log("PromptTemplate PROCESS", state);
     const rawTemplate: string[] = state.context.settings.variables;
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket

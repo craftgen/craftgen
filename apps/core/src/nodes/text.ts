@@ -1,10 +1,11 @@
-import { type DiContainer } from "../types";
-import { BaseNode, type NodeData } from "./base";
-import { assign, createMachine } from "xstate";
+import { type DiContainer, type Node } from "../types";
+import { BaseNode, ParsedNode, type NodeData } from "./base";
+import { ContextFrom, PersistedStateFrom, assign, createMachine } from "xstate";
 import { stringSocket } from "../sockets";
 import { TextareControl } from "../controls/textarea";
 import { merge } from "lodash-es";
 import { Output } from "../input-output";
+import { SetOptional } from "type-fest";
 
 const TextNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
@@ -69,6 +70,9 @@ const TextNodeMachine = createMachine({
 });
 
 export class TextNode extends BaseNode<typeof TextNodeMachine> {
+  static nodeType = "TextNode";
+  static machine = TextNodeMachine;
+
   constructor(di: DiContainer, data: NodeData<typeof TextNodeMachine>) {
     super("TextNode", di, data, TextNodeMachine, {
       actions: {
@@ -93,4 +97,39 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
   async serialize() {
     return {};
   }
+
+  static parse(
+    params: SetOptional<ParsedNode<typeof TextNodeMachine, "TextNode">, "type">
+  ): ParsedNode<typeof TextNodeMachine, "TextNode"> {
+    return {
+      ...params,
+      type: "TextNode",
+    };
+  }
+
+  // static parse(
+  //   params: Omit<Node, "type"> & {
+  //     id: string;
+  //     context: ContextFrom<typeof TextNodeMachine>;
+  //     state?: PersistedStateFrom<typeof TextNodeMachine>;
+  //   }
+  // ): ParsedNode<typeof TextNodeMachine, "TextNode"> {
+  //   return {
+  //     ...params,
+  //     type: "TextNode",
+  //   };
+  // }
+
+  // static parse(
+  //   params: Omit<Node, "type"> & {
+  //     id: string;
+  //     context: ContextFrom<typeof TextNodeMachine>;
+  //     state?: SnapshotFrom<typeof TextNodeMachine>;
+  //   }
+  // ) {
+  //   return {
+  //     ...params,
+  //     type: "TextNode",
+  //   };
+  // }
 }

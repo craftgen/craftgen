@@ -1,10 +1,14 @@
-import { Schemes } from "../types";
-import { ControlFlowEngine } from "./control-flow-engine";
-import { DataflowEngine } from "rete-engine";
+import {
+  ControlFlowEngine,
+  ControlFlowEngineScheme,
+} from "./control-flow-engine";
+import { DataflowEngine, DataflowEngineScheme } from "rete-engine";
 
 export { ControlFlowEngine, DataflowEngine };
 
-export const createControlFlowEngine = () => {
+export const createControlFlowEngine = <
+  Schemes extends ControlFlowEngineScheme
+>() => {
   const engine = new ControlFlowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>
@@ -20,7 +24,9 @@ export const createControlFlowEngine = () => {
   return engine;
 };
 
-export const createDataFlowEngine = () => {
+export const createDataFlowEngine = <
+  Schemes extends DataflowEngineScheme
+>() => {
   const dataFlow = new DataflowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>

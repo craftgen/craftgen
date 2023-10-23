@@ -9,21 +9,28 @@ import {
   type StateFrom,
   createActor,
   waitFor,
+  PersistedStateFrom,
+  AnyActorLogic,
 } from "xstate";
 import { debounce, isEqual, set } from "lodash-es";
 import { type AllSockets, Socket } from "../sockets";
-import { type NodeTypes } from "../types";
+import type { NodeTypes, Node } from "../types";
 import { BaseControl } from "../controls/base";
-import { ResultOfAction } from "@/lib/type";
 import { Input, Output } from "../input-output";
 
-import { getWorkflow } from "@/actions/get-workflow";
-
-type Node = ResultOfAction<typeof getWorkflow>["version"]["nodes"][number];
 export type NodeData<T extends AnyStateMachine> = Node & {
   context: {
     state?: StateFrom<T>;
   };
+};
+export type ParsedNode<
+  Machine extends AnyActorLogic,
+  NodeType extends string
+> = {
+  id: string;
+  type: NodeType; // Or a more specific type if possible
+  context: ContextFrom<Machine>;
+  state?: PersistedStateFrom<Machine>;
 };
 
 export class BaseNode<
@@ -94,7 +101,7 @@ export class BaseNode<
 
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
-        this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
+        // this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
         this.di.api.setContext({
           contextId: this.contextId,
           context: JSON.stringify(context),

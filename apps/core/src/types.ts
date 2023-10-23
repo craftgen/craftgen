@@ -25,6 +25,29 @@ import {
 import { ControlFlowEngine, DataflowEngine } from "./engine";
 import { Modules } from "./modules";
 
+import type { Constructor } from "type-fest";
+import { BaseNode } from "./nodes/base";
+import { AnyStateMachine } from "xstate";
+
+export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>>;
+
+export type Node = {
+  type: string;
+  id: string;
+  projectId: string;
+  workflowId: string;
+  workflowVersionId: string;
+  contextId: string;
+  position: Position;
+  width: number;
+  height: number;
+  label: string;
+  color: string;
+  // ... 4 more ...;
+  // nodeExectutions: {
+  //     ...;
+  // }[];
+};
 export const nodes = {
   Start: Start,
   Log: Log,

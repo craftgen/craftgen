@@ -1,11 +1,270 @@
-import { test, expect } from "bun:test";
-import { createHeadlessEditor } from "..";
+import { test, expect, mock } from "bun:test";
+import { OpenAIFunctionCall, PromptTemplate, Start, TextNode } from "../nodes";
+import { Editor } from "../editor";
+import { WorkflowAPI } from "../types";
 
-test("Can create editor", async () => {
-  const editor = await createHeadlessEditor({
-    nodes: [],
-    edges: [],
+const mockAPI: WorkflowAPI = {
+  setContext: mock(async (params: any) => {}),
+  checkAPIKeyExist: mock(async (params: any) => {
+    return true;
+  }),
+  getAPIKey: mock(async (params: any) => {
+    return "";
+  }),
+  updateExecutionNode: mock(async (params: any) => {}),
+  triggerWorkflowExecutionStep: mock(async (params: any) => {}),
+};
+
+test("Node registry", async () => {
+  const editor = new Editor({
+    config: {
+      api: mockAPI,
+      nodes: { Start, TextNode },
+    },
+    content: {
+      nodes: [],
+      edges: [],
+    },
   });
-  console.log(editor);
+});
 
+test("Can not add node which is not registered", async () => {
+  expect(() => {
+    new Editor({
+      config: {
+        api: mockAPI,
+        nodes: { Start },
+      },
+      content: {
+        nodes: [
+          {
+            context: {},
+            id: "1",
+            // @ts-ignore: Test case for an unregistered node type
+            type: "TextNode",
+          },
+        ],
+        edges: [],
+      },
+    });
+  }).toThrow();
+});
+
+const nodeAreaDefaults = {
+  color: "#fff",
+  height: 100,
+  width: 100,
+  projectId: "projectId",
+  workflowId: "workflowId",
+  workflowVersionId: "workflowVersionId",
+  contextId: "contextId",
+  position: { x: 0, y: 0 },
+  label: "label",
+};
+
+test("Can add node which is registered", async () => {
+  const editor = new Editor({
+    config: {
+      api: mockAPI,
+      nodes: { Start, TextNode },
+    },
+    content: {
+      nodes: [
+        {
+          ...nodeAreaDefaults,
+          context: {
+            value: "Hello",
+            outputs: {},
+          },
+          id: "1",
+          type: "TextNode",
+        },
+      ],
+      edges: [],
+    },
+  });
+});
+
+test("Throw if the edges are not valid", async () => {
+  expect(
+    () =>
+      new Editor({
+        config: {
+          api: mockAPI,
+          nodes: { Start, TextNode },
+        },
+        content: {
+          nodes: [
+            {
+              ...nodeAreaDefaults,
+              context: {},
+              id: "1",
+              type: "TextNode",
+            },
+          ],
+          edges: [
+            {
+              id: "1",
+              source: "1",
+              target: "2",
+              sourceOutput: "output",
+              targetInput: "input",
+            },
+          ],
+        },
+      })
+  ).toThrow();
+});
+
+const snap = TextNode.parse({
+  ...nodeAreaDefaults,
+  id: "1",
+  context: {
+    value: "Hello",
+    outputs: {
+      value: "Hello",
+    },
+  },
+});
+
+test("Can add valid edges", async () => {
+  const editor = new Editor({
+    config: {
+      api: mockAPI,
+      nodes: { TextNode, OpenAIFunctionCall },
+    },
+    content: {
+      nodes: [
+        TextNode.parse({
+          ...nodeAreaDefaults,
+          id: "1",
+          state: {
+            error: undefined,
+            value: "complete",
+            status: "done",
+            output: "Hello",
+            context: {
+              value: "Holaaa",
+              outputs: {
+                value: "Holaaa",
+              },
+            },
+            historyValue: {},
+            children: {},
+          },
+          context: {
+            value: "Hello",
+            outputs: {
+              value: "Hello",
+            },
+          },
+        }),
+        {
+          ...nodeAreaDefaults,
+          context: {},
+          id: "2",
+          type: "OpenAIFunctionCall",
+        },
+      ],
+      edges: [
+        {
+          id: "1",
+          source: "1",
+          target: "2",
+          sourceOutput: "value",
+          targetInput: "prompt",
+        },
+      ],
+    },
+  });
+});
+
+test("Setups the editor", async () => {
+  const di = new Editor({
+    config: {
+      api: mockAPI,
+      nodes: { TextNode, OpenAIFunctionCall },
+    },
+    content: {
+      nodes: [
+        {
+          context: {},
+          id: "1",
+          type: "TextNode",
+        },
+        {
+          context: {},
+          id: "2",
+          type: "OpenAIFunctionCall",
+        },
+      ],
+      edges: [
+        {
+          id: "1",
+          source: "1",
+          target: "2",
+          sourceOutput: "value",
+          targetInput: "prompt",
+        },
+      ],
+    },
+  });
+
+  await di.setup();
+
+  expect(di.editor.getNodes().length).toBe(2);
+  expect(di.editor.getConnections().length).toBe(1);
+});
+
+test("Test execution", async () => {
+  const di = new Editor({
+    config: {
+      api: mockAPI,
+      nodes: { TextNode, PromptTemplate },
+    },
+    content: {
+      nodes: [
+        {
+          context: {
+            state: {
+              value: "Hello",
+            },
+          },
+          id: "1",
+          type: "TextNode",
+        },
+        {
+          id: "2",
+          context: {
+            state: {
+              settings: {
+                template: "What is your name? {{prompt}}",
+                variables: ["prompt"],
+              },
+              inputs: {
+                prompt: "hello",
+              },
+            },
+          },
+          type: "PromptTemplate",
+        },
+      ],
+      edges: [
+        {
+          id: "1",
+          source: "1",
+          target: "2",
+          sourceOutput: "value",
+          targetInput: "prompt",
+        },
+      ],
+    },
+  });
+
+  await di.setup();
+
+  const promptTemplate = di.editor.getNode("2");
+  expect(promptTemplate).toBeDefined();
+  const state = promptTemplate.actor.getPersistedState();
+  console.log(state);
 });
