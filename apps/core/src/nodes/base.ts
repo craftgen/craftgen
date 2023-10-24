@@ -142,7 +142,7 @@ export abstract class BaseNode<
     let prev = this.actor.getSnapshot();
     this.actor.subscribe({
       complete: async () => {
-        this.di.logger.log(this.identifier, "finito main");
+        // this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state) => {
         this.state = state.value as any;
@@ -291,7 +291,7 @@ export abstract class BaseNode<
       );
       await this.compute(inputs);
     }
-    this.di.logger.log(this.identifier, "actor in data", this.actor);
+    // this.di.logger.log(this.identifier, "actor in data", this.actor);
     if (state.matches("running")) {
       this.di.logger.log(this.identifier, "waiting for complete");
       await waitFor(this.actor, (state) => state.matches("complete"));
@@ -423,7 +423,6 @@ export abstract class BaseNode<
    */
   async getInputs() {
     try {
-      this.di.logger.log(this.identifier, "getInputs calling");
       this.di.dataFlow?.reset();
       if (this.ID === "InputNode") {
         return this.actor.getSnapshot().context.inputs;
@@ -458,7 +457,6 @@ export abstract class BaseNode<
             : inputs[key];
         }
       });
-      this.di.logger.log(this.identifier, "getInputs called", inputs);
       return inputs;
     } catch (e) {
       this.di.logger.error(e);

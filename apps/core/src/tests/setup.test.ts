@@ -177,18 +177,14 @@ test("Setups the editor", async () => {
     },
     content: {
       nodes: [
-        {
+        TextNode.parse({
           ...nodeAreaDefaults,
-          context: {},
           id: "1",
-          type: "TextNode",
-        },
-        {
+        }),
+        OpenAIFunctionCall.parse({
           ...nodeAreaDefaults,
-          context: {},
           id: "2",
-          type: "OpenAIFunctionCall",
-        },
+        }),
       ],
       edges: [
         {
@@ -265,5 +261,5 @@ test("Test execution", async () => {
   await waitFor(promptTemplate.actor, (state) => state.value === "complete");
   const texttState = textt.actor.getPersistedState();
   const state = promptTemplate.actor.getPersistedState();
-  console.log(JSON.stringify({ state, texttState }, null, 2));
+  // console.log(JSON.stringify({ state, texttState }, null, 2));
 });

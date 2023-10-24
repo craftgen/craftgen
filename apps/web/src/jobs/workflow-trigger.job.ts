@@ -45,7 +45,7 @@ client.defineJob({
     await waitFor(entryNode.actor, (state) =>
       isEqual(state.context.inputs, payload.values)
     );
-    await entryNode.saveState({ state: entryNode.actor.getSnapshot() });
+    await entryNode.saveState({ state: entryNode.actor.getPersistedState()! });
 
     io.runTask(
       `execute-${entryNode.ID}-${entryNode.id}-${payload.executionId}`,

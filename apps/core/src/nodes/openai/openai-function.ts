@@ -1,6 +1,6 @@
 import type { DiContainer } from "../../types";
 import { OPENAI_CHAT_MODELS, type OpenAIChatSettings } from "modelfusion";
-import { BaseNode, type NodeData } from "../base";
+import { BaseNode, ParsedNode, type NodeData } from "../base";
 import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 // import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";
@@ -11,6 +11,7 @@ import { SliderControl } from "../../controls/slider";
 import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
 import { generateTextFn, genereteJsonFn } from "./actions";
+import { SetOptional } from "type-fest";
 
 type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
 
@@ -197,10 +198,22 @@ const OpenAIFunctionCallMachine = createMachine({
   // output: ({ context }) => context.outputs,
 });
 
+export type OpenAINode = ParsedNode<
+  "OpenAIFunctionCall",
+  typeof OpenAIFunctionCallMachine
+>;
+
 export class OpenAIFunctionCall extends BaseNode<
   typeof OpenAIFunctionCallMachine
 > {
   static ID: "openai-function-call";
+  static nodeType = "OpenAIFunctionCall";
+  static parse(params: SetOptional<OpenAINode, "type">): OpenAINode {
+    return {
+      ...params,
+      type: "OpenAIFunctionCall",
+    };
+  }
 
   constructor(
     di: DiContainer,
