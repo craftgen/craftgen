@@ -38,15 +38,15 @@ export type Node = {
   workflowId: string;
   workflowVersionId: string;
   contextId: string;
+
+  executionId?: string;
+  executionNodeId?: string;
+
   position: Position;
   width: number;
   height: number;
   label: string;
   color: string;
-  // ... 4 more ...;
-  // nodeExectutions: {
-  //     ...;
-  // }[];
 };
 export const nodes = {
   Start: Start,
@@ -121,11 +121,11 @@ export const getAPIKeyParamSchema = z.object({
 });
 
 export const triggerWorkflowExecutionStepParamSchema = z.object({
-  workflowSlug: z.string(),
-  projectSlug: z.string(),
   executionId: z.string(),
-  version: z.number(),
   workflowNodeId: z.string(),
+  // workflowSlug: z.string(),
+  // projectSlug: z.string(),
+  // version: z.number(),
 });
 
 export interface WorkflowAPI {

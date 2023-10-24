@@ -2,6 +2,7 @@ import { test, expect, mock } from "bun:test";
 import { OpenAIFunctionCall, PromptTemplate, Start, TextNode } from "../nodes";
 import { Editor } from "../editor";
 import { WorkflowAPI } from "../types";
+import { waitFor } from "xstate";
 
 const mockAPI: WorkflowAPI = {
   setContext: mock(async (params: any) => {}),
@@ -215,32 +216,33 @@ test("Test execution", async () => {
     },
     content: {
       nodes: [
-        {
+        TextNode.parse({
           ...nodeAreaDefaults,
+          id: "1",
           context: {
-            state: {
+            value: "Random",
+            outputs: {
               value: "Hello",
             },
           },
-          id: "1",
-          type: "TextNode",
-        },
-        {
+        }),
+        PromptTemplate.parse({
           ...nodeAreaDefaults,
           id: "2",
           context: {
-            state: {
-              settings: {
-                template: "What is your name? {{prompt}}",
-                variables: ["prompt"],
-              },
-              inputs: {
-                prompt: "hello",
-              },
+            outputs: {
+              value: "",
+            },
+            settings: {
+              template: "What is your name? {{prompt}}",
+              variables: ["prompt"],
+            },
+            inputs: {
+              prompt: "hello",
             },
           },
           type: "PromptTemplate",
-        },
+        }),
       ],
       edges: [
         {
@@ -257,7 +259,11 @@ test("Test execution", async () => {
   await di.setup();
 
   const promptTemplate = di.editor.getNode("2");
+  const textt = di.editor.getNode("1");
   expect(promptTemplate).toBeDefined();
+  di.engine.execute(promptTemplate.id);
+  await waitFor(promptTemplate.actor, (state) => state.value === "complete");
+  const texttState = textt.actor.getPersistedState();
   const state = promptTemplate.actor.getPersistedState();
-  console.log(state);
+  console.log(JSON.stringify({ state, texttState }, null, 2));
 });

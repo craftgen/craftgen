@@ -81,7 +81,7 @@ export class TextNodeImpl extends BaseNode<typeof TextNodeMachine> {
   }
   // static machine = TextNodeMachine;
 
-  constructor(di: DiContainer, data: NodeData<typeof TextNodeMachine>) {
+  constructor(di: DiContainer, data: TextNode) {
     super("TextNode", di, data, TextNodeMachine, {
       actions: {
         updateValue: assign({

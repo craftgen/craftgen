@@ -4,6 +4,8 @@ import { BaseNode, ParsedNode } from "./nodes/base";
 import { Connection } from "./connection/connection";
 import { NodeClass, WorkflowAPI, Node } from "./types";
 import { ContextFrom, SnapshotFrom } from "xstate";
+import { type Structures } from "rete-structures/_types/types";
+import { structures } from "rete-structures";
 
 type NodeRegistry = {
   [key: string]: NodeClass;
@@ -49,6 +51,7 @@ export class Editor<
   public editor = new NodeEditor<Scheme>();
   public engine = createControlFlowEngine<Scheme>();
   public dataFlow = createDataFlowEngine<Scheme>();
+  public graph: Structures<NodeProps, ConnProps> = structures(this.editor);
   public api: WorkflowAPI;
 
   public nodeMeta: Map<keyof Registry, NodeClass> = new Map();

@@ -11,8 +11,9 @@ import {
   waitFor,
   PersistedStateFrom,
   AnyActorLogic,
+  InputFrom,
 } from "xstate";
-import { debounce, isEqual, set } from "lodash-es";
+import { debounce, isEqual, isUndefined, set } from "lodash-es";
 import { type AllSockets, Socket } from "../sockets";
 import type { NodeTypes, Node } from "../types";
 import { BaseControl } from "../controls/base";
@@ -29,7 +30,7 @@ export type ParsedNode<
 > = Node & {
   id: string;
   type: NodeType; // Or a more specific type if possible
-  context: ContextFrom<Machine>;
+  context?: InputFrom<Machine> | ContextFrom<Machine>;
   state?: PersistedStateFrom<Machine>;
 };
 
@@ -79,12 +80,12 @@ export abstract class BaseNode<
 
   public isExecution: boolean;
   public isReady: boolean = false;
-  executionNode: Node["nodeExectutions"][number] | undefined;
+  // executionNode: Node["nodeExectutions"][number] | undefined;
 
   constructor(
     public readonly ID: NodeTypes,
     di: DiContainer,
-    public nodeData: NodeData<Machine>,
+    public nodeData: ParsedNode<NodeTypes, Machine>,
     public machine: Machine,
     public machineImplements: MachineImplementationsFrom<Machine>
   ) {
@@ -98,8 +99,7 @@ export abstract class BaseNode<
     this.id = nodeData.id;
     this.di = di;
 
-    this.isExecution = this.nodeData?.nodeExectutions?.length > 0;
-    this.executionNode = this.nodeData?.nodeExectutions?.[0];
+    this.isExecution = !isUndefined(this.nodeData.executionId);
 
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
@@ -111,40 +111,32 @@ export abstract class BaseNode<
       },
       1000
     );
-    if (this.isExecution) {
-      const isHasState = this.executionNode.state;
+    if (this.nodeData.state) {
       const actorInput = {
-        ...(isHasState
-          ? {
-              state: this.executionNode.state,
-            }
-          : {
-              input: {
-                ...this.nodeData.context.state,
-              },
-            }),
+        state: this.nodeData.state,
       };
       this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
       set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
       const a = this.machine.provide(this.machineImplements as any);
       this.actor = createActor(a, {
-        id: this.executionNode.id,
+        id: this.id,
         ...actorInput,
       });
-      // Initial state for the execution node.
-      if (!isHasState) {
-        this.saveState({ state: this.actor.getSnapshot() });
-      }
     } else {
       const a = this.machine.provide(this.machineImplements as any);
       this.actor = createActor(a, {
         id: this.contextId,
-        ...(this.nodeData?.context?.state !== null && {
+        ...(this.nodeData?.context && {
           input: {
-            ...this.nodeData.context.state,
+            ...this.nodeData.context,
           },
         }),
       });
+    }
+
+    // Initial state for the execution node.
+    if (this.nodeData.executionId && this.nodeData.state === null) {
+      this.saveState({ state: this.actor.getSnapshot() });
     }
 
     let prev = this.actor.getSnapshot();
@@ -193,11 +185,18 @@ export abstract class BaseNode<
   }
 
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
-    console.log(this.identifier, "SAVING STATE");
-    return await this.di.api.updateExecutionNode({
-      id: this.executionNode?.id!,
-      state: JSON.stringify(state),
-    });
+    this.di.logger.log(this.identifier, "SAVING STATE");
+
+    if (this.nodeData.executionNodeId && this.nodeData.executionId) {
+      return await this.di.api.updateExecutionNode({
+        id: this.nodeData.executionNodeId,
+        state: JSON.stringify(state),
+      });
+    } else {
+      this.di.logger.warn(
+        "No Execution Node passed data will be not persisted"
+      );
+    }
   }
 
   async execute(
@@ -205,72 +204,15 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
-    this.di.logger.log(this.identifier, "EXECUTE", {
-      input,
-      executionId,
-      state: this.actor.getSnapshot(),
-    });
-    // const executionState = await this.getExecutionState({ executionId });
-    // const execMachine = this.machine;
-    // set(execMachine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
-    // this.di.logger.log(this.identifier, execMachine);
-    // const a = execMachine.provide(this.machineImplements as any);
-    // this.di.logger.log(this.identifier, execMachine.config, a);
-    // this.actor = createActor(a, {
-    //   state: executionState?.state,
-    // });
-    // this.di.logger.log(this.identifier, "EXECUTION STATE", {
+    // this.di.logger.log(this.identifier, "EXECUTE", {
+    //   input,
+    //   executionId,
     //   state: this.actor.getSnapshot(),
-    //   executionState,
     // });
-    // const subs = this.actor.subscribe({
-    //   next: async (state) => {
-    //     await updateExecutionNode({
-    //       id: executionState?.id,
-    //       state: JSON.stringify(state),
-    //     });
-    //   },
-    //   complete: async () => {
-    //     this.di.logger.log(this.identifier, "finito");
-    //     if (this.outputs.trigger) {
-    //       forward("trigger");
-    //     }
-    //     const snap = this.actor.getSnapshot();
-    //     await updateExecutionNode({
-    //       id: executionState?.id,
-    //       state: JSON.stringify(snap),
-    //       complete: true,
-    //     });
-    //     subs.unsubscribe();
-
-    //     const a = this.machine.provide(this.machineImplements as any);
-    //     this.actor = createActor(a, {
-    //       id: this.contextId,
-    //       ...(this.nodeData?.context?.state !== null && {
-    //         input: {
-    //           ...snap.context,
-    //         },
-    //       }), // This needs to be stay state.
-    //     });
-
-    //     const saveDebounced = debounce((state: string) => {
-    //       setContext({ contextId: this.contextId, state });
-    //     }, 1000);
-
-    //     this.actor.subscribe((state) => {
-    //       this.state = state.value as any;
-    //       if (this.di.readonly?.enabled) return;
-    //       saveDebounced(JSON.stringify(state));
-    //     });
-
-    //     this.actor.start();
-    //   },
-    // });
-    // this.actor.start();
 
     // EARLY RETURN IF NODE IS COMPLETE
     if (this.actor.getSnapshot().matches("complete")) {
-      this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+      // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
       if (this.outputs.trigger) {
         // forward("trigger");
         if (this.di.headless) {
@@ -283,7 +225,7 @@ export abstract class BaseNode<
     }
 
     const inputs = await this.getInputs();
-    this.di.logger.log(this.identifier, "INPUTS", inputs);
+    // this.di.logger.log(this.identifier, "INPUTS", inputs);
     this.actor.send({
       type: "RUN",
       inputs,
@@ -317,15 +259,15 @@ export abstract class BaseNode<
       await this.di.api.triggerWorkflowExecutionStep({
         executionId,
         workflowNodeId: node.id,
-        projectSlug: this.nodeData.project.slug,
-        workflowSlug: this.nodeData.workflow.slug,
-        version: this.nodeData.workflowVersion.version,
+        // projectSlug: this.nodeData.project.slug,
+        // workflowSlug: this.nodeData.workflow.slug,
+        // version: this.nodeData.workflowVersion.version,
       });
     });
   }
 
   get identifier() {
-    return `${this.ID}-${this.id.substring(5, 10)}`;
+    return `${this.ID}-${this.id.substring(-5)}`;
   }
   /**
    * This function should be sync

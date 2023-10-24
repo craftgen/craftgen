@@ -1,15 +1,7 @@
 import * as Sqrl from "squirrelly";
-import { isString, set, get, merge } from "lodash-es";
+import { isString, set, get, merge, isEqual } from "lodash-es";
 import { BaseNode, ParsedNode, type NodeData } from "./base";
-import {
-  AnyActorLogic,
-  AnyStateMachine,
-  ContextFrom,
-  SnapshotFrom,
-  assign,
-  createMachine,
-  fromPromise,
-} from "xstate";
+import { StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
@@ -30,7 +22,9 @@ const PromptTemplateNodeMachine = createMachine({
     merge(
       {
         inputs: {},
-        outputs: {},
+        outputs: {
+          value: "",
+        },
         settings: {
           template: "",
           variables: [],
@@ -46,15 +40,19 @@ const PromptTemplateNodeMachine = createMachine({
         variables: string[];
       };
       inputs: Record<string, any>;
-      outputs: Record<string, any>;
+      outputs: {
+        value: string;
+      };
     };
     context: {
       settings: {
         template: string;
         variables: string[];
       };
-      inputs: Record<string, any[]>;
-      outputs: Record<string, any>;
+      inputs: Record<string, any>;
+      outputs: {
+        value: string;
+      };
       error: {
         name: string;
         message: string;
@@ -244,10 +242,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     };
   }
 
-  constructor(
-    di: DiContainer,
-    data: NodeData<typeof PromptTemplateNodeMachine>
-  ) {
+  constructor(di: DiContainer, data: PromptTemplateNode) {
     super("PromptTemplate", di, data, PromptTemplateNodeMachine, {
       actions: {
         updateValue: assign({
@@ -293,13 +288,22 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     });
 
     let prev = this.actor.getSnapshot();
-    this.actor.subscribe((state) => {
-      this.process();
-      prev = state;
-    });
+    this.actor.subscribe(
+      (state: StateFrom<typeof PromptTemplateNodeMachine>) => {
+        if (
+          !isEqual(
+            state.context.settings.variables,
+            prev?.context?.settings.variables
+          )
+        ) {
+          console.log(state.context.settings);
+          this.process();
+        }
+        prev = state;
+      }
+    );
     this.addInput("trigger", new Input(triggerSocket, "Trigger", true));
     this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
-
     this.addOutput("value", new Output(stringSocket, "Text"));
     const self = this;
     this.addControl(
@@ -320,8 +324,10 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
   }
 
   process() {
+    console.log("PROCESSING");
     const state = this.actor.getSnapshot();
     const rawTemplate: string[] = state.context.settings.variables;
+    console.log(rawTemplate);
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate.includes(item)) continue;
@@ -351,14 +357,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
       this.addInput(item, input);
     }
   }
-
-  // async compute(inputs: { [key: string]: [string | number] }) {
-  //   console.log("PromptTemplate COMPUTE", inputs);
-  //   this.actor.send({
-  //     type: "SET_VALUE",
-  //     inputs: inputs,
-  //   });
-  // }
 
   async serialize(): Promise<Data> {
     const state = this.actor.getSnapshot();
