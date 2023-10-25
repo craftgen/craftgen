@@ -1,11 +1,11 @@
-import { ClassicPreset } from "rete";
-import { DiContainer } from "../editor";
-import { BaseNode, NodeData } from "./base";
+import { DiContainer } from "../types";
+import { BaseNode, NodeData, ParsedNode } from "./base";
 import { assign, createMachine } from "xstate";
 import { numberSocket, triggerSocket } from "../sockets";
 import { match, P } from "ts-pattern";
 import { NumberControl } from "../controls/number";
 import { Input, Output } from "../input-output";
+import { SetOptional } from "type-fest";
 
 const NumberMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
@@ -45,8 +45,16 @@ const NumberMachine = createMachine({
   },
 });
 
+export type NumberData = ParsedNode<"Number", typeof NumberMachine>;
 export class Number extends BaseNode<typeof NumberMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof NumberMachine>) {
+  static nodeType = "Number" as const;
+  static parse(params: SetOptional<NumberData, "type">): NumberData {
+    return {
+      ...params,
+      type: "Number",
+    };
+  }
+  constructor(di: DiContainer, data: NumberData) {
     super("Number", di, data, NumberMachine, {
       actions: {
         updateValue: assign({

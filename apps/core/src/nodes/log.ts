@@ -1,9 +1,10 @@
-import { DiContainer } from "../editor";
-import { BaseNode, NodeData } from "./base";
+import { DiContainer } from "../types";
+import { BaseNode, NodeData, ParsedNode } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { anySocket, triggerSocket } from "../sockets";
 import { Input, Output } from "../input-output";
 import { merge } from "lodash-es";
+import { SetOptional } from "type-fest";
 
 const LogNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBsD2UB0BLCywGIAlAVQDkBtABgF1FQAHVWLAFy1QDs6QAPRARgDMlDAFZKEygBZBsgEz9pggDQgAnogCcADjHb5Adn0TtmgGwGAvpdVpMAJwCuHDlg5R8ETmGwcAbqgA1j52GE4ublAIbgEAxgCGbJxU1CncjMxJXEi8iFKU-BiUolIGlGaiZfxyUnKqGgj8BlIYmqKC1fxmpaIWzda26GHOru74YPb2qPYY9MiJAGbTALYYoeGjUTGoCVkpaTkZrOzZoHwI+YXFpeWVBTV16ojahVKa70YFBqLaZl0DIFCsVQyzmYBYBB4sBYiR88QWEPsAApFBIAJT4IEgsEQg4MJjHTjcc75TQYORyCraKTabTNTT8fj1RByIwYbSUd6UUxyEqM0Siaw2EAcVAQODcOzpAlZYmIAC0ZmZCEVRUk6o1lCswtCODw0syJzlF0eDSEIn4MjkggMZUpHNKAPWI0iBsJp1yCAeGEU-EqbwFUikZi1yu0ojEoh0trklEEmgKxSdQ2BoLwELdspy53aIgs-ATcgTxTMNuVsbkYnNUnE-H0NX4ycwEym9kzRuziFzGHzheLvTLT0acYwpQqlu6WsEJUFQqAA */
@@ -77,10 +78,17 @@ const LogNodeMachine = createMachine({
   output: ({ context }) => context.outputs,
 });
 
+export type LogData = ParsedNode<"Log", typeof LogNodeMachine>;
 export class Log extends BaseNode<typeof LogNodeMachine> {
-  static ID: "log";
+  static nodeType = "Log" as const;
+  static parse(params: SetOptional<LogData, "type">): LogData {
+    return {
+      ...params,
+      type: "Log",
+    };
+  }
 
-  constructor(di: DiContainer, data: NodeData<typeof LogNodeMachine>) {
+  constructor(di: DiContainer, data: LogData) {
     super("Log", di, data, LogNodeMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
