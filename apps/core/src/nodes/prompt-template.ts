@@ -7,7 +7,7 @@ import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
 import { Input, Output } from "../input-output";
-import type { DiContainer, Node } from "../types";
+import type { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
 
 type Data = {
@@ -178,6 +178,7 @@ const PromptTemplateNodeMachine = createMachine({
       },
     },
     complete: {
+      // type: "final",
       on: {
         change: "typing",
         SET_VALUE: {

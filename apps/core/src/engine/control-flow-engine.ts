@@ -22,6 +22,48 @@ type Configure<Schemes extends ControlFlowEngineScheme> = (
 };
 
 /**
+ * Signals that can be emitted by the plugin
+ * @priority 9
+ */
+export type Produces<Schemes extends ControlFlowEngineScheme> =
+  | {
+      type: "execution-started";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-step-start";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-step-complete";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-step-update";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-step-failed";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-completed";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-failed";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-waiting";
+      data: { payload: Schemes["Node"]; executionId: string };
+    }
+  | {
+      type: "execution-updated";
+      data: { payload: Schemes["Node"]; executionId: string };
+    };
+
+/**
  * ControlFlowEngine is a plugin that integrates ControlFlow with NodeEditor making it easy to use
  * @priority 9
  * @listens nodecreated
@@ -29,7 +71,7 @@ type Configure<Schemes extends ControlFlowEngineScheme> = (
  */
 export class ControlFlowEngine<
   Schemes extends ControlFlowEngineScheme
-> extends Scope<never, [Root<Schemes>]> {
+> extends Scope<Produces<Schemes>, [Root<Schemes>]> {
   editor!: NodeEditor<Schemes>;
   controlflow!: ControlFlow<Schemes>;
 
@@ -85,6 +127,10 @@ export class ControlFlowEngine<
    * @param input Input key that will be considered as the initiator of the execution
    */
   public execute(nodeId: NodeId, input?: string, execId?: string) {
+    this.emit({
+      type: "execution-started",
+      data: { payload: this.editor.getNode(nodeId), executionId: execId! },
+    });
     this.controlflow.execute(nodeId, input, execId);
   }
 }

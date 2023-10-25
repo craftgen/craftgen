@@ -1,6 +1,6 @@
 import { createMachine, assign } from "xstate";
-import { BaseNode, NodeData } from "../base";
-import { DiContainer } from "../../editor";
+import { BaseNode, ParsedNode } from "../base";
+import { DiContainer } from "../../types";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import {
   JSONSocket,
@@ -9,6 +9,7 @@ import {
 import { createJsonSchema } from "../../utils";
 import { Input } from "../../input-output";
 import { merge } from "lodash-es";
+import { SetOptional } from "type-fest";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -92,8 +93,18 @@ const OutputNodeMachine = createMachine({
   },
 });
 
+export type OutputNodeData = ParsedNode<"OutputNode", typeof OutputNodeMachine>;
+
 export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof OutputNodeMachine>) {
+  static nodeType = "OutputNode" as const;
+  static parse(params: SetOptional<OutputNodeData, "type">): OutputNodeData {
+    return {
+      ...params,
+      type: "OutputNode",
+    };
+  }
+
+  constructor(di: DiContainer, data: OutputNodeData) {
     super("OutputNode", di, data, OutputNodeMachine, {
       actions: {
         create_schema: assign({
@@ -103,11 +114,6 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
     });
     const state = this.actor.getSnapshot();
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    console.log("INITIAL", {
-      name: state.context.name,
-      description: state.context.description,
-      sockets: state.context.inputSockets,
-    });
     const inputGenerator = new SocketGeneratorControl({
       connectionType: "input",
       name: "Input Sockets",

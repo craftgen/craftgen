@@ -1,5 +1,5 @@
 import { assign, createMachine } from "xstate";
-import { BaseNode, type NodeData } from "../base";
+import { BaseNode, ParsedNode, type NodeData } from "../base";
 import { type DiContainer } from "../../types";
 import {
   getControlBySocket,
@@ -13,6 +13,7 @@ import {
 } from "../../controls/socket-generator";
 import { merge } from "lodash-es";
 import { Input, Output } from "../../input-output";
+import { SetOptional } from "type-fest";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -120,8 +121,18 @@ export const InputNodeMachine = createMachine({
   output: ({ context }) => context.outputs,
 });
 
+export type InputNodeData = ParsedNode<"InputNode", typeof InputNodeMachine>;
+
 export class InputNode extends BaseNode<typeof InputNodeMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof InputNodeMachine>) {
+  static nodeType = "InputNode" as const;
+  static parse(params: SetOptional<InputNodeData, "type">): InputNodeData {
+    return {
+      ...params,
+      type: "InputNode",
+    };
+  }
+
+  constructor(di: DiContainer, data: InputNodeData) {
     super("InputNode", di, data, InputNodeMachine, {
       actions: {
         create_schema: assign({

@@ -111,12 +111,16 @@ export abstract class BaseNode<
       },
       1000
     );
+
+    if (this.isExecution) {
+      set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
+    }
+
     if (this.nodeData.state) {
       const actorInput = {
         state: this.nodeData.state,
       };
       this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
-      set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
       const a = this.machine.provide(this.machineImplements as any);
       this.actor = createActor(a, {
         id: this.id,
@@ -176,7 +180,7 @@ export abstract class BaseNode<
     await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
-    this.di.logger.log(this.identifier, "updateAncestors", outgoers);
+    // this.di.logger.log(this.identifier, "updateAncestors", outgoers);
     for (const node of outgoers) {
       // this.di.logger.log("calling data on", node.ID, node.id);
       const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
@@ -185,9 +189,8 @@ export abstract class BaseNode<
   }
 
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
-    this.di.logger.log(this.identifier, "SAVING STATE");
-
     if (this.nodeData.executionNodeId && this.nodeData.executionId) {
+      this.di.logger.log(this.identifier, "SAVING STATE");
       return await this.di.api.updateExecutionNode({
         id: this.nodeData.executionNodeId,
         state: JSON.stringify(state),
@@ -204,15 +207,24 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
-    // this.di.logger.log(this.identifier, "EXECUTE", {
-    //   input,
-    //   executionId,
-    //   state: this.actor.getSnapshot(),
-    // });
+    this.di.engine.emit({
+      type: "execution-step-start",
+      data: {
+        payload: this,
+        executionId: this.nodeData.executionId!,
+      },
+    });
 
     // EARLY RETURN IF NODE IS COMPLETE
     if (this.actor.getSnapshot().matches("complete")) {
       // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+      this.di.engine.emit({
+        type: "execution-completed",
+        data: {
+          payload: this,
+          executionId: executionId,
+        },
+      });
       if (this.outputs.trigger) {
         // forward("trigger");
         if (this.di.headless) {
@@ -231,15 +243,41 @@ export abstract class BaseNode<
       inputs,
     });
     this.actor.subscribe({
+      next: (state) => {
+        this.di.engine.emit({
+          type: "execution-step-update",
+          data: {
+            payload: this,
+            executionId: executionId,
+          },
+        });
+        // console.log(this.identifier, "@@@", "next", state.value, state.context);
+      },
       complete: async () => {
-        this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+        // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+        this.di.engine.emit({
+          type: "execution-step-complete",
+          data: {
+            payload: this,
+            executionId: executionId,
+          },
+        });
         if (this.outputs.trigger) {
           // forward("trigger");
           if (this.di.headless) {
             await this.triggerSuccesors(executionId);
           } else {
             forward("trigger");
+            // console.log(this.identifier, "@@@", "forward");
           }
+        } else {
+          this.di.engine.emit({
+            type: "execution-completed",
+            data: {
+              payload: this,
+              executionId,
+            },
+          });
         }
       },
     });
@@ -270,13 +308,12 @@ export abstract class BaseNode<
     return `${this.ID}-${this.id.substring(-5)}`;
   }
   /**
-   * This function should be sync
    * @returns The outputs of the current node.
    */
   async data(inputs?: any) {
     this.count++;
-    this.di.logger.log(this.identifier, "Calling DATA");
-    inputs = inputs || (await this.getInputs());
+    // this.di.logger.log(this.identifier, "Calling DATA", "original", inputs);
+    // inputs = await this.getInputs();
     let state = this.actor.getSnapshot();
     if (
       state.context.inputs &&
@@ -450,13 +487,13 @@ export abstract class BaseNode<
 
       // Normalize inputs based on if input accepts multipleConnections
       // If not, flatten the value instead of array
-      Object.keys(inputs).forEach((key) => {
-        if (!this.inputs[key]?.multipleConnections) {
-          inputs[key] = Array.isArray(inputs[key])
-            ? inputs[key][0]
-            : inputs[key];
-        }
-      });
+      // Object.keys(inputs).forEach((key) => {
+      //   if (!this.inputs[key]?.multipleConnections) {
+      //     inputs[key] = Array.isArray(inputs[key])
+      //       ? inputs[key][0]
+      //       : inputs[key];
+      //   }
+      // });
       return inputs;
     } catch (e) {
       this.di.logger.error(e);

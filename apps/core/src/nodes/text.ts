@@ -69,11 +69,11 @@ const TextNodeMachine = createMachine({
   },
 });
 
-export type TextNode = ParsedNode<"TextNode", typeof TextNodeMachine>;
+export type TextNodeData = ParsedNode<"TextNode", typeof TextNodeMachine>;
 
-export class TextNodeImpl extends BaseNode<typeof TextNodeMachine> {
-  static nodeType = "TextNode";
-  static parse(params: SetOptional<TextNode, "type">): TextNode {
+export class TextNode extends BaseNode<typeof TextNodeMachine> {
+  static nodeType = "TextNode" as const;
+  static parse(params: SetOptional<TextNodeData, "type">): TextNodeData {
     return {
       ...params,
       type: "TextNode",
@@ -81,7 +81,7 @@ export class TextNodeImpl extends BaseNode<typeof TextNodeMachine> {
   }
   // static machine = TextNodeMachine;
 
-  constructor(di: DiContainer, data: TextNode) {
+  constructor(di: DiContainer, data: TextNodeData) {
     super("TextNode", di, data, TextNodeMachine, {
       actions: {
         updateValue: assign({

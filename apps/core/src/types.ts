@@ -28,6 +28,7 @@ import { Modules } from "./modules";
 import type { Constructor } from "type-fest";
 import { BaseNode } from "./nodes/base";
 import { AnyStateMachine } from "xstate";
+import { Editor } from ".";
 
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>>;
 
@@ -142,13 +143,15 @@ export interface WorkflowAPI {
   ) => Promise<void>;
 }
 
-export type DiContainer = {
-  headless: boolean;
-  logger: any; // TODO: fix types
-  graph: Structures<NodeProps, ConnProps>;
-  editor: NodeEditor<Schemes>;
-  engine: ControlFlowEngine<Schemes>;
-  dataFlow: DataflowEngine<Schemes>;
-  modules: Modules;
-  api: WorkflowAPI;
-};
+export type DiContainer = Editor;
+
+// export type DiContainer = {
+//   headless: boolean;
+//   logger: any; // TODO: fix types
+//   graph: Structures<NodeProps, ConnProps>;
+//   editor: NodeEditor<Schemes>;
+//   engine: ControlFlowEngine<Schemes>;
+//   dataFlow: DataflowEngine<Schemes>;
+//   modules: Modules;
+//   api: WorkflowAPI;
+// };

@@ -1,20 +1,8 @@
-import { test, expect, mock } from "bun:test";
+import { test, expect } from "bun:test";
 import { OpenAIFunctionCall, PromptTemplate, Start, TextNode } from "../nodes";
 import { Editor } from "../editor";
-import { WorkflowAPI } from "../types";
 import { waitFor } from "xstate";
-
-const mockAPI: WorkflowAPI = {
-  setContext: mock(async (params: any) => {}),
-  checkAPIKeyExist: mock(async (params: any) => {
-    return true;
-  }),
-  getAPIKey: mock(async (params: any) => {
-    return "";
-  }),
-  updateExecutionNode: mock(async (params: any) => {}),
-  triggerWorkflowExecutionStep: mock(async (params: any) => {}),
-};
+import { mockAPI, nodeAreaDefaults } from "./shared";
 
 test("Node registry", async () => {
   const editor = new Editor({
@@ -50,18 +38,6 @@ test("Can not add node which is not registered", async () => {
     });
   }).toThrow();
 });
-
-const nodeAreaDefaults = {
-  color: "#fff",
-  height: 100,
-  width: 100,
-  projectId: "projectId",
-  workflowId: "workflowId",
-  workflowVersionId: "workflowVersionId",
-  contextId: "contextId",
-  position: { x: 0, y: 0 },
-  label: "label",
-};
 
 test("Can add node which is registered", async () => {
   const editor = new Editor({
@@ -259,7 +235,12 @@ test("Test execution", async () => {
   expect(promptTemplate).toBeDefined();
   di.engine.execute(promptTemplate.id);
   await waitFor(promptTemplate.actor, (state) => state.value === "complete");
-  const texttState = textt.actor.getPersistedState();
-  const state = promptTemplate.actor.getPersistedState();
-  // console.log(JSON.stringify({ state, texttState }, null, 2));
+  const textState = textt.actor.getPersistedState();
+  const promptState = promptTemplate.actor.getPersistedState();
+  expect(promptState?.value).toBe("complete");
+  expect(textState?.value).toBe("complete");
+  expect(textState?.context?.outputs?.value).toBe("Random");
+  expect(promptState?.context?.outputs?.value).toBe(
+    "What is your name? Random"
+  );
 });

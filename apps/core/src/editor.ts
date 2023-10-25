@@ -43,10 +43,16 @@ export type EditorProps<
 };
 
 export class Editor<
-  NodeProps extends BaseNode<any, any, any>,
-  ConnProps extends Connection<NodeProps, NodeProps>,
-  Scheme extends GetSchemes<NodeProps, ConnProps>,
-  Registry extends NodeRegistry
+  NodeProps extends BaseNode<any, any, any> = BaseNode<any, any, any>,
+  ConnProps extends Connection<NodeProps, NodeProps> = Connection<
+    NodeProps,
+    NodeProps
+  >,
+  Scheme extends GetSchemes<NodeProps, ConnProps> = GetSchemes<
+    NodeProps,
+    ConnProps
+  >,
+  Registry extends NodeRegistry = NodeRegistry
 > {
   public editor = new NodeEditor<Scheme>();
   public engine = createControlFlowEngine<Scheme>();
@@ -60,6 +66,8 @@ export class Editor<
     nodes: [] as NodeWithState<Registry>[],
     edges: [] as ConnProps[],
   };
+
+  public logger = console;
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     Object.entries(props.config.nodes).forEach(([key, value]) => {
@@ -81,12 +89,47 @@ export class Editor<
     return new nodeClass(this, node) as NodeProps;
   }
 
-  public logger = console;
-
   public async setup() {
     this.editor.use(this.engine);
     this.editor.use(this.dataFlow);
+
     await this.import(this.content);
+  }
+
+  public async import({
+    nodes,
+    edges,
+  }: {
+    nodes: NodeWithState<Registry>[];
+    edges: ConnProps[];
+  }) {
+    for (const n of nodes) {
+      if (this.editor.getNode(n.id)) continue;
+      const node = this.createNode(n);
+      // console.log({ node });
+      await this.editor.addNode(node);
+    }
+
+    for (const c of edges) {
+      const source = this.editor.getNode(c.source);
+      const target = this.editor.getNode(c.target);
+
+      if (
+        source &&
+        target &&
+        source.outputs[c.sourceOutput] &&
+        target.inputs[c.targetInput]
+      ) {
+        const conn = new Connection<NodeProps, NodeProps>(
+          source,
+          c.sourceOutput,
+          target,
+          c.targetInput
+        );
+
+        await this.editor.addConnection(conn as ConnProps);
+      }
+    }
   }
 
   public validateNodes({
@@ -151,42 +194,6 @@ export class Editor<
         // everything is ok
       } else {
         throw new Error(`Invalid connection ${JSON.stringify(c)}`);
-      }
-    }
-  }
-
-  public async import({
-    nodes,
-    edges,
-  }: {
-    nodes: NodeWithState<Registry>[];
-    edges: ConnProps[];
-  }) {
-    for (const n of nodes) {
-      if (this.editor.getNode(n.id)) continue;
-      const node = this.createNode(n);
-      // console.log({ node });
-      await this.editor.addNode(node);
-    }
-
-    for (const c of edges) {
-      const source = this.editor.getNode(c.source);
-      const target = this.editor.getNode(c.target);
-
-      if (
-        source &&
-        target &&
-        source.outputs[c.sourceOutput] &&
-        target.inputs[c.targetInput]
-      ) {
-        const conn = new Connection<NodeProps, NodeProps>(
-          source,
-          c.sourceOutput,
-          target,
-          c.targetInput
-        );
-
-        await this.editor.addConnection(conn as ConnProps);
       }
     }
   }
