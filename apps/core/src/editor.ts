@@ -139,7 +139,6 @@ export class Editor<
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     Object.entries(props.config.nodes).forEach(([key, value]) => {
-      console.log(key, value.label, value.description, value.icon);
       this.nodeMeta.set(key, {
         nodeType: key,
         label: value.label,
@@ -177,7 +176,6 @@ export class Editor<
     }
     const nodeClass = nodeMeta?.class;
 
-    console.log(nodeClass?.nodeType);
     return new nodeClass(this, node) as NodeProps;
   }
 
@@ -245,11 +243,34 @@ export class Editor<
     const render = params.render;
     this.area = new AreaPlugin(params.container);
     this.selector = AreaExtensions.selector();
+    function accumulateOnCtrl() {
+      let pressed = false;
+
+      function keydown(e: KeyboardEvent) {
+        if (e.key === "Shift") pressed = true;
+      }
+      function keyup(e: KeyboardEvent) {
+        if (e.key === "Shift") pressed = false;
+      }
+
+      document.addEventListener("keydown", keydown);
+      document.addEventListener("keyup", keyup);
+
+      return {
+        active() {
+          return pressed;
+        },
+        destroy() {
+          document.removeEventListener("keydown", keydown);
+          document.removeEventListener("keyup", keyup);
+        },
+      };
+    }
     this.nodeSelector = AreaExtensions.selectableNodes(
       this?.area,
       this?.selector,
       {
-        accumulating: AreaExtensions.accumulateOnCtrl(),
+        accumulating: accumulateOnCtrl(),
       }
     );
     AreaExtensions.restrictor(this.area, {

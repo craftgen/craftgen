@@ -150,7 +150,6 @@ export async function createEditor(params: {
         async triggerWorkflowExecutionStep(params) {},
         setContext: async (params) => {
           const data = await setContext(params);
-          console.log("st context", data);
         },
         updateNodeMetadata,
       } as WorkflowAPI,

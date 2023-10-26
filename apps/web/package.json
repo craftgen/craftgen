@@ -149,7 +149,7 @@
     "rete-engine": "^2.0.0",
     "rete-history-plugin": "^2.0.0",
     "rete-minimap-plugin": "^2.0.1",
-    "rete-react-plugin": "2.0.1",
+    "rete-react-plugin": "2.0.4",
     "rete-readonly-plugin": "^2.0.0",
     "rete-render-utils": "^2.0.1",
     "rete-structures": "^2.0.0",

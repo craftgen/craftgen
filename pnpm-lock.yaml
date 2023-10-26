@@ -90,8 +90,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(rete-area-plugin@2.0.1)(rete@2.0.2)
       rete-react-plugin:
-        specifier: ^2.0.2
-        version: 2.0.2(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
+        specifier: 2.0.4
+        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
       rete-readonly-plugin:
         specifier: ^2.0.0
         version: 2.0.0(rete-area-plugin@2.0.1)(rete-connection-plugin@2.0.0)(rete@2.0.2)
@@ -639,8 +639,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
       rete-react-plugin:
-        specifier: 2.0.1
-        version: 2.0.1(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
+        specifier: 2.0.4
+        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
       rete-readonly-plugin:
         specifier: ^2.0.0
         version: 2.0.0(rete-area-plugin@2.0.1)(rete-connection-plugin@2.0.0)(rete@2.0.2)
@@ -14938,28 +14938,8 @@ packages:
       rete-area-plugin: 2.0.1(rete@2.0.2)
     dev: false
 
-  /rete-react-plugin@2.0.1(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0):
-    resolution: {integrity: sha512-E0RgugWrwY5yvV8k7i/dF4Sky4hIM7bfNc62ykTyqDrRGXyc5+VWb5BKzQttVDqQTxfn+0kh8M1CXI5admDMLA==}
-    peerDependencies:
-      react: ^16.8.6 || ^17 || ^18
-      react-dom: ^16.8.6 || ^17 || ^18
-      rete: ^2.0.1
-      rete-area-plugin: ^2.0.0
-      rete-render-utils: ^2.0.0
-      styled-components: ^5.3.6 || ^6
-    dependencies:
-      '@babel/runtime': 7.22.15
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      rete: 2.0.2
-      rete-area-plugin: 2.0.1(rete@2.0.2)
-      rete-render-utils: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
-      styled-components: 6.1.0(react-dom@18.2.0)(react@18.2.0)
-      usehooks-ts: 2.9.1(react-dom@18.2.0)(react@18.2.0)
-    dev: false
-
-  /rete-react-plugin@2.0.2(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0):
-    resolution: {integrity: sha512-BNr+N8anuQzGWSMJ2dXEVBWyUFUedF2ZCaCbRsIDKwd6Aq1sgAZJZ8CdyVmYQ/kd8Ju7PcRdQwggUh5HI1ODiw==}
+  /rete-react-plugin@2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0):
+    resolution: {integrity: sha512-t+rsaZ6wUFVbO1krfzUl8GInHI+V9Zp8q2fLj8NnDLVKRxQzq1W0sfpBvBK262dkt2TEZvHyeX9M+eqTlaowHQ==}
     peerDependencies:
       react: ^16.8.6 || ^17 || ^18
       react-dom: ^16.8.6 || ^17 || ^18
