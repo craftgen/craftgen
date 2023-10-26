@@ -1,10 +1,11 @@
 import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, NodeData } from "../../base";
+import { BaseNode, NodeData, ParsedNode } from "../../base";
 import { DiContainer } from "../../../types";
 import { SelectControl } from "../../../controls/select";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { InputControl } from "../../../controls/input.control";
 import { Input, Output } from "../../../input-output";
+import { SetOptional } from "type-fest";
 
 const PostgresMachine = createMachine({
   id: "postgres",
@@ -51,9 +52,22 @@ const PostgresMachine = createMachine({
   },
 });
 
+export type PostgresData = ParsedNode<"Postgres", typeof PostgresMachine>;
 export class Postgres extends BaseNode<typeof PostgresMachine> {
+  static nodeType = "Postgres" as const;
+  static label = "Postgres";
+  static description = "Node for handling postgres";
+  static icon = "postgres";
+
+  static parse(params: SetOptional<PostgresData, "type">): PostgresData {
+    return {
+      ...params,
+      type: "Postgres",
+    };
+  }
+
   public action: "addRow" | "readRow" = "addRow";
-  constructor(di: DiContainer, data: NodeData<typeof PostgresMachine>) {
+  constructor(di: DiContainer, data: PostgresData) {
     super("Postgres", di, data, PostgresMachine, {
       actions: {
         updateConfig: ({ event }) => {

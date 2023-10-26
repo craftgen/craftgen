@@ -1,5 +1,5 @@
 import { assign, createMachine } from "xstate";
-import { BaseNode, ParsedNode, type NodeData } from "../base";
+import { BaseNode, ParsedNode } from "../base";
 import { type DiContainer } from "../../types";
 import {
   getControlBySocket,
@@ -125,6 +125,10 @@ export type InputNodeData = ParsedNode<"InputNode", typeof InputNodeMachine>;
 
 export class InputNode extends BaseNode<typeof InputNodeMachine> {
   static nodeType = "InputNode" as const;
+  static label = "Input";
+  static description = "Node for handling inputs";
+  static icon = "input";
+
   static parse(params: SetOptional<InputNodeData, "type">): InputNodeData {
     return {
       ...params,

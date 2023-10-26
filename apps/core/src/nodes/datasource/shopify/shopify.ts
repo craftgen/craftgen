@@ -1,11 +1,12 @@
 import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, NodeData } from "../../base";
+import { BaseNode, NodeData, ParsedNode } from "../../base";
 import { DiContainer } from "../../../types";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
 import { Input, Output } from "../../../input-output";
+import { SetOptional } from "type-fest";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -52,9 +53,23 @@ const ShopifyMachine = createMachine({
   },
 });
 
+export type ShopifyData = ParsedNode<"Shopify", typeof ShopifyMachine>;
+
 export class Shopify extends BaseNode<typeof ShopifyMachine> {
+  static nodeType = "Shopify" as const;
+  static label = "Shopify";
+  static description = "Node for handling shopify";
+  static icon = "shopify";
+
+  static parse(params: SetOptional<ShopifyData, "type">): ShopifyData {
+    return {
+      ...params,
+      type: "Shopify",
+    };
+  }
+
   public action: "addRow" | "readRow" = "addRow";
-  constructor(di: DiContainer, data: NodeData<typeof ShopifyMachine>) {
+  constructor(di: DiContainer, data: ShopifyData) {
     super("Shopify", di, data, ShopifyMachine, {
       actions: {
         updateConfig: ({ event }) => {
@@ -70,10 +85,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput(
-      "trigger",
-      new Output(triggerSocket, "trigger")
-    );
+    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
     this.addControl(
       "action",
@@ -135,10 +147,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     }
     if (state.context.settings.action === "readRow") {
       if (!this.outputs["read_row"]) {
-        this.addOutput(
-          "read_row",
-          new Output(objectSocket, "row")
-        );
+        this.addOutput("read_row", new Output(objectSocket, "row"));
       }
     } else {
       if (this.outputs["read_row"]) {

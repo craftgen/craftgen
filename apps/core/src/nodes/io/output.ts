@@ -97,6 +97,10 @@ export type OutputNodeData = ParsedNode<"OutputNode", typeof OutputNodeMachine>;
 
 export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
   static nodeType = "OutputNode" as const;
+  static label = "Output";
+  static description = "Node for handling outputs";
+  static icon = "output";
+
   static parse(params: SetOptional<OutputNodeData, "type">): OutputNodeData {
     return {
       ...params,

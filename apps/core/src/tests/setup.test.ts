@@ -9,6 +9,11 @@ test("Node registry", async () => {
     config: {
       api: mockAPI,
       nodes: { Start, TextNode },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [],
@@ -23,6 +28,11 @@ test("Can not add node which is not registered", async () => {
       config: {
         api: mockAPI,
         nodes: { Start },
+        meta: {
+          projectId: "projectId",
+          workflowId: "workflowId",
+          workflowVersionId: "workflowVersionId",
+        },
       },
       content: {
         nodes: [
@@ -44,6 +54,11 @@ test("Can add node which is registered", async () => {
     config: {
       api: mockAPI,
       nodes: { Start, TextNode },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [
@@ -69,6 +84,11 @@ test("Throw if the edges are not valid", async () => {
         config: {
           api: mockAPI,
           nodes: { Start, TextNode },
+          meta: {
+            projectId: "projectId",
+            workflowId: "workflowId",
+            workflowVersionId: "workflowVersionId",
+          },
         },
         content: {
           nodes: [
@@ -98,6 +118,11 @@ test("Can add valid edges", async () => {
     config: {
       api: mockAPI,
       nodes: { TextNode, OpenAIFunctionCall },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [
@@ -150,6 +175,11 @@ test("Setups the editor", async () => {
     config: {
       api: mockAPI,
       nodes: { TextNode, OpenAIFunctionCall },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [
@@ -185,6 +215,11 @@ test("Test execution", async () => {
     config: {
       api: mockAPI,
       nodes: { TextNode, PromptTemplate },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [

@@ -10,6 +10,11 @@ test("Setup Input outputs", async () => {
     config: {
       api: mockAPI,
       nodes: { InputNode, PromptTemplate, OutputNode },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [
@@ -162,6 +167,11 @@ test("Check out persistence", async () => {
     config: {
       api: mockAPI,
       nodes: { InputNode, PromptTemplate, OutputNode },
+      meta: {
+        projectId: "projectId",
+        workflowId: "workflowId",
+        workflowVersionId: "workflowVersionId",
+      },
     },
     content: {
       nodes: [

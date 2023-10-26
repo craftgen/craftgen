@@ -5,7 +5,7 @@ import {
   createMachine,
   fromPromise,
 } from "xstate";
-import { BaseNode, type NodeData } from "../../base";
+import { BaseNode, ParsedNode, type NodeData } from "../../base";
 import { type DiContainer } from "../../../types";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
@@ -13,6 +13,7 @@ import { P, match } from "ts-pattern";
 import { SelectControl } from "../../../controls/select";
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { Input, Output } from "../../../input-output";
+import { SetOptional } from "type-fest";
 
 export type CallbackDoc = {
   downloadUrl?: string;
@@ -243,10 +244,27 @@ type GoogleSheetActionTypes = keyof typeof GoogleSheetActionTypes;
 export type GoogleSheetMachineSettingsContext = ContextFrom<
   typeof GoogleSheetMachine
 >["settings"];
+
+export type GoogleSheetData = ParsedNode<
+  "GoogleSheet",
+  typeof GoogleSheetMachine
+>;
+
 export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
-  width = 400;
+  static nodeType = "GoogleSheet" as const;
+  static label = "Google Sheet";
+  static description = "Google Sheet node of the workflow";
+  static icon = "googleSheet";
+
+  static parse(params: SetOptional<GoogleSheetData, "type">): GoogleSheetData {
+    return {
+      ...params,
+      type: "GoogleSheet",
+    };
+  }
+
   public action: GoogleSheetActionTypes = "addRow";
-  constructor(di: DiContainer, data: NodeData<typeof GoogleSheetMachine>) {
+  constructor(di: DiContainer, data: GoogleSheetData) {
     super("GoogleSheet", di, data, GoogleSheetMachine, {
       actions: {
         updateConfig: ({ event }: any) => {

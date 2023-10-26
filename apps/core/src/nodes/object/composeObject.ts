@@ -1,5 +1,5 @@
 import { assign, createMachine, fromPromise } from "xstate";
-import { BaseNode, NodeData } from "../base";
+import { BaseNode, NodeData, ParsedNode } from "../base";
 import { DiContainer } from "../../types";
 import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
 import { ClassicPreset } from "rete";
@@ -9,6 +9,7 @@ import {
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
+import { SetOptional } from "type-fest";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -59,8 +60,27 @@ const composeObjectMachine = createMachine({
   },
 });
 
+export type ComposeObjectData = ParsedNode<
+  "ComposeObject",
+  typeof composeObjectMachine
+>;
+
 export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof composeObjectMachine>) {
+  static nodeType = "ComposeObject" as const;
+  static label = "Compose Object";
+  static description = "Compose an object";
+  static icon = "braces";
+
+  static parse(
+    params: SetOptional<ComposeObjectData, "type">
+  ): ComposeObjectData {
+    return {
+      ...params,
+      type: "ComposeObject",
+    };
+  }
+
+  constructor(di: DiContainer, data: ComposeObjectData) {
     super("ComposeObject", di, data, composeObjectMachine, {
       actors: {
         process: fromPromise(async ({ input }) => {

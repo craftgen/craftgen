@@ -1,6 +1,7 @@
 import { createMachine, fromPromise } from "xstate";
-import { BaseNode, type NodeData } from "../base";
+import { BaseNode, ParsedNode, type NodeData } from "../base";
 import { type DiContainer } from "../../types";
+import { SetOptional } from "type-fest";
 
 const replicateMachine = createMachine({
   id: "replicate",
@@ -20,8 +21,22 @@ const replicateMachine = createMachine({
   },
 });
 
+export type ReplicateData = ParsedNode<"Replicate", typeof replicateMachine>;
+
 export class Replicate extends BaseNode<typeof replicateMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof replicateMachine>) {
+  static nodeType = "Replicate";
+  static label = "Replicate";
+  static description = "For using Replicate API";
+  static icon = "box-select";
+
+  static parse(params: SetOptional<ReplicateData, "type">): ReplicateData {
+    return {
+      ...params,
+      type: "Replicate",
+    };
+  }
+
+  constructor(di: DiContainer, data: ReplicateData) {
     super("Replicate", di, data, replicateMachine, {
       actors: {
         getModelVersion: fromPromise(
@@ -30,11 +45,5 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
         ),
       },
     });
-  }
-
-  async execute() {}
-
-  async data() {
-    return {};
   }
 }

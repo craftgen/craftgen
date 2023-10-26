@@ -1,5 +1,5 @@
 import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
-import { BaseNode, type NodeData } from "../base";
+import { BaseNode, type ParsedNode } from "../base";
 import type { DiContainer } from "../../types";
 import { NodeEditor } from "rete";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
@@ -12,6 +12,7 @@ import type { JSONSocket } from "../../controls/socket-generator";
 import { SWRSelectControl } from "../../controls/swr-select";
 import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
+import { SetOptional } from "type-fest";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -143,10 +144,24 @@ const ModuleNodeMachine = createMachine({
   },
 });
 
+export type ModuleNodeData = ParsedNode<"ModuleNode", typeof ModuleNodeMachine>;
+
 export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
+  static nodeType = "ModuleNode" as const;
+  static label = "Module";
+  static description = "Node for handling module nodes";
+  static icon = "component";
+
+  static parse(params: SetOptional<ModuleNodeData, "type">): ModuleNodeData {
+    return {
+      ...params,
+      type: "ModuleNode",
+    };
+  }
+
   module: null | Module = null;
 
-  constructor(di: DiContainer, data: NodeData<typeof ModuleNodeMachine>) {
+  constructor(di: DiContainer, data: ModuleNodeData) {
     super("ModuleNode", di, data, ModuleNodeMachine, {
       actors: {
         execute: fromPromise(async ({ input }) => {

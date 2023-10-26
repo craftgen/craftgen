@@ -206,8 +206,11 @@ export type OpenAINode = ParsedNode<
 export class OpenAIFunctionCall extends BaseNode<
   typeof OpenAIFunctionCallMachine
 > {
-  static ID: "openai-function-call";
   static nodeType = "OpenAIFunctionCall";
+  static label = "OpenAI Function Call";
+  static description = "Node for making OpenAI function calls";
+  static icon = "openAI";
+
   static parse(params: SetOptional<OpenAINode, "type">): OpenAINode {
     return {
       ...params,
@@ -215,10 +218,7 @@ export class OpenAIFunctionCall extends BaseNode<
     };
   }
 
-  constructor(
-    di: DiContainer,
-    data: NodeData<typeof OpenAIFunctionCallMachine>
-  ) {
+  constructor(di: DiContainer, data: OpenAINode) {
     super("OpenAIFunctionCall", di, data, OpenAIFunctionCallMachine, {
       actors: {
         run: fromPromise(async ({ input }) => {
@@ -229,14 +229,14 @@ export class OpenAIFunctionCall extends BaseNode<
           });
           if (input.settings.resultType === "text") {
             const res = await generateTextFn({
-              projectId: data.projectId,
+              projectId: this.projectId,
               settings: input.settings.openai,
               user: inputs.prompt,
             });
             return { result: res };
           } else {
             const res = await genereteJsonFn({
-              projectId: data.projectId,
+              projectId: this.projectId,
               settings: input.settings.openai,
               user: inputs.prompt,
               schema: inputs.schema[0],
@@ -248,7 +248,7 @@ export class OpenAIFunctionCall extends BaseNode<
           // TODO: fix this later;
           const validApiKey = await this.di.api.checkAPIKeyExist({
             key: "OPENAI_API_KEY",
-            projectId: data.projectId,
+            projectId: this.projectId,
           });
           if (!validApiKey)
             throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");

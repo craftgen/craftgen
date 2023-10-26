@@ -1,10 +1,11 @@
 import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, NodeData } from "../../base";
+import { BaseNode, NodeData, ParsedNode } from "../../base";
 import { DiContainer } from "../../../types";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
 import { Input, Output } from "../../../input-output";
+import { SetOptional } from "type-fest";
 
 const WebflowMachine = createMachine({
   id: "webflow",
@@ -51,9 +52,23 @@ const WebflowMachine = createMachine({
   },
 });
 
+export type WebflowData = ParsedNode<"Webflow", typeof WebflowMachine>;
+
 export class Webflow extends BaseNode<typeof WebflowMachine> {
+  static nodeType = "Webflow" as const;
+  static label = "Webflow";
+  static description = "Node for handling webflow";
+  static icon = "webflow";
+
+  static parse(params: SetOptional<WebflowData, "type">): WebflowData {
+    return {
+      ...params,
+      type: "Webflow",
+    };
+  }
+
   public action: "addRow" | "readRow" = "addRow";
-  constructor(di: DiContainer, data: NodeData<typeof WebflowMachine>) {
+  constructor(di: DiContainer, data: WebflowData) {
     super("Webflow", di, data, WebflowMachine, {
       actions: {
         updateConfig: ({ event }) => {

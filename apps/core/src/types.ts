@@ -30,24 +30,34 @@ import { BaseNode } from "./nodes/base";
 import { AnyStateMachine } from "xstate";
 import { Editor } from ".";
 
-export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>>;
+interface NodeTypeStatic {
+  new (...args: any[]): any; // constructor signature
+  nodeType: string;
+  label: string;
+  description: string;
+  icon: string;
+}
+
+export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
+  NodeTypeStatic;
 
 export type Node = {
   type: string;
   id: string;
-  projectId: string;
-  workflowId: string;
-  workflowVersionId: string;
   contextId: string;
+
+  projectId?: string;
+  workflowId?: string;
+  workflowVersionId?: string;
 
   executionId?: string;
   executionNodeId?: string;
 
-  position: Position;
-  width: number;
-  height: number;
+  position?: Position;
+  width?: number;
+  height?: number;
   label: string;
-  color: string;
+  color?: string;
 };
 export const nodes = {
   Start: Start,

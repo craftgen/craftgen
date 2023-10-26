@@ -1,11 +1,12 @@
 import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, NodeData } from "../../base";
+import { BaseNode, NodeData, ParsedNode } from "../../base";
 import { DiContainer } from "../../../types";
 import { ClassicPreset } from "rete";
 import { objectSocket, triggerSocket } from "../../../sockets";
 import { SelectControl } from "../../../controls/select";
 import { InputControl } from "../../../controls/input.control";
 import { Input, Output } from "../../../input-output";
+import { SetOptional } from "type-fest";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -52,9 +53,23 @@ const WordpressMachine = createMachine({
   },
 });
 
+export type WordpressData = ParsedNode<"Wordpress", typeof WordpressMachine>;
+
 export class Wordpress extends BaseNode<typeof WordpressMachine> {
+  static nodeType = "Wordpress" as const;
+  static label = "Wordpress";
+  static description = "Node for handling wordpress";
+  static icon = "wordpress";
+
+  static parse(params: SetOptional<WordpressData, "type">): WordpressData {
+    return {
+      ...params,
+      type: "Wordpress",
+    };
+  }
+
   public action: "addPost" | "readPost" = "addPost";
-  constructor(di: DiContainer, data: NodeData<typeof WordpressMachine>) {
+  constructor(di: DiContainer, data: WordpressData) {
     super("Wordpress", di, data, WordpressMachine, {
       actions: {
         updateConfig: ({ event }) => {

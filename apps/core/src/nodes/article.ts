@@ -1,14 +1,11 @@
 import { assign, createMachine } from "xstate";
-import { v4 as uuidv4 } from "uuid";
-import { BaseNode, type NodeData } from "./base";
+import { BaseNode, type ParsedNode } from "./base";
 import type { DiContainer } from "../types";
-import { ClassicPreset } from "rete";
 import { stringSocket, triggerSocket } from "../sockets";
-// import type { MyValue } from "@/lib/plate/plate-types";
-// import { createNode } from "@udecode/plate-common";
-// import { createTmpEditor } from "@/components/editor";
 import { ArticleControl } from "../controls/article";
 import { Input, Output } from "../input-output";
+import { SetOptional } from "type-fest";
+import { createId } from "@paralleldrive/cuid2";
 
 const ArticleNodeMachine = createMachine({
   id: "articleNode",
@@ -26,7 +23,7 @@ const ArticleNodeMachine = createMachine({
     nodes: [
       {
         type: "h1",
-        id: uuidv4(),
+        id: createId(),
         children: [
           {
             text: "",
@@ -50,8 +47,21 @@ const ArticleNodeMachine = createMachine({
   },
 });
 
+export type ArticleData = ParsedNode<"Article", typeof ArticleNodeMachine>;
 export class Article extends BaseNode<typeof ArticleNodeMachine> {
-  constructor(di: DiContainer, data: NodeData<typeof ArticleNodeMachine>) {
+  static nodeType = "Article" as const;
+  static label = "Article";
+  static description = "Node for handling articles";
+  static icon = "newspaper";
+
+  static parse(params: SetOptional<ArticleData, "type">): ArticleData {
+    return {
+      ...params,
+      type: "Article",
+    };
+  }
+
+  constructor(di: DiContainer, data: ArticleData) {
     super("Article", di, data, ArticleNodeMachine, {
       actions: {},
     });
@@ -101,7 +111,7 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
         ...state.context.nodes,
         {
           type: "p",
-          id: uuidv4(),
+          id: createId(),
         },
       ],
     });

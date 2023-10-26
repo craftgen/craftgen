@@ -54,19 +54,14 @@ export abstract class BaseNode<
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   static nodeType: string;
 
-  public di: DiContainer;
-
   public actor: Actor<AnyStateMachine>;
 
   public state: "idle" | "running" | "error" = "idle";
 
-  public width = 200;
-  public height = 200;
+  public width: number;
+  public height: number;
 
-  readonly workflowId: string;
-  readonly workflowVersionId: string;
   readonly contextId: string;
-  readonly projectId: string;
 
   public count = 0;
 
@@ -82,22 +77,28 @@ export abstract class BaseNode<
   public isReady: boolean = false;
   // executionNode: Node["nodeExectutions"][number] | undefined;
 
+  get workflowId() {
+    return this.di.workflowId;
+  }
+  get workflowVersionId() {
+    return this.di.workflowVersionId;
+  }
+  get projectId() {
+    return this.di.projectId;
+  }
+
   constructor(
     public readonly ID: NodeTypes,
-    di: DiContainer,
+    public di: DiContainer,
     public nodeData: ParsedNode<NodeTypes, Machine>,
     public machine: Machine,
     public machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(nodeData.label);
-    if (nodeData.width) this.width = nodeData.width;
-    if (nodeData.height) this.height = nodeData.height;
-    this.workflowVersionId = nodeData.workflowVersionId;
-    this.workflowId = nodeData.workflowId;
+    this.width = nodeData?.width || 200;
+    this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
-    this.projectId = nodeData.projectId;
     this.id = nodeData.id;
-    this.di = di;
 
     this.isExecution = !isUndefined(this.nodeData.executionId);
 

@@ -4,23 +4,22 @@ import { BaseNode, ParsedNode } from "./nodes/base";
 import { Connection } from "./connection/connection";
 import { NodeClass, WorkflowAPI, Node } from "./types";
 import { ContextFrom, SnapshotFrom } from "xstate";
-import { type Structures } from "rete-structures/_types/types";
 import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
-import { Area2D, AreaExtensions, AreaPlugin, Zoom } from "rete-area-plugin";
-import {
-  ClassicScheme,
-  Presets,
-  ReactArea2D,
-  ReactPlugin,
-  RenderEmit,
-} from "rete-react-plugin";
-import { setupPanningBoundary } from "./plugins/panningBoundary";
-import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
-import { AcceptComponent } from "rete-react-plugin/_types/presets/classic/utility-types";
-import { createRoot } from "react-dom/client";
-import { ConnectionPathPlugin } from "rete-connection-path-plugin";
-import { curveMonotoneX } from "d3-shape";
+
+import type { Structures } from "rete-structures/_types/types";
+import type {
+  Area2D,
+  AreaExtensions,
+  AreaPlugin,
+  Zoom,
+} from "rete-area-plugin";
+import type { ClassicScheme, ReactArea2D, RenderEmit } from "rete-react-plugin";
+import type { setupPanningBoundary } from "./plugins/panningBoundary";
+import type { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
+import type { AcceptComponent } from "rete-react-plugin/_types/presets/classic/utility-types";
+import type { CustomArrange } from "./plugins/arrage/custom-arrange";
+import type { HistoryActions } from "rete-history-plugin";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -51,7 +50,16 @@ export type EditorProps<
   Scheme extends GetSchemes<NodeProps, ConnProps>,
   Registry extends NodeRegistry
 > = {
-  config: { nodes: Registry; api: WorkflowAPI; logger?: typeof console };
+  config: {
+    nodes: Registry;
+    api: WorkflowAPI;
+    logger?: typeof console;
+    meta: {
+      workflowId: string;
+      workflowVersionId: string;
+      projectId: string;
+    };
+  };
   content?: {
     // nodes: NodeWithState<Registry>[];
     nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
@@ -69,7 +77,9 @@ export class Editor<
     NodeProps,
     ConnProps
   >,
-  Registry extends NodeRegistry = NodeRegistry
+  Registry extends NodeRegistry = NodeRegistry,
+  // NodeTypes extends StringKeyOf<Registry> = StringKeyOf<Registry>
+  NodeTypes extends keyof Registry = keyof Registry
   // AreaExtra = ReactArea2D<Scheme>
 > {
   public editor = new NodeEditor<Scheme>();
@@ -80,9 +90,13 @@ export class Editor<
 
   // UI related
   public area?: AreaPlugin<Scheme, AreaExtra<Scheme>>;
-  public selector = AreaExtensions.selector();
+  public areaControl?: {
+    zoomAtNodes: (nodeIds: string[]) => Promise<void>;
+  };
+  public selector?: ReturnType<typeof AreaExtensions.selector>;
   public nodeSelector?: ReturnType<typeof AreaExtensions.selectableNodes>;
   public panningBoundary?: ReturnType<typeof setupPanningBoundary>;
+  public arrange?: CustomArrange<Scheme>;
 
   public nodeMeta: Map<keyof Registry, NodeClass> = new Map();
 
@@ -92,16 +106,24 @@ export class Editor<
   };
 
   public logger = console;
+  public readonly workflowId: string;
+  public readonly workflowVersionId: string;
+  public readonly projectId: string;
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     Object.entries(props.config.nodes).forEach(([key, value]) => {
-      this.nodeMeta.set(key as keyof Registry, value);
+      this.nodeMeta.set(key, value);
     });
     this.api = props.config.api;
     this.content = {
       nodes: (props.content?.nodes as NodeWithState<Registry>[]) || [],
       edges: props.content?.edges || [],
     };
+
+    this.workflowId = props.config.meta.workflowId;
+    this.workflowVersionId = props.config.meta.workflowVersionId;
+    this.projectId = props.config.meta.projectId;
+
     this.validateNodes(this.content);
   }
 
@@ -116,6 +138,7 @@ export class Editor<
     if (!nodeClass) {
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
+    console.log(nodeClass?.nodeType);
     return new nodeClass(this, node) as NodeProps;
   }
 
@@ -131,11 +154,23 @@ export class Editor<
     return newNode;
   }
 
+  public async addNode(node: NodeTypes) {
+    const newNode = this.createNodeInstance({
+      type: node,
+      label: "New node",
+      id: this.createId("node"),
+      contextId: this.createId("context"),
+    });
+    await this.editor.addNode(newNode);
+    return newNode;
+  }
+
   public async setup() {
     this.editor.use(this.engine);
     this.editor.use(this.dataFlow);
 
     await this.import(this.content);
+    await this.setUI();
   }
 
   public async mount(params: {
@@ -158,10 +193,14 @@ export class Editor<
       ) => AcceptComponent<(typeof data)["payload"]> | null;
     };
   }) {
+    const { AreaExtensions, AreaPlugin, Zoom } = await import(
+      "rete-area-plugin"
+    );
     this.area = new AreaPlugin(params.container);
+    this.selector = AreaExtensions.selector();
     this.nodeSelector = AreaExtensions.selectableNodes(
       this?.area,
-      this.selector,
+      this?.selector,
       {
         accumulating: AreaExtensions.accumulateOnCtrl(),
       }
@@ -177,6 +216,8 @@ export class Editor<
     AreaExtensions.simpleNodesOrder(this.area);
     AreaExtensions.showInputControl(this.area);
 
+    const { ReactPlugin, Presets } = await import("rete-react-plugin");
+    const { createRoot } = await import("react-dom/client");
     // RENDER RELATED STUFF
     const render = new ReactPlugin<Scheme, AreaExtra<Scheme>>({
       createRoot: (container) =>
@@ -189,22 +230,80 @@ export class Editor<
         customize: params.costumize,
       })
     );
-    // END RENDER RELATED STUFF
+
+    const { ConnectionPathPlugin } = await import(
+      "rete-connection-path-plugin"
+    );
+    const { curveMonotoneX } = await import("d3-shape");
     const pathPlugin = new ConnectionPathPlugin<Scheme, Area2D<Scheme>>({
       curve: (c) => c.curve || curveMonotoneX,
     });
+
     // @ts-ignore
     render.use(pathPlugin);
 
     this.area.use(render);
     this.editor.use(this.area);
+    const self = this;
+    this.areaControl = {
+      async zoomAtNodes(nodeIds) {
+        if (!self.area) return;
+        await AreaExtensions.zoomAt(
+          self.area,
+          self.editor
+            .getNodes()
+            .filter((n) => (nodeIds.length > 0 ? nodeIds.includes(n.id) : true))
+        );
+      },
+    };
 
+    const { setupPanningBoundary } = await import("./plugins/panningBoundary");
     this.panningBoundary = setupPanningBoundary({
       area: this.area,
       selector: this.selector,
       padding: 30,
       intensity: 3,
     });
+
+    const { CustomArrange, ArrangePresets } = await import(
+      "./plugins/arrage/custom-arrange"
+    );
+    this.arrange = new CustomArrange<Scheme>();
+    this.arrange.addPreset(
+      ArrangePresets.classic.setup({
+        spacing: 40,
+        top: 100,
+        bottom: 100,
+      })
+    );
+    this.area.use(this.arrange);
+
+    const {
+      HistoryPlugin,
+      HistoryExtensions,
+      Presets: HistoryPresets,
+    } = await import("rete-history-plugin");
+    const history = new HistoryPlugin<Scheme, HistoryActions<Scheme>>();
+    history.addPreset(HistoryPresets.classic.setup());
+    HistoryExtensions.keyboard(history);
+
+    this.area.use(history);
+  }
+
+  public async layout() {
+    await this.arrange?.layout({
+      options: {
+        "elk.spacing.nodeNode": 100,
+        "spacing.nodeNodeBetweenLayers": 100,
+      } as any,
+    });
+  }
+
+  public async setUI() {
+    await this.layout();
+    await this.areaControl?.zoomAtNodes(
+      this.editor.getNodes().map((n) => n.id)
+    );
   }
 
   public destroy() {

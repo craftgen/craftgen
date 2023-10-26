@@ -17,15 +17,6 @@ export function CustomConnection(props: {
   styles?: () => any;
 }) {
   const { path } = useConnection();
-  if (!path) return null;
-
-  // const config = React.useMemo(() => {
-  //   return socketConfig[props.data.];
-  // }, [props.data.name]);
-
-  return (
-    <Svg data-testid="connection">
-      <Path d={path} />
-    </Svg>
-  );
+  
+  return <Svg data-testid="connection">{path && <Path d={path} />}</Svg>;
 }

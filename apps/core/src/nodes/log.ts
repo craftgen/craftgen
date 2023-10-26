@@ -81,6 +81,10 @@ const LogNodeMachine = createMachine({
 export type LogData = ParsedNode<"Log", typeof LogNodeMachine>;
 export class Log extends BaseNode<typeof LogNodeMachine> {
   static nodeType = "Log" as const;
+  static label = "Log";
+  static description = "Log node of the workflow";
+  static icon = "bug";
+
   static parse(params: SetOptional<LogData, "type">): LogData {
     return {
       ...params,

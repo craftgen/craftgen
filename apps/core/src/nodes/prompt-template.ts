@@ -234,6 +234,10 @@ export type PromptTemplateNode = ParsedNode<
 
 export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
   static nodeType = "PromptTemplate" as const;
+  static label = "Prompt Template";
+  static description = "Template for user prompts";
+  static icon = "text-select";
+
   static parse(
     params: SetOptional<PromptTemplateNode, "type">
   ): PromptTemplateNode {

@@ -73,6 +73,10 @@ export type TextNodeData = ParsedNode<"TextNode", typeof TextNodeMachine>;
 
 export class TextNode extends BaseNode<typeof TextNodeMachine> {
   static nodeType = "TextNode" as const;
+  static label = "Text";
+  static description = "Node for handling static text";
+  static icon = "text";
+
   static parse(params: SetOptional<TextNodeData, "type">): TextNodeData {
     return {
       ...params,

@@ -48,6 +48,10 @@ const NumberMachine = createMachine({
 export type NumberData = ParsedNode<"Number", typeof NumberMachine>;
 export class Number extends BaseNode<typeof NumberMachine> {
   static nodeType = "Number" as const;
+  static label = "Number";
+  static description = "Node for handling numbers";
+  static icon = "numbers";
+
   static parse(params: SetOptional<NumberData, "type">): NumberData {
     return {
       ...params,
