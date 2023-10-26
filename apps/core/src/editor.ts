@@ -31,6 +31,7 @@ import { getConnectionSockets } from "./utils";
 import { AllSockets, Socket } from "./sockets";
 import { Input, Output } from "./input-output";
 import { useMagneticConnection } from "./connection";
+import { SetOptional } from "type-fest";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -79,7 +80,7 @@ export type EditorProps<
   content?: {
     // nodes: NodeWithState<Registry>[];
     nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
-    edges: ConnProps[];
+    edges: SetOptional<ConnProps, "id">[];
   };
 };
 
@@ -415,7 +416,7 @@ export class Editor<
           c.targetInput
         );
 
-        await this.editor.addConnection(conn as ConnProps);
+        await this.editor.addConnection(conn as Scheme["Connection"]);
       }
     }
   }

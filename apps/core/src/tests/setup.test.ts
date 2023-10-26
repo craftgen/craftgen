@@ -187,7 +187,7 @@ test("Setups the editor", async () => {
           ...nodeAreaDefaults,
           id: "1",
         }),
-        OpenAIFunctionCall.parse({
+      OpenAIFunctionCall.parse({
           ...nodeAreaDefaults,
           id: "2",
         }),

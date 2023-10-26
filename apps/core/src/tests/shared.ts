@@ -1,6 +1,7 @@
 import { mock } from "bun:test";
+import { WorkflowAPI } from "../types";
 
-export const mockAPI = {
+export const mockAPI: WorkflowAPI = {
   setContext: mock(async (params: any) => {}),
   checkAPIKeyExist: mock(async (params: any) => {
     return true;
@@ -10,6 +11,14 @@ export const mockAPI = {
   }),
   updateExecutionNode: mock(async (params: any) => {}),
   triggerWorkflowExecutionStep: mock(async (params: any) => {}),
+  updateNodeMetadata: mock(async function (params: {
+    id: string;
+    position?: { x: number; y: number } | undefined;
+    size?: { width: number; height: number } | undefined;
+    label?: string | undefined;
+  }): Promise<void> {
+    // throw new Error("Function not implemented.");
+  }),
 };
 
 export const nodeAreaDefaults = {

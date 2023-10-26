@@ -164,7 +164,7 @@ export type NodeProps =
   | Wordpress
   | Postgres;
 
-export type ConnProps = Connection<Start, Log> | Connection<TextNode, Log>;
+export type ConnProps = Connection<NodeProps, NodeProps>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;
 
 export type Position = { x: number; y: number };

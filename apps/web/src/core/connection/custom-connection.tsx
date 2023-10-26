@@ -17,7 +17,6 @@ export function CustomConnection(props: {
   styles?: () => any;
 }) {
   const { path } = useConnection();
-  console.log("CustomConnection", props.data, path);
 
   return <Svg data-testid="connection">{path && <Path d={path} />} huloo</Svg>;
 }

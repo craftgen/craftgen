@@ -41,10 +41,6 @@ interface NodeTypeStatic {
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
   NodeTypeStatic;
 
-export type ExtractedScheme<T> = T extends Editor<infer _, infer _, infer S>
-  ? S
-  : never;
-
 export type Node = {
   type: string;
   id: string;
