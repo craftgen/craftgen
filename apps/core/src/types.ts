@@ -41,6 +41,10 @@ interface NodeTypeStatic {
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
   NodeTypeStatic;
 
+export type ExtractedScheme<T> = T extends Editor<infer _, infer _, infer S>
+  ? S
+  : never;
+
 export type Node = {
   type: string;
   id: string;
@@ -89,25 +93,6 @@ export type NodeTypes = ValueOf<{
   [Property in keyof typeof nodes as string]: Property;
 }>;
 
-// export type NodeProps =
-//   | Start
-//   | Log
-//   | TextNode
-//   | Number
-//   | PromptTemplate
-//   | OpenAIFunctionCall
-//   | ComposeObject
-//   | Article
-//   | InputNode
-//   | OutputNode
-//   | ModuleNode
-//   | Replicate
-//   | GoogleSheet
-//   | Shopify
-//   | Webflow
-//   | Wordpress
-//   | Postgres;
-
 export type NodeProps = BaseNode<AnyStateMachine, any, any, any>;
 
 export type ConnProps = Connection<NodeProps, NodeProps>;
@@ -141,6 +126,18 @@ export const triggerWorkflowExecutionStepParamSchema = z.object({
   // version: z.number(),
 });
 
+export const updateNodeMetadataParamSchema = z.object({
+  id: z.string(),
+  position: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+    })
+    .optional(),
+  size: z.object({ width: z.number(), height: z.number() }).optional(),
+  label: z.string().optional(),
+});
+
 export interface WorkflowAPI {
   updateExecutionNode: (
     params: z.infer<typeof updateExecutionNodeParamSchema>
@@ -152,6 +149,9 @@ export interface WorkflowAPI {
   ) => Promise<boolean>;
   triggerWorkflowExecutionStep: (
     params: z.infer<typeof triggerWorkflowExecutionStepParamSchema>
+  ) => Promise<void>;
+  updateNodeMetadata: (
+    params: z.infer<typeof updateNodeMetadataParamSchema>
   ) => Promise<void>;
 }
 

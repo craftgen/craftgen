@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { RenderEmit, Presets, Drag } from "rete-react-plugin";
-import { createNodeInstance } from "../io";
 import { Key } from "ts-key-enum";
 import { nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
@@ -42,11 +41,9 @@ import { Input } from "@/components/ui/input";
 import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState } from "react";
-// import { createExecution, updateNodeMeta } from "../../../action";
 import { Label } from "@/components/ui/label";
 import { createExecution } from "@/actions/create-execution";
-import { updateNodeMeta } from "@/actions/update-node-meta";
-import { createIdWithPrefix } from "@seocraft/supabase/db";
+import { updateNodeMetadata } from "@/actions/update-node-meta";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -122,7 +119,6 @@ export function CustomNode(props: Props<Schemes>) {
 
     const node = await di.duplicateNode(props.data.id);
     await di?.editor.addNode(node);
-    console.log("$@", di.area, di?.area?.area.pointer);
     await di?.area?.translate(node.id, di?.area?.area.pointer);
 
     // const newNode = await createNodeInstance({
@@ -296,7 +292,7 @@ export function CustomNode(props: Props<Schemes>) {
   useDebounce(
     async () => {
       if (props.data.label !== props.data.nodeData.label) {
-        await updateNodeMeta({
+        await updateNodeMetadata({
           id: props.data.id,
           label: props.data.label,
         });

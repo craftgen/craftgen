@@ -35,19 +35,20 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     position: { x: number; y: number };
     data?: any;
   }) => {
-    const node = await createNodeInstance({
-      di: di!,
-      type: name,
-      data: {
-        ...data,
-        workflowVersionId,
-      },
-      saveToDB: true,
-      workflowId: playgroundId,
-      projectSlug: projectSlug,
-    });
-    console.log("context createNode", node);
-    await di?.editor.addNode(node);
+    if (!di) return;
+    // const node = await createNodeInstance({
+    //   di: di!,
+    //   type: name,
+    //   data: {
+    //     ...data,
+    //     workflowVersionId,
+    //   },
+    //   saveToDB: true,
+    //   workflowId: playgroundId,
+    //   projectSlug: projectSlug,
+    // });
+    // console.log("context createNode", node);
+    const node = await di?.addNode(name);
     await di?.area?.translate(node.id, {
       x: position.x,
       y: position.y,

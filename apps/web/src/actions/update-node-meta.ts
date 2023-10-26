@@ -2,7 +2,7 @@
 
 import { db, workflowNode, eq } from "@seocraft/supabase/db";
 
-export const updateNodeMeta = async (params: {
+export const updateNodeMetadata = async (params: {
   id: string;
   position?: { x: number; y: number };
   size?: { width: number; height: number };

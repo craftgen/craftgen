@@ -2,7 +2,7 @@ import { GetSchemes, NodeEditor, NodeId } from "rete";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { BaseNode, ParsedNode } from "./nodes/base";
 import { Connection } from "./connection/connection";
-import { NodeClass, WorkflowAPI, Node } from "./types";
+import { NodeClass, WorkflowAPI, Node, Schemes } from "./types";
 import { ContextFrom, SnapshotFrom } from "xstate";
 import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
@@ -14,12 +14,23 @@ import type {
   AreaPlugin,
   Zoom,
 } from "rete-area-plugin";
-import type { ClassicScheme, ReactArea2D, RenderEmit } from "rete-react-plugin";
+import type {
+  ClassicScheme,
+  ReactArea2D,
+  ReactPlugin,
+  RenderEmit,
+} from "rete-react-plugin";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import type { AcceptComponent } from "rete-react-plugin/_types/presets/classic/utility-types";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { HistoryActions } from "rete-history-plugin";
+import { match } from "ts-pattern";
+import { debounce } from "lodash-es";
+import { getConnectionSockets } from "./utils";
+import { AllSockets, Socket } from "./sockets";
+import { Input, Output } from "./input-output";
+import { useMagneticConnection } from "./connection";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -44,6 +55,10 @@ type ConvertToNodeWithState<
   [K in keyof P]: K extends "type" ? keyof T : P[K];
 };
 
+export type EditorHandlers = {
+  incompatibleConnection?: (data: { source: Socket; target: Socket }) => void;
+};
+
 export type EditorProps<
   NodeProps extends BaseNode<any, any, any>,
   ConnProps extends Connection<NodeProps, NodeProps>,
@@ -59,6 +74,7 @@ export type EditorProps<
       workflowVersionId: string;
       projectId: string;
     };
+    on?: EditorHandlers;
   };
   content?: {
     // nodes: NodeWithState<Registry>[];
@@ -68,19 +84,18 @@ export type EditorProps<
 };
 
 export class Editor<
-  NodeProps extends BaseNode<any, any, any> = BaseNode<any, any, any>,
+  NodeProps extends BaseNode<any, any, any, any> = BaseNode<any, any, any, any>,
   ConnProps extends Connection<NodeProps, NodeProps> = Connection<
     NodeProps,
     NodeProps
   >,
-  Scheme extends GetSchemes<NodeProps, ConnProps> = GetSchemes<
+  Scheme extends GetSchemes<NodeProps, ConnProps> & Schemes = GetSchemes<
     NodeProps,
     ConnProps
-  >,
+  > &
+    Schemes,
   Registry extends NodeRegistry = NodeRegistry,
-  // NodeTypes extends StringKeyOf<Registry> = StringKeyOf<Registry>
   NodeTypes extends keyof Registry = keyof Registry
-  // AreaExtra = ReactArea2D<Scheme>
 > {
   public editor = new NodeEditor<Scheme>();
   public engine = createControlFlowEngine<Scheme>();
@@ -119,6 +134,8 @@ export class Editor<
   public readonly workflowVersionId: string;
   public readonly projectId: string;
 
+  public handlers: EditorHandlers;
+
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     Object.entries(props.config.nodes).forEach(([key, value]) => {
       console.log(key, value.label, value.description, value.icon);
@@ -135,6 +152,9 @@ export class Editor<
       nodes: (props.content?.nodes as NodeWithState<Registry>[]) || [],
       edges: props.content?.edges || [],
     };
+
+    // handlers for events which might require user attention.
+    this.handlers = props.config.on || {};
 
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
@@ -173,9 +193,13 @@ export class Editor<
   }
 
   public async addNode(node: NodeTypes) {
+    const nodeMeta = this.nodeMeta.get(node);
+    if (!nodeMeta) {
+      throw new Error(`Node type ${String(node)} not registered`);
+    }
     const newNode = this.createNodeInstance({
       type: node,
-      label: "New node",
+      label: nodeMeta?.label,
       id: this.createId("node"),
       contextId: this.createId("context"),
     });
@@ -188,11 +212,14 @@ export class Editor<
     this.editor.use(this.dataFlow);
 
     await this.import(this.content);
+    this.handleNodeEvents();
+
     await this.setUI();
   }
 
   public async mount(params: {
     container: HTMLElement;
+    render: ReactPlugin<Scheme, AreaExtra<Scheme>>;
     costumize?: {
       node?: (data: ExtractPayload<Scheme, "node">) => AcceptComponent<
         (typeof data)["payload"],
@@ -214,6 +241,7 @@ export class Editor<
     const { AreaExtensions, AreaPlugin, Zoom } = await import(
       "rete-area-plugin"
     );
+    const render = params.render;
     this.area = new AreaPlugin(params.container);
     this.selector = AreaExtensions.selector();
     this.nodeSelector = AreaExtensions.selectableNodes(
@@ -234,21 +262,6 @@ export class Editor<
     AreaExtensions.simpleNodesOrder(this.area);
     AreaExtensions.showInputControl(this.area);
 
-    const { ReactPlugin, Presets } = await import("rete-react-plugin");
-    const { createRoot } = await import("react-dom/client");
-    // RENDER RELATED STUFF
-    const render = new ReactPlugin<Scheme, AreaExtra<Scheme>>({
-      createRoot: (container) =>
-        createRoot(container, {
-          identifierPrefix: "rete-",
-        }),
-    });
-    render.addPreset(
-      Presets.classic.setup({
-        customize: params.costumize,
-      })
-    );
-
     const { ConnectionPathPlugin } = await import(
       "rete-connection-path-plugin"
     );
@@ -260,9 +273,49 @@ export class Editor<
     // @ts-ignore
     render.use(pathPlugin);
 
-    this.area.use(render);
-    this.editor.use(this.area);
+    const { ConnectionPlugin, Presets: ConnectionPresets } = await import(
+      "rete-connection-plugin"
+    );
+    const connection = new ConnectionPlugin<Scheme, AreaExtra<Scheme>>();
+    connection.addPreset(ConnectionPresets.classic.setup());
+
     const self = this;
+
+    this.editor.use(this.area);
+    this.area.use(connection);
+    this.area.use(render);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useMagneticConnection(connection, {
+      async createConnection(from, to) {
+        if (from.side === to.side) return;
+        const [source, target] =
+          from.side === "output" ? [from, to] : [to, from];
+        const sourceNode = self.editor.getNode(source.nodeId);
+        const targetNode = self.editor.getNode(target.nodeId);
+
+        await self.editor.addConnection(
+          new Connection(
+            sourceNode,
+            source.key as never,
+            targetNode,
+            target.key as never
+          ) as any
+        );
+      },
+      display(from, to) {
+        return from.side !== to.side;
+      },
+      offset(socket, position) {
+        const socketRadius = 10;
+        return {
+          x:
+            position.x +
+            (socket.side === "input" ? -socketRadius : socketRadius),
+          y: position.y,
+        };
+      },
+    });
+
     this.areaControl = {
       async zoomAtNodes(nodeIds) {
         if (!self.area) return;
@@ -306,6 +359,8 @@ export class Editor<
     HistoryExtensions.keyboard(history);
 
     this.area.use(history);
+
+    this.handleAreaEvents();
   }
 
   public async layout() {
@@ -430,4 +485,118 @@ export class Editor<
       }
     }
   }
+
+  public getConnectionSockets(connection: ConnProps) {
+    const source = this.editor.getNode(connection.source);
+    const target = this.editor.getNode(connection.target);
+
+    const output =
+      source &&
+      (source.outputs as Record<string, Input<AllSockets>>)[
+        connection.sourceOutput
+      ];
+    const input =
+      target &&
+      (target.inputs as Record<string, Output<AllSockets>>)[
+        connection.targetInput
+      ];
+
+    return {
+      source: output?.socket,
+      target: input?.socket,
+    };
+  }
+
+  private handleNodeEvents() {
+    this.editor.addPipe((context) => {
+      match(context).with({ type: "connectioncreate" }, ({ data }) => {
+        const { source, target } = this.getConnectionSockets(data);
+        if (target && !source.isCompatibleWith(target)) {
+          this.handlers.incompatibleConnection?.({
+            source,
+            target,
+          });
+        }
+      });
+      // .with({ type: "nodecreated" }, async ({ data }) => {
+      //   const size = data.size;
+      //   await upsertNode({
+      //     workflowId: workflow.id,
+      //     workflowVersionId,
+      //     projectId: workflow.project.id,
+      //     data: {
+      //       id: data.id,
+      //       type: data.ID,
+      //       color: "default",
+      //       label: data.label,
+      //       contextId: data.contextId,
+      //       context: JSON.stringify(data.actor.getSnapshot().context),
+      //       position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
+      //       ...size,
+      //     },
+      //   });
+      // })
+      // .with({ type: "noderemove" }, async ({ data }) => {
+      //   console.log("noderemove", { data });
+      //   await deleteNode({
+      //     workflowId: workflow.id,
+      //     workflowVersionId,
+      //     data: {
+      //       id: data.id,
+      //     },
+      //   });
+      // })
+      // .with({ type: "connectioncreated" }, async ({ data }) => {
+      //   console.log("connectioncreated", { data });
+      //   await saveEdge({
+      //     workflowId: workflow.id,
+      //     workflowVersionId,
+      //     data: JSON.parse(JSON.stringify(data)),
+      //   });
+      //   try {
+      //     await di?.editor.getNode(data.target).data(); // is this about connecttinos.
+      //   } catch (e) {
+      //     console.log("Failed to update", e);
+      //   }
+      // })
+      // .with({ type: "connectionremoved" }, async ({ data }) => {
+      //   console.log("connectionremoved", { data });
+      //   await deleteEdge({
+      //     workflowId: workflow.id,
+      //     workflowVersionId,
+      //     data: JSON.parse(JSON.stringify(data)),
+      //   });
+      // });
+
+      return context;
+    });
+  }
+
+  private handleAreaEvents() {
+    const updateMeta = debounce(this.api.updateNodeMetadata, 500);
+    this.area?.addPipe((context) => {
+      match(context)
+        .with({ type: "noderesized" }, ({ data }) => {
+          const size = {
+            width: Math.round(data.size.width),
+            height: Math.round(data.size.height),
+          };
+          this.editor.getNode(data.id).setSize(size);
+          updateMeta({ id: data.id, size });
+        })
+        .with({ type: "nodetranslated" }, ({ data }) => {
+          if (
+            data.position.x !== data.previous.y ||
+            data.position.y !== data.previous.y
+          ) {
+            updateMeta(data);
+          }
+        });
+      return context;
+    });
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

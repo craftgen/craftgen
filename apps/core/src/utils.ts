@@ -10,9 +10,9 @@ export function getInputNodes(editor: NodeEditor<Schemes>) {
   return editor.getNodes().filter((node) => node.ID === "InputNode");
 }
 
-export function getConnectionSockets(
-  editor: NodeEditor<Schemes>,
-  connection: Schemes["Connection"]
+export function getConnectionSockets<Scheme extends Schemes>(
+  editor: NodeEditor<Scheme>,
+  connection: Scheme["Connection"]
 ) {
   const source = editor.getNode(connection.source);
   const target = editor.getNode(connection.target);

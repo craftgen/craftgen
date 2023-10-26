@@ -45,34 +45,40 @@ import { getWorkflow } from "@/actions/get-workflow";
 import { getWorkflowById } from "@/actions/get-workflow-by-id";
 import { setupPanningBoundary } from "./plugins/panningBoundary";
 import { Editor } from "@seocraft/core";
-import { WorkflowAPI, nodes } from "@seocraft/core/src/types";
+import { ExtractedScheme, WorkflowAPI, nodes } from "@seocraft/core/src/types";
+import { Store } from "lucide-react";
+import { updateNodeMetadata } from "@/actions/update-node-meta";
+import { setContext } from "@/actions/update-context";
+import { toast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { AreaExtra } from "@seocraft/core/src/editor";
 
 class CustomArrange extends AutoArrangePlugin<Schemes> {
   elk = new ELK();
 }
 
-export type AreaExtra = ReactArea2D<Schemes>;
+// export type AreaExtra = ReactArea2D<Schemes>;
 
-export type DiContainer = {
-  headless: boolean;
-  logger?: any; // TODO: fix types
-  store: any; // TODO: fix types
-  graph: Structures<NodeProps, ConnProps>;
-  area?: AreaPlugin<Schemes, AreaExtra>;
-  areaControl?: {
-    zoomAtNodes(nodeIds?: string[]): Promise<void>;
-    nodeSelector?: ReturnType<typeof AreaExtensions.selectableNodes>;
-  };
-  setUI: () => Promise<void>;
-  editor: NodeEditor<Schemes>;
-  readonly?: ReadonlyPlugin<Schemes>;
-  engine?: ControlFlowEngine<Schemes>;
-  dataFlow?: DataflowEngine<Schemes>;
-  arrange?: AutoArrangePlugin<Schemes>;
-  inspector: InspectorPlugin;
-  render: ReactPlugin<Schemes, AreaExtra>;
-  modules: Modules;
-};
+// export type DiContainer = {
+//   headless: boolean;
+//   logger?: any; // TODO: fix types
+//   store: any; // TODO: fix types
+//   graph: Structures<NodeProps, ConnProps>;
+//   area?: AreaPlugin<Schemes, AreaExtra>;
+//   areaControl?: {
+//     zoomAtNodes(nodeIds?: string[]): Promise<void>;
+//     nodeSelector?: ReturnType<typeof AreaExtensions.selectableNodes>;
+//   };
+//   setUI: () => Promise<void>;
+//   editor: NodeEditor<Schemes>;
+//   readonly?: ReadonlyPlugin<Schemes>;
+//   engine?: ControlFlowEngine<Schemes>;
+//   dataFlow?: DataflowEngine<Schemes>;
+//   arrange?: AutoArrangePlugin<Schemes>;
+//   inspector: InspectorPlugin;
+//   render: ReactPlugin<Schemes, AreaExtra>;
+//   modules: Modules;
+// };
 
 export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
 
@@ -107,6 +113,19 @@ export async function createEditor(params: {
   const di = new Editor({
     config: {
       nodes,
+      on: {
+        incompatibleConnection({ source, target }) {
+          toast({
+            title: "Sockets are not compatible",
+            description: (
+              <span>
+                Socket <Badge> {source.name} </Badge> is not compatible with{" "}
+                <Badge>{target.name} </Badge>
+              </span>
+            ),
+          });
+        },
+      },
       meta: {
         projectId: params.workflow.projectId,
         workflowId: params.workflow.id,
@@ -121,7 +140,11 @@ export async function createEditor(params: {
         },
         async updateExecutionNode(params) {},
         async triggerWorkflowExecutionStep(params) {},
-        async setContext(params) {},
+        setContext: async (params) => {
+          const data = await setContext(params);
+          console.log("st context", data);
+        },
+        updateNodeMetadata,
       } as WorkflowAPI,
     },
     content: {
@@ -129,29 +152,45 @@ export async function createEditor(params: {
       edges: [],
     },
   });
+
+  type D = typeof di;
+
+  const render = new ReactPlugin({
+    createRoot: (container) =>
+      createRoot(container, {
+        identifierPrefix: "rete-",
+      }),
+  });
+  render.addPreset(
+    Presets.classic.setup({
+      customize: {
+        node(context) {
+          // TODO: fix types some point
+          return ({ data, emit }: any) =>
+            CustomNode({ data, emit, store: params.store }) as any;
+        },
+        socket(context) {
+          const { payload, ...meta } = context;
+          return (data) => CustomSocket({ data: payload as any, meta }) as any;
+        },
+        connection(context) {
+          return CustomConnection;
+        },
+        control(data) {
+          return getControl(data);
+        },
+      },
+    })
+  );
+
   await di.mount({
     container: params.container,
-    costumize: {
-      node(context) {
-        // TODO: fix types some point
-        return ({ data, emit }: any) =>
-          CustomNode({ data, emit, store: params.store }) as any;
-      },
-      socket(context) {
-        const { payload, ...meta } = context;
-        return (data) => CustomSocket({ data: payload as any, meta }) as any;
-      },
-      connection(context) {
-        return CustomConnection as any;
-      },
-      control(data) {
-        return getControl(data);
-      },
-    },
+    render: render as any,
   });
   await di.setup();
   console.log(di);
   addCustomBackground(di?.area!);
+  params.store.getState().setDi(di);
   return di;
 }
 

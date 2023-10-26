@@ -1,8 +1,9 @@
 import { createStore } from "zustand/vanilla";
 import { subscribeWithSelector } from "zustand/middleware";
 
-import { DiContainer } from "./editor";
+// import { DiContainer } from "./editor";
 import type * as FlexLayout from "flexlayout-react";
+import { DiContainer } from "@seocraft/core/src/types";
 
 export type ReteStore = {
   workflowId: string;

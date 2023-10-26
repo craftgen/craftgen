@@ -4,7 +4,7 @@ import { saveEdge } from "@/actions/create-edge";
 import { deleteEdge } from "@/actions/delete-edge";
 import { deleteNode } from "@/actions/delete-node";
 import { getWorkflow } from "@/actions/get-workflow";
-import { updateNodeMeta } from "@/actions/update-node-meta";
+import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { upsertNode } from "@/actions/upsert-node";
 
 import { useToast } from "@/components/ui/use-toast";
@@ -42,42 +42,7 @@ export const Composer: React.FC<{
 
   const { toast } = useToast();
 
-  const fn = debounce(updateNodeMeta, 500);
-  const updateMeta = useCallback(
-    async (params: {
-      id: string;
-      position?: { x: number; y: number };
-      size?: { width: number; height: number };
-    }) => {
-      return fn(params);
-    },
-    []
-  );
 
-  useEffect(() => {
-    rete?.area.addPipe((context) => {
-      match(context)
-        .with({ type: "noderesized" }, ({ data }) => {
-          console.log("noderesized", { data });
-          const size = {
-            width: Math.round(data.size.width),
-            height: Math.round(data.size.height),
-          };
-          di?.editor.getNode(data.id).setSize(size);
-          updateMeta({ id: data.id, size });
-        })
-        .with({ type: "nodetranslated" }, ({ data }) => {
-          if (
-            data.position.x !== data.previous.y ||
-            data.position.y !== data.previous.y
-          ) {
-            updateMeta(data);
-          }
-        });
-
-      return context;
-    });
-  }, [rete]);
   const workflowVersionId = useMemo(() => {
     return workflow.versions[0].id;
   }, [workflow.versions]);
