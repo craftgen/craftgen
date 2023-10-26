@@ -148,8 +148,4 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
 
     console.log("syncUI", state);
   }
-
-  async serialize() {
-    return {};
-  }
 }

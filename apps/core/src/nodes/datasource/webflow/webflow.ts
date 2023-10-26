@@ -141,8 +141,4 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
 
     console.log("syncUI", state);
   }
-
-  async serialize() {
-    return {};
-  }
 }

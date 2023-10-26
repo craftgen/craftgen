@@ -297,8 +297,4 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       110 +
       25 * (Object.keys(this.inputs).length + Object.keys(this.outputs).length);
   }
-
-  async serialize() {
-    return {};
-  }
 }

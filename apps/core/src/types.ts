@@ -1,4 +1,4 @@
-import { type GetSchemes, NodeEditor } from "rete";
+import { type GetSchemes } from "rete";
 import * as z from "zod";
 import { type Structures } from "rete-structures/_types/types";
 
@@ -79,24 +79,26 @@ export type NodeTypes = ValueOf<{
   [Property in keyof typeof nodes as string]: Property;
 }>;
 
-export type NodeProps =
-  | Start
-  | Log
-  | TextNode
-  | Number
-  | PromptTemplate
-  | OpenAIFunctionCall
-  | ComposeObject
-  | Article
-  | InputNode
-  | OutputNode
-  | ModuleNode
-  | Replicate
-  | GoogleSheet
-  | Shopify
-  | Webflow
-  | Wordpress
-  | Postgres;
+// export type NodeProps =
+//   | Start
+//   | Log
+//   | TextNode
+//   | Number
+//   | PromptTemplate
+//   | OpenAIFunctionCall
+//   | ComposeObject
+//   | Article
+//   | InputNode
+//   | OutputNode
+//   | ModuleNode
+//   | Replicate
+//   | GoogleSheet
+//   | Shopify
+//   | Webflow
+//   | Wordpress
+//   | Postgres;
+
+export type NodeProps = BaseNode<AnyStateMachine, any, any, any>;
 
 export type ConnProps = Connection<NodeProps, NodeProps>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;

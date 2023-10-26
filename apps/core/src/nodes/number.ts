@@ -110,8 +110,4 @@ export class Number extends BaseNode<typeof NumberMachine> {
     const state = this.actor.getSnapshot();
     return state.context.outputs;
   }
-
-  async serialize() {
-    return {};
-  }
 }

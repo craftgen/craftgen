@@ -103,8 +103,4 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     this.addInput("data", new Input(anySocket, "Data"));
     this.addOutput("data", new Output(anySocket, "Data"));
   }
-
-  serialize() {
-    return {};
-  }
 }

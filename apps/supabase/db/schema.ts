@@ -17,7 +17,7 @@ import z from "zod";
 
 import { relations } from "drizzle-orm";
 
-const createIdWithPrefix = (prefix: string) => () => `${prefix}_${createId()}`;
+export const createIdWithPrefix = (prefix: string) => () => `${prefix}_${createId()}`;
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey(),

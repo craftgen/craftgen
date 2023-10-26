@@ -141,8 +141,4 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
 
     console.log("syncUI", state);
   }
-
-  async serialize() {
-    return {};
-  }
 }

@@ -169,8 +169,4 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       this.addInput(item.name, new Input(socket, item.name, false));
     }
   }
-
-  async serialize() {
-    return {};
-  }
 }

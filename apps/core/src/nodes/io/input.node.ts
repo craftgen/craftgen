@@ -237,8 +237,4 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       this.addOutput(item.name, output);
     }
   }
-
-  async serialize() {
-    return {};
-  }
 }

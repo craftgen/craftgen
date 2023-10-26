@@ -12,13 +12,14 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { createNodeInstance } from "../io";
 import { Key } from "ts-key-enum";
-import { Schemes, nodesMeta } from "../types";
+import { nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2, Play, Wrench } from "lucide-react";
 import { AnyActorRef } from "xstate";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
 import { ReteStoreInstance } from "../store";
+import { type Schemes } from "@seocraft/core/src/types";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -45,6 +46,7 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { createExecution } from "@/actions/create-execution";
 import { updateNodeMeta } from "@/actions/update-node-meta";
+import { createIdWithPrefix } from "@seocraft/supabase/db";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -67,7 +69,7 @@ function sortByIndex<T extends [string, undefined | { index?: number }][]>(
 }
 
 type Props<S extends Schemes> = {
-  data: S["Node"] & NodeExtraData;
+  data: S["Node"];
   styles?: () => any;
   emit: RenderEmit<S>;
   store: ReteStoreInstance;
@@ -79,9 +81,9 @@ export function CustomNode(props: Props<Schemes>) {
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
-  const { id } = props.data;
+  const { id, di } = props.data;
   const {
-    di,
+    // di,
     workflowId,
     workflowVersionId,
     projectSlug,
@@ -116,21 +118,28 @@ export function CustomNode(props: Props<Schemes>) {
       state: props.data.actor.getSnapshot(),
     });
     const rawState = JSON.stringify(props.data.actor.getSnapshot());
-    const newNode = await createNodeInstance({
-      di: di!,
-      type: props.data.ID,
-      data: {
-        ...props.data,
-        context: {
-          state: JSON.parse(rawState),
-        },
-      } as any, //TODO:TYPE
-      saveToDB: true,
-      workflowId: workflowId,
-      projectSlug,
-    });
-    await di?.editor.addNode(newNode);
-    await di?.area?.translate(newNode.id, di?.area?.area.pointer);
+    console.log({ rawState });
+
+    const node = await di.duplicateNode(props.data.id);
+    await di?.editor.addNode(node);
+    console.log("$@", di.area, di?.area?.area.pointer);
+    await di?.area?.translate(node.id, di?.area?.area.pointer);
+
+    // const newNode = await createNodeInstance({
+    //   di: di!,
+    //   type: props.data.ID,
+    //   data: {
+    //     ...props.data,
+    //     context: {
+    //       state: JSON.parse(rawState),
+    //     },
+    //   } as any, //TODO:TYPE
+    //   saveToDB: true,
+    //   workflowId: workflowId,
+    //   projectSlug,
+    // });
+    // await di?.editor.addNode(newNode);
+    // await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
     console.log({ workflowExecutionId, status });
@@ -471,7 +480,7 @@ export function CustomNode(props: Props<Schemes>) {
                 {
                   isExection: props.data.isExecution,
                   state: state,
-                  executionNode: props.data.executionNode,
+                  // executionNode: props.data.executionNode,
                   node: props.data.nodeData,
                   size: props.data.size,
                 },

@@ -165,14 +165,15 @@ export abstract class BaseNode<
         if (this.isExecution) {
           this.saveState({ state });
         } else {
-          if (!this.di.readonly?.enabled) {
-            saveContextDebounced({ context: state.context });
-          }
+          // if (!this.di.readonly?.enabled) {
+          saveContextDebounced({ context: state.context });
+          // }
         }
       },
     });
 
     this.actor.start();
+
     this.isReady = true;
   }
 
@@ -498,5 +499,16 @@ export abstract class BaseNode<
     } catch (e) {
       this.di.logger.error(e);
     }
+  }
+
+  async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {
+    const state = this.actor.getPersistedState() as PersistedStateFrom<Machine>;
+    return {
+      ...this.nodeData,
+      state: state,
+      context: state?.context,
+      width: this.width,
+      height: this.height,
+    };
   }
 }

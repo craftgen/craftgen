@@ -108,8 +108,4 @@ export class Article extends BaseNode<typeof ArticleNodeMachine> {
 
     // console.log("editor", node);
   }
-
-  async serialize() {
-    return {};
-  }
 }

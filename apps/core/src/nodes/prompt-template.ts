@@ -356,11 +356,4 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
       this.addInput(item, input);
     }
   }
-
-  async serialize(): Promise<Data> {
-    const state = this.actor.getSnapshot();
-    return {
-      value: state.context.rendered,
-    };
-  }
 }

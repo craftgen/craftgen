@@ -45,7 +45,12 @@ import { Structures } from "rete-structures/_types/types";
 import { getWorkflow } from "@/actions/get-workflow";
 import { getWorkflowById } from "@/actions/get-workflow-by-id";
 import { setupPanningBoundary } from "./plugins/panningBoundary";
-const elk = new ELK();
+import { Editor } from "@seocraft/core";
+import { WorkflowAPI, nodes } from "@seocraft/core/src/types";
+
+class CustomArrange extends AutoArrangePlugin<Schemes> {
+  elk = new ELK();
+}
 
 export type AreaExtra = ReactArea2D<Schemes>;
 
@@ -79,7 +84,175 @@ export const createEditorFunc = (params: {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
 
+// export const nodes = {
+//   Start: Start,
+//   Log: Log,
+//   TextNode: TextNode,
+//   Number: Number,
+//   PromptTemplate: PromptTemplate,
+//   OpenAIFunctionCall: OpenAIFunctionCall,
+
+//   ComposeObject: ComposeObject,
+//   Article: Article,
+
+//   InputNode,
+//   OutputNode,
+//   ModuleNode,
+
+//   Replicate: Replicate,
+
+//   // DataSources
+//   GoogleSheet: GoogleSheet,
+//   Shopify: Shopify,
+//   Webflow: Webflow,
+//   Wordpress: Wordpress,
+//   Postgres: Postgres,
+// } as const;
+
 export async function createEditor(params: {
+  container: HTMLElement;
+  workflow: ResultOfAction<typeof getWorkflow>;
+  store: ReteStoreInstance;
+}) {
+  const di = new Editor({
+    config: {
+      nodes,
+      api: {
+        async checkAPIKeyExist(params) {
+          return true;
+        },
+        async getAPIKey(params) {
+          return "";
+        },
+        async updateExecutionNode(params) {},
+        async triggerWorkflowExecutionStep(params) {},
+        async setContext(params) {},
+      } as WorkflowAPI,
+    },
+    content: {
+      nodes: [
+        nodes.InputNode.parse({
+          id: "1",
+          projectId: "",
+          workflowId: "",
+          workflowVersionId: "",
+          contextId: "",
+          position: {
+            x: 0,
+            y: 0,
+          },
+          width: 0,
+          height: 0,
+          label: "",
+          color: "",
+        }),
+      ],
+      edges: [],
+    },
+  });
+  await di.mount({
+    container: params.container,
+    costumize: {
+      node(context) {
+        // TODO: fix types some point
+        return ({ data, emit }: any) =>
+          CustomNode({ data, emit, store: params.store }) as any;
+      },
+      socket(context) {
+        const { payload, ...meta } = context;
+        return (data) => CustomSocket({ data: payload as any, meta }) as any;
+      },
+      connection(context) {
+        return CustomConnection;
+      },
+      control(data) {
+        return getControl(data);
+      },
+    },
+  });
+  await di.setup();
+  console.log(di);
+  addCustomBackground(di?.area);
+
+  // // RENDER RELATED STUFF
+  // const render = new ReactPlugin<Schemes, AreaExtra>({
+  //   createRoot: (container) =>
+  //     createRoot(container, {
+  //       identifierPrefix: "rete-",
+  //     }),
+  // });
+  // render.addPreset(
+  //   Presets.classic.setup({
+  //     customize: {
+  //       node(context) {
+  //         // TODO: fix types some point
+  //         return ({ data, emit }: any) =>
+  //           CustomNode({ data, emit, store: params.store }) as any;
+  //       },
+  //       socket(context) {
+  //         const { payload, ...meta } = context;
+  //         return (data) => CustomSocket({ data: payload as any, meta }) as any;
+  //       },
+  //       connection(context) {
+  //         return CustomConnection;
+  //       },
+  //       control(data) {
+  //         return getControl(data);
+  //       },
+  //     },
+  //   })
+  // );
+  // // END RENDER RELATED STUFF
+  // const pathPlugin = new ConnectionPathPlugin<Schemes, Area2D<Schemes>>({
+  //   curve: (c) => c.curve || curveMonotoneX,
+  // });
+  // // @ts-ignore
+  // render.use(pathPlugin);
+  // di.editor.use(area);
+
+  const arrange = new CustomArrange();
+
+  const history = new HistoryPlugin<Schemes, HistoryActions<Schemes>>();
+  history.addPreset(HistoryPresets.classic.setup());
+  HistoryExtensions.keyboard(history);
+
+  arrange.addPreset(
+    ArrangePresets.classic.setup({
+      spacing: 40,
+      top: 100,
+      bottom: 100,
+    })
+  );
+  const inspector = new InspectorPlugin(params.store);
+
+  // AreaExtensions.simpleNodesOrder(area);
+
+  const layout = async () =>
+    await arrange.layout({
+      options: {
+        "elk.spacing.nodeNode": 100,
+        "spacing.nodeNodeBetweenLayers": 100,
+      } as any,
+    });
+
+  // AreaExtensions.showInputControl(area);
+
+  // area.use(render);
+  // area.use(arrange);
+
+  return di;
+  // {
+  //   di,
+  //   // area,
+  //   editor: di.editor,
+  //   destroy: () => {
+  //     area.destroy();
+  //     panningBoundary.destroy();
+  //   },
+  // };
+}
+
+export async function createEditor2(params: {
   container: HTMLElement;
   workflow: ResultOfAction<typeof getWorkflow>;
   store: ReteStoreInstance;
@@ -95,30 +268,14 @@ export async function createEditor(params: {
         identifierPrefix: "rete-",
       }),
   });
-  // const minimap = new MinimapPlugin<Schemes>();
 
   const pathPlugin = new ConnectionPathPlugin<Schemes, Area2D<Schemes>>({
     curve: (c) => c.curve || curveMonotoneX,
-    // transformer: () => Transformers.classic({ vertical: false }),
-    // arrow: () => true
   });
 
   // @ts-ignore
   render.use(pathPlugin);
 
-  // area.area.setDragHandler(
-  //   new AreaDrag({
-  //     down: (e) => {
-  //       if (e.pointerType === "mouse" && e.button === 1) return false;
-  //       e.preventDefault();
-  //       return true;
-  //     },
-
-  //     move: (e) => {
-  //       return true;
-  //     },
-  //   })
-  // );
   const selector = AreaExtensions.selector();
 
   const nodeSelector = AreaExtensions.selectableNodes(area, selector, {
@@ -126,7 +283,6 @@ export async function createEditor(params: {
   });
   AreaExtensions.restrictor(area, {
     scaling: () => ({ min: 0.2, max: 1 }),
-    // translation: () => ({ left: 600, top: 600, right: 600, bottom: 600 })
   });
 
   area.area.setZoomHandler(new Zoom(0.03));
@@ -156,14 +312,9 @@ export async function createEditor(params: {
       },
     })
   );
-
   connection.addPreset(ConnectionPresets.classic.setup());
   const engine = createControlFlowEngine();
   const dataFlow = createDataFlowEngine();
-
-  class CustomArrange extends AutoArrangePlugin<Schemes> {
-    elk = elk;
-  }
 
   const arrange = new CustomArrange();
 

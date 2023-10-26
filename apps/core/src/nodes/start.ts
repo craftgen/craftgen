@@ -61,8 +61,4 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
       })
     );
   }
-
-  async serialize() {
-    return {};
-  }
 }

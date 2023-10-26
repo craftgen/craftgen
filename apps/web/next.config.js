@@ -4,6 +4,7 @@ const nextConfig = {
     serverActions: true,
     serverComponentsExternalPackages: ["pg-native"],
   },
+  transpilePackages: ["@seocraft/core"],
   images: {
     unoptimized: true,
   },

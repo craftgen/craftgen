@@ -414,8 +414,4 @@ export class OpenAIFunctionCall extends BaseNode<
       }
     }
   }
-
-  serialize() {
-    return {};
-  }
 }

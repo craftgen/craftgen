@@ -152,10 +152,4 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   //     },
   //   };
   // }
-
-  serialize() {
-    return {
-      object: {},
-    };
-  }
 }

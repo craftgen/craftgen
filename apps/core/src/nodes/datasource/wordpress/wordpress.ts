@@ -142,8 +142,4 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
 
     console.log("syncUI", state);
   }
-
-  async serialize() {
-    return {};
-  }
 }

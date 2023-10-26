@@ -37,8 +37,4 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
   async data() {
     return {};
   }
-
-  serialize() {
-    return {};
-  }
 }

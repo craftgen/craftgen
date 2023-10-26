@@ -101,8 +101,4 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
     );
     this.addOutput("value", new Output(stringSocket, "Value"));
   }
-
-  async serialize() {
-    return {};
-  }
 }
