@@ -1,5 +1,5 @@
 import { DiContainer } from "../types";
-import { BaseNode, ParsedNode } from "../nodes/base";
+import { BaseNode, ParsedNode } from "./base";
 import { createMachine } from "xstate";
 import { triggerSocket } from "../sockets";
 import { ButtonControl } from "../controls/button";
@@ -43,9 +43,9 @@ export type StartNodeData = ParsedNode<"Start", typeof StartNodeMachine>;
 
 export class Start extends BaseNode<typeof StartNodeMachine> {
   static nodeType = "Start" as const;
-  static label: "Start" ;
-  static description: "Start node of the workflow";
-  static icon: "power";
+  static label = "Start";
+  static description = "Start node of the workflow";
+  static icon = "power";
 
   static parse(params: SetOptional<StartNodeData, "type">): StartNodeData {
     return {

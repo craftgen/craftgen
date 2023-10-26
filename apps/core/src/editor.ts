@@ -98,7 +98,16 @@ export class Editor<
   public panningBoundary?: ReturnType<typeof setupPanningBoundary>;
   public arrange?: CustomArrange<Scheme>;
 
-  public nodeMeta: Map<keyof Registry, NodeClass> = new Map();
+  public nodeMeta: Map<
+    keyof Registry,
+    {
+      nodeType: keyof Registry;
+      label: string;
+      description: string;
+      icon: string;
+      class: NodeClass;
+    }
+  > = new Map();
 
   public content = {
     nodes: [] as NodeWithState<Registry>[],
@@ -112,7 +121,14 @@ export class Editor<
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     Object.entries(props.config.nodes).forEach(([key, value]) => {
-      this.nodeMeta.set(key, value);
+      console.log(key, value.label, value.description, value.icon);
+      this.nodeMeta.set(key, {
+        nodeType: key,
+        label: value.label,
+        description: value.description,
+        icon: value.icon,
+        class: value,
+      });
     });
     this.api = props.config.api;
     this.content = {
@@ -134,10 +150,12 @@ export class Editor<
   public createNodeInstance(
     node: ConvertToNodeWithState<Registry, ParsedNode<any, any>>
   ) {
-    const nodeClass = this.nodeMeta.get(node.type);
-    if (!nodeClass) {
+    const nodeMeta = this.nodeMeta.get(node.type);
+    if (!nodeMeta) {
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
+    const nodeClass = nodeMeta?.class;
+
     console.log(nodeClass?.nodeType);
     return new nodeClass(this, node) as NodeProps;
   }
