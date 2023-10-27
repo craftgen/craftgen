@@ -1,14 +1,14 @@
 import * as Sqrl from "squirrelly";
-import { isString, set, get, merge, isEqual } from "lodash-es";
+import { isString, set, get, merge } from "lodash-es";
 import { BaseNode, type ParsedNode } from "./base";
-import { StateFrom, assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
-import { InputControl } from "../controls/input.control";
 import { Input, Output } from "../input-output";
 import type { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
+import { JSONSocket } from "../controls/socket-generator";
 
 const PromptTemplateNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
@@ -18,6 +18,7 @@ const PromptTemplateNodeMachine = createMachine({
     merge(
       {
         inputs: {},
+        inputSockets: [],
         outputs: {
           value: "",
         },
@@ -45,6 +46,7 @@ const PromptTemplateNodeMachine = createMachine({
         template: string;
         variables: string[];
       };
+      inputSockets: JSONSocket[];
       inputs: Record<string, any>;
       outputs: {
         value: string;
@@ -85,6 +87,17 @@ const PromptTemplateNodeMachine = createMachine({
               ...context.settings,
               variables: event.output.variables,
             }),
+            inputSockets: ({ context, event }) => {
+              const sockets = event.output.variables.map((item: string) => {
+                return {
+                  name: item,
+                  type: "string",
+                  description: "",
+                  required: true,
+                };
+              });
+              return sockets;
+            },
             outputs: ({ event }) => ({ value: event.output.rendered }),
           }),
         },
@@ -289,20 +302,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     });
 
     let prev = this.actor.getSnapshot();
-    this.actor.subscribe(
-      (state: StateFrom<typeof PromptTemplateNodeMachine>) => {
-        if (
-          !isEqual(
-            state.context.settings.variables,
-            prev?.context?.settings.variables
-          )
-        ) {
-          console.log(state.context.settings);
-          this.process();
-        }
-        prev = state;
-      }
-    );
     this.addInput("trigger", new Input(triggerSocket, "Trigger", true));
     this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
     this.addOutput("value", new Output(stringSocket, "Text"));
@@ -320,40 +319,5 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
         },
       })
     );
-
-    this.process();
-  }
-
-  process() {
-    const state = this.actor.getSnapshot();
-    const rawTemplate: string[] = state.context.settings.variables;
-    for (const item of Object.keys(this.inputs)) {
-      if (item === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.includes(item)) continue;
-      const connections = this.di.editor
-        .getConnections()
-        .filter((c) => c.target === this.id && c.targetInput === item);
-      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      this.removeInput(item);
-    }
-
-    for (const item of rawTemplate) {
-      if (this.hasInput(item)) continue;
-      const input = new Input(stringSocket, item, false);
-      input.addControl(
-        new InputControl(state.context.inputs[item], {
-          change: (value) => {
-            console.log(value);
-            this.actor.send({
-              type: "SET_VALUE",
-              inputs: {
-                [item]: value,
-              },
-            });
-          },
-        })
-      );
-      this.addInput(item, input);
-    }
   }
 }

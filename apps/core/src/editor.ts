@@ -146,7 +146,7 @@ export class Editor<
       cursorPosition: observable,
       setCursorPosition: action,
       setSelectedNodeId: action,
-      selectedNode: computed
+      selectedNode: computed,
     });
 
     Object.entries(props.config.nodes).forEach(([key, value]) => {
@@ -555,6 +555,7 @@ export class Editor<
           return context;
         })
         .with({ type: "nodecreated" }, async ({ data }) => {
+          console.log("nodecreated", { data });
           const size = data.size;
           await this.api.upsertNode({
             workflowId: this.workflowId,
@@ -629,7 +630,6 @@ export class Editor<
     const positionUpdate = debounce((position: Position) => {
       this.setCursorPosition(position);
     }, 10);
-    console.log("handleAreaEvents", this.cursorPosition);
     this.area?.addPipe((context) => {
       match(context)
         .with({ type: "pointermove" }, ({ data: { position } }) => {

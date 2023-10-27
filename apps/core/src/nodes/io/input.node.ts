@@ -45,6 +45,7 @@ export const InputNodeMachine = createMachine({
       inputs: Record<string, any>;
       outputs: Record<string, any>;
       outputSockets: JSONSocket[];
+      inputSockets: JSONSocket[];
       schema: Record<string, any>;
     };
     events:
@@ -100,6 +101,7 @@ export const InputNodeMachine = createMachine({
           target: "idle",
           actions: assign({
             outputSockets: ({ event }) => event.outputSockets,
+            inputSockets: ({ event }) => event.outputSockets,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
           }),
@@ -166,53 +168,40 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       },
     });
     this.addControl("outputGenerator", outputGenerator);
-    this.actor.subscribe((state) => {
-      // TODO: only update when sockets change
-      this.process();
-    });
-    this.process();
   }
-  process() {
-    const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.outputSockets as JSONSocket[];
 
-    for (const item of Object.keys(this.outputs)) {
+  async updateInputs(rawTemplate: JSONSocket[]) {
+    const state = this.actor.getSnapshot();
+    for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
-      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      this.removeOutput(item);
-    }
-
-    for (const input of Object.keys(this.inputs)) {
-      if (input === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.find((i: JSONSocket) => i.name === input)) continue;
-      const connections = this.di.editor
-        .getConnections()
-        .filter((c) => c.source === this.id && c.sourceOutput === input);
-      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      this.removeInput(input);
+      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+      if (connections.length >= 1) {
+        for (const c of connections) {
+          await this.di.editor.removeConnection(c.id);
+          this.di.editor.addConnection({
+            ...c,
+            target: this.id,
+            targetInput: item,
+          });
+        }
+      }
+      this.removeInput(item);
     }
 
     for (const item of rawTemplate) {
-      if (this.hasOutput(item.name)) {
-        const output = this.outputs[item.name];
-        if (output) {
-          output.socket = getSocketByJsonSchemaType(item.type)!;
-        }
-        continue;
-      }
       if (this.hasInput(item.name)) {
         const input = this.inputs[item.name];
         if (input) {
-          input.socket = getSocketByJsonSchemaType(item.type)!;
+          input.socket = getSocketByJsonSchemaType(item.type)! as any;
         }
         continue;
       }
-      const socket = getSocketByJsonSchemaType(item.type)!;
 
+      const socket = getSocketByJsonSchemaType(item.type)!;
       const input = new Input(socket, item.name, true, false);
       const controller = getControlBySocket(
         socket,
@@ -236,9 +225,6 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
           },
         });
       }
-
-      const output = new Output(socket, item.name, true);
-      this.addOutput(item.name, output);
     }
   }
 }

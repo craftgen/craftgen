@@ -139,11 +139,7 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       },
     });
     this.addControl("outputGenerator", inputGenerator);
-    this.actor.subscribe((state) => {
-      // TODO: only update when sockets change
-      this.process();
-    });
-    this.process();
+    this.updateInputs(this.actor.getSnapshot().context.inputSockets);
   }
 
   process() {

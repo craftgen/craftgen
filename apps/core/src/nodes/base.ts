@@ -13,10 +13,17 @@ import {
   InputFrom,
 } from "xstate";
 import { debounce, isEqual, isUndefined, set } from "lodash-es";
-import { type AllSockets, Socket } from "../sockets";
+import {
+  type AllSockets,
+  Socket,
+  getSocketByJsonSchemaType,
+  getControlBySocket,
+} from "../sockets";
 import type { NodeTypes, Node } from "../types";
 import { BaseControl } from "../controls/base";
 import { Input, Output } from "../input-output";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { JSONSocket } from "../controls/socket-generator";
 
 export type ParsedNode<
   NodeType extends string,
@@ -80,6 +87,10 @@ export abstract class BaseNode<
   get projectId() {
     return this.di.projectId;
   }
+  public snap: SnapshotFrom<AnyStateMachine>;
+
+  public inputSockets = [] as JSONSocket[];
+  public outputSockets = [] as JSONSocket[];
 
   constructor(
     public readonly ID: NodeTypes,
@@ -89,6 +100,7 @@ export abstract class BaseNode<
     public machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(nodeData.label);
+
     this.width = nodeData?.width || 200;
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
@@ -145,6 +157,14 @@ export abstract class BaseNode<
       },
       next: async (state) => {
         this.state = state.value as any;
+        this.setSnap(state);
+        if (!isEqual(prev.context.inputSockets, state.context.inputSockets)) {
+          this.setInputSockets(state.context?.inputSockets || []);
+        }
+        if (!isEqual(prev.context.outputSockets, state.context.outputSockets)) {
+          this.setOutputSockets(state.context?.outputSockets || []);
+        }
+
         if (
           !isEqual(prev.context.outputs, state.context.outputs) &&
           state.matches("complete")
@@ -156,7 +176,6 @@ export abstract class BaseNode<
           }
         }
 
-        prev = state;
         if (this.isExecution) {
           this.saveState({ state });
         } else {
@@ -164,12 +183,146 @@ export abstract class BaseNode<
           saveContextDebounced({ context: state.context });
           // }
         }
+        prev = state;
       },
     });
+    this.snap = this.actor.getSnapshot();
+    this.updateInputs(this.snap.context?.inputSockets || []);
+    this.updateOutputs(this.snap.context?.outputSockets || []);
+
+    // this.out
 
     this.actor.start();
+    makeObservable(this, {
+      inputs: observable,
+      snap: observable,
+      inputSockets: observable,
+      outputSockets: observable,
+
+      setInputSockets: action,
+      setOutputSockets: action,
+      setSnap: action,
+    });
+
+    const inputHandlers = reaction(
+      () => this.inputSockets,
+      async (sockets) => {
+        await this.updateInputs(sockets);
+      }
+    );
+    const outputHandlers = reaction(
+      () => this.outputSockets,
+      async (sockets) => {
+        await this.updateOutputs(sockets);
+      }
+    );
 
     this.isReady = true;
+  }
+
+  async updateOutputs(rawTemplate: JSONSocket[]) {
+    for (const item of Object.keys(this.outputs)) {
+      if (item === "trigger") continue; // don't remove the trigger socket
+      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      const connections = this.di.editor
+        .getConnections()
+        .filter((c) => c.source === this.id && c.sourceOutput === item);
+      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+      if (connections.length >= 1) {
+        for (const c of connections) {
+          await this.di.editor.removeConnection(c.id);
+          this.di.editor.addConnection({
+            ...c,
+            source: this.id,
+            sourceOutput: item,
+          });
+        }
+      }
+      this.removeOutput(item);
+    }
+
+    for (const item of rawTemplate) {
+      if (this.hasOutput(item.name)) {
+        const output = this.outputs[item.name];
+        if (output) {
+          output.socket = getSocketByJsonSchemaType(item.type)! as any;
+        }
+        continue;
+      }
+
+      const socket = getSocketByJsonSchemaType(item.type)!;
+      this.addOutput(item.name, new Output(socket, item.name, false) as any);
+    }
+  }
+
+  async updateInputs(rawTemplate: JSONSocket[]) {
+    const state = this.actor.getSnapshot();
+    for (const item of Object.keys(this.inputs)) {
+      if (item === "trigger") continue; // don't remove the trigger socket
+      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      const connections = this.di.editor
+        .getConnections()
+        .filter((c) => c.target === this.id && c.targetInput === item);
+      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+      if (connections.length >= 1) {
+        for (const c of connections) {
+          await this.di.editor.removeConnection(c.id);
+          this.di.editor.addConnection({
+            ...c,
+            target: this.id,
+            targetInput: item,
+          });
+        }
+      }
+      this.removeInput(item);
+    }
+
+    for (const item of rawTemplate) {
+      if (this.hasInput(item.name)) {
+        const input = this.inputs[item.name];
+        if (input) {
+          input.socket = getSocketByJsonSchemaType(item.type)! as any;
+        }
+        continue;
+      }
+
+      const socket = getSocketByJsonSchemaType(item.type)!;
+      const input = new Input(socket, item.name, true);
+      const controller = getControlBySocket(
+        socket,
+        state.context.outputs[item.name],
+        (v) => {
+          this.actor.send({
+            type: "SET_VALUE",
+            values: {
+              [item.name]: v,
+            },
+          });
+        }
+      );
+      input.addControl(controller);
+      this.addInput(item.name, input as any);
+      if (!state.context.inputs[item.name]) {
+        this.actor.send({
+          type: "SET_VALUE",
+          values: {
+            [item.name]: "",
+          },
+        });
+      }
+    }
+  }
+
+  public setOutputSockets(sockets: JSONSocket[]) {
+    this.outputSockets = sockets;
+  }
+
+  public setInputSockets(sockets: JSONSocket[]) {
+    this.inputSockets = sockets;
+  }
+
+  public setSnap(snap: SnapshotFrom<AnyStateMachine>) {
+    this.snap = snap;
   }
 
   public async updateAncestors() {
