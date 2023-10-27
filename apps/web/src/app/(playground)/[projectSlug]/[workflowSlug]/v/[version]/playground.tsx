@@ -1,5 +1,5 @@
 "use client";
-import "reflect-metadata";
+// import "reflect-metadata";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -26,7 +26,6 @@ import { Badge } from "@/components/ui/badge";
 import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { NodeProps } from "@/core/types";
 import { InputWindow } from "./input/input-window";
 import { Socket } from "@/core/sockets";
 import { Input as InputNode } from "rete/_types/presets/classic";
@@ -50,6 +49,7 @@ import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Session } from "@supabase/supabase-js";
 import { ActorStatus } from "xstate";
 import { Textarea } from "@/components/ui/textarea";
+import { observer } from "mobx-react-lite";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -322,18 +322,10 @@ const LoginToContinue: React.FC<{}> = ({}) => {
   );
 };
 
-const InspectorWindow: React.FC<{}> = ({}) => {
+const InspectorWindow: React.FC<{}> = observer(({}) => {
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
   const selectedNodeId = di?.selectedNodeId;
-  const setSelectedNode = useCraftStore((state) => state.setSelectedNodeId);
-  useEffect(() => {
-    if (!selectedNodeId) return;
-    const node = di?.editor.getNode(selectedNodeId);
-    if (!node) {
-      setSelectedNode(null);
-    }
-  }, [selectedNodeId]);
 
   const handlePinTab = () => {
     const selectedNode = selectedNodeId && di?.editor.getNode(selectedNodeId);
@@ -370,11 +362,12 @@ const InspectorWindow: React.FC<{}> = ({}) => {
       )}
     </>
   );
-};
+});
+
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   const di = useCraftStore((state) => state.di);
   const node = di?.editor.getNode(nodeId);
-  // if (!node) return null;
+  if (!node) return null;
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
   const outputs = useMemo(() => {

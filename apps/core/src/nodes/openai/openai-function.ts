@@ -1,6 +1,6 @@
 import type { DiContainer } from "../../types";
 import { OPENAI_CHAT_MODELS, type OpenAIChatSettings } from "modelfusion";
-import { BaseNode, ParsedNode, type NodeData } from "../base";
+import { BaseNode, type ParsedNode } from "../base";
 import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
 import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 // import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";

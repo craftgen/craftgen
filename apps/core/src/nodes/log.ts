@@ -1,5 +1,5 @@
 import { DiContainer } from "../types";
-import { BaseNode, NodeData, ParsedNode } from "./base";
+import { BaseNode, type ParsedNode } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { anySocket, triggerSocket } from "../sockets";
 import { Input, Output } from "../input-output";

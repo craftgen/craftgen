@@ -5,7 +5,7 @@ import {
   createMachine,
   fromPromise,
 } from "xstate";
-import { BaseNode, ParsedNode, type NodeData } from "../../base";
+import { BaseNode, ParsedNode } from "../../base";
 import { type DiContainer } from "../../../types";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";

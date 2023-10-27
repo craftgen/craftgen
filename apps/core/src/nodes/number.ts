@@ -1,5 +1,5 @@
 import { DiContainer } from "../types";
-import { BaseNode, NodeData, ParsedNode } from "./base";
+import { BaseNode, type ParsedNode } from "./base";
 import { assign, createMachine } from "xstate";
 import { numberSocket, triggerSocket } from "../sockets";
 import { match, P } from "ts-pattern";

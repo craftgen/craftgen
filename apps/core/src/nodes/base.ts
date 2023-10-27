@@ -6,7 +6,6 @@ import {
   type ContextFrom,
   type MachineImplementationsFrom,
   type SnapshotFrom,
-  type StateFrom,
   createActor,
   waitFor,
   PersistedStateFrom,
@@ -19,11 +18,6 @@ import type { NodeTypes, Node } from "../types";
 import { BaseControl } from "../controls/base";
 import { Input, Output } from "../input-output";
 
-export type NodeData<T extends AnyStateMachine> = Node & {
-  context: {
-    state?: StateFrom<T>;
-  };
-};
 export type ParsedNode<
   NodeType extends string,
   Machine extends AnyActorLogic

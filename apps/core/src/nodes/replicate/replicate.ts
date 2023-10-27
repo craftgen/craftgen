@@ -1,5 +1,5 @@
 import { createMachine, fromPromise } from "xstate";
-import { BaseNode, ParsedNode, type NodeData } from "../base";
+import { BaseNode, type ParsedNode } from "../base";
 import { type DiContainer } from "../../types";
 import { SetOptional } from "type-fest";
 

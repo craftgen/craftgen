@@ -9,6 +9,7 @@ import { useRete } from "rete-react-plugin";
 import { ContextMenuProvider } from "./context-menu";
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
+import { observer } from "mobx-react-lite";
 
 import {
   Tooltip,
@@ -20,7 +21,7 @@ import { Button } from "@/components/ui/button";
 export const Composer: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
   store: any;
-}> = ({ workflow, store }) => {
+}> = observer(({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
   const createEditor = useMemo(() => {
     return createEditorFunc({
@@ -29,12 +30,8 @@ export const Composer: React.FC<{
     });
   }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);
-  useEffect(() => {
-    console.log("444", rete?.cursorPosition);
-  }, [rete?.cursorPosition]);
   return (
     <div className="w-full h-full">
-      {JSON.stringify(rete?.cursorPosition)}
       <div className="absolute top-1 right-1 z-50 flex ">
         {workflow.readonly && workflow.version.publishedAt && (
           <Tooltip>
@@ -67,4 +64,4 @@ export const Composer: React.FC<{
       </ContextMenuProvider>
     </div>
   );
-};
+});

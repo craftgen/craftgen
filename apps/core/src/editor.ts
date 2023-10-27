@@ -27,11 +27,12 @@ import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { HistoryActions } from "rete-history-plugin";
 import { match } from "ts-pattern";
 import { debounce } from "lodash-es";
-import { getConnectionSockets } from "./utils";
 import { AllSockets, Socket } from "./sockets";
 import { Input, Output } from "./input-output";
 import { useMagneticConnection } from "./connection";
 import { SetOptional } from "type-fest";
+
+import { makeObservable, observable, action, computed } from "mobx";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -140,6 +141,14 @@ export class Editor<
   public handlers: EditorHandlers;
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
+    makeObservable(this, {
+      selectedNodeId: observable,
+      cursorPosition: observable,
+      setCursorPosition: action,
+      setSelectedNodeId: action,
+      selectedNode: computed
+    });
+
     Object.entries(props.config.nodes).forEach(([key, value]) => {
       this.nodeMeta.set(key, {
         nodeType: key,
@@ -602,11 +611,24 @@ export class Editor<
     });
   }
 
+  setCursorPosition(position: Position) {
+    this.cursorPosition = position;
+  }
+
+  setSelectedNodeId(nodeId: NodeId | null) {
+    this.selectedNodeId = nodeId;
+  }
+
+  get selectedNode() {
+    if (!this.selectedNodeId) return null;
+    return this.editor.getNode(this.selectedNodeId);
+  }
+
   private handleAreaEvents() {
     const updateMeta = debounce(this.api.updateNodeMetadata, 500);
     const positionUpdate = debounce((position: Position) => {
-      this.cursorPosition = position;
-    }, 100);
+      this.setCursorPosition(position);
+    }, 10);
     console.log("handleAreaEvents", this.cursorPosition);
     this.area?.addPipe((context) => {
       match(context)
@@ -615,7 +637,7 @@ export class Editor<
         })
         .with({ type: "nodepicked" }, ({ data }) => {
           requestAnimationFrame(() => {
-            this.selectedNodeId = data.id;
+            this.setSelectedNodeId(data.id);
           });
         })
         .with({ type: "pointerdown" }, ({ data }) => {
@@ -626,7 +648,7 @@ export class Editor<
             this.selectedNodeId
           ) {
             requestAnimationFrame(() => {
-              this.selectedNodeId = null;
+              this.setSelectedNodeId(null);
             });
             return context;
           }
