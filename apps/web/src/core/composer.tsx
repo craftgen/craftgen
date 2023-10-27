@@ -4,7 +4,7 @@ import { getWorkflow } from "@/actions/get-workflow";
 
 import { ResultOfAction } from "@/lib/type";
 import { Shrink, Lock } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRete } from "rete-react-plugin";
 import { ContextMenuProvider } from "./context-menu";
 import { createEditorFunc } from "./editor";
@@ -29,8 +29,12 @@ export const Composer: React.FC<{
     });
   }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);
+  useEffect(() => {
+    console.log("444", rete?.cursorPosition);
+  }, [rete?.cursorPosition]);
   return (
     <div className="w-full h-full">
+      {JSON.stringify(rete?.cursorPosition)}
       <div className="absolute top-1 right-1 z-50 flex ">
         {workflow.readonly && workflow.version.publishedAt && (
           <Tooltip>

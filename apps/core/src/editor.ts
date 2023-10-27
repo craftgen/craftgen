@@ -2,7 +2,7 @@ import { GetSchemes, NodeEditor, NodeId } from "rete";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { BaseNode, ParsedNode } from "./nodes/base";
 import { Connection } from "./connection/connection";
-import { NodeClass, WorkflowAPI, Node, Schemes } from "./types";
+import { NodeClass, WorkflowAPI, Node, Schemes, Position } from "./types";
 import { ContextFrom, SnapshotFrom } from "xstate";
 import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
@@ -113,6 +113,8 @@ export class Editor<
   public nodeSelector?: ReturnType<typeof AreaExtensions.selectableNodes>;
   public panningBoundary?: ReturnType<typeof setupPanningBoundary>;
   public arrange?: CustomArrange<Scheme>;
+  public cursorPosition: Position = { x: 0, y: 0 };
+  public selectedNodeId: NodeId | null = null;
 
   public nodeMeta: Map<
     keyof Registry,
@@ -602,8 +604,33 @@ export class Editor<
 
   private handleAreaEvents() {
     const updateMeta = debounce(this.api.updateNodeMetadata, 500);
+    const positionUpdate = debounce((position: Position) => {
+      this.cursorPosition = position;
+    }, 100);
+    console.log("handleAreaEvents", this.cursorPosition);
     this.area?.addPipe((context) => {
       match(context)
+        .with({ type: "pointermove" }, ({ data: { position } }) => {
+          positionUpdate(position);
+        })
+        .with({ type: "nodepicked" }, ({ data }) => {
+          requestAnimationFrame(() => {
+            this.selectedNodeId = data.id;
+          });
+        })
+        .with({ type: "pointerdown" }, ({ data }) => {
+          if (
+            (data?.event.target as HTMLElement).classList.contains(
+              "background"
+            ) &&
+            this.selectedNodeId
+          ) {
+            requestAnimationFrame(() => {
+              this.selectedNodeId = null;
+            });
+            return context;
+          }
+        })
         .with({ type: "noderesized" }, ({ data }) => {
           const size = {
             width: Math.round(data.size.width),

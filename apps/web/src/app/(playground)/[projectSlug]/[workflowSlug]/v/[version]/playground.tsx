@@ -325,7 +325,7 @@ const LoginToContinue: React.FC<{}> = ({}) => {
 const InspectorWindow: React.FC<{}> = ({}) => {
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
-  const selectedNodeId = useCraftStore((state) => state.selectedNodeId);
+  const selectedNodeId = di?.selectedNodeId;
   const setSelectedNode = useCraftStore((state) => state.setSelectedNodeId);
   useEffect(() => {
     if (!selectedNodeId) return;
@@ -373,7 +373,8 @@ const InspectorWindow: React.FC<{}> = ({}) => {
 };
 const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
   const di = useCraftStore((state) => state.di);
-  const node = di?.editor.getNode(nodeId) as NodeProps;
+  const node = di?.editor.getNode(nodeId);
+  // if (!node) return null;
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
   const outputs = useMemo(() => {
