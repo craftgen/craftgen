@@ -51,6 +51,10 @@ import { setContext } from "@/actions/update-context";
 import { toast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { AreaExtra } from "@seocraft/core/src/editor";
+import { upsertNode } from "@/actions/upsert-node";
+import { deleteNode } from "@/actions/delete-node";
+import { saveEdge } from "@/actions/create-edge";
+import { deleteEdge } from "@/actions/delete-edge";
 
 // class CustomArrange extends AutoArrangePlugin<Schemes> {
 //   elk = new ELK();
@@ -123,6 +127,8 @@ export async function createEditor(params: {
       nodes,
       on: {
         incompatibleConnection({ source, target }) {
+          console.log("incompatibleConnection", { source, target });
+          // TODO fix this.
           toast({
             title: "Sockets are not compatible",
             description: (
@@ -152,7 +158,19 @@ export async function createEditor(params: {
           const data = await setContext(params);
         },
         updateNodeMetadata,
-      } as WorkflowAPI,
+        async upsertNode(params) {
+          await upsertNode(params);
+        },
+        async deleteNode(params) {
+          await deleteNode(params);
+        },
+        async saveEdge(params) {
+          await saveEdge(params);
+        },
+        async deleteEdge(params) {
+          await deleteEdge(params);
+        },
+      },
     },
     content: {
       nodes: [...contentNodes],

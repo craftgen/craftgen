@@ -131,6 +131,45 @@ export const updateNodeMetadataParamSchema = z.object({
   label: z.string().optional(),
 });
 
+export const upsertNodeParamSchema = z.object({
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  projectId: z.string(),
+  data: z.object({
+    id: z.string(),
+    contextId: z.string(),
+    context: z.string().describe("JSON stringified context"),
+    type: z.string(),
+    width: z.number(),
+    height: z.number(),
+    color: z.string(),
+    label: z.string(),
+    position: z.object({
+      x: z.number(),
+      y: z.number(),
+    }),
+  }),
+});
+export const deleteNodeParamSchema = z.object({
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  data: z.object({
+    id: z.string(),
+  }),
+});
+
+export const saveEdgeParamSchema = z.object({
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  data: z.custom<ConnProps>(),
+});
+
+export const deleteEdgeParamSchema = z.object({
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  data: z.custom<ConnProps>(),
+});
+
 export interface WorkflowAPI {
   updateExecutionNode: (
     params: z.infer<typeof updateExecutionNodeParamSchema>
@@ -146,6 +185,10 @@ export interface WorkflowAPI {
   updateNodeMetadata: (
     params: z.infer<typeof updateNodeMetadataParamSchema>
   ) => Promise<void>;
+  upsertNode: (params: z.infer<typeof upsertNodeParamSchema>) => Promise<void>;
+  deleteNode: (params: z.infer<typeof deleteNodeParamSchema>) => Promise<void>;
+  saveEdge: (params: z.infer<typeof saveEdgeParamSchema>) => Promise<void>;
+  deleteEdge: (params: z.infer<typeof deleteEdgeParamSchema>) => Promise<void>;
 }
 
 export type DiContainer = Editor;

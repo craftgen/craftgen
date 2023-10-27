@@ -531,66 +531,72 @@ export class Editor<
 
   private handleNodeEvents() {
     this.editor.addPipe((context) => {
-      match(context).with({ type: "connectioncreate" }, ({ data }) => {
-        const { source, target } = this.getConnectionSockets(data);
-        if (target && !source.isCompatibleWith(target)) {
-          this.handlers.incompatibleConnection?.({
-            source,
-            target,
+      return match(context)
+        .with({ type: "connectioncreate" }, ({ data }) => {
+          const { source, target } = this.getConnectionSockets(data);
+          if (target && !source.isCompatibleWith(target)) {
+            this.handlers.incompatibleConnection?.({
+              source,
+              target,
+            });
+            return undefined;
+          }
+          return context;
+        })
+        .with({ type: "nodecreated" }, async ({ data }) => {
+          const size = data.size;
+          await this.api.upsertNode({
+            workflowId: this.workflowId,
+            workflowVersionId: this.workflowVersionId,
+            projectId: this.projectId,
+            data: {
+              id: data.id,
+              type: data.ID,
+              color: "default",
+              label: data.label,
+              contextId: data.contextId,
+              context: JSON.stringify(data.actor.getSnapshot().context),
+              position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
+              ...size,
+            },
           });
-        }
-      });
-      // .with({ type: "nodecreated" }, async ({ data }) => {
-      //   const size = data.size;
-      //   await upsertNode({
-      //     workflowId: workflow.id,
-      //     workflowVersionId,
-      //     projectId: workflow.project.id,
-      //     data: {
-      //       id: data.id,
-      //       type: data.ID,
-      //       color: "default",
-      //       label: data.label,
-      //       contextId: data.contextId,
-      //       context: JSON.stringify(data.actor.getSnapshot().context),
-      //       position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
-      //       ...size,
-      //     },
-      //   });
-      // })
-      // .with({ type: "noderemove" }, async ({ data }) => {
-      //   console.log("noderemove", { data });
-      //   await deleteNode({
-      //     workflowId: workflow.id,
-      //     workflowVersionId,
-      //     data: {
-      //       id: data.id,
-      //     },
-      //   });
-      // })
-      // .with({ type: "connectioncreated" }, async ({ data }) => {
-      //   console.log("connectioncreated", { data });
-      //   await saveEdge({
-      //     workflowId: workflow.id,
-      //     workflowVersionId,
-      //     data: JSON.parse(JSON.stringify(data)),
-      //   });
-      //   try {
-      //     await di?.editor.getNode(data.target).data(); // is this about connecttinos.
-      //   } catch (e) {
-      //     console.log("Failed to update", e);
-      //   }
-      // })
-      // .with({ type: "connectionremoved" }, async ({ data }) => {
-      //   console.log("connectionremoved", { data });
-      //   await deleteEdge({
-      //     workflowId: workflow.id,
-      //     workflowVersionId,
-      //     data: JSON.parse(JSON.stringify(data)),
-      //   });
-      // });
-
-      return context;
+          return context;
+        })
+        .with({ type: "noderemove" }, async ({ data }) => {
+          console.log("noderemove", { data });
+          await this.api.deleteNode({
+            workflowId: this.workflowId,
+            workflowVersionId: this.workflowVersionId,
+            data: {
+              id: data.id,
+            },
+          });
+          return context;
+        })
+        .with({ type: "connectioncreated" }, async ({ data }) => {
+          console.log("connectioncreated", { data });
+          await this.api.saveEdge({
+            workflowId: this.workflowId,
+            workflowVersionId: this.workflowVersionId,
+            data: JSON.parse(JSON.stringify(data)),
+          });
+          try {
+            await this?.editor.getNode(data.target).data(); // is this about connecttinos.
+          } catch (e) {
+            console.log("Failed to update", e);
+          }
+          return context;
+        })
+        .with({ type: "connectionremoved" }, async ({ data }) => {
+          console.log("connectionremoved", { data });
+          await this.api.deleteEdge({
+            workflowId: this.workflowId,
+            workflowVersionId: this.workflowVersionId,
+            data: JSON.parse(JSON.stringify(data)),
+          });
+          return context;
+        })
+        .otherwise(() => context);
     });
   }
 

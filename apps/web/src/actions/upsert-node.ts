@@ -14,7 +14,7 @@ export const upsertNode = action(
       id: z.string(),
       contextId: z.string(),
       context: z.string().transform((val) => JSON.parse(val)),
-      type: z.custom<NodeTypes>(),
+      type: z.string(),
       width: z.number(),
       height: z.number(),
       color: z.string(),
