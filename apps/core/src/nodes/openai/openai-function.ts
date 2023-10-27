@@ -218,6 +218,8 @@ export class OpenAIFunctionCall extends BaseNode<
     };
   }
 
+  
+
   constructor(di: DiContainer, data: OpenAINode) {
     super("OpenAIFunctionCall", di, data, OpenAIFunctionCallMachine, {
       actors: {
@@ -228,30 +230,31 @@ export class OpenAIFunctionCall extends BaseNode<
             settings: input.settings,
           });
           if (input.settings.resultType === "text") {
-            const res = await generateTextFn({
-              projectId: this.projectId,
-              settings: input.settings.openai,
-              user: inputs.prompt,
-            });
-            return { result: res };
+            // const res = await generateTextFn({
+            //   projectId: this.di.projectId,
+            //   settings: input.settings.openai,
+            //   user: inputs.prompt,
+            // });
+            // return { result: res };
           } else {
-            const res = await genereteJsonFn({
-              projectId: this.projectId,
-              settings: input.settings.openai,
-              user: inputs.prompt,
-              schema: inputs.schema[0],
-            });
-            return { result: res };
+            // const res = await genereteJsonFn({
+            //   projectId: this.di.projectId,
+            //   settings: input.settings.openai,
+            //   user: inputs.prompt,
+            //   schema: inputs.schema[0],
+            // });
+            // return { result: res };
           }
+          return { result: "test" };
         }),
         check_api_key: fromPromise(async () => {
           // TODO: fix this later;
-          const validApiKey = await this.di.api.checkAPIKeyExist({
-            key: "OPENAI_API_KEY",
-            projectId: this.projectId,
-          });
-          if (!validApiKey)
-            throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
+          // const validApiKey = await this.di.api.checkAPIKeyExist({
+          //   key: "OPENAI_API_KEY",
+          //   projectId: this.projectId,
+          // });
+          // if (!validApiKey)
+          //   throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
 
           return true;
         }),
