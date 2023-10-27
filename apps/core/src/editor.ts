@@ -127,7 +127,7 @@ export class Editor<
 
   public content = {
     nodes: [] as NodeWithState<Registry>[],
-    edges: [] as ConnProps[],
+    edges: [] as SetOptional<ConnProps, "id">[],
   };
 
   public logger = console;
@@ -174,9 +174,9 @@ export class Editor<
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
-    const nodeClass = nodeMeta?.class;
+    const nodeClass = nodeMeta.class;
 
-    return new nodeClass(this, node) as NodeProps;
+    return new nodeClass(this, node);
   }
 
   public async duplicateNode(node_Id: string) {
@@ -411,7 +411,7 @@ export class Editor<
     edges,
   }: {
     nodes: NodeWithState<Registry>[];
-    edges: ConnProps[];
+    edges: SetOptional<ConnProps, "id">[];
   }) {
     for (const n of nodes) {
       if (this.editor.getNode(n.id)) continue;
@@ -447,7 +447,7 @@ export class Editor<
     edges,
   }: {
     nodes: NodeWithState<Registry>[];
-    edges: ConnProps[];
+    edges: SetOptional<ConnProps, "id">[];
   }) {
     const nodesMap = new Map<NodeId, NodeProps>();
     for (const n of nodes) {

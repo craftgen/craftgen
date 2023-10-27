@@ -1,7 +1,10 @@
-import { ClassicPreset } from "rete";
-import type { ColumnDef } from "@tanstack/react-table";
+// import type { ColumnDef } from "@tanstack/react-table";
 import { BaseControl } from "./base";
 
+export type ColumnDef<T> = {
+  id: string;
+  Header: string;
+};
 export class TableControl<T> extends BaseControl {
   __type = "table";
 

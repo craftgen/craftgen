@@ -2,12 +2,12 @@ import { NodeEditor } from "rete";
 import { AreaPlugin } from "rete-area-plugin";
 import { getFrameWeight } from "./frame";
 import { animate, watchPointerMove } from "./utils";
-import { AreaExtra } from "@/core/editor";
-import { Schemes } from "@/core/types";
 import { Selector } from "rete-area-plugin/_types/extensions";
+import { Schemes } from "../../types";
+import { AreaExtra } from "../../editor";
 
 type Props = {
-  area: AreaPlugin<Schemes, AreaExtra>;
+  area: AreaPlugin<Schemes, AreaExtra<Schemes>>;
   selector: Selector<any>;
   intensity?: number;
   padding?: number;
