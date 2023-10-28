@@ -241,7 +241,7 @@ export abstract class BaseNode<
       this.removeOutput(item);
     }
 
-    for (const item of rawTemplate) {
+    for (const [index, item] of rawTemplate.entries()) {
       if (this.hasOutput(item.name)) {
         const output = this.outputs[item.name];
         if (output) {
@@ -251,7 +251,9 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addOutput(item.name, new Output(socket, item.name, false) as any);
+      const output = new Output(socket, item.name, false) as any;
+      output.index = index + 1;
+      this.addOutput(item.name, output);
     }
   }
 
@@ -277,7 +279,7 @@ export abstract class BaseNode<
       this.removeInput(item);
     }
 
-    for (const item of rawTemplate) {
+    for (const [index, item] of rawTemplate.entries()) {
       if (this.hasInput(item.name)) {
         const input = this.inputs[item.name];
         if (input) {
@@ -288,6 +290,7 @@ export abstract class BaseNode<
 
       const socket = getSocketByJsonSchemaType(item.type)!;
       const input = new Input(socket, item.name, true);
+      input.index = index + 1;
       const controller = getControlBySocket(
         socket,
         state.context.outputs[item.name],
