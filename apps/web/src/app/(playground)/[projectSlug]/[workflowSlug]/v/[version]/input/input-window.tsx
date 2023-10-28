@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCraftStore } from "@/core/use-store";
-import { InputNode } from "@/core/nodes";
 import {
   Select,
   SelectContent,
@@ -25,37 +24,34 @@ import { Play } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createExecution } from "@/actions/create-execution";
 import { renderField } from "@/core/control-utils";
+import { InputNode } from "@seocraft/core/src/nodes";
+import { observer } from "mobx-react-lite";
 
-export const InputWindow: React.FC<{}> = ({}) => {
+export const InputWindow: React.FC<{}> = observer(({}) => {
   const di = useCraftStore((state) => state.di);
+  if (!di) return null;
+  const inputs = di.inputs || [];
+  const input = di.selectedInput;
 
-  const inputs = useMemo(() => {
-    return (di?.editor.getNodes().filter((node) => node instanceof InputNode) ||
-      []) as InputNode[];
-  }, [di?.editor.getNodes()]);
-  const [input, setInput] = useState<InputNode | null>(null);
-
-  useEffect(() => {
-    if (inputs?.length === 1) {
-      setInput(di?.editor.getNode(inputs[0].id) as InputNode);
-    }
-  }, [inputs]);
-
-  return <InputHandler inputs={inputs} input={input} setInput={setInput} />;
-};
+  return (
+    <InputHandler
+      inputs={inputs}
+      input={input}
+      setInput={(id) => di.setInput(id)}
+    />
+  );
+});
 
 export const InputHandler: React.FC<{
   inputs: InputNode[];
   input: InputNode | null;
-  setInput: (input: InputNode | null) => void;
+  setInput: (inputId: string) => void;
 }> = ({ inputs, input, setInput }) => {
   return (
     <div className="w-full h-full p-4 space-y-4">
       {inputs?.length > 0 ? (
         <Select
-          onValueChange={(v) =>
-            setInput(inputs.find((i) => i.id === v) as InputNode)
-          }
+          onValueChange={(v) => setInput(v)}
           defaultValue={inputs.length === 1 ? inputs[0].id : undefined}
         >
           <SelectTrigger>

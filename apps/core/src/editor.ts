@@ -33,6 +33,7 @@ import { useMagneticConnection } from "./connection";
 import { SetOptional } from "type-fest";
 
 import { makeObservable, observable, action, computed } from "mobx";
+import { InputNode } from "./nodes";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -133,6 +134,25 @@ export class Editor<
     edges: [] as SetOptional<ConnProps, "id">[],
   };
 
+  public selectedInputId: string | null = null;
+
+  get selectedInput(): InputNode | null {
+    if (this.inputs.length === 1) {
+      this.selectedInputId = this.inputs[0].id;
+    }
+    if (!this.selectedInputId) return null;
+    return this.editor.getNode(this.selectedInputId);
+  }
+
+  public get inputs() {
+    return this.editor
+      .getNodes()
+      .filter((n) => n.ID === InputNode.nodeType) as InputNode[];
+  }
+  public setInput(id: string) {
+    this.selectedInputId = id;
+  }
+
   public logger = console;
   public readonly workflowId: string;
   public readonly workflowVersionId: string;
@@ -142,11 +162,16 @@ export class Editor<
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     makeObservable(this, {
-      selectedNodeId: observable,
       cursorPosition: observable,
       setCursorPosition: action,
+
+      selectedNodeId: observable,
       setSelectedNodeId: action,
       selectedNode: computed,
+
+      selectedInputId: observable,
+      selectedInput: computed,
+      setInput: action,
     });
 
     Object.entries(props.config.nodes).forEach(([key, value]) => {
