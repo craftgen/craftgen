@@ -159,7 +159,9 @@ module.exports = {
         "tremor-metric": ["1.875rem", { lineHeight: "2.25rem" }],
       },
       fontFamily: {
-        sans: ['var(--font-noto-sans-variable)'],
+        sans: ['var(--font-geist-sans)'],
+        mono: ['var(--font-geist-mono)'],
+        // sans: ['var(--font-noto-sans-variable)'],
         inter: ['var(--font-inter-variable)'],
       }
     },

@@ -63,7 +63,7 @@ const PromptTemplateNodeMachine = createMachine({
         }
       | {
           type: "SET_VALUE";
-          inputs: Record<string, any[]>;
+          values: Record<string, any[]>;
         }
       | {
           type: "RUN";
@@ -110,9 +110,10 @@ const PromptTemplateNodeMachine = createMachine({
           actions: assign({
             inputs: ({ context, event }) => ({
               ...context.inputs,
-              ...event.inputs,
+              ...event.values,
             }),
           }),
+          target: "idle",
           reenter: true,
         },
         RUN: {
@@ -180,7 +181,7 @@ const PromptTemplateNodeMachine = createMachine({
           actions: assign({
             inputs: ({ context, event }) => ({
               ...context.inputs,
-              ...event.inputs,
+              ...event.values,
             }),
           }),
         },
@@ -194,7 +195,7 @@ const PromptTemplateNodeMachine = createMachine({
           actions: assign({
             inputs: ({ context, event }) => ({
               ...context.inputs,
-              ...event.inputs,
+              ...event.values,
             }),
           }),
           target: "idle",

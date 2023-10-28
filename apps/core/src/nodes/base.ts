@@ -293,7 +293,7 @@ export abstract class BaseNode<
       input.index = index + 1;
       const controller = getControlBySocket(
         socket,
-        state.context.outputs[item.name],
+        state.context.inputs[item.name],
         (v) => {
           this.actor.send({
             type: "SET_VALUE",
