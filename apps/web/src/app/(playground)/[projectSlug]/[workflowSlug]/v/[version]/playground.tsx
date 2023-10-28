@@ -50,6 +50,7 @@ import { Session } from "@supabase/supabase-js";
 import { ActorStatus } from "xstate";
 import { Textarea } from "@/components/ui/textarea";
 import { observer } from "mobx-react-lite";
+import { NodeProps } from "@seocraft/core/src/types";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -228,7 +229,7 @@ export const Playground: React.FC<{
     if (component === "inspectorNode") {
       const node = di?.editor.getNode(config.nodeId);
       if (!node) return null;
-      return <InspectorNode nodeId={config.nodeId} />;
+      return <InspectorNode node={node} />;
     }
     if (component === "inputWindow") {
       return <InputWindow />;
@@ -325,10 +326,9 @@ const LoginToContinue: React.FC<{}> = ({}) => {
 const InspectorWindow: React.FC<{}> = observer(({}) => {
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
-  const selectedNodeId = di?.selectedNodeId;
+  const selectedNode = di?.selectedNode;
 
   const handlePinTab = () => {
-    const selectedNode = selectedNodeId && di?.editor.getNode(selectedNodeId);
     if (!selectedNode) return;
     const tabset = layout.getActiveTabset()?.getId()!;
     layout.doAction(
@@ -338,7 +338,7 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
           component: "inspectorNode",
           name: selectedNode.label,
           config: {
-            nodeId: selectedNodeId,
+            nodeId: selectedNode.id,
           },
         },
         tabset,
@@ -350,10 +350,10 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
 
   return (
     <>
-      {selectedNodeId ? (
+      {selectedNode ? (
         <div className="h-full flex flex-col">
           {/* <Button onClick={handlePinTab}>Pin</Button> */}
-          <InspectorNode nodeId={selectedNodeId} />
+          <InspectorNode node={selectedNode} />
         </div>
       ) : (
         <div className="flex items-center justify-center w-full h-full">
@@ -364,10 +364,8 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   );
 });
 
-const InspectorNode: React.FC<{ nodeId: string }> = ({ nodeId }) => {
+const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   const di = useCraftStore((state) => state.di);
-  const node = di?.editor.getNode(nodeId);
-  if (!node) return null;
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
   const outputs = useMemo(() => {
