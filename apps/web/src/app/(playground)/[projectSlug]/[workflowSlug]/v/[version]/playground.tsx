@@ -356,8 +356,13 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
           <InspectorNode node={selectedNode} />
         </div>
       ) : (
-        <div className="flex items-center justify-center w-full h-full">
-          Select a node to inspect
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          <div>Select a node to inspect</div>
+          <div>
+            <pre>
+              <code>execId: {di?.executionId}</code>
+            </pre>
+          </div>
         </div>
       )}
     </>

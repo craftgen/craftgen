@@ -13,7 +13,12 @@ export class Input<S extends Socket> extends ClassicPreset.Input<S> {
 }
 
 export class Output<S extends Socket> extends ClassicPreset.Output<S> {
-  constructor(socket: S, name: string, multiple = true) {
+  constructor(
+    socket: S,
+    name: string,
+    multiple = true,
+    public showSocket =true 
+  ) {
     super(socket, name, multiple);
   }
 }

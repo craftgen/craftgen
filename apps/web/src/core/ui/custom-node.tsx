@@ -42,7 +42,6 @@ import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { createExecution } from "@/actions/create-execution";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 
 const { RefSocket, RefControl } = Presets.classic;
@@ -138,44 +137,39 @@ export function CustomNode(props: Props<Schemes>) {
     // await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
-    console.log({ workflowExecutionId, status });
     if (status === "done") {
       toast({
         title: "Creating new execution",
         description: "",
       });
     }
-    if (!workflowExecutionId || status === "done") {
-      const nodes = di?.editor.getNodes().map((n) => {
-        return {
-          id: n.id,
-          type: n.ID,
-          contextId: n.contextId,
-          state: null,
-        };
-      });
-      if (!nodes) {
-        throw new Error("No nodes");
-      }
-      const {
-        data: execution,
-        serverError,
-        validationError,
-      } = await createExecution({
-        workflowId: workflowId!,
-        workflowVersionId,
-        input: {
-          id: props.data.id,
-        },
-        headless: props.data.di.headless,
-      });
-      if (!execution) {
-        throw new Error("Execution not created");
-      }
-      setWorkflowExecutionId(execution.id);
-    } else {
-      di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
-    }
+    const context = props.data.actor.getSnapshot().context;
+    await di.run({
+      inputId: props.data.id,
+      inputs: context.inputs,
+    });
+
+    // if (!workflowExecutionId || status === "done") {
+    //   const {
+    //     data: execution,
+    //     serverError,
+    //     validationError,
+    //   } = await createExecution({
+    //     workflowId: workflowId!,
+    //     workflowVersionId,
+    //     input: {
+    //       id: props.data.id,
+    //     },
+    //     headless: props.data.di.headless,
+    //   });
+    //   if (!execution) {
+    //     throw new Error("Execution not created");
+    //   }
+    //   di?.engine?.execute(props.data.id, undefined, execution.id);
+    //   // setWorkflowExecutionId(execution.id);
+    // } else {
+    //   di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
+    // }
   };
 
   const pinNode = React.useCallback(async () => {
@@ -444,7 +438,7 @@ export function CustomNode(props: Props<Schemes>) {
               <div>
                 {/* Outputs */}
                 {outputs.map(([key, output]) => {
-                  if (!output) return null;
+                  if (!output || !output.showSocket) return null;
                   return (
                     <RenderOutput
                       emit={props.emit}

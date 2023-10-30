@@ -88,6 +88,11 @@ export abstract class BaseNode<
   get projectId() {
     return this.di.projectId;
   }
+
+  get executionId() {
+    return this.di.executionId;
+  }
+
   public snap: SnapshotFrom<AnyStateMachine>;
 
   public inputSockets: JSONSocket[];
@@ -99,6 +104,8 @@ export abstract class BaseNode<
   get outputSchema() {
     return createJsonSchema(this.outputSockets);
   }
+
+  public executionNodeId?: string;
 
   constructor(
     public readonly ID: NodeTypes,
@@ -114,7 +121,7 @@ export abstract class BaseNode<
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;
 
-    this.isExecution = !isUndefined(this.nodeData.executionId);
+    this.isExecution = !isUndefined(this.executionId);
 
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
@@ -135,7 +142,7 @@ export abstract class BaseNode<
       const actorInput = {
         state: this.nodeData.state,
       };
-      this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
+      // this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
       const a = this.machine.provide(this.machineImplements as any);
       this.actor = createActor(a, {
         id: this.id,
@@ -154,9 +161,9 @@ export abstract class BaseNode<
     }
 
     // Initial state for the execution node.
-    if (this.nodeData.executionId && this.nodeData.state === null) {
-      this.saveState({ state: this.actor.getSnapshot() });
-    }
+    // if (this.nodeData.executionId && this.nodeData.state === null) {
+    //   this.saveState({ state: this.actor.getSnapshot() });
+    // }
 
     let prev = this.actor.getSnapshot();
     this.actor.subscribe({
@@ -201,7 +208,7 @@ export abstract class BaseNode<
     this.updateInputs(this.inputSockets);
     this.updateOutputs(this.outputSockets);
 
-    // this.out
+    this.executionNodeId = this.nodeData.executionNodeId;
 
     this.actor.start();
     makeObservable(this, {
@@ -215,6 +222,9 @@ export abstract class BaseNode<
       setInputSockets: action,
       setOutputSockets: action,
       setSnap: action,
+
+      executionNodeId: observable,
+      setExecutionNodeId: action,
     });
 
     const inputHandlers = reaction(
@@ -353,17 +363,29 @@ export abstract class BaseNode<
     }
   }
 
+  public setExecutionNodeId(executionNodeId: string) {
+    this.executionNodeId = executionNodeId;
+  }
+
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
-    if (this.nodeData.executionNodeId && this.nodeData.executionId) {
-      // this.di.logger.log(this.identifier, "SAVING STATE");
-      return await this.di.api.updateExecutionNode({
-        id: this.nodeData.executionNodeId,
+    if (this.executionId) {
+      console.log("Execution NodeId:", this.executionNodeId);
+      if (!this.executionNodeId) {
+        console.log("Setting Execution ID");
+        this.setExecutionNodeId(this.di.createId("state"));
+      }
+      const saved = await this.di.api.updateExecutionNode({
+        id: this.executionNodeId!,
+        contextId: this.contextId,
+        projectId: this.projectId,
         state: JSON.stringify(state),
+        type: this.ID,
+        workflowExecutionId: this.executionId,
+        workflowId: this.workflowId,
+        workflowNodeId: this.id,
+        workflowVersionId: this.workflowVersionId,
       });
-    } else {
-      // this.di.logger.warn(
-      //   "No Execution Node passed data will be not persisted"
-      // );
+      console.log({ saved });
     }
   }
 
@@ -372,11 +394,12 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string
   ) {
+    console.log(this.identifier, "@@@", "execute", executionId);
     this.di.engine.emit({
       type: "execution-step-start",
       data: {
         payload: this,
-        executionId: this.nodeData.executionId!,
+        executionId: executionId!,
       },
     });
 
@@ -642,7 +665,7 @@ export abstract class BaseNode<
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
         [x: string]: string;
       };
-      this.di.logger.log(this.identifier, "inputs from data flow", inputs);
+      // this.di.logger.log(this.identifier, "inputs from data flow", inputs);
       const state = this.actor.getSnapshot();
       Object.keys(this.inputs).forEach((key) => {
         if (!inputs[key] && this.inputs[key]?.control) {

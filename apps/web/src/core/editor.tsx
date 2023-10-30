@@ -55,6 +55,8 @@ import { upsertNode } from "@/actions/upsert-node";
 import { deleteNode } from "@/actions/delete-node";
 import { saveEdge } from "@/actions/create-edge";
 import { deleteEdge } from "@/actions/delete-edge";
+import { updateExecutionNode } from "@/actions/update-execution-node";
+import { createExecution } from "@/actions/create-execution";
 
 // class CustomArrange extends AutoArrangePlugin<Schemes> {
 //   elk = new ELK();
@@ -106,6 +108,7 @@ export async function createEditor(params: {
     contextId: node.contextId,
     context: node.context.state,
     state: node.nodeExectutions.map((ne) => ne.state)[0],
+    nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
     position: node.position,
     width: node.width,
     height: node.height,
@@ -152,7 +155,17 @@ export async function createEditor(params: {
         async getAPIKey(params) {
           return "";
         },
-        async updateExecutionNode(params) {},
+        async updateExecutionNode(params) {
+          console.log("updateExecutionNode", params);
+          const { data } = await updateExecutionNode(params);
+          if (!data) throw new Error("Execution node not updated");
+          return data;
+        },
+        async createExecution(params) {
+          const { data } = await createExecution(params);
+          if (!data) throw new Error("Execution not created");
+          return data;
+        },
         async triggerWorkflowExecutionStep(params) {},
         setContext: async (params) => {
           const data = await setContext(params);

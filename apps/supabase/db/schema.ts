@@ -17,7 +17,8 @@ import z from "zod";
 
 import { relations } from "drizzle-orm";
 
-export const createIdWithPrefix = (prefix: string) => () => `${prefix}_${createId()}`;
+export const createIdWithPrefix = (prefix: string) => () =>
+  `${prefix}_${createId()}`;
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey(),
@@ -323,6 +324,7 @@ export const workflowExecutionStep = pgTable("workflow_execution_step", {
  */
 export const nodeExecutionData = pgTable("node_execution_data", {
   id: text("id").$defaultFn(createIdWithPrefix("node_execution")).primaryKey(),
+
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecution.id, { onDelete: "cascade" }),
@@ -341,6 +343,7 @@ export const nodeExecutionData = pgTable("node_execution_data", {
   workflowNodeId: text("workflow_node_id")
     .notNull()
     .references(() => workflowNode.id),
+
   type: text("type").notNull(),
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),

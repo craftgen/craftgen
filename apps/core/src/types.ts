@@ -96,6 +96,13 @@ export type Rect = { left: number; top: number; right: number; bottom: number };
 
 export const updateExecutionNodeParamSchema = z.object({
   id: z.string(),
+  type: z.string(),
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  contextId: z.string(),
+  workflowExecutionId: z.string(),
+  projectId: z.string(),
+  workflowNodeId: z.string(),
   state: z.string(),
 });
 export const setContextParamSchema = z.object({
@@ -170,12 +177,25 @@ export const deleteEdgeParamSchema = z.object({
   data: z.custom<ConnProps>(),
 });
 
+export const createExecutionParamSchema = z.object({
+  workflowId: z.string(),
+  workflowVersionId: z.string(),
+  input: z.object({
+    id: z.string(),
+    values: z.any(),
+  }),
+  headless: z.boolean().optional().default(false),
+});
+
 export interface WorkflowAPI {
   updateExecutionNode: (
     params: z.infer<typeof updateExecutionNodeParamSchema>
-  ) => Promise<void>;
+  ) => Promise<{ id: string }>;
   setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
   getAPIKey: (params: z.infer<typeof getAPIKeyParamSchema>) => Promise<string>;
+  createExecution: (
+    params: z.infer<typeof createExecutionParamSchema>
+  ) => Promise<{ id: string }>;
   checkAPIKeyExist: (
     params: z.infer<typeof checkAPIKeyExistParamSchema>
   ) => Promise<boolean>;

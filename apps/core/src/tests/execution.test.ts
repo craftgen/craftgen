@@ -2,7 +2,6 @@ import { test, expect, mock, spyOn } from "bun:test";
 import { Editor } from "../editor";
 import { InputNode, OutputNode, PromptTemplate } from "../nodes";
 import { mockAPI, nodeAreaDefaults } from "./shared";
-import { createJsonSchema } from "../utils";
 import { ActorStatus } from "xstate";
 
 test("Setup Input outputs", async () => {
@@ -87,6 +86,13 @@ test("Setup Input outputs", async () => {
             ],
             inputs: {},
             outputs: {},
+            outputSockets: [
+              {
+                name: "value",
+                type: "string",
+                required: true,
+              },
+            ],
           },
           id: "node_outputNode",
         }),
@@ -145,29 +151,8 @@ test("Setup Input outputs", async () => {
     inputId: "node_Input",
     inputs: {
       title: "Hello",
-      // numbere: 123,
     },
   });
-  // inputNode.actor.send({
-  //   type: "SET_VALUE",
-  //   values: {
-  //     title: "Hello",
-  //   },
-  // });
-
-  // di.engine.execute(inputNode.id);
-  // const res = await new Promise((resolve, reject) => {
-  //   di.engine.addPipe((context) => {
-  //     // console.log("@@@ Engine context", context.type, context.data.payload.ID);
-  //     if (context.type === "execution-completed") {
-  //       resolve(context);
-  //     }
-  //     if (context.type === "execution-failed") {
-  //       reject(context);
-  //     }
-  //     return context;
-  //   });
-  // });
   expect(inputNode.actor.status).toBe(ActorStatus.Stopped);
   expect(promptTemplate.actor.status).toBe(ActorStatus.Stopped);
   expect(outputNode.actor.status).toBe(ActorStatus.Stopped);
@@ -245,6 +230,13 @@ test("Check out persistence", async () => {
           context: {
             name: "Output",
             description: "",
+            outputSockets: [
+              {
+                name: "value",
+                type: "string",
+                required: true,
+              },
+            ],
             inputSockets: [
               {
                 name: "value",
@@ -314,5 +306,5 @@ test("Check out persistence", async () => {
 
   expect(executionStepStartCount).toBe(3);
   expect(mockAPI.updateExecutionNode).toHaveBeenCalled();
-  expect(mockAPI.updateExecutionNode).toHaveBeenCalledTimes(18);
+  expect(mockAPI.updateExecutionNode).toHaveBeenCalledTimes(5);
 });

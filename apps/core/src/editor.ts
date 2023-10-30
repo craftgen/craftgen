@@ -160,6 +160,8 @@ export class Editor<
   public readonly workflowVersionId: string;
   public readonly projectId: string;
 
+  public executionId: string | null = null;
+
   public handlers: EditorHandlers;
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
@@ -174,6 +176,9 @@ export class Editor<
       selectedInputId: observable,
       selectedInput: computed,
       setInput: action,
+
+      executionId: observable,
+      setExecutionId: action,
     });
 
     Object.entries(props.config.nodes).forEach(([key, value]) => {
@@ -185,11 +190,13 @@ export class Editor<
         class: value,
       });
     });
+
     this.api = props.config.api;
     this.content = {
       nodes: (props.content?.nodes as NodeWithState<Registry>[]) || [],
       edges: props.content?.edges || [],
     };
+    this.validateNodes(this.content);
 
     // handlers for events which might require user attention.
     this.handlers = props.config.on || {};
@@ -197,11 +204,9 @@ export class Editor<
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
     this.projectId = props.config.meta.projectId;
-
-    this.validateNodes(this.content);
   }
 
-  private createId(prefix: "node" | "conn" | "context" | "state") {
+  public createId(prefix: "node" | "conn" | "context" | "state") {
     return `${prefix}_${createId()}`;
   }
 
@@ -647,6 +652,10 @@ export class Editor<
     this.selectedNodeId = nodeId;
   }
 
+  setExecutionId(executionId: string | null) {
+    this.executionId = executionId;
+  }
+
   get selectedNode() {
     if (!this.selectedNodeId) return null;
     return this.editor.getNode(this.selectedNodeId);
@@ -655,8 +664,19 @@ export class Editor<
   public async runAsync(params: {
     inputId: string;
     inputs: Record<string, any>;
-  }) {
-    
+  }) {}
+
+  public async runSync(params: { inputId: string }) {
+    const { id } = await this.api.createExecution({
+      workflowId: this.workflowId,
+      workflowVersionId: this.workflowVersionId,
+      input: {
+        id: params.inputId,
+        values: {},
+      },
+      headless: false,
+    });
+    this.engine.execute(params.inputId, undefined, id);
   }
 
   public async run(params: { inputId: string; inputs: Record<string, any> }) {
@@ -665,10 +685,7 @@ export class Editor<
       throw new Error(`Input node with id ${params.inputId} not found`);
     }
     const ajv = new Ajv();
-    // inputNode.inputSockets.forEach((socket) => {
-    console.log("inputNode.inputSchema", inputNode.inputSchema);
     const validator = ajv.compile(inputNode.inputSchema);
-    // const parse = ajv.compileParser(inputNode.inputSchema)
 
     const valid = validator(params.inputs);
     if (!valid) {
@@ -676,12 +693,23 @@ export class Editor<
         `Input data is not valid: ${JSON.stringify(validator.errors)}`
       );
     }
+    const { id } = await this.api.createExecution({
+      workflowId: this.workflowId,
+      workflowVersionId: this.workflowVersionId,
+      input: {
+        id: params.inputId,
+        values: {},
+      },
+      headless: false,
+    });
+    console.log("Execution Created", id);
+    this.setExecutionId(id);
 
     inputNode.actor.send({
       type: "SET_VALUE",
       values: params.inputs,
     });
-    this.engine.execute(inputNode.id);
+    this.engine.execute(inputNode.id, undefined, id);
     const res = await new Promise((resolve, reject) => {
       this.engine.addPipe((context) => {
         // console.log("@@@ Engine context", context);

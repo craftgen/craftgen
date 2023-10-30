@@ -1,12 +1,12 @@
 import { createMachine, assign } from "xstate";
 import { BaseNode, ParsedNode } from "../base";
 import { DiContainer } from "../../types";
-import { triggerSocket } from "../../sockets";
+import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
-import { Input } from "../../input-output";
+import { Input, Output } from "../../input-output";
 import { merge } from "lodash-es";
 import { SetOptional } from "type-fest";
 
@@ -19,6 +19,7 @@ const OutputNodeMachine = createMachine({
         name: "Output",
         description: "",
         inputSockets: [],
+        outputSockets: [],
         inputs: {},
         outputs: {},
       },
@@ -31,6 +32,7 @@ const OutputNodeMachine = createMachine({
       inputSockets: JSONSocket[];
       inputs: Record<string, any>;
       outputs: Record<string, any>;
+      outputSockets: JSONSocket[];
     };
     context: {
       name: string;
@@ -38,6 +40,7 @@ const OutputNodeMachine = createMachine({
       inputSockets: JSONSocket[];
       inputs: Record<string, any>;
       outputs: Record<string, any>;
+      outputSockets: JSONSocket[];
     };
     events:
       | {
@@ -69,6 +72,7 @@ const OutputNodeMachine = createMachine({
           target: "idle",
           actions: assign({
             inputSockets: ({ event }) => event.inputSockets,
+            outputSockets: ({ event }) => event.inputSockets,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
           }),
@@ -126,5 +130,42 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
     });
     this.addControl("outputGenerator", inputGenerator);
     this.updateInputs(this.actor.getSnapshot().context.inputSockets);
+  }
+
+  async updateOutputs(rawTemplate: JSONSocket[]) {
+    for (const item of Object.keys(this.outputs)) {
+      if (item === "trigger") continue; // don't remove the trigger socket
+      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      const connections = this.di.editor
+        .getConnections()
+        .filter((c) => c.source === this.id && c.sourceOutput === item);
+      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+      if (connections.length >= 1) {
+        for (const c of connections) {
+          await this.di.editor.removeConnection(c.id);
+          this.di.editor.addConnection({
+            ...c,
+            source: this.id,
+            sourceOutput: item,
+          });
+        }
+      }
+      this.removeOutput(item);
+    }
+
+    for (const [index, item] of rawTemplate.entries()) {
+      if (this.hasOutput(item.name)) {
+        const output = this.outputs[item.name];
+        if (output) {
+          output.socket = getSocketByJsonSchemaType(item.type)! as any;
+        }
+        continue;
+      }
+
+      const socket = getSocketByJsonSchemaType(item.type)!;
+      const output = new Output(socket, item.name, false, false) as any;
+      output.index = index + 1;
+      this.addOutput(item.name, output);
+    }
   }
 }

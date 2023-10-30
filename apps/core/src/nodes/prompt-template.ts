@@ -188,7 +188,7 @@ const PromptTemplateNodeMachine = createMachine({
       },
     },
     complete: {
-      // type: "final",
+      type: "final",
       on: {
         change: "typing",
         SET_VALUE: {
