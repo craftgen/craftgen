@@ -6,6 +6,8 @@ import { NodeClass, WorkflowAPI, Node, Schemes, Position } from "./types";
 import { ContextFrom, SnapshotFrom } from "xstate";
 import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
+// import Ajv from "ajv/dist/jtd";
+import Ajv from "ajv";
 
 import type { Structures } from "rete-structures/_types/types";
 import type {
@@ -648,6 +650,51 @@ export class Editor<
   get selectedNode() {
     if (!this.selectedNodeId) return null;
     return this.editor.getNode(this.selectedNodeId);
+  }
+
+  public async runAsync(params: {
+    inputId: string;
+    inputs: Record<string, any>;
+  }) {
+    
+  }
+
+  public async run(params: { inputId: string; inputs: Record<string, any> }) {
+    const inputNode = this.editor.getNode(params.inputId);
+    if (!inputNode) {
+      throw new Error(`Input node with id ${params.inputId} not found`);
+    }
+    const ajv = new Ajv();
+    // inputNode.inputSockets.forEach((socket) => {
+    console.log("inputNode.inputSchema", inputNode.inputSchema);
+    const validator = ajv.compile(inputNode.inputSchema);
+    // const parse = ajv.compileParser(inputNode.inputSchema)
+
+    const valid = validator(params.inputs);
+    if (!valid) {
+      throw new Error(
+        `Input data is not valid: ${JSON.stringify(validator.errors)}`
+      );
+    }
+
+    inputNode.actor.send({
+      type: "SET_VALUE",
+      values: params.inputs,
+    });
+    this.engine.execute(inputNode.id);
+    const res = await new Promise((resolve, reject) => {
+      this.engine.addPipe((context) => {
+        // console.log("@@@ Engine context", context);
+        if (context.type === "execution-completed") {
+          resolve(context);
+        }
+        if (context.type === "execution-failed") {
+          reject(context);
+        }
+        return context;
+      });
+    });
+    return res;
   }
 
   private handleAreaEvents() {

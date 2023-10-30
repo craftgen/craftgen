@@ -6,7 +6,6 @@ import {
   getSocketByJsonSchemaType,
   triggerSocket,
 } from "../../sockets";
-import { createJsonSchema } from "../../utils";
 import {
   type JSONSocket,
   SocketGeneratorControl,
@@ -24,9 +23,9 @@ export const InputNodeMachine = createMachine({
         name: "Default",
         description: "",
         inputs: {},
+        inputSockets: [],
         outputs: {},
         outputSockets: [],
-        schema: {},
       },
       input
     ),
@@ -37,7 +36,6 @@ export const InputNodeMachine = createMachine({
       inputs: Record<string, any>;
       outputs: Record<string, any>;
       outputSockets: JSONSocket[];
-      schema: any;
     };
     context: {
       name: string;
@@ -46,7 +44,6 @@ export const InputNodeMachine = createMachine({
       outputs: Record<string, any>;
       outputSockets: JSONSocket[];
       inputSockets: JSONSocket[];
-      schema: Record<string, any>;
     };
     events:
       | {
@@ -67,9 +64,6 @@ export const InputNodeMachine = createMachine({
   initial: "idle",
   states: {
     idle: {
-      entry: {
-        type: "create_schema",
-      },
       on: {
         SET_VALUE: {
           actions: assign({
@@ -139,13 +133,7 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
   }
 
   constructor(di: DiContainer, data: InputNodeData) {
-    super("InputNode", di, data, InputNodeMachine, {
-      actions: {
-        create_schema: assign({
-          schema: ({ context }) => createJsonSchema(context.outputSockets),
-        }),
-      },
-    });
+    super("InputNode", di, data, InputNodeMachine, {});
     const state = this.actor.getSnapshot();
     this.addOutput("trigger", new Output(triggerSocket, "trigger"));
     const outputGenerator = new SocketGeneratorControl({

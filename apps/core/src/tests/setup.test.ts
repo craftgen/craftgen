@@ -187,7 +187,7 @@ test("Setups the editor", async () => {
           ...nodeAreaDefaults,
           id: "1",
         }),
-      OpenAIFunctionCall.parse({
+        OpenAIFunctionCall.parse({
           ...nodeAreaDefaults,
           id: "2",
         }),
@@ -240,6 +240,13 @@ test("Test execution", async () => {
             outputs: {
               value: "",
             },
+            inputSockets: [
+              {
+                name: "prompt",
+                type: "string",
+                required: true,
+              },
+            ],
             settings: {
               template: "What is your name? {{prompt}}",
               variables: ["prompt"],

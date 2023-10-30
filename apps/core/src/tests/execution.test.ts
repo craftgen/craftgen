@@ -23,16 +23,18 @@ test("Setup Input outputs", async () => {
           executionId: "executionId",
           // executionNodeId
           context: {
-            name: "Prompt",
+            name: "Input Prompt",
             description: "Prompt",
-            inputs: {},
-            schema: createJsonSchema([
+            inputs: {
+              title: "",
+            },
+            inputSockets: [
               {
                 name: "title",
                 type: "string",
                 required: true,
               },
-            ]), // Not really
+            ],
             outputs: {
               title: "",
             },
@@ -53,6 +55,13 @@ test("Setup Input outputs", async () => {
             outputs: {
               value: "",
             },
+            inputSockets: [
+              {
+                name: "title",
+                type: "string",
+                required: true,
+              },
+            ],
             settings: {
               template: "Create a article for {{title}}",
               variables: ["title"],
@@ -78,13 +87,6 @@ test("Setup Input outputs", async () => {
             ],
             inputs: {},
             outputs: {},
-            schema: createJsonSchema([
-              {
-                name: "value",
-                type: "string",
-                required: true,
-              },
-            ]),
           },
           id: "node_outputNode",
         }),
@@ -129,6 +131,7 @@ test("Setup Input outputs", async () => {
   const inputNode = di.editor.getNode("node_Input");
   expect(inputNode).toBeDefined();
   expect(inputNode.outputs.title?.label).toBe("title");
+  expect(inputNode.inputs.title).toBeDefined();
 
   const promptTemplate = di.editor.getNode("node_promptTemplate");
   expect(promptTemplate).toBeDefined();
@@ -138,26 +141,33 @@ test("Setup Input outputs", async () => {
   expect(outputNode).toBeDefined();
   expect(outputNode.inputs.value?.label).toBe("value");
 
-  inputNode.actor.send({
-    type: "SET_VALUE",
-    values: {
+  await di.run({
+    inputId: "node_Input",
+    inputs: {
       title: "Hello",
+      // numbere: 123,
     },
   });
+  // inputNode.actor.send({
+  //   type: "SET_VALUE",
+  //   values: {
+  //     title: "Hello",
+  //   },
+  // });
 
-  di.engine.execute(inputNode.id);
-  const res = await new Promise((resolve, reject) => {
-    di.engine.addPipe((context) => {
-      console.log("@@@ Engine context", context.type, context.data.payload.ID);
-      if (context.type === "execution-completed") {
-        resolve(context);
-      }
-      if (context.type === "execution-failed") {
-        reject(context);
-      }
-      return context;
-    });
-  });
+  // di.engine.execute(inputNode.id);
+  // const res = await new Promise((resolve, reject) => {
+  //   di.engine.addPipe((context) => {
+  //     // console.log("@@@ Engine context", context.type, context.data.payload.ID);
+  //     if (context.type === "execution-completed") {
+  //       resolve(context);
+  //     }
+  //     if (context.type === "execution-failed") {
+  //       reject(context);
+  //     }
+  //     return context;
+  //   });
+  // });
   expect(inputNode.actor.status).toBe(ActorStatus.Stopped);
   expect(promptTemplate.actor.status).toBe(ActorStatus.Stopped);
   expect(outputNode.actor.status).toBe(ActorStatus.Stopped);
@@ -183,13 +193,13 @@ test("Check out persistence", async () => {
             name: "Prompt",
             description: "Prompt",
             inputs: {},
-            schema: createJsonSchema([
+            inputSockets: [
               {
                 name: "title",
                 type: "string",
                 required: true,
               },
-            ]), // Not really
+            ],
             outputs: {
               title: "",
             },
@@ -207,11 +217,17 @@ test("Check out persistence", async () => {
           ...nodeAreaDefaults,
           executionId: "executionId",
           executionNodeId: "state_promptTemplate",
-
           context: {
             outputs: {
               value: "",
             },
+            inputSockets: [
+              {
+                name: "title",
+                type: "string",
+                required: true,
+              },
+            ],
             settings: {
               template: "Create a article for {{title}}",
               variables: ["title"],
@@ -238,13 +254,6 @@ test("Check out persistence", async () => {
             ],
             inputs: {},
             outputs: {},
-            schema: createJsonSchema([
-              {
-                name: "value",
-                type: "string",
-                required: true,
-              },
-            ]),
           },
           id: "node_outputNode",
         }),
@@ -284,11 +293,10 @@ test("Check out persistence", async () => {
 
   await di.setup();
   di.engine.execute("node_Input");
-  let count = 0;
   let executionStepStartCount = 0;
   const res = await new Promise((resolve, reject) => {
     di.engine.addPipe((context) => {
-      console.log("@@@ Engine context", context.type, context.data.payload.ID);
+      // console.log("@@@ Engine context", context.type, context.data.payload.ID);
 
       if (context.type === "execution-step-start") {
         executionStepStartCount++;
@@ -306,5 +314,5 @@ test("Check out persistence", async () => {
 
   expect(executionStepStartCount).toBe(3);
   expect(mockAPI.updateExecutionNode).toHaveBeenCalled();
-  expect(mockAPI.updateExecutionNode).toHaveBeenCalledTimes(14);
+  expect(mockAPI.updateExecutionNode).toHaveBeenCalledTimes(18);
 });

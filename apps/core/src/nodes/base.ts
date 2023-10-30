@@ -24,6 +24,7 @@ import { BaseControl } from "../controls/base";
 import { Input, Output } from "../input-output";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { JSONSocket } from "../controls/socket-generator";
+import { createJsonSchema } from "../utils";
 
 export type ParsedNode<
   NodeType extends string,
@@ -89,8 +90,15 @@ export abstract class BaseNode<
   }
   public snap: SnapshotFrom<AnyStateMachine>;
 
-  public inputSockets = [] as JSONSocket[];
-  public outputSockets = [] as JSONSocket[];
+  public inputSockets: JSONSocket[];
+  public outputSockets: JSONSocket[];
+
+  get inputSchema() {
+    return createJsonSchema(this.inputSockets);
+  }
+  get outputSchema() {
+    return createJsonSchema(this.outputSockets);
+  }
 
   constructor(
     public readonly ID: NodeTypes,
@@ -187,8 +195,11 @@ export abstract class BaseNode<
       },
     });
     this.snap = this.actor.getSnapshot();
-    this.updateInputs(this.snap.context?.inputSockets || []);
-    this.updateOutputs(this.snap.context?.outputSockets || []);
+    this.inputSockets = this.snap.context?.inputSockets || [];
+    this.outputSockets = this.snap.context?.outputSockets || [];
+
+    this.updateInputs(this.inputSockets);
+    this.updateOutputs(this.outputSockets);
 
     // this.out
 
@@ -197,7 +208,9 @@ export abstract class BaseNode<
       inputs: observable,
       snap: observable,
       inputSockets: observable,
+      inputSchema: computed,
       outputSockets: observable,
+      outputSchema: computed,
 
       setInputSockets: action,
       setOutputSockets: action,
@@ -342,15 +355,15 @@ export abstract class BaseNode<
 
   async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
     if (this.nodeData.executionNodeId && this.nodeData.executionId) {
-      this.di.logger.log(this.identifier, "SAVING STATE");
+      // this.di.logger.log(this.identifier, "SAVING STATE");
       return await this.di.api.updateExecutionNode({
         id: this.nodeData.executionNodeId,
         state: JSON.stringify(state),
       });
     } else {
-      this.di.logger.warn(
-        "No Execution Node passed data will be not persisted"
-      );
+      // this.di.logger.warn(
+      //   "No Execution Node passed data will be not persisted"
+      // );
     }
   }
 
