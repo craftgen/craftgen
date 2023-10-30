@@ -1,5 +1,5 @@
 import { createMachine, assign } from "xstate";
-import { BaseNode, ParsedNode } from "../base";
+import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
 import { DiContainer } from "../../types";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import {
@@ -22,42 +22,27 @@ const OutputNodeMachine = createMachine({
         outputSockets: [],
         inputs: {},
         outputs: {},
+        error: null,
       },
       input
     ),
-  types: {} as {
+  types: {} as BaseActorTypes<{
     input: {
       name: string;
       description: string;
-      inputSockets: JSONSocket[];
-      inputs: Record<string, any>;
-      outputs: Record<string, any>;
-      outputSockets: JSONSocket[];
     };
     context: {
       name: string;
       description: string;
-      inputSockets: JSONSocket[];
-      inputs: Record<string, any>;
-      outputs: Record<string, any>;
-      outputSockets: JSONSocket[];
     };
-    events:
-      | {
-          type: "CHANGE";
-          name: string;
-          description: string;
-          inputSockets: JSONSocket[];
-        }
-      | {
-          type: "SET_VALUE";
-          values: Record<string, any>;
-        }
-      | {
-          type: "RUN";
-          inputs: Record<string, any>;
-        };
-  },
+    actions: any;
+    events: {
+      type: "CHANGE";
+      name: string;
+      description: string;
+      inputSockets: JSONSocket[];
+    };
+  }>,
   initial: "idle",
   states: {
     idle: {
@@ -81,7 +66,7 @@ const OutputNodeMachine = createMachine({
         RUN: {
           target: "complete",
           actions: assign({
-            outputs: ({ event }) => event.inputs,
+            outputs: ({ event }) => event.values,
           }),
         },
       },

@@ -229,7 +229,7 @@ test("Test execution", async () => {
           context: {
             value: "Random",
             outputs: {
-              value: "Hello",
+              value: "Hello falsd",
             },
           },
         }),
@@ -237,9 +237,6 @@ test("Test execution", async () => {
           ...nodeAreaDefaults,
           id: "2",
           context: {
-            outputs: {
-              value: "",
-            },
             inputSockets: [
               {
                 name: "prompt",
@@ -277,8 +274,8 @@ test("Test execution", async () => {
   expect(promptTemplate).toBeDefined();
   di.engine.execute(promptTemplate.id);
   await waitFor(promptTemplate.actor, (state) => state.value === "complete");
-  const textState = textt.actor.getPersistedState();
-  const promptState = promptTemplate.actor.getPersistedState();
+  const textState = textt.actor.getPersistedState() as any;
+  const promptState = promptTemplate.actor.getPersistedState() as any;
   expect(promptState?.value).toBe("complete");
   expect(textState?.value).toBe("complete");
   expect(textState?.context?.outputs?.value).toBe("Random");

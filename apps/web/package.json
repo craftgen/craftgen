@@ -139,6 +139,7 @@
     "react-resizable": "^3.0.5",
     "react-tweet": "^3.0.4",
     "react-use": "^17.4.0",
+    "react18-json-view": "^0.2.6",
     "replicate": "^0.16.1",
     "rete": "^2.0.2",
     "rete-area-plugin": "^2.0.1",
@@ -170,7 +171,7 @@
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
-    "xstate": "5.0.0-beta.33",
+    "xstate": "5.0.0-beta.38",
     "zod": "3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"

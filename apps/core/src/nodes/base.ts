@@ -8,9 +8,10 @@ import {
   type SnapshotFrom,
   createActor,
   waitFor,
-  PersistedStateFrom,
   AnyActorLogic,
   InputFrom,
+  assign,
+  Snapshot,
 } from "xstate";
 import { debounce, isEqual, isUndefined, set } from "lodash-es";
 import {
@@ -25,6 +26,7 @@ import { Input, Output } from "../input-output";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { JSONSocket } from "../controls/socket-generator";
 import { createJsonSchema } from "../utils";
+import { MergeDeep, Simplify } from "type-fest";
 
 export type ParsedNode<
   NodeType extends string,
@@ -32,8 +34,63 @@ export type ParsedNode<
 > = Node & {
   id: string;
   type: NodeType; // Or a more specific type if possible
-  context?: InputFrom<Machine> | ContextFrom<Machine>;
-  state?: PersistedStateFrom<Machine>;
+  context?: InputFrom<Machine>;
+  state?: SnapshotFrom<Machine>;
+};
+
+export type BaseActorInputType = {
+  inputs?: Record<string, any>;
+  inputSockets?: JSONSocket[];
+  outputs?: Record<string, any>;
+  outputSockets?: JSONSocket[];
+};
+
+export type BaseActorContextType = {
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
+  outputSockets: JSONSocket[];
+  inputSockets: JSONSocket[];
+  error: {
+    name: string;
+    message: string;
+  } | null;
+};
+
+export type BaseActorEventTypes =
+  | {
+      type: "SET_VALUE";
+      values: Record<string, any>;
+    }
+  | {
+      type: "RUN";
+      values: Record<string, any>;
+    };
+
+export type BaseActorActionTypes =
+  | {
+      type: "setValue";
+      params?: {
+        values: Record<string, any>;
+      };
+    }
+  | {
+      type: "removeError";
+    };
+
+type SpecialMerged<T, U> = T | U;
+
+export type BaseActorTypes<
+  T extends {
+    input: any;
+    context: any;
+    events?: any;
+    actions?: any;
+  }
+> = {
+  input: MergeDeep<BaseActorInputType, T["input"]>;
+  context: MergeDeep<BaseActorContextType, T["context"]>;
+  events: SpecialMerged<BaseActorEventTypes, T["events"]>;
+  actions: SpecialMerged<BaseActorActionTypes, T["actions"]>;
 };
 
 export abstract class BaseNode<
@@ -77,6 +134,7 @@ export abstract class BaseNode<
 
   public isExecution: boolean;
   public isReady: boolean = false;
+  public machine: Machine;
   // executionNode: Node["nodeExectutions"][number] | undefined;
 
   get workflowId() {
@@ -111,7 +169,7 @@ export abstract class BaseNode<
     public readonly ID: NodeTypes,
     public di: DiContainer,
     public nodeData: ParsedNode<NodeTypes, Machine>,
-    public machine: Machine,
+    machine: Machine,
     public machineImplements: MachineImplementationsFrom<Machine>
   ) {
     super(nodeData.label);
@@ -123,18 +181,35 @@ export abstract class BaseNode<
 
     this.isExecution = !isUndefined(this.executionId);
 
-    const saveContextDebounced = debounce(
-      async ({ context }: { context: ContextFrom<Machine> }) => {
-        // this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
-        this.di.api.setContext({
-          contextId: this.contextId,
-          context: JSON.stringify(context),
-        });
+    this.machine = machine.provide({
+      ...(this.machineImplements as any),
+      actions: {
+        removeError: assign({
+          error: () => null,
+        }),
+        setValue: assign({
+          inputs: ({ context, event }) => {
+            Object.keys(context.inputs).forEach((key) => {
+              if (
+                !(context.inputSockets as JSONSocket[]).find(
+                  (i) => i.name === key
+                )
+              ) {
+                delete context.inputs[key];
+              }
+            });
+            return {
+              ...context.inputs,
+              ...event.values,
+            };
+          },
+        }),
+        ...(this.machineImplements.actions as any),
       },
-      1000
-    );
+    }) as Machine;
 
     if (this.isExecution) {
+      // TODO: Remove this. make everyting final.
       set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
     }
 
@@ -142,62 +217,46 @@ export abstract class BaseNode<
       const actorInput = {
         state: this.nodeData.state,
       };
-      // this.di.logger.log(this.identifier, "CREATING EXECTION ACTOR WITH STATE");
-      const a = this.machine.provide(this.machineImplements as any);
-      this.actor = createActor(a, {
-        id: this.id,
-        ...actorInput,
-      });
+      this.actor = this.setupActor(actorInput);
     } else {
-      const a = this.machine.provide(this.machineImplements as any);
-      this.actor = createActor(a, {
-        id: this.contextId,
-        ...(this.nodeData?.context && {
-          input: {
-            ...this.nodeData.context,
-          },
-        }),
+      this.actor = this.setupActor({
+        input: this.nodeData.context,
       });
     }
 
-    // Initial state for the execution node.
-    // if (this.nodeData.executionId && this.nodeData.state === null) {
-    //   this.saveState({ state: this.actor.getSnapshot() });
-    // }
+    // let prev = this.actor.getSnapshot();
+    // this.actor.subscribe({
+    //   complete: async () => {
+    //     // this.di.logger.log(this.identifier, "finito main");
+    //   },
+    //   next: async (state) => {
+    //     this.state = state.value as any;
+    //     this.setSnap(state);
+    //     if (!isEqual(prev.context.inputSockets, state.context.inputSockets)) {
+    //       this.setInputSockets(state.context?.inputSockets || []);
+    //     }
+    //     if (!isEqual(prev.context.outputSockets, state.context.outputSockets)) {
+    //       this.setOutputSockets(state.context?.outputSockets || []);
+    //     }
 
-    let prev = this.actor.getSnapshot();
-    this.actor.subscribe({
-      complete: async () => {
-        // this.di.logger.log(this.identifier, "finito main");
-      },
-      next: async (state) => {
-        this.state = state.value as any;
-        this.setSnap(state);
-        if (!isEqual(prev.context.inputSockets, state.context.inputSockets)) {
-          this.setInputSockets(state.context?.inputSockets || []);
-        }
-        if (!isEqual(prev.context.outputSockets, state.context.outputSockets)) {
-          this.setOutputSockets(state.context?.outputSockets || []);
-        }
+    //     if (
+    //       !isEqual(prev.context.outputs, state.context.outputs) &&
+    //       state.matches("complete")
+    //     ) {
+    //       this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
+    //       if (!this.isExecution) {
+    //         // Only update ancestors if this is not an execution node
+    //         await this.updateAncestors();
+    //       }
+    //     }
 
-        if (
-          !isEqual(prev.context.outputs, state.context.outputs) &&
-          state.matches("complete")
-        ) {
-          this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-          if (!this.isExecution) {
-            // Only update ancestors if this is not an execution node
-            await this.updateAncestors();
-          }
-        }
-
-        this.saveState({ state });
-        if (!this.isExecution) {
-          saveContextDebounced({ context: state.context });
-        }
-        prev = state;
-      },
-    });
+    //     this.saveState({ state });
+    //     if (!this.isExecution) {
+    //       saveContextDebounced({ context: state.context });
+    //     }
+    //     prev = state;
+    //   },
+    // });
     this.snap = this.actor.getSnapshot();
     this.inputSockets = this.snap.context?.inputSockets || [];
     this.outputSockets = this.snap.context?.outputSockets || [];
@@ -207,7 +266,6 @@ export abstract class BaseNode<
 
     this.executionNodeId = this.nodeData.executionNodeId;
 
-    this.actor.start();
     makeObservable(this, {
       inputs: observable,
       snap: observable,
@@ -237,19 +295,83 @@ export abstract class BaseNode<
       }
     );
 
+    this.actor.start();
     this.isReady = true;
   }
 
-  public async reset() {
-    this.actor = createActor(this.machine.provide(this.machineImplements), {
-      id: this.id,
-      ...(this.nodeData?.context && {
-        input: {
-          ...this.nodeData.context,
-        },
-      }),
+  public setupActor(
+    options:
+      | {
+          state: SnapshotFrom<Machine>;
+        }
+      | {
+          input: InputFrom<Machine> | ContextFrom<Machine> | undefined;
+        }
+  ) {
+    const saveContextDebounced = debounce(
+      async ({ context }: { context: ContextFrom<Machine> }) => {
+        // this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
+        this.di.api.setContext({
+          contextId: this.contextId,
+          context: JSON.stringify(context),
+        });
+      },
+      1000
+    );
+    const actor = createActor(this.machine, {
+      id: this.contextId,
+      ...options,
     });
-    this.actor.start();
+    let prev = actor.getSnapshot();
+
+    const listener = actor.subscribe({
+      complete: async () => {
+        // this.di.logger.log(this.identifier, "finito main");
+      },
+      next: async (state) => {
+        this.state = state.value as any;
+        this.setSnap(state);
+        if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
+          this.setInputSockets(state.context?.inputSockets || []);
+        }
+        if (
+          !isEqual(prev.context?.outputSockets, state.context.outputSockets)
+        ) {
+          this.setOutputSockets(state.context?.outputSockets || []);
+        }
+
+        if (
+          !isEqual(prev.context.outputs, state.context.outputs) &&
+          state.matches("complete")
+        ) {
+          this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
+          if (!this.isExecution) {
+            // Only update ancestors if this is not an execution node
+            await this.updateAncestors();
+          }
+        }
+
+        this.saveState({ state });
+        if (!this.isExecution) {
+          saveContextDebounced({ context: state.context });
+        }
+        prev = state as any;
+      },
+    });
+
+    return actor;
+  }
+
+  public async reset() {
+    this.setupActor({
+      input: this.nodeData.context,
+    });
+
+    const outgoers = this.di.graph.outgoers(this.id).nodes();
+    console.log("successors", outgoers);
+    outgoers.forEach((n) => {
+      n.reset();
+    });
   }
 
   async updateOutputs(rawTemplate: JSONSocket[]) {
@@ -434,10 +556,10 @@ export abstract class BaseNode<
     }
 
     const inputs = await this.getInputs();
-    // this.di.logger.log(this.identifier, "INPUTS", inputs);
+    this.di.logger.log(this.identifier, "INPUTS", inputs);
     this.actor.send({
       type: "RUN",
-      inputs,
+      values: inputs,
     });
     this.actor.subscribe({
       next: (state) => {
@@ -698,11 +820,11 @@ export abstract class BaseNode<
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {
-    const state = this.actor.getPersistedState() as PersistedStateFrom<Machine>;
+    const state = this.actor.getPersistedState() as Snapshot<Machine> as any; //TODO: types
     return {
       ...this.nodeData,
       state: state,
-      context: state?.context,
+      context: state.context,
       width: this.width,
       height: this.height,
     };

@@ -13,8 +13,7 @@ import { RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
 import { nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, Play, Wrench } from "lucide-react";
-import { AnyActorRef } from "xstate";
+import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
 import { useSelector } from "@xstate/react";
 import { useStore } from "zustand";
 import { ReteStoreInstance } from "../store";
@@ -43,15 +42,9 @@ import "react-resizable/css/styles.css";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
+import { JSONView } from "@/components/json-view";
 
 const { RefSocket, RefControl } = Presets.classic;
-
-type NodeExtraData = {
-  width?: number;
-  height?: number;
-  actor: AnyActorRef;
-  action?: string;
-};
 
 function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   entries: T
@@ -119,22 +112,6 @@ export function CustomNode(props: Props<Schemes>) {
     const node = await di.duplicateNode(props.data.id);
     await di?.editor.addNode(node);
     await di?.area?.translate(node.id, di?.area?.area.pointer);
-
-    // const newNode = await createNodeInstance({
-    //   di: di!,
-    //   type: props.data.ID,
-    //   data: {
-    //     ...props.data,
-    //     context: {
-    //       state: JSON.parse(rawState),
-    //     },
-    //   } as any, //TODO:TYPE
-    //   saveToDB: true,
-    //   workflowId: workflowId,
-    //   projectSlug,
-    // });
-    // await di?.editor.addNode(newNode);
-    // await di?.area?.translate(newNode.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
     if (status === "done") {
@@ -143,33 +120,9 @@ export function CustomNode(props: Props<Schemes>) {
         description: "",
       });
     }
-    const context = props.data.actor.getSnapshot().context;
-    await di.run({
+    await di.runSync({
       inputId: props.data.id,
-      inputs: context.inputs,
     });
-
-    // if (!workflowExecutionId || status === "done") {
-    //   const {
-    //     data: execution,
-    //     serverError,
-    //     validationError,
-    //   } = await createExecution({
-    //     workflowId: workflowId!,
-    //     workflowVersionId,
-    //     input: {
-    //       id: props.data.id,
-    //     },
-    //     headless: props.data.di.headless,
-    //   });
-    //   if (!execution) {
-    //     throw new Error("Execution not created");
-    //   }
-    //   di?.engine?.execute(props.data.id, undefined, execution.id);
-    //   // setWorkflowExecutionId(execution.id);
-    // } else {
-    //   di?.engine?.execute(props.data.id, undefined, workflowExecutionId);
-    // }
   };
 
   const pinNode = React.useCallback(async () => {
@@ -362,6 +315,15 @@ export function CustomNode(props: Props<Schemes>) {
                 )}
               </div>
               <div className="flex">
+                <Drag.NoDrag>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    onClick={() => props.data.reset()}
+                  >
+                    <Undo2 size={14} />
+                  </Button>
+                </Drag.NoDrag>
                 <Button
                   ref={ref}
                   variant={"ghost"}
@@ -453,19 +415,19 @@ export function CustomNode(props: Props<Schemes>) {
             </CardContent>
 
             <CardFooter className="p-1 px-2 pt-0 flex flex-col">
+              {props.data.state === "complete" && (
+                <div className="w-full">
+                  <Drag.NoDrag>
+                    <JSONView data={props.data.actor.getSnapshot().output} />
+                  </Drag.NoDrag>
+                </div>
+              )}
               <Badge
                 variant={"outline"}
                 className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
               >
                 {props.data.id}
               </Badge>
-              {props.data.state === "complete" && (
-                <pre>
-                  <code>
-                    {JSON.stringify(props.data.actor.getSnapshot().output)}
-                  </code>
-                </pre>
-              )}
             </CardFooter>
           </Card>
         </Resizable>

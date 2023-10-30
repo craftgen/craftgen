@@ -9,6 +9,8 @@ import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
 import { InputControl } from "../controls/input.control";
 import { Input, Output } from "../input-output";
+import { BaseActorTypes } from "@seocraft/core/src/nodes/base";
+import { MergeDeep } from "type-fest";
 
 type Data = {
   value: string;
@@ -31,41 +33,50 @@ const PromptTemplateNodeMachine = createMachine({
       },
       input
     ),
-  types: {} as {
-    input: {
-      settings: {
-        template: string;
-        variables: string[];
-      };
-      inputs: Record<string, any>;
-      outputs: Record<string, any>;
-    };
-    context: {
-      settings: {
-        template: string;
-        variables: string[];
-      };
-      inputs: Record<string, any[]>;
-      outputs: Record<string, any>;
-      error: {
-        name: string;
-        message: string;
-      } | null;
-    };
-    events:
-      | {
-          type: "change";
-          value: string;
-        }
-      | {
-          type: "SET_VALUE";
-          inputs: Record<string, any[]>;
-        }
-      | {
-          type: "RUN";
-          inputs: Record<string, any[]>;
+  types: {} as MergeDeep<
+    BaseActorTypes,
+    {
+      input: {
+        settings: {
+          template: string;
+          variables: string[];
         };
-  },
+      };
+      actions: {
+        type: "updateValue";
+        params?: {
+          value: string;
+        };
+      };
+      context: {
+        settings: {
+          template: string;
+          variables: string[];
+        };
+        inputs: Record<string, any[]>;
+        outputs: {
+          value: string;
+        };
+        error: {
+          name: string;
+          message: string;
+        } | null;
+      };
+      events:
+        | {
+            type: "change";
+            value: string;
+          }
+        | {
+            type: "SET_VALUE";
+            inputs: Record<string, any[]>;
+          }
+        | {
+            type: "RUN";
+            inputs: Record<string, any[]>;
+          };
+    }
+  >,
   states: {
     idle: {
       invoke: {
@@ -92,22 +103,16 @@ const PromptTemplateNodeMachine = createMachine({
           target: "typing",
         },
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: [
+            {
+              type: "setValue",
+            },
+          ],
           reenter: true,
         },
         RUN: {
           target: "running",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -162,12 +167,7 @@ const PromptTemplateNodeMachine = createMachine({
         },
         SET_VALUE: {
           target: "idle",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -175,22 +175,12 @@ const PromptTemplateNodeMachine = createMachine({
       on: {
         change: "typing",
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
           target: "idle",
         },
         RUN: {
           target: "idle",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },

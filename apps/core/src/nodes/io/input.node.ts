@@ -1,5 +1,5 @@
 import { assign, createMachine } from "xstate";
-import { BaseNode, ParsedNode } from "../base";
+import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
 import { type DiContainer } from "../../types";
 import {
   getControlBySocket,
@@ -26,70 +26,38 @@ export const InputNodeMachine = createMachine({
         inputSockets: [],
         outputs: {},
         outputSockets: [],
+        error: null,
       },
       input
     ),
-  types: {} as {
+  types: {} as BaseActorTypes<{
     input: {
       name: string;
       description: string;
-      inputs: Record<string, any>;
-      outputs: Record<string, any>;
-      outputSockets: JSONSocket[];
+    };
+    actions: {
+      type: "setValue";
+      params?: {
+        values: Record<string, any>;
+      };
     };
     context: {
       name: string;
       description: string;
-      inputs: Record<string, any>;
-      outputs: Record<string, any>;
-      outputSockets: JSONSocket[];
-      inputSockets: JSONSocket[];
     };
-    events:
-      | {
-          type: "CHANGE";
-          name: string;
-          description: string;
-          outputSockets: JSONSocket[];
-        }
-      | {
-          type: "SET_VALUE";
-          values: Record<string, any>;
-        }
-      | {
-          type: "RUN";
-          inputs: Record<string, any>;
-        };
-  },
+    events: {
+      type: "CHANGE";
+      name: string;
+      description: string;
+      outputSockets: JSONSocket[];
+    };
+  }>,
   initial: "idle",
   states: {
     idle: {
       on: {
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => {
-              Object.keys(context.inputs).forEach((key) => {
-                if (!context.outputSockets.find((i) => i.name === key)) {
-                  delete context.inputs[key];
-                }
-              });
-              return {
-                ...context.inputs,
-                ...event.values,
-              };
-            },
-            outputs: ({ context, event }) => {
-              Object.keys(context.outputs).forEach((key) => {
-                if (!context.outputSockets.find((i) => i.name === key)) {
-                  delete context.outputs[key];
-                }
-              });
-              return {
-                ...context.outputs,
-                ...event.values,
-              };
-            },
-          }),
+          actions: ["setValue"],
         },
         CHANGE: {
           target: "idle",
@@ -104,7 +72,7 @@ export const InputNodeMachine = createMachine({
         RUN: {
           target: "complete",
           actions: assign({
-            outputs: ({ event }) => event.inputs,
+            outputs: ({ event }) => event.values,
           }),
         },
       },

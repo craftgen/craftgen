@@ -1,6 +1,6 @@
 import * as Sqrl from "squirrelly";
 import { isString, set, get, merge } from "lodash-es";
-import { BaseNode, type ParsedNode } from "./base";
+import { BaseActorTypes, BaseNode, type ParsedNode } from "./base";
 import { assign, createMachine, fromPromise } from "xstate";
 import { stringSocket, triggerSocket } from "../sockets";
 import { CodeControl } from "../controls/code";
@@ -8,7 +8,6 @@ import { match } from "ts-pattern";
 import { Input, Output } from "../input-output";
 import type { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
-import { JSONSocket } from "../controls/socket-generator";
 
 const PromptTemplateNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
@@ -22,6 +21,7 @@ const PromptTemplateNodeMachine = createMachine({
         outputs: {
           value: "",
         },
+        outputSockets: [],
         settings: {
           template: "",
           variables: [],
@@ -30,14 +30,13 @@ const PromptTemplateNodeMachine = createMachine({
       },
       input
     ),
-  types: {} as {
+  types: {} as BaseActorTypes<{
     input: {
       settings: {
         template: string;
         variables: string[];
       };
-      inputs: Record<string, any>;
-      outputs: {
+      outputs?: {
         value: string;
       };
     };
@@ -46,30 +45,21 @@ const PromptTemplateNodeMachine = createMachine({
         template: string;
         variables: string[];
       };
-      inputSockets: JSONSocket[];
-      inputs: Record<string, any>;
       outputs: {
         value: string;
       };
-      error: {
-        name: string;
-        message: string;
-      } | null;
     };
-    events:
-      | {
-          type: "change";
-          value: string;
-        }
-      | {
-          type: "SET_VALUE";
-          values: Record<string, any[]>;
-        }
-      | {
-          type: "RUN";
-          inputs: Record<string, any[]>;
-        };
-  },
+    events: {
+      type: "change";
+      value: string;
+    };
+    actions: {
+      type: "updateValue";
+      params?: {
+        value: string;
+      };
+    };
+  }>,
   states: {
     idle: {
       invoke: {
@@ -107,23 +97,13 @@ const PromptTemplateNodeMachine = createMachine({
           target: "typing",
         },
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.values,
-            }),
-          }),
+          actions: ["setValue"],
           target: "idle",
           reenter: true,
         },
         RUN: {
           target: "running",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -178,12 +158,7 @@ const PromptTemplateNodeMachine = createMachine({
         },
         SET_VALUE: {
           target: "idle",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.values,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -193,22 +168,12 @@ const PromptTemplateNodeMachine = createMachine({
       on: {
         change: "typing",
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.values,
-            }),
-          }),
+          actions: ["setValue"],
           target: "idle",
         },
         RUN: {
           target: "idle",
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.inputs,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -224,7 +189,14 @@ const renderFunc = ({
     template: string;
   };
 }) => {
-  const values = Object.entries(input.inputs).reduce((prev, curr) => {
+  const sanitizedInputs = Object.entries(input.inputs).reduce(
+    (prev, [key, value]) => {
+      prev[key] = Array.isArray(value) ? value[0] : value;
+      return prev;
+    },
+    {} as Record<string, any>
+  );
+  const values = Object.entries(sanitizedInputs).reduce((prev, curr) => {
     const [key, value] = curr as [string, any[]];
     if (key.includes(".")) {
       set(prev, key, get(value, key));
@@ -235,6 +207,7 @@ const renderFunc = ({
   }, {} as Record<string, string>);
   const rendered = Sqrl.render(input.template, values, {
     useWith: true,
+    autoTrim: ["nl", "slurp"],
   });
   return rendered;
 };
@@ -289,18 +262,19 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
             });
           try {
             const rendered = renderFunc({ input });
+            console.log("rendered", rendered);
             return {
               variables,
               rendered,
             };
           } catch (e) {
+            console.log(e);
             return {
               variables,
               rendered: input.template,
             };
           }
         }),
-        render: fromPromise(renderFunc),
       },
     });
 

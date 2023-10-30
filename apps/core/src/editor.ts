@@ -161,7 +161,7 @@ export class Editor<
   public readonly workflowVersionId: string;
   public readonly projectId: string;
 
-  public executionId: string | null = null;
+  public executionId?: string;
   public executionStatus:
     | "running"
     | "stopped"
@@ -172,6 +172,11 @@ export class Editor<
   public handlers: EditorHandlers;
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
+    this.workflowId = props.config.meta.workflowId;
+    this.workflowVersionId = props.config.meta.workflowVersionId;
+    this.projectId = props.config.meta.projectId;
+    this.executionId = props.config.meta?.executionId;
+
     makeObservable(this, {
       cursorPosition: observable,
       setCursorPosition: action,
@@ -207,11 +212,6 @@ export class Editor<
 
     // handlers for events which might require user attention.
     this.handlers = props.config.on || {};
-
-    this.workflowId = props.config.meta.workflowId;
-    this.workflowVersionId = props.config.meta.workflowVersionId;
-    this.projectId = props.config.meta.projectId;
-    this.executionId = props.config.meta?.executionId || null;
   }
 
   public createId(prefix: "node" | "conn" | "context" | "state") {
@@ -660,7 +660,7 @@ export class Editor<
     this.selectedNodeId = nodeId;
   }
 
-  setExecutionId(executionId: string | null) {
+  setExecutionId(executionId: string | undefined) {
     this.executionId = executionId;
   }
 
@@ -701,23 +701,27 @@ export class Editor<
         `Input data is not valid: ${JSON.stringify(validator.errors)}`
       );
     }
-    const { id } = await this.api.createExecution({
-      workflowId: this.workflowId,
-      workflowVersionId: this.workflowVersionId,
-      input: {
-        id: params.inputId,
-        values: {},
-      },
-      headless: false,
-    });
-    console.log("Execution Created", id);
-    this.setExecutionId(id);
+    if (!this.executionId) {
+      const { id } = await this.api.createExecution({
+        workflowId: this.workflowId,
+        workflowVersionId: this.workflowVersionId,
+        input: {
+          id: params.inputId,
+          values: {},
+        },
+        headless: false,
+      });
+      console.log("Execution Created", id);
+      this.setExecutionId(id);
+    }
 
     inputNode.actor.send({
       type: "SET_VALUE",
       values: params.inputs,
     });
-    this.engine.execute(inputNode.id, undefined, id);
+
+    this.engine.execute(inputNode.id, undefined, this.executionId);
+
     const res = await new Promise((resolve, reject) => {
       this.engine.addPipe((context) => {
         // console.log("@@@ Engine context", context);
@@ -734,9 +738,11 @@ export class Editor<
   }
 
   public reset() {
-    this.setExecutionId(null);
+    this.setExecutionId(undefined);
     // TODO: reset all nodes to their context.
-    this.editor.getNodes().forEach((n) => {});
+    this.editor.getNodes().forEach((n) => {
+      n.reset();
+    });
   }
 
   private handleAreaEvents() {
