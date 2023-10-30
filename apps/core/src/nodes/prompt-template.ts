@@ -207,7 +207,7 @@ const renderFunc = ({
   }, {} as Record<string, string>);
   const rendered = Sqrl.render(input.template, values, {
     useWith: true,
-    autoTrim: ["nl", "slurp"],
+    // autoTrim: ["nl"],
   });
   return rendered;
 };
