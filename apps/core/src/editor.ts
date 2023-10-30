@@ -78,6 +78,7 @@ export type EditorProps<
       workflowId: string;
       workflowVersionId: string;
       projectId: string;
+      executionId?: string;
     };
     on?: EditorHandlers;
   };
@@ -161,6 +162,12 @@ export class Editor<
   public readonly projectId: string;
 
   public executionId: string | null = null;
+  public executionStatus:
+    | "running"
+    | "stopped"
+    | "failed"
+    | "completed"
+    | null = null;
 
   public handlers: EditorHandlers;
 
@@ -204,6 +211,7 @@ export class Editor<
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
     this.projectId = props.config.meta.projectId;
+    this.executionId = props.config.meta?.executionId || null;
   }
 
   public createId(prefix: "node" | "conn" | "context" | "state") {
@@ -723,6 +731,12 @@ export class Editor<
       });
     });
     return res;
+  }
+
+  public reset() {
+    this.setExecutionId(null);
+    // TODO: reset all nodes to their context.
+    this.editor.getNodes().forEach((n) => {});
   }
 
   private handleAreaEvents() {

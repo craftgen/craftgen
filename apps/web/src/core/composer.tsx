@@ -3,7 +3,15 @@
 import { getWorkflow } from "@/actions/get-workflow";
 
 import { ResultOfAction } from "@/lib/type";
-import { Shrink, Lock } from "lucide-react";
+import {
+  Shrink,
+  Lock,
+  RotateCcw,
+  ArrowLeftFromLine,
+  CheckCircle,
+  Play,
+  Loader2,
+} from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useRete } from "rete-react-plugin";
 import { ContextMenuProvider } from "./context-menu";
@@ -48,6 +56,25 @@ export const Composer: React.FC<{
             <TooltipContent>
               This workflow is read-only because it is published.
             </TooltipContent>
+          </Tooltip>
+        )}
+        {di?.executionId && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={"outline"}
+                // size="icon"
+                onClick={() => di?.setUI()}
+              >
+                {false && (
+                  <Loader2 size={14} className="animate-spin text-green-400" />
+                )}
+                {false && <Play size={14} />}
+                {true && <CheckCircle size={14} className="text-green-400" />}
+                <p className="ml-2 truncate">{di?.executionId}</p>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>The Execution: </TooltipContent>
           </Tooltip>
         )}
         <Tooltip>

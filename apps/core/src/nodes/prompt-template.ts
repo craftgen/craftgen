@@ -189,6 +189,7 @@ const PromptTemplateNodeMachine = createMachine({
     },
     complete: {
       type: "final",
+      output: ({ context }) => context.outputs,
       on: {
         change: "typing",
         SET_VALUE: {
@@ -212,6 +213,7 @@ const PromptTemplateNodeMachine = createMachine({
       },
     },
   },
+  output: ({ context }) => context.outputs,
 });
 
 const renderFunc = ({

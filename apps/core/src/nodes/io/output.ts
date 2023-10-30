@@ -86,8 +86,12 @@ const OutputNodeMachine = createMachine({
         },
       },
     },
-    complete: {},
+    complete: {
+      type: "final",
+      output: ({ context }) => context.outputs,
+    },
   },
+  output: ({ context }) => context.outputs,
 });
 
 export type OutputNodeData = ParsedNode<"OutputNode", typeof OutputNodeMachine>;

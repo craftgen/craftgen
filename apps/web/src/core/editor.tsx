@@ -147,6 +147,7 @@ export async function createEditor(params: {
         projectId: params.workflow.projectId,
         workflowId: params.workflow.id,
         workflowVersionId: params.workflow.versions[0].id,
+        executionId: params.workflow?.execution?.id,
       },
       api: {
         async checkAPIKeyExist(params) {

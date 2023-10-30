@@ -58,7 +58,7 @@ export abstract class BaseNode<
 
   public actor: Actor<AnyStateMachine>;
 
-  public state: "idle" | "running" | "error" = "idle";
+  public state: "idle" | "running" | "error" | "complete" = "idle";
 
   public width: number;
   public height: number;
@@ -191,12 +191,9 @@ export abstract class BaseNode<
           }
         }
 
-        if (this.isExecution) {
-          this.saveState({ state });
-        } else {
-          // if (!this.di.readonly?.enabled) {
+        this.saveState({ state });
+        if (!this.isExecution) {
           saveContextDebounced({ context: state.context });
-          // }
         }
         prev = state;
       },
@@ -241,6 +238,18 @@ export abstract class BaseNode<
     );
 
     this.isReady = true;
+  }
+
+  public async reset() {
+    this.actor = createActor(this.machine.provide(this.machineImplements), {
+      id: this.id,
+      ...(this.nodeData?.context && {
+        input: {
+          ...this.nodeData.context,
+        },
+      }),
+    });
+    this.actor.start();
   }
 
   async updateOutputs(rawTemplate: JSONSocket[]) {

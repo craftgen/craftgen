@@ -391,34 +391,6 @@ export function CustomNode(props: Props<Schemes>) {
               </div>
             </CardHeader>
             <Separator />
-            <CardContent className="flex-1">
-              {/* controls */}
-              <section
-                className={cn(
-                  "hidden",
-                  size.height > props.data.minHeightForControls &&
-                    "@xs:block my-2 space-y-2"
-                )}
-              >
-                {controls.map(([key, control]) => {
-                  return control ? (
-                    <div className="space-y-1 flex flex-col" key={key}>
-                      <Label htmlFor={control.id} className="capitalize">
-                        {key}
-                      </Label>
-                      <Drag.NoDrag>
-                        <RefControl
-                          key={key}
-                          name="control"
-                          emit={props.emit}
-                          payload={control}
-                        />
-                      </Drag.NoDrag>
-                    </div>
-                  ) : null;
-                })}
-              </section>
-            </CardContent>
             <div className="py-4 grid-cols-2 grid">
               <div>
                 {/* Inputs */}
@@ -451,13 +423,49 @@ export function CustomNode(props: Props<Schemes>) {
                 })}
               </div>
             </div>
-            <CardFooter className="p-1 px-2 pt-0">
+            <CardContent className="flex-1">
+              {/* controls */}
+              <section
+                className={cn(
+                  "hidden",
+                  size.height > props.data.minHeightForControls &&
+                    "@xs:block my-2 space-y-2"
+                )}
+              >
+                {controls.map(([key, control]) => {
+                  return control ? (
+                    <div className="space-y-1 flex flex-col" key={key}>
+                      <Label htmlFor={control.id} className="capitalize">
+                        {key}
+                      </Label>
+                      <Drag.NoDrag>
+                        <RefControl
+                          key={key}
+                          name="control"
+                          emit={props.emit}
+                          payload={control}
+                        />
+                      </Drag.NoDrag>
+                    </div>
+                  ) : null;
+                })}
+              </section>
+            </CardContent>
+
+            <CardFooter className="p-1 px-2 pt-0 flex flex-col">
               <Badge
                 variant={"outline"}
                 className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
               >
                 {props.data.id}
               </Badge>
+              {props.data.state === "complete" && (
+                <pre>
+                  <code>
+                    {JSON.stringify(props.data.actor.getSnapshot().output)}
+                  </code>
+                </pre>
+              )}
             </CardFooter>
           </Card>
         </Resizable>
