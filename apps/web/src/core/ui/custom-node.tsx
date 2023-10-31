@@ -31,7 +31,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import * as FlexLayout from "flexlayout-react";
-import { useDebounce } from "react-use";
+import { useDebounce, useMeasure } from "react-use";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ToastAction } from "@/components/ui/toast";
@@ -208,6 +208,8 @@ export const Node = observer((props: Props<Schemes>) => {
     width: props.data.width,
     height: props.data.height,
   });
+  const [internalRef, internal] = useMeasure<HTMLDivElement>();
+  console.log(internal);
 
   useDebounce(
     () => {
@@ -251,7 +253,7 @@ export const Node = observer((props: Props<Schemes>) => {
           onResize={(e, { size }) => {
             setSize(size);
           }}
-          minConstraints={[200, 200]}
+          minConstraints={[200, internal.height + 20]}
         >
           <Card
             style={{
@@ -269,154 +271,156 @@ export const Node = observer((props: Props<Schemes>) => {
               state.matches("error") && "border-red-600 border-2"
             )}
           >
-            <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
-              <div className="flex space-x-2 items-center">
-                <NodeIcon className="w-5 h-5" />
-                {editLabel ? (
-                  <Input
-                    defaultValue={props.data.label}
-                    autoFocus
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        setEditLabel(false);
-                      }
-                    }}
-                    onChange={handleLabelChange}
-                  />
-                ) : (
-                  <Drag.NoDrag>
-                    <CardTitle
-                      className="flex"
-                      onDoubleClick={() => {
-                        setEditLabel(true);
+            <div ref={internalRef} className="flex flex-col justify-between">
+              <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
+                <div className="flex space-x-2 items-center">
+                  <NodeIcon className="w-5 h-5" />
+                  {editLabel ? (
+                    <Input
+                      defaultValue={props.data.label}
+                      autoFocus
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          setEditLabel(false);
+                        }
                       }}
+                      onChange={handleLabelChange}
+                    />
+                  ) : (
+                    <Drag.NoDrag>
+                      <CardTitle
+                        className="flex"
+                        onDoubleClick={() => {
+                          setEditLabel(true);
+                        }}
+                      >
+                        {props.data.label}{" "}
+                        {props.data.action ? (
+                          <span className="text-muted-foreground ml-2 text-sm">
+                            {"/"}
+                            {props.data.action}
+                          </span>
+                        ) : null}
+                      </CardTitle>
+                    </Drag.NoDrag>
+                  )}
+                </div>
+                <div className="flex">
+                  <Drag.NoDrag>
+                    <Button
+                      variant={"ghost"}
+                      size={"icon"}
+                      onClick={() => props.data.reset()}
                     >
-                      {props.data.label}{" "}
-                      {props.data.action ? (
-                        <span className="text-muted-foreground ml-2 text-sm">
-                          {"/"}
-                          {props.data.action}
-                        </span>
-                      ) : null}
-                    </CardTitle>
+                      <Undo2 size={14} />
+                    </Button>
                   </Drag.NoDrag>
-                )}
-              </div>
-              <div className="flex">
-                <Drag.NoDrag>
                   <Button
+                    ref={ref}
                     variant={"ghost"}
                     size={"icon"}
-                    onClick={() => props.data.reset()}
+                    onClick={toggleDebug}
                   >
-                    <Undo2 size={14} />
+                    <Wrench size={14} />
                   </Button>
-                </Drag.NoDrag>
-                <Button
-                  ref={ref}
-                  variant={"ghost"}
-                  size={"icon"}
-                  onClick={toggleDebug}
-                >
-                  <Wrench size={14} />
-                </Button>
-                <Button
-                  ref={ref2}
-                  onClick={triggerNode}
-                  disabled={!state.matches("idle")}
-                  variant={"ghost"}
-                  size="icon"
-                >
-                  {state.matches("running") && (
-                    <Loader2
-                      size={14}
-                      className="animate-spin text-green-400"
-                    />
-                  )}
-                  {state.matches("idle") && <Play size={14} />}
-                  {state.matches("complete") && (
-                    <CheckCircle size={14} className="text-green-400" />
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            <Separator />
-            <div className="py-4 grid-cols-2 grid">
-              <div>
-                {/* Inputs */}
-                {inputs.map(([key, input]) => {
-                  if (!input || !input.showSocket) return null;
-                  return (
-                    <RenderInput
-                      emit={props.emit}
-                      input={input}
-                      key={`input-key-${key}`}
-                      inputKey={key}
-                      id={id}
-                    />
-                  );
-                })}
-              </div>
-              <div>
-                {/* Outputs */}
-                {outputs.map(([key, output]) => {
-                  if (!output || !output.showSocket) return null;
-                  return (
-                    <RenderOutput
-                      emit={props.emit}
-                      output={output}
-                      key={`output-key-${key}`}
-                      outputKey={key}
-                      id={id}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-            <CardContent className="flex-1">
-              {/* controls */}
-              <section
-                className={cn(
-                  "hidden",
-                  size.height > props.data.minHeightForControls &&
-                    "@xs:block my-2 space-y-2"
-                )}
-              >
-                {controls.map(([key, control]) => {
-                  return control ? (
-                    <div className="space-y-1 flex flex-col" key={key}>
-                      <Label htmlFor={control.id} className="capitalize">
-                        {key}
-                      </Label>
-                      <Drag.NoDrag>
-                        <RefControl
-                          key={key}
-                          name="control"
-                          emit={props.emit}
-                          payload={control}
-                        />
-                      </Drag.NoDrag>
-                    </div>
-                  ) : null;
-                })}
-              </section>
-            </CardContent>
-
-            <CardFooter className="p-1 px-2 pt-0 flex flex-col">
-              {props.data.snap.matches("complete") && (
-                <div className="w-full">
-                  <Drag.NoDrag>
-                    <JSONView data={props.data.actor.getSnapshot().output} />
-                  </Drag.NoDrag>
+                  <Button
+                    ref={ref2}
+                    onClick={triggerNode}
+                    disabled={!state.matches("idle")}
+                    variant={"ghost"}
+                    size="icon"
+                  >
+                    {state.matches("running") && (
+                      <Loader2
+                        size={14}
+                        className="animate-spin text-green-400"
+                      />
+                    )}
+                    {state.matches("idle") && <Play size={14} />}
+                    {state.matches("complete") && (
+                      <CheckCircle size={14} className="text-green-400" />
+                    )}
+                  </Button>
                 </div>
-              )}
-              <Badge
-                variant={"outline"}
-                className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
-              >
-                {props.data.id}
-              </Badge>
-            </CardFooter>
+              </CardHeader>
+              <Separator />
+              <div className="py-4 grid-cols-2 grid">
+                <div>
+                  {/* Inputs */}
+                  {inputs.map(([key, input]) => {
+                    if (!input || !input.showSocket) return null;
+                    return (
+                      <RenderInput
+                        emit={props.emit}
+                        input={input}
+                        key={`input-key-${key}`}
+                        inputKey={key}
+                        id={id}
+                      />
+                    );
+                  })}
+                </div>
+                <div>
+                  {/* Outputs */}
+                  {outputs.map(([key, output]) => {
+                    if (!output || !output.showSocket) return null;
+                    return (
+                      <RenderOutput
+                        emit={props.emit}
+                        output={output}
+                        key={`output-key-${key}`}
+                        outputKey={key}
+                        id={id}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              <CardContent className="flex-1">
+                {/* controls */}
+                <section
+                  className={cn(
+                    "hidden",
+                    size.height > props.data.minHeightForControls &&
+                      "@xs:block my-2 space-y-2"
+                  )}
+                >
+                  {controls.map(([key, control]) => {
+                    return control ? (
+                      <div className="space-y-1 flex flex-col" key={key}>
+                        <Label htmlFor={control.id} className="capitalize">
+                          {key}
+                        </Label>
+                        <Drag.NoDrag>
+                          <RefControl
+                            key={key}
+                            name="control"
+                            emit={props.emit}
+                            payload={control}
+                          />
+                        </Drag.NoDrag>
+                      </div>
+                    ) : null;
+                  })}
+                </section>
+              </CardContent>
+
+              <CardFooter className="p-1 px-2 pt-0 flex flex-col mt-auto">
+                {props.data.snap.matches("complete") && (
+                  <div className="w-full">
+                    <Drag.NoDrag>
+                      <JSONView data={props.data.actor.getSnapshot().output} />
+                    </Drag.NoDrag>
+                  </div>
+                )}
+                <Badge
+                  variant={"outline"}
+                  className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
+                >
+                  {props.data.id}
+                </Badge>
+              </CardFooter>
+            </div>
           </Card>
         </Resizable>
       </ContextMenuTrigger>
