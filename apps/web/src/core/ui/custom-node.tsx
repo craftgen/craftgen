@@ -209,7 +209,17 @@ export const Node = observer((props: Props<Schemes>) => {
     height: props.data.height,
   });
   const [internalRef, internal] = useMeasure<HTMLDivElement>();
-  console.log(internal);
+
+  useDebounce(
+    () => {
+      setSize({
+        height: internal.height + 20,
+        width: size.width,
+      });
+    },
+    10,
+    [internal.height]
+  );
 
   useDebounce(
     () => {
