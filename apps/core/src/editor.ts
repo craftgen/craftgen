@@ -616,6 +616,9 @@ export class Editor<
         })
         .with({ type: "noderemove" }, async ({ data }) => {
           console.log("noderemove", { data });
+          if (data.id === this.selectedNodeId) {
+            this.setSelectedNodeId(null);
+          }
           await this.api.deleteNode({
             workflowId: this.workflowId,
             workflowVersionId: this.workflowVersionId,

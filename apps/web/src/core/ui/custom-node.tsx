@@ -43,6 +43,7 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { JSONView } from "@/components/json-view";
+import { observer } from "mobx-react-lite";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -66,30 +67,23 @@ type Props<S extends Schemes> = {
 export type NodeComponent = (props: Props<Schemes>) => JSX.Element;
 
 export function CustomNode(props: Props<Schemes>) {
+  return <Node {...props} />;
+}
+
+export const Node = observer((props: Props<Schemes>) => {
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, di } = props.data;
-  const {
-    // di,
-    workflowId,
-    workflowVersionId,
-    projectSlug,
-    layout,
-    setSelectedNodeId,
-    workflowExecutionId,
-    setWorkflowExecutionId,
-  } = useStore(props.store);
+  const { projectSlug, layout } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
-  const status = useSelector(props.data.actor, (state) => state.status);
 
   sortByIndex(inputs);
   sortByIndex(outputs);
   sortByIndex(controls);
 
   const deleteNode = React.useCallback(async () => {
-    setSelectedNodeId(null);
     const connections =
       di?.editor.getConnections().filter((c) => {
         return c.source === props.data.id || c.target === props.data.id;
@@ -114,12 +108,6 @@ export function CustomNode(props: Props<Schemes>) {
     await di?.area?.translate(node.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
-    // if (status === "done") {
-    //   toast({
-    //     title: "Creating new execution",
-    //     description: "",
-    //   });
-    // }
     await di.runSync({
       inputId: props.data.id,
     });
@@ -475,7 +463,7 @@ export function CustomNode(props: Props<Schemes>) {
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+});
 
 const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
   const { handleAxis, ...restProps } = props;
