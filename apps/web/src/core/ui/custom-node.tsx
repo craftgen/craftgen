@@ -114,12 +114,12 @@ export function CustomNode(props: Props<Schemes>) {
     await di?.area?.translate(node.id, di?.area?.area.pointer);
   }, []);
   const triggerNode = async () => {
-    if (status === "done") {
-      toast({
-        title: "Creating new execution",
-        description: "",
-      });
-    }
+    // if (status === "done") {
+    //   toast({
+    //     title: "Creating new execution",
+    //     description: "",
+    //   });
+    // }
     await di.runSync({
       inputId: props.data.id,
     });
@@ -415,7 +415,7 @@ export function CustomNode(props: Props<Schemes>) {
             </CardContent>
 
             <CardFooter className="p-1 px-2 pt-0 flex flex-col">
-              {props.data.state === "complete" && (
+              {props.data.snap.matches("complete") && (
                 <div className="w-full">
                   <Drag.NoDrag>
                     <JSONView data={props.data.actor.getSnapshot().output} />

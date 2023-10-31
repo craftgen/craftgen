@@ -164,6 +164,7 @@ export abstract class BaseNode<
   }
 
   public executionNodeId?: string;
+  unsubscribe: () => void = () => {};
 
   constructor(
     public readonly ID: NodeTypes,
@@ -359,11 +360,14 @@ export abstract class BaseNode<
       },
     });
 
+    this.unsubscribe = listener.unsubscribe;
+
     return actor;
   }
 
   public async reset() {
-    this.setupActor({
+    this.unsubscribe();
+    this.actor = this.setupActor({
       input: this.nodeData.context,
     });
 
@@ -372,6 +376,7 @@ export abstract class BaseNode<
     outgoers.forEach((n) => {
       n.reset();
     });
+    this.actor.start();
   }
 
   async updateOutputs(rawTemplate: JSONSocket[]) {
@@ -556,11 +561,12 @@ export abstract class BaseNode<
     }
 
     const inputs = await this.getInputs();
-    this.di.logger.log(this.identifier, "INPUTS", inputs);
+    this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
     this.actor.send({
       type: "RUN",
       values: inputs,
     });
+
     this.actor.subscribe({
       next: (state) => {
         this.di.engine.emit({
@@ -570,7 +576,7 @@ export abstract class BaseNode<
             executionId: executionId,
           },
         });
-        // console.log(this.identifier, "@@@", "next", state.value, state.context);
+        console.log(this.identifier, "@@@", "next", state.value, state.context);
       },
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito Execute", this.outputs);

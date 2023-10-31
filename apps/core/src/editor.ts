@@ -675,16 +675,19 @@ export class Editor<
   }) {}
 
   public async runSync(params: { inputId: string }) {
-    const { id } = await this.api.createExecution({
-      workflowId: this.workflowId,
-      workflowVersionId: this.workflowVersionId,
-      input: {
-        id: params.inputId,
-        values: {},
-      },
-      headless: false,
-    });
-    this.engine.execute(params.inputId, undefined, id);
+    if (!this.executionId) {
+      const { id } = await this.api.createExecution({
+        workflowId: this.workflowId,
+        workflowVersionId: this.workflowVersionId,
+        input: {
+          id: params.inputId,
+          values: {},
+        },
+        headless: false,
+      });
+      this.setExecutionId(id);
+    }
+    this.engine.execute(params.inputId, undefined, this.executionId);
   }
 
   public async run(params: { inputId: string; inputs: Record<string, any> }) {

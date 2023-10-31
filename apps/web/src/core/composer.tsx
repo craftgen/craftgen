@@ -38,6 +38,9 @@ export const Composer: React.FC<{
     });
   }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);
+  useEffect(() => {
+    (window as any).Editor = rete;
+  }, [rete]);
   return (
     <div className="w-full h-full">
       <div className="absolute top-1 right-1 z-50 flex ">
