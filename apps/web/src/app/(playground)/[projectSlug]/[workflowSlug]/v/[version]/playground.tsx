@@ -51,6 +51,7 @@ import { ActorStatus } from "xstate";
 import { Textarea } from "@/components/ui/textarea";
 import { observer } from "mobx-react-lite";
 import { NodeProps } from "@seocraft/core/src/types";
+import { useQueryState } from "next-usequerystate";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -121,14 +122,10 @@ const defaultLayout: FlexLayout.IJsonModel = {
 export const Playground: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
   session: Session | null;
-}> = ({ workflow, session }) => {
+}> = observer(({ workflow, session }) => {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const executionId = searchParams.get("execution");
-
   const { theme } = useTheme();
-  const pathname = usePathname();
-  const router = useRouter();
+
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
@@ -141,49 +138,39 @@ export const Playground: React.FC<{
       workflowId: workflow.id,
       workflowSlug: params.playgroundSlug as string,
       workflowVersionId: workflow.version.id,
-      workflowExecutionId: executionId,
     })
   );
 
-  useEffect(() => {
-    const subb = store.current.subscribe(
-      (state) => state.workflowExecutionId,
-      async (workflowExecutionId) => {
-        console.log("running", workflowExecutionId);
-        const params = new URLSearchParams(searchParams);
-        if (workflowExecutionId) params.set("execution", workflowExecutionId);
-        if (!workflowExecutionId) params.delete("execution");
-        if (params.get("execution") === executionId) return;
-        if (params.get("execution") === workflow.execution?.id) {
-          params.delete("execution");
-        }
-
-        router.replace(pathname + "?" + params.toString());
-      }
-    );
-    return subb;
-  }, []);
-
-  const { layout, di, setTheme, setWorkflowExecutionId, workflowExecutionId } =
-    useStore(store.current);
+  const { layout, di, setTheme } = useStore(store.current);
+  const [execution, setExecution] = useQueryState("execution");
 
   useEffect(() => {
-    const entryNodeId = workflow.execution?.entryWorkflowNodeId;
-    if (workflowExecutionId && entryNodeId) {
-      const isNotComplete = di?.graph
-        .successors(entryNodeId)
-        .nodes()
-        .some((n) => n.actor.status === ActorStatus.Running);
-      console.log({ isNotComplete });
-      if (isNotComplete) {
-        di?.engine?.execute(entryNodeId, undefined, workflowExecutionId);
-      }
+    if (di?.executionId) {
+      console.log("set execution", di?.executionId);
+      setExecution(di?.executionId);
+    } else {
+      setExecution(null);
     }
-  }, [di, workflow]);
+  }, [di && di?.executionId]);
 
-  useEffect(() => {
-    setWorkflowExecutionId(searchParams.get("execution"));
-  }, [searchParams.get("execution")]);
+  // useEffect(() => {
+  //   const entryNodeId = workflow.execution?.entryWorkflowNodeId;
+  //   if (workflowExecutionId && entryNodeId) {
+  //     const isNotComplete = di?.graph
+  //       .successors(entryNodeId)
+  //       .nodes()
+  //       .some((n) => n.actor.status === ActorStatus.Running);
+  //     console.log({ isNotComplete });
+  //     if (isNotComplete) {
+  //       di?.engine?.execute(entryNodeId, undefined, workflowExecutionId);
+  //     }
+  //   }
+  // }, [di, workflow]);
+
+  // useEffect(() => {
+  //   setWorkflowExecutionId(searchParams.get("execution"));
+  // }, [searchParams.get("execution")]);
+
   useEffect(() => {
     setTheme(theme || "light");
   }, [theme]);
@@ -306,7 +293,7 @@ export const Playground: React.FC<{
       </TooltipProvider>
     </CraftContext.Provider>
   );
-};
+});
 
 const LoginToContinue: React.FC<{}> = ({}) => {
   return (

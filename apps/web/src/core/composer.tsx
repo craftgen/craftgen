@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Play,
   Loader2,
+  ChevronLeftCircle,
 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useRete } from "rete-react-plugin";
@@ -41,6 +42,9 @@ export const Composer: React.FC<{
   useEffect(() => {
     (window as any).Editor = rete;
   }, [rete]);
+  const handleReset = () => {
+    di?.reset();
+  };
   return (
     <div className="w-full h-full">
       <div className="absolute top-1 right-1 z-50 flex ">
@@ -62,23 +66,36 @@ export const Composer: React.FC<{
           </Tooltip>
         )}
         {di?.executionId && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={"outline"}
-                // size="icon"
-                onClick={() => di?.setUI()}
-              >
-                {false && (
-                  <Loader2 size={14} className="animate-spin text-green-400" />
-                )}
-                {false && <Play size={14} />}
-                {true && <CheckCircle size={14} className="text-green-400" />}
-                <p className="ml-2 truncate">{di?.executionId}</p>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>The Execution: </TooltipContent>
-          </Tooltip>
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"outline"} size="icon" onClick={handleReset}>
+                  <ChevronLeftCircle size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Go back</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  // size="icon"
+                  onClick={() => di?.setUI()}
+                >
+                  {false && (
+                    <Loader2
+                      size={14}
+                      className="animate-spin text-green-400"
+                    />
+                  )}
+                  {false && <Play size={14} />}
+                  {true && <CheckCircle size={14} className="text-green-400" />}
+                  <p className="ml-2 truncate">{di?.executionId}</p>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>The Execution: Current </TooltipContent>
+            </Tooltip>
+          </>
         )}
         <Tooltip>
           <TooltipTrigger asChild>
