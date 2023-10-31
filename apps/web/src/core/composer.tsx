@@ -6,10 +6,10 @@ import { ResultOfAction } from "@/lib/type";
 import {
   Shrink,
   Lock,
-  RotateCcw,
-  ArrowLeftFromLine,
   CheckCircle,
   Play,
+  RotateCcw,
+  ArrowLeftFromLine,
   Loader2,
   ChevronLeftCircle,
 } from "lucide-react";
@@ -42,6 +42,7 @@ export const Composer: React.FC<{
   useEffect(() => {
     (window as any).Editor = rete;
   }, [rete]);
+
   const handleReset = () => {
     di?.reset();
   };

@@ -32,7 +32,7 @@ export const LogsTab: React.FC<{
         workflowVersionId: workflow.version.id,
       }).then((res) => res.data),
     {
-      refreshInterval: 1000,
+      refreshInterval: 2000,
     }
   );
   return (

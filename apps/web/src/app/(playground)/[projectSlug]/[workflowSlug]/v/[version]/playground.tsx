@@ -1,14 +1,7 @@
 "use client";
-// import "reflect-metadata";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  redirect,
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { redirect, useParams } from "next/navigation";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import { debounce } from "lodash-es";
@@ -47,11 +40,9 @@ import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Session } from "@supabase/supabase-js";
-import { ActorStatus } from "xstate";
 import { Textarea } from "@/components/ui/textarea";
 import { observer } from "mobx-react-lite";
 import { NodeProps } from "@seocraft/core/src/types";
-import { useQueryState } from "next-usequerystate";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -142,34 +133,6 @@ export const Playground: React.FC<{
   );
 
   const { layout, di, setTheme } = useStore(store.current);
-  const [execution, setExecution] = useQueryState("execution");
-
-  useEffect(() => {
-    if (di?.executionId) {
-      console.log("set execution", di?.executionId);
-      setExecution(di?.executionId);
-    } else {
-      setExecution(null);
-    }
-  }, [di && di?.executionId]);
-
-  // useEffect(() => {
-  //   const entryNodeId = workflow.execution?.entryWorkflowNodeId;
-  //   if (workflowExecutionId && entryNodeId) {
-  //     const isNotComplete = di?.graph
-  //       .successors(entryNodeId)
-  //       .nodes()
-  //       .some((n) => n.actor.status === ActorStatus.Running);
-  //     console.log({ isNotComplete });
-  //     if (isNotComplete) {
-  //       di?.engine?.execute(entryNodeId, undefined, workflowExecutionId);
-  //     }
-  //   }
-  // }, [di, workflow]);
-
-  // useEffect(() => {
-  //   setWorkflowExecutionId(searchParams.get("execution"));
-  // }, [searchParams.get("execution")]);
 
   useEffect(() => {
     setTheme(theme || "light");
