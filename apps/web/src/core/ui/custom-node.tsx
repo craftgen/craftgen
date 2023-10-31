@@ -11,7 +11,6 @@ import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { RenderEmit, Presets, Drag } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
-import { nodesMeta } from "../types";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
 import { useSelector } from "@xstate/react";
@@ -44,6 +43,7 @@ import { Label } from "@/components/ui/label";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { JSONView } from "@/components/json-view";
 import { observer } from "mobx-react-lite";
+import { Icons } from "@/components/icons";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -201,7 +201,9 @@ export const Node = observer((props: Props<Schemes>) => {
     return subs.unsubscribe;
   }, []);
   const NodeIcon = React.useMemo(() => {
-    return nodesMeta[props.data.ID].icon;
+    const iconName = props.data.di.nodeMeta.get(props.data.ID)?.icon;
+    if (!iconName) return Icons["component"];
+    return Icons[iconName as keyof typeof Icons];
   }, []);
   const [editLabel, setEditLabel] = React.useState(false);
   const [size, setSize] = useState({

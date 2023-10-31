@@ -1,12 +1,12 @@
 import { getUser } from "@/app/(dashboard)/project/[projectSlug]/actions";
 import { Button } from "@/components/ui/button";
+import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 
 import { ExternalLink, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import useDrivePicker from "react-google-drive-picker";
 import type { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import useSWR from "swr";
-import { GoogleDriveControl } from "../../controls/google-drive";
 
 export function GoogleDriveControlComponent(props: {
   data: GoogleDriveControl;

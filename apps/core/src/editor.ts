@@ -195,6 +195,7 @@ export class Editor<
 
     Object.entries(props.config.nodes).forEach(([key, value]) => {
       this.nodeMeta.set(key, {
+        value: key.toLowerCase(),
         nodeType: key,
         label: value.label,
         description: value.description,

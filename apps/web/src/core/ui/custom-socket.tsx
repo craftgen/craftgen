@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { Socket, Sockets, socketConfig } from "../sockets";
 import { Badge } from "@/components/ui/badge";
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
-import { Schemes } from "../types";
 import { ClassicPreset } from "rete";
 import { match } from "ts-pattern";
+import { Socket, Sockets, socketConfig } from "@seocraft/core/src/sockets";
+import { Schemes } from "@seocraft/core/src/types";
 
 export function CustomSocket<T extends Socket>(props: {
   data: {
@@ -54,7 +54,7 @@ export function CustomSocket<T extends Socket>(props: {
         data-testid="input-title"
         variant={"outline"}
       >
-        {props.data.socket.name !== 'Trigger' ?  data?.label: '⌀'}
+        {props.data.socket.name !== "Trigger" ? data?.label : "⌀"}
       </Badge>
     </div>
   );

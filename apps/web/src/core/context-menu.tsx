@@ -8,20 +8,19 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { PropsWithChildren, useRef, useState } from "react";
+import { PropsWithChildren, useMemo, useRef, useState } from "react";
 import { useCraftStore } from "./use-store";
-import { createNodeInstance } from "./io";
-import { NodeTypes, nodes, nodesMeta } from "./types";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
+import { NodeTypes } from "@seocraft/core/src/types";
+import { Icons } from "@/components/icons";
+import React from "react";
+import { cn } from "@/lib/utils";
 
 export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const di = useCraftStore((store) => store.di);
-  const playgroundId = useCraftStore((store) => store.workflowId);
-  const workflowVersionId = useCraftStore((store) => store.workflowVersionId);
-  const projectSlug = useCraftStore((store) => store.projectSlug);
   const position = useCraftStore((store) => store.position);
   const [open, setOpen] = useState(false);
   const ref = useRef<any>(null);
@@ -36,18 +35,6 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     data?: any;
   }) => {
     if (!di) return;
-    // const node = await createNodeInstance({
-    //   di: di!,
-    //   type: name,
-    //   data: {
-    //     ...data,
-    //     workflowVersionId,
-    //   },
-    //   saveToDB: true,
-    //   workflowId: playgroundId,
-    //   projectSlug: projectSlug,
-    // });
-    // console.log("context createNode", node);
     const node = await di?.addNode(name);
     await di?.area?.translate(node.id, {
       x: position.x,
@@ -63,35 +50,73 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     setOpen(true);
   });
 
+  const nodes = useMemo(() => {
+    if (!di) return [];
+    return Array.from(di?.nodeMeta.values());
+  }, [di?.nodeMeta]);
+  const [value, setValue] = useState("textnode");
+
   return (
     <ContextMenu onOpenChange={setOpen} modal>
       <ContextMenuTrigger ref={ref}>{children}</ContextMenuTrigger>
-      <CommandDialog open={open} onOpenChange={setOpen} modal={false}>
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        modal={false}
+        commandProps={{
+          value,
+          onValueChange: (val) => setValue(val || ""),
+        }}
+      >
         <CommandInput placeholder="Type a command or search..." autoFocus />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <CommandItem onSelect={() => handleAddNode("TextNode")}>
-              Text
-            </CommandItem>
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Nodes">
-            {Object.entries(nodesMeta).map(([key, val]) => {
-              const Icon = val.icon;
-              return (
-                <CommandItem
-                  key={key}
-                  onSelect={() => handleAddNode(key as NodeTypes)}
-                >
-                  <Icon className="text-muted-foreground mr-2" />
-                  {val.name}
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
-        </CommandList>
+        <div className="flex">
+          <CommandList className={cn("flex-1", value && "w-1/2")}>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Nodes">
+              {nodes.map(({ label, nodeType, icon }) => {
+                const Icon = Icons[icon as keyof typeof Icons];
+                return (
+                  <CommandItem
+                    key={nodeType}
+                    value={String(nodeType)}
+                    onSelect={() => handleAddNode(nodeType as NodeTypes)}
+                  >
+                    <Icon className="text-muted-foreground mr-2" />
+                    {label}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+          <div className={cn("p-4 w-0", value && "w-1/2")}>
+            {value && <NodeMetaInfo nodeType={value as NodeTypes} />}
+          </div>
+        </div>
       </CommandDialog>
     </ContextMenu>
+  );
+};
+
+const NodeMetaInfo = ({ nodeType }: { nodeType: NodeTypes }) => {
+  const di = useCraftStore((store) => store.di);
+  const nodeMeta = useMemo(
+    () =>
+      di &&
+      Array.from(di.nodeMeta.values()).find(
+        (n) => n.nodeType.toString().toLowerCase() === nodeType
+      ),
+    [nodeType, di]
+  );
+  const Icon = useMemo(() => {
+    return Icons[nodeMeta?.icon as keyof typeof Icons];
+  }, [nodeMeta?.icon]);
+  return (
+    <div className="p-4">
+      <div className="flex items-center w-full justify-center">
+        <Icon className="w-20 h-20" />
+      </div>
+      <h3 className="font-bold font-mono text-xl">{nodeMeta?.label}</h3>
+      <p>{nodeMeta?.description}</p>
+    </div>
   );
 };

@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { NodeTypes, nodesMeta } from "@/core/types";
 import {
   Accordion,
   AccordionContent,
@@ -108,14 +107,10 @@ type NodeState = Execution["executionData"][number];
 const ExecutionNodeItem: React.FC<{
   nodeData: NodeState;
 }> = ({ nodeData }) => {
-  const nodeName = useMemo(() => {
-    const type = nodeData.type as NodeTypes;
-    return nodesMeta[type].name;
-  }, [nodeData.type]);
   return (
     <li key={nodeData.id} className="my-2 p-2 rounded border">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold">{nodeName}</h2>
+        <h2 className="font-bold">{nodeData.type}</h2>
         <div>
           <Badge
             className={cn(

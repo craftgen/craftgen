@@ -8,8 +8,6 @@ import {
   Lock,
   CheckCircle,
   Play,
-  RotateCcw,
-  ArrowLeftFromLine,
   Loader2,
   ChevronLeftCircle,
 } from "lucide-react";

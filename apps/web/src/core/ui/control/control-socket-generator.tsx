@@ -19,14 +19,9 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Trash2Icon, X } from "lucide-react";
-import { types } from "../../sockets";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  SocketGeneratorControl,
-  formSchema,
-} from "../../controls/socket-generator";
 import {
   Accordion,
   AccordionContent,
@@ -36,6 +31,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import {
+  SocketGeneratorControl,
+  formSchema,
+} from "@seocraft/core/src/controls/socket-generator";
+import { types } from "@seocraft/core/src/sockets";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;

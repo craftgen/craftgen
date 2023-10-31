@@ -3,7 +3,6 @@
  */
 
 import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
-import { Schemes } from "./types";
 import { P, match } from "ts-pattern";
 
 // Control Components
@@ -32,6 +31,7 @@ import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { TableControl } from "@seocraft/core/src/controls/table";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { TextareControl } from "@seocraft/core/src/controls/textarea";
+import { Schemes } from "@seocraft/core/src/types";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">

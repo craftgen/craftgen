@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { SocketNameType } from "@/core/sockets";
+import { SocketNameType } from "@seocraft/core/src/sockets";
 import { ControllerRenderProps } from "react-hook-form"
 
 export const renderField = (type: string, field: ControllerRenderProps) => {
