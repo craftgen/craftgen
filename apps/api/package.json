@@ -1,0 +1,36 @@
+{
+  "name": "@seocraft/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint .",
+    "format": "prettier --check \"**/*.{mjs,ts,md,json}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@seocraft/supabase": "^0.1.0",
+    "@trpc/client": "next",
+    "@trpc/server": "next",
+    "superjson": "1.13.1",
+    "zod": "3.21.4"
+  },
+  "devDependencies": {
+    "@acme/eslint-config": "^0.2.0",
+    "@acme/prettier-config": "^0.1.0",
+    "@acme/tsconfig": "^0.1.0",
+    "eslint": "^8.52.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@acme/eslint-config/base"
+    ]
+  },
+  "prettier": "@acme/prettier-config"
+}
