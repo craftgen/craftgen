@@ -55,6 +55,7 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     return Array.from(di?.nodeMeta.values());
   }, [di?.nodeMeta]);
   const [value, setValue] = useState("textnode");
+  
 
   return (
     <ContextMenu onOpenChange={setOpen} modal>
@@ -110,6 +111,7 @@ const NodeMetaInfo = ({ nodeType }: { nodeType: NodeTypes }) => {
   const Icon = useMemo(() => {
     return Icons[nodeMeta?.icon as keyof typeof Icons];
   }, [nodeMeta?.icon]);
+  if (!nodeMeta) return null;
   return (
     <div className="p-4">
       <div className="flex items-center w-full justify-center">

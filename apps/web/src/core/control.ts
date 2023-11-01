@@ -32,6 +32,7 @@ import { TableControl } from "@seocraft/core/src/controls/table";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { TextareControl } from "@seocraft/core/src/controls/textarea";
 import { Schemes } from "@seocraft/core/src/types";
+import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">
@@ -52,5 +53,6 @@ export const getControl = (
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
+    .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
     .otherwise(() => () => null);
 };

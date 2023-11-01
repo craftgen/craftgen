@@ -5,9 +5,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { type SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { SWRSelectControl } from "../../controls/swr-select";
 
 export function SWRSelectControlComponent<T extends string, Data>(props: {
   data: SWRSelectControl<T, Data>;

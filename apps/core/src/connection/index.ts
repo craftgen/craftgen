@@ -11,7 +11,6 @@ import { getNodeRect } from "./utils";
 import { Schemes, Position } from "../types";
 import { Socket, Sockets } from "../sockets";
 
-export { CustomConnection } from "./custom-connection";
 
 type SocketWithPayload = SocketData & {
   payload?: {

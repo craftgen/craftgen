@@ -209,6 +209,9 @@ export interface WorkflowAPI {
   deleteNode: (params: z.infer<typeof deleteNodeParamSchema>) => Promise<void>;
   saveEdge: (params: z.infer<typeof saveEdgeParamSchema>) => Promise<void>;
   deleteEdge: (params: z.infer<typeof deleteEdgeParamSchema>) => Promise<void>;
+  getModulesMeta: (params: {
+    query: string;
+  }) => Promise<{ name: string; id: string }[]>;
 }
 
 export type DiContainer = Editor;

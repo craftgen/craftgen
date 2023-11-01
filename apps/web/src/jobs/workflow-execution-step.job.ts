@@ -1,5 +1,5 @@
 import { getWorkflow } from "@/actions/get-workflow";
-import { createHeadlessEditor } from "@/core/headless";
+// import { createHeadlessEditor } from "@/core/headless";
 import { client } from "@/trigger";
 import { waitFor } from "xstate";
 import { WORKFLOW_NODE_TRIGGER } from "./workflow-execution-step";
@@ -27,31 +27,31 @@ client.defineJob({
     }
     io.logger.info("Workflow", workflow.data);
 
-    const di = await createHeadlessEditor(workflow.data, { logger: io.logger });
-    const entryNode = di.editor.getNode(payload.workflowNodeId);
-    if (!entryNode) {
-      throw new Error("Entry node not found");
-    }
-    let state = entryNode.actor.getSnapshot();
-    new Promise((resolve, reject) => {
-      entryNode.actor.subscribe({
-        error(err) {
-          reject(err);
-        },
-        next: (data) => {
-          io.logger.info("STATE", data);
-          state = data;
-        },
-        complete: () => {
-          resolve(state);
-          io.logger.log("COMPLETE", state.output);
-        },
-      });
-    });
-    di.engine.execute(entryNode.id, undefined, payload.executionId);
-    await waitFor(entryNode.actor, (state) => state.matches("complete"), {
-      timeout: 1000 * 60 * 5,
-    });
-    io.logger.info("STATE", state);
+    // const di = await createHeadlessEditor(workflow.data, { logger: io.logger });
+    // const entryNode = di.editor.getNode(payload.workflowNodeId);
+    // if (!entryNode) {
+    //   throw new Error("Entry node not found");
+    // }
+    // let state = entryNode.actor.getSnapshot();
+    // new Promise((resolve, reject) => {
+    //   entryNode.actor.subscribe({
+    //     error(err) {
+    //       reject(err);
+    //     },
+    //     next: (data) => {
+    //       io.logger.info("STATE", data);
+    //       state = data;
+    //     },
+    //     complete: () => {
+    //       resolve(state);
+    //       io.logger.log("COMPLETE", state.output);
+    //     },
+    //   });
+    // });
+    // di.engine.execute(entryNode.id, undefined, payload.executionId);
+    // await waitFor(entryNode.actor, (state) => state.matches("complete"), {
+    //   timeout: 1000 * 60 * 5,
+    // });
+    // io.logger.info("STATE", state);
   },
 });

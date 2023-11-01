@@ -13,6 +13,7 @@ import { SWRSelectControl } from "../../controls/swr-select";
 import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
 import { SetOptional } from "type-fest";
+import { ComboboxControl } from "../../controls/combobox";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -173,16 +174,14 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       },
     });
     const state = this.actor.getSnapshot();
-    const store = this.di.store.getState();
     this.addControl(
       "module",
-      new SWRSelectControl(
+      new ComboboxControl(
         state.context.moduleId,
         "Select Module",
-        `/api/playgrounds/${store.projectId}`, // TODO get from project
+        `/api/playgrounds/${this.projectId}`, // TODO get from project
         async () => {
-          return [];
-          // return await getWorkflows(store.projectId); // TODO pass api from top down.
+          return this.di.api.getModulesMeta({ query: this.projectId });
         },
         (data) => {
           return data.map((playground) => ({

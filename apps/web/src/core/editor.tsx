@@ -125,6 +125,16 @@ export async function createEditor(params: {
         async deleteEdge(params) {
           await deleteEdge(params);
         },
+        async getModulesMeta(params) {
+          return [
+            {
+              name: "test",
+              version: "1.0.0",
+              description: "test",
+              id: "test",
+            },
+          ];
+        },
       },
     },
     content: {

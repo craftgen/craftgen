@@ -44,6 +44,7 @@ import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { JSONView } from "@/components/json-view";
 import { observer } from "mobx-react-lite";
 import { Icons } from "@/components/icons";
+import { ActorStatus } from "xstate";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -318,15 +319,17 @@ export const Node = observer((props: Props<Schemes>) => {
                   )}
                 </div>
                 <div className="flex">
-                  <Drag.NoDrag>
-                    <Button
-                      variant={"ghost"}
-                      size={"icon"}
-                      onClick={() => props.data.reset()}
-                    >
-                      <Undo2 size={14} />
-                    </Button>
-                  </Drag.NoDrag>
+                  {props.data.actor.status === ActorStatus.Stopped && (
+                    <Drag.NoDrag>
+                      <Button
+                        variant={"ghost"}
+                        size={"icon"}
+                        onClick={() => props.data.reset()}
+                      >
+                        <Undo2 size={14} />
+                      </Button>
+                    </Drag.NoDrag>
+                  )}
                   <Button
                     ref={ref}
                     variant={"ghost"}
