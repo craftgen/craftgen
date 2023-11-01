@@ -254,6 +254,10 @@ export class Editor<
       contextId: this.createId("context"),
     });
     await this.editor.addNode(newNode);
+    await this?.area?.translate(newNode.id, {
+      x: this.cursorPosition.x,
+      y: this.cursorPosition.y,
+    });
     return newNode;
   }
 

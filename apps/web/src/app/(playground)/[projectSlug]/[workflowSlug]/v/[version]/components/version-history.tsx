@@ -12,7 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { getWorkflowVersions } from "@/actions/get-workflow-versions";
+import {
+  getWorkflowVersions,
+  getWorkflowVersionsById,
+} from "@/actions/get-workflow-versions";
 import { getWorkflow } from "@/actions/get-workflow";
 
 export const VersionHistory: React.FC<{
@@ -20,11 +23,10 @@ export const VersionHistory: React.FC<{
 }> = ({ workflow }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const { data, error } = useSWR("/api/workflow/versions", () =>
-    getWorkflowVersions({
-      projectSlug: workflow.projectSlug,
-      workflowSlug: workflow.slug,
-    })
+  const { data, error } = useSWR(`/api/workflow/${workflow.id}/versions`, () =>
+    getWorkflowVersionsById({
+      workflowId: workflow.id,
+    }).then((res) => res.data)
   );
   const handleChange = (value: string) => {
     router.push(`/${workflow.projectSlug}/${workflow.slug}/v/${value}`);
@@ -40,7 +42,7 @@ export const VersionHistory: React.FC<{
         <SelectValue placeholder="Select a version" />
       </SelectTrigger>
       <SelectContent>
-        {data?.data?.versions.map((version) => (
+        {data?.map((version) => (
           <SelectItem key={version.id} value={String(version.version)}>
             v{version.version} {!version.publishedAt && "(Draft)"}
           </SelectItem>

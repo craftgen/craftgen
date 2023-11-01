@@ -20,7 +20,6 @@ import { useSelector } from "@xstate/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { InputWindow } from "./input/input-window";
-import { Socket } from "@/core/sockets";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -43,6 +42,10 @@ import { Session } from "@supabase/supabase-js";
 import { Textarea } from "@/components/ui/textarea";
 import { observer } from "mobx-react-lite";
 import { NodeProps } from "@seocraft/core/src/types";
+import {
+  useRegisterModuleSearchActions,
+  useRegisterPlaygroundActions,
+} from "@/core/useRegisterPlaygroundActions";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -134,6 +137,8 @@ export const Playground: React.FC<{
 
   const { layout, di, setTheme } = useStore(store.current);
 
+  useRegisterPlaygroundActions({ di });
+  // useRegisterModuleSearchActions({ di });
   useEffect(() => {
     setTheme(theme || "light");
   }, [theme]);

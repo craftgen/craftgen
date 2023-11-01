@@ -35,3 +35,20 @@ export const getWorkflowVersions = action(
     });
   }
 );
+
+export const getWorkflowVersionsById = action(
+  z.object({
+    workflowId: z.string(),
+  }),
+  async (params) => {
+    return await db.transaction(async (tx) => {
+      return await tx.query.workflowVersion.findMany({
+        where: (workflowVersion, { eq, and }) =>
+          eq(workflowVersion.workflowId, params.workflowId),
+        with: {
+          workflow: true,
+        },
+      });
+    });
+  }
+);

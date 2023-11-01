@@ -1,3 +1,5 @@
+"use client";
+
 import { PHProvider } from "@/components/posthog-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 

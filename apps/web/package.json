@@ -117,6 +117,7 @@
     "geist": "^1.0.0",
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
+    "kbar": "0.1.0-beta.43",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.279.0",
     "mobx-react-lite": "^4.0.5",

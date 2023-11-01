@@ -55,7 +55,6 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
     return Array.from(di?.nodeMeta.values());
   }, [di?.nodeMeta]);
   const [value, setValue] = useState("textnode");
-  
 
   return (
     <ContextMenu onOpenChange={setOpen} modal>

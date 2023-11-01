@@ -105,9 +105,9 @@ export const Composer: React.FC<{
           <TooltipContent>Center the content</TooltipContent>
         </Tooltip>
       </div>
-      <ContextMenuProvider>
-        <div ref={ref} className="w-full h-full " />
-      </ContextMenuProvider>
+      {/* <ContextMenuProvider> */}
+      <div ref={ref} className="w-full h-full " />
+      {/* </ContextMenuProvider> */}
     </div>
   );
 });
