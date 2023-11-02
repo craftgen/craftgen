@@ -13,7 +13,7 @@ import { getControl } from "./control";
 import { ResultOf, ResultOfAction } from "@/lib/type";
 import { getWorkflow } from "@/actions/get-workflow";
 import { Editor } from "@seocraft/core";
-import { Schemes, nodes } from "@seocraft/core/src/types";
+import { Schemes, WorkflowAPI, nodes } from "@seocraft/core/src/types";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { setContext } from "@/actions/update-context";
 import { toast } from "@/components/ui/use-toast";
@@ -31,6 +31,7 @@ export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
 export const createEditorFunc = (params: {
   workflow: ResultOfAction<typeof getWorkflow>;
   store: ReteStoreInstance;
+  api: Partial<WorkflowAPI>;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
@@ -38,6 +39,7 @@ export const createEditorFunc = (params: {
 export async function createEditor(params: {
   container: HTMLElement;
   workflow: ResultOfAction<typeof getWorkflow>;
+  api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
 }) {
   const contentNodes = params.workflow.versions[0].nodes.map((node) => ({
@@ -66,6 +68,7 @@ export async function createEditor(params: {
   }));
 
   console.log(contentNodes);
+
   const di = new Editor({
     config: {
       nodes,
@@ -113,18 +116,10 @@ export async function createEditor(params: {
           const data = await setContext(params);
         },
         updateNodeMetadata,
-        async upsertNode(params) {
-          await upsertNode(params);
-        },
-        async deleteNode(params) {
-          await deleteNode(params);
-        },
-        async saveEdge(params) {
-          await saveEdge(params);
-        },
-        async deleteEdge(params) {
-          await deleteEdge(params);
-        },
+        upsertNode: params.api.upsertNode!,
+        deleteNode: params.api.deleteNode!,
+        saveEdge: params.api.saveEdge!,
+        deleteEdge: params.api.deleteEdge!,
         async getModulesMeta(params) {
           return [
             {

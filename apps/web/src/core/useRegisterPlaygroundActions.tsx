@@ -1,7 +1,7 @@
 "use client";
 
 import { Action, useKBar, useRegisterActions, Priority } from "kbar";
-import { useEffect, useMemo, useState } from "react";
+import {  useMemo, useState } from "react";
 import { NodeTypes } from "@seocraft/core/src/types";
 import { Icons } from "@/components/icons";
 import { Editor } from "@seocraft/core";
@@ -11,7 +11,6 @@ import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
-import { useDebounce } from "./ui/hooks";
 
 export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const nodes = useMemo(() => {
@@ -56,7 +55,6 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const setWorkflow = debounce(_setWorkflow, 250, { maxWait: 600 });
 
   const { options } = useKBar((state) => {
-    console.log({ state });
     if (state.currentRootActionId === "ModuleNode") {
       setQuery(state.searchQuery);
     }
@@ -94,11 +92,9 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     w ? `/api/workflow/${w}/versions` : null,
     async () => {
       if (!w) return [];
-      console.log("calling", { w });
       const res = await getWorkflowVersionsById({
         workflowId: w,
       });
-      console.log({ res });
       return res.data;
     },
     {
@@ -106,10 +102,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     }
   );
 
-  console.log({ workflowVersions, w });
   const workflowActions = useMemo<Action[]>(() => {
-    // return [];
-    console.log({ workflowVersions });
     return (
       workflowVersions?.map(
         (version) =>

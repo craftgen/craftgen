@@ -22,18 +22,18 @@ const nextConfig = {
       afterFiles: [
       ],
       fallback: [
-        // {
-        //   source: "/:project",
-        //   destination: "/project/:project",
-        // },
-        // {
-        //   source: "/:project/settings/:path*",
-        //   destination: "/project/:project/settings/:path*",
-        // },
-        // {
-        //   source: "/:project/:playground/:path*",
-        //   destination: "/project/:project/playground/:playground/:path*",
-        // },
+        {
+          source: "/:project",
+          destination: "/project/:project",
+        },
+        {
+          source: "/:project/settings/:path*",
+          destination: "/project/:project/settings/:path*",
+        },
+        {
+          source: "/:project/:playground/:path*",
+          destination: "/project/:project/playground/:playground/:path*",
+        },
       ],
     };
   },

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useRete } from "rete-react-plugin";
-import { ContextMenuProvider } from "./context-menu";
+import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar 
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
 import { observer } from "mobx-react-lite";
@@ -24,16 +24,29 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/react";
 
 export const Composer: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
   store: any;
 }> = observer(({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
+  const {mutateAsync: upsertNode} = api.craft.node.upsert.useMutation()
+  const {mutateAsync: deleteNode} = api.craft.node.delete.useMutation()
+  const {mutateAsync: saveEdge} = api.craft.edge.create.useMutation()
+  const {mutateAsync: deleteEdge} = api.craft.edge.delete.useMutation()
+  const workflowAPI = {
+    upsertNode,
+    deleteNode,
+    saveEdge,
+    deleteEdge,
+  }
+
   const createEditor = useMemo(() => {
     return createEditorFunc({
       workflow,
       store: store.current,
+      api: workflowAPI,
     });
   }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);

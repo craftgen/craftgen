@@ -19,7 +19,7 @@ export const createExecution = action(
     }),
     headless: z.boolean().optional().default(false),
   }),
-  async (params) => {
+  async (input) => {
     return await db.transaction(async (tx) => {
       // const workflowVersion = await tx.query.workflowVersion.findFirst({
       //   where: (workflowVersion, { eq }) =>
@@ -48,9 +48,9 @@ export const createExecution = action(
       const [execution] = await tx
         .insert(workflowExecution)
         .values({
-          workflowId: params.workflowId,
-          workflowVersionId: params.workflowVersionId,
-          entryWorkflowNodeId: params.input.id,
+          workflowId: input.workflowId,
+          workflowVersionId: input.workflowVersionId,
+          entryWorkflowNodeId: input.input.id,
         })
         .returning();
 

@@ -20,8 +20,8 @@ export const deleteNode = action(
       id: z.string(),
     }),
   }),
-  async (params) => {
-    console.log("deleteNode", params);
+  async (input) => {
+    console.log("deleteNode", input);
     await db.transaction(async (tx) => {
       // TODO check this. Delete context if it's not attached to any published version.
       const [version] = await tx
@@ -29,7 +29,7 @@ export const deleteNode = action(
           publishedAt: workflowVersion.publishedAt,
         })
         .from(workflowVersion)
-        .where(eq(workflowVersion.id, params.workflowVersionId))
+        .where(eq(workflowVersion.id, input.workflowVersionId))
         .limit(1);
       if (!version.publishedAt) {
         // delete all the execution data as well.
@@ -37,9 +37,9 @@ export const deleteNode = action(
           .delete(nodeExecutionData)
           .where(
             and(
-              eq(nodeExecutionData.workflowId, params.workflowId),
-              eq(nodeExecutionData.workflowVersionId, params.workflowVersionId),
-              eq(nodeExecutionData.workflowNodeId, params.data.id)
+              eq(nodeExecutionData.workflowId, input.workflowId),
+              eq(nodeExecutionData.workflowVersionId, input.workflowVersionId),
+              eq(nodeExecutionData.workflowNodeId, input.data.id)
             )
           );
       }
@@ -47,9 +47,9 @@ export const deleteNode = action(
         .delete(workflowNode)
         .where(
           and(
-            eq(workflowNode.workflowId, params.workflowId),
-            eq(workflowNode.workflowVersionId, params.workflowVersionId),
-            eq(workflowNode.id, params.data.id)
+            eq(workflowNode.workflowId, input.workflowId),
+            eq(workflowNode.workflowVersionId, input.workflowVersionId),
+            eq(workflowNode.id, input.data.id)
           )
         )
         .returning();

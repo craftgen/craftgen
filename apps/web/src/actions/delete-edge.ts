@@ -11,17 +11,17 @@ export const deleteEdge = action(
     workflowVersionId: z.string(),
     data: z.custom<ConnProps>(),
   }),
-  async (params) => {
+  async (input) => {
     await db
       .delete(workflowEdge)
       .where(
         and(
-          eq(workflowEdge.workflowId, params.workflowId),
-          eq(workflowEdge.workflowVersionId, params.workflowVersionId),
-          eq(workflowEdge.source, params.data.source),
-          eq(workflowEdge.sourceOutput, params.data.sourceOutput),
-          eq(workflowEdge.target, params.data.target),
-          eq(workflowEdge.targetInput, params.data.targetInput)
+          eq(workflowEdge.workflowId, input.workflowId),
+          eq(workflowEdge.workflowVersionId, input.workflowVersionId),
+          eq(workflowEdge.source, input.data.source),
+          eq(workflowEdge.sourceOutput, input.data.sourceOutput),
+          eq(workflowEdge.target, input.data.target),
+          eq(workflowEdge.targetInput, input.data.targetInput)
         )
       );
   }

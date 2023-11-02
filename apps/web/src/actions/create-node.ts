@@ -15,10 +15,10 @@ export const createNode = action(
     height: z.number().optional(),
     width: z.number().optional(),
   }),
-  async (params) => {
-    console.log("createNodeInDB", params);
+  async (input) => {
+    console.log("createNodeInDB", input);
     const project = await db.query.project.findFirst({
-      where: (project, { eq }) => eq(project.slug, params.projectSlug),
+      where: (project, { eq }) => eq(project.slug, input.projectSlug),
     });
     if (!project) {
       throw new Error("Project not found");
@@ -28,23 +28,23 @@ export const createNode = action(
         .insert(context)
         .values({
           project_id: project?.id,
-          type: params.type,
-          ...(params.context && { state: params.context }),
+          type: input.type,
+          ...(input.context && { state: input.context }),
         })
         .returning();
       const workflowNodeUnit = await tx
         .insert(workflowNode)
         .values({
           projectId: project?.id,
-          workflowId: params.workflowId,
+          workflowId: input.workflowId,
           contextId: contextUnit.id,
           color: "default",
-          height: params.height || 200,
-          width: params.width || 200,
-          label: nodesMeta[params.type].name,
+          height: input.height || 200,
+          width: input.width || 200,
+          label: nodesMeta[input.type].name,
           position: { x: 0, y: 0 },
-          workflowVersionId: params.workflowVersionId,
-          type: params.type,
+          workflowVersionId: input.workflowVersionId,
+          type: input.type,
         })
         .returning();
       return tx.query.workflowNode.findFirst({

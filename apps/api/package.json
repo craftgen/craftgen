@@ -12,12 +12,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@seocraft/core": "^0.1.0",
     "@seocraft/supabase": "^0.1.0",
     "@supabase/supabase-js": "^2.38.1",
     "@trpc/client": "^10.43.0",
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.43.0",
     "@trpc/server": "^10.43.0",
+    "lodash-es": "^4.17.21",
     "superjson": "1.13.1",
     "zod": "3.21.4"
   },

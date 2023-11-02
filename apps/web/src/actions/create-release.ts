@@ -24,7 +24,7 @@ export const createRelease = action(
     workflowId: z.string(),
     changeLog: z.string(),
   }),
-  async (params) => {
+  async (input) => {
     return await db.transaction(async (tx) => {
       const [{ latestVersionId, latestVersion, projectId }] = await tx
         .select({
@@ -33,7 +33,7 @@ export const createRelease = action(
           projectId: workflow.projectId,
         })
         .from(workflowVersion)
-        .where(and(eq(workflowVersion.workflowId, params.workflowId)))
+        .where(and(eq(workflowVersion.workflowId, input.workflowId)))
         .leftJoin(workflow, eq(workflow.id, workflowVersion.workflowId))
         .orderBy(desc(workflowVersion.version))
         .limit(1);
@@ -43,10 +43,10 @@ export const createRelease = action(
       // Publish the latest version
       await tx
         .update(workflowVersion)
-        .set({ publishedAt: new Date(), changeLog: params.changeLog })
+        .set({ publishedAt: new Date(), changeLog: input.changeLog })
         .where(
           and(
-            eq(workflowVersion.workflowId, params.workflowId),
+            eq(workflowVersion.workflowId, input.workflowId),
             eq(workflowVersion.version, latestVersion)
           )
         );
@@ -54,7 +54,7 @@ export const createRelease = action(
       const newVersion = await tx
         .insert(workflowVersion)
         .values({
-          workflowId: params.workflowId,
+          workflowId: input.workflowId,
           version: latestVersion + 1,
           previousVersionId: latestVersionId,
           projectId,

@@ -6,10 +6,10 @@ import { z } from "zod";
 
 export const deleteExecution = action(
   z.object({ executionId: z.string() }),
-  async (params) => {
+  async (input) => {
     return await db
       .delete(workflowExecution)
-      .where(eq(workflowExecution.id, params.executionId))
+      .where(eq(workflowExecution.id, input.executionId))
       .returning();
   }
 );

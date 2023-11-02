@@ -32,6 +32,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@seocraft/core':
+        specifier: ^0.1.0
+        version: link:../core
       '@seocraft/supabase':
         specifier: ^0.1.0
         version: link:../supabase
@@ -50,6 +53,9 @@ importers:
       '@trpc/server':
         specifier: ^10.43.0
         version: 10.43.0
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       superjson:
         specifier: 1.13.1
         version: 1.13.1

@@ -24,13 +24,13 @@ export const upsertNode = action(
       }),
     }),
   }),
-  async (params): Promise<void> => {
-    console.log("saveNode", params);
+  async (input): Promise<void> => {
+    console.log("saveNode", input);
     await db.transaction(async (tx) => {
       const [contextOfTheNode] = await tx
         .select()
         .from(context)
-        .where(eq(context.id, params.data.contextId))
+        .where(eq(context.id, input.data.contextId))
         .limit(1);
       /// This is happens when user deletes the node and then tries to undo it.
       if (!contextOfTheNode) {
@@ -38,9 +38,9 @@ export const upsertNode = action(
         const [contextUnit] = await tx
           .insert(context)
           .values({
-            id: params.data.contextId,
-            project_id: params.projectId,
-            type: params.data.type,
+            id: input.data.contextId,
+            project_id: input.projectId,
+            type: input.data.type,
             state: {},
           })
           .returning();
@@ -48,28 +48,28 @@ export const upsertNode = action(
       await tx
         .insert(workflowNode)
         .values({
-          id: params.data.id,
-          workflowId: params.workflowId,
-          workflowVersionId: params.workflowVersionId,
-          projectId: params.projectId,
-          contextId: params.data.contextId,
-          type: params.data.type,
-          width: params.data.width,
-          height: params.data.height,
-          color: params.data.color,
-          label: params.data.label,
-          position: params.data.position,
+          id: input.data.id,
+          workflowId: input.workflowId,
+          workflowVersionId: input.workflowVersionId,
+          projectId: input.projectId,
+          contextId: input.data.contextId,
+          type: input.data.type,
+          width: input.data.width,
+          height: input.data.height,
+          color: input.data.color,
+          label: input.data.label,
+          position: input.data.position,
         })
         .onConflictDoUpdate({
           target: workflowNode.id,
           set: {
-            contextId: params.data.contextId,
-            type: params.data.type,
-            width: params.data.width,
-            height: params.data.height,
-            color: params.data.color,
-            label: params.data.label,
-            position: params.data.position,
+            contextId: input.data.contextId,
+            type: input.data.type,
+            width: input.data.width,
+            height: input.data.height,
+            color: input.data.color,
+            label: input.data.label,
+            position: input.data.position,
           },
         });
     });

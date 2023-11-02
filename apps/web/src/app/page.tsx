@@ -7,7 +7,6 @@ import { api } from "@/trpc/react";
 import Hero from "./hero";
 
 export default function Home() {
-  const projects = api.post.all.useQuery();
   // const supabase = createServerComponentClient<Database>({ cookies });
   // const {
   //   data: { session },

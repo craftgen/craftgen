@@ -424,7 +424,7 @@ export const Node = observer((props: Props<Schemes>) => {
                 {props.data.snap.matches("complete") && (
                   <div className="w-full">
                     <Drag.NoDrag>
-                      <JSONView data={props.data.actor.getSnapshot().output} />
+                      <JSONView data={props.data.actor.getSnapshot().output || props.data.snap.context.outputs} />
                     </Drag.NoDrag>
                   </div>
                 )}
