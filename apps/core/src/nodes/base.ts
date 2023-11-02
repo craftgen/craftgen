@@ -510,7 +510,7 @@ export abstract class BaseNode<
         console.log("Setting Execution ID");
         this.setExecutionNodeId(this.di.createId("state"));
       }
-      const saved = await this.di.api.updateExecutionNode({
+      const saved = await this.di.api.setState({
         id: this.executionNodeId!,
         contextId: this.contextId,
         projectId: this.projectId,

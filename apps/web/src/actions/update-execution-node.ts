@@ -22,29 +22,29 @@ export const updateExecutionNode = action(
     state: z.string().transform((val) => JSON.parse(val)),
     complete: z.boolean().optional(),
   }),
-  async (params) => {
+  async (input) => {
     return await db.transaction(async (tx) => {
       const [executionNodeState] = await tx
         .insert(nodeExecutionData)
         .values({
-          id: params.id,
-          contextId: params.contextId,
-          workflowExecutionId: params.workflowExecutionId,
-          projectId: params.projectId,
-          workflowId: params.workflowId,
-          workflowVersionId: params.workflowVersionId,
-          workflowNodeId: params.workflowNodeId,
-          type: params.type,
-          state: params.state as any,
-          ...(params.complete && { completedAt: new Date() }),
+          id: input.id,
+          contextId: input.contextId,
+          workflowExecutionId: input.workflowExecutionId,
+          projectId: input.projectId,
+          workflowId: input.workflowId,
+          workflowVersionId: input.workflowVersionId,
+          workflowNodeId: input.workflowNodeId,
+          type: input.type,
+          state: input.state as any,
+          ...(input.complete && { completedAt: new Date() }),
           updatedAt: new Date(),
         })
         .onConflictDoUpdate({
           target: nodeExecutionData.id,
           set: {
-            state: params.state as any,
+            state: input.state as any,
             updatedAt: new Date(),
-            ...(params.complete && { completedAt: new Date() }),
+            ...(input.complete && { completedAt: new Date() }),
           },
         })
         .returning();

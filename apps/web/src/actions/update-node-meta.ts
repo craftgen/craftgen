@@ -2,19 +2,19 @@
 
 import { db, workflowNode, eq } from "@seocraft/supabase/db";
 
-export const updateNodeMetadata = async (params: {
+export const updateNodeMetadata = async (input: {
   id: string;
   position?: { x: number; y: number };
   size?: { width: number; height: number };
   label?: string;
 }): Promise<void> => {
-  console.log("nodeMeta", params);
+  console.log("nodeMeta", input);
   await db
     .update(workflowNode)
     .set({
-      ...(params.size && params.size),
-      ...(params.position && { position: params.position }),
-      ...(params.label && { label: params.label }),
+      ...(input.size && input.size),
+      ...(input.position && { position: input.position }),
+      ...(input.label && { label: input.label }),
     })
-    .where(eq(workflowNode.id, params.id));
+    .where(eq(workflowNode.id, input.id));
 };

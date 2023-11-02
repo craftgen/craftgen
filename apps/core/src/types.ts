@@ -94,7 +94,7 @@ export type Schemes = GetSchemes<NodeProps, ConnProps>;
 export type Position = { x: number; y: number };
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
-export const updateExecutionNodeParamSchema = z.object({
+export const setExecutionStateParamSchema = z.object({
   id: z.string(),
   type: z.string(),
   workflowId: z.string(),
@@ -188,8 +188,8 @@ export const createExecutionParamSchema = z.object({
 });
 
 export interface WorkflowAPI {
-  updateExecutionNode: (
-    params: z.infer<typeof updateExecutionNodeParamSchema>
+  setState: (
+    params: z.infer<typeof setExecutionStateParamSchema>
   ) => Promise<{ id: string }>;
   setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
   getAPIKey: (params: z.infer<typeof getAPIKeyParamSchema>) => Promise<string>;

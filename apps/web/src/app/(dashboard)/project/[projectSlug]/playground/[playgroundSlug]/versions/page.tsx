@@ -2,8 +2,8 @@ import type { Metadata, ResolvingMetadata } from "next";
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { getWorkflow } from "@/actions/get-workflow";
-import { getWorkflowVersions } from "@/actions/get-workflow-versions";
+import { getWorkflowVersions, getWorkflowVersionsById } from "@/actions/get-workflow-versions";
+import { getWorkflowMeta } from "@/actions/get-workflow-meta";
 
 type Props = {
   params: {
@@ -17,7 +17,7 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { data: playground } = await getWorkflow({
+  const { data: playground } = await getWorkflowMeta({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
     version: Number(searchParams.version),
@@ -29,9 +29,12 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const { data: workflow } = await getWorkflowVersions({
+  const { data: workflowMeta } = await getWorkflowMeta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
+  });
+  const { data: workflow } = await getWorkflowVersionsById({
+    workflowId: workflowMeta?.id,
   });
   return (
     <div className="h-full flex flex-col">

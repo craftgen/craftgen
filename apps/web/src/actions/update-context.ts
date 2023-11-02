@@ -9,11 +9,11 @@ export const setContext = action(
     contextId: z.string(),
     context: z.string().transform((val) => JSON.parse(val)),
   }),
-  async (params) => {
+  async (input) => {
     return await db
       .update(context)
-      .set({ state: params.context as any })
-      .where(eq(context.id, params.contextId))
+      .set({ state: input.context as any })
+      .where(eq(context.id, input.contextId))
       .returning();
   }
 );

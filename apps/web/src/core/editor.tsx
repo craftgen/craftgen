@@ -100,26 +100,15 @@ export async function createEditor(params: {
         async getAPIKey(params) {
           return "";
         },
-        async updateExecutionNode(params) {
-          console.log("updateExecutionNode", params);
-          const { data } = await updateExecutionNode(params);
-          if (!data) throw new Error("Execution node not updated");
-          return data;
-        },
-        async createExecution(params) {
-          const { data } = await createExecution(params);
-          if (!data) throw new Error("Execution not created");
-          return data;
-        },
         async triggerWorkflowExecutionStep(params) {},
-        setContext: async (params) => {
-          const data = await setContext(params);
-        },
-        updateNodeMetadata,
+        createExecution: params.api.createExecution!,
+        updateNodeMetadata: params.api.updateNodeMetadata!,
         upsertNode: params.api.upsertNode!,
         deleteNode: params.api.deleteNode!,
         saveEdge: params.api.saveEdge!,
         deleteEdge: params.api.deleteEdge!,
+        setState: params.api.setState!,
+        setContext: params.api.setContext!, 
         async getModulesMeta(params) {
           return [
             {

@@ -1,12 +1,7 @@
-import { NodeTypes, type ConnProps } from "@seocraft/core/src/types";
-import { and, desc, eq, schema } from "@seocraft/supabase/db";
+import { and, eq, schema } from "@seocraft/supabase/db";
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
 export const craftNodeRouter = createTRPCRouter({
   upsert: protectedProcedure
@@ -140,5 +135,43 @@ export const craftNodeRouter = createTRPCRouter({
           .delete(schema.context)
           .where(eq(schema.context.id, node.contextId)); // TODO: soft delete
       });
+    }),
+  setContext: protectedProcedure
+    .input(
+      z.object({
+        contextId: z.string(),
+        context: z.string().transform((val) => JSON.parse(val)),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db
+        .update(schema.context)
+        .set({ state: input.context as any })
+        .where(eq(schema.context.id, input.contextId))
+        .returning();
+    }),
+  updateMetadata: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        position: z
+          .object({
+            x: z.number(),
+            y: z.number(),
+          })
+          .optional(),
+        size: z.object({ width: z.number(), height: z.number() }).optional(),
+        label: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(schema.workflowNode)
+        .set({
+          ...(input.size && input.size),
+          ...(input.position && { position: input.position }),
+          ...(input.label && { label: input.label }),
+        })
+        .where(eq(schema.workflowNode.id, input.id));
     }),
 });

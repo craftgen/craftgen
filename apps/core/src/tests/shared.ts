@@ -16,7 +16,7 @@ export const mockAPI: WorkflowAPI = {
   deleteNode: mock(async (params: any) => {}),
   deleteEdge: mock(async (params: any) => {}),
   saveEdge: mock(async (params: any) => {}),
-  updateExecutionNode: mock(async (params: any) => {}),
+  setState: mock(async (params: any) => {}),
   triggerWorkflowExecutionStep: mock(async (params: any) => {}),
   updateNodeMetadata: mock(async function (params: {
     id: string;

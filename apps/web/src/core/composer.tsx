@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
+import { WorkflowAPI } from "@seocraft/core/src/types";
 
 export const Composer: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
@@ -35,11 +36,20 @@ export const Composer: React.FC<{
   const {mutateAsync: deleteNode} = api.craft.node.delete.useMutation()
   const {mutateAsync: saveEdge} = api.craft.edge.create.useMutation()
   const {mutateAsync: deleteEdge} = api.craft.edge.delete.useMutation()
-  const workflowAPI = {
+  const {mutateAsync: setContext} = api.craft.node.setContext.useMutation()
+  const {mutateAsync: setState} = api.craft.execution.setState.useMutation()
+  const {mutateAsync: updateNodeMetadata} = api.craft.node.updateMetadata.useMutation()
+  const {mutateAsync: createExecution} = api.craft.execution.create.useMutation()
+  const workflowAPI: WorkflowAPI = {
     upsertNode,
     deleteNode,
     saveEdge,
     deleteEdge,
+    setContext,
+    setState,
+    updateNodeMetadata,
+    createExecution
+
   }
 
   const createEditor = useMemo(() => {

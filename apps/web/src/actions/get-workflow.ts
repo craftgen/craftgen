@@ -14,13 +14,13 @@ export const getWorkflow = action(
     executionId: z.string().optional(),
     published: z.boolean().optional().default(true),
   }),
-  async (params) => {
+  async (input) => {
     const supabase = createServerActionClient({ cookies });
     const session = await supabase.auth.getSession();
 
     return await db.transaction(async (tx) => {
       const project = await tx.query.project.findFirst({
-        where: (project, { eq }) => eq(project.slug, params.projectSlug),
+        where: (project, { eq }) => eq(project.slug, input.projectSlug),
         columns: {
           id: true,
         },
@@ -50,14 +50,14 @@ export const getWorkflow = action(
       const workflow = await tx.query.workflow.findFirst({
         where: (workflow, { eq, and }) =>
           and(
-            eq(workflow.slug, params.workflowSlug),
+            eq(workflow.slug, input.workflowSlug),
             eq(workflow.projectId, project.id)
           ),
         with: {
           project: true,
           versions: {
             where: (workflowVersion, { eq }) =>
-              eq(workflowVersion.version, params.version),
+              eq(workflowVersion.version, input.version),
             orderBy: (workflowVersion, { desc }) => [
               desc(workflowVersion.version),
             ],
@@ -65,8 +65,8 @@ export const getWorkflow = action(
             with: {
               executions: {
                 where: (workflowExecution, { eq }) =>
-                  params.executionId
-                    ? eq(workflowExecution.id, params.executionId)
+                  input.executionId
+                    ? eq(workflowExecution.id, input.executionId)
                     : sql`false`,
                 limit: 1,
               },
@@ -75,10 +75,10 @@ export const getWorkflow = action(
                 with: {
                   nodeExectutions: {
                     where: (nodeExecutionData, { eq }) =>
-                      params.executionId
+                      input.executionId
                         ? eq(
                             nodeExecutionData.workflowExecutionId,
-                            params.executionId
+                            input.executionId
                           )
                         : sql`false`,
                     limit: 1,

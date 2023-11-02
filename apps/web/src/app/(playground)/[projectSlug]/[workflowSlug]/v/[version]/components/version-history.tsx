@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import {
-  getWorkflowVersions,
   getWorkflowVersionsById,
 } from "@/actions/get-workflow-versions";
 import { getWorkflow } from "@/actions/get-workflow";

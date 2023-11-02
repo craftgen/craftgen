@@ -305,6 +305,6 @@ test("Check out persistence", async () => {
   });
 
   expect(executionStepStartCount).toBe(3);
-  expect(mockAPI.updateExecutionNode).toHaveBeenCalled();
-  expect(mockAPI.updateExecutionNode).toHaveBeenCalledTimes(5);
+  expect(mockAPI.setState).toHaveBeenCalled();
+  expect(mockAPI.setState).toHaveBeenCalledTimes(5);
 });

@@ -5,6 +5,15 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
 export const craftVersionRouter = createTRPCRouter({
+  list: protectedProcedure
+    .input(
+      z.object({
+        projectSlug: z.string(),
+        workflowSlug: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {}),
+
   release: protectedProcedure
     .input(
       z.object({
