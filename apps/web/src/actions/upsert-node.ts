@@ -1,6 +1,5 @@
 "use server";
 
-import { NodeTypes } from "@/core/types";
 import { action } from "@/lib/safe-action";
 import { db, context, workflowNode, eq } from "@seocraft/supabase/db";
 import { z } from "zod";

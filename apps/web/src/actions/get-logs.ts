@@ -35,7 +35,7 @@ export const getLogs = action(
       },
     });
     if (!a) {
-      throw new Error("Workflow not found");
+      throw new Error("Workflow not found 5");
     }
     return {
       ...a,

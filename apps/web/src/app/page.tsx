@@ -1,7 +1,13 @@
-import Hero from "./hero";
-import { ModeToggle } from "@/components/theme-toggle";
+"use client";
 
-export default async function Home() {
+import { ModeToggle } from "@/components/theme-toggle";
+import { api } from "@/trpc/react";
+
+// import { api } from "@/trpc/server";
+import Hero from "./hero";
+
+export default function Home() {
+  const projects = api.post.all.useQuery();
   // const supabase = createServerComponentClient<Database>({ cookies });
   // const {
   //   data: { session },
@@ -20,7 +26,7 @@ export default async function Home() {
           </Link>
         </div>
       </div> */}
-      <div className="w-full flex justify-end p-1">
+      <div className="flex w-full justify-end p-1">
         <ModeToggle />
       </div>
       <Hero />

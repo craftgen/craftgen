@@ -20,7 +20,7 @@ export async function POST(
   });
   console.log("playground", workflow);
   if (!workflow.data) {
-    throw new Error("Workflow not found");
+    throw new Error("Workflow not found 1");
   }
 
   await client.sendEvent({

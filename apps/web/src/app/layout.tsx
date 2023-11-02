@@ -4,6 +4,8 @@ import { Inter, Noto_Sans } from "next/font/google";
 import { GeistSans, GeistMono } from "geist/font";
 import { Providers } from "./providers";
 import { KBar } from "../components/kbar/kbar";
+import { TRPCReactProvider } from "@/trpc/react";
+import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter-variable" });
 const notoSans = Noto_Sans({
@@ -28,9 +30,11 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
       >
-        <Providers>
-          <KBar>{children}</KBar>
-        </Providers>
+        <TRPCReactProvider headers={headers()}>
+          <Providers>
+              <KBar>{children}</KBar>
+          </Providers>
+        </TRPCReactProvider>
       </body>
     </html>
   );

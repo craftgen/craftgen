@@ -6,13 +6,11 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+// import { db } from "@seocraft/supabase/db";
+import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
-import { auth } from "@acme/auth";
-import type { Session } from "@acme/auth";
-import { db } from "@acme/db";
 
 /**
  * 1. CONTEXT
@@ -39,7 +37,7 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
-    db,
+    // db,
   };
 };
 
@@ -51,8 +49,10 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: {
   req?: Request;
   auth: Session | null;
+  supabaseService?: SupabaseClient;
 }) => {
-  const session = opts.auth ?? (await auth());
+  const session = opts.auth; //TODO: opts.auth;
+
   const source = opts.req?.headers.get("x-trpc-source") ?? "unknown";
 
   console.log(">>> tRPC Request from", source, "by", session?.user);

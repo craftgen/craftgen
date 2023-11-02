@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["pg-native"],
   },
-  transpilePackages: ["@seocraft/core"],
+  transpilePackages: ["@seocraft/core", "@seocraft/api", "@seocraft/supabase"],
   images: {
     unoptimized: true,
   },
@@ -20,23 +20,19 @@ const nextConfig = {
         },
       ],
       afterFiles: [
-        {
-          source: "/:project",
-          destination: "/project/:project",
-        },
-        {
-          source: "/:project/settings/:path*",
-          destination: "/project/:project/settings/:path*",
-        },
       ],
       fallback: [
-        {
-          source: "/:project/:playground/:path*",
-          destination: "/project/:project/playground/:playground/:path*",
-        },
         // {
-        //   source: "/ingest/:path*",
-        //   destination: "https://app.posthog.com/:path*",
+        //   source: "/:project",
+        //   destination: "/project/:project",
+        // },
+        // {
+        //   source: "/:project/settings/:path*",
+        //   destination: "/project/:project/settings/:path*",
+        // },
+        // {
+        //   source: "/:project/:playground/:path*",
+        //   destination: "/project/:project/playground/:playground/:path*",
         // },
       ],
     };

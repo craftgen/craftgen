@@ -29,10 +29,10 @@ export const getWorkflowMeta = action(
       },
     });
     if (!workflow) {
-      throw new Error("Workflow not found");
+      throw new Error("Workflow not found 4");
     }
     if (!workflow.public && !user) {
-      throw new Error("Workflow not found");
+      throw new Error("Workflow not found 3");
     }
 
     if (!workflow.public && user) {
@@ -48,7 +48,7 @@ export const getWorkflowMeta = action(
         )
         .limit(1);
       if (!isMember) {
-        throw new Error("Workflow not found");
+        throw new Error("Workflow not found 2");
       }
     }
 

@@ -1,11 +1,13 @@
 import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import * as schema from "./schema";
+import * as allSchema from "./schema";
 import { sql } from "drizzle-orm";
 export * from "./schema";
 import { Session } from "@supabase/supabase-js";
 import * as jose from "jose";
 // import postgres from "postgres";
+
+export const schema = {...allSchema}
 
 // TODO: https://github.com/drizzle-team/drizzle-orm/issues/928#issuecomment-1739105895
 const connectionString = process.env.POSTGRES_URL;
