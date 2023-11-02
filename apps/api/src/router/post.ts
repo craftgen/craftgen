@@ -5,9 +5,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const postRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
-    // return ctx.db.select().from(schema.post).orderBy(desc(schema.post.id));
-    return ['123']
-    // return ctx.db.query.project.findMany({});
+    return ctx.db.query.project.findMany({});
   }),
 
   // byId: publicProcedure

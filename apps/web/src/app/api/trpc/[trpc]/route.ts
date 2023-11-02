@@ -5,7 +5,7 @@ import { Database } from "@seocraft/supabase/db/database.types";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 /**
  * Configure basic CORS headers
@@ -27,7 +27,7 @@ export function OPTIONS() {
 }
 
 const handler = async (req: Request) => {
-  console.log(">>> tRPC Request from", req);
+  // console.log(">>> tRPC Request from", req);
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({
     cookies: () => cookieStore,
