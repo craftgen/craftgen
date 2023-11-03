@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { NodeProps } from "@seocraft/core/src/types";
 import { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
@@ -17,8 +18,6 @@ import { useTheme } from "next-themes";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
-
-import { NodeProps } from "@seocraft/core/src/types";
 
 import { getWorkflow } from "@/actions/get-workflow";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
@@ -37,10 +36,7 @@ import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
-import {
-  useRegisterModuleSearchActions,
-  useRegisterPlaygroundActions,
-} from "@/core/useRegisterPlaygroundActions";
+import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
 import { ResultOfAction } from "@/lib/type";
 
 import { CreateReleaseButton } from "./components/create-release-button";
