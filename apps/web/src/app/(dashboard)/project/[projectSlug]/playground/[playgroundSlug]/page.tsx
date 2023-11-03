@@ -1,8 +1,8 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { getWorkflowInputOutput } from "@/actions/get-workflow-input-output";
+import { api } from "@/trpc/server";
 
 import { InputForm } from "./components/input-form";
-import { getWorkflowMeta } from "@/actions/get-workflow-meta";
-import { getWorkflowInputOutput } from "@/actions/get-workflow-input-output";
 
 type Props = {
   params: {
@@ -14,28 +14,28 @@ type Props = {
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { data: playground } = await getWorkflowMeta({
+  const workflowMeta = await api.craft.module.meta.query({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
   });
 
   return {
-    title: `${playground?.name} | ${playground?.project.name}`,
+    title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
   };
 }
 
 const PlaygroundPage: React.FC<Props> = async (props) => {
-  const { data: workflow } = await getWorkflowMeta({
+  const workflowMeta = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
-  if (!workflow) return <div>Not found</div>;
+  if (!workflowMeta) return <div>Not found</div>;
   const { data } = await getWorkflowInputOutput({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
-    version: workflow.version?.version!,
+    version: workflowMeta.version?.version!,
   });
   // const output = data?.outputs?[0].context?.state?.outputs;
   const output = () => {
@@ -51,13 +51,13 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
     return undefined;
   };
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       <section className="grid grid-cols-2 divide-x ">
         <div className="p-2">
           <h2 className="text-3xl font-bold">Input</h2>
           <div className="pt-4">
             {input() && (
-              <InputForm workflow={workflow} input={input() as any} />
+              <InputForm workflow={workflowMeta} input={input() as any} />
             )}
           </div>
         </div>
@@ -68,7 +68,7 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
               Object.keys(output()).map((o: any) => (
                 <div key={o} className="space-y-2">
                   <div className="font-bold">{o}</div>
-                  <div className="bg-muted/40 p-2 rounded">{output()[o]}</div>
+                  <div className="bg-muted/40 rounded p-2">{output()[o]}</div>
                 </div>
               ))}
           </div>

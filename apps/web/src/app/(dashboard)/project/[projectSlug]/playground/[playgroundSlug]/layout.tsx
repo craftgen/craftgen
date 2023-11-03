@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { api } from "@/trpc/server";
+
 import { ModuleHeader } from "./components/module-header";
-import { getWorkflowMeta } from "@/actions/get-workflow-meta";
 
 const PlaygroundLayout = async (props: {
   params: {
@@ -9,16 +10,15 @@ const PlaygroundLayout = async (props: {
   };
   children: React.ReactNode;
 }) => {
-  // TODO: make amount we fetch configurable
-  const { data: playground, serverError } = await getWorkflowMeta({
+  const workflow = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
-  if (!playground) return notFound();
+  if (!workflow) return notFound();
 
   return (
-    <div className="max-w-7xl mx-auto py-2 sm:py-5 px-4">
-      <ModuleHeader workflow={playground} />
+    <div className="mx-auto max-w-7xl px-4 py-2 sm:py-5">
+      <ModuleHeader workflow={workflow} />
       {props.children}
     </div>
   );

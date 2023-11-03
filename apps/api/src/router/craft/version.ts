@@ -8,11 +8,18 @@ export const craftVersionRouter = createTRPCRouter({
   list: protectedProcedure
     .input(
       z.object({
-        projectSlug: z.string(),
-        workflowSlug: z.string(),
+        workflowId: z.string(),
       }),
     )
-    .query(async ({ ctx, input }) => {}),
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.workflowVersion.findMany({
+        where: (workflowVersion, { eq, and }) =>
+          eq(workflowVersion.workflowId, input.workflowId),
+        with: {
+          workflow: true,
+        },
+      });
+    }),
 
   release: protectedProcedure
     .input(

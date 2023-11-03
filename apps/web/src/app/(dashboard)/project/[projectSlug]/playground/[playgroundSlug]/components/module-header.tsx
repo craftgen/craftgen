@@ -1,20 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import type { getWorkflowMeta } from "@/actions/get-workflow-meta";
-import { ResultOfAction } from "@/lib/type";
-import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
-import { useCopyToClipboard } from "react-use";
-import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
+import Link from "next/link";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter, useSelectedLayoutSegment } from "next/navigation";
+import { RouterOutputs } from "@seocraft/api";
+import { formatDistanceToNow } from "date-fns";
+import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
+import { useCopyToClipboard } from "react-use";
 
 type ModuleHeaderProps = {
-  workflow: ResultOfAction<typeof getWorkflowMeta>;
+  workflow: RouterOutputs["craft"]["module"]["meta"];
 };
 
 export const ModuleHeader = ({
@@ -29,16 +28,16 @@ export const ModuleHeader = ({
   const router = useRouter();
   return (
     <section id="header">
-      <div className="flex flex-col sm:flex-row justify-between items-start">
+      <div className="flex flex-col items-start justify-between sm:flex-row">
         <div className="flex">
-          <h1 className="text-base sm:text-2xl flex space-x-1 items-center font-mono">
+          <h1 className="flex items-center space-x-1 font-mono text-base sm:text-2xl">
             <Link
               href={`/${workflow.project.slug}`}
               className="text-muted-foreground"
             >
               {workflow.project.slug}
             </Link>
-            <Slash className="-rotate-12 text-muted-foreground" />
+            <Slash className="text-muted-foreground -rotate-12" />
             <Link href={`/${workflow.project.slug}/${workflow.slug}`}>
               {workflow.name}
             </Link>
@@ -49,33 +48,33 @@ export const ModuleHeader = ({
             size="icon"
           >
             {state.value ? (
-              <Check className="w-4 h-4 text-green-500" />
+              <Check className="h-4 w-4 text-green-500" />
             ) : (
-              <Copy className="w-4 h-4" />
+              <Copy className="h-4 w-4" />
             )}
           </Button>
         </div>
 
-        <div className="space-x-2 flex items-center">
+        <div className="flex items-center space-x-2">
           <Button variant={"outline"}>
-            <GitFork className="w-4 h-4 mr-2" />
+            <GitFork className="mr-2 h-4 w-4" />
             Fork
           </Button>
           <Button variant={"outline"}>
-            <Star className="w-4 h-4 mr-2" />
+            <Star className="mr-2 h-4 w-4" />
             Star
           </Button>
           <Link href={`/${moduleId}/v/${workflow.version?.version || 0}`}>
             <Button variant="outline">
-              <Rocket className="w-4 h-4 mr-2" />
+              <Rocket className="mr-2 h-4 w-4" />
               Playground
             </Button>
           </Link>
         </div>
       </div>
       <div className="space-y-2">
-        <div className="flex  flex-row w-full text-sm h-5 space-x-2">
-          <span className="mr-2 bg-muted rounded p-1 flex items-center font-mono">
+        <div className="flex  h-5 w-full flex-row space-x-2 text-sm">
+          <span className="bg-muted mr-2 flex items-center rounded p-1 font-mono">
             v{workflow.version?.version || 0}
           </span>
           <Separator orientation="vertical" />

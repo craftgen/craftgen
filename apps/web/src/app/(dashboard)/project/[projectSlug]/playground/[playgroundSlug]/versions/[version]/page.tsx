@@ -1,5 +1,5 @@
-import { getWorkflowMeta } from "@/actions/get-workflow-meta";
 import type { Metadata, ResolvingMetadata } from "next";
+import { api } from "@/trpc/server";
 
 type Props = {
   params: {
@@ -12,28 +12,26 @@ type Props = {
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { data: playground } = await getWorkflowMeta({
+  const workflow = await api.craft.module.meta.query({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
   });
 
   return {
-    title: `${playground?.name} | ${playground?.project.name}`,
+    title: `${workflow?.name} | ${workflow?.project.name}`,
   };
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  // TODO: make amount we fetch configurable
-  const { data: workflow } = await getWorkflowMeta({
+  const workflow = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
-    version: Number(props.params.version),
   });
   if (!workflow) return <div>Not found</div>;
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       <section className="flex flex-col divide-y">
         <h1 className="text-2xl">Version {workflow.version?.version}</h1>
         <p>{workflow.version?.changeLog}</p>

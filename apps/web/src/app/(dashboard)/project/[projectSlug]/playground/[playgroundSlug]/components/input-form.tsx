@@ -1,27 +1,26 @@
 "use client";
 
 import { useMemo } from "react";
-import { ResultOfAction } from "@/lib/type";
-import { useForm } from "react-hook-form";
-import { ajvResolver } from "@hookform/resolvers/ajv";
-import { ContextFrom } from "xstate";
+import { Button } from "@/components/ui/button";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/ui/form";
-import { Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import type { getWorkflowMeta } from "@/actions/get-workflow-meta";
-import { InputNodeMachine } from "@/core/nodes/io/input.node";
 import { renderField } from "@/core/control-utils";
+import { RouterInputs } from "@/trpc/shared";
+import { ajvResolver } from "@hookform/resolvers/ajv";
+import { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
+import { Play } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { ContextFrom } from "xstate";
 
 export const InputForm: React.FC<{
-  workflow: ResultOfAction<typeof getWorkflowMeta>;
+  workflow: RouterInputs["craft"]["module"]["meta"];
   input: ContextFrom<typeof InputNodeMachine>;
 }> = ({ workflow, input }) => {
   const form = useForm({
@@ -78,9 +77,9 @@ export const InputForm: React.FC<{
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex space-y-4 h-full flex-col"
+          className="flex h-full flex-col space-y-4"
         >
-          <div className="flex flex-col space-y-2 flex-1">
+          <div className="flex flex-1 flex-col space-y-2">
             {fields?.map((f: any) => (
               <FormField
                 key={f.name}
@@ -97,9 +96,9 @@ export const InputForm: React.FC<{
               />
             ))}
           </div>
-          <div className="flex items-center justify-end w-full">
+          <div className="flex w-full items-center justify-end">
             <Button type="submit" loading={form.formState.isSubmitting}>
-              <Play className="w-4 h-4 mr-2" />
+              <Play className="mr-2 h-4 w-4" />
               Execute
             </Button>
           </div>

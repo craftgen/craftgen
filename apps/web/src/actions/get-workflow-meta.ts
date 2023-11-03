@@ -12,7 +12,7 @@ export const getWorkflowMeta = action(
     projectSlug: z.string(),
     version: z.number().optional(),
   }),
-  async (params) => {
+  async (input) => {
     const supabase = createServerActionClient({ cookies });
     const {
       data: { user },
@@ -21,8 +21,8 @@ export const getWorkflowMeta = action(
     const workflow = await db.query.workflow.findFirst({
       where: (workflow, { eq, and }) =>
         and(
-          eq(workflow.slug, params.workflowSlug),
-          eq(workflow.projectSlug, params.projectSlug)
+          eq(workflow.slug, input.workflowSlug),
+          eq(workflow.projectSlug, input.projectSlug)
         ),
       with: {
         project: true,
@@ -53,12 +53,12 @@ export const getWorkflowMeta = action(
     }
 
     let version;
-    if (params.version) {
+    if (input.version) {
       version = await db.query.workflowVersion.findFirst({
         where: (workflowVersion, { eq, and }) =>
           and(
             eq(workflowVersion.workflowId, workflow?.id),
-            eq(workflowVersion.version, params.version!)
+            eq(workflowVersion.version, input.version!)
           ),
       });
     } else {

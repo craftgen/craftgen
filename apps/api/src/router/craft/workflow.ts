@@ -4,6 +4,76 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
 export const craftModuleRouter = createTRPCRouter({
+  meta: protectedProcedure
+    .input(
+      z.object({
+        workflowSlug: z.string(),
+        projectSlug: z.string(),
+        version: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const workflow = await ctx.db.query.workflow.findFirst({
+        where: (workflow, { eq, and }) =>
+          and(
+            eq(workflow.slug, input.workflowSlug),
+            eq(workflow.projectSlug, input.projectSlug),
+          ),
+        with: {
+          project: true,
+        },
+      });
+      if (!workflow) {
+        throw new Error("Workflow not found 4");
+      }
+      if (!workflow.public && !ctx.session.user) {
+        throw new Error("Workflow not found 3");
+      }
+
+      if (!workflow.public && ctx.session.user) {
+        // check if user is a member of the project
+        const [isMember] = await ctx.db
+          .select()
+          .from(schema.projectMembers)
+          .where(
+            and(
+              eq(schema.projectMembers.projectId, workflow.projectId),
+              eq(schema.projectMembers.userId, ctx.session.user?.id),
+            ),
+          )
+          .limit(1);
+        if (!isMember) {
+          throw new Error("Workflow not found 2");
+        }
+      }
+
+      let version;
+      if (input.version) {
+        version = await ctx.db.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq, and }) =>
+            and(
+              eq(workflowVersion.workflowId, workflow?.id),
+              eq(workflowVersion.version, input.version!),
+            ),
+        });
+      } else {
+        version = await ctx.db.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq, and, isNotNull }) =>
+            and(
+              eq(workflowVersion.workflowId, workflow?.id),
+              isNotNull(workflowVersion.publishedAt),
+            ),
+          orderBy: (workflowVersion, { desc }) => [
+            desc(workflowVersion.version),
+          ],
+        });
+      }
+
+      return {
+        ...workflow,
+        version,
+      };
+    }),
   get: protectedProcedure
     .input(
       z.object({
