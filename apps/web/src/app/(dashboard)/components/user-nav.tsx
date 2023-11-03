@@ -25,7 +25,6 @@ import { useRouter } from "next/navigation";
 import { Key } from "ts-key-enum";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useTheme } from "next-themes";
-import { MoonIcon, SunIcon } from "lucide-react";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();

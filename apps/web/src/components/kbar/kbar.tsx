@@ -6,24 +6,23 @@ import {
   KBarPositioner,
   KBarAnimator,
   KBarSearch,
-  useMatches,
 } from "kbar";
 import { RenderResults } from "./render-results";
 import { Separator } from "../ui/separator";
 const actions = [
+  {
+    id: "explore",
+    name: "Explore",
+    shortcut: ["e"],
+    keywords: "explore",
+    perform: () => (window.location.pathname = "explore"),
+  },
   {
     id: "blog",
     name: "Blog",
     shortcut: ["b"],
     keywords: "writing words",
     perform: () => (window.location.pathname = "blog"),
-  },
-  {
-    id: "contact",
-    name: "Contact",
-    shortcut: ["c"],
-    keywords: "email",
-    perform: () => (window.location.pathname = "contact"),
   },
 ];
 

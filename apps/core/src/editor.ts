@@ -3,7 +3,7 @@ import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import { BaseNode, ParsedNode } from "./nodes/base";
 import { Connection } from "./connection/connection";
 import { NodeClass, WorkflowAPI, Node, Schemes, Position } from "./types";
-import { ContextFrom, SnapshotFrom } from "xstate";
+import { AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
 import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
 // import Ajv from "ajv/dist/jtd";
@@ -141,7 +141,7 @@ export class Editor<
 
   get selectedInput(): InputNode | null {
     if (this.inputs.length === 1) {
-      this.selectedInputId = this.inputs[0].id;
+      this.selectedInputId = this.inputs[0]?.id || null;
     }
     if (!this.selectedInputId) return null;
     return this.editor.getNode(this.selectedInputId);
@@ -242,7 +242,7 @@ export class Editor<
     return newNode;
   }
 
-  public async addNode(node: NodeTypes) {
+  public async addNode(node: NodeTypes, context?: Partial<InputFrom<AnyStateMachine>>  ) {
     const nodeMeta = this.nodeMeta.get(node);
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node)} not registered`);
@@ -252,6 +252,7 @@ export class Editor<
       label: nodeMeta?.label,
       id: this.createId("node"),
       contextId: this.createId("context"),
+      context
     });
     await this.editor.addNode(newNode);
     await this?.area?.translate(newNode.id, {
@@ -577,10 +578,13 @@ export class Editor<
       (target.inputs as Record<string, Output<AllSockets>>)[
         connection.targetInput
       ];
+    if (!output || !input) {
+      throw new Error(`Invalid connection ${JSON.stringify(connection)}`);
+    }
 
     return {
-      source: output?.socket,
-      target: input?.socket,
+      source: output.socket,
+      target: input.socket,
     };
   }
 

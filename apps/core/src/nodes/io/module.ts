@@ -1,24 +1,46 @@
-import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
-import { BaseNode, type ParsedNode } from "../base";
-import type { DiContainer } from "../../types";
+import { merge } from "lodash-es";
 import { NodeEditor } from "rete";
-import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
-import { type Module, Modules } from "../../modules";
-import type { Schemes } from "../../types";
-// import { getWorkflows } from "@/app/(dashboard)/project/[projectSlug]/actions";
-import { InputNode as InputNode } from "./input.node";
+import { SetOptional } from "type-fest";
+import { assign, createMachine, fromPromise, type StateFrom } from "xstate";
+
+import { ComboboxControl } from "../../controls/combobox";
+import { InputControl } from "../../controls/input.control";
 import { SelectControl } from "../../controls/select";
 import type { JSONSocket } from "../../controls/socket-generator";
-import { SWRSelectControl } from "../../controls/swr-select";
-import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
-import { SetOptional } from "type-fest";
-import { ComboboxControl } from "../../controls/combobox";
+import { Modules, type Module } from "../../modules";
+import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
+import type { DiContainer, Schemes } from "../../types";
+import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
+import { InputNode } from "./input.node";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
   id: "ModuleNode",
-  types: {} as {
+  context: ({ input }) =>
+    merge(
+      {
+        moduleId: undefined,
+        inputId: undefined,
+        inputs: {},
+        outputs: {},
+        outputSockets: [],
+        inputSockets: [],
+        error: null,
+      },
+      input,
+    ),
+  types: {} as BaseActorTypes<{
+    input: {
+      moduleId: string;
+      inputId: string;
+    };
+    actions: {
+      type: "setInput";
+      params?: {
+        inputId: string;
+      };
+    };
     context: {
       moduleId?: string;
       inputId?: string;
@@ -49,16 +71,8 @@ const ModuleNodeMachine = createMachine({
           type: "RUN";
           inputData: Record<string, any>;
         };
-  },
-  context: {
-    moduleId: undefined,
-    inputId: undefined,
-    inputs: [],
-    outputs: [],
-    error: null,
-    inputData: {},
-    outputData: {},
-  },
+  }>,
+
   initial: "idle",
   states: {
     idle: {
@@ -194,8 +208,8 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
             type: "SET_MODULE",
             moduleId: value,
           });
-        }
-      )
+        },
+      ),
     );
     if (state.context.moduleId && state.context.inputId) {
       this.update();
@@ -240,7 +254,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
             });
             this.update();
           },
-        })
+        }),
       );
     } else {
       this.removeControl("select_input");
@@ -298,7 +312,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
               description: value,
             });
           },
-        })
+        }),
       );
       this.addInput(item.name, input);
     });

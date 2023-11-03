@@ -13,7 +13,6 @@
     "with-env": "dotenv -e ../.env --",
     "with-env:prod": "dotenv -e ../.env.prod --"
   },
-  "prettier": "@acme/prettier-config",
   "eslintConfig": {
     "extends": [
       "@acme/eslint-config/base",
@@ -207,5 +206,6 @@
   },
   "trigger.dev": {
     "endpointId": "seocraft-4L3U"
-  }
+  },
+  "prettier": "@acme/prettier-config"
 }

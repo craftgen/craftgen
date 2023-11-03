@@ -11,6 +11,7 @@ import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
+import { api } from "@/trpc/react";
 
 export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const nodes = useMemo(() => {
@@ -88,19 +89,12 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     }
   );
 
-  const { data: workflowVersions } = useSWR(
-    w ? `/api/workflow/${w}/versions` : null,
-    async () => {
-      if (!w) return [];
-      const res = await getWorkflowVersionsById({
-        workflowId: w,
-      });
-      return res.data;
-    },
-    {
-      keepPreviousData: true,
-    }
-  );
+  const {data: workflowVersions} = api.craft.version.list.useQuery({
+    workflowId: w!,
+  }, {
+    enabled: !!w,
+    keepPreviousData: true,
+  })
 
   const workflowActions = useMemo<Action[]>(() => {
     return (
@@ -110,6 +104,11 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             id: version.id,
             name: `@${version.workflow.projectSlug}/${version.workflow.name}v${version.version}`,
             parent: version.workflowId,
+            perform: async () => {
+              di?.addNode('ModuleNode', {
+
+              })
+            }
           } as Action)
       ) || []
     );
