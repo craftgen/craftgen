@@ -3,11 +3,13 @@
 import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { google } from "googleapis";
-import { normalizeUrl } from "./shared";
-import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
 import { z } from "zod";
-import { newProjectSchema } from "./shared";
+
+import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
+
 import { getGoogleAuth } from "@/lib/google/auth";
+
+import { newProjectSchema, normalizeUrl } from "./shared";
 
 export const getSites = async () => {
   const supabase = createServerActionClient({ cookies });
@@ -26,7 +28,7 @@ export const getSites = async () => {
 };
 
 export const createNewProject = async (
-  params: z.infer<typeof newProjectSchema>
+  params: z.infer<typeof newProjectSchema>,
 ) => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();

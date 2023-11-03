@@ -1,9 +1,11 @@
 "use server";
 
+import { z } from "zod";
+
+import { and, db, eq, workflowEdge } from "@seocraft/supabase/db";
+
 import { ConnProps } from "@/core/types"; // TODO: core-type
 import { action } from "@/lib/safe-action";
-import { db, workflowEdge, eq, and } from "@seocraft/supabase/db";
-import { z } from "zod";
 
 export const deleteEdge = action(
   z.object({
@@ -21,8 +23,8 @@ export const deleteEdge = action(
           eq(workflowEdge.source, input.data.source),
           eq(workflowEdge.sourceOutput, input.data.sourceOutput),
           eq(workflowEdge.target, input.data.target),
-          eq(workflowEdge.targetInput, input.data.targetInput)
-        )
+          eq(workflowEdge.targetInput, input.data.targetInput),
+        ),
       );
-  }
+  },
 );

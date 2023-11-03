@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   TCommentText,
   useCommentLeaf,
   useCommentLeafState,
-} from '@udecode/plate-comments';
-import { PlateLeaf, PlateLeafProps, Value } from '@udecode/plate-common';
+} from "@udecode/plate-comments";
+import { PlateLeaf, PlateLeafProps, Value } from "@udecode/plate-common";
 
 export function CommentLeaf({
   className,
@@ -23,15 +23,15 @@ export function CommentLeaf({
   let aboveChildren = <>{children}</>;
 
   const backgroundColor = state.isActive
-    ? 'rgb(255, 212, 0)'
-    : 'rgba(255, 212, 0, 0.14)';
+    ? "rgb(255, 212, 0)"
+    : "rgba(255, 212, 0, 0.14)";
 
   if (!state.isActive) {
     for (let i = 1; i < state.commentCount; i++) {
       aboveChildren = (
         <span
           style={{
-            backgroundColor: 'rgba(255, 212, 0, 0.14)',
+            backgroundColor: "rgba(255, 212, 0, 0.14)",
           }}
         >
           {aboveChildren}
@@ -47,7 +47,7 @@ export function CommentLeaf({
         ...rootProps,
         style: {
           backgroundColor,
-          borderBottom: '2px solid rgb(255, 212, 0)',
+          borderBottom: "2px solid rgb(255, 212, 0)",
         },
         ...nodeProps,
       }}

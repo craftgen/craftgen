@@ -1,8 +1,8 @@
-import { createStore } from "zustand/vanilla";
-import { subscribeWithSelector } from "zustand/middleware";
-
 // import { DiContainer } from "./editor";
 import type * as FlexLayout from "flexlayout-react";
+import { subscribeWithSelector } from "zustand/middleware";
+import { createStore } from "zustand/vanilla";
+
 import { DiContainer } from "@seocraft/core/src/types";
 
 export type ReteStore = {
@@ -49,7 +49,7 @@ export const createCraftStore = (initial: Partial<ReteStore>) =>
       setSelectedNodeId: (selectedNodeId: string | null) =>
         set({ selectedNodeId }),
       ...initial,
-    }))
+    })),
   );
 
 export type ReteStoreInstance = ReturnType<typeof createCraftStore>;

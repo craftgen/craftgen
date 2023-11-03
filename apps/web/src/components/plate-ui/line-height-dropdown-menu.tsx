@@ -1,11 +1,11 @@
-import React from 'react';
-import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import React from "react";
+import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import {
   useLineHeightDropdownMenu,
   useLineHeightDropdownMenuState,
-} from '@udecode/plate-line-height';
+} from "@udecode/plate-line-height";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
 import {
   DropdownMenu,
@@ -14,8 +14,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
   useOpenState,
-} from './dropdown-menu';
-import { ToolbarButton } from './toolbar';
+} from "./dropdown-menu";
+import { ToolbarButton } from "./toolbar";
 
 export function LineHeightDropdownMenu({ ...props }: DropdownMenuProps) {
   const openState = useOpenState();

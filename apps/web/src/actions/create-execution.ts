@@ -1,13 +1,15 @@
 "use server";
 
-import { WORKFLOW_TRIGGER } from "@/jobs/workflow-trigger";
-import { action } from "@/lib/safe-action";
+import { z } from "zod";
+
 import {
   db,
-  workflowExecution,
   nodeExecutionData,
+  workflowExecution,
 } from "@seocraft/supabase/db";
-import { z } from "zod";
+
+import { WORKFLOW_TRIGGER } from "@/jobs/workflow-trigger";
+import { action } from "@/lib/safe-action";
 
 export const createExecution = action(
   z.object({
@@ -80,5 +82,5 @@ export const createExecution = action(
       // }
       return execution;
     });
-  }
+  },
 );

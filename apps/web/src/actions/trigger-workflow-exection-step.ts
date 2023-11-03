@@ -1,8 +1,9 @@
 "use server";
 
+import { z } from "zod";
+
 import { WORKFLOW_NODE_TRIGGER } from "@/jobs/workflow-execution-step";
 import { action } from "@/lib/safe-action";
-import { z } from "zod";
 
 export const triggerWorkflowExecutionStep = action(
   z.object({
@@ -14,5 +15,5 @@ export const triggerWorkflowExecutionStep = action(
   }),
   async (params) => {
     await WORKFLOW_NODE_TRIGGER.send(params);
-  }
+  },
 );

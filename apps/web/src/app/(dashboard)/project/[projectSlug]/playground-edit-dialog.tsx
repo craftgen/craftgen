@@ -1,3 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { mutate } from "swr";
+import { z } from "zod";
+
+import { updateWorkflowMeta } from "@/actions/update-workflow-meta";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,10 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -21,11 +23,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { mutate } from "swr";
+import { Textarea } from "@/components/ui/textarea";
+
 import { useProject } from "./hooks/use-project";
-import { updateWorkflowMeta } from "@/actions/update-workflow-meta";
 
 const formSchema = z.object({
   name: z.string().min(2, {

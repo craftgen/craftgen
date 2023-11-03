@@ -1,5 +1,27 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import {
+  CaretSortIcon,
+  CheckIcon,
+  PlusCircledIcon,
+} from "@radix-ui/react-icons";
+import { PopoverTriggerProps } from "@radix-ui/react-popover";
+import useSWR from "swr";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -14,30 +36,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  CaretSortIcon,
-  CheckIcon,
-  PlusCircledIcon,
-} from "@radix-ui/react-icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PopoverTriggerProps } from "@radix-ui/react-popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
-import useSWR from "swr";
-import { useParams, useRouter } from "next/navigation";
+
 import { getUserProjects } from "../explore/actions";
-import { useMemo, useState } from "react";
 import { NewProjectForm } from "../project/new/new-project-form";
-import Link from "next/link";
 
 interface TeamSwitcherProps extends PopoverTriggerProps {}
 
@@ -102,7 +104,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
     }
     const teams = groups.map((group) => group.teams).flat();
     const founedTeam = teams.find(
-      (team) => team.value === params.projectSlug
+      (team) => team.value === params.projectSlug,
     ) as Team;
     if (!founedTeam) {
       return teams[0];
@@ -132,7 +134,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
           className={cn(className)}
         >
           <PopoverTrigger asChild>
-            <CaretSortIcon className="px-0 h-4 w-4 shrink-0 opacity-50" />
+            <CaretSortIcon className="h-4 w-4 shrink-0 px-0 opacity-50" />
           </PopoverTrigger>
         </Button>
         <PopoverContent className="w-[280px] min-w-[160px] p-0">
@@ -165,7 +167,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
                           "ml-auto h-4 w-4",
                           selectedTeam?.value === team.value
                             ? "opacity-100"
-                            : "opacity-0"
+                            : "opacity-0",
                         )}
                       />
                     </CommandItem>

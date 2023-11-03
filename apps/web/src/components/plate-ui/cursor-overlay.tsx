@@ -1,15 +1,15 @@
-import React from 'react';
-import { createStore } from '@udecode/plate-common';
+import React from "react";
+import { createStore } from "@udecode/plate-common";
 import {
   CursorData,
   CursorOverlay as CursorOverlayPrimitive,
   CursorOverlayProps,
   CursorProps,
-} from '@udecode/plate-cursor';
+} from "@udecode/plate-cursor";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-export const cursorStore = createStore('cursor')({
+export const cursorStore = createStore("cursor")({
   cursors: {},
 });
 
@@ -34,8 +34,8 @@ export function Cursor({
           <div
             key={i}
             className={cn(
-              'pointer-events-none absolute z-10 opacity-[0.3]',
-              classNames?.selectionRect
+              "pointer-events-none absolute z-10 opacity-[0.3]",
+              classNames?.selectionRect,
             )}
             style={{
               ...selectionStyle,
@@ -46,8 +46,8 @@ export function Cursor({
       {!disableCaret && caretPosition && (
         <div
           className={cn(
-            'pointer-events-none absolute z-10 w-0.5',
-            classNames?.caret
+            "pointer-events-none absolute z-10 w-0.5",
+            classNames?.caret,
           )}
           style={{ ...caretPosition, ...style }}
         />

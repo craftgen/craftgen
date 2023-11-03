@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   CommentNewSubmitButton,
   CommentNewTextarea,
   useCommentsSelectors,
-} from '@udecode/plate-comments';
+} from "@udecode/plate-comments";
 
-import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/plate-ui/button';
-import { inputVariants } from '@/components/plate-ui/input';
+import { buttonVariants } from "@/components/plate-ui/button";
+import { inputVariants } from "@/components/plate-ui/input";
+import { cn } from "@/lib/utils";
 
-import { CommentAvatar } from './comment-avatar';
+import { CommentAvatar } from "./comment-avatar";
 
 export function CommentCreateForm() {
   const myUserId = useCommentsSelectors().myUserId();
@@ -24,7 +24,7 @@ export function CommentCreateForm() {
         <CommentNewTextarea className={inputVariants()} />
 
         <CommentNewSubmitButton
-          className={cn(buttonVariants({ size: 'sm' }), 'w-[90px]')}
+          className={cn(buttonVariants({ size: "sm" }), "w-[90px]")}
         >
           Comment
         </CommentNewSubmitButton>

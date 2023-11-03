@@ -1,10 +1,12 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ProjectList } from "./project-list";
-import { WorkflowList } from "@/components/template-list";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import Link from "next/link";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+
+import { WorkflowList } from "@/components/template-list";
+import { Button } from "@/components/ui/button";
+
 import { getFeaturedWorkflows } from "./actions";
+import { ProjectList } from "./project-list";
 
 const DashboardPage = async () => {
   const cookieStore = cookies();
@@ -16,11 +18,11 @@ const DashboardPage = async () => {
   const featuredWorkflows = await getFeaturedWorkflows();
 
   return (
-    <div className="flex flex-col w-full items-center">
+    <div className="flex w-full flex-col items-center">
       <div className="w-full max-w-5xl p-4">
         {user && (
           <>
-            <div className="flex justify-between items-center ">
+            <div className="flex items-center justify-between ">
               <h2>Projects</h2>
               <Link href="/project/new">
                 <Button>Create New Project.</Button>

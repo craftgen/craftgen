@@ -1,5 +1,6 @@
-import { BASE_URL } from "@/utils/constants";
 import { PostHog } from "posthog-node";
+
+import { BASE_URL } from "@/utils/constants";
 
 export default function PostHogClient() {
   const posthogClient = new PostHog(

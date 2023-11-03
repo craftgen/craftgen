@@ -1,10 +1,12 @@
 "use client";
 
-import useSWR from "swr";
-import { getUserProjects } from "./actions";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import useSWR from "swr";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader } from "@/components/ui/card";
+
+import { getUserProjects } from "./actions";
 
 export const ProjectList = () => {
   const { data, isLoading } = useSWR("projects", getUserProjects);
@@ -24,12 +26,12 @@ const ProjectCard: React.FC<{
 }> = ({ projectMembers }) => {
   return (
     <Link href={`/${projectMembers.project.slug}`} className="group">
-      <Card className="group-hover:shadow-sm group-hover:shadow-primary/40 transition duration-300">
-        <CardHeader className="flex justify-between items-center">
+      <Card className="group-hover:shadow-primary/40 transition duration-300 group-hover:shadow-sm">
+        <CardHeader className="flex items-center justify-between">
           <h2>
             {projectMembers.project.name}
             {projectMembers.project.personal && (
-              <span className="text-xs text-muted-foreground"> (Personal)</span>
+              <span className="text-muted-foreground text-xs"> (Personal)</span>
             )}
           </h2>
           <Badge>{projectMembers.role}</Badge>

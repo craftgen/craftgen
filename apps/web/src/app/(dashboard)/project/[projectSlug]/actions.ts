@@ -1,22 +1,25 @@
 "use server";
 
-import { getDrive, getWebmaster } from "@/lib/google/auth";
+import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { format, sub } from "date-fns";
+import { z } from "zod";
+
 import {
   and,
   db,
   eq,
-  workflow,
   project,
   projectMembers,
   variable,
+  workflow,
   workflowVersion,
 } from "@seocraft/supabase/db";
-import { cookies } from "next/headers";
-import { format, sub } from "date-fns";
-import { GoogleIntegrationsScope } from "./settings/integrations/page";
+
+import { getDrive, getWebmaster } from "@/lib/google/auth";
 import { action } from "@/lib/safe-action";
-import { z } from "zod";
+
+import { GoogleIntegrationsScope } from "./settings/integrations/page";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({
@@ -72,7 +75,7 @@ export const insertProjectTokens = async (params: {
       params.tokens.map((token) => ({
         ...token,
         project_id: params.project_id,
-      }))
+      })),
     )
     .returning();
 };
@@ -105,8 +108,8 @@ export const checkSlugAvailable = async (params: {
     .where(
       and(
         eq(workflow.slug, params.slug),
-        eq(workflow.projectId, params.projectId)
-      )
+        eq(workflow.projectId, params.projectId),
+      ),
     )
     .limit(1);
   return exist.length === 0;
@@ -150,7 +153,7 @@ export const createPlayground = action(
     });
 
     return newPlayground[0];
-  }
+  },
 );
 
 export const deleteWorkflow = async ({ id }: { id: string }) => {
@@ -267,7 +270,7 @@ export const getWorkflows = async (projectId: string) => {
         where: (projectMember, { eq, and }) =>
           and(
             eq(projectMember.projectId, projectId),
-            eq(projectMember.userId, user?.id)
+            eq(projectMember.userId, user?.id),
           ),
       });
       if (member) {

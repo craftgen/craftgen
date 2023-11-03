@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   CommentEditActions,
   CommentEditTextarea,
   useCommentValue,
-} from '@udecode/plate-comments';
+} from "@udecode/plate-comments";
 
-import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/plate-ui/button';
-import { inputVariants } from '@/components/plate-ui/input';
+import { buttonVariants } from "@/components/plate-ui/button";
+import { inputVariants } from "@/components/plate-ui/input";
+import { cn } from "@/lib/utils";
 
 export function CommentValue() {
   const { textareaRef } = useCommentValue();
@@ -18,18 +18,18 @@ export function CommentValue() {
     <div className="my-2 flex flex-col items-end gap-2">
       <CommentEditTextarea
         ref={textareaRef}
-        className={cn(inputVariants(), 'min-h-[60px]')}
+        className={cn(inputVariants(), "min-h-[60px]")}
       />
 
       <div className="flex space-x-2">
         <CommentEditActions.CancelButton
-          className={buttonVariants({ variant: 'outline', size: 'xs' })}
+          className={buttonVariants({ variant: "outline", size: "xs" })}
         >
           Cancel
         </CommentEditActions.CancelButton>
 
         <CommentEditActions.SaveButton
-          className={buttonVariants({ variant: 'default', size: 'xs' })}
+          className={buttonVariants({ variant: "default", size: "xs" })}
         >
           Save
         </CommentEditActions.SaveButton>

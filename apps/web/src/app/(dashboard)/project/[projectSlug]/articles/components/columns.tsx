@@ -1,14 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
+
+import { Checkbox } from "@/components/plate-ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 import { labels, priorities, statuses } from "../data/data";
 import { Task } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { Checkbox } from "@/components/plate-ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -79,7 +80,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const status = statuses.find(
-        (status) => status.value === row.getValue("status")
+        (status) => status.value === row.getValue("status"),
       );
 
       if (!status) {
@@ -89,7 +90,7 @@ export const columns: ColumnDef<Task>[] = [
       return (
         <div className="flex w-[100px] items-center">
           {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+            <status.icon className="text-muted-foreground mr-2 h-4 w-4" />
           )}
           <span>{status.label}</span>
         </div>
@@ -106,7 +107,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const priority = priorities.find(
-        (priority) => priority.value === row.getValue("priority")
+        (priority) => priority.value === row.getValue("priority"),
       );
 
       if (!priority) {
@@ -116,7 +117,7 @@ export const columns: ColumnDef<Task>[] = [
       return (
         <div className="flex items-center">
           {priority.icon && (
-            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+            <priority.icon className="text-muted-foreground mr-2 h-4 w-4" />
           )}
           <span>{priority.label}</span>
         </div>

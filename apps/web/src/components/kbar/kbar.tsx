@@ -1,14 +1,16 @@
 "use client";
 
 import {
-  KBarProvider,
+  KBarAnimator,
   KBarPortal,
   KBarPositioner,
-  KBarAnimator,
+  KBarProvider,
   KBarSearch,
 } from "kbar";
-import { RenderResults } from "./render-results";
+
 import { Separator } from "../ui/separator";
+import { RenderResults } from "./render-results";
+
 const actions = [
   {
     id: "explore",
@@ -30,9 +32,9 @@ export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <KBarProvider actions={actions}>
       <KBarPortal>
-        <KBarPositioner className="z-30 min-w-xl flex items-start justify-center w-full pt-[14vh] py-4 pb-4  bg-foreground/20 inset-0 fixed box-border">
-          <KBarAnimator className="max-w-lg bg-background w-full rounded overflow-hidden shadow-lg min-h-[30rem] z-50">
-            <KBarSearch className="w-full py-4 px-4 " />
+        <KBarPositioner className="min-w-xl bg-foreground/20 fixed inset-0 z-30 box-border flex w-full items-start  justify-center py-4 pb-4 pt-[14vh]">
+          <KBarAnimator className="bg-background z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded shadow-lg">
+            <KBarSearch className="w-full px-4 py-4 " />
             <Separator />
             <RenderResults />
           </KBarAnimator>

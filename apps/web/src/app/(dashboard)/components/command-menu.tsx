@@ -1,5 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Key } from "ts-key-enum";
+
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,9 +12,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useState, useEffect } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { Key } from "ts-key-enum";
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false);
@@ -30,8 +31,7 @@ export function CommandMenu() {
           <CommandItem>Data Sources</CommandItem>
           <CommandItem>Playground</CommandItem>
         </CommandGroup>
-        <CommandGroup heading="Projects">
-        </CommandGroup>
+        <CommandGroup heading="Projects"></CommandGroup>
       </CommandList>
     </CommandDialog>
   );

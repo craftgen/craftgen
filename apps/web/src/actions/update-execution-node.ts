@@ -1,13 +1,15 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
+import { z } from "zod";
+
 import {
   db,
+  eq,
   nodeExecutionData,
   workflowExecution,
-  eq,
 } from "@seocraft/supabase/db";
-import { z } from "zod";
+
+import { action } from "@/lib/safe-action";
 
 export const updateExecutionNode = action(
   z.object({
@@ -54,9 +56,9 @@ export const updateExecutionNode = action(
           updatedAt: new Date(),
         })
         .where(
-          eq(workflowExecution.id, executionNodeState.workflowExecutionId)
+          eq(workflowExecution.id, executionNodeState.workflowExecutionId),
         );
       return executionNodeState;
     });
-  }
+  },
 );

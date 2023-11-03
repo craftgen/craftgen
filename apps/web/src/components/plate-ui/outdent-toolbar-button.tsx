@@ -1,9 +1,9 @@
-import React from 'react';
-import { useOutdentButton } from '@udecode/plate-indent';
+import React from "react";
+import { useOutdentButton } from "@udecode/plate-indent";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from "./toolbar";
 
 export function OutdentToolbarButton() {
   const { props } = useOutdentButton();

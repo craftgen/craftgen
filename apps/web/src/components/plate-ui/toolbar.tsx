@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ReactNode } from 'react';
-import * as ToolbarPrimitive from '@radix-ui/react-toolbar';
-import { cva, VariantProps } from 'class-variance-authority';
+import * as React from "react";
+import { ReactNode } from "react";
+import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
+import { cva, VariantProps } from "class-variance-authority";
 
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
-import { Separator } from './separator';
-import { ToggleProps, toggleVariants } from './toggle';
+import { Separator } from "./separator";
+import { ToggleProps, toggleVariants } from "./toggle";
 import {
   Tooltip,
   TooltipContent,
   TooltipPortal,
   TooltipTrigger,
-} from './tooltip';
+} from "./tooltip";
 
 const toolbarVariants = cva(
-  'relative flex select-none items-stretch gap-1 bg-background'
+  "relative flex select-none items-stretch gap-1 bg-background",
 );
 
-export const linkVariants = cva('font-medium underline underline-offset-4');
+export const linkVariants = cva("font-medium underline underline-offset-4");
 
 const ToolbarToggleGroup = ToolbarPrimitive.ToggleGroup;
 
@@ -60,7 +60,7 @@ const ToolbarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToolbarPrimitive.Separator
     ref={ref}
-    className={cn('shrink-0 bg-border', 'my-1 w-[1px]', className)}
+    className={cn("bg-border shrink-0", "my-1 w-[1px]", className)}
     {...props}
   />
 ));
@@ -69,8 +69,8 @@ ToolbarSeparator.displayName = ToolbarPrimitive.Separator.displayName;
 export interface ToolbarButtonProps
   extends React.ComponentPropsWithoutRef<typeof ToolbarPrimitive.Button>,
     VariantProps<typeof toggleVariants>,
-    Omit<ToggleProps, 'type'> {
-  buttonType?: 'button' | 'toggle';
+    Omit<ToggleProps, "type"> {
+  buttonType?: "button" | "toggle";
   pressed?: boolean;
   tooltip?: ReactNode;
   isDropdown?: boolean;
@@ -84,7 +84,7 @@ const ToolbarButton = React.forwardRef<
     {
       className,
       variant,
-      size = 'sm',
+      size = "sm",
       isDropdown,
       children,
       pressed,
@@ -92,7 +92,7 @@ const ToolbarButton = React.forwardRef<
       tooltip,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isLoaded, setIsLoaded] = React.useState(false);
 
@@ -101,10 +101,10 @@ const ToolbarButton = React.forwardRef<
     }, []);
 
     const content =
-      typeof pressed === 'boolean' ? (
+      typeof pressed === "boolean" ? (
         <ToolbarToggleGroup
           type="single"
-          value={pressed ? 'single' : undefined}
+          value={pressed ? "single" : undefined}
         >
           <ToolbarToggleItem
             ref={ref}
@@ -113,8 +113,8 @@ const ToolbarButton = React.forwardRef<
                 variant,
                 size,
               }),
-              isDropdown && 'my-1 justify-between pr-1',
-              className
+              isDropdown && "my-1 justify-between pr-1",
+              className,
             )}
             value="single"
             {...props}
@@ -135,8 +135,8 @@ const ToolbarButton = React.forwardRef<
               variant,
               size,
             }),
-            isDropdown && 'pr-1',
-            className
+            isDropdown && "pr-1",
+            className,
           )}
           {...props}
         >
@@ -155,7 +155,7 @@ const ToolbarButton = React.forwardRef<
     ) : (
       <>{content}</>
     );
-  }
+  },
 );
 ToolbarButton.displayName = ToolbarPrimitive.Button.displayName;
 
@@ -180,7 +180,7 @@ const ToolbarGroup = React.forwardRef<
   if (!childArr || childArr.length === 0) return null;
 
   return (
-    <div ref={ref} className={cn('flex', className)}>
+    <div ref={ref} className={cn("flex", className)}>
       {!noSeparator && (
         <div className="h-full py-1">
           <Separator orientation="vertical" />
@@ -191,7 +191,7 @@ const ToolbarGroup = React.forwardRef<
     </div>
   );
 });
-ToolbarGroup.displayName = 'ToolbarGroup';
+ToolbarGroup.displayName = "ToolbarGroup";
 
 export {
   Toolbar,

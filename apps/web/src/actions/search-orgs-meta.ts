@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const searchOrgsMeta = action(
   z.object({
@@ -14,9 +16,9 @@ export const searchOrgsMeta = action(
         where: (project, { or, ilike }) =>
           or(
             ilike(project.name, `%${params.query}%`),
-            ilike(project.slug, `%${params.query}%`)
+            ilike(project.slug, `%${params.query}%`),
           ),
       });
     });
-  }
+  },
 );

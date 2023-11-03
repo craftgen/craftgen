@@ -1,10 +1,12 @@
+import { resolve } from "path";
+import { eventTrigger } from "@trigger.dev/sdk";
+import { waitFor } from "xstate";
+
 import { getWorkflow } from "@/actions/get-workflow";
 // import { createHeadlessEditor } from "@/core/headless";
 import { client } from "@/trigger";
-import { waitFor } from "xstate";
+
 import { WORKFLOW_NODE_TRIGGER } from "./workflow-execution-step";
-import { eventTrigger } from "@trigger.dev/sdk";
-import { resolve } from "path";
 
 client.defineJob({
   id: WORKFLOW_NODE_TRIGGER.name,

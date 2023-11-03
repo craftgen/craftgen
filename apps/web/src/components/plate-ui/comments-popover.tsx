@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   CommentProvider,
   CommentsPositioner,
   SCOPE_ACTIVE_COMMENT,
   useFloatingCommentsContentState,
   useFloatingCommentsState,
-} from '@udecode/plate-comments';
-import { PortalBody } from '@udecode/plate-common';
+} from "@udecode/plate-comments";
+import { PortalBody } from "@udecode/plate-common";
 
-import { cn } from '@/lib/utils';
-import { popoverVariants } from '@/components/plate-ui/popover';
+import { popoverVariants } from "@/components/plate-ui/popover";
+import { cn } from "@/lib/utils";
 
-import { CommentCreateForm } from './comment-create-form';
-import { CommentItem } from './comment-item';
-import { CommentReplyItems } from './comment-reply-items';
+import { CommentCreateForm } from "./comment-create-form";
+import { CommentItem } from "./comment-item";
+import { CommentReplyItems } from "./comment-reply-items";
 
 export type FloatingCommentsContentProps = {
   disableForm?: boolean;
@@ -33,7 +33,7 @@ export function CommentsPopoverContent(props: FloatingCommentsContentProps) {
       id={activeCommentId}
       scope={SCOPE_ACTIVE_COMMENT}
     >
-      <div ref={ref} className={cn(popoverVariants(), 'relative w-[310px]')}>
+      <div ref={ref} className={cn(popoverVariants(), "relative w-[310px]")}>
         {!hasNoComment && (
           <>
             <CommentItem key={activeCommentId} commentId={activeCommentId} />

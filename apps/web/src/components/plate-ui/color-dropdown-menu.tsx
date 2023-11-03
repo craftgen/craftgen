@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import React from "react";
+import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import {
   useColorDropdownMenu,
   useColorDropdownMenuState,
-} from '@udecode/plate-font';
+} from "@udecode/plate-font";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/plate-ui/dropdown-menu';
-import { ToolbarButton } from '@/components/plate-ui/toolbar';
+} from "@/components/plate-ui/dropdown-menu";
+import { ToolbarButton } from "@/components/plate-ui/toolbar";
 
-import { DEFAULT_COLORS, DEFAULT_CUSTOM_COLORS } from './color-constants';
-import { ColorPicker } from './color-picker';
+import { DEFAULT_COLORS, DEFAULT_CUSTOM_COLORS } from "./color-constants";
+import { ColorPicker } from "./color-picker";
 
 export type TColor = {
   name: string;

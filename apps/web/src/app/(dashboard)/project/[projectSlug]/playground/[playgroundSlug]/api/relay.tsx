@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
 import { useState } from "react";
+import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
+
+import { Button } from "@/components/ui/button";
 
 export const RelayTesting = () => {
   const [count, setCount] = useState(0);

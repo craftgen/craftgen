@@ -73,8 +73,8 @@ import {
   WrapText,
   X,
 } from "lucide-react";
-
 import type { LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 export type Icon = LucideIcon | ((props: LucideProps) => JSX.Element);

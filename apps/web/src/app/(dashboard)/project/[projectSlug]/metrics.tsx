@@ -1,6 +1,6 @@
 "use client";
 
-import { calculateDeltaType } from "@/lib/data";
+import { useCallback, useMemo } from "react";
 import {
   AreaChart,
   BadgeDelta,
@@ -10,7 +10,8 @@ import {
   Metric,
   Text,
 } from "@tremor/react";
-import { useCallback, useMemo } from "react";
+
+import { calculateDeltaType } from "@/lib/data";
 
 export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
   const flatten = useMemo(() => {
@@ -37,7 +38,7 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
         notation: "compact",
         maximumFractionDigits: 1,
       }).format(digit),
-    []
+    [],
   );
 
   const mata = useMemo(() => {
@@ -93,7 +94,7 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
           delta: 0,
           value: [],
         },
-      }
+      },
     );
   }, [metrics]);
 
@@ -107,7 +108,7 @@ export const Metrics: React.FC<{ metrics: any }> = ({ metrics }) => {
         delta: mata.impressions.delta,
         deltaType: calculateDeltaType(
           mata.impressions.last,
-          mata.impressions.delta
+          mata.impressions.delta,
         ),
       },
       {

@@ -1,10 +1,12 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db, projectMembers, eq, and } from "@seocraft/supabase/db";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { z } from "zod";
+
+import { and, db, eq, projectMembers } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const getWorkflowMeta = action(
   z.object({
@@ -22,7 +24,7 @@ export const getWorkflowMeta = action(
       where: (workflow, { eq, and }) =>
         and(
           eq(workflow.slug, input.workflowSlug),
-          eq(workflow.projectSlug, input.projectSlug)
+          eq(workflow.projectSlug, input.projectSlug),
         ),
       with: {
         project: true,
@@ -43,8 +45,8 @@ export const getWorkflowMeta = action(
         .where(
           and(
             eq(projectMembers.projectId, workflow.projectId),
-            eq(projectMembers.userId, user?.id)
-          )
+            eq(projectMembers.userId, user?.id),
+          ),
         )
         .limit(1);
       if (!isMember) {
@@ -58,7 +60,7 @@ export const getWorkflowMeta = action(
         where: (workflowVersion, { eq, and }) =>
           and(
             eq(workflowVersion.workflowId, workflow?.id),
-            eq(workflowVersion.version, input.version!)
+            eq(workflowVersion.version, input.version!),
           ),
       });
     } else {
@@ -66,7 +68,7 @@ export const getWorkflowMeta = action(
         where: (workflowVersion, { eq, and, isNotNull }) =>
           and(
             eq(workflowVersion.workflowId, workflow?.id),
-            isNotNull(workflowVersion.publishedAt)
+            isNotNull(workflowVersion.publishedAt),
           ),
         orderBy: (workflowVersion, { desc }) => [desc(workflowVersion.version)],
       });
@@ -76,5 +78,5 @@ export const getWorkflowMeta = action(
       ...workflow,
       version,
     };
-  }
+  },
 );

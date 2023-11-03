@@ -26,10 +26,27 @@
         "!.next/cache/**"
       ]
     },
-    "lint": {},
+    "format": {
+      "outputs": ["node_modules/.cache/.prettiercache"],
+      "outputMode": "new-only"
+    },
+    "lint": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/.eslintcache"]
+    },
+    "typecheck": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
     }
   }
 }

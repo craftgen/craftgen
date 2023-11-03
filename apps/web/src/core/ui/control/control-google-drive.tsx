@@ -1,12 +1,13 @@
-import { getUser } from "@/app/(dashboard)/project/[projectSlug]/actions";
-import { Button } from "@/components/ui/button";
-import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
-
-import { ExternalLink, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ExternalLink, XIcon } from "lucide-react";
 import useDrivePicker from "react-google-drive-picker";
 import type { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import useSWR from "swr";
+
+import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
+
+import { getUser } from "@/app/(dashboard)/project/[projectSlug]/actions";
+import { Button } from "@/components/ui/button";
 
 export function GoogleDriveControlComponent(props: {
   data: GoogleDriveControl;
@@ -51,19 +52,19 @@ export function GoogleDriveControlComponent(props: {
   return (
     <div className="flex flex-col">
       {file ? (
-        <div className="flex items-center space-x-2 p-2 border shadow rounded justify-between">
-          <div className="flex items-center flex-1 relative">
+        <div className="flex items-center justify-between space-x-2 rounded border p-2 shadow">
+          <div className="relative flex flex-1 items-center">
             <img
               src={file.iconUrl}
               alt={file.name}
-              className="w-6 h-6 rounded-full"
+              className="h-6 w-6 rounded-full"
             />
-            <p className="truncate text-sm font-semibold ml-2">{file.name}</p>
+            <p className="ml-2 truncate text-sm font-semibold">{file.name}</p>
           </div>
           <div className="flex items-center">
             <a href={file.url} target="_blank" rel="noreferrer">
               <Button variant={"ghost"} size="icon" tooltip="Open in new tab">
-                <ExternalLink className="w-5 h-5" />
+                <ExternalLink className="h-5 w-5" />
               </Button>
             </a>
             <Button
@@ -72,7 +73,7 @@ export function GoogleDriveControlComponent(props: {
               size="icon"
               tooltip="Remove file"
             >
-              <XIcon className="w-5 h-5" />
+              <XIcon className="h-5 w-5" />
             </Button>
           </div>
         </div>

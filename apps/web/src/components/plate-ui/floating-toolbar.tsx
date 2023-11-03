@@ -1,15 +1,16 @@
-import React from 'react';
-import { PortalBody, useComposedRef } from '@udecode/plate-common';
+import React from "react";
+import { PortalBody, useComposedRef } from "@udecode/plate-common";
 import {
-  flip, offset,
+  flip,
+  offset,
   useFloatingToolbar,
   useFloatingToolbarState,
-} from '@udecode/plate-floating';
-import { FloatingToolbarState } from '@udecode/plate-floating/dist';
+} from "@udecode/plate-floating";
+import { FloatingToolbarState } from "@udecode/plate-floating/dist";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-import { Toolbar, ToolbarProps } from './toolbar';
+import { Toolbar, ToolbarProps } from "./toolbar";
 
 export interface FloatingToolbarProps extends ToolbarProps {
   state?: FloatingToolbarState;
@@ -22,16 +23,16 @@ const FloatingToolbar = React.forwardRef<
   const floatingToolbarState = useFloatingToolbarState({
     ...state,
     floatingOptions: {
-      placement: 'top',
+      placement: "top",
       middleware: [
         offset(12),
         flip({
           padding: 12,
           fallbackPlacements: [
-            'top-start',
-            'top-end',
-            'bottom-start',
-            'bottom-end',
+            "top-start",
+            "top-end",
+            "bottom-start",
+            "bottom-end",
           ],
         }),
       ],
@@ -54,7 +55,7 @@ const FloatingToolbar = React.forwardRef<
       <Toolbar
         ref={ref}
         className={cn(
-          'absolute z-50 whitespace-nowrap border bg-popover px-1 opacity-100 shadow-md'
+          "bg-popover absolute z-50 whitespace-nowrap border px-1 opacity-100 shadow-md",
         )}
         {...rootProps}
         {...props}
@@ -64,6 +65,6 @@ const FloatingToolbar = React.forwardRef<
     </PortalBody>
   );
 });
-FloatingToolbar.displayName = 'FloatingToolbar';
+FloatingToolbar.displayName = "FloatingToolbar";
 
 export { FloatingToolbar };

@@ -1,24 +1,24 @@
 "use client";
 
-import { ResultOfAction } from "@/lib/type";
-import useSWR, { mutate } from "swr";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import React, { useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
-import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Trash } from "lucide-react";
+import useSWR, { mutate } from "swr";
+
+import { deleteExecution } from "@/actions/delete-execution";
+import { getLogs } from "@/actions/get-logs";
+import { getWorkflow } from "@/actions/get-workflow";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { getWorkflow } from "@/actions/get-workflow";
-import { getLogs } from "@/actions/get-logs";
-import { deleteExecution } from "@/actions/delete-execution";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ResultOfAction } from "@/lib/type";
+import { cn } from "@/lib/utils";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
@@ -32,7 +32,7 @@ export const LogsTab: React.FC<{
       }).then((res) => res.data),
     {
       refreshInterval: 2000,
-    }
+    },
   );
   return (
     <div className="p-4">
@@ -66,12 +66,12 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
     (executionId: string) => {
       return searchParams.get("execution") === executionId;
     },
-    [searchParams.get("execution")]
+    [searchParams.get("execution")],
   );
   return (
     <AccordionItem value={execution.id}>
       <AccordionTrigger>
-        <div className="flex w-full justify-between items-center">
+        <div className="flex w-full items-center justify-between">
           <Link href={execution.url}>
             <h3>{execution.id}</h3>
           </Link>
@@ -84,7 +84,7 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
               variant={"ghost"}
               onClick={() => handleDeleteExecution(execution.id)}
             >
-              <Trash className="w-4 h-4" />
+              <Trash className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -108,14 +108,14 @@ const ExecutionNodeItem: React.FC<{
   nodeData: NodeState;
 }> = ({ nodeData }) => {
   return (
-    <li key={nodeData.id} className="my-2 p-2 rounded border">
+    <li key={nodeData.id} className="my-2 rounded border p-2">
       <div className="flex items-center justify-between">
         <h2 className="font-bold">{nodeData.type}</h2>
         <div>
           <Badge
             className={cn(
               "ml-2",
-              nodeData?.state?.status === "done" && "bg-green-400"
+              nodeData?.state?.status === "done" && "bg-green-400",
             )}
           >
             {nodeData?.state?.status}
@@ -145,8 +145,8 @@ const LogsTable: React.FC<{ record: Record<string, any> }> = ({ record }) => {
   return (
     <div className="grid gap-2">
       {columns.map((column) => (
-        <div className="flex flex-row even:bg-muted" key={column.accessor}>
-          <div className="font-bold min-w-[6rem]">{column.Header}</div>
+        <div className="even:bg-muted flex flex-row" key={column.accessor}>
+          <div className="min-w-[6rem] font-bold">{column.Header}</div>
           <div className="flex-1">
             {typeof record[column.accessor] === "string" ? (
               <div>{record[column.accessor]}</div>

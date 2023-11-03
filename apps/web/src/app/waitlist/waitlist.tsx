@@ -1,8 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { PropsWithChildren, useState } from "react";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
+import { usePostHog } from "posthog-js/react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { Confettis } from "@/components/confetti";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,8 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import {
   Form,
   FormDescription,
@@ -20,11 +24,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
 import { addToWaitlist } from "../action";
-import { PropsWithChildren, useState } from "react";
-import { Confettis } from "@/components/confetti";
-import Image from "next/image";
-import { usePostHog } from "posthog-js/react";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -60,13 +62,13 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <div>
             <DialogHeader>
               <DialogTitle className="text-4xl">YESS!</DialogTitle>
-              <DialogDescription className="leading-relaxed py-2">
+              <DialogDescription className="py-2 leading-relaxed">
                 Will be the first to experience our launch! Stay in the loop by
                 following us on{" "}
                 <a
                   href="https://twitter.com/seocraftai"
                   target="_blank"
-                  className="font-bold cursor-pointer text-primary"
+                  className="text-primary cursor-pointer font-bold"
                 >
                   @seocraftai
                 </a>
@@ -84,7 +86,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
               <a
                 href="/discord"
                 target="_blank"
-                className="font-bold cursor-pointer text-primary"
+                className="text-primary cursor-pointer font-bold"
               >
                 Discord community
               </a>{" "}

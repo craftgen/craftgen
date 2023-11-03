@@ -1,4 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
+
 import { getWorkflowInputOutput } from "@/actions/get-workflow-input-output";
 import { api } from "@/trpc/server";
 

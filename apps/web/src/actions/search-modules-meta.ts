@@ -1,10 +1,12 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
-import { z } from "zod";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const searchModulesMeta = action(
   z.object({
@@ -22,7 +24,7 @@ export const searchModulesMeta = action(
             eq(workflow.public, true),
             ilike(workflow.name, `%${params.query}%`),
             ilike(workflow.slug, `%${params.query}%`),
-            ilike(workflow.projectSlug, `%${params.query}%`)
+            ilike(workflow.projectSlug, `%${params.query}%`),
           ),
         limit: 10,
       });
@@ -34,5 +36,5 @@ export const searchModulesMeta = action(
         owner: workflow.projectSlug,
       }));
     });
-  }
+  },
 );

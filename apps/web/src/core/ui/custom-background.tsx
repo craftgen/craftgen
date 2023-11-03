@@ -2,7 +2,7 @@ import { BaseSchemes } from "rete";
 import { AreaPlugin } from "rete-area-plugin";
 
 export function addCustomBackground<S extends BaseSchemes, K>(
-  area: AreaPlugin<S, K>
+  area: AreaPlugin<S, K>,
 ) {
   const background = document.createElement("div");
 
@@ -10,5 +10,3 @@ export function addCustomBackground<S extends BaseSchemes, K>(
   background.classList.add("fill-area");
   area.area.content.add(background);
 }
-
-

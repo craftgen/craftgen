@@ -1,14 +1,14 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef } from "react";
 import {
   getHandler,
   PlateElement,
   PlateElementProps,
   Value,
-} from '@udecode/plate-common';
-import { TMentionElement } from '@udecode/plate-mention';
-import { useFocused, useSelected } from 'slate-react';
+} from "@udecode/plate-common";
+import { TMentionElement } from "@udecode/plate-mention";
+import { useFocused, useSelected } from "slate-react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export interface MentionElementProps
   extends PlateElementProps<Value, TMentionElement> {
@@ -33,12 +33,12 @@ const MentionElement = forwardRef<
     <PlateElement
       ref={ref}
       className={cn(
-        'inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium',
-        selected && focused && 'ring-2 ring-ring',
-        element.children[0].bold === true && 'font-bold',
-        element.children[0].italic === true && 'italic',
-        element.children[0].underline === true && 'underline',
-        className
+        "bg-muted inline-block cursor-pointer rounded-md px-1.5 py-0.5 align-baseline text-sm font-medium",
+        selected && focused && "ring-ring ring-2",
+        element.children[0].bold === true && "font-bold",
+        element.children[0].italic === true && "italic",
+        element.children[0].underline === true && "underline",
+        className,
       )}
       data-slate-value={element.value}
       contentEditable={false}
@@ -52,6 +52,6 @@ const MentionElement = forwardRef<
   );
 });
 
-MentionElement.displayName = 'MentionElement';
+MentionElement.displayName = "MentionElement";
 
 export { MentionElement };

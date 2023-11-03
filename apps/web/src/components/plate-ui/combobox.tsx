@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import * as Popover from '@radix-ui/react-popover';
+import React, { useEffect } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import {
   comboboxActions,
   ComboboxContentItemProps,
@@ -16,14 +16,14 @@ import {
   useComboboxControls,
   useComboboxItem,
   useComboboxSelectors,
-} from '@udecode/plate-combobox';
+} from "@udecode/plate-combobox";
 import {
   useEventEditorSelectors,
   usePlateEditorState,
-} from '@udecode/plate-common';
-import { createVirtualRef } from '@udecode/plate-floating';
+} from "@udecode/plate-common";
+import { createVirtualRef } from "@udecode/plate-floating";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export function ComboboxItem<TData extends Data = NoData>({
   combobox,
@@ -36,8 +36,8 @@ export function ComboboxItem<TData extends Data = NoData>({
   return (
     <div
       className={cn(
-        'relative flex h-9 cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
-        'hover:bg-accent hover:text-accent-foreground data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground'
+        "relative flex h-9 cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors",
+        "hover:bg-accent hover:text-accent-foreground data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground",
       )}
       {...props}
     />
@@ -45,7 +45,7 @@ export function ComboboxItem<TData extends Data = NoData>({
 }
 
 export function ComboboxContent<TData extends Data = NoData>(
-  props: ComboboxContentProps<TData>
+  props: ComboboxContentProps<TData>,
 ) {
   const {
     component: Component,
@@ -77,7 +77,7 @@ export function ComboboxContent<TData extends Data = NoData>(
           side="bottom"
           align="start"
           className={cn(
-            'z-[500] m-0 max-h-[288px] w-[300px] overflow-scroll rounded-md bg-popover p-0 shadow-md'
+            "bg-popover z-[500] m-0 max-h-[288px] w-[300px] overflow-scroll rounded-md p-0 shadow-md",
           )}
           onOpenAutoFocus={(event) => event.preventDefault()}
         >

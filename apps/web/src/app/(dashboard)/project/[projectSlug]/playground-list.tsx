@@ -1,14 +1,15 @@
 "use client";
 
-import useSWR, { mutate } from "swr";
-import { clonePlayground, deleteWorkflow, getWorkflows } from "./actions";
-import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import Link from "next/link";
-import { DataTable } from "@/components/data-table";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { ResultOf } from "@/lib/type";
 import { formatDistanceToNow } from "date-fns";
+import { PlusIcon, Rocket } from "lucide-react";
+import useSWR, { mutate } from "swr";
+
+import { DataTable } from "@/components/data-table";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +18,12 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { WorkflowEditDialog } from "./playground-edit-dialog";
+import { ResultOf } from "@/lib/type";
+
+import { clonePlayground, deleteWorkflow, getWorkflows } from "./actions";
 import { useProject } from "./hooks/use-project";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
-import { PlusIcon, Rocket } from "lucide-react";
+import { WorkflowEditDialog } from "./playground-edit-dialog";
 
 type Playground = ResultOf<typeof getWorkflows>[number];
 
@@ -53,7 +55,7 @@ const columns: ColumnDef<Playground>[] = [
           href={`/${row.original?.project.slug}/${row.original.slug}/v/${row.original.version.version}`}
         >
           <Button variant="outline">
-            <Rocket className="w-4 h-4 mr-2" />
+            <Rocket className="mr-2 h-4 w-4" />
             Playground
           </Button>
         </Link>
@@ -93,7 +95,7 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+            className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
           >
             <DotsHorizontalIcon className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
@@ -130,7 +132,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
 }) => {
   const { data, isLoading } = useSWR(
     `/api/project/${projectId}/playgrounds`,
-    () => getWorkflows(projectId)
+    () => getWorkflows(projectId),
   );
   const [isOpen, setOpen] = useState(false);
   return (

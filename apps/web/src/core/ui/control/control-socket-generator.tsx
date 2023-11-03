@@ -1,4 +1,24 @@
+import { useEffect } from "react";
+import { SelectValue } from "@radix-ui/react-select";
+import { Trash2Icon, X } from "lucide-react";
+import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import * as z from "zod";
+
+import {
+  formSchema,
+  SocketGeneratorControl,
+} from "@seocraft/core/src/controls/socket-generator";
+import { types } from "@seocraft/core/src/sockets";
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -8,8 +28,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
-import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -18,24 +36,8 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { SelectValue } from "@radix-ui/react-select";
-import { useEffect } from "react";
-import { Trash2Icon, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import {
-  SocketGeneratorControl,
-  formSchema,
-} from "@seocraft/core/src/controls/socket-generator";
-import { types } from "@seocraft/core/src/sockets";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;
@@ -62,7 +64,7 @@ export function SocketGeneratorControlComponent(props: {
     {
       control: form.control, // control props comes from useForm (optional: if you are using FormContext)
       name: "sockets", // unique name for your Field Array
-    }
+    },
   );
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
     const fieldsValue = form.getValues();
@@ -86,7 +88,7 @@ export function SocketGeneratorControlComponent(props: {
     <Form {...form}>
       <form
         onChange={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
+        className="flex h-full flex-col"
       >
         <FormField
           control={form.control}
@@ -118,12 +120,12 @@ export function SocketGeneratorControlComponent(props: {
             </FormItem>
           )}
         />
-        <ScrollArea className="max-h-fit py-4 flex flex-col">
+        <ScrollArea className="flex max-h-fit flex-col py-4">
           <Accordion
             type="multiple"
             className={cn(
-              "border rounded p-2",
-              fields.length === 0 && "border-dashed"
+              "rounded border p-2",
+              fields.length === 0 && "border-dashed",
             )}
             defaultValue={
               fields.length === 1
@@ -132,14 +134,14 @@ export function SocketGeneratorControlComponent(props: {
             }
           >
             {fields.length === 0 && (
-              <div className="items-center justify-center flex text-muted-foreground text-sm">
+              <div className="text-muted-foreground flex items-center justify-center text-sm">
                 No fields added yet
               </div>
             )}
             {fields.map((field, index) => (
               <AccordionItem value={`field.${index}`} key={`field.${index}`}>
                 <AccordionTrigger className="hover:no-underline">
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex w-full items-center justify-between">
                     <Badge>{field.type}</Badge>
                     {field.name || `Untitled Field`}
                     <Button
@@ -147,14 +149,14 @@ export function SocketGeneratorControlComponent(props: {
                       variant={"ghost"}
                       onClick={() => handleRemove(index)}
                     >
-                      <Trash2Icon className="w-4 h-4" />
+                      <Trash2Icon className="h-4 w-4" />
                     </Button>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-col border p-2 relative @container rounded shadow mb-4">
-                    <div className="absolute top-2 right-2"></div>
-                    <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
+                  <div className="@container relative mb-4 flex flex-col rounded border p-2 shadow">
+                    <div className="absolute right-2 top-2"></div>
+                    <div className="@lg:grid-cols-3 @md:grid-cols-2 grid grid-cols-1 gap-2">
                       <FormField
                         control={form.control}
                         name={`sockets.${index}.name`}
@@ -282,9 +284,9 @@ const FieldItem: React.FC<{
   return (
     <div
       key={`field.${index}`}
-      className="flex flex-col border p-2 relative @container rounded shadow mb-4"
+      className="@container relative mb-4 flex flex-col rounded border p-2 shadow"
     >
-      <div className="absolute top-2 right-2">
+      <div className="absolute right-2 top-2">
         <Button
           type={"button"}
           variant={"ghost"}
@@ -293,7 +295,7 @@ const FieldItem: React.FC<{
           <X />
         </Button>
       </div>
-      <div className="grid @lg:grid-cols-3 @md:grid-cols-2 grid-cols-1 gap-2">
+      <div className="@lg:grid-cols-3 @md:grid-cols-2 grid grid-cols-1 gap-2">
         <FormField
           control={form.control}
           name={`sockets.${index}.name`}

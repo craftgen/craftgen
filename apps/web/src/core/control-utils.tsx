@@ -1,6 +1,8 @@
-import { Input } from "@/components/ui/input";
+import { ControllerRenderProps } from "react-hook-form";
+
 import { SocketNameType } from "@seocraft/core/src/sockets";
-import { ControllerRenderProps } from "react-hook-form"
+
+import { Input } from "@/components/ui/input";
 
 export const renderField = (type: string, field: ControllerRenderProps) => {
   switch (type) {
@@ -25,7 +27,7 @@ export const renderField = (type: string, field: ControllerRenderProps) => {
 
 export const renderFieldBaseOnSocketType = (
   type: SocketNameType,
-  field: ControllerRenderProps
+  field: ControllerRenderProps,
 ) => {
   switch (type) {
     case "String":
@@ -48,7 +50,7 @@ export const renderFieldBaseOnSocketType = (
 
 export const renderControlBaseOnSocketType = (
   type: SocketNameType,
-  field: ControllerRenderProps
+  field: ControllerRenderProps,
 ) => {
   switch (type) {
     case "String":

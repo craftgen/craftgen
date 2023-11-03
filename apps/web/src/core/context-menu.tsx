@@ -1,3 +1,10 @@
+import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Key } from "ts-key-enum";
+
+import { NodeTypes } from "@seocraft/core/src/types";
+
+import { Icons } from "@/components/icons";
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,14 +15,9 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { PropsWithChildren, useMemo, useRef, useState } from "react";
-import { useCraftStore } from "./use-store";
-import { useHotkeys } from "react-hotkeys-hook";
-import { Key } from "ts-key-enum";
-import { NodeTypes } from "@seocraft/core/src/types";
-import { Icons } from "@/components/icons";
-import React from "react";
 import { cn } from "@/lib/utils";
+
+import { useCraftStore } from "./use-store";
 
 export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
   children,
@@ -88,7 +90,7 @@ export const ContextMenuProvider: React.FC<PropsWithChildren> = ({
               })}
             </CommandGroup>
           </CommandList>
-          <div className={cn("p-4 w-0", value && "w-1/2")}>
+          <div className={cn("w-0 p-4", value && "w-1/2")}>
             {value && <NodeMetaInfo nodeType={value as NodeTypes} />}
           </div>
         </div>
@@ -103,9 +105,9 @@ const NodeMetaInfo = ({ nodeType }: { nodeType: NodeTypes }) => {
     () =>
       di &&
       Array.from(di.nodeMeta.values()).find(
-        (n) => n.nodeType.toString().toLowerCase() === nodeType
+        (n) => n.nodeType.toString().toLowerCase() === nodeType,
       ),
-    [nodeType, di]
+    [nodeType, di],
   );
   const Icon = useMemo(() => {
     return Icons[nodeMeta?.icon as keyof typeof Icons];
@@ -113,10 +115,10 @@ const NodeMetaInfo = ({ nodeType }: { nodeType: NodeTypes }) => {
   if (!nodeMeta) return null;
   return (
     <div className="p-4">
-      <div className="flex items-center w-full justify-center">
-        <Icon className="w-20 h-20" />
+      <div className="flex w-full items-center justify-center">
+        <Icon className="h-20 w-20" />
       </div>
-      <h3 className="font-bold font-mono text-xl">{nodeMeta?.label}</h3>
+      <h3 className="font-mono text-xl font-bold">{nodeMeta?.label}</h3>
       <p>{nodeMeta?.description}</p>
     </div>
   );

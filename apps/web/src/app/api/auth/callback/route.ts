@@ -1,10 +1,8 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
 import type { NextRequest } from "next/server";
-import type { Database } from "@seocraft/supabase/db/database.types";
-import { BASE_URL } from "@/lib/constants";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+
 import {
   and,
   db,
@@ -13,6 +11,9 @@ import {
   projectMembers,
   user,
 } from "@seocraft/supabase/db";
+import type { Database } from "@seocraft/supabase/db/database.types";
+
+import { BASE_URL } from "@/lib/constants";
 
 // export const runtime = "edge";
 
@@ -48,11 +49,11 @@ export async function GET(request: NextRequest) {
       projectMembers,
       and(
         eq(projectMembers.userId, session?.user.id!),
-        eq(projectMembers.projectId, project.id)
-      )
+        eq(projectMembers.projectId, project.id),
+      ),
     )
     .where(
-      and(eq(project.personal, true), eq(project.id, projectMembers.projectId))
+      and(eq(project.personal, true), eq(project.id, projectMembers.projectId)),
     )
     .limit(1);
   if (!projectS.project) {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { PlateLeaf, PlateLeafProps } from '@udecode/plate-common';
+import React from "react";
+import { PlateLeaf, PlateLeafProps } from "@udecode/plate-common";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export function HighlightLeaf({
   className,
@@ -9,7 +9,7 @@ export function HighlightLeaf({
   ...props
 }: PlateLeafProps) {
   return (
-    <PlateLeaf asChild className={cn('bg-yellow-200', className)} {...props}>
+    <PlateLeaf asChild className={cn("bg-yellow-200", className)} {...props}>
       <mark>{children}</mark>
     </PlateLeaf>
   );

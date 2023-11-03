@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   ELEMENT_IMAGE,
   ELEMENT_MEDIA_EMBED,
   useMediaToolbarButton,
-} from '@udecode/plate-media';
+} from "@udecode/plate-media";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from "./toolbar";
 
 export function MediaToolbarButton({
   nodeType,

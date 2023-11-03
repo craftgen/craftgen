@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   ELEMENT_UL,
   useListToolbarButton,
   useListToolbarButtonState,
-} from '@udecode/plate-list';
+} from "@udecode/plate-list";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from "./toolbar";
 
 export function ListToolbarButton({
   nodeType = ELEMENT_UL,
@@ -19,7 +19,7 @@ export function ListToolbarButton({
 
   return (
     <ToolbarButton
-      tooltip={nodeType === ELEMENT_UL ? 'Bulleted List' : 'Numbered List'}
+      tooltip={nodeType === ELEMENT_UL ? "Bulleted List" : "Numbered List"}
       {...props}
     >
       {nodeType === ELEMENT_UL ? <Icons.ul /> : <Icons.ol />}

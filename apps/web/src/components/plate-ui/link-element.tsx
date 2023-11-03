@@ -1,8 +1,8 @@
-import React from 'react';
-import { PlateElement, PlateElementProps, Value } from '@udecode/plate-common';
-import { TLinkElement, useLink } from '@udecode/plate-link';
+import React from "react";
+import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
+import { TLinkElement, useLink } from "@udecode/plate-link";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 const LinkElement = React.forwardRef<
   React.ElementRef<typeof PlateElement>,
@@ -14,7 +14,7 @@ const LinkElement = React.forwardRef<
     <PlateElement
       asChild
       ref={ref}
-      className={cn('font-medium underline underline-offset-4', className)}
+      className={cn("font-medium underline underline-offset-4", className)}
       {...linkProps}
       {...(props as any)}
     >
@@ -22,6 +22,6 @@ const LinkElement = React.forwardRef<
     </PlateElement>
   );
 });
-LinkElement.displayName = 'LinkElement';
+LinkElement.displayName = "LinkElement";
 
 export { LinkElement };

@@ -1,7 +1,9 @@
-import { v4 as uuidv4 } from "uuid";
-import { Editor } from "@/components/editor";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+import { Editor } from "@/components/editor";
 import { MyValue } from "@/lib/plate/plate-types";
+
 import { ArticleControl } from "../../controls/article";
 
 const initialValue: MyValue = [
@@ -31,7 +33,7 @@ export function ArticleEditor<T extends MyValue>(props: {
   };
 
   return (
-    <div className="flex-1 h-full w-full">
+    <div className="h-full w-full flex-1">
       <Editor id={"editor"} initialValue={val} onChange={handleChange} />
     </div>
   );

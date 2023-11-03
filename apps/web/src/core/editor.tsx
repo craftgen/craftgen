@@ -1,30 +1,31 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import { ReactPlugin, Presets } from "rete-react-plugin";
+import { Presets, ReactPlugin } from "rete-react-plugin";
 
-import { CustomNode } from "./ui/custom-node";
-import { addCustomBackground } from "./ui/custom-background";
-import { CustomSocket } from "./ui/custom-socket";
-import { CustomConnection } from "./ui/custom-connection";
-import { ReteStoreInstance } from "./store";
-import { getControl } from "./control";
-
-import { ResultOf, ResultOfAction } from "@/lib/type";
-import { getWorkflow } from "@/actions/get-workflow";
 import { Editor } from "@seocraft/core";
-import { Schemes, WorkflowAPI, nodes } from "@seocraft/core/src/types";
-import { updateNodeMetadata } from "@/actions/update-node-meta";
-import { setContext } from "@/actions/update-context";
-import { toast } from "@/components/ui/use-toast";
-import { Badge } from "@/components/ui/badge";
 import { AreaExtra } from "@seocraft/core/src/editor";
-import { upsertNode } from "@/actions/upsert-node";
-import { deleteNode } from "@/actions/delete-node";
+import { nodes, Schemes, WorkflowAPI } from "@seocraft/core/src/types";
+
 import { saveEdge } from "@/actions/create-edge";
-import { deleteEdge } from "@/actions/delete-edge";
-import { updateExecutionNode } from "@/actions/update-execution-node";
 import { createExecution } from "@/actions/create-execution";
+import { deleteEdge } from "@/actions/delete-edge";
+import { deleteNode } from "@/actions/delete-node";
+import { getWorkflow } from "@/actions/get-workflow";
+import { setContext } from "@/actions/update-context";
+import { updateExecutionNode } from "@/actions/update-execution-node";
+import { updateNodeMetadata } from "@/actions/update-node-meta";
+import { upsertNode } from "@/actions/upsert-node";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
+import { ResultOf, ResultOfAction } from "@/lib/type";
+
+import { getControl } from "./control";
+import { ReteStoreInstance } from "./store";
+import { addCustomBackground } from "./ui/custom-background";
+import { CustomConnection } from "./ui/custom-connection";
+import { CustomNode } from "./ui/custom-node";
+import { CustomSocket } from "./ui/custom-socket";
 
 export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
 
@@ -108,7 +109,7 @@ export async function createEditor(params: {
         saveEdge: params.api.saveEdge!,
         deleteEdge: params.api.deleteEdge!,
         setState: params.api.setState!,
-        setContext: params.api.setContext!, 
+        setContext: params.api.setContext!,
         async getModulesMeta(params) {
           return [
             {
@@ -152,7 +153,7 @@ export async function createEditor(params: {
           return getControl(data);
         },
       },
-    })
+    }),
   );
 
   await di.mount({

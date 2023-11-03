@@ -1,8 +1,9 @@
 "use server";
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+
+import { db } from "@seocraft/supabase/db";
 
 export const getUserProjects = async () => {
   const supabase = createServerActionClient({ cookies });

@@ -1,13 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import { z } from "zod";
+
+import { Database } from "@seocraft/supabase/db/database.types";
+
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { BASE_URL } from "@/lib/constants";
-import { Database } from "@seocraft/supabase/db/database.types";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { getGoogleScopes } from "../../actions";
-import useSWR from "swr";
-import { useForm } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -15,10 +19,9 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { BASE_URL } from "@/lib/constants";
+
+import { getGoogleScopes } from "../../actions";
 import { useProject } from "../../hooks/use-project";
 
 const GoogleIntegrationsData = {

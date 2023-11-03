@@ -1,4 +1,5 @@
 import { Table } from "@/components/ui/table";
+
 import { getProject, getProjectTokens } from "../../actions";
 import { TokenList } from "./token-item";
 

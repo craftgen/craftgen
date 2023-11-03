@@ -1,3 +1,15 @@
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { debounce } from "lodash-es";
+import { AlertCircle, Check, X } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useDebounce } from "react-use";
+import { mutate } from "swr";
+import { z } from "zod";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,10 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -21,25 +29,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { mutate } from "swr";
-import { useProject } from "./hooks/use-project";
-import { useToast } from "@/components/ui/use-toast";
-import { useParams, useRouter } from "next/navigation";
-import {
-  createPlayground as createWorkflow,
-  checkSlugAvailable,
-} from "./actions";
-import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import { debounce } from "lodash-es";
-import { useDebounce } from "react-use";
-import { AlertCircle, Check, X } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+import {
+  checkSlugAvailable,
+  createPlayground as createWorkflow,
+} from "./actions";
+import { useProject } from "./hooks/use-project";
 
 const formSchema = z.object({
   template: z.string().nullable(),
@@ -101,7 +102,7 @@ export const WorkflowCreateDialog: React.FC<{
         slug,
         projectId: project?.id!,
       }),
-    500
+    500,
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -118,12 +119,12 @@ export const WorkflowCreateDialog: React.FC<{
         {
           message: "Name is not available.",
           path: ["name"],
-        }
+        },
       ) as any, //TODO: fix this
       {},
       {
         mode: "async",
-      }
+      },
     ),
     defaultValues: {
       template: null,
@@ -151,7 +152,7 @@ export const WorkflowCreateDialog: React.FC<{
       setNameAvailable(available);
     },
     500,
-    [slug]
+    [slug],
   );
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -219,14 +220,14 @@ export const WorkflowCreateDialog: React.FC<{
                     {templates.map((template, i) => (
                       <div
                         key={template.id}
-                        className="aspect-square bg-muted/80 hover:bg-muted rounded shadow hover:shadow-lg  flex flex-col p-4 cursor-pointer h-full"
+                        className="bg-muted/80 hover:bg-muted flex aspect-square h-full cursor-pointer  flex-col rounded p-4 shadow hover:shadow-lg"
                         onClick={() => handleTemplateChange(template.id)}
                       >
-                        <h5 className="font-bold text-lg">{template.name}</h5>
+                        <h5 className="text-lg font-bold">{template.name}</h5>
                         <p className="text-secondary-foreground text-sm">
                           {template.description}
                         </p>
-                        <div className="self-end mt-auto">
+                        <div className="mt-auto self-end">
                           {template.required && (
                             <div className="flex flex-row space-x-2">
                               {template.required.map((req) => (
@@ -252,13 +253,13 @@ export const WorkflowCreateDialog: React.FC<{
                       <FormControl>
                         <Input placeholder="Playground Name" {...field} />
                       </FormControl>
-                      <div className="items-center flex">
+                      <div className="flex items-center">
                         {name.length > 2 && (
                           <>
                             {!nameAvailable ? (
                               <>
                                 <Badge variant={"destructive"} className="mx-2">
-                                  <X className="w-4 h-4 inline-block mr-1" />
+                                  <X className="mr-1 inline-block h-4 w-4" />
                                   {slug}
                                 </Badge>
                                 is not available.
@@ -268,7 +269,7 @@ export const WorkflowCreateDialog: React.FC<{
                                 {slug !== name ? (
                                   <Alert>
                                     <AlertTitle>
-                                      <AlertCircle className="w-4 h-4 inline-block text-yellow-500 mr-1" />
+                                      <AlertCircle className="mr-1 inline-block h-4 w-4 text-yellow-500" />
                                       Your craft will created as{" "}
                                       <Badge variant={"outline"}>
                                         <b>{slug}</b>
@@ -286,7 +287,7 @@ export const WorkflowCreateDialog: React.FC<{
                                       variant={"secondary"}
                                       className={cn("mx-2")}
                                     >
-                                      <Check className="w-4 h-4 inline-block text-green-500 mr-1" />
+                                      <Check className="mr-1 inline-block h-4 w-4 text-green-500" />
                                       {slug}
                                     </Badge>
                                     is available

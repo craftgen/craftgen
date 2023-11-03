@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { forwardRef } from 'react';
-import { ClassNames, PlateElementProps, TEditor } from '@udecode/plate-common';
+import React, { forwardRef } from "react";
+import { ClassNames, PlateElementProps, TEditor } from "@udecode/plate-common";
 import {
   DragItemNode,
   useDraggable,
   useDraggableState,
-} from '@udecode/plate-dnd';
-import { DropTargetMonitor } from 'react-dnd';
+} from "@udecode/plate-dnd";
+import { DropTargetMonitor } from "react-dnd";
 
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export interface DraggableProps
   extends PlateElementProps,
@@ -73,7 +73,7 @@ export interface DraggableProps
       dragItem: DragItemNode;
       nodeRef: any;
       id: string;
-    }
+    },
   ) => boolean;
 }
 
@@ -89,30 +89,30 @@ const Draggable = forwardRef<HTMLDivElement, DraggableProps>(
     return (
       <div
         className={cn(
-          'relative',
-          isDragging && 'opacity-50',
-          'group',
-          className
+          "relative",
+          isDragging && "opacity-50",
+          "group",
+          className,
         )}
         ref={ref}
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-0 flex h-full -translate-x-full cursor-text opacity-0 group-hover:opacity-100',
-            classNames.gutterLeft
+            "pointer-events-none absolute top-0 flex h-full -translate-x-full cursor-text opacity-0 group-hover:opacity-100",
+            classNames.gutterLeft,
           )}
           {...gutterLeftProps}
         >
-          <div className={cn('flex h-[1.5em]', classNames.blockToolbarWrapper)}>
+          <div className={cn("flex h-[1.5em]", classNames.blockToolbarWrapper)}>
             <div
               className={cn(
-                'pointer-events-auto mr-1 flex items-center',
-                classNames.blockToolbar
+                "pointer-events-auto mr-1 flex items-center",
+                classNames.blockToolbar,
               )}
             >
               <Tooltip>
                 <TooltipTrigger ref={handleRef}>
-                  <Icons.dragHandle className="h-4 w-4 text-muted-foreground" />
+                  <Icons.dragHandle className="text-muted-foreground h-4 w-4" />
                 </TooltipTrigger>
                 <TooltipContent>Drag to move</TooltipContent>
               </Tooltip>
@@ -120,17 +120,17 @@ const Draggable = forwardRef<HTMLDivElement, DraggableProps>(
           </div>
         </div>
 
-        <div className={cn('', classNames.blockWrapper)} ref={previewRef}>
+        <div className={cn("", classNames.blockWrapper)} ref={previewRef}>
           {children}
 
           {!!dropLine && (
             <div
               className={cn(
-                'absolute inset-x-0 h-0.5 opacity-100',
-                'bg-ring',
-                dropLine === 'top' && '-top-px',
-                dropLine === 'bottom' && '-bottom-px',
-                classNames.dropLine
+                "absolute inset-x-0 h-0.5 opacity-100",
+                "bg-ring",
+                dropLine === "top" && "-top-px",
+                dropLine === "bottom" && "-bottom-px",
+                classNames.dropLine,
               )}
               {...droplineProps}
             />
@@ -138,8 +138,8 @@ const Draggable = forwardRef<HTMLDivElement, DraggableProps>(
         </div>
       </div>
     );
-  }
+  },
 );
-Draggable.displayName = 'Draggable';
+Draggable.displayName = "Draggable";
 
 export { Draggable };

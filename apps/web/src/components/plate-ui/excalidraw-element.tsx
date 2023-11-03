@@ -1,9 +1,9 @@
-import React from 'react';
-import { PlateElement, PlateElementProps, Value } from '@udecode/plate-common';
+import React from "react";
+import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
 import {
   TExcalidrawElement,
   useExcalidrawElement,
-} from '@udecode/plate-excalidraw';
+} from "@udecode/plate-excalidraw";
 
 export function ExcalidrawElement({
   nodeProps,

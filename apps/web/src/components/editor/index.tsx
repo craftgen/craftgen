@@ -1,15 +1,8 @@
 "use client";
 
-import { v4 as uuidv4 } from "uuid";
-import {
-  Plate,
-  PlateEditor,
-  PlateProvider,
-  createPlateEditor,
-  replaceNodeChildren,
-  usePlateSelectors,
-  usePlateStates,
-} from "@udecode/plate-common";
+import { useEffect, useRef } from "react";
+import { createAlignPlugin } from "@udecode/plate-alignment";
+import { createAutoformatPlugin } from "@udecode/plate-autoformat";
 import {
   createBoldPlugin,
   createCodePlugin,
@@ -17,66 +10,73 @@ import {
   createStrikethroughPlugin,
   createUnderlinePlugin,
 } from "@udecode/plate-basic-marks";
-import { createNodeIdPlugin } from "@udecode/plate-node-id";
-import { createBlockSelectionPlugin } from "@udecode/plate-selection";
 import { createBlockquotePlugin } from "@udecode/plate-block-quote";
+import { createExitBreakPlugin } from "@udecode/plate-break";
+import { createCaptionPlugin } from "@udecode/plate-caption";
 import { createCodeBlockPlugin } from "@udecode/plate-code-block";
+import { createComboboxPlugin } from "@udecode/plate-combobox";
 import {
+  CommentsProvider,
+  createCommentsPlugin,
+} from "@udecode/plate-comments";
+import {
+  createPlateEditor,
+  Plate,
+  PlateEditor,
+  PlateProvider,
+  replaceNodeChildren,
+  usePlateSelectors,
+  usePlateStates,
+} from "@udecode/plate-common";
+import { createDndPlugin } from "@udecode/plate-dnd";
+import { createEmojiPlugin } from "@udecode/plate-emoji";
+import {
+  createHeadingPlugin,
   ELEMENT_H1,
   ELEMENT_H2,
   ELEMENT_H3,
   ELEMENT_H4,
   ELEMENT_H5,
   ELEMENT_H6,
-  createHeadingPlugin,
 } from "@udecode/plate-heading";
-import {
-  ELEMENT_PARAGRAPH,
-  createParagraphPlugin,
-} from "@udecode/plate-paragraph";
-import { createAutoformatPlugin } from "@udecode/plate-autoformat";
-import { createResetNodePlugin } from "@udecode/plate-reset-node";
-
-import { createDndPlugin } from "@udecode/plate-dnd";
-import { createPlateUI } from "./create-plate-ui";
-import { autoformatRules } from "./autoformatRules";
-import { MyValue, createMyPlugins } from "@/lib/plate/plate-types";
-
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { DndProvider } from "react-dnd";
-import { TooltipProvider } from "../plate-ui/tooltip";
-import { FixedToolbar } from "../plate-ui/fixed-toolbar";
-import { FixedToolbarButtons } from "../plate-ui/fixed-toolbar-buttons";
-import { cn } from "@/lib/utils";
-import { FloatingToolbar } from "../plate-ui/floating-toolbar";
-import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
-import { CursorOverlay } from "../plate-ui/cursor-overlay";
-import { useEffect, useRef } from "react";
-import {
-  CommentsProvider,
-  createCommentsPlugin,
-} from "@udecode/plate-comments";
-import { CommentsPopover } from "../plate-ui/comments-popover";
-import { resetBlockTypePlugin } from "./reset-node-options";
-import { createExitBreakPlugin } from "@udecode/plate-break";
-import { exitBreakPlugin } from "./exit-break-plugin-options";
-import { createComboboxPlugin } from "@udecode/plate-combobox";
+import { createLinkPlugin } from "@udecode/plate-link";
 import {
   createImagePlugin,
   createMediaEmbedPlugin,
   ELEMENT_IMAGE,
   ELEMENT_MEDIA_EMBED,
 } from "@udecode/plate-media";
-import { createCaptionPlugin } from "@udecode/plate-caption";
+import { createNodeIdPlugin } from "@udecode/plate-node-id";
+import {
+  createParagraphPlugin,
+  ELEMENT_PARAGRAPH,
+} from "@udecode/plate-paragraph";
+import { createResetNodePlugin } from "@udecode/plate-reset-node";
 import { createSelectOnBackspacePlugin } from "@udecode/plate-select";
-import { createAlignPlugin } from "@udecode/plate-alignment";
-import { createEmojiPlugin } from "@udecode/plate-emoji";
+import { createBlockSelectionPlugin } from "@udecode/plate-selection";
 import { createTablePlugin } from "@udecode/plate-table";
-import { createLinkPlugin } from "@udecode/plate-link";
-import { linkPlugin } from "./plugins/link-plugin";
-import { captionPlugin } from "./plugins/caption-plugin";
+import { isEqual } from "lodash-es";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { v4 as uuidv4 } from "uuid";
+
+import { createMyPlugins, MyValue } from "@/lib/plate/plate-types";
+import { cn } from "@/lib/utils";
+
+import { CommentsPopover } from "../plate-ui/comments-popover";
+import { CursorOverlay } from "../plate-ui/cursor-overlay";
+import { FixedToolbar } from "../plate-ui/fixed-toolbar";
+import { FixedToolbarButtons } from "../plate-ui/fixed-toolbar-buttons";
+import { FloatingToolbar } from "../plate-ui/floating-toolbar";
+import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
+import { TooltipProvider } from "../plate-ui/tooltip";
 import { ScrollArea } from "../ui/scroll-area";
-import {  isEqual } from "lodash-es";
+import { autoformatRules } from "./autoformatRules";
+import { createPlateUI } from "./create-plate-ui";
+import { exitBreakPlugin } from "./exit-break-plugin-options";
+import { captionPlugin } from "./plugins/caption-plugin";
+import { linkPlugin } from "./plugins/link-plugin";
+import { resetBlockTypePlugin } from "./reset-node-options";
 
 type EditorProps = {
   id: string;
@@ -163,7 +163,7 @@ const plugins = createMyPlugins(
     components: createPlateUI(undefined, {
       draggable: false,
     }),
-  }
+  },
 );
 
 const EditorStore = ({ val, id }: { val: MyValue; id: string }) => {
@@ -191,7 +191,7 @@ export const Editor: React.FC<EditorProps> = ({
   const containerRef = useRef(null);
 
   return (
-    <div className="relative h-full flex flex-col @container">
+    <div className="@container relative flex h-full flex-col">
       <TooltipProvider>
         <DndProvider backend={HTML5Backend}>
           <PlateProvider<MyValue>
@@ -217,9 +217,9 @@ export const Editor: React.FC<EditorProps> = ({
               <ScrollArea
                 ref={containerRef}
                 className={cn(
-                  "relative flex max-w-[900px] overflow-x-auto w-full mx-auto",
+                  "relative mx-auto flex w-full max-w-[900px] overflow-x-auto",
                   "[&_.slate-start-area-top]:!h-4",
-                  "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]"
+                  "[&_.slate-start-area-left]:!w-[64px] [&_.slate-start-area-right]:!w-[64px]",
                 )}
               >
                 <Plate<MyValue>
@@ -228,7 +228,7 @@ export const Editor: React.FC<EditorProps> = ({
                     autoFocus: true,
                     className: cn(
                       "relative max-w-full leading-[1.4] outline-none [&_strong]:font-bold",
-                      "!min-h-[600px] max-w-[900px] w-full px-4 md:px-10 @lg:px-[96px] my-10"
+                      "!min-h-[600px] max-w-[900px] w-full px-4 md:px-10 @lg:px-[96px] my-10",
                     ),
                   }}
                 >

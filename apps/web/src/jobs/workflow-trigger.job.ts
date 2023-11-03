@@ -1,9 +1,12 @@
-import { client } from "@/trigger";
-import { WORKFLOW_TRIGGER } from "./workflow-trigger";
 import { eventTrigger } from "@trigger.dev/sdk";
-import { waitFor } from "xstate";
 import { isEqual } from "lodash-es";
+import { waitFor } from "xstate";
+
 import { getWorkflow } from "@/actions/get-workflow";
+import { client } from "@/trigger";
+
+import { WORKFLOW_TRIGGER } from "./workflow-trigger";
+
 // import { createHeadlessEditor } from "@/core/headless";
 
 client.defineJob({

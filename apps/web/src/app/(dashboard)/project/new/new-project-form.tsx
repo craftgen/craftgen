@@ -1,22 +1,29 @@
 "use client";
+
+import { PropsWithChildren, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Link } from "lucide-react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
 import * as z from "zod";
+
+import { Database } from "@seocraft/supabase/db/database.types";
+
+import { Icons } from "@/components/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import useSWR from "swr";
-
-import { PropsWithChildren, useEffect } from "react";
-import { createNewProject, getSites } from "./actions";
 import {
   Select,
   SelectContent,
@@ -24,15 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { slugify } from "@/lib/string";
-import { newProjectSchema, normalizeUrl } from "./shared";
-import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@seocraft/supabase/db/database.types";
 import { BASE_URL } from "@/lib/constants";
-import { Icons } from "@/components/icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Link } from "lucide-react";
+import { slugify } from "@/lib/string";
+
+import { createNewProject, getSites } from "./actions";
+import { newProjectSchema, normalizeUrl } from "./shared";
 
 export const NewProjectForm: React.FC<PropsWithChildren> = ({
   children,
@@ -111,7 +114,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
                         type="button"
                         onClick={handleConnectGoogle}
                       >
-                        <Icons.searchConsole className="w-8 h-8 py-2" />
+                        <Icons.searchConsole className="h-8 w-8 py-2" />
                         Connect Google Search Console
                       </Button>
                     </>

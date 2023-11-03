@@ -1,16 +1,18 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
+import { z } from "zod";
+
 import {
+  and,
+  context,
   db,
-  workflowVersion,
+  eq,
   nodeExecutionData,
   workflowNode,
-  context,
-  and,
-  eq,
+  workflowVersion,
 } from "@seocraft/supabase/db";
-import { z } from "zod";
+
+import { action } from "@/lib/safe-action";
 
 export const deleteNode = action(
   z.object({
@@ -39,8 +41,8 @@ export const deleteNode = action(
             and(
               eq(nodeExecutionData.workflowId, input.workflowId),
               eq(nodeExecutionData.workflowVersionId, input.workflowVersionId),
-              eq(nodeExecutionData.workflowNodeId, input.data.id)
-            )
+              eq(nodeExecutionData.workflowNodeId, input.data.id),
+            ),
           );
       }
       const [node] = await tx
@@ -49,11 +51,11 @@ export const deleteNode = action(
           and(
             eq(workflowNode.workflowId, input.workflowId),
             eq(workflowNode.workflowVersionId, input.workflowVersionId),
-            eq(workflowNode.id, input.data.id)
-          )
+            eq(workflowNode.id, input.data.id),
+          ),
         )
         .returning();
       await tx.delete(context).where(eq(context.id, node.contextId)); // TODO: soft delete
     });
-  }
+  },
 );

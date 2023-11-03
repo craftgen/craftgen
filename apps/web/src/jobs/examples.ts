@@ -1,4 +1,5 @@
 import { eventTrigger } from "@trigger.dev/sdk";
+
 import { client } from "@/trigger";
 
 // Your first job
@@ -20,7 +21,7 @@ client.defineJob({
     await io.wait("Wait 5 seconds for the punchline...", 5);
     await io.logger.info("You console it! 🤦");
     await io.logger.info(
-      "✨ Congratulations, You just ran your first successful Trigger.dev Job! ✨"
+      "✨ Congratulations, You just ran your first successful Trigger.dev Job! ✨",
     );
     // To learn how to write much more complex (and probably funnier) Jobs, check out our docs: https://trigger.dev/docs/documentation/guides/create-a-job
   },

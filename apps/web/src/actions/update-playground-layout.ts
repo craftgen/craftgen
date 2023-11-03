@@ -1,7 +1,8 @@
 "use server";
 
-import { db, workflow, eq } from "@seocraft/supabase/db";
 import type * as FlexLayout from "flexlayout-react";
+
+import { db, eq, workflow } from "@seocraft/supabase/db";
 
 export const updatePlaygroundLayout = async (params: {
   playgroundId: string;

@@ -1,4 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
+
 import { api } from "@/trpc/server";
 
 type Props = {

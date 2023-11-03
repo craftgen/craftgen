@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { client } from "@/trigger";
+
 import { getWorkflow } from "@/actions/get-workflow";
+import { client } from "@/trigger";
 
 export async function POST(
   request: Request,
@@ -8,7 +9,7 @@ export async function POST(
     params,
   }: {
     params: { projectSlug: string; playgroundSlug: string; version: string };
-  }
+  },
 ) {
   const input = await request.json();
   console.log("req", input, params);

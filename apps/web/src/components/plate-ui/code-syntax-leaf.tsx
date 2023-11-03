@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useCodeSyntaxLeaf } from '@udecode/plate-code-block';
-import { PlateLeaf, PlateLeafProps } from '@udecode/plate-common';
+import React from "react";
+import { useCodeSyntaxLeaf } from "@udecode/plate-code-block";
+import { PlateLeaf, PlateLeafProps } from "@udecode/plate-common";
 
 export function CodeSyntaxLeaf({ children, ...props }: PlateLeafProps) {
   const { leaf } = props;

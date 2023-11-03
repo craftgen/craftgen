@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   useCommentDeleteButton,
   useCommentDeleteButtonState,
   useCommentEditButton,
   useCommentEditButtonState,
-} from '@udecode/plate-comments';
+} from "@udecode/plate-comments";
 
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
-import { Button } from '@/components/plate-ui/button';
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/plate-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/plate-ui/dropdown-menu';
+} from "@/components/plate-ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export function CommentMoreDropdown() {
   const editButtonState = useCommentEditButtonState();
@@ -27,7 +27,7 @@ export function CommentMoreDropdown() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')}>
+        <Button variant="ghost" className={cn("text-muted-foreground h-6 p-1")}>
           <Icons.more className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

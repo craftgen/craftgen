@@ -1,10 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Star, Zap } from "lucide-react";
+
+import { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
+import { ResultOf } from "@/lib/type";
+
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Star, Zap } from "lucide-react";
-import { ResultOf } from "@/lib/type";
-import { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
-import Link from "next/link";
 
 type Author = {
   slug: string;
@@ -117,7 +119,7 @@ export const WorkflowList: React.FC<{
   workflows: Workflow[];
 }> = ({ workflows }) => {
   return (
-    <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-6">
+    <div className="grid  grid-cols-1 gap-6 sm:grid-cols-2  md:grid-cols-3">
       {workflows.map((workflow) => (
         <WorkflowItem key={workflow.id} workflow={workflow} />
       ))}
@@ -129,48 +131,48 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
   workflow,
 }) => {
   return (
-    <div className="flex flex-col group  hover:bg-muted rounded-lg cursor-pointer transition-all duration-500">
+    <div className="hover:bg-muted group flex  cursor-pointer flex-col rounded-lg transition-all duration-500">
       <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
         <div className="rounded-2xl p-1  transition-all">
           <AspectRatio ratio={5 / 3}>
             <Image
-              className="overflow-hidden object-cover rounded-lg aspect-"
+              className="aspect- overflow-hidden rounded-lg object-cover"
               src={`https://source.unsplash.com/random/500x300/?${workflow.name}`}
               alt={workflow.name}
               fill
             />
           </AspectRatio>
         </div>
-        <div className="p-2 flex-1 ">
+        <div className="flex-1 p-2 ">
           <h3 className="font-semibold">{workflow.name}</h3>
-          <p className="text-muted-foreground text-sm line-clamp-3">
+          <p className="text-muted-foreground line-clamp-3 text-sm">
             {workflow.description}
           </p>
         </div>
       </Link>
       <div className="flex items-center justify-between px-2 py-1">
-        <div className="flex rounded-full border-[1px] border-primary/40 items-center bg-muted/50 group-hover:bg-muted px-1 py-1">
-          <Avatar className="w-5 h-5">
+        <div className="border-primary/40 bg-muted/50 group-hover:bg-muted flex items-center rounded-full border-[1px] px-1 py-1">
+          <Avatar className="h-5 w-5">
             <AvatarImage
               src={`https://avatar.vercel.sh/${workflow.projectSlug}.png`}
               alt={`@${workflow.project.name}`}
             />
             <AvatarFallback>{workflow.project.slug}</AvatarFallback>
           </Avatar>
-          <span className="text-sm ml-2">{workflow.project.name}</span>
+          <span className="ml-2 text-sm">{workflow.project.name}</span>
         </div>
 
-        <div className="flex justify-center items-center">
-          <Star className="w-4 h-4 inline-block" />
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-center">
+          <Star className="inline-block h-4 w-4" />
+          <span className="text-muted-foreground text-sm">
             {workflow.versions[0].version}
           </span>
           {/* <span className="text-sm text-muted-foreground">
             {" "}
             ({Math.floor(Math.random() * 1000) + 2000})
           </span> */}
-          <Zap className="w-4 h-4 inline-block ml-2" />
-          <span className="text-sm text-muted-foreground">
+          <Zap className="ml-2 inline-block h-4 w-4" />
+          <span className="text-muted-foreground text-sm">
             {/* {workflow.usedByCount} */}(
             {Math.floor(Math.random() * 1000) + 2000})
           </span>

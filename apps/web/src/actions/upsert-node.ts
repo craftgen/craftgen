@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db, context, workflowNode, eq } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { context, db, eq, workflowNode } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const upsertNode = action(
   z.object({
@@ -73,5 +75,5 @@ export const upsertNode = action(
           },
         });
     });
-  }
+  },
 );

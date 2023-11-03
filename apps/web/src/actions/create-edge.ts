@@ -1,9 +1,11 @@
-'use server';
+"use server";
+
+import { z } from "zod";
+
+import { db, workflowEdge } from "@seocraft/supabase/db";
 
 import { ConnProps } from "@/core/types";
 import { action } from "@/lib/safe-action";
-import { db, workflowEdge } from "@seocraft/supabase/db";
-import { z } from "zod";
 
 export const saveEdge = action(
   z.object({
@@ -20,5 +22,5 @@ export const saveEdge = action(
       target: params.data.target,
       targetInput: params.data.targetInput,
     });
-  }
+  },
 );

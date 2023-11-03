@@ -1,16 +1,18 @@
 "use client";
 
-import { Action, useKBar, useRegisterActions, Priority } from "kbar";
-import {  useMemo, useState } from "react";
-import { NodeTypes } from "@seocraft/core/src/types";
-import { Icons } from "@/components/icons";
-import { Editor } from "@seocraft/core";
-import useSWR from "swr";
+import { useMemo, useState } from "react";
+import { Action, Priority, useKBar, useRegisterActions } from "kbar";
 import { debounce } from "lodash-es";
+import useSWR from "swr";
+
+import { Editor } from "@seocraft/core";
+import { NodeTypes } from "@seocraft/core/src/types";
+
+import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
 import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
+import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
 import { api } from "@/trpc/react";
 
 export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
@@ -75,7 +77,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     },
     {
       keepPreviousData: true,
-    }
+    },
   );
 
   const { data: orgs } = useSWR(
@@ -86,15 +88,18 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     },
     {
       keepPreviousData: true,
-    }
+    },
   );
 
-  const {data: workflowVersions} = api.craft.version.list.useQuery({
-    workflowId: w!,
-  }, {
-    enabled: !!w,
-    keepPreviousData: true,
-  })
+  const { data: workflowVersions } = api.craft.version.list.useQuery(
+    {
+      workflowId: w!,
+    },
+    {
+      enabled: !!w,
+      keepPreviousData: true,
+    },
+  );
 
   const workflowActions = useMemo<Action[]>(() => {
     return (
@@ -105,11 +110,9 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             name: `@${version.workflow.projectSlug}/${version.workflow.name}v${version.version}`,
             parent: version.workflowId,
             perform: async () => {
-              di?.addNode('ModuleNode', {
-
-              })
-            }
-          } as Action)
+              di?.addNode("ModuleNode", {});
+            },
+          }) as Action,
       ) || []
     );
   }, [workflowVersions]);
@@ -153,8 +156,8 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
 
   useRegisterActions(
     [...actions, ...moduleActions, ...orgActions, ...workflowActions].filter(
-      Boolean
+      Boolean,
     ),
-    [actions, moduleActions, orgActions, workflowActions]
+    [actions, moduleActions, orgActions, workflowActions],
   );
 };

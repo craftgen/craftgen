@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ResultOfAction } from "@/lib/type";
+import { useRouter } from "next/navigation";
+
+import { getWorkflow } from "@/actions/get-workflow";
 import {
   Select,
   SelectContent,
@@ -9,8 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/navigation";
-import { getWorkflow } from "@/actions/get-workflow";
+import { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
 
 export const VersionHistory: React.FC<{
@@ -18,9 +19,9 @@ export const VersionHistory: React.FC<{
 }> = ({ workflow }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const {data} = api.craft.version.list.useQuery({
+  const { data } = api.craft.version.list.useQuery({
     workflowId: workflow.id,
-  })
+  });
   const handleChange = (value: string) => {
     router.push(`/${workflow.projectSlug}/${workflow.slug}/v/${value}`);
   };

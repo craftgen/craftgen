@@ -1,45 +1,48 @@
 "use client";
 
-import { getWorkflow } from "@/actions/get-workflow";
-
-import { ResultOfAction } from "@/lib/type";
-import {
-  Shrink,
-  Lock,
-  CheckCircle,
-  Play,
-  Loader2,
-  ChevronLeftCircle,
-} from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { useRete } from "rete-react-plugin";
-import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar 
-import { createEditorFunc } from "./editor";
-import { useCraftStore } from "./use-store";
+import {
+  CheckCircle,
+  ChevronLeftCircle,
+  Loader2,
+  Lock,
+  Play,
+  Shrink,
+} from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useRete } from "rete-react-plugin";
 
+import { WorkflowAPI } from "@seocraft/core/src/types";
+
+import { getWorkflow } from "@/actions/get-workflow";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
-import { WorkflowAPI } from "@seocraft/core/src/types";
+
+import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
+import { createEditorFunc } from "./editor";
+import { useCraftStore } from "./use-store";
 
 export const Composer: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
   store: any;
 }> = observer(({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
-  const {mutateAsync: upsertNode} = api.craft.node.upsert.useMutation()
-  const {mutateAsync: deleteNode} = api.craft.node.delete.useMutation()
-  const {mutateAsync: saveEdge} = api.craft.edge.create.useMutation()
-  const {mutateAsync: deleteEdge} = api.craft.edge.delete.useMutation()
-  const {mutateAsync: setContext} = api.craft.node.setContext.useMutation()
-  const {mutateAsync: setState} = api.craft.execution.setState.useMutation()
-  const {mutateAsync: updateNodeMetadata} = api.craft.node.updateMetadata.useMutation()
-  const {mutateAsync: createExecution} = api.craft.execution.create.useMutation()
+  const { mutateAsync: upsertNode } = api.craft.node.upsert.useMutation();
+  const { mutateAsync: deleteNode } = api.craft.node.delete.useMutation();
+  const { mutateAsync: saveEdge } = api.craft.edge.create.useMutation();
+  const { mutateAsync: deleteEdge } = api.craft.edge.delete.useMutation();
+  const { mutateAsync: setContext } = api.craft.node.setContext.useMutation();
+  const { mutateAsync: setState } = api.craft.execution.setState.useMutation();
+  const { mutateAsync: updateNodeMetadata } =
+    api.craft.node.updateMetadata.useMutation();
+  const { mutateAsync: createExecution } =
+    api.craft.execution.create.useMutation();
   const workflowAPI: WorkflowAPI = {
     upsertNode,
     deleteNode,
@@ -48,9 +51,8 @@ export const Composer: React.FC<{
     setContext,
     setState,
     updateNodeMetadata,
-    createExecution
-
-  }
+    createExecution,
+  };
 
   const createEditor = useMemo(() => {
     return createEditorFunc({
@@ -68,17 +70,17 @@ export const Composer: React.FC<{
     di?.reset();
   };
   return (
-    <div className="w-full h-full">
-      <div className="absolute top-1 right-1 z-50 flex ">
+    <div className="h-full w-full">
+      <div className="absolute right-1 top-1 z-50 flex ">
         {workflow.readonly && workflow.version.publishedAt && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant={"outline"}
-                className="cursor-pointer group"
+                className="group cursor-pointer"
                 size="sm"
               >
-                <Lock className="w-4 h-4 group-hover:mr-2" />
+                <Lock className="h-4 w-4 group-hover:mr-2" />
                 <span className="hidden group-hover:block">Read Only</span>
               </Button>
             </TooltipTrigger>
@@ -129,7 +131,7 @@ export const Composer: React.FC<{
         </Tooltip>
       </div>
       {/* <ContextMenuProvider> */}
-      <div ref={ref} className="w-full h-full " />
+      <div ref={ref} className="h-full w-full " />
       {/* </ContextMenuProvider> */}
     </div>
   );

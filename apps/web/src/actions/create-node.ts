@@ -1,9 +1,11 @@
 "use server";
 
-import { NodeTypes, nodesMeta } from "@/core/types";
-import { action } from "@/lib/safe-action";
-import { db, context, workflowNode } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { context, db, workflowNode } from "@seocraft/supabase/db";
+
+import { nodesMeta, NodeTypes } from "@/core/types";
+import { action } from "@/lib/safe-action";
 
 export const createNode = action(
   z.object({
@@ -59,5 +61,5 @@ export const createNode = action(
         },
       });
     });
-  }
+  },
 );

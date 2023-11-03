@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -10,8 +11,8 @@ export const metadata: Metadata = {
 
 function LoginPage() {
   return (
-    <div className="flex min-h-screen h-full">
-      <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 h-full">
+    <div className="flex h-full min-h-screen">
+      <div className="flex h-full flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <LoginForm />
         </div>

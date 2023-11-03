@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import './code-block-element.css';
+import "./code-block-element.css";
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef } from "react";
 import {
   TCodeBlockElement,
   useCodeBlockElementState,
-} from '@udecode/plate-code-block';
-import { PlateElement, PlateElementProps, Value } from '@udecode/plate-common';
+} from "@udecode/plate-code-block";
+import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-import { CodeBlockCombobox } from './code-block-combobox';
+import { CodeBlockCombobox } from "./code-block-combobox";
 
 const CodeBlockElement = forwardRef<
   HTMLDivElement,
@@ -24,10 +24,10 @@ const CodeBlockElement = forwardRef<
   return (
     <PlateElement
       ref={ref}
-      className={cn('relative py-1', state.className, className)}
+      className={cn("relative py-1", state.className, className)}
       {...props}
     >
-      <pre className="overflow-x-auto rounded-md bg-muted px-6 py-8 font-mono text-sm leading-[normal] [tab-size:2]">
+      <pre className="bg-muted overflow-x-auto rounded-md px-6 py-8 font-mono text-sm leading-[normal] [tab-size:2]">
         <code>{children}</code>
       </pre>
 
@@ -42,6 +42,6 @@ const CodeBlockElement = forwardRef<
     </PlateElement>
   );
 });
-CodeBlockElement.displayName = 'CodeBlockElement';
+CodeBlockElement.displayName = "CodeBlockElement";
 
 export { CodeBlockElement };

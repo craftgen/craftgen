@@ -1,5 +1,6 @@
-import { Database } from "@seocraft/supabase/db/database.types";
 import { createClient } from "@supabase/supabase-js";
+
+import { Database } from "@seocraft/supabase/db/database.types";
 
 export const getServiceSupabase = () =>
   createClient<Database>(

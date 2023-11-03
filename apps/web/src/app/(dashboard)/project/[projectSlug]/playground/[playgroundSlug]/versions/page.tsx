@@ -1,6 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
-
 import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/trpc/server";
 
@@ -14,9 +14,9 @@ type Props = {
 
 export async function generateMetadata(
   { params, searchParams }: Props,
-  parent: ResolvingMetadata
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const workflowMeta  = await api.craft.module.meta.query({
+  const workflowMeta = await api.craft.module.meta.query({
     projectSlug: params.projectSlug,
     workflowSlug: params.playgroundSlug,
   });
@@ -27,15 +27,15 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const workflowMeta  = await api.craft.module.meta.query({
+  const workflowMeta = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
-  const versions  = await api.craft.version.list.query({
+  const versions = await api.craft.version.list.query({
     workflowId: workflowMeta.id,
-  })
+  });
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       <section className="grid grid-cols-1 divide-y ">
         {versions.map((version) => (
           <div className="p-2" key={version.id}>

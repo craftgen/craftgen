@@ -1,5 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
-import { useCraftStore } from "@/core/use-store";
+import { usePathname, useRouter } from "next/navigation";
+import { ajvResolver } from "@hookform/resolvers/ajv";
+import { useSelector } from "@xstate/react";
+import { Play } from "lucide-react";
+import { observer } from "mobx-react-lite";
+import { useForm } from "react-hook-form";
+
+import { InputNode } from "@seocraft/core/src/nodes";
+
+import { createExecution } from "@/actions/create-execution";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -7,25 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { ajvResolver } from "@hookform/resolvers/ajv";
-import { Button } from "@/components/ui/button";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  Form,
-} from "@/components/ui/form";
-import { useSelector } from "@xstate/react";
-import { Play } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { createExecution } from "@/actions/create-execution";
 import { renderField } from "@/core/control-utils";
-import { InputNode } from "@seocraft/core/src/nodes";
-import { observer } from "mobx-react-lite";
+import { useCraftStore } from "@/core/use-store";
 
 export const InputWindow: React.FC<{}> = observer(({}) => {
   const di = useCraftStore((state) => state.di);
@@ -48,7 +50,7 @@ export const InputHandler: React.FC<{
   setInput: (inputId: string) => void;
 }> = ({ inputs, input, setInput }) => {
   return (
-    <div className="w-full h-full p-4 space-y-4">
+    <div className="h-full w-full space-y-4 p-4">
       {inputs?.length > 0 ? (
         <Select
           onValueChange={(v) => setInput(v)}
@@ -66,7 +68,7 @@ export const InputHandler: React.FC<{
           </SelectContent>
         </Select>
       ) : (
-        <div className="flex items-center justify-center flex-col w-full h-full">
+        <div className="flex h-full w-full flex-col items-center justify-center">
           <h3>No inputs</h3>
           <p>Create an input</p>
         </div>
@@ -79,7 +81,7 @@ export const InputHandler: React.FC<{
 export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
   const description = useSelector(
     input.actor,
-    (state) => state.context.description
+    (state) => state.context.description,
   );
   const { projectSlug, workflowSlug } = useCraftStore((state) => ({
     projectSlug: state.projectSlug,
@@ -88,7 +90,7 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
   const schema = useSelector(input.actor, (state) => state.context.schema);
   const fields = useSelector(
     input.actor,
-    (state) => state.context.outputSockets
+    (state) => state.context.outputSockets,
   );
   const form = useForm({
     defaultValues: {
@@ -126,9 +128,9 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
       <h3 className="text-muted-foreground">{description}</h3>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex space-y-4 h-full flex-col"
+        className="flex h-full flex-col space-y-4"
       >
-        <div className="flex flex-col space-y-2 flex-1">
+        <div className="flex flex-1 flex-col space-y-2">
           {fields?.map((f: any) => (
             <FormField
               key={f.name}
@@ -145,9 +147,9 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
             />
           ))}
         </div>
-        <div className="flex items-center justify-end w-full">
+        <div className="flex w-full items-center justify-end">
           <Button type="submit" loading={form.formState.isSubmitting}>
-            <Play className="w-4 h-4 mr-2" />
+            <Play className="mr-2 h-4 w-4" />
             Execute
           </Button>
         </div>

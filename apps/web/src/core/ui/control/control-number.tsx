@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
+
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+
 import { NumberControl } from "../../controls/number";
 
 export function NumberControlComponent(props: { data: NumberControl }) {

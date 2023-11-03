@@ -1,4 +1,4 @@
-import { getProject, getAnalytics } from "./actions";
+import { getAnalytics, getProject } from "./actions";
 import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
 
@@ -15,7 +15,7 @@ const ProjectPage = async ({
     : undefined;
   return (
     <div className="p-10">
-      <h1 className="text-3xl p-2 leading-tight">{project?.name}</h1>
+      <h1 className="p-2 text-3xl leading-tight">{project?.name}</h1>
       {metrics && <Metrics metrics={metrics} />}
       <section>
         <PlaygroundList projectId={project?.id!} />

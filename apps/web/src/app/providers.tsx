@@ -1,4 +1,5 @@
 "use client";
+
 import { headers } from "next/headers";
 
 import { PHProvider } from "@/components/posthog-provider";

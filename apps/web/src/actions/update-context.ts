@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db, context, eq } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { context, db, eq } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const setContext = action(
   z.object({
@@ -15,5 +17,5 @@ export const setContext = action(
       .set({ state: input.context as any })
       .where(eq(context.id, input.contextId))
       .returning();
-  }
+  },
 );

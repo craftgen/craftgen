@@ -1,17 +1,17 @@
-import { AutoformatBlockRule } from '@udecode/plate-autoformat';
+import { AutoformatBlockRule } from "@udecode/plate-autoformat";
 import {
   ELEMENT_CODE_BLOCK,
   ELEMENT_CODE_LINE,
-} from '@udecode/plate-code-block';
+} from "@udecode/plate-code-block";
 import {
   getParentNode,
   isElement,
   isType,
   PlateEditor,
-} from '@udecode/plate-common';
-import { toggleList, unwrapList } from '@udecode/plate-list';
+} from "@udecode/plate-common";
+import { toggleList, unwrapList } from "@udecode/plate-list";
 
-export const preFormat: AutoformatBlockRule['preFormat'] = (editor) =>
+export const preFormat: AutoformatBlockRule["preFormat"] = (editor) =>
   unwrapList(editor);
 
 export const format = (editor: PlateEditor, customFormatting: any) => {
@@ -33,7 +33,7 @@ export const formatList = (editor: PlateEditor, elementType: string) => {
   format(editor, () =>
     toggleList(editor, {
       type: elementType,
-    })
+    }),
   );
 };
 

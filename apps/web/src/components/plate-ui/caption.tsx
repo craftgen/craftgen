@@ -1,22 +1,22 @@
-import React, { ComponentProps } from 'react';
+import React, { ComponentProps } from "react";
 import {
   Caption as CaptionPrimitive,
   CaptionTextarea as CaptionTextareaPrimitive,
-} from '@udecode/plate-caption';
-import { cva, VariantProps } from 'class-variance-authority';
+} from "@udecode/plate-caption";
+import { cva, VariantProps } from "class-variance-authority";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-const captionVariants = cva('max-w-full', {
+const captionVariants = cva("max-w-full", {
   variants: {
     align: {
-      left: 'mr-auto',
-      center: 'mx-auto',
-      right: 'ml-auto',
+      left: "mr-auto",
+      center: "mx-auto",
+      right: "ml-auto",
     },
   },
   defaultVariants: {
-    align: 'center',
+    align: "center",
   },
 });
 
@@ -30,7 +30,7 @@ const Caption = React.forwardRef<
     {...props}
   />
 ));
-Caption.displayName = 'Caption';
+Caption.displayName = "Caption";
 
 const CaptionTextarea = React.forwardRef<
   React.ElementRef<typeof CaptionTextareaPrimitive>,
@@ -39,14 +39,14 @@ const CaptionTextarea = React.forwardRef<
   <CaptionTextareaPrimitive
     ref={ref}
     className={cn(
-      'mt-2 w-full resize-none border-none bg-inherit p-0 font-[inherit] text-inherit',
-      'focus:outline-none focus:[&::placeholder]:opacity-0',
-      'text-center',
-      className
+      "mt-2 w-full resize-none border-none bg-inherit p-0 font-[inherit] text-inherit",
+      "focus:outline-none focus:[&::placeholder]:opacity-0",
+      "text-center",
+      className,
     )}
     {...props}
   />
 ));
-CaptionTextarea.displayName = 'CaptionTextarea';
+CaptionTextarea.displayName = "CaptionTextarea";
 
 export { Caption, CaptionTextarea };

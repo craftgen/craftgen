@@ -1,6 +1,6 @@
 "use server";
 
-import { db, workflow, eq } from "@seocraft/supabase/db";
+import { db, eq, workflow } from "@seocraft/supabase/db";
 
 export const updateWorkflowMeta = async (
   playgroundId: string,
@@ -8,7 +8,7 @@ export const updateWorkflowMeta = async (
     name: string;
     description?: string;
     public: boolean;
-  }
+  },
 ) => {
   return await db
     .update(workflow)

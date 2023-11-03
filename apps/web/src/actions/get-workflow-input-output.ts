@@ -1,6 +1,8 @@
-import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const getWorkflowInputOutput = action(
   z.object({
@@ -14,7 +16,7 @@ export const getWorkflowInputOutput = action(
         where: (workflow, { eq, and }) =>
           and(
             eq(workflow.slug, params.workflowSlug),
-            eq(workflow.projectSlug, params.projectSlug)
+            eq(workflow.projectSlug, params.projectSlug),
           ),
         with: {
           versions: {
@@ -25,7 +27,7 @@ export const getWorkflowInputOutput = action(
                 where: (workflowNode, { eq, or }) =>
                   or(
                     eq(workflowNode.type, "InputNode"),
-                    eq(workflowNode.type, "OutputNode")
+                    eq(workflowNode.type, "OutputNode"),
                   ),
                 with: {
                   context: {
@@ -40,15 +42,15 @@ export const getWorkflowInputOutput = action(
         },
       });
       const inputs = workflow?.versions[0]?.nodes.filter(
-        (node) => node.type === "InputNode"
+        (node) => node.type === "InputNode",
       );
       const outputs = workflow?.versions[0]?.nodes.filter(
-        (node) => node.type === "OutputNode"
+        (node) => node.type === "OutputNode",
       );
       return {
         inputs,
         outputs,
       };
     });
-  }
+  },
 );

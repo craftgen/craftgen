@@ -1,22 +1,22 @@
-import React from 'react';
-import { PlateElement, PlateElementProps, Value } from '@udecode/plate-common';
+import React from "react";
+import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
 import {
   ELEMENT_IMAGE,
   Image,
   TImageElement,
   useMediaState,
-} from '@udecode/plate-media';
-import { useResizableStore } from '@udecode/plate-resizable';
+} from "@udecode/plate-media";
+import { useResizableStore } from "@udecode/plate-resizable";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-import { Caption, CaptionTextarea } from './caption';
-import { MediaPopover } from './media-popover';
+import { Caption, CaptionTextarea } from "./caption";
+import { MediaPopover } from "./media-popover";
 import {
   mediaResizeHandleVariants,
   Resizable,
   ResizeHandle,
-} from './resizable';
+} from "./resizable";
 
 export function ImageElement({
   className,
@@ -24,12 +24,12 @@ export function ImageElement({
   nodeProps,
   ...props
 }: PlateElementProps<Value, TImageElement>) {
-  const { readOnly, focused, selected, align = 'center' } = useMediaState();
+  const { readOnly, focused, selected, align = "center" } = useMediaState();
   const width = useResizableStore().get.width();
 
   return (
     <MediaPopover pluginKey={ELEMENT_IMAGE}>
-      <PlateElement className={cn('py-2.5', className)} {...props}>
+      <PlateElement className={cn("py-2.5", className)} {...props}>
         <figure className="group relative m-0" contentEditable={false}>
           <Resizable
             align={align}
@@ -39,21 +39,21 @@ export function ImageElement({
             }}
           >
             <ResizeHandle
-              options={{ direction: 'left' }}
-              className={mediaResizeHandleVariants({ direction: 'left' })}
+              options={{ direction: "left" }}
+              className={mediaResizeHandleVariants({ direction: "left" })}
             />
             <Image
               className={cn(
-                'block w-full max-w-full cursor-pointer object-cover px-0',
-                'rounded-sm',
-                focused && selected && 'ring-2 ring-ring ring-offset-2'
+                "block w-full max-w-full cursor-pointer object-cover px-0",
+                "rounded-sm",
+                focused && selected && "ring-ring ring-2 ring-offset-2",
               )}
               alt=""
               {...nodeProps}
             />
             <ResizeHandle
-              options={{ direction: 'right' }}
-              className={mediaResizeHandleVariants({ direction: 'right' })}
+              options={{ direction: "right" }}
+              className={mediaResizeHandleVariants({ direction: "right" })}
             />
           </Resizable>
 

@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const checkAPIKeyExist = action(
   z.object({ projectId: z.string(), key: z.string() }),
@@ -13,5 +15,5 @@ export const checkAPIKeyExist = action(
     });
     if (!variable) throw new Error("API Key not found");
     return !!variable.value;
-  }
+  },
 );

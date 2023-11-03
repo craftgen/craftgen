@@ -1,16 +1,18 @@
 "use client";
 
-import { ModeToggle } from "@/components/theme-toggle";
-import { Session } from "@supabase/supabase-js";
 import { PropsWithChildren } from "react";
-import { Network, Slash } from "lucide-react";
-import { TeamSwitcher } from "./components/team-switcher";
-import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { UserNav } from "./components/user-nav";
-import { FeedbackButton } from "./components/feedback-button";
+import { useParams, usePathname } from "next/navigation";
+import { Session } from "@supabase/supabase-js";
+import { Network, Slash } from "lucide-react";
+
+import { ModeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+import { FeedbackButton } from "./components/feedback-button";
+import { TeamSwitcher } from "./components/team-switcher";
+import { UserNav } from "./components/user-nav";
 
 export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
   children,
@@ -18,10 +20,10 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
 }) => {
   const params = useParams();
   return (
-    <div className="fixed bg-background w-full z-50 h-12">
-      <div className="flex items-center justify-between w-full p-1">
+    <div className="bg-background fixed z-50 h-12 w-full">
+      <div className="flex w-full items-center justify-between p-1">
         <div className="flex items-center">
-          <div className="flex p-2 mr-4">
+          <div className="mr-4 flex p-2">
             <Link href="/dashboard">
               <Network />
             </Link>
@@ -31,7 +33,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
               {params.projectSlug && <TeamSwitcher />}
               {params.playgroundSlug && (
                 <>
-                  <Slash className="-rotate-12 text-muted-foreground w-4 h-4 mx-2" />
+                  <Slash className="text-muted-foreground mx-2 h-4 w-4 -rotate-12" />
                   <Link
                     href={`/${params.projectSlug}/${params.playgroundSlug}`}
                   >
@@ -42,7 +44,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
             </>
           )}
         </div>
-        <div className="flex px-2 items-center space-x-2">
+        <div className="flex items-center space-x-2 px-2">
           <FeedbackButton />
           <ModeToggle />
           {session && <UserNav session={session} />}
@@ -79,16 +81,16 @@ const ProjectNavbar: React.FC<{ session: Session }> = ({ session }) => {
   const params = useParams();
   const pathname = usePathname();
   return (
-    <div className="px-4 space-x-4">
+    <div className="space-x-4 px-4">
       {links.map((link) => (
         <Link
           href={link.href(params?.projectSlug as string)}
           key={link.name}
           className={cn(
-            "p-1 m-2 transition-all duration-200",
+            "m-2 p-1 transition-all duration-200",
             "hover:bg-primary/10 hover:rounded",
             pathname === link.href(params?.projectSlug as string) &&
-              "border-b-2 border-primary"
+              "border-primary border-b-2",
           )}
         >
           {link.name}

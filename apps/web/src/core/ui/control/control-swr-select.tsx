@@ -1,3 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
+
+import { type SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
+
 import {
   Select,
   SelectContent,
@@ -5,9 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
-import { useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
 
 export function SWRSelectControlComponent<T extends string, Data>(props: {
   data: SWRSelectControl<T, Data>;
@@ -31,7 +33,7 @@ export function SWRSelectControlComponent<T extends string, Data>(props: {
 
   return (
     <Select onValueChange={handleChange} defaultValue={props.data.value}>
-      <SelectTrigger className="min-w-[180px] w-full">
+      <SelectTrigger className="w-full min-w-[180px]">
         <SelectValue placeholder={props.data.placeholder} />
       </SelectTrigger>
       <SelectContent className="z-50">

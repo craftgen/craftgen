@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,5 +11,9 @@ export const RestoreVersionButton = ({}) => {
       description: "Coming soon.",
     });
   };
-  return <Button onClick={handleRestoreVersion} variant={'outline'}>Restore</Button>;
+  return (
+    <Button onClick={handleRestoreVersion} variant={"outline"}>
+      Restore
+    </Button>
+  );
 };

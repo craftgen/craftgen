@@ -1,11 +1,13 @@
-import { cn } from "@/lib/utils";
 import * as React from "react";
-import { Badge } from "@/components/ui/badge";
-import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { ClassicPreset } from "rete";
+import { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { match } from "ts-pattern";
-import { Socket, Sockets, socketConfig } from "@seocraft/core/src/sockets";
+
+import { Socket, socketConfig, Sockets } from "@seocraft/core/src/sockets";
 import { Schemes } from "@seocraft/core/src/types";
+
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function CustomSocket<T extends Socket>(props: {
   data: {
@@ -29,7 +31,7 @@ export function CustomSocket<T extends Socket>(props: {
         },
         ({ data: { input } }) => {
           return input;
-        }
+        },
       )
       .with(
         {
@@ -37,7 +39,7 @@ export function CustomSocket<T extends Socket>(props: {
             side: "output",
           },
         },
-        ({ data: { output } }) => output
+        ({ data: { output } }) => output,
       )
       .exhaustive();
   }, [props.data]);
@@ -48,8 +50,8 @@ export function CustomSocket<T extends Socket>(props: {
         className={cn(
           "text-primary-foreground z-10",
           config?.badge,
-          props.meta.side === "input" && "rounded-l-none -ml-1",
-          props.meta.side === "output" && "rounded-r-none -mr-1"
+          props.meta.side === "input" && "-ml-1 rounded-l-none",
+          props.meta.side === "output" && "-mr-1 rounded-r-none",
         )}
         data-testid="input-title"
         variant={"outline"}

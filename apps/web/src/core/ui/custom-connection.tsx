@@ -1,7 +1,7 @@
 import * as React from "react";
+import { ClassicScheme, Presets } from "rete-react-plugin";
 import tw from "tailwind-styled-components";
 
-import { ClassicScheme, Presets } from "rete-react-plugin";
 const { useConnection } = Presets.classic;
 
 const Svg = tw.svg`

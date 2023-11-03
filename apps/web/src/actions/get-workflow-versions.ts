@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const getWorkflowVersions = action(
   z.object({
@@ -15,7 +17,7 @@ export const getWorkflowVersions = action(
         where: (workflow, { eq, and }) =>
           and(
             eq(workflow.slug, params.workflowSlug),
-            eq(workflow.projectSlug, params.projectSlug)
+            eq(workflow.projectSlug, params.projectSlug),
           ),
         columns: {
           id: true,
@@ -33,7 +35,7 @@ export const getWorkflowVersions = action(
         },
       });
     });
-  }
+  },
 );
 
 export const getWorkflowVersionsById = action(
@@ -50,5 +52,5 @@ export const getWorkflowVersionsById = action(
         },
       });
     });
-  }
+  },
 );

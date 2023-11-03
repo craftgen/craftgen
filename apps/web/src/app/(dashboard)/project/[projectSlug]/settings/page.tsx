@@ -1,10 +1,12 @@
 // "use client";
 
-import { Button } from "@/components/ui/button";
-import { ProjectSettingsSection } from "./project-settings";
 import useDrivePicker from "react-google-drive-picker";
 import useSWR from "swr";
+
+import { Button } from "@/components/ui/button";
+
 import { getUser } from "../actions";
+import { ProjectSettingsSection } from "./project-settings";
 
 const ProjectSettingPage = () => {
   // const [openPicker, authResponse] = useDrivePicker();

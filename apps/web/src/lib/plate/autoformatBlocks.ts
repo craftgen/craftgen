@@ -1,10 +1,10 @@
-import { AutoformatRule } from '@udecode/plate-autoformat';
-import { ELEMENT_BLOCKQUOTE } from '@udecode/plate-block-quote';
+import { AutoformatRule } from "@udecode/plate-autoformat";
+import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
 import {
   ELEMENT_CODE_BLOCK,
   insertEmptyCodeBlock,
-} from '@udecode/plate-code-block';
-import { ELEMENT_DEFAULT, insertNodes, setNodes } from '@udecode/plate-common';
+} from "@udecode/plate-code-block";
+import { ELEMENT_DEFAULT, insertNodes, setNodes } from "@udecode/plate-common";
 import {
   ELEMENT_H1,
   ELEMENT_H2,
@@ -12,58 +12,58 @@ import {
   ELEMENT_H4,
   ELEMENT_H5,
   ELEMENT_H6,
-} from '@udecode/plate-heading';
-import { ELEMENT_HR } from '@udecode/plate-horizontal-rule';
+} from "@udecode/plate-heading";
+import { ELEMENT_HR } from "@udecode/plate-horizontal-rule";
 
-import { preFormat } from '@/lib/plate/autoformatUtils';
+import { preFormat } from "@/lib/plate/autoformatUtils";
 
 export const autoformatBlocks: AutoformatRule[] = [
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H1,
-    match: '# ',
+    match: "# ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H2,
-    match: '## ',
+    match: "## ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H3,
-    match: '### ',
+    match: "### ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H4,
-    match: '#### ',
+    match: "#### ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H5,
-    match: '##### ',
+    match: "##### ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_H6,
-    match: '###### ',
+    match: "###### ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_BLOCKQUOTE,
-    match: '> ',
+    match: "> ",
     preFormat,
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_CODE_BLOCK,
-    match: '```',
+    match: "```",
     triggerAtBlockStart: false,
     preFormat,
     format: (editor) => {
@@ -74,14 +74,14 @@ export const autoformatBlocks: AutoformatRule[] = [
     },
   },
   {
-    mode: 'block',
+    mode: "block",
     type: ELEMENT_HR,
-    match: ['---', '—-', '___ '],
+    match: ["---", "—-", "___ "],
     format: (editor) => {
       setNodes(editor, { type: ELEMENT_HR });
       insertNodes(editor, {
         type: ELEMENT_DEFAULT,
-        children: [{ text: '' }],
+        children: [{ text: "" }],
       });
     },
   },

@@ -1,9 +1,12 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import { Database } from "@seocraft/supabase/db/database.types";
-import { Navbar } from "./navbar";
-import { persistGoogleToken } from "./actions";
+
 import { Toaster } from "@/components/ui/toaster";
+
+import { persistGoogleToken } from "./actions";
+import { Navbar } from "./navbar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
@@ -19,7 +22,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="flex flex-col">
       <Navbar session={session!} />
-      <div className="relative flex-1 mt-12">{children}</div>
+      <div className="relative mt-12 flex-1">{children}</div>
       {/* <CommandMenu /> */}
       <Toaster />
     </main>

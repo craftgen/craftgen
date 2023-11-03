@@ -19,6 +19,8 @@ const config = {
     "^(expo(.*)$)|^(expo$)",
     "<THIRD_PARTY_MODULES>",
     "",
+    "^@seocraft/(.*)$",
+    "",
     "^@/(.*)$",
     "",
     "^~/",

@@ -1,11 +1,12 @@
+import { headers } from "next/headers";
 import {
   createTRPCProxyClient,
   loggerLink,
   unstable_httpBatchStreamLink,
 } from "@trpc/client";
-import { headers } from "next/headers";
 
 import { type AppRouter } from "@seocraft/api";
+
 import { getUrl, transformer } from "./shared";
 
 export const api = createTRPCProxyClient<AppRouter>({

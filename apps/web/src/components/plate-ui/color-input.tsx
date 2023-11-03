@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useColorInput } from '@udecode/plate-font';
+import React from "react";
+import { useColorInput } from "@udecode/plate-font";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export function ColorInput({
-  value = '#000000',
+  value = "#000000",
   onChange,
   children,
   className,
@@ -15,7 +15,7 @@ export function ColorInput({
   const { inputRef, childProps } = useColorInput();
 
   return (
-    <div className={cn('flex flex-col items-center', className)} {...props}>
+    <div className={cn("flex flex-col items-center", className)} {...props}>
       {React.Children.map(children, (child) => {
         if (!child) return child;
 

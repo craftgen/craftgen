@@ -1,24 +1,11 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useProject } from "../hooks/use-project";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { deleteProject, updateProject } from "../actions";
+import { useForm } from "react-hook-form";
 import { mutate } from "swr";
-import { Label } from "@/components/ui/label";
+import { z } from "zod";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +17,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+
+import { deleteProject, updateProject } from "../actions";
+import { useProject } from "../hooks/use-project";
 
 export const ProjectSettingsSection = () => {
   const { data: project } = useProject();
@@ -53,7 +55,7 @@ export const ProjectDeleteSection = () => {
     router.push("/dashboard");
   };
   return (
-    <div className="flex flex-col py-4 space-y-4">
+    <div className="flex flex-col space-y-4 py-4">
       <Label>Delete Project</Label>
       <p className="text-muted-foreground">
         Deleting a project will permanently delete all data associated with this

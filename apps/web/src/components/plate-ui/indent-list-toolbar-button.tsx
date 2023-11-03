@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   ListStyleType,
   useIndentListToolbarButton,
   useIndentListToolbarButtonState,
-} from '@udecode/plate-indent-list';
+} from "@udecode/plate-indent-list";
 
-import { Icons } from '@/components/icons';
+import { Icons } from "@/components/icons";
 
-import { ToolbarButton, ToolbarButtonProps } from './toolbar';
+import { ToolbarButton, ToolbarButtonProps } from "./toolbar";
 
 export function IndentListToolbarButton({
   nodeType = ListStyleType.Disc,
@@ -18,7 +18,7 @@ export function IndentListToolbarButton({
   return (
     <ToolbarButton
       tooltip={
-        nodeType === ListStyleType.Disc ? 'Bulleted List' : 'Numbered List'
+        nodeType === ListStyleType.Disc ? "Bulleted List" : "Numbered List"
       }
       {...props}
     >

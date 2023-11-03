@@ -1,7 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RocketIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { createRelease } from "@/actions/create-release";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +19,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { RocketIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
 
 const schema = z.object({
   changeLog: z.string(),
@@ -53,8 +54,8 @@ export const CreateReleaseButton = (props: {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size={"sm"} className="mx-2" variant={'outline'}>
-          <RocketIcon className="w-4 h-4 mr-2" /> Release
+        <Button size={"sm"} className="mx-2" variant={"outline"}>
+          <RocketIcon className="mr-2 h-4 w-4" /> Release
         </Button>
       </DialogTrigger>
       <DialogContent>

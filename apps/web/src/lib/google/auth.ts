@@ -1,6 +1,7 @@
 import { Session } from "@supabase/supabase-js";
-import { db } from "@seocraft/supabase/db";
 import { google } from "googleapis";
+
+import { db } from "@seocraft/supabase/db";
 
 export const getGoogleAuth = async ({ session }: { session: Session }) => {
   const googleAuth = new google.auth.OAuth2({

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-
 import Editor from "@monaco-editor/react";
 import { useMeasure, useSize } from "react-use";
+
 import { CodeControl } from "../../controls/code";
 
 export function CodeEditor<T extends string>(props: { data: CodeControl }) {

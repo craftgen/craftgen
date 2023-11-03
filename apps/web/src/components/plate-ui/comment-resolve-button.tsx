@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   CommentResolveButton as CommentResolveButtonPrimitive,
   useComment,
-} from '@udecode/plate-comments';
+} from "@udecode/plate-comments";
 
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
-import { buttonVariants } from '@/components/plate-ui/button';
+import { Icons } from "@/components/icons";
+import { buttonVariants } from "@/components/plate-ui/button";
+import { cn } from "@/lib/utils";
 
 export function CommentResolveButton() {
   const comment = useComment()!;
@@ -16,8 +16,8 @@ export function CommentResolveButton() {
   return (
     <CommentResolveButtonPrimitive
       className={cn(
-        buttonVariants({ variant: 'ghost' }),
-        'h-6 p-1 text-muted-foreground'
+        buttonVariants({ variant: "ghost" }),
+        "text-muted-foreground h-6 p-1",
       )}
     >
       {comment.isResolved ? (

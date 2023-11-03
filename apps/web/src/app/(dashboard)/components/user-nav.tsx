@@ -1,5 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Session } from "@supabase/supabase-js";
+import { useTheme } from "next-themes";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Key } from "ts-key-enum";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,14 +25,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Session } from "@supabase/supabase-js";
+
 import { useUser } from "../hooks/use-user";
-import { useMemo } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useRouter } from "next/navigation";
-import { Key } from "ts-key-enum";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useTheme } from "next-themes";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
@@ -57,7 +59,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="w-8 h-8">
+          <Avatar className="h-8 w-8">
             <AvatarImage
               src={user?.avatar_url || session.user?.user_metadata.avatar_url}
               alt={user?.fullName || session.user?.user_metadata.full_name}
@@ -72,7 +74,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
             <p className="text-sm font-medium leading-none">
               @{user?.username}
             </p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-muted-foreground text-xs leading-none">
               {user?.email}
             </p>
           </div>

@@ -2,50 +2,53 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
-import { createCraftStore } from "@/core/store";
-import { CraftContext, useCraftStore } from "@/core/use-store";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Session } from "@supabase/supabase-js";
+import { useSelector } from "@xstate/react";
+import * as FlexLayout from "flexlayout-react";
 import { debounce } from "lodash-es";
 import {
   FileClock,
   LayoutDashboard,
   MousePointerSquareDashed,
 } from "lucide-react";
-import { useStore } from "zustand";
-import { Button } from "@/components/ui/button";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { getControl } from "@/core/control";
-import * as FlexLayout from "flexlayout-react";
-import { Badge } from "@/components/ui/badge";
-import { useSelector } from "@xstate/react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { InputWindow } from "./input/input-window";
-import { Input as InputNode } from "rete/_types/presets/classic";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { match } from "ts-pattern";
-import { ResultOfAction } from "@/lib/type";
-import { LogsTab } from "./logs/logs-tab";
-import { Icons } from "@/components/icons";
+import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
+import { Input as InputNode } from "rete/_types/presets/classic";
+import { match } from "ts-pattern";
+import { useStore } from "zustand";
+
+import { NodeProps } from "@seocraft/core/src/types";
+
 import { getWorkflow } from "@/actions/get-workflow";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
-import { Composer } from "@/core/composer";
-import { MenubarDemo } from "./components/menubar";
-import { CreateReleaseButton } from "./components/create-release-button";
-import { RestoreVersionButton } from "./components/restore-version-button";
-import { VersionHistory } from "./components/version-history";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
-import { Session } from "@supabase/supabase-js";
+import { Icons } from "@/components/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { observer } from "mobx-react-lite";
-import { NodeProps } from "@seocraft/core/src/types";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Composer } from "@/core/composer";
+import { getControl } from "@/core/control";
+import { createCraftStore } from "@/core/store";
+import { CraftContext, useCraftStore } from "@/core/use-store";
 import {
   useRegisterModuleSearchActions,
   useRegisterPlaygroundActions,
 } from "@/core/useRegisterPlaygroundActions";
+import { ResultOfAction } from "@/lib/type";
+
+import { CreateReleaseButton } from "./components/create-release-button";
+import { MenubarDemo } from "./components/menubar";
+import { RestoreVersionButton } from "./components/restore-version-button";
+import { VersionHistory } from "./components/version-history";
+import { InputWindow } from "./input/input-window";
+import { LogsTab } from "./logs/logs-tab";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -123,7 +126,7 @@ export const Playground: React.FC<{
   const store = useRef(
     createCraftStore({
       layout: FlexLayout.Model.fromJson(
-        (workflow.layout as FlexLayout.IJsonModel) || defaultLayout
+        (workflow.layout as FlexLayout.IJsonModel) || defaultLayout,
       ),
       theme,
       readonly: workflow.readonly,
@@ -132,7 +135,7 @@ export const Playground: React.FC<{
       workflowId: workflow.id,
       workflowSlug: params.playgroundSlug as string,
       workflowVersionId: workflow.version.id,
-    })
+    }),
   );
 
   const { layout, di, setTheme } = useStore(store.current);
@@ -153,7 +156,7 @@ export const Playground: React.FC<{
           layout: layout.toJson(),
           playgroundId: workflow.id,
         });
-      }
+      },
     );
     return () => layoutListener();
   }, [workflow.readonly]);
@@ -166,7 +169,7 @@ export const Playground: React.FC<{
         playgroundId: workflow.id,
       });
     }, 2000),
-    [layout]
+    [layout],
   );
 
   const factory = (layoutNode: FlexLayout.TabNode) => {
@@ -201,9 +204,9 @@ export const Playground: React.FC<{
     <CraftContext.Provider value={store?.current}>
       <TooltipProvider>
         <div className="h-screen">
-          <div className="flex items-center w-full justify-between border-b-2 h-10 px-2">
+          <div className="flex h-10 w-full items-center justify-between border-b-2 px-2">
             <MenubarDemo />
-            <div className="flex space-x-2 items-center">
+            <div className="flex items-center space-x-2">
               {session && <UserNav session={session} />}
               <VersionHistory workflow={workflow} />
               {!workflow.version.publishedAt ? (
@@ -216,7 +219,7 @@ export const Playground: React.FC<{
               )}
             </div>
           </div>
-          <div className="w-full h-[calc(100vh-2.5rem)] bg-muted/20 py-1 px-1 relative">
+          <div className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1">
             <FlexLayout.Layout
               model={layout}
               factory={factory}
@@ -226,19 +229,19 @@ export const Playground: React.FC<{
                 match(component)
                   .with("rete", () => {
                     renderValues.leading = (
-                      <LayoutDashboard className="w-4 h-4" />
+                      <LayoutDashboard className="h-4 w-4" />
                     );
                   })
                   .with("inspector", () => {
                     renderValues.leading = (
-                      <MousePointerSquareDashed className="w-4 h-4" />
+                      <MousePointerSquareDashed className="h-4 w-4" />
                     );
                   })
                   .with("inputWindow", () => {
-                    renderValues.leading = <Icons.input className="w-4 h-4" />;
+                    renderValues.leading = <Icons.input className="h-4 w-4" />;
                   })
                   .with("logs", () => {
-                    renderValues.leading = <FileClock className="w-4 h-4" />;
+                    renderValues.leading = <FileClock className="h-4 w-4" />;
                   });
               }}
               onRenderTabSet={(node, renderValues) => {
@@ -265,8 +268,8 @@ export const Playground: React.FC<{
 
 const LoginToContinue: React.FC<{}> = ({}) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      <h2 className="text-2xl font-bold mb-4">Please login to continue</h2>
+    <div className="flex h-full w-full flex-col items-center justify-center">
+      <h2 className="mb-4 text-2xl font-bold">Please login to continue</h2>
       <Button
         onClick={() => {
           redirect("/login");
@@ -298,20 +301,20 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
         },
         tabset,
         FlexLayout.DockLocation.CENTER,
-        1
-      )
+        1,
+      ),
     );
   };
 
   return (
     <>
       {selectedNode ? (
-        <div className="h-full flex flex-col">
+        <div className="flex h-full flex-col">
           {/* <Button onClick={handlePinTab}>Pin</Button> */}
           <InspectorNode node={selectedNode} />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="flex h-full w-full flex-col items-center justify-center">
           <div>Select a node to inspect</div>
           <div>
             <pre>
@@ -341,15 +344,15 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
       });
   }, [state]);
   return (
-    <div className="h-full w-full flex flex-col">
-      <Tabs defaultValue="controls" className="p-4 h-full">
+    <div className="flex h-full w-full flex-col">
+      <Tabs defaultValue="controls" className="h-full p-4">
         <TabsList>
           <TabsTrigger value="controls">Controls</TabsTrigger>
           <TabsTrigger value="inputs">Inputs</TabsTrigger>
           <TabsTrigger value="outputs">Outputs</TabsTrigger>
         </TabsList>
         <TabsContent value="controls" className="h-full">
-          <div className="flex flex-col h-full overflow-hidden gap-4 ">
+          <div className="flex h-full flex-col gap-4 overflow-hidden ">
             <ScrollArea className="h-full w-full pr-4">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
@@ -358,7 +361,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
           </div>
         </TabsContent>
         <TabsContent value="inputs" className="h-full">
-          <div className="flex flex-col h-full overflow-hidden space-y-2">
+          <div className="flex h-full flex-col space-y-2 overflow-hidden">
             <ScrollArea className="px-4 pb-10">
               <DynamicInputsForm inputs={node.inputs} />
             </ScrollArea>
@@ -376,7 +379,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
         </TabsContent>
       </Tabs>
       {state.matches("error") && (
-        <div className="py-4 px-4">
+        <div className="px-4 py-4">
           <Alert variant={"destructive"} className="">
             <ExclamationTriangleIcon className="h-4 w-4" />
             <AlertTitle>{state.context.error?.name}</AlertTitle>
@@ -390,7 +393,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
 
 export const renderFieldValueBaseOnSocketType = (
   socket: Socket,
-  value: any | undefined
+  value: any | undefined,
 ) => {
   let renderedValue = value;
   if (renderedValue === undefined) {
@@ -459,7 +462,7 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   return (
     <>
       <div
-        className="space-y-1 flex flex-col"
+        className="flex flex-col space-y-1"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <Label htmlFor={control.id} className="capitalize">

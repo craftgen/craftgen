@@ -1,4 +1,5 @@
 import { ActionImpl, KBarResults, useMatches } from "kbar";
+
 import { ResultItem } from "./result-item";
 
 export const RenderResults: React.FC = () => {
@@ -10,7 +11,9 @@ export const RenderResults: React.FC = () => {
       items={results}
       onRender={({ item, active }) =>
         typeof item === "string" ? (
-          <div className="overflow-hidden p-1 text-foreground px-2 py-1.5 bg-muted/20  font-medium ">{item}</div>
+          <div className="text-foreground bg-muted/20 overflow-hidden p-1 px-2 py-1.5  font-medium ">
+            {item}
+          </div>
         ) : (
           <ResultItem action={item as ActionImpl} active={active} />
         )

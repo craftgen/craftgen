@@ -1,4 +1,19 @@
+import * as React from "react";
+import Link from "next/link";
+import { useSelector } from "@xstate/react";
+import * as FlexLayout from "flexlayout-react";
+import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Resizable } from "react-resizable";
+import { useDebounce, useMeasure } from "react-use";
+import { Drag, Presets, RenderEmit } from "rete-react-plugin";
+import { Key } from "ts-key-enum";
+import { useStore } from "zustand";
+
+import { type Schemes } from "@seocraft/core/src/types";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,17 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import * as React from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { RenderEmit, Presets, Drag } from "rete-react-plugin";
-import { Key } from "ts-key-enum";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
-import { useSelector } from "@xstate/react";
-import { useStore } from "zustand";
-import { ReteStoreInstance } from "../store";
-import { type Schemes } from "@seocraft/core/src/types";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -29,27 +33,29 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import * as FlexLayout from "flexlayout-react";
-import { useDebounce, useMeasure } from "react-use";
-import { useToast } from "@/components/ui/use-toast";
-import Link from "next/link";
-import { ToastAction } from "@/components/ui/toast";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Resizable } from "react-resizable";
+import { Separator } from "@/components/ui/separator";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+
+import { ReteStoreInstance } from "../store";
+
 import "react-resizable/css/styles.css";
+
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { updateNodeMetadata } from "@/actions/update-node-meta";
-import { JSONView } from "@/components/json-view";
 import { observer } from "mobx-react-lite";
-import { Icons } from "@/components/icons";
 import { ActorStatus } from "xstate";
+
+import { updateNodeMetadata } from "@/actions/update-node-meta";
+import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
+import { Label } from "@/components/ui/label";
 
 const { RefSocket, RefControl } = Presets.classic;
 
 function sortByIndex<T extends [string, undefined | { index?: number }][]>(
-  entries: T
+  entries: T,
 ) {
   entries.sort((a, b) => {
     const ai = a[1]?.index || 0;
@@ -128,8 +134,8 @@ export const Node = observer((props: Props<Schemes>) => {
         },
         tabset,
         FlexLayout.DockLocation.CENTER,
-        1
-      )
+        1,
+      ),
     );
   }, []);
 
@@ -140,7 +146,7 @@ export const Node = observer((props: Props<Schemes>) => {
     },
     {
       enabled: selected,
-    }
+    },
   );
   useHotkeys<HTMLDivElement>(
     `${Key.Meta}+d`,
@@ -151,7 +157,7 @@ export const Node = observer((props: Props<Schemes>) => {
     },
     {
       enabled: selected,
-    }
+    },
   );
 
   useHotkeys<HTMLDivElement>(
@@ -161,7 +167,7 @@ export const Node = observer((props: Props<Schemes>) => {
     },
     {
       enabled: selected,
-    }
+    },
   );
 
   const toggleDebug = () => {
@@ -221,7 +227,7 @@ export const Node = observer((props: Props<Schemes>) => {
       });
     },
     10,
-    [internal.height]
+    [internal.height],
   );
 
   useDebounce(
@@ -236,7 +242,7 @@ export const Node = observer((props: Props<Schemes>) => {
       }
     },
     100,
-    [size]
+    [size],
   );
 
   useDebounce(
@@ -249,7 +255,7 @@ export const Node = observer((props: Props<Schemes>) => {
       }
     },
     1000,
-    [props.data.label]
+    [props.data.label],
   );
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.data.setLabel(e.target.value);
@@ -275,19 +281,19 @@ export const Node = observer((props: Props<Schemes>) => {
             }}
             className={cn(
               "",
-              "group @container",
+              "@container group",
               selected && " border-primary",
-              "flex flex-col flex-1 glass",
+              "glass flex flex-1 flex-col",
               state.matches("loading") &&
-                "border-blue-300 border-2 animate-pulse",
+                "animate-pulse border-2 border-blue-300",
               state.matches("running") && "border-yellow-300",
-              state.matches("error") && "border-red-600 border-2"
+              state.matches("error") && "border-2 border-red-600",
             )}
           >
             <div ref={internalRef} className="flex flex-col justify-between">
-              <CardHeader className="flex flex-row items-center justify-between py-1 px-2 space-y-0">
-                <div className="flex space-x-2 items-center">
-                  <NodeIcon className="w-5 h-5" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 px-2 py-1">
+                <div className="flex items-center space-x-2">
+                  <NodeIcon className="h-5 w-5" />
                   {editLabel ? (
                     <Input
                       defaultValue={props.data.label}
@@ -359,7 +365,7 @@ export const Node = observer((props: Props<Schemes>) => {
                 </div>
               </CardHeader>
               <Separator />
-              <div className="py-4 grid-cols-2 grid">
+              <div className="grid grid-cols-2 py-4">
                 <div>
                   {/* Inputs */}
                   {inputs.map(([key, input]) => {
@@ -397,12 +403,12 @@ export const Node = observer((props: Props<Schemes>) => {
                   className={cn(
                     "hidden",
                     size.height > props.data.minHeightForControls &&
-                      "@xs:block my-2 space-y-2"
+                      "@xs:block my-2 space-y-2",
                   )}
                 >
                   {controls.map(([key, control]) => {
                     return control ? (
-                      <div className="space-y-1 flex flex-col" key={key}>
+                      <div className="flex flex-col space-y-1" key={key}>
                         <Label htmlFor={control.id} className="capitalize">
                           {key}
                         </Label>
@@ -420,17 +426,22 @@ export const Node = observer((props: Props<Schemes>) => {
                 </section>
               </CardContent>
 
-              <CardFooter className="p-1 px-2 pt-0 flex flex-col mt-auto">
+              <CardFooter className="mt-auto flex flex-col p-1 px-2 pt-0">
                 {props.data.snap.matches("complete") && (
                   <div className="w-full">
                     <Drag.NoDrag>
-                      <JSONView data={props.data.actor.getSnapshot().output || props.data.snap.context.outputs} />
+                      <JSONView
+                        data={
+                          props.data.actor.getSnapshot().output ||
+                          props.data.snap.context.outputs
+                        }
+                      />
                     </Drag.NoDrag>
                   </div>
                 )}
                 <Badge
                   variant={"outline"}
-                  className="font-mono text-muted group-hover:text-primary w-full text-xs truncate"
+                  className="text-muted group-hover:text-primary w-full truncate font-mono text-xs"
                 >
                   {props.data.id}
                 </Badge>
@@ -452,7 +463,7 @@ export const Node = observer((props: Props<Schemes>) => {
                   size: props.data.size,
                 },
                 null,
-                2
+                2,
               )}
             </code>
           </pre>
@@ -490,7 +501,7 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
   return (
     <div
       ref={ref}
-      className={`w-10 h-10 active:w-full active:h-full -m-2 active:-m-32  active:bg-none  hidden group-hover:block  react-resizable-handle-${handleAxis} react-resizable-handle`}
+      className={`-m-2 hidden h-10 w-10 active:-m-32 active:h-full  active:w-full  active:bg-none group-hover:block  react-resizable-handle-${handleAxis} react-resizable-handle`}
       {...restProps}
     ></div>
   );
@@ -500,7 +511,7 @@ ResizeHandle.displayName = "ResizeHandle";
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
   return (
     <div
-      className="text-left flex items-center select-none "
+      className="flex select-none items-center text-left "
       data-testid={`input-${inputKey}`}
     >
       <RefSocket
@@ -518,7 +529,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
 const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
   return (
     <div
-      className="text-right flex items-center justify-end select-none"
+      className="flex select-none items-center justify-end text-right"
       data-testid={`output-${outputKey}`}
     >
       <RefSocket

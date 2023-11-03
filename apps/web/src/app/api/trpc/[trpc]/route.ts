@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
-import { getServiceSupabase } from "@/utils/supabase";
-import { appRouter, createTRPCContext } from "@seocraft/api";
-import { Database } from "@seocraft/supabase/db/database.types";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+
+import { appRouter, createTRPCContext } from "@seocraft/api";
+import { Database } from "@seocraft/supabase/db/database.types";
+
+import { getServiceSupabase } from "@/utils/supabase";
 
 // export const runtime = "edge";
 

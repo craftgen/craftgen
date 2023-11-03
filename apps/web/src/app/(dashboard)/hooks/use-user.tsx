@@ -1,8 +1,10 @@
 "use client";
 
 import useSWR from "swr";
-import { getUser } from "../actions";
+
 import { ResultOf } from "@/lib/type";
+
+import { getUser } from "../actions";
 
 export const useUser = (params?: {
   fallbackData?: ResultOf<typeof getUser>;

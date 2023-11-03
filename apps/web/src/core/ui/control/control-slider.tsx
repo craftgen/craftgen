@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
+
 import { Slider } from "@/components/ui/slider";
-import { useState, useEffect } from "react";
+
 import { SliderControl } from "../../controls/slider";
 
 export function SliderControlComponenet(props: { data: SliderControl }) {

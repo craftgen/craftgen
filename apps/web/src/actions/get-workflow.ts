@@ -1,10 +1,12 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db, projectMembers, sql, eq, and } from "@seocraft/supabase/db";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { z } from "zod";
+
+import { and, db, eq, projectMembers, sql } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const getWorkflow = action(
   z.object({
@@ -37,8 +39,8 @@ export const getWorkflow = action(
           .where(
             and(
               eq(projectMembers.projectId, project.id),
-              eq(projectMembers.userId, userId)
-            )
+              eq(projectMembers.userId, userId),
+            ),
           )
           .limit(1);
 
@@ -51,7 +53,7 @@ export const getWorkflow = action(
         where: (workflow, { eq, and }) =>
           and(
             eq(workflow.slug, input.workflowSlug),
-            eq(workflow.projectId, project.id)
+            eq(workflow.projectId, project.id),
           ),
         with: {
           project: true,
@@ -78,7 +80,7 @@ export const getWorkflow = action(
                       input.executionId
                         ? eq(
                             nodeExecutionData.workflowExecutionId,
-                            input.executionId
+                            input.executionId,
                           )
                         : sql`false`,
                     limit: 1,
@@ -126,5 +128,5 @@ export const getWorkflow = action(
         readonly,
       };
     });
-  }
+  },
 );

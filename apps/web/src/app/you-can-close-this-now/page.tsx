@@ -19,8 +19,8 @@ const Page = () => {
     // }
   }, [time]);
   return (
-    <div className="flex items-center justify-center w-full h-screen flex-col">
-      <h1 className="text-4xl py-4">Success !</h1>
+    <div className="flex h-screen w-full flex-col items-center justify-center">
+      <h1 className="py-4 text-4xl">Success !</h1>
       <p>This page will automatically close in {time} seconds.</p>
     </div>
   );

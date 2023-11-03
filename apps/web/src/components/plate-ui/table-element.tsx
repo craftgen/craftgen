@@ -1,6 +1,6 @@
-import React, { forwardRef } from 'react';
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { PopoverAnchor, PopoverContentProps } from '@radix-ui/react-popover';
+import React, { forwardRef } from "react";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import { PopoverAnchor, PopoverContentProps } from "@radix-ui/react-popover";
 import {
   isCollapsed,
   PlateElement,
@@ -9,28 +9,28 @@ import {
   useElement,
   usePlateEditorState,
   useRemoveNodeButton,
-} from '@udecode/plate-common';
+} from "@udecode/plate-common";
 import {
   TTableElement,
   useTableBordersDropdownMenuContentState,
   useTableElement,
   useTableElementState,
-} from '@udecode/plate-table';
-import { useReadOnly } from 'slate-react';
+} from "@udecode/plate-table";
+import { useReadOnly } from "slate-react";
 
-import { cn } from '@/lib/utils';
-import { Icons, iconVariants } from '@/components/icons';
+import { Icons, iconVariants } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
-import { Button } from './button';
+import { Button } from "./button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuPortal,
   DropdownMenuTrigger,
-} from './dropdown-menu';
-import { Popover, PopoverContent, popoverVariants } from './popover';
-import { Separator } from './separator';
+} from "./dropdown-menu";
+import { Popover, PopoverContent, popoverVariants } from "./popover";
+import { Separator } from "./separator";
 
 const TableBordersDropdownMenuContent = forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
@@ -49,7 +49,7 @@ const TableBordersDropdownMenuContent = forwardRef<
   return (
     <DropdownMenuContent
       ref={ref}
-      className={cn('min-w-[220px]')}
+      className={cn("min-w-[220px]")}
       side="right"
       align="start"
       sideOffset={0}
@@ -57,30 +57,30 @@ const TableBordersDropdownMenuContent = forwardRef<
     >
       <DropdownMenuCheckboxItem
         checked={hasBottomBorder}
-        onCheckedChange={getOnSelectTableBorder('bottom')}
+        onCheckedChange={getOnSelectTableBorder("bottom")}
       >
-        <Icons.borderBottom className={iconVariants({ size: 'sm' })} />
+        <Icons.borderBottom className={iconVariants({ size: "sm" })} />
         <div>Bottom Border</div>
       </DropdownMenuCheckboxItem>
       <DropdownMenuCheckboxItem
         checked={hasTopBorder}
-        onCheckedChange={getOnSelectTableBorder('top')}
+        onCheckedChange={getOnSelectTableBorder("top")}
       >
-        <Icons.borderTop className={iconVariants({ size: 'sm' })} />
+        <Icons.borderTop className={iconVariants({ size: "sm" })} />
         <div>Top Border</div>
       </DropdownMenuCheckboxItem>
       <DropdownMenuCheckboxItem
         checked={hasLeftBorder}
-        onCheckedChange={getOnSelectTableBorder('left')}
+        onCheckedChange={getOnSelectTableBorder("left")}
       >
-        <Icons.borderLeft className={iconVariants({ size: 'sm' })} />
+        <Icons.borderLeft className={iconVariants({ size: "sm" })} />
         <div>Left Border</div>
       </DropdownMenuCheckboxItem>
       <DropdownMenuCheckboxItem
         checked={hasRightBorder}
-        onCheckedChange={getOnSelectTableBorder('right')}
+        onCheckedChange={getOnSelectTableBorder("right")}
       >
-        <Icons.borderRight className={iconVariants({ size: 'sm' })} />
+        <Icons.borderRight className={iconVariants({ size: "sm" })} />
         <div>Right Border</div>
       </DropdownMenuCheckboxItem>
 
@@ -88,22 +88,22 @@ const TableBordersDropdownMenuContent = forwardRef<
 
       <DropdownMenuCheckboxItem
         checked={hasNoBorders}
-        onCheckedChange={getOnSelectTableBorder('none')}
+        onCheckedChange={getOnSelectTableBorder("none")}
       >
-        <Icons.borderNone className={iconVariants({ size: 'sm' })} />
+        <Icons.borderNone className={iconVariants({ size: "sm" })} />
         <div>No Border</div>
       </DropdownMenuCheckboxItem>
       <DropdownMenuCheckboxItem
         checked={hasOuterBorders}
-        onCheckedChange={getOnSelectTableBorder('outer')}
+        onCheckedChange={getOnSelectTableBorder("outer")}
       >
-        <Icons.borderAll className={iconVariants({ size: 'sm' })} />
+        <Icons.borderAll className={iconVariants({ size: "sm" })} />
         <div>Outside Borders</div>
       </DropdownMenuCheckboxItem>
     </DropdownMenuContent>
   );
 });
-TableBordersDropdownMenuContent.displayName = 'TableBordersDropdownMenuContent';
+TableBordersDropdownMenuContent.displayName = "TableBordersDropdownMenuContent";
 
 const TableFloatingToolbar = React.forwardRef<
   React.ElementRef<typeof PopoverContent>,
@@ -126,7 +126,7 @@ const TableFloatingToolbar = React.forwardRef<
       <PopoverAnchor asChild>{children}</PopoverAnchor>
       <PopoverContent
         ref={ref}
-        className={cn(popoverVariants(), 'flex w-[220px] flex-col gap-1 p-1')}
+        className={cn(popoverVariants(), "flex w-[220px] flex-col gap-1 p-1")}
         onOpenAutoFocus={(e) => e.preventDefault()}
         {...props}
       >
@@ -151,7 +151,7 @@ const TableFloatingToolbar = React.forwardRef<
     </Popover>
   );
 });
-TableFloatingToolbar.displayName = 'TableFloatingToolbar';
+TableFloatingToolbar.displayName = "TableFloatingToolbar";
 
 const TableElement = React.forwardRef<
   React.ElementRef<typeof PlateElement>,
@@ -168,9 +168,9 @@ const TableElement = React.forwardRef<
           asChild
           ref={ref}
           className={cn(
-            'my-4 ml-px mr-0 table h-px w-full table-fixed border-collapse',
-            isSelectingCell && '[&_*::selection]:bg-none',
-            className
+            "my-4 ml-px mr-0 table h-px w-full table-fixed border-collapse",
+            isSelectingCell && "[&_*::selection]:bg-none",
+            className,
           )}
           {...tableProps}
           {...props}
@@ -195,6 +195,6 @@ const TableElement = React.forwardRef<
     </TableFloatingToolbar>
   );
 });
-TableElement.displayName = 'TableElement';
+TableElement.displayName = "TableElement";
 
 export { TableElement, TableFloatingToolbar, TableBordersDropdownMenuContent };

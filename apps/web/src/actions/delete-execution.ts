@@ -1,8 +1,10 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import { db, workflowExecution, eq } from "@seocraft/supabase/db";
 import { z } from "zod";
+
+import { db, eq, workflowExecution } from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 export const deleteExecution = action(
   z.object({ executionId: z.string() }),
@@ -11,5 +13,5 @@ export const deleteExecution = action(
       .delete(workflowExecution)
       .where(eq(workflowExecution.id, input.executionId))
       .returning();
-  }
+  },
 );

@@ -1,9 +1,12 @@
 import { Playground } from "./playground";
+
 import "@/core/rete.css";
-import { redirect } from "next/navigation";
-import { getWorkflow } from "@/actions/get-workflow";
+
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+
+import { getWorkflow } from "@/actions/get-workflow";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -27,7 +30,7 @@ const PlaygroundPage = async (props: {
   if (!workflow) return <div>Not found</div>;
   if (!workflow.execution && props.searchParams.execution) {
     redirect(
-      `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`
+      `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`,
     );
   }
   const {

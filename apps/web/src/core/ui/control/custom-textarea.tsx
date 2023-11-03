@@ -1,5 +1,7 @@
-import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
+
+import { Textarea } from "@/components/ui/textarea";
+
 import { TextareControl } from "../../controls/textarea";
 
 export function CustomTextarea(props: { data: TextareControl }) {

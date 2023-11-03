@@ -1,19 +1,21 @@
 "use server";
 
-import { action } from "@/lib/safe-action";
-import {
-  db,
-  workflowVersion,
-  workflow,
-  desc,
-  context,
-  workflowNode,
-  workflowEdge,
-  eq,
-  and,
-} from "@seocraft/supabase/db";
 import { isEqual } from "lodash-es";
 import { z } from "zod";
+
+import {
+  and,
+  context,
+  db,
+  desc,
+  eq,
+  workflow,
+  workflowEdge,
+  workflowNode,
+  workflowVersion,
+} from "@seocraft/supabase/db";
+
+import { action } from "@/lib/safe-action";
 
 /**
  * Creating realease basically clonening the current state of the playground.
@@ -47,8 +49,8 @@ export const createRelease = action(
         .where(
           and(
             eq(workflowVersion.workflowId, input.workflowId),
-            eq(workflowVersion.version, latestVersion)
-          )
+            eq(workflowVersion.version, latestVersion),
+          ),
         );
 
       const newVersion = await tx
@@ -128,7 +130,7 @@ export const createRelease = action(
               edge.target = cloneNode.id;
             }
           });
-        })
+        }),
       );
 
       console.log("COPYING EDGES", edges);
@@ -137,11 +139,11 @@ export const createRelease = action(
           edges.map((edge) => ({
             ...edge,
             workflowVersionId: newVersion[0].id,
-          }))
+          })),
         );
       }
 
       return newVersion[0];
     });
-  }
+  },
 );

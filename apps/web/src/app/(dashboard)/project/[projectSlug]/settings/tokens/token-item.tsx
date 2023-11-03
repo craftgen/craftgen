@@ -1,30 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Form,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { ResultOf } from "@/lib/type";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, MinusCircle, PlusCircle } from "lucide-react";
 import { useState } from "react";
-import { useForm, useFieldArray, Control } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Eye, EyeOff, MinusCircle, PlusCircle } from "lucide-react";
+import { Control, useFieldArray, useForm } from "react-hook-form";
+import useSWR, { mutate } from "swr";
 import { z } from "zod";
-import {
-  deleteProjectToken,
-  getProjectTokens,
-  insertProjectTokens,
-  updateProjectToken,
-} from "../../actions";
-import { cn } from "@/lib/utils";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -39,10 +24,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { ResultOf } from "@/lib/type";
+import { cn } from "@/lib/utils";
+
+import {
+  deleteProjectToken,
+  getProjectTokens,
+  insertProjectTokens,
+  updateProjectToken,
+} from "../../actions";
 import { useProject } from "../../hooks/use-project";
-import useSWR, { mutate } from "swr";
-import { Badge } from "@/components/ui/badge";
+
 const tokenSchema = z.object({
   key: z.string().min(1, "Key is required"),
   value: z.string().min(1, "Value is required"),
@@ -58,7 +61,7 @@ export const TokenList: React.FC<{
   const { data: tokensData } = useSWR(
     `/api/project/${project?.id}/tokens`,
     () => getProjectTokens({ project_id: project?.id! }),
-    { fallbackData: tokens }
+    { fallbackData: tokens },
   );
   return (
     <div className="space-y-4">
@@ -97,7 +100,7 @@ export const TokenListNew: React.FC<{
     {
       control: form.control, // control props comes from useForm (optional: if you are using FormContext)
       name: "tokens", // unique name for your Field Array
-    }
+    },
   );
 
   const onSubmit = async (data?: z.infer<typeof formSchema>) => {
@@ -114,7 +117,7 @@ export const TokenListNew: React.FC<{
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col h-full"
+          className="flex h-full flex-col"
         >
           <CardHeader>
             <CardTitle>Add new token</CardTitle>
@@ -125,7 +128,7 @@ export const TokenListNew: React.FC<{
           <CardContent>
             {fields.map((token, index) => (
               <div
-                className="flex items-start space-x-2 justify-center"
+                className="flex items-start justify-center space-x-2"
                 key={`token-${token.id}`}
               >
                 <FormField
@@ -143,7 +146,7 @@ export const TokenListNew: React.FC<{
                       </FormControl>
                       <FormDescription
                         className={cn(
-                          index === fields.length - 1 ? "block" : "hidden"
+                          index === fields.length - 1 ? "block" : "hidden",
                         )}
                       >
                         This is the name of your token
@@ -167,7 +170,7 @@ export const TokenListNew: React.FC<{
                       </FormControl>
                       <FormDescription
                         className={cn(
-                          index === fields.length - 1 ? "block" : "hidden"
+                          index === fields.length - 1 ? "block" : "hidden",
                         )}
                       >
                         This is the value of your token
@@ -249,9 +252,9 @@ export const TokenItem: React.FC<{
 
   return (
     <div className="w-full border first:rounded-t-lg last:rounded-b-lg ">
-      <div className="p-4 grid grid-cols-6">
+      <div className="grid grid-cols-6 p-4">
         <div className="col-span-2">
-          <span className="font-bold bg-muted rounded p-1">{token.key}</span>
+          <span className="bg-muted rounded p-1 font-bold">{token.key}</span>
         </div>
         <div className="col-span-3">
           {token.value ? (
@@ -267,7 +270,7 @@ export const TokenItem: React.FC<{
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
               >
                 <DotsHorizontalIcon className="h-4 w-4" />
                 <span className="sr-only">Open menu</span>
@@ -327,7 +330,7 @@ export const TokenItem: React.FC<{
               />
             </div>
             <Separator className="  w-full " />
-            <div className="p-4 flex justify-end">
+            <div className="flex justify-end p-4">
               <Button
                 type="button"
                 variant={"ghost"}
@@ -354,7 +357,7 @@ const ToggleView: React.FC<{ value: string }> = ({ value }) => {
       </Button>
       <Input
         type={show ? "text" : "password"}
-        className={cn(!show && "border-none bg-muted/50")}
+        className={cn(!show && "bg-muted/50 border-none")}
         value={value}
         readOnly
       />

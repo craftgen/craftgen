@@ -1,6 +1,7 @@
-import { and, desc, eq, schema } from "@seocraft/supabase/db";
 import { isEqual } from "lodash-es";
 import { z } from "zod";
+
+import { and, desc, eq, schema } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 

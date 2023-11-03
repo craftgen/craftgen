@@ -1,24 +1,24 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback } from "react";
 import {
   Emoji,
   EmojiSettings,
   GridRow,
   UseEmojiPickerType,
-} from '@udecode/plate-emoji';
+} from "@udecode/plate-emoji";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export type EmojiPickerContentProps = Pick<
   UseEmojiPickerType,
-  | 'i18n'
-  | 'onMouseOver'
-  | 'onSelectEmoji'
-  | 'emojiLibrary'
-  | 'isSearching'
-  | 'searchResult'
-  | 'visibleCategories'
-  | 'refs'
-  | 'settings'
+  | "i18n"
+  | "onMouseOver"
+  | "onSelectEmoji"
+  | "emojiLibrary"
+  | "isSearching"
+  | "searchResult"
+  | "visibleCategories"
+  | "refs"
+  | "settings"
 >;
 
 export type EmojiButtonProps = {
@@ -30,7 +30,7 @@ export type EmojiButtonProps = {
 
 export type RowOfButtonsProps = Pick<
   UseEmojiPickerType,
-  'onMouseOver' | 'onSelectEmoji' | 'emojiLibrary'
+  "onMouseOver" | "onSelectEmoji" | "emojiLibrary"
 > & {
   row: GridRow;
 };
@@ -52,14 +52,14 @@ const Button = memo(
           aria-hidden="true"
           className="absolute inset-0 rounded-full bg-[rgba(0,0,0,0.05)] opacity-0 group-hover:opacity-100"
         />
-        <span data-emoji-set="native" style={{ position: 'relative' }}>
+        <span data-emoji-set="native" style={{ position: "relative" }}>
           {emoji.skins[0].native}
         </span>
       </button>
     );
-  }
+  },
 );
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
 const RowOfButtons = memo(
   ({ row, emojiLibrary, onSelectEmoji, onMouseOver }: RowOfButtonsProps) => (
@@ -74,9 +74,9 @@ const RowOfButtons = memo(
         />
       ))}
     </div>
-  )
+  ),
 );
-RowOfButtons.displayName = 'RowOfButtons';
+RowOfButtons.displayName = "RowOfButtons";
 
 export function EmojiPickerContent({
   i18n,
@@ -97,7 +97,7 @@ export function EmojiPickerContent({
         ? visibleCategories.get(categoryId)
         : false;
     },
-    [visibleCategories]
+    [visibleCategories],
   );
 
   const EmojiList = useCallback(() => {
@@ -115,7 +115,7 @@ export function EmojiPickerContent({
             ref={section.root}
             style={{ width: getRowWidth }}
           >
-            <div className="sticky -top-px z-[1] bg-background/90 p-1 backdrop-blur-[4px]">
+            <div className="bg-background/90 sticky -top-px z-[1] p-1 backdrop-blur-[4px]">
               {i18n.categories[categoryId]}
             </div>
             <div
@@ -151,7 +151,7 @@ export function EmojiPickerContent({
   const SearchList = useCallback(() => {
     return (
       <div data-id="search" style={{ width: getRowWidth }}>
-        <div className="sticky -top-px z-[1] bg-background/90 p-1 backdrop-blur-[4px]">
+        <div className="bg-background/90 sticky -top-px z-[1] p-1 backdrop-blur-[4px]">
           {i18n.searchResult}
         </div>
         <div className="relative flex flex-wrap">
@@ -179,12 +179,12 @@ export function EmojiPickerContent({
   return (
     <div
       className={cn(
-        'h-full min-h-[50%] overflow-y-auto overflow-x-hidden px-3',
-        '[&::-webkit-scrollbar]:w-4',
-        '[&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:h-0 [&::-webkit-scrollbar-button]:w-0',
-        ':hover:[&::-webkit-scrollbar-thumb]:bg-[#f3f4f6]',
-        '[&::-webkit-scrollbar-thumb]:min-h-[65px] [&::-webkit-scrollbar-thumb]:rounded-2xl [&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-white',
-        '[&::-webkit-scrollbar-track]:border-0'
+        "h-full min-h-[50%] overflow-y-auto overflow-x-hidden px-3",
+        "[&::-webkit-scrollbar]:w-4",
+        "[&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:h-0 [&::-webkit-scrollbar-button]:w-0",
+        ":hover:[&::-webkit-scrollbar-thumb]:bg-[#f3f4f6]",
+        "[&::-webkit-scrollbar-thumb]:min-h-[65px] [&::-webkit-scrollbar-thumb]:rounded-2xl [&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-white",
+        "[&::-webkit-scrollbar-track]:border-0",
       )}
       data-id="scroll"
       ref={refs.current.contentRoot}

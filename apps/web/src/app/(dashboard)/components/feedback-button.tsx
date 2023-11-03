@@ -1,17 +1,20 @@
-import { Textarea } from "@/components/ui/textarea";
+import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
-import { sendFeedback } from "../actions";
-import { useMemo, useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+
+import { sendFeedback } from "../actions";
+
 const formSchema = z.object({
   feedback: z.string().min(3),
   satisfaction: z.enum(["awesome", "good", "bad", "worst"]),
@@ -65,7 +68,7 @@ export const FeedbackButton = () => {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-between w-full">
+            <div className="flex w-full items-center justify-between">
               <FormField
                 control={form.control}
                 name="satisfaction"

@@ -1,8 +1,10 @@
-'use server';
+"use server";
+
+import { z } from "zod";
+
+import { db } from "@seocraft/supabase/db";
 
 import { action } from "@/lib/safe-action";
-import { db } from "@seocraft/supabase/db";
-import { z } from "zod";
 
 export const getLogs = action(
   z.object({ worfklowId: z.string(), workflowVersionId: z.string() }),
@@ -46,5 +48,5 @@ export const getLogs = action(
         };
       }),
     };
-  }
+  },
 );

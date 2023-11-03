@@ -1,8 +1,10 @@
 "use client";
+
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+
 import { BASE_URL } from "@/utils/constants";
 
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "development") {

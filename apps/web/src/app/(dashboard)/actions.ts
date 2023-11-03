@@ -1,8 +1,9 @@
 "use server";
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { db, user } from "@seocraft/supabase/db";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+
+import { db, user } from "@seocraft/supabase/db";
 
 export const getUser = async () => {
   const supabase = createServerActionClient({ cookies });
@@ -43,7 +44,7 @@ export const sendFeedback = async (params: {
         text: messageText,
         parse_mode: "MarkdownV2",
       }),
-    }
+    },
   )
     .then((response) => response.json())
     .then((data) => console.log(data))

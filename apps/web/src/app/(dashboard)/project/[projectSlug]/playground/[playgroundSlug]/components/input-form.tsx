@@ -1,6 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
+import { ajvResolver } from "@hookform/resolvers/ajv";
+import { Play } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { ContextFrom } from "xstate";
+
+import { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,11 +20,6 @@ import {
 } from "@/components/ui/form";
 import { renderField } from "@/core/control-utils";
 import { RouterInputs } from "@/trpc/shared";
-import { ajvResolver } from "@hookform/resolvers/ajv";
-import { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
-import { Play } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { ContextFrom } from "xstate";
 
 export const InputForm: React.FC<{
   workflow: RouterInputs["craft"]["module"]["meta"];

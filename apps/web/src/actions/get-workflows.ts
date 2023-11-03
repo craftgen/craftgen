@@ -1,8 +1,9 @@
 "use server";
 
-import { db } from "@seocraft/supabase/db";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+
+import { db } from "@seocraft/supabase/db";
 
 export const getWorkflows = async (projectId: string) => {
   const supabase = createServerActionClient({ cookies });
@@ -18,7 +19,7 @@ export const getWorkflows = async (projectId: string) => {
         where: (projectMember, { eq, and }) =>
           and(
             eq(projectMember.projectId, projectId),
-            eq(projectMember.userId, user?.id)
+            eq(projectMember.userId, user?.id),
           ),
       });
       if (member) {

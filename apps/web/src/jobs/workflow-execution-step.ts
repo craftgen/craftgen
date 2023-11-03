@@ -1,5 +1,6 @@
-import { client } from "@/trigger";
 import { z } from "zod";
+
+import { client } from "@/trigger";
 
 const schema = z.object({
   workflowSlug: z.string(),

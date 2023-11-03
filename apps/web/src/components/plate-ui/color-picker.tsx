@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
-import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/plate-ui/button';
-import { DropdownMenuItem } from '@/components/plate-ui/dropdown-menu';
-import { Separator } from '@/components/plate-ui/separator';
+import { buttonVariants } from "@/components/plate-ui/button";
+import { DropdownMenuItem } from "@/components/plate-ui/dropdown-menu";
+import { Separator } from "@/components/plate-ui/separator";
+import { cn } from "@/lib/utils";
 
-import { TColor } from './color-dropdown-menu';
-import { ColorDropdownMenuItems } from './color-dropdown-menu-items';
-import { ColorsCustom } from './colors-custom';
+import { TColor } from "./color-dropdown-menu";
+import { ColorDropdownMenuItems } from "./color-dropdown-menu-items";
+import { ColorsCustom } from "./colors-custom";
 
 type ColorPickerProps = {
   color?: string;
@@ -31,7 +31,7 @@ export function ColorPickerContent({
   ...props
 }: ColorPickerProps) {
   return (
-    <div className={cn('flex flex-col gap-4 p-4', className)} {...props}>
+    <div className={cn("flex flex-col gap-4 p-4", className)} {...props}>
       <ColorsCustom
         color={color}
         colors={colors}
@@ -50,7 +50,7 @@ export function ColorPickerContent({
       {color && (
         <DropdownMenuItem
           className={buttonVariants({
-            variant: 'outline',
+            variant: "outline",
             isMenu: true,
           })}
           onClick={clearColor}
@@ -67,5 +67,5 @@ export const ColorPicker = React.memo(
   (prev, next) =>
     prev.color === next.color &&
     prev.colors === next.colors &&
-    prev.customColors === next.customColors
+    prev.customColors === next.customColors,
 );

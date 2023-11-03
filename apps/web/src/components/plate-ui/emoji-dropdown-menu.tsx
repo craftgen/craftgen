@@ -1,18 +1,18 @@
-import React from 'react';
+import React from "react";
 import {
   EmojiDropdownMenuOptions,
   useEmojiDropdownMenuState,
-} from '@udecode/plate-emoji';
+} from "@udecode/plate-emoji";
 
-import { Icons } from '@/components/icons';
-import { EmojiToolbarDropdown } from '@/components/plate-ui/emoji-toolbar-dropdown';
+import { Icons } from "@/components/icons";
+import { EmojiToolbarDropdown } from "@/components/plate-ui/emoji-toolbar-dropdown";
 import {
   ToolbarButton,
   ToolbarButtonProps,
-} from '@/components/plate-ui/toolbar';
+} from "@/components/plate-ui/toolbar";
 
-import { emojiCategoryIcons, emojiSearchIcons } from './emoji-icons';
-import { EmojiPicker } from './emoji-picker';
+import { emojiCategoryIcons, emojiSearchIcons } from "./emoji-icons";
+import { EmojiPicker } from "./emoji-picker";
 
 type EmojiDropdownMenuProps = {
   options?: EmojiDropdownMenuOptions;

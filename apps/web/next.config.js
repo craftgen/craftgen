@@ -19,8 +19,7 @@ const nextConfig = {
           destination: "https://app.posthog.com/:path*",
         },
       ],
-      afterFiles: [
-      ],
+      afterFiles: [],
       fallback: [
         {
           source: "/:project",
