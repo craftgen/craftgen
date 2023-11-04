@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Editor } from "@seocraft/core";
+import { NodeTypes } from "@seocraft/core/src/types";
 import { Action, Priority, useKBar, useRegisterActions } from "kbar";
 import { debounce } from "lodash-es";
 import useSWR from "swr";
-
-import { Editor } from "@seocraft/core";
-import { NodeTypes } from "@seocraft/core/src/types";
 
 import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
 import { searchModulesMeta } from "@/actions/search-modules-meta";
@@ -110,7 +109,9 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             name: `@${version.workflow.projectSlug}/${version.workflow.name}v${version.version}`,
             parent: version.workflowId,
             perform: async () => {
-              di?.addNode("ModuleNode", {});
+              di?.addNode("ModuleNode", {
+                moduleId: version.id,
+              });
             },
           }) as Action,
       ) || []

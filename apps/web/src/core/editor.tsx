@@ -1,24 +1,14 @@
 "use client";
 
-import { createRoot } from "react-dom/client";
-import { Presets, ReactPlugin } from "rete-react-plugin";
-
 import { Editor } from "@seocraft/core";
 import { AreaExtra } from "@seocraft/core/src/editor";
 import { nodes, Schemes, WorkflowAPI } from "@seocraft/core/src/types";
+import { createRoot } from "react-dom/client";
+import { Presets, ReactPlugin } from "rete-react-plugin";
 
-import { saveEdge } from "@/actions/create-edge";
-import { createExecution } from "@/actions/create-execution";
-import { deleteEdge } from "@/actions/delete-edge";
-import { deleteNode } from "@/actions/delete-node";
-import { getWorkflow } from "@/actions/get-workflow";
-import { setContext } from "@/actions/update-context";
-import { updateExecutionNode } from "@/actions/update-execution-node";
-import { updateNodeMetadata } from "@/actions/update-node-meta";
-import { upsertNode } from "@/actions/upsert-node";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
-import { ResultOf, ResultOfAction } from "@/lib/type";
+import { RouterOutputs } from "@/trpc/shared";
 
 import { getControl } from "./control";
 import { ReteStoreInstance } from "./store";
@@ -27,10 +17,8 @@ import { CustomConnection } from "./ui/custom-connection";
 import { CustomNode } from "./ui/custom-node";
 import { CustomSocket } from "./ui/custom-socket";
 
-export type ModuleMap = Record<string, ResultOf<typeof getWorkflow>>;
-
 export const createEditorFunc = (params: {
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs["craft"]["module"]["get"];
   store: ReteStoreInstance;
   api: Partial<WorkflowAPI>;
 }) => {
@@ -39,37 +27,10 @@ export const createEditorFunc = (params: {
 
 export async function createEditor(params: {
   container: HTMLElement;
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
 }) {
-  const contentNodes = params.workflow.versions[0].nodes.map((node) => ({
-    id: node.id,
-    type: node.type as any,
-    projectId: node.projectId,
-    workflowId: node.workflowId,
-    workflowVersionId: node.workflowVersionId,
-    contextId: node.contextId,
-    context: node.context.state,
-    state: node.nodeExectutions.map((ne) => ne.state)[0],
-    nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
-    position: node.position,
-    width: node.width,
-    height: node.height,
-    label: node.label,
-    color: node.color,
-  }));
-  const contentEdges = params.workflow.versions[0].edges.map((edge) => ({
-    sourceOutput: edge.sourceOutput,
-    source: edge.source,
-    targetInput: edge.targetInput,
-    target: edge.target,
-    workflowId: edge.workflowId,
-    workflowVersionId: edge.workflowVersionId,
-  }));
-
-  console.log(contentNodes);
-
   const di = new Editor({
     config: {
       nodes,
@@ -91,7 +52,7 @@ export async function createEditor(params: {
       meta: {
         projectId: params.workflow.projectId,
         workflowId: params.workflow.id,
-        workflowVersionId: params.workflow.versions[0].id,
+        workflowVersionId: params.workflow.version.id,
         executionId: params.workflow?.execution?.id,
       },
       api: {
@@ -110,6 +71,7 @@ export async function createEditor(params: {
         deleteEdge: params.api.deleteEdge!,
         setState: params.api.setState!,
         setContext: params.api.setContext!,
+        getModule: params.api.getModule!,
         async getModulesMeta(params) {
           return [
             {
@@ -123,8 +85,8 @@ export async function createEditor(params: {
       },
     },
     content: {
-      nodes: [...contentNodes],
-      edges: [...contentEdges],
+      nodes: params.workflow.nodes,
+      edges: params.workflow.edges,
     },
   });
 

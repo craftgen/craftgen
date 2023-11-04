@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { and, eq, schema } from "@seocraft/supabase/db";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -145,11 +144,10 @@ export const craftNodeRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db
+      await ctx.db
         .update(schema.context)
         .set({ state: input.context as any })
-        .where(eq(schema.context.id, input.contextId))
-        .returning();
+        .where(eq(schema.context.id, input.contextId));
     }),
   updateMetadata: protectedProcedure
     .input(

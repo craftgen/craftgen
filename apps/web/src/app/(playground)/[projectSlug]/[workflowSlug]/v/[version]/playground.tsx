@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Socket } from "@seocraft/core/src/sockets";
 import { NodeProps } from "@seocraft/core/src/types";
 import { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
@@ -19,7 +20,6 @@ import { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
 
-import { getWorkflow } from "@/actions/get-workflow";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Icons } from "@/components/icons";
@@ -38,6 +38,7 @@ import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
 import { ResultOfAction } from "@/lib/type";
+import { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
@@ -113,7 +114,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs["craft"]["module"]["get"];
   session: Session | null;
 }> = observer(({ workflow, session }) => {
   const params = useParams();

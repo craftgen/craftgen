@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { getWorkflow } from "@/actions/get-workflow";
+import { api } from "@/trpc/server";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -20,7 +21,7 @@ const PlaygroundPage = async (props: {
 }) => {
   const cookieStore = cookies();
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
-  const { data: workflow } = await getWorkflow({
+  const workflow = await api.craft.module.get.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
     executionId: props.searchParams.execution,

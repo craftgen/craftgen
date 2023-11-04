@@ -1,41 +1,39 @@
-import { GetSchemes, NodeEditor, NodeId } from "rete";
-import { createControlFlowEngine, createDataFlowEngine } from "./engine";
-import { BaseNode, ParsedNode } from "./nodes/base";
-import { Connection } from "./connection/connection";
-import { NodeClass, WorkflowAPI, Node, Schemes, Position } from "./types";
-import { AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
-import { structures } from "rete-structures";
 import { createId } from "@paralleldrive/cuid2";
-// import Ajv from "ajv/dist/jtd";
 import Ajv from "ajv";
-
-import type { Structures } from "rete-structures/_types/types";
+import { debounce } from "lodash-es";
+import { action, computed, makeObservable, observable } from "mobx";
+import { GetSchemes, NodeEditor, NodeId } from "rete";
 import type {
   Area2D,
   AreaExtensions,
   AreaPlugin,
   Zoom,
 } from "rete-area-plugin";
+import type { HistoryActions } from "rete-history-plugin";
 import type {
   ClassicScheme,
   ReactArea2D,
   ReactPlugin,
   RenderEmit,
 } from "rete-react-plugin";
-import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import type { AcceptComponent } from "rete-react-plugin/_types/presets/classic/utility-types";
-import type { CustomArrange } from "./plugins/arrage/custom-arrange";
-import type { HistoryActions } from "rete-history-plugin";
+import { structures } from "rete-structures";
+import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
-import { debounce } from "lodash-es";
-import { AllSockets, Socket } from "./sockets";
-import { Input, Output } from "./input-output";
-import { useMagneticConnection } from "./connection";
 import { SetOptional } from "type-fest";
+import { AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
 
-import { makeObservable, observable, action, computed } from "mobx";
+import { useMagneticConnection } from "./connection";
+import { Connection } from "./connection/connection";
+import { createControlFlowEngine, createDataFlowEngine } from "./engine";
+import { Input, Output } from "./input-output";
 import { InputNode } from "./nodes";
+import { BaseNode, ParsedNode } from "./nodes/base";
+import type { CustomArrange } from "./plugins/arrage/custom-arrange";
+import type { setupPanningBoundary } from "./plugins/panningBoundary";
+import { AllSockets, Socket } from "./sockets";
+import { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -45,7 +43,7 @@ type NodeRegistry = {
 
 export type NodeWithState<
   T extends NodeRegistry,
-  K extends keyof T = keyof T
+  K extends keyof T = keyof T,
 > = Node & {
   type: keyof T;
   context: ContextFrom<InstanceType<T[K]>["machine"]>;
@@ -55,7 +53,7 @@ export type NodeWithState<
 // Define a utility type to convert ParsedNode to NodeWithState
 type ConvertToNodeWithState<
   T extends NodeRegistry,
-  P extends ParsedNode<any, any>
+  P extends ParsedNode<any, any>,
 > = {
   [K in keyof P]: K extends "type" ? keyof T : P[K];
 };
@@ -68,12 +66,13 @@ export type EditorProps<
   NodeProps extends BaseNode<any, any, any>,
   ConnProps extends Connection<NodeProps, NodeProps>,
   Scheme extends GetSchemes<NodeProps, ConnProps>,
-  Registry extends NodeRegistry
+  Registry extends NodeRegistry,
 > = {
   config: {
     nodes: Registry;
     api: WorkflowAPI;
     logger?: typeof console;
+    readonly?: boolean; // default false
     meta: {
       workflowId: string;
       workflowVersionId: string;
@@ -101,7 +100,7 @@ export class Editor<
   > &
     Schemes,
   Registry extends NodeRegistry = NodeRegistry,
-  NodeTypes extends keyof Registry = keyof Registry
+  NodeTypes extends keyof Registry = keyof Registry,
 > {
   public editor = new NodeEditor<Scheme>();
   public engine = createControlFlowEngine<Scheme>();
@@ -138,6 +137,7 @@ export class Editor<
   };
 
   public selectedInputId: string | null = null;
+  public readonly: boolean;
 
   get selectedInput(): InputNode | null {
     if (this.inputs.length === 1) {
@@ -147,11 +147,27 @@ export class Editor<
     return this.editor.getNode(this.selectedInputId);
   }
 
-  public get inputs() {
-    return this.editor
-      .getNodes()
-      .filter((n) => n.ID === InputNode.nodeType) as InputNode[];
+  get rootNodes() {
+    return this.graph.roots().nodes();
   }
+
+  get leaves() {
+    return this.graph.leaves().nodes();
+  }
+
+  get selectedOutputs() {
+    if (!this.selectedInput) return null;
+    const successors = this.graph.successors(this.selectedInput?.id);
+    if (successors.nodes().length > 0) {
+      return successors.leaves().nodes();
+    }
+    return [this.selectedInput];
+  }
+
+  public get inputs() {
+    return this.rootNodes;
+  }
+
   public setInput(id: string) {
     this.selectedInputId = id;
   }
@@ -176,6 +192,7 @@ export class Editor<
     this.workflowVersionId = props.config.meta.workflowVersionId;
     this.projectId = props.config.meta.projectId;
     this.executionId = props.config.meta?.executionId;
+    this.readonly = props.config.readonly || false;
 
     makeObservable(this, {
       cursorPosition: observable,
@@ -219,7 +236,7 @@ export class Editor<
   }
 
   public createNodeInstance(
-    node: ConvertToNodeWithState<Registry, ParsedNode<any, any>>
+    node: ConvertToNodeWithState<Registry, ParsedNode<any, any>>,
   ) {
     const nodeMeta = this.nodeMeta.get(node.type);
     if (!nodeMeta) {
@@ -242,7 +259,10 @@ export class Editor<
     return newNode;
   }
 
-  public async addNode(node: NodeTypes, context?: Partial<InputFrom<AnyStateMachine>>  ) {
+  public async addNode(
+    node: NodeTypes,
+    context?: Partial<InputFrom<AnyStateMachine>>,
+  ) {
     const nodeMeta = this.nodeMeta.get(node);
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node)} not registered`);
@@ -252,7 +272,7 @@ export class Editor<
       label: nodeMeta?.label,
       id: this.createId("node"),
       contextId: this.createId("context"),
-      context
+      context,
     });
     await this.editor.addNode(newNode);
     await this?.area?.translate(newNode.id, {
@@ -260,6 +280,37 @@ export class Editor<
       y: this.cursorPosition.y,
     });
     return newNode;
+  }
+
+  public async createEditor(workflowVersionId: string) {
+    const workflow = await this.api.getModule({ versionId: workflowVersionId });
+    const di = new Editor({
+      config: {
+        api: this.api,
+        readonly: true,
+        meta: {
+          projectId: this.projectId,
+          workflowId: this.workflowId,
+          workflowVersionId: workflowVersionId,
+          executionId: this.executionId,
+        },
+        nodes: Array.from(this.nodeMeta.entries()).reduce(
+          (acc, [key, value]) => {
+            acc[key as string] = value.class;
+            return acc;
+          },
+          {} as NodeRegistry,
+        ),
+      },
+      content: {
+        edges: workflow.edges,
+        nodes: workflow.nodes,
+      },
+    });
+    await di.setup();
+
+    console.log("Editor created", di);
+    return di;
   }
 
   public async setup() {
@@ -283,13 +334,13 @@ export class Editor<
         }
       > | null;
       connection?: (
-        data: ExtractPayload<Scheme, "connection">
+        data: ExtractPayload<Scheme, "connection">,
       ) => AcceptComponent<(typeof data)["payload"]> | null;
       socket?: (
-        data: ExtractPayload<Scheme, "socket">
+        data: ExtractPayload<Scheme, "socket">,
       ) => AcceptComponent<(typeof data)["payload"]> | null;
       control?: (
-        data: ExtractPayload<Scheme, "control">
+        data: ExtractPayload<Scheme, "control">,
       ) => AcceptComponent<(typeof data)["payload"]> | null;
     };
   }) {
@@ -327,7 +378,7 @@ export class Editor<
       this?.selector,
       {
         accumulating: accumulateOnCtrl(),
-      }
+      },
     );
     AreaExtensions.restrictor(this.area, {
       scaling: () => ({ min: 0.2, max: 1 }),
@@ -376,8 +427,8 @@ export class Editor<
             sourceNode,
             source.key as never,
             targetNode,
-            target.key as never
-          ) as any
+            target.key as never,
+          ) as any,
         );
       },
       display(from, to) {
@@ -401,7 +452,9 @@ export class Editor<
           self.area,
           self.editor
             .getNodes()
-            .filter((n) => (nodeIds.length > 0 ? nodeIds.includes(n.id) : true))
+            .filter((n) =>
+              nodeIds.length > 0 ? nodeIds.includes(n.id) : true,
+            ),
         );
       },
     };
@@ -423,7 +476,7 @@ export class Editor<
         spacing: 40,
         top: 100,
         bottom: 100,
-      })
+      }),
     );
     this.area.use(this.arrange);
 
@@ -453,7 +506,7 @@ export class Editor<
   public async setUI() {
     await this.layout();
     await this.areaControl?.zoomAtNodes(
-      this.editor.getNodes().map((n) => n.id)
+      this.editor.getNodes().map((n) => n.id),
     );
   }
 
@@ -490,7 +543,7 @@ export class Editor<
           source,
           c.sourceOutput,
           target,
-          c.targetInput
+          c.targetInput,
         );
 
         await this.editor.addConnection(conn as Scheme["Connection"]);
@@ -518,36 +571,36 @@ export class Editor<
         throw new Error(
           `Invalid connection:
           (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput
+            c.targetInput,
           )}]
-          Source with id:${c.source} not found`
+          Source with id:${c.source} not found`,
         );
       const target = nodesMap.get(c.target);
       if (!target) {
         throw new Error(
           `Invalid connection:
           (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput
+            c.targetInput,
           )}]
-          Target with id:${c.target} not found`
+          Target with id:${c.target} not found`,
         );
       }
       if (!source.outputs[c.sourceOutput]) {
         throw new Error(
           `Invalid connection:
            (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput
-          )}]
-          Source Output [${String(c.sourceOutput)}] not found`
+             c.targetInput,
+           )}]
+          Source Output [${String(c.sourceOutput)}] not found`,
         );
       }
       if (!target.inputs[c.targetInput]) {
         throw new Error(
           `Invalid connection:
           (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput
+            c.targetInput,
           )}]
-          Target Input [${String(c.targetInput)}] not found`
+          Target Input [${String(c.targetInput)}] not found`,
         );
       }
 
@@ -712,7 +765,7 @@ export class Editor<
     const valid = validator(params.inputs);
     if (!valid) {
       throw new Error(
-        `Input data is not valid: ${JSON.stringify(validator.errors)}`
+        `Input data is not valid: ${JSON.stringify(validator.errors)}`,
       );
     }
     if (!this.executionId) {
@@ -777,7 +830,7 @@ export class Editor<
         .with({ type: "pointerdown" }, ({ data }) => {
           if (
             (data?.event.target as HTMLElement).classList.contains(
-              "background"
+              "background",
             ) &&
             this.selectedNodeId
           ) {

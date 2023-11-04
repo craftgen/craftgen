@@ -1,31 +1,30 @@
 import { type GetSchemes } from "rete";
+import type { Constructor } from "type-fest";
+import { AnyStateMachine } from "xstate";
 import * as z from "zod";
 
+import { Editor } from ".";
 import { Connection } from "./connection/connection";
 import {
+  Article,
+  ComposeObject,
+  GoogleSheet,
+  InputNode,
   Log,
+  ModuleNode,
+  Number,
   OpenAIFunctionCall,
+  OutputNode,
+  Postgres,
   PromptTemplate,
+  Replicate,
+  Shopify,
   Start,
   TextNode,
-  Number,
-  ComposeObject,
-  Article,
-  InputNode,
-  OutputNode,
-  ModuleNode,
-  Shopify,
   Webflow,
   Wordpress,
-  Postgres,
-  Replicate,
-  GoogleSheet,
 } from "./nodes";
-
-import type { Constructor } from "type-fest";
 import { BaseNode } from "./nodes/base";
-import { AnyStateMachine } from "xstate";
-import { Editor } from ".";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -187,28 +186,37 @@ export const createExecutionParamSchema = z.object({
   headless: z.boolean().optional().default(false),
 });
 
+export const getModuleParamSchema = z.object({
+  versionId: z.string(),
+});
+
+export interface CreateExecutionResult {
+  id: string;
+}
+
 export interface WorkflowAPI {
   setState: (
-    params: z.infer<typeof setExecutionStateParamSchema>
+    params: z.infer<typeof setExecutionStateParamSchema>,
   ) => Promise<{ id: string }>;
   setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
   getAPIKey: (params: z.infer<typeof getAPIKeyParamSchema>) => Promise<string>;
   createExecution: (
-    params: z.infer<typeof createExecutionParamSchema>
-  ) => Promise<{ id: string }>;
+    params: z.infer<typeof createExecutionParamSchema>,
+  ) => Promise<CreateExecutionResult>;
   checkAPIKeyExist: (
-    params: z.infer<typeof checkAPIKeyExistParamSchema>
+    params: z.infer<typeof checkAPIKeyExistParamSchema>,
   ) => Promise<boolean>;
   triggerWorkflowExecutionStep: (
-    params: z.infer<typeof triggerWorkflowExecutionStepParamSchema>
+    params: z.infer<typeof triggerWorkflowExecutionStepParamSchema>,
   ) => Promise<void>;
   updateNodeMetadata: (
-    params: z.infer<typeof updateNodeMetadataParamSchema>
+    params: z.infer<typeof updateNodeMetadataParamSchema>,
   ) => Promise<void>;
   upsertNode: (params: z.infer<typeof upsertNodeParamSchema>) => Promise<void>;
   deleteNode: (params: z.infer<typeof deleteNodeParamSchema>) => Promise<void>;
   saveEdge: (params: z.infer<typeof saveEdgeParamSchema>) => Promise<void>;
   deleteEdge: (params: z.infer<typeof deleteEdgeParamSchema>) => Promise<void>;
+  getModule: (params: z.infer<typeof getModuleParamSchema>) => Promise<any>;
   getModulesMeta: (params: {
     query: string;
   }) => Promise<{ name: string; id: string }[]>;

@@ -1,13 +1,14 @@
+import { get, isString, merge, set } from "lodash-es";
 import * as Sqrl from "squirrelly";
-import { isString, set, get, merge } from "lodash-es";
-import { BaseActorTypes, BaseNode, type ParsedNode } from "./base";
-import { assign, createMachine, fromPromise } from "xstate";
-import { stringSocket, triggerSocket } from "../sockets";
-import { CodeControl } from "../controls/code";
 import { match } from "ts-pattern";
-import { Input, Output } from "../input-output";
-import type { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
+import { assign, createMachine, fromPromise } from "xstate";
+
+import { CodeControl } from "../controls/code";
+import { Input, Output } from "../input-output";
+import { stringSocket, triggerSocket } from "../sockets";
+import type { DiContainer } from "../types";
+import { BaseActorTypes, BaseNode, type ParsedNode } from "./base";
 
 const PromptTemplateNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
@@ -21,14 +22,21 @@ const PromptTemplateNodeMachine = createMachine({
         outputs: {
           value: "",
         },
-        outputSockets: [],
+        outputSockets: [
+          {
+            name: "value",
+            type: "string",
+            description: "Result of template",
+            required: true,
+          },
+        ],
         settings: {
           template: "",
           variables: [],
         },
         error: null,
       },
-      input
+      input,
     ),
   types: {} as BaseActorTypes<{
     input: {
@@ -194,17 +202,20 @@ const renderFunc = ({
       prev[key] = Array.isArray(value) ? value[0] : value;
       return prev;
     },
-    {} as Record<string, any>
+    {} as Record<string, any>,
   );
-  const values = Object.entries(sanitizedInputs).reduce((prev, curr) => {
-    const [key, value] = curr as [string, any[]];
-    if (key.includes(".")) {
-      set(prev, key, get(value, key));
-    } else {
-      set(prev, key, value);
-    }
-    return prev;
-  }, {} as Record<string, string>);
+  const values = Object.entries(sanitizedInputs).reduce(
+    (prev, curr) => {
+      const [key, value] = curr as [string, any[]];
+      if (key.includes(".")) {
+        set(prev, key, get(value, key));
+      } else {
+        set(prev, key, value);
+      }
+      return prev;
+    },
+    {} as Record<string, string>,
+  );
   const rendered = Sqrl.render(input.template, values, {
     useWith: true,
     // autoTrim: ["nl"],
@@ -224,7 +235,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
   static icon = "text-select";
 
   static parse(
-    params: SetOptional<PromptTemplateNode, "type">
+    params: SetOptional<PromptTemplateNode, "type">,
   ): PromptTemplateNode {
     return {
       ...params,
@@ -281,7 +292,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     let prev = this.actor.getSnapshot();
     this.addInput("trigger", new Input(triggerSocket, "Trigger", true));
     this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
-    this.addOutput("value", new Output(stringSocket, "Text"));
     const self = this;
     this.addControl(
       "template",
@@ -294,7 +304,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
             value,
           });
         },
-      })
+      }),
     );
   }
 }

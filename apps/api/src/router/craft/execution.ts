@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { eq, schema } from "@seocraft/supabase/db";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -85,6 +84,9 @@ export const craftExecutionRouter = createTRPCRouter({
             entryWorkflowNodeId: input.input.id,
           })
           .returning();
+        if (!execution) {
+          throw new Error("Failed to create execution");
+        }
         return execution;
       });
     }),

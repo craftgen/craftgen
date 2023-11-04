@@ -1,10 +1,9 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { and, db, eq, projectMembers, sql } from "@seocraft/supabase/db";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { z } from "zod";
-
-import { and, db, eq, projectMembers, sql } from "@seocraft/supabase/db";
 
 import { action } from "@/lib/safe-action";
 
@@ -115,14 +114,44 @@ export const getWorkflow = action(
       }
 
       const version = workflow?.versions[0];
+      if (!version) {
+        throw new Error("Version not found");
+      }
+
       if (version && version.publishedAt) {
         readonly = true;
       }
 
+      const contentNodes = version.nodes.map((node) => ({
+        id: node.id,
+        type: node.type as any,
+        projectId: node.projectId,
+        workflowId: node.workflowId,
+        workflowVersionId: node.workflowVersionId,
+        contextId: node.contextId,
+        context: node.context.state,
+        state: node.nodeExectutions.map((ne) => ne.state)[0],
+        nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
+        position: node.position,
+        width: node.width,
+        height: node.height,
+        label: node.label,
+        color: node.color,
+      }));
+      const contentEdges = version.edges.map((edge) => ({
+        sourceOutput: edge.sourceOutput,
+        source: edge.source,
+        targetInput: edge.targetInput,
+        target: edge.target,
+        workflowId: edge.workflowId,
+        workflowVersionId: edge.workflowVersionId,
+      }));
+
       return {
         ...workflow,
-        currentVersion:
-          workflow.versions.length > 0 ? workflow.versions[0].version : 0,
+        currentVersion: version.version,
+        nodes: contentNodes,
+        edges: contentEdges,
         version,
         execution: workflow?.versions[0]?.executions[0],
         readonly,

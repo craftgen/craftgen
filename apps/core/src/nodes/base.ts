@@ -1,36 +1,37 @@
+import { debounce, isEqual, isUndefined, set } from "lodash-es";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
-import { type DiContainer } from "../types";
+import { MergeDeep, Simplify } from "type-fest";
 import {
   Actor,
+  AnyActorLogic,
+  assign,
+  createActor,
+  InputFrom,
+  Snapshot,
+  waitFor,
   type AnyStateMachine,
   type ContextFrom,
   type MachineImplementationsFrom,
   type SnapshotFrom,
-  createActor,
-  waitFor,
-  AnyActorLogic,
-  InputFrom,
-  assign,
-  Snapshot,
 } from "xstate";
-import { debounce, isEqual, isUndefined, set } from "lodash-es";
-import {
-  type AllSockets,
-  Socket,
-  getSocketByJsonSchemaType,
-  getControlBySocket,
-} from "../sockets";
-import type { NodeTypes, Node } from "../types";
+
 import { BaseControl } from "../controls/base";
-import { Input, Output } from "../input-output";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { JSONSocket } from "../controls/socket-generator";
+import { Input, Output } from "../input-output";
+import {
+  getControlBySocket,
+  getSocketByJsonSchemaType,
+  Socket,
+  type AllSockets,
+} from "../sockets";
+import { type DiContainer } from "../types";
+import type { Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
-import { MergeDeep, Simplify } from "type-fest";
 
 export type ParsedNode<
   NodeType extends string,
-  Machine extends AnyActorLogic
+  Machine extends AnyActorLogic,
 > = Node & {
   id: string;
   type: NodeType; // Or a more specific type if possible
@@ -85,7 +86,7 @@ export type BaseActorTypes<
     context: any;
     events?: any;
     actions?: any;
-  }
+  },
 > = {
   input: MergeDeep<BaseActorInputType, T["input"]>;
   context: MergeDeep<BaseActorContextType, T["context"]>;
@@ -109,7 +110,7 @@ export abstract class BaseNode<
     [key in string]?: BaseControl & { name?: string };
   } = {
     [key in string]?: BaseControl & { name?: string };
-  }
+  },
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   static nodeType: string;
 
@@ -162,6 +163,9 @@ export abstract class BaseNode<
   get outputSchema() {
     return createJsonSchema(this.outputSockets);
   }
+  get readonly() {
+    return this.di.readonly;
+  }
 
   public executionNodeId?: string;
   unsubscribe: () => void = () => {};
@@ -171,7 +175,7 @@ export abstract class BaseNode<
     public di: DiContainer,
     public nodeData: ParsedNode<NodeTypes, Machine>,
     machine: Machine,
-    public machineImplements: MachineImplementationsFrom<Machine>
+    public machineImplements: MachineImplementationsFrom<Machine>,
   ) {
     super(nodeData.label);
 
@@ -193,7 +197,7 @@ export abstract class BaseNode<
             Object.keys(context.inputs).forEach((key) => {
               if (
                 !(context.inputSockets as JSONSocket[]).find(
-                  (i) => i.name === key
+                  (i) => i.name === key,
                 )
               ) {
                 delete context.inputs[key];
@@ -225,39 +229,6 @@ export abstract class BaseNode<
       });
     }
 
-    // let prev = this.actor.getSnapshot();
-    // this.actor.subscribe({
-    //   complete: async () => {
-    //     // this.di.logger.log(this.identifier, "finito main");
-    //   },
-    //   next: async (state) => {
-    //     this.state = state.value as any;
-    //     this.setSnap(state);
-    //     if (!isEqual(prev.context.inputSockets, state.context.inputSockets)) {
-    //       this.setInputSockets(state.context?.inputSockets || []);
-    //     }
-    //     if (!isEqual(prev.context.outputSockets, state.context.outputSockets)) {
-    //       this.setOutputSockets(state.context?.outputSockets || []);
-    //     }
-
-    //     if (
-    //       !isEqual(prev.context.outputs, state.context.outputs) &&
-    //       state.matches("complete")
-    //     ) {
-    //       this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-    //       if (!this.isExecution) {
-    //         // Only update ancestors if this is not an execution node
-    //         await this.updateAncestors();
-    //       }
-    //     }
-
-    //     this.saveState({ state });
-    //     if (!this.isExecution) {
-    //       saveContextDebounced({ context: state.context });
-    //     }
-    //     prev = state;
-    //   },
-    // });
     this.snap = this.actor.getSnapshot();
     this.inputSockets = this.snap.context?.inputSockets || [];
     this.outputSockets = this.snap.context?.outputSockets || [];
@@ -287,13 +258,13 @@ export abstract class BaseNode<
       () => this.inputSockets,
       async (sockets) => {
         await this.updateInputs(sockets);
-      }
+      },
     );
     const outputHandlers = reaction(
       () => this.outputSockets,
       async (sockets) => {
         await this.updateOutputs(sockets);
-      }
+      },
     );
 
     this.actor.start();
@@ -307,7 +278,7 @@ export abstract class BaseNode<
         }
       | {
           input: InputFrom<Machine> | ContextFrom<Machine> | undefined;
-        }
+        },
   ) {
     const saveContextDebounced = debounce(
       async ({ context }: { context: ContextFrom<Machine> }) => {
@@ -317,7 +288,7 @@ export abstract class BaseNode<
           context: JSON.stringify(context),
         });
       },
-      1000
+      1000,
     );
     const actor = createActor(this.machine, {
       id: this.contextId,
@@ -353,7 +324,7 @@ export abstract class BaseNode<
         }
 
         this.saveState({ state });
-        if (!this.isExecution) {
+        if (!this.readonly) {
           saveContextDebounced({ context: state.context });
         }
         prev = state as any;
@@ -460,7 +431,7 @@ export abstract class BaseNode<
               [item.name]: v,
             },
           });
-        }
+        },
       );
       input.addControl(controller);
       this.addInput(item.name, input as any);
@@ -528,7 +499,7 @@ export abstract class BaseNode<
   async execute(
     input: any,
     forward: (output: "trigger") => void,
-    executionId: string
+    executionId: string,
   ) {
     console.log(this.identifier, "@@@", "execute", executionId);
     this.di.engine.emit({
@@ -649,7 +620,7 @@ export abstract class BaseNode<
         this.identifier,
         "inputs are not matching computing",
         inputs,
-        state.context.inputs
+        state.context.inputs,
       );
       await this.compute(inputs);
     }
@@ -708,7 +679,7 @@ export abstract class BaseNode<
             .filter((c) => c.target === this.id && c.targetInput === key)
             .map(async (c) => {
               await this.di.editor.removeConnection(c.id);
-            })
+            }),
         );
         this.removeInput(key);
       }
@@ -736,7 +707,7 @@ export abstract class BaseNode<
             .filter((c) => c.source === this.id && c.sourceOutput === key)
             .map(async (c) => {
               await this.di.editor.removeConnection(c.id);
-            })
+            }),
         );
         this.removeOutput(key);
       }
@@ -768,7 +739,7 @@ export abstract class BaseNode<
       if (Date.now() - startTime > 30000) {
         sub.unsubscribe();
         throw new Error(
-          `State did not match the given value '${stateValue}' within 30 seconds`
+          `State did not match the given value '${stateValue}' within 30 seconds`,
         );
       }
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { WorkflowAPI } from "@seocraft/core/src/types";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -12,8 +13,6 @@ import {
 import { observer } from "mobx-react-lite";
 import { useRete } from "rete-react-plugin";
 
-import { WorkflowAPI } from "@seocraft/core/src/types";
-
 import { getWorkflow } from "@/actions/get-workflow";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,13 +22,14 @@ import {
 } from "@/components/ui/tooltip";
 import { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
+import { RouterOutputs } from "@/trpc/shared";
 
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
 
 export const Composer: React.FC<{
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs["craft"]["module"]["get"];
   store: any;
 }> = observer(({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
@@ -43,7 +43,10 @@ export const Composer: React.FC<{
     api.craft.node.updateMetadata.useMutation();
   const { mutateAsync: createExecution } =
     api.craft.execution.create.useMutation();
-  const workflowAPI: WorkflowAPI = {
+  const utils = api.useUtils();
+  const getModule = utils.craft.module.getById.fetch;
+
+  const workflowAPI: Partial<WorkflowAPI> = {
     upsertNode,
     deleteNode,
     saveEdge,
@@ -52,6 +55,7 @@ export const Composer: React.FC<{
     setState,
     updateNodeMetadata,
     createExecution,
+    getModule,
   };
 
   const createEditor = useMemo(() => {

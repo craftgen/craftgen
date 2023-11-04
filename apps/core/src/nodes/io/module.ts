@@ -1,18 +1,15 @@
 import { merge } from "lodash-es";
-import { NodeEditor } from "rete";
+import { action, makeObservable, observable, reaction } from "mobx";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, type StateFrom } from "xstate";
 
-import { ComboboxControl } from "../../controls/combobox";
-import { InputControl } from "../../controls/input.control";
 import { SelectControl } from "../../controls/select";
-import type { JSONSocket } from "../../controls/socket-generator";
+import { JSONSocket } from "../../controls/socket-generator";
+import { Editor } from "../../editor";
 import { Input, Output } from "../../input-output";
-import { Modules, type Module } from "../../modules";
-import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
-import type { DiContainer, Schemes } from "../../types";
+import { triggerSocket } from "../../sockets";
+import type { DiContainer } from "../../types";
 import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
-import { InputNode } from "./input.node";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -33,7 +30,7 @@ const ModuleNodeMachine = createMachine({
   types: {} as BaseActorTypes<{
     input: {
       moduleId: string;
-      inputId: string;
+      inputId?: string;
     };
     actions: {
       type: "setInput";
@@ -42,7 +39,7 @@ const ModuleNodeMachine = createMachine({
       };
     };
     context: {
-      moduleId?: string;
+      moduleId: string;
       inputId?: string;
       inputs: Record<string, any>;
       outputs: Record<string, any>;
@@ -64,8 +61,8 @@ const ModuleNodeMachine = createMachine({
         }
       | {
           type: "SET_CONFIG";
-          inputs: Record<string, any>;
-          outputs: Record<string, any>;
+          inputSockets: JSONSocket[];
+          outputSockets: JSONSocket[];
         }
       | {
           type: "RUN";
@@ -76,16 +73,11 @@ const ModuleNodeMachine = createMachine({
   initial: "idle",
   states: {
     idle: {
-      on: {
-        SET_MODULE: {
-          target: "chooseInput",
-          actions: assign({
-            moduleId: ({ event }) => event.moduleId,
-          }),
-        },
+      always: {
+        target: "connected",
       },
     },
-    chooseInput: {
+    connected: {
       on: {
         SET_INPUT: {
           target: "connected",
@@ -93,30 +85,16 @@ const ModuleNodeMachine = createMachine({
             inputId: ({ event }) => event.inputId,
           }),
         },
-      },
-    },
-    connected: {
-      on: {
-        SET_MODULE: {
-          target: "connected",
-          actions: assign({
-            moduleId: ({ event }) => event.moduleId,
-          }),
-        },
-
         SET_CONFIG: {
           target: "connected",
           actions: assign({
-            inputs: ({ event }) => event.inputs,
-            outputs: ({ event }) => event.outputs,
+            inputSockets: ({ event }) => event.inputSockets,
+            outputSockets: ({ event }) => event.outputSockets,
           }),
         },
-
         RUN: {
           target: "running",
-          actions: assign({
-            inputData: ({ event }) => event.inputData,
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -149,10 +127,7 @@ const ModuleNodeMachine = createMachine({
       on: {
         RUN: {
           target: "running",
-          actions: assign({
-            inputData: ({ event }) => event.inputData,
-            error: null,
-          }),
+          actions: ["setValue", "removeError"],
         },
       },
     },
@@ -174,155 +149,111 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     };
   }
 
-  module: null | Module = null;
+  module: null | Editor = null;
 
   constructor(di: DiContainer, data: ModuleNodeData) {
     super("ModuleNode", di, data, ModuleNodeMachine, {
       actors: {
         execute: fromPromise(async ({ input }) => {
           console.log("RUNNING", { input, module: this.module });
-          const val = await this.module?.exec(input.inputId, input.inputData);
+          const val = await this.module?.run({
+            inputId: input.inputId,
+            inputs: input.inputData,
+          });
           console.log("RES", val);
           return val;
         }),
       },
     });
+    makeObservable(this, {
+      module: observable.ref,
+      setModule: action,
+    });
+
     const state = this.actor.getSnapshot();
-    this.addControl(
-      "module",
-      new ComboboxControl(
-        state.context.moduleId,
-        "Select Module",
-        `/api/playgrounds/${this.projectId}`, // TODO get from project
-        async () => {
-          return this.di.api.getModulesMeta({ query: this.projectId });
-        },
-        (data) => {
-          return data.map((playground) => ({
-            key: playground.id,
-            value: playground.name,
-          }));
-        },
-        (value: string) => {
-          this.actor.send({
-            type: "SET_MODULE",
-            moduleId: value,
-          });
-        },
-      ),
-    );
-    if (state.context.moduleId && state.context.inputId) {
-      this.update();
-    }
-    this.syncUI(state);
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
     this.addOutput("trigger", new Output(triggerSocket, "trigger"));
-    this.actor.subscribe((state) => this.syncUI(state));
 
-    this.syncPorts(state.context.inputs, state.context.outputs);
-  }
+    this.setModule(state.context.moduleId);
 
-  async syncUI(state: StateFrom<typeof ModuleNodeMachine>) {
-    if (state.matches("chooseInput") || state.matches("connected")) {
-      console.log("** SETTING MODULE");
-      this.module = await this.di.modules.findModule(state.context.moduleId!);
-      console.log("** MODULE SET", this.module);
-    }
-    if (state.matches("chooseInput")) {
-      if (this.controls.select_input) {
-        this.removeControl("select_input");
-      }
-      const inputs =
-        this.module?.editor
-          .getNodes()
-          .filter((node) => node instanceof InputNode)
-          .map((n) => ({
-            key: n.id,
-            value: n.actor.getSnapshot().context.name,
-          })) || [];
+    reaction(
+      () => this.snap.context.moduleId,
+      async () => {
+        console.log("MODULE ID ");
+        if (!this.snap.context.moduleId) return;
+        await this.setModule(this.snap.context.moduleId);
+      },
+    );
 
-      this.addControl(
-        "select_input",
-        new SelectControl(state.context.inputId, {
-          placeholder: "Select Input",
-          values: inputs,
-          change: (value) => {
-            console.log("SET INPUT", value);
+    reaction(
+      () => this.module,
+      async () => {
+        if (this.module) {
+          console.log("MODULE is set", this.module);
+
+          if (this.snap.context.inputId) {
+            const node = this.module.editor.getNode(this.snap.context.inputId);
+            this.module.setInput(node.id);
+          } else {
             this.actor.send({
               type: "SET_INPUT",
-              inputId: value,
+              inputId: this.module.selectedInput?.id,
             });
-            this.update();
-          },
-        }),
-      );
-    } else {
-      this.removeControl("select_input");
-    }
+          }
+
+          this.addControl(
+            "Input",
+            new SelectControl(this.snap.context.inputId, {
+              placeholder: "Select Input",
+              values: this.module.inputs.map((n) => ({
+                key: n.id,
+                value: `${n.label} | (${n.id.slice(5, 12)})`,
+              })),
+              change: (value) => {
+                console.log("SET INPUT", value);
+                this.actor.send({
+                  type: "SET_INPUT",
+                  inputId: value,
+                });
+              },
+            }),
+          );
+        }
+      },
+    );
+
+    reaction(
+      () => this.module?.selectedInput,
+      async () => {
+        console.log("INPUT CHANGED", this.module?.selectedInput);
+        // this.updateInputs(this.module?.selectedInput?.inputSockets || []);
+        const outputs = this.module?.selectedOutputs?.reduce((acc, curr) => {
+          acc.push(...curr.outputSockets);
+          return acc;
+        }, [] as JSONSocket[]);
+        // console.log("OUTPUTS", outputs);
+        // this.updateOutputs(outputs || []);
+        this.actor.send({
+          type: "SET_CONFIG",
+          inputSockets: this.module?.selectedInput?.inputSockets || [],
+          outputSockets: outputs || [],
+        });
+      },
+    );
+
+    reaction(
+      () => this.snap.context.inputId,
+      () => {
+        console.log("INPUT ID CHANGED", this.snap.context.inputId);
+        this.actor.send({
+          type: "SET_INPUT",
+          inputId: this.snap.context.inputId!,
+        });
+        this.module?.setInput(this.snap.context.inputId!);
+      },
+    );
   }
-
-  async update() {
-    const state = this.actor.getSnapshot();
-    const newModule = await this.di.modules.findModule(state.context.moduleId);
-    if (this.module !== newModule) {
-      this.module = newModule;
-    }
-
-    if (this.module) {
-      const editor = new NodeEditor<Schemes>();
-      await this.module.apply(editor);
-
-      const { inputs, outputs } = Modules.getPorts({
-        editor,
-        graph: this.module?.graph,
-        inputId: state.context.inputId,
-      });
-      this.actor.send({
-        type: "SET_CONFIG",
-        inputs,
-        outputs,
-      });
-      this.syncPorts(inputs, outputs);
-    } else this.syncPorts([], []);
-    return true;
-  }
-
-  syncPorts(inputs: JSONSocket[], outputs: JSONSocket[]) {
-    /**
-     * Flush all ports
-     */
-    Object.entries(this.inputs).forEach(([key, input]) => {
-      if (key === "trigger") return;
-      this.removeInput(key);
-    });
-    Object.entries(this.outputs).forEach(([key, output]) => {
-      if (key === "trigger") return;
-      this.removeOutput(key);
-    });
-
-    inputs.forEach((item) => {
-      const socket = getSocketByJsonSchemaType(item.type)!;
-      const input = new Input(socket, item.name);
-      input.addControl(
-        new InputControl(item.description || "", {
-          change: (value) => {
-            this.actor.send({
-              type: "change",
-              name: item.name,
-              description: value,
-            });
-          },
-        }),
-      );
-      this.addInput(item.name, input);
-    });
-    outputs.forEach((item) => {
-      const socket = getSocketByJsonSchemaType(item.type)!;
-      const output = new Output(socket, item.name);
-      this.addOutput(item.name, output);
-    });
-    this.height =
-      110 +
-      25 * (Object.keys(this.inputs).length + Object.keys(this.outputs).length);
+  async setModule(moduleId: string) {
+    this.module = await this.di.createEditor(moduleId);
   }
 }

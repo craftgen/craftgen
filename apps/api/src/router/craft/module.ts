@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { and, eq, schema, sql } from "@seocraft/supabase/db";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -73,6 +72,65 @@ export const craftModuleRouter = createTRPCRouter({
       return {
         ...workflow,
         version,
+      };
+    }),
+
+  getById: protectedProcedure
+    .input(
+      z.object({
+        versionId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // TODO: Check has access.
+
+      const version = await ctx.db.query.workflowVersion.findFirst({
+        where: (workflowVersion, { eq }) =>
+          eq(workflowVersion.id, input.versionId),
+        with: {
+          edges: true,
+          nodes: {
+            with: {
+              context: {
+                columns: {
+                  state: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!version) {
+        throw new Error("Version not found");
+      }
+      const contentNodes = version.nodes.map((node) => ({
+        id: node.id,
+        type: node.type as any,
+        projectId: node.projectId,
+        workflowId: node.workflowId,
+        workflowVersionId: node.workflowVersionId,
+        contextId: node.contextId,
+        context: node.context.state,
+        state: undefined,
+        nodeExecutionId: undefined,
+        position: node.position,
+        width: node.width,
+        height: node.height,
+        label: node.label,
+        color: node.color,
+      }));
+      const contentEdges = version.edges.map((edge) => ({
+        sourceOutput: edge.sourceOutput,
+        source: edge.source,
+        targetInput: edge.targetInput,
+        target: edge.target,
+        workflowId: edge.workflowId,
+        workflowVersionId: edge.workflowVersionId,
+      }));
+      return {
+        ...version,
+        nodes: contentNodes,
+        edges: contentEdges,
       };
     }),
   get: protectedProcedure
@@ -187,10 +245,36 @@ export const craftModuleRouter = createTRPCRouter({
         if (version && version.publishedAt) {
           readonly = true;
         }
+        const contentNodes = version.nodes.map((node) => ({
+          id: node.id,
+          type: node.type as any,
+          projectId: node.projectId,
+          workflowId: node.workflowId,
+          workflowVersionId: node.workflowVersionId,
+          contextId: node.contextId,
+          context: node.context.state,
+          state: node.nodeExectutions.map((ne) => ne.state)[0],
+          nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
+          position: node.position,
+          width: node.width,
+          height: node.height,
+          label: node.label,
+          color: node.color,
+        }));
+        const contentEdges = version.edges.map((edge) => ({
+          sourceOutput: edge.sourceOutput,
+          source: edge.source,
+          targetInput: edge.targetInput,
+          target: edge.target,
+          workflowId: edge.workflowId,
+          workflowVersionId: edge.workflowVersionId,
+        }));
 
         return {
           ...workflow,
           currentVersion: workflow.versions.length > 0 ? version.version : 0,
+          nodes: contentNodes,
+          edges: contentEdges,
           version,
           execution: workflow?.versions[0]?.executions[0],
           readonly,
