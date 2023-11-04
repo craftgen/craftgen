@@ -10,7 +10,7 @@ export const addToWaitlist = async (params: {
     .insert(waitlist)
     .values({
       email: params.email,
-      platforms: params.platforms || [],
+      platforms: params.platforms ?? [],
     })
     .onConflictDoNothing()
     .returning();

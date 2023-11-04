@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import type { Socket } from "@seocraft/core/src/sockets";
+import type { NodeProps } from "@seocraft/core/src/types";
 import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
@@ -17,9 +19,6 @@ import { useTheme } from "next-themes";
 import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
-
-import type { Socket } from "@seocraft/core/src/sockets";
-import type { NodeProps } from "@seocraft/core/src/types";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
@@ -38,7 +37,6 @@ import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
-import { ResultOfAction } from "@/lib/type";
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
