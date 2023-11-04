@@ -343,7 +343,6 @@ export abstract class BaseNode<
     });
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
-    console.log("successors", outgoers);
     outgoers.forEach((n) => {
       n.reset();
     });
@@ -514,7 +513,7 @@ export abstract class BaseNode<
     if (this.actor.getSnapshot().matches("complete")) {
       // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
       this.di.engine.emit({
-        type: "execution-completed",
+        type: "execution-step-complete",
         data: {
           payload: this,
           executionId: executionId,
@@ -558,19 +557,19 @@ export abstract class BaseNode<
             executionId: executionId,
           },
         });
-        if (this.outputs.trigger) {
-          // forward("trigger");
+
+        if (this.successorNodes.length > 0) {
           if (this.di.headless) {
             await this.triggerSuccesors(executionId);
           } else {
             forward("trigger");
-            // console.log(this.identifier, "@@@", "forward");
           }
         } else {
           this.di.engine.emit({
             type: "execution-completed",
             data: {
               payload: this,
+              output: this.actor.getSnapshot().output,
               executionId,
             },
           });
@@ -598,6 +597,10 @@ export abstract class BaseNode<
         // version: this.nodeData.workflowVersion.version,
       });
     });
+  }
+
+  get successorNodes() {
+    return this.di.graph.successors(this.id).nodes();
   }
 
   get identifier() {

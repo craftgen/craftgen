@@ -73,43 +73,38 @@ const ModuleNodeMachine = createMachine({
   initial: "idle",
   states: {
     idle: {
-      always: {
-        target: "connected",
-      },
-    },
-    connected: {
       on: {
         SET_INPUT: {
-          target: "connected",
           actions: assign({
             inputId: ({ event }) => event.inputId,
           }),
         },
         SET_CONFIG: {
-          target: "connected",
           actions: assign({
             inputSockets: ({ event }) => event.inputSockets,
             outputSockets: ({ event }) => event.outputSockets,
           }),
         },
+        SET_VALUE: {
+          actions: ["setValue", "removeError"],
+        },
         RUN: {
           target: "running",
-          actions: ["setValue"],
+          actions: ["setValue", "removeError"],
         },
       },
     },
-
     running: {
       invoke: {
         src: "execute",
         input: ({ context }) => ({
           inputId: context.inputId,
-          inputData: context.inputData,
+          inputData: context.inputs,
         }),
         onDone: {
-          target: "connected",
+          target: "complete",
           actions: assign({
-            outputData: ({ event }) => event.output,
+            outputs: ({ event }) => event.output,
           }),
         },
         onError: {
@@ -131,6 +126,7 @@ const ModuleNodeMachine = createMachine({
         },
       },
     },
+    complete: {},
   },
 });
 
@@ -226,13 +222,10 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       () => this.module?.selectedInput,
       async () => {
         console.log("INPUT CHANGED", this.module?.selectedInput);
-        // this.updateInputs(this.module?.selectedInput?.inputSockets || []);
         const outputs = this.module?.selectedOutputs?.reduce((acc, curr) => {
           acc.push(...curr.outputSockets);
           return acc;
         }, [] as JSONSocket[]);
-        // console.log("OUTPUTS", outputs);
-        // this.updateOutputs(outputs || []);
         this.actor.send({
           type: "SET_CONFIG",
           inputSockets: this.module?.selectedInput?.inputSockets || [],

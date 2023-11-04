@@ -8,14 +8,14 @@ export type ControlFlowEngineScheme = GetSchemes<
     execute(
       input: string,
       forward: (output: string, execId?: string) => void,
-      execId?: string
+      execId?: string,
     ): void;
   },
   ClassicScheme["Connection"]
 >;
 
 type Configure<Schemes extends ControlFlowEngineScheme> = (
-  node: Schemes["Node"]
+  node: Schemes["Node"],
 ) => {
   inputs: () => string[];
   outputs: () => string[];
@@ -48,7 +48,11 @@ export type Produces<Schemes extends ControlFlowEngineScheme> =
     }
   | {
       type: "execution-completed";
-      data: { payload: Schemes["Node"]; executionId: string };
+      data: {
+        payload: Schemes["Node"];
+        executionId: string;
+        output: Record<string, any>;
+      };
     }
   | {
       type: "execution-failed";
@@ -70,7 +74,7 @@ export type Produces<Schemes extends ControlFlowEngineScheme> =
  * @listens noderemoved
  */
 export class ControlFlowEngine<
-  Schemes extends ControlFlowEngineScheme
+  Schemes extends ControlFlowEngineScheme,
 > extends Scope<Produces<Schemes>, [Root<Schemes>]> {
   editor!: NodeEditor<Schemes>;
   controlflow!: ControlFlow<Schemes>;

@@ -6,7 +6,7 @@ import { assign, createMachine, fromPromise } from "xstate";
 
 import { CodeControl } from "../controls/code";
 import { Input, Output } from "../input-output";
-import { stringSocket, triggerSocket } from "../sockets";
+import { triggerSocket } from "../sockets";
 import type { DiContainer } from "../types";
 import { BaseActorTypes, BaseNode, type ParsedNode } from "./base";
 
@@ -273,7 +273,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
             });
           try {
             const rendered = renderFunc({ input });
-            console.log("rendered", rendered);
             return {
               variables,
               rendered,

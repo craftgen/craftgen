@@ -791,9 +791,9 @@ export class Editor<
 
     const res = await new Promise((resolve, reject) => {
       this.engine.addPipe((context) => {
-        // console.log("@@@ Engine context", context);
+        console.log("@@@ Engine context", context);
         if (context.type === "execution-completed") {
-          resolve(context);
+          resolve(context.data.output);
         }
         if (context.type === "execution-failed") {
           reject(context);
@@ -801,6 +801,7 @@ export class Editor<
         return context;
       });
     });
+    console.log("Execution completed", res);
     return res;
   }
 

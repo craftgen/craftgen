@@ -485,7 +485,9 @@ export const Node = observer((props: Props<Schemes>) => {
           <ContextMenuShortcut>⌘D</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onClick={pinNode}>Pin</ContextMenuItem>
-
+        <ContextMenuItem onClick={() => setEditLabel(true)}>
+          Rename
+        </ContextMenuItem>
         <ContextMenuItem onClick={deleteNode}>
           Delete
           <ContextMenuShortcut>⌫</ContextMenuShortcut>
