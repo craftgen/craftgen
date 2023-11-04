@@ -1,18 +1,19 @@
+import { merge } from "lodash-es";
+import { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
-import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
-import { type DiContainer } from "../../types";
+
+import {
+  SocketGeneratorControl,
+  type JSONSocket,
+} from "../../controls/socket-generator";
+import { Input, Output } from "../../input-output";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
   triggerSocket,
 } from "../../sockets";
-import {
-  type JSONSocket,
-  SocketGeneratorControl,
-} from "../../controls/socket-generator";
-import { merge } from "lodash-es";
-import { Input, Output } from "../../input-output";
-import { SetOptional } from "type-fest";
+import { type DiContainer } from "../../types";
+import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -28,7 +29,7 @@ export const InputNodeMachine = createMachine({
         outputSockets: [],
         error: null,
       },
-      input
+      input,
     ),
   types: {} as BaseActorTypes<{
     input: {
@@ -118,7 +119,7 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
         this.actor.send({
           type: "CHANGE",
           name,
-          description,
+          description: description || "",
           outputSockets: sockets,
         });
       },
@@ -169,7 +170,7 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
               [item.name]: v,
             },
           });
-        }
+        },
       );
       input.addControl(controller);
       this.addInput(item.name, input);

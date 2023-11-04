@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { WorkflowAPI } from "@seocraft/core/src/types";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -12,6 +11,8 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRete } from "rete-react-plugin";
+
+import { WorkflowAPI } from "@seocraft/core/src/types";
 
 import { getWorkflow } from "@/actions/get-workflow";
 import { Button } from "@/components/ui/button";

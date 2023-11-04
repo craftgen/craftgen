@@ -112,7 +112,7 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
         this.actor.send({
           type: "CHANGE",
           name,
-          description,
+          description: description || "",
           inputSockets: sockets,
         });
       },

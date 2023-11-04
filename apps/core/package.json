@@ -11,6 +11,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@acme/eslint-config/base"
+    ]
+  },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
     "@types/d3-shape": "^3.1.3",

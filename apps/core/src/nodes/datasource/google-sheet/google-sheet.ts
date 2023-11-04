@@ -1,19 +1,25 @@
+// TODO:
+// @ts-nocheck
+
+
+
+import { match, P } from "ts-pattern";
+import { SetOptional } from "type-fest";
 import {
-  type ContextFrom,
-  type StateFrom,
   assign,
   createMachine,
   fromPromise,
+  type ContextFrom,
+  type StateFrom,
 } from "xstate";
-import { BaseNode, ParsedNode } from "../../base";
-import { type DiContainer } from "../../../types";
-import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
-import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
-import { P, match } from "ts-pattern";
-import { SelectControl } from "../../../controls/select";
+
 import { GoogleDriveControl } from "../../../controls/google-drive";
+import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
-import { SetOptional } from "type-fest";
+import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
+import { type DiContainer } from "../../../types";
+import { BaseNode, ParsedNode } from "../../base";
+import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 
 export type CallbackDoc = {
   downloadUrl?: string;
@@ -285,7 +291,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         }),
         action: fromPromise(async ({ input, self }) => {
           const res = await match(
-            input as ContextFrom<typeof GoogleSheetMachine>
+            input as ContextFrom<typeof GoogleSheetMachine>,
           )
             .with(
               { settings: { action: "addRow" }, inputs: P.any },
@@ -295,7 +301,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                   inputs: input.inputs,
                 });
                 return row;
-              }
+              },
             )
             .with(
               {
@@ -308,7 +314,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                   rowIndex: input.inputs.rowIndex,
                 });
                 return row;
-              }
+              },
             )
             .with(
               {
@@ -322,7 +328,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                   offset: input.inputs.offset,
                 });
                 return rows;
-              }
+              },
             )
             .otherwise(() => {
               throw new Error("Invalid action");
@@ -353,7 +359,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     this.addControl(
@@ -378,7 +384,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     this.actor.subscribe((state) => {
@@ -414,7 +420,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                 ...prev,
                 [curr]: stringSocket,
               };
-            }, {})
+            }, {}),
           );
           await this.setOutputs({});
         })
@@ -426,7 +432,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                 ...prev,
                 [curr]: stringSocket,
               };
-            }, {})
+            }, {}),
           );
         })
         .with("readRows", async () => {
@@ -437,7 +443,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                 ...prev,
                 [curr]: stringSocket,
               };
-            }, {})
+            }, {}),
           );
         })
         .exhaustive();
@@ -466,28 +472,12 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
                 },
               });
             },
-          })
+          }),
         );
       }
     } else {
       if (this.hasControl("sheet")) this.removeControl("sheet");
     }
     console.log("syncUI", state);
-  }
-
-  async execute(_: any, forward: (output: "trigger") => void) {
-    const inputs = this.getInputs();
-    this.actor.send({
-      type: "RUN",
-      inputs,
-    });
-    await this.waitForState(this.actor, "complete");
-    forward("trigger");
-  }
-
-  async data() {
-    await this.waitForState(this.actor, "complete");
-    const state = this.actor.getSnapshot();
-    return state.context.outputs;
   }
 }

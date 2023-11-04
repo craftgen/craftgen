@@ -33,7 +33,7 @@ export const createNewProject = async (
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();
   return await db.transaction(async (tx) => {
-    const newProject = await tx
+    const [newProject] = await tx
       .insert(project)
       .values({
         name: params.name,
@@ -41,25 +41,28 @@ export const createNewProject = async (
         slug: params.slug,
       })
       .returning();
+    if (!newProject) {
+      throw new Error("Failed to create project");
+    }
     await tx.insert(projectMembers).values({
-      projectId: newProject[0].id,
+      projectId: newProject.id,
       userId: session.data.session?.user.id!,
       role: "owner",
     });
 
     await tx.insert(variable).values([
       {
-        project_id: newProject[0].id,
+        project_id: newProject.id,
         key: "OPENAI_API_KEY",
         system: true,
       },
       {
-        project_id: newProject[0].id,
+        project_id: newProject.id,
         key: "REPLICATE_API_KEY",
         system: true,
       },
     ]);
 
-    return newProject[0];
+    return newProject;
   });
 };

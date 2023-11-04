@@ -17,6 +17,9 @@
     "TRIGGER_API_URL"
   ],
   "pipeline": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
     "build": {
       "dependsOn": [
         "^build"

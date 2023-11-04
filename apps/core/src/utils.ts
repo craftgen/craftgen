@@ -1,37 +1,15 @@
-import { ClassicPreset, NodeEditor, NodeId } from "rete";
-import { Sockets } from "./sockets";
-import { Schemes } from "./types";
-import { JSONSocket } from "./controls/socket-generator";
+import { NodeEditor, NodeId } from "rete";
 
-type Input = ClassicPreset.Input<Sockets>;
-type Output = ClassicPreset.Output<Sockets>;
+import { JSONSocket } from "./controls/socket-generator";
+import { Schemes } from "./types";
 
 export function getInputNodes(editor: NodeEditor<Schemes>) {
   return editor.getNodes().filter((node) => node.ID === "InputNode");
 }
 
-export function getConnectionSockets<Scheme extends Schemes>(
-  editor: NodeEditor<Scheme>,
-  connection: Scheme["Connection"]
-) {
-  const source = editor.getNode(connection.source);
-  const target = editor.getNode(connection.target);
-
-  const output =
-    source &&
-    (source.outputs as Record<string, Input>)[connection.sourceOutput];
-  const input =
-    target && (target.inputs as Record<string, Output>)[connection.targetInput];
-
-  return {
-    source: output?.socket,
-    target: input?.socket,
-  };
-}
-
 export async function removeConnections(
   editor: NodeEditor<Schemes>,
-  nodeId: NodeId
+  nodeId: NodeId,
 ) {
   for (const c of [...editor.getConnections()]) {
     if (c.source === nodeId || c.target === nodeId) {
@@ -52,10 +30,13 @@ export const createJsonSchema = (inputs: JSONSocket[]) => {
     .filter((input) => input.required)
     .map((input) => input.name);
 
-  const properties = inputs.reduce((acc, input) => {
-    acc[input.name] = socketToProperty(input);
-    return acc;
-  }, {} as Record<string, any>);
+  const properties = inputs.reduce(
+    (acc, input) => {
+      acc[input.name] = socketToProperty(input);
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
 
   return {
     type: "object",

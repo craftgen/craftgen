@@ -32,7 +32,10 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
   const avatarFallbackInitials = useMemo(() => {
     if (!user) return "S";
-    const [firstName, lastName] = (user?.fullName || "S C").split(" ");
+    const [firstName, lastName] = (user?.fullName || "S C").split(" ") as [
+      string,
+      string,
+    ];
     return `${firstName[0]}${lastName[0]}`;
   }, [user?.fullName]);
   const router = useRouter();

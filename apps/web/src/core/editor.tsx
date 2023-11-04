@@ -1,10 +1,11 @@
 "use client";
 
+import { createRoot } from "react-dom/client";
+import { Presets, ReactPlugin } from "rete-react-plugin";
+
 import { Editor } from "@seocraft/core";
 import { AreaExtra } from "@seocraft/core/src/editor";
 import { nodes, Schemes, WorkflowAPI } from "@seocraft/core/src/types";
-import { createRoot } from "react-dom/client";
-import { Presets, ReactPlugin } from "rete-react-plugin";
 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";

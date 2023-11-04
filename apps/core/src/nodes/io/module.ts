@@ -191,10 +191,12 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
             const node = this.module.editor.getNode(this.snap.context.inputId);
             this.module.setInput(node.id);
           } else {
-            this.actor.send({
-              type: "SET_INPUT",
-              inputId: this.module.selectedInput?.id,
-            });
+            if (this.module.selectedInput) {
+              this.actor.send({
+                type: "SET_INPUT",
+                inputId: this.module.selectedInput?.id,
+              });
+            }
           }
 
           this.addControl(

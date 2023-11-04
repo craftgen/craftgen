@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Editor } from "@seocraft/core";
-import { NodeTypes } from "@seocraft/core/src/types";
 import { Action, Priority, useKBar, useRegisterActions } from "kbar";
 import { debounce } from "lodash-es";
 import useSWR from "swr";
+
+import { Editor } from "@seocraft/core";
+import { NodeTypes } from "@seocraft/core/src/types";
 
 import { getWorkflowVersionsById } from "@/actions/get-workflow-versions";
 import { searchModulesMeta } from "@/actions/search-modules-meta";

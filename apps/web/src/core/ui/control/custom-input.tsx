@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
+import { InputControl } from "@seocraft/core/src/controls/input.control";
 
 import { Input } from "@/components/ui/input";
-
-import { InputControl } from "../../controls/input.control";
 
 export function CustomInput(props: { data: InputControl }) {
   const [value, setValue] = useState(props.data.value);

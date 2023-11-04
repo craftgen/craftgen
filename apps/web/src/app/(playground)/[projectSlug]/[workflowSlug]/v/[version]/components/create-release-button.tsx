@@ -7,7 +7,6 @@ import { RocketIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { createRelease } from "@/actions/create-release";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/trpc/react";
 
 const schema = z.object({
   changeLog: z.string(),
@@ -34,9 +34,11 @@ export const CreateReleaseButton = (props: {
     resolver: zodResolver(schema),
   });
   const router = useRouter();
+  const { mutateAsync: createRelease } =
+    api.craft.version.release.useMutation();
   const onSubmitHandler = async (data: z.infer<typeof schema>) => {
     console.log("triggered release", props);
-    const { data: newVersion } = await createRelease({
+    const newVersion = await createRelease({
       workflowId: props.playgroundId,
       changeLog: data.changeLog,
     });

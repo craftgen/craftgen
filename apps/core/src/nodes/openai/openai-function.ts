@@ -1,19 +1,23 @@
-import type { DiContainer } from "../../types";
-import { OPENAI_CHAT_MODELS, type OpenAIChatSettings } from "modelfusion";
-import { BaseNode, type ParsedNode } from "../base";
-import { type StateFrom, assign, createMachine, fromPromise } from "xstate";
-import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
-// import { checkAPIKeyExist, generateTextFn, genereteJsonFn } from "../actions";
-// import { MISSING_API_KEY_ERROR } from "@/lib/error";
 import { merge, omit } from "lodash-es";
+import {
+  OPENAI_CHAT_MODELS,
+  OpenAIChatModelType,
+  type OpenAIChatSettings,
+} from "modelfusion";
+import { SetOptional } from "type-fest";
+import { assign, createMachine, fromPromise, type StateFrom } from "xstate";
+
+import { InputControl } from "../../controls/input.control";
 import { SelectControl } from "../../controls/select";
 import { SliderControl } from "../../controls/slider";
-import { InputControl } from "../../controls/input.control";
 import { Input, Output } from "../../input-output";
-import { generateTextFn, genereteJsonFn } from "./actions";
-import { SetOptional } from "type-fest";
+import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
+import type { DiContainer } from "../../types";
+import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
 
-type OPENAI_CHAT_MODELS_KEY = keyof typeof OPENAI_CHAT_MODELS;
+// import { generateTextFn, genereteJsonFn } from "./actions";
+
+type OPENAI_CHAT_MODELS_KEY = OpenAIChatModelType;
 
 const mergeSettings = (context: any, event: any) => {
   return merge(context.settings, {
@@ -42,7 +46,9 @@ const OpenAIFunctionCallMachine = createMachine({
     merge(
       {
         inputs: {},
+        inputSockets: [],
         outputs: {},
+        outputSockets: [],
         settings: {
           openai: {
             model: "gpt-3.5-turbo",
@@ -54,11 +60,15 @@ const OpenAIFunctionCallMachine = createMachine({
         validApiKey: null,
         error: null,
       },
-      input
+      input,
     ),
-  types: {} as {
+  types: {} as BaseActorTypes<{
     input: {
-      inputs: Record<string, any>;
+      inputs:
+        | Record<string, any>
+        | {
+            prompt: string;
+          };
       outputs: Record<string, any>;
       settings: {
         openai: OpenAIChatSettings;
@@ -66,8 +76,6 @@ const OpenAIFunctionCallMachine = createMachine({
       };
     };
     context: {
-      inputs: Record<string, any[]>;
-      outputs: Record<string, any[]>;
       settings: {
         openai: OpenAIChatSettings;
         resultType: "json" | "text";
@@ -78,11 +86,12 @@ const OpenAIFunctionCallMachine = createMachine({
         message: string;
       } | null;
     };
+    actions: any;
     events:
       | {
           type: "CONFIG_CHANGE";
-          openai: OpenAIChatSettings;
-          resultType: "json" | "text";
+          openai?: Partial<OpenAIChatSettings>;
+          resultType?: "json" | "text";
         }
       | {
           type: "RUN";
@@ -94,9 +103,9 @@ const OpenAIFunctionCallMachine = createMachine({
         }
       | {
           type: "SET_VALUE";
-          inputs: Record<string, any[]>;
+          inputs: Record<string, any>;
         };
-  },
+  }>,
   states: {
     initial: {
       invoke: {
@@ -218,8 +227,6 @@ export class OpenAIFunctionCall extends BaseNode<
     };
   }
 
-  
-
   constructor(di: DiContainer, data: OpenAINode) {
     super("OpenAIFunctionCall", di, data, OpenAIFunctionCallMachine, {
       actors: {
@@ -285,8 +292,8 @@ export class OpenAIFunctionCall extends BaseNode<
               value: key,
             })),
           ],
-        }
-      )
+        },
+      ),
     );
 
     this.addControl(
@@ -309,12 +316,12 @@ export class OpenAIFunctionCall extends BaseNode<
             value: "Text",
           },
         ],
-      })
+      }),
     );
 
     this.addControl(
       "temperature",
-      new SliderControl(state.context.settings.openai.temperature, {
+      new SliderControl(state.context.settings.openai.temperature || 0, {
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -325,22 +332,25 @@ export class OpenAIFunctionCall extends BaseNode<
         },
         max: 1,
         step: 0.01,
-      })
+      }),
     );
     this.addControl(
       "maxCompletionTokens",
-      new SliderControl(state.context.settings.openai.maxCompletionTokens, {
-        change: (val) => {
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            openai: {
-              maxCompletionTokens: val,
-            },
-          });
+      new SliderControl(
+        state.context.settings.openai.maxCompletionTokens || 1024,
+        {
+          change: (val) => {
+            this.actor.send({
+              type: "CONFIG_CHANGE",
+              openai: {
+                maxCompletionTokens: val,
+              },
+            });
+          },
+          max: this.contextWindowSize,
+          step: 1,
         },
-        max: this.contextWindowSize,
-        step: 1,
-      })
+      ),
     );
     this.actor.subscribe((state) => {
       this.syncUI(state);
@@ -359,7 +369,7 @@ export class OpenAIFunctionCall extends BaseNode<
             },
           });
         },
-      })
+      }),
     );
     this.addInput("prompt", input);
     this.addOutput(
@@ -368,8 +378,8 @@ export class OpenAIFunctionCall extends BaseNode<
         state.context.settings.resultType === "json"
           ? objectSocket
           : stringSocket,
-        "Output"
-      )
+        "Output",
+      ),
     );
   }
 
@@ -397,7 +407,7 @@ export class OpenAIFunctionCall extends BaseNode<
         },
         max: this.contextWindowSize,
         step: 1,
-      })
+      }),
     );
     if (state.context.settings.resultType === "json") {
       if (this.outputs?.result) {

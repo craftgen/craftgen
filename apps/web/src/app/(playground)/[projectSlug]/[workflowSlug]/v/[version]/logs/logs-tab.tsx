@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
 import useSWR, { mutate } from "swr";
 
-import { deleteExecution } from "@/actions/delete-execution";
 import { getLogs } from "@/actions/get-logs";
 import { getWorkflow } from "@/actions/get-workflow";
 import {
@@ -19,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
@@ -52,6 +52,8 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { mutateAsync: deleteExecution } =
+    api.craft.execution.delete.useMutation();
   const handleDeleteExecution = (executionId: string) => {
     deleteExecution({ executionId });
     if (isActiveView(executionId)) {

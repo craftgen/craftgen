@@ -1,6 +1,5 @@
 import * as React from "react";
 import Link from "next/link";
-import { type Schemes } from "@seocraft/core/src/types";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
@@ -10,6 +9,8 @@ import { useDebounce, useMeasure } from "react-use";
 import { Drag, Presets, RenderEmit } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
 import { useStore } from "zustand";
+
+import { type Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

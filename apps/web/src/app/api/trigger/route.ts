@@ -5,4 +5,4 @@ import { client } from "@/trigger";
 import "@/jobs";
 
 //this route is used to send and receive data with Trigger.dev
-export const { POST, dynamic } = createAppRoute(client);
+export const { POST, dynamic } = createAppRoute(client) as any;

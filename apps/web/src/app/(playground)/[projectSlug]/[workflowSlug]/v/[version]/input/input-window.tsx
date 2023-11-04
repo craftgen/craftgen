@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ajvResolver } from "@hookform/resolvers/ajv";
 import { useSelector } from "@xstate/react";
@@ -7,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useForm } from "react-hook-form";
 
 import { InputNode } from "@seocraft/core/src/nodes";
+import { NodeProps } from "@seocraft/core/src/types";
 
 import { createExecution } from "@/actions/create-execution";
 import { Button } from "@/components/ui/button";
@@ -45,17 +45,14 @@ export const InputWindow: React.FC<{}> = observer(({}) => {
 });
 
 export const InputHandler: React.FC<{
-  inputs: InputNode[];
-  input: InputNode | null;
+  inputs: NodeProps[];
+  input: NodeProps | null;
   setInput: (inputId: string) => void;
 }> = ({ inputs, input, setInput }) => {
   return (
     <div className="h-full w-full space-y-4 p-4">
       {inputs?.length > 0 ? (
-        <Select
-          onValueChange={(v) => setInput(v)}
-          defaultValue={inputs.length === 1 ? inputs[0].id : undefined}
-        >
+        <Select onValueChange={(v) => setInput(v)} defaultValue={input?.id}>
           <SelectTrigger>
             <SelectValue placeholder={"Select Input"} />
           </SelectTrigger>
@@ -87,7 +84,7 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     projectSlug: state.projectSlug,
     workflowSlug: state.workflowSlug,
   }));
-  const schema = useSelector(input.actor, (state) => state.context.schema);
+  const schema = input.inputSchema as any;
   const fields = useSelector(
     input.actor,
     (state) => state.context.outputSockets,
@@ -103,19 +100,19 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
   const pathname = usePathname();
   const onSubmit = async (data: any) => {
     try {
-      const { data: execution } = await createExecution({
-        workflowId: input.nodeData.workflowId,
-        workflowVersionId: input.nodeData.workflowVersionId,
-        input: {
-          id: input.id,
-          values: data,
-        },
-        headless: true,
-      });
-      if (!execution) {
-        throw new Error("Execution not created");
-      }
-
+      //TODO: fix execution
+      // const { data: execution } = await createExecution({
+      //   workflowId: input.nodeData.workflowId,
+      //   workflowVersionId: input.nodeData.workflowVersionId,
+      //   input: {
+      //     id: input.id,
+      //     values: data,
+      //   },
+      //   headless: true,
+      // });
+      // if (!execution) {
+      //   throw new Error("Execution not created");
+      // }
       // router.push(`${pathname}?execution=${execution.id}`);
       // input.di.engine?.execute(input.id, undefined, execution?.id);
     } catch (e) {

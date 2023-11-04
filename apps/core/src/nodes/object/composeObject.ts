@@ -1,46 +1,54 @@
+import { merge } from "lodash-es";
+import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
-import { BaseNode, type ParsedNode } from "../base";
-import { DiContainer } from "../../types";
-import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
-import { createJsonSchema } from "../../utils";
+
 import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
-import { SetOptional } from "type-fest";
+import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
+import { DiContainer } from "../../types";
+import { createJsonSchema } from "../../utils";
+import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
   initial: "idle",
-  types: {} as {
-    context: {
+  context: ({ input }) =>
+    merge(
+      {
+        name: "object",
+        description: "object description",
+        inputs: {},
+        outputs: {},
+        inputSockets: [],
+        outputSockets: [],
+        schema: {},
+        error: null,
+      },
+      input,
+    ),
+  types: {} as BaseActorTypes<{
+    input: {
       name: string;
       description?: string;
-      inputs: JSONSocket[];
       schema: any;
     };
+    context: {
+      name: string;
+      description: string;
+      schema: any;
+    };
+    actions: any;
     events: {
       type: "change";
       name: string;
-      description?: string;
+      description: string;
       inputs: JSONSocket[];
       schema: any;
     };
-  },
-  context: {
-    name: "object",
-    description: "object description",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        description: "Name of the object",
-        required: true,
-      },
-    ],
-    schema: {},
-  },
+  }>,
   states: {
     idle: {
       on: {
@@ -71,7 +79,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   static icon = "braces";
 
   static parse(
-    params: SetOptional<ComposeObjectData, "type">
+    params: SetOptional<ComposeObjectData, "type">,
   ): ComposeObjectData {
     return {
       ...params,
@@ -102,14 +110,14 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.inputs,
+        sockets: state.context.inputSockets,
       },
       onChange: ({ sockets, name, description }) => {
         const schema = createJsonSchema(sockets);
         this.actor.send({
           type: "change",
           name,
-          description,
+          description: description || "",
           inputs: sockets,
           schema,
         });

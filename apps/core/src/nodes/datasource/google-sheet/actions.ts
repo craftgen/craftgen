@@ -1,12 +1,9 @@
 "use server";
 
-// import { getGoogleAuth } from "@/lib/google/auth";
-// import { Database } from "@seocraft/supabase/db/database.types";
-// import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
-// import { cookies } from "next/headers";
-import { type GoogleSheetMachineSettingsContext } from "./google-sheet";
+import { GoogleSpreadsheet } from "google-spreadsheet";
 import { Auth } from "googleapis";
+
+import { type GoogleSheetMachineSettingsContext } from "./google-sheet";
 
 type GoogleSheetServiceSettings = {
   spreadsheetId: string;
@@ -26,7 +23,11 @@ class GoogleSpreadSheetService {
     if (!this.settings.sheetId) {
       throw new Error("SheetId is not set");
     }
-    return this.doc.sheetsById[this.settings.sheetId];
+    const sheet = this.doc.sheetsById[this.settings.sheetId]
+    if (!sheet) {
+      throw new Error(`Sheet with id ${this.settings.sheetId} not found`);
+    }
+    return sheet;
   }
 
   public async getSheets(): Promise<{ id: number; title: string }[]> {
@@ -59,6 +60,9 @@ class GoogleSpreadSheetService {
     });
 
     const [row] = result;
+    if (!row) {
+      throw Error("Row not found");
+    }
     return row.toObject();
   }
 
@@ -70,26 +74,26 @@ class GoogleSpreadSheetService {
 }
 
 const getSheet = async (settings: GoogleSheetMachineSettingsContext) => {
-  const supabase = createServerActionClient<Database>({ cookies });
-  const session = await supabase.auth.getSession();
-  const auth = await getGoogleAuth({ session: session.data.session! });
+  // const supabase = createServerActionClient<Database>({ cookies });
+  // const session = await supabase.auth.getSession();
+  // const auth = await getGoogleAuth({ session: session.data.session! });
 
   return new GoogleSpreadSheetService({
     spreadsheetId: settings.spreadsheet?.id!,
     sheetId: settings.sheet?.id || undefined,
-    auth,
+    auth: {} as any,
   });
 };
 
 export const getSheets = async (
-  settings: GoogleSheetMachineSettingsContext
+  settings: GoogleSheetMachineSettingsContext,
 ) => {
   const spreadsheet = await getSheet(settings);
   return spreadsheet.getSheets();
 };
 
 export const getHeaders = async (
-  settings: GoogleSheetMachineSettingsContext
+  settings: GoogleSheetMachineSettingsContext,
 ) => {
   const spreadsheet = await getSheet(settings);
   return spreadsheet.getHeaders();

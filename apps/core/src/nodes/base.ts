@@ -1,16 +1,17 @@
 import { debounce, isEqual, isUndefined, set } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
-import { MergeDeep, Simplify } from "type-fest";
+import { MergeDeep } from "type-fest";
 import {
   Actor,
   AnyActorLogic,
+  AnyStateMachine,
   assign,
   createActor,
   InputFrom,
   Snapshot,
+  StateMachine,
   waitFor,
-  type AnyStateMachine,
   type ContextFrom,
   type MachineImplementationsFrom,
   type SnapshotFrom,
@@ -94,6 +95,19 @@ export type BaseActorTypes<
   actions: SpecialMerged<BaseActorActionTypes, T["actions"]>;
 };
 
+type BaseMachine = StateMachine<
+  BaseActorContextType,
+  BaseActorEventTypes,
+  any,
+  BaseActorActionTypes,
+  any,
+  any,
+  any,
+  BaseActorInputType,
+  any,
+  any
+>;
+
 export abstract class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
@@ -114,7 +128,11 @@ export abstract class BaseNode<
 > extends ClassicPreset.Node<Inputs, Outputs, Controls> {
   static nodeType: string;
 
-  public actor: Actor<AnyStateMachine>;
+  public actor: Actor<Machine>;
+
+  private get pactor() {
+    return this.actor as Actor<BaseMachine>;
+  }
 
   public state: "idle" | "running" | "error" | "complete" = "idle";
 
@@ -152,7 +170,11 @@ export abstract class BaseNode<
     return this.di.executionId;
   }
 
-  public snap: SnapshotFrom<AnyStateMachine>;
+  public snap: SnapshotFrom<Machine>;
+
+  private get snapshot() {
+    return this.snap as SnapshotFrom<BaseMachine>;
+  }
 
   public inputSockets: JSONSocket[];
   public outputSockets: JSONSocket[];
@@ -230,8 +252,8 @@ export abstract class BaseNode<
     }
 
     this.snap = this.actor.getSnapshot();
-    this.inputSockets = this.snap.context?.inputSockets || [];
-    this.outputSockets = this.snap.context?.outputSockets || [];
+    this.inputSockets = this.snapshot.context?.inputSockets || [];
+    this.outputSockets = this.snapshot.context?.outputSockets || [];
 
     this.updateInputs(this.inputSockets);
     this.updateOutputs(this.outputSockets);
@@ -294,13 +316,12 @@ export abstract class BaseNode<
       id: this.contextId,
       ...options,
     });
-    let prev = actor.getSnapshot();
-
+    let prev = actor.getSnapshot() as any;
     const listener = actor.subscribe({
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito main");
       },
-      next: async (state) => {
+      next: async (state: any) => {
         this.state = state.value as any;
         this.setSnap(state);
         if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
@@ -387,7 +408,7 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: JSONSocket[]) {
-    const state = this.actor.getSnapshot();
+    const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
@@ -424,7 +445,7 @@ export abstract class BaseNode<
         socket,
         state.context.inputs[item.name],
         (v) => {
-          this.actor.send({
+          this.pactor.send({
             type: "SET_VALUE",
             values: {
               [item.name]: v,
@@ -435,7 +456,7 @@ export abstract class BaseNode<
       input.addControl(controller);
       this.addInput(item.name, input as any);
       if (!state.context.inputs[item.name]) {
-        this.actor.send({
+        this.pactor.send({
           type: "SET_VALUE",
           values: {
             [item.name]: "",
@@ -453,12 +474,12 @@ export abstract class BaseNode<
     this.inputSockets = sockets;
   }
 
-  public setSnap(snap: SnapshotFrom<AnyStateMachine>) {
+  public setSnap(snap: SnapshotFrom<Machine>) {
     this.snap = snap;
   }
 
   public async updateAncestors() {
-    await waitFor(this.actor, (state) => state.matches("complete")); //wait for the node to complete
+    await waitFor(this.pactor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
     // this.di.logger.log(this.identifier, "updateAncestors", outgoers);
@@ -473,7 +494,7 @@ export abstract class BaseNode<
     this.executionNodeId = executionNodeId;
   }
 
-  async saveState({ state }: { state: SnapshotFrom<AnyStateMachine> }) {
+  async saveState({ state }: { state: SnapshotFrom<Machine> }) {
     if (this.executionId) {
       console.log("Execution NodeId:", this.executionNodeId);
       if (!this.executionNodeId) {
@@ -510,7 +531,7 @@ export abstract class BaseNode<
     });
 
     // EARLY RETURN IF NODE IS COMPLETE
-    if (this.actor.getSnapshot().matches("complete")) {
+    if (this.pactor.getSnapshot().matches("complete")) {
       // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
       this.di.engine.emit({
         type: "execution-step-complete",
@@ -521,23 +542,23 @@ export abstract class BaseNode<
       });
       if (this.outputs.trigger) {
         // forward("trigger");
-        if (this.di.headless) {
-          await this.triggerSuccesors(executionId);
-        } else {
-          forward("trigger");
-        }
+        // if (this.di.headless) {
+        //   await this.triggerSuccesors(executionId);
+        // } else {
+        forward("trigger");
+        // }
         return;
       }
     }
 
     const inputs = await this.getInputs();
     this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
-    this.actor.send({
+    this.pactor.send({
       type: "RUN",
       values: inputs,
     });
 
-    this.actor.subscribe({
+    this.pactor.subscribe({
       next: (state) => {
         this.di.engine.emit({
           type: "execution-step-update",
@@ -559,24 +580,24 @@ export abstract class BaseNode<
         });
 
         if (this.successorNodes.length > 0) {
-          if (this.di.headless) {
-            await this.triggerSuccesors(executionId);
-          } else {
-            forward("trigger");
-          }
+          // if (this.di.headless) {
+          //   await this.triggerSuccesors(executionId);
+          // } else {
+          forward("trigger");
+          // }
         } else {
           this.di.engine.emit({
             type: "execution-completed",
             data: {
               payload: this,
-              output: this.actor.getSnapshot().output,
+              output: this.pactor.getSnapshot().output,
               executionId,
             },
           });
         }
       },
     });
-    await waitFor(this.actor, (state) => state.matches("complete"), {
+    await waitFor(this.pactor, (state) => state.matches("complete"), {
       timeout: 1000 * 60 * 5,
     });
   }
@@ -613,7 +634,7 @@ export abstract class BaseNode<
     this.count++;
     // this.di.logger.log(this.identifier, "Calling DATA", "original", inputs);
     // inputs = await this.getInputs();
-    let state = this.actor.getSnapshot();
+    let state = this.pactor.getSnapshot();
     if (
       state.context.inputs &&
       !isEqual(state.context.inputs, inputs) &&
@@ -630,7 +651,7 @@ export abstract class BaseNode<
     // this.di.logger.log(this.identifier, "actor in data", this.actor);
     if (state.matches("running")) {
       this.di.logger.log(this.identifier, "waiting for complete");
-      await waitFor(this.actor, (state) => state.matches("complete"));
+      await waitFor(this.pactor, (state) => state.matches("complete"));
     }
     state = this.actor.getSnapshot();
     return state.context.outputs;
@@ -722,34 +743,6 @@ export abstract class BaseNode<
   }
 
   /**
-   * This function waits for the actor's state to match a given state value.
-   * It subscribes to the actor's state changes and checks if the new state matches the given state value.
-   * If the state does not match, it waits for 500ms before checking again.
-   * Once the state matches the given value, it unsubscribes from the actor's state changes.
-   * If the state does not match the given value within 30 seconds, it throws an error.
-   *
-   * @param {string} stateValue - The state value to wait for.
-   */
-  async waitForState(actor: Actor<AnyStateMachine>, stateValue: string) {
-    let state = actor.getSnapshot();
-    const sub = actor.subscribe((newState) => {
-      state = newState;
-    });
-    const startTime = Date.now();
-    while (!state.matches(stateValue)) {
-      this.di.logger.log("waiting for complete", this.ID, state.value);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      if (Date.now() - startTime > 30000) {
-        sub.unsubscribe();
-        throw new Error(
-          `State did not match the given value '${stateValue}' within 30 seconds`,
-        );
-      }
-    }
-    sub.unsubscribe();
-  }
-
-  /**
    * This function retrieves the inputs for the current node.
    * It first resets the data flow, then fetches the inputs for the current node id.
    * It then iterates over the inputs and if an input does not exist and has a control, it sets the input to the corresponding value from the actor's state context.
@@ -761,7 +754,7 @@ export abstract class BaseNode<
     try {
       this.di.dataFlow?.reset();
       if (this.ID === "InputNode") {
-        return this.actor.getSnapshot().context.inputs;
+        return this.pactor.getSnapshot().context.inputs;
       }
 
       // const ancestors = this.di.graph
@@ -777,7 +770,7 @@ export abstract class BaseNode<
         [x: string]: string;
       };
       // this.di.logger.log(this.identifier, "inputs from data flow", inputs);
-      const state = this.actor.getSnapshot();
+      const state = this.pactor.getSnapshot();
       Object.keys(this.inputs).forEach((key) => {
         if (!inputs[key] && this.inputs[key]?.control) {
           inputs[key] = state.context.inputs[key];
@@ -796,6 +789,7 @@ export abstract class BaseNode<
       return inputs;
     } catch (e) {
       this.di.logger.error(e);
+      return {};
     }
   }
 

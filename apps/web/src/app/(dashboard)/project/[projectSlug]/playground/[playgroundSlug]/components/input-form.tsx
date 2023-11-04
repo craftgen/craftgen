@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { ajvResolver } from "@hookform/resolvers/ajv";
 import { Play } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { ContextFrom } from "xstate";
 
+// import { ajvResolver } from "@hookform/resolvers/ajv";
 import { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
 
 import { Button } from "@/components/ui/button";
@@ -19,17 +19,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { renderField } from "@/core/control-utils";
-import { RouterInputs } from "@/trpc/shared";
+import { RouterOutputs } from "@/trpc/shared";
 
 export const InputForm: React.FC<{
-  workflow: RouterInputs["craft"]["module"]["meta"];
+  workflow: RouterOutputs["craft"]["module"]["meta"];
   input: ContextFrom<typeof InputNodeMachine>;
 }> = ({ workflow, input }) => {
   const form = useForm({
     defaultValues: {
       ...input?.inputs,
     },
-    resolver: ajvResolver(input?.schema as any),
+    // resolver: ajvResolver(input?.schema as any), // TODO: fix types
   });
 
   const fields = useMemo(() => input?.outputSockets, [input?.outputSockets]);

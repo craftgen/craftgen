@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { redirect } from "next/navigation";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
 import {
@@ -15,15 +14,13 @@ import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { BASE_URL } from "@/lib/constants";
 
-// export const runtime = "edge";
-
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const scopes = requestUrl.searchParams.get("scopeKeys")?.split(",");
   const code = requestUrl.searchParams.get("code");
 
   if (!code) {
-    return NextResponse.json({ error: "No code provided" }, { status: 400 });
+    return Response.json({ error: "No code provided" }, { status: 400 });
   }
 
   const supabase = createRouteHandlerClient<Database>({ cookies });
@@ -38,9 +35,9 @@ export async function GET(request: NextRequest) {
       .where(eq(user.id, session?.user.id));
   }
 
-  const redirect = requestUrl.searchParams.get("redirect");
-  if (redirect) {
-    return NextResponse.redirect(`${BASE_URL}/${redirect}`);
+  const redirectPath = requestUrl.searchParams.get("redirect");
+  if (redirectPath) {
+    return redirect(`${BASE_URL}/${redirectPath}`);
   }
   const [projectS] = await db
     .select()
@@ -56,8 +53,8 @@ export async function GET(request: NextRequest) {
       and(eq(project.personal, true), eq(project.id, projectMembers.projectId)),
     )
     .limit(1);
-  if (!projectS.project) {
-    return NextResponse.redirect(`${BASE_URL}/explore`);
+  if (!projectS) {
+    redirect(`${BASE_URL}/explore`);
   }
-  return NextResponse.redirect(`${BASE_URL}/${projectS.project.slug}`);
+  redirect(`${BASE_URL}/${projectS.project.slug}`);
 }

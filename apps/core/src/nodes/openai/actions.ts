@@ -1,17 +1,24 @@
-// import { getApiKeyValue } from "@/actions/get-apikey";
-import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
 import {
+  generateJson,
+  generateText,
   OpenAIApiConfiguration,
   OpenAIChatChatPromptFormat,
   OpenAIChatFunctionPrompt,
   OpenAIChatMessage,
   OpenAIChatModel,
-  type OpenAIChatSettings,
-  generateJson,
-  generateText,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
+  type OpenAIChatSettings,
 } from "modelfusion";
+
+import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
+
+// TODO: fix this. Can do proxy on our backend for APIS.
+const getApiKeyValue = async (params: any) => {
+  return {
+    data: "API_KEY",
+  };
+};
 
 export const genereteJsonFn = async ({
   projectId,
@@ -51,7 +58,7 @@ export const genereteJsonFn = async ({
       ...settings,
     }),
     schemaZod,
-    OpenAIChatFunctionPrompt.forSchemaCurried([OpenAIChatMessage.user(user)])
+    OpenAIChatFunctionPrompt.forSchemaCurried([OpenAIChatMessage.user(user)]),
   );
   return json;
 };
@@ -91,7 +98,7 @@ export const generateTextFn = async ({
       {
         user,
       },
-    ]
+    ],
   );
   return text;
 };

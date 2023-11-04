@@ -135,7 +135,7 @@ export const createPlayground = action(
         },
       });
       if (!project) throw new Error("Project not found");
-      const newP = await tx
+      const [newP] = await tx
         .insert(workflow)
         .values({
           name,
@@ -145,14 +145,15 @@ export const createPlayground = action(
           projectSlug: project?.slug,
         })
         .returning();
+      if (!newP) throw new Error("Failed to create playground");
       await tx.insert(workflowVersion).values({
-        workflowId: newP[0].id,
-        projectId: newP[0].projectId,
+        workflowId: newP.id,
+        projectId: newP.projectId,
       });
       return newP;
     });
 
-    return newPlayground[0];
+    return newPlayground;
   },
 );
 
@@ -318,7 +319,7 @@ export const getWorkflows = async (projectId: string) => {
 
     return workflows.map((w) => ({
       ...w,
-      version: w.versions[0],
+      version: w.versions[0]!,
     }));
   });
 };

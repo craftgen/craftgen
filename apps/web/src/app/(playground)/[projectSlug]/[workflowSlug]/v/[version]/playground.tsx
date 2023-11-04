@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { Socket } from "@seocraft/core/src/sockets";
-import { NodeProps } from "@seocraft/core/src/types";
 import { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
@@ -19,6 +17,9 @@ import { useTheme } from "next-themes";
 import { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
+
+import { Socket } from "@seocraft/core/src/sockets";
+import { NodeProps } from "@seocraft/core/src/types";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
