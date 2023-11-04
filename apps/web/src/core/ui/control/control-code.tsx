@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { CodeControl } from "@seocraft/core/src/controls/code";
+import type { CodeControl } from "@seocraft/core/src/controls/code";
 import { useMeasure } from "react-use";
 
 export function CodeEditor<T extends string>(props: { data: CodeControl }) {

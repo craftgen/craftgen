@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { NumberControl } from "@seocraft/core/src/controls/number";
+import type { NumberControl } from "@seocraft/core/src/controls/number";
 
 
 export function NumberControlComponent(props: { data: NumberControl }) {

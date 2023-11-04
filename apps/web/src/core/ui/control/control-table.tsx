@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { TableControl } from "@seocraft/core/src/controls/table";
+import type { TableControl } from "@seocraft/core/src/controls/table";
 
 
 export function TableControlComponent<T>(props: { data: TableControl<T> }) {

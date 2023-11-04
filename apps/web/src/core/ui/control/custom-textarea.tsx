@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
-import { TextareControl } from "@seocraft/core/src/controls/textarea";
+import type { TextareControl } from "@seocraft/core/src/controls/textarea";
 
 
 export function CustomTextarea(props: { data: TextareControl }) {

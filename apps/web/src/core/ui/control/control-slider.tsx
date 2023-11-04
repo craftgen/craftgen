@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Slider } from "@/components/ui/slider";
-import { SliderControl } from "@seocraft/core/src/controls/slider";
+import type { SliderControl } from "@seocraft/core/src/controls/slider";
 
 
 export function SliderControlComponenet(props: { data: SliderControl }) {

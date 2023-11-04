@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Editor } from "@/components/editor";
 import type { MyValue } from "@/lib/plate/plate-types";
-import { ArticleControl } from "@seocraft/core/src/controls/article";
+import type { ArticleControl } from "@seocraft/core/src/controls/article";
 
 
 const initialValue: MyValue = [
@@ -24,7 +24,7 @@ export function ArticleEditor<T extends MyValue>(props: {
   const [val, setVal] = useState<MyValue>(props.data.value || initialValue);
 
   useEffect(() => {
-    setVal(props.data.value!);
+    setVal(props.data.value);
   }, [props.data.value]);
 
   const handleChange = (value: any) => {
