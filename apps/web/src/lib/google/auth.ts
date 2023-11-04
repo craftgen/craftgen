@@ -1,4 +1,4 @@
-import { Session } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import { google } from "googleapis";
 
 import { db } from "@seocraft/supabase/db";

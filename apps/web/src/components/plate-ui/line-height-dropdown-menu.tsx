@@ -1,5 +1,5 @@
 import React from "react";
-import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import {
   useLineHeightDropdownMenu,
   useLineHeightDropdownMenuState,

@@ -8,7 +8,7 @@ import {
   CheckIcon,
   PlusCircledIcon,
 } from "@radix-ui/react-icons";
-import { PopoverTriggerProps } from "@radix-ui/react-popover";
+import type { PopoverTriggerProps } from "@radix-ui/react-popover";
 import useSWR from "swr";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,12 +41,12 @@ import { cn } from "@/lib/utils";
 import { getUserProjects } from "../explore/actions";
 import { NewProjectForm } from "../project/new/new-project-form";
 
-interface TeamSwitcherProps extends PopoverTriggerProps {}
+type TeamSwitcherProps = PopoverTriggerProps
 
-type Team = {
+interface Team {
   label: string;
   value: string;
-};
+}
 
 export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
   const { data, isLoading } = useSWR("/api/projects", getUserProjects);

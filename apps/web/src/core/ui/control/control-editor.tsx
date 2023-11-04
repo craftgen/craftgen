@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { Editor } from "@/components/editor";
-import { MyValue } from "@/lib/plate/plate-types";
+import type { MyValue } from "@/lib/plate/plate-types";
+import { ArticleControl } from "@seocraft/core/src/controls/article";
 
-import { ArticleControl } from "../../controls/article";
 
 const initialValue: MyValue = [
   {

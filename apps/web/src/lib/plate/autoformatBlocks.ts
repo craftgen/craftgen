@@ -1,4 +1,4 @@
-import { AutoformatRule } from "@udecode/plate-autoformat";
+import type { AutoformatRule } from "@udecode/plate-autoformat";
 import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
 import {
   ELEMENT_CODE_BLOCK,

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import { z } from "zod";
 
-import { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";

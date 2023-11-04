@@ -1,6 +1,6 @@
-import { ControllerRenderProps } from "react-hook-form";
+import type { ControllerRenderProps } from "react-hook-form";
 
-import { SocketNameType } from "@seocraft/core/src/sockets";
+import type { SocketNameType } from "@seocraft/core/src/sockets";
 
 import { Input } from "@/components/ui/input";
 

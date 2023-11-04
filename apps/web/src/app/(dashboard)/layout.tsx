@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { Toaster } from "@/components/ui/toaster";
 

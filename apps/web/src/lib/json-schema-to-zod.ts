@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as z from "zod";
 
 /**
@@ -146,7 +148,7 @@ export const turnJSONSchemaToZodSchema = (schema: any) => {
 
   // Handle optional fields
   Object.keys(zodSchema).forEach((key) => {
-    if (!schema.required || !schema.required.includes(key)) {
+    if (!schema.required?.includes(key)) {
       zodSchema[key] = zodSchema[key].optional();
     }
   });

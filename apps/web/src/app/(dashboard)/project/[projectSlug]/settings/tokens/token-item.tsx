@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ResultOf } from "@/lib/type";
+import type { ResultOf } from "@/lib/type";
 import { cn } from "@/lib/utils";
 
 import {

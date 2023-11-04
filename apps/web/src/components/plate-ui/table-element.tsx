@@ -1,17 +1,20 @@
 import React, { forwardRef } from "react";
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { PopoverAnchor, PopoverContentProps } from "@radix-ui/react-popover";
+import type * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import type { PopoverContentProps } from "@radix-ui/react-popover";
+import { PopoverAnchor } from "@radix-ui/react-popover";
+import type {
+  PlateElementProps} from "@udecode/plate-common";
 import {
   isCollapsed,
   PlateElement,
-  PlateElementProps,
   someNode,
   useElement,
   usePlateEditorState,
   useRemoveNodeButton,
 } from "@udecode/plate-common";
+import type {
+  TTableElement} from "@udecode/plate-table";
 import {
-  TTableElement,
   useTableBordersDropdownMenuContentState,
   useTableElement,
   useTableElementState,

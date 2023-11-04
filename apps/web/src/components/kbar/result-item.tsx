@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionImpl } from "kbar";
+import type { ActionImpl } from "kbar";
 
 import { cn } from "@/lib/utils";
 

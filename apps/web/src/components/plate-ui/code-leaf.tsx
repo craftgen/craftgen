@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { PlateLeaf, PlateLeafProps } from "@udecode/plate-common";
+import type { PlateLeafProps } from "@udecode/plate-common";
+import { PlateLeaf } from "@udecode/plate-common";
 
 import { cn } from "@/lib/utils";
 

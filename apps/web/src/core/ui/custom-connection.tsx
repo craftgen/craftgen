@@ -1,5 +1,6 @@
 import * as React from "react";
-import { ClassicScheme, Presets } from "rete-react-plugin";
+import type { ClassicScheme} from "rete-react-plugin";
+import { Presets } from "rete-react-plugin";
 import tw from "tailwind-styled-components";
 
 const { useConnection } = Presets.classic;

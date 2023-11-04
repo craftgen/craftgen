@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { getWorkflow } from "@/actions/get-workflow";
+import type { getWorkflow } from "@/actions/get-workflow";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ResultOfAction } from "@/lib/type";
+import type { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
 
 export const VersionHistory: React.FC<{

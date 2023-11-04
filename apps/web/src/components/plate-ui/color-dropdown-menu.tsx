@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import {
   useColorDropdownMenu,
   useColorDropdownMenuState,
@@ -17,11 +17,11 @@ import { ToolbarButton } from "@/components/plate-ui/toolbar";
 import { DEFAULT_COLORS, DEFAULT_CUSTOM_COLORS } from "./color-constants";
 import { ColorPicker } from "./color-picker";
 
-export type TColor = {
+export interface TColor {
   name: string;
   value: string;
   isBrightColor: boolean;
-};
+}
 
 type ColorDropdownMenuProps = {
   nodeType: string;

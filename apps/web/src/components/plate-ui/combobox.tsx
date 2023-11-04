@@ -2,14 +2,15 @@
 
 import React, { useEffect } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import {
-  comboboxActions,
+import type {
   ComboboxContentItemProps,
   ComboboxContentProps,
   ComboboxProps,
   Data,
   NoData,
-  TComboboxItem,
+  TComboboxItem} from "@udecode/plate-combobox";
+import {
+  comboboxActions,
   useActiveComboboxStore,
   useComboboxContent,
   useComboboxContentState,

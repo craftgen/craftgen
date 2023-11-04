@@ -1,8 +1,9 @@
-import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
+import type { PropsWithChildren} from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
-import { NodeTypes } from "@seocraft/core/src/types";
+import type { NodeTypes } from "@seocraft/core/src/types";
 
 import { Icons } from "@/components/icons";
 import {

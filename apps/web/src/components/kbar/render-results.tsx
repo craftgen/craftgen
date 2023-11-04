@@ -1,4 +1,5 @@
-import { ActionImpl, KBarResults, useMatches } from "kbar";
+import type { ActionImpl} from "kbar";
+import { KBarResults, useMatches } from "kbar";
 
 import { ResultItem } from "./result-item";
 
@@ -15,7 +16,7 @@ export const RenderResults: React.FC = () => {
             {item}
           </div>
         ) : (
-          <ResultItem action={item as ActionImpl} active={active} />
+          <ResultItem action={item } active={active} />
         )
       }
     />

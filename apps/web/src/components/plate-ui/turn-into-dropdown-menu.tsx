@@ -1,13 +1,14 @@
 import React from "react";
-import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
+import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
+import type {
+  TElement} from "@udecode/plate-common";
 import {
   collapseSelection,
   findNode,
   focusEditor,
   isBlock,
   isCollapsed,
-  TElement,
   toggleNodeType,
   usePlateEditorState,
 } from "@udecode/plate-common";
@@ -80,7 +81,7 @@ export function TurnIntoDropdownMenu(props: DropdownMenuProps) {
 
   let value: string = ELEMENT_PARAGRAPH;
   if (isCollapsed(editor?.selection)) {
-    const entry = findNode<TElement>(editor!, {
+    const entry = findNode<TElement>(editor, {
       match: (n) => isBlock(editor, n),
     });
     if (entry) {

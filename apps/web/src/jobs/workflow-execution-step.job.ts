@@ -1,9 +1,6 @@
-import { resolve } from "path";
 import { eventTrigger } from "@trigger.dev/sdk";
-import { waitFor } from "xstate";
 
 import { getWorkflow } from "@/actions/get-workflow";
-// import { createHeadlessEditor } from "@/core/headless";
 import { client } from "@/trigger";
 
 import { WORKFLOW_NODE_TRIGGER } from "./workflow-execution-step";

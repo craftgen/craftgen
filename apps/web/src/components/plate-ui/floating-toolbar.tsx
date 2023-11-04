@@ -6,11 +6,12 @@ import {
   useFloatingToolbar,
   useFloatingToolbarState,
 } from "@udecode/plate-floating";
-import { FloatingToolbarState } from "@udecode/plate-floating/dist";
+import type { FloatingToolbarState } from "@udecode/plate-floating/dist";
 
 import { cn } from "@/lib/utils";
 
-import { Toolbar, ToolbarProps } from "./toolbar";
+import type { ToolbarProps } from "./toolbar";
+import { Toolbar } from "./toolbar";
 
 export interface FloatingToolbarProps extends ToolbarProps {
   state?: FloatingToolbarState;

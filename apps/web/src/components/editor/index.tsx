@@ -19,10 +19,11 @@ import {
   CommentsProvider,
   createCommentsPlugin,
 } from "@udecode/plate-comments";
+import type {
+  PlateEditor} from "@udecode/plate-common";
 import {
   createPlateEditor,
   Plate,
-  PlateEditor,
   PlateProvider,
   replaceNodeChildren,
   usePlateSelectors,
@@ -60,7 +61,8 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { v4 as uuidv4 } from "uuid";
 
-import { createMyPlugins, MyValue } from "@/lib/plate/plate-types";
+import type { MyValue } from "@/lib/plate/plate-types";
+import { createMyPlugins } from "@/lib/plate/plate-types";
 import { cn } from "@/lib/utils";
 
 import { CommentsPopover } from "../plate-ui/comments-popover";
@@ -78,11 +80,11 @@ import { captionPlugin } from "./plugins/caption-plugin";
 import { linkPlugin } from "./plugins/link-plugin";
 import { resetBlockTypePlugin } from "./reset-node-options";
 
-type EditorProps = {
+interface EditorProps {
   id: string;
   initialValue?: MyValue;
   onChange?: (value: any[]) => void;
-};
+}
 
 const plugins = createMyPlugins(
   [

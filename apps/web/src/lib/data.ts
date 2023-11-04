@@ -1,11 +1,11 @@
-import { DeltaType } from "@tremor/react";
+import type { DeltaType } from "@tremor/react";
 
 export const calculateDeltaType = (
   current: number,
   previous: number,
 ): DeltaType => {
   const delta = current - previous;
-  const sign = delta > 0 ? "+" : "";
+  // const sign = delta > 0 ? "+" : "";
   const percentage = Math.round((delta / previous) * 100);
   switch (true) {
     case delta === 0:

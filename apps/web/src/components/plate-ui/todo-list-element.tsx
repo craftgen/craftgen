@@ -1,7 +1,9 @@
 import React from "react";
-import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
+import type { PlateElementProps, Value } from "@udecode/plate-common";
+import { PlateElement } from "@udecode/plate-common";
+import type {
+  TTodoListItemElement} from "@udecode/plate-list";
 import {
-  TTodoListItemElement,
   useTodoListElement,
   useTodoListElementState,
 } from "@udecode/plate-list";

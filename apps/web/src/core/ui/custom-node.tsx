@@ -6,11 +6,12 @@ import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
 import { useDebounce, useMeasure } from "react-use";
-import { Drag, Presets, RenderEmit } from "rete-react-plugin";
+import type { RenderEmit } from "rete-react-plugin";
+import { Drag, Presets } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
 import { useStore } from "zustand";
 
-import { type Schemes } from "@seocraft/core/src/types";
+import type {Schemes} from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 
-import { ReteStoreInstance } from "../store";
+import type { ReteStoreInstance } from "../store";
 
 import "react-resizable/css/styles.css";
 
@@ -65,12 +66,12 @@ function sortByIndex<T extends [string, undefined | { index?: number }][]>(
   });
 }
 
-type Props<S extends Schemes> = {
+interface Props<S extends Schemes> {
   data: S["Node"];
   styles?: () => any;
   emit: RenderEmit<S>;
   store: ReteStoreInstance;
-};
+}
 export type NodeComponent = (props: Props<Schemes>) => JSX.Element;
 
 export function CustomNode(props: Props<Schemes>) {
@@ -209,7 +210,7 @@ export const Node = observer((props: Props<Schemes>) => {
   }, []);
   const NodeIcon = React.useMemo(() => {
     const iconName = props.data.di.nodeMeta.get(props.data.ID)?.icon;
-    if (!iconName) return Icons["component"];
+    if (!iconName) return Icons.component;
     return Icons[iconName as keyof typeof Icons];
   }, []);
   const [editLabel, setEditLabel] = React.useState(false);

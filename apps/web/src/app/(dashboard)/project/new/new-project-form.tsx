@@ -1,15 +1,16 @@
 "use client";
 
-import { PropsWithChildren, useEffect } from "react";
+import type { PropsWithChildren} from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Link } from "lucide-react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
-import * as z from "zod";
+import type * as z from "zod";
 
-import { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { Icons } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -128,7 +129,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
                   {data?.map((site) => (
                     <SelectItem
                       key={site.siteUrl}
-                      value={site.siteUrl as string}
+                      value={site.siteUrl!}
                     >
                       {site.url}
                     </SelectItem>

@@ -8,7 +8,7 @@ import { PostHogProvider } from "posthog-js/react";
 import { BASE_URL } from "@/utils/constants";
 
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "development") {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     api_host: `${BASE_URL}/ingest`,
   });
 }

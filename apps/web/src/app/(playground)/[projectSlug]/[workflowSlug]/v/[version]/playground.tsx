@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { Session } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { debounce } from "lodash-es";
@@ -14,12 +14,12 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
-import { Input as InputNode } from "rete/_types/presets/classic";
+import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
 
-import { Socket } from "@seocraft/core/src/sockets";
-import { NodeProps } from "@seocraft/core/src/types";
+import type { Socket } from "@seocraft/core/src/sockets";
+import type { NodeProps } from "@seocraft/core/src/types";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
@@ -39,7 +39,7 @@ import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
 import { ResultOfAction } from "@/lib/type";
-import { RouterOutputs } from "@/trpc/shared";
+import type { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
@@ -370,7 +370,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
             {outputs.map((output) => (
               <div key={output.key} className="">
                 <Label className="capitalize">{output.key}</Label>
-                {renderFieldValueBaseOnSocketType(output.socket!, output.value)}
+                {renderFieldValueBaseOnSocketType(output.socket, output.value)}
               </div>
             ))}
           </ScrollArea>
@@ -417,7 +417,7 @@ export const renderFieldValueBaseOnSocketType = (
 };
 
 export const DynamicInputsForm: React.FC<{
-  inputs: { [key: string]: InputNode<Socket> | undefined };
+  inputs: Record<string, InputNode<Socket> | undefined>;
 }> = ({ inputs }) => {
   return (
     <>
@@ -455,7 +455,7 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   const ControlElement = getControl({
     element: ref.current!,
     type: "control",
-    payload: control!,
+    payload: control,
   });
   return (
     <>

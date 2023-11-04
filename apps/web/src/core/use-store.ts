@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { useStore } from "zustand";
 
-import { ReteStore, ReteStoreInstance } from "./store";
+import type { ReteStore, ReteStoreInstance } from "./store";
 
 export const CraftContext = createContext<ReteStoreInstance | null>(null);
 

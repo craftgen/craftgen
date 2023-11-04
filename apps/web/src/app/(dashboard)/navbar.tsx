@@ -1,9 +1,9 @@
 "use client";
 
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Session } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import { Network, Slash } from "lucide-react";
 
 import { ModeToggle } from "@/components/theme-toggle";

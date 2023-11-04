@@ -1,5 +1,6 @@
 import React from "react";
-import { EmojiSettings, UseEmojiPickerType } from "@udecode/plate-emoji";
+import type { UseEmojiPickerType } from "@udecode/plate-emoji";
+import { EmojiSettings } from "@udecode/plate-emoji";
 
 import { cn } from "@/lib/utils";
 

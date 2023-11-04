@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { ButtonControl } from "@seocraft/core/src/controls/button";
 
-import { ButtonControl } from "../../controls/button";
 
 export function CustomButton(props: { data: ButtonControl }) {
   return (

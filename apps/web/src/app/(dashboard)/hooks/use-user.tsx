@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 
-import { ResultOf } from "@/lib/type";
+import type { ResultOf } from "@/lib/type";
 
 import { getUser } from "../actions";
 

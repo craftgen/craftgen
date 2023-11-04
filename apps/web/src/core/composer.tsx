@@ -12,7 +12,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { useRete } from "rete-react-plugin";
 
-import { WorkflowAPI } from "@seocraft/core/src/types";
+import type { WorkflowAPI } from "@seocraft/core/src/types";
 
 import { getWorkflow } from "@/actions/get-workflow";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
-import { RouterOutputs } from "@/trpc/shared";
+import type { RouterOutputs } from "@/trpc/shared";
 
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";

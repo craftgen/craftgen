@@ -28,7 +28,7 @@ const languages: { value: string; label: string }[] = [
     ...CODE_BLOCK_LANGUAGES,
   }).map(([key, val]) => ({
     value: key,
-    label: val as string,
+    label: val ,
   })),
 ];
 

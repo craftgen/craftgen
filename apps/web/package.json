@@ -58,6 +58,7 @@
     "@supabase/auth-ui-react": "^0.4.5",
     "@supabase/auth-ui-shared": "^0.1.7",
     "@supabase/supabase-js": "^2.38.1",
+    "@t3-oss/env-nextjs": "^0.7.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-query-next-experimental": "^5.5.0",

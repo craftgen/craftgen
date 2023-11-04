@@ -1,10 +1,12 @@
 import React from "react";
-import { PlateElement, PlateElementProps, Value } from "@udecode/plate-common";
+import type { PlateElementProps, Value } from "@udecode/plate-common";
+import { PlateElement } from "@udecode/plate-common";
+import type {
+  TMediaEmbedElement} from "@udecode/plate-media";
 import {
   ELEMENT_MEDIA_EMBED,
   parseTwitterUrl,
   parseVideoUrl,
-  TMediaEmbedElement,
   useMediaState,
 } from "@udecode/plate-media";
 import { useResizableStore } from "@udecode/plate-resizable";
@@ -116,7 +118,7 @@ const MediaEmbedElement = React.forwardRef<
                     "[&_.react-tweet-theme]:ring-ring [&_.react-tweet-theme]:ring-2 [&_.react-tweet-theme]:ring-offset-2",
                 )}
               >
-                <Tweet id={embed!.id!} />
+                <Tweet id={embed!.id} />
               </div>
             )}
 

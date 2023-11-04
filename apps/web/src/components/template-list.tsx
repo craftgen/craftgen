@@ -2,19 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, Zap } from "lucide-react";
 
-import { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
-import { ResultOf } from "@/lib/type";
+import type { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
+import type { ResultOf } from "@/lib/type";
 
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
-type Author = {
+interface Author {
   slug: string;
   name: string;
   avatar: string;
-};
+}
 
-type Template = {
+interface Template {
   id: string;
   slug: string;
   name: string;
@@ -24,7 +24,7 @@ type Template = {
   rating: number;
   starCount: number;
   usedByCount: number;
-};
+}
 
 const templates: Template[] = [
   {

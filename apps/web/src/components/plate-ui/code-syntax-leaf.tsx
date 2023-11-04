@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useCodeSyntaxLeaf } from "@udecode/plate-code-block";
-import { PlateLeaf, PlateLeafProps } from "@udecode/plate-common";
+import type { PlateLeafProps } from "@udecode/plate-common";
+import { PlateLeaf } from "@udecode/plate-common";
 
 export function CodeSyntaxLeaf({ children, ...props }: PlateLeafProps) {
   const { leaf } = props;

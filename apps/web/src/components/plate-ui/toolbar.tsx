@@ -1,15 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
-import { cva, VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import { Separator } from "./separator";
-import { ToggleProps, toggleVariants } from "./toggle";
+import type { ToggleProps} from "./toggle";
+import { toggleVariants } from "./toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -25,8 +27,7 @@ export const linkVariants = cva("font-medium underline underline-offset-4");
 
 const ToolbarToggleGroup = ToolbarPrimitive.ToggleGroup;
 
-export interface ToolbarProps
-  extends React.ComponentPropsWithoutRef<typeof Toolbar> {}
+export type ToolbarProps = React.ComponentPropsWithoutRef<typeof Toolbar>
 
 const Toolbar = React.forwardRef<
   React.ElementRef<typeof ToolbarPrimitive.Root>,

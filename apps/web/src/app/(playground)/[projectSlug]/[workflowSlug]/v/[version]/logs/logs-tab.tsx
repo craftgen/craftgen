@@ -7,7 +7,7 @@ import { Trash } from "lucide-react";
 import useSWR, { mutate } from "swr";
 
 import { getLogs } from "@/actions/get-logs";
-import { getWorkflow } from "@/actions/get-workflow";
+import type { getWorkflow } from "@/actions/get-workflow";
 import {
   Accordion,
   AccordionContent,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ResultOfAction } from "@/lib/type";
+import type { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 

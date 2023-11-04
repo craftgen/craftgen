@@ -3,10 +3,10 @@
 import { useMemo } from "react";
 import { Play } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { ContextFrom } from "xstate";
+import type { ContextFrom } from "xstate";
 
 // import { ajvResolver } from "@hookform/resolvers/ajv";
-import { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
+import type { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { renderField } from "@/core/control-utils";
-import { RouterOutputs } from "@/trpc/shared";
+import type { RouterOutputs } from "@/trpc/shared";
 
 export const InputForm: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["meta"];

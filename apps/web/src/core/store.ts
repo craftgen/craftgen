@@ -3,9 +3,9 @@ import type * as FlexLayout from "flexlayout-react";
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
 
-import { DiContainer } from "@seocraft/core/src/types";
+import type { DiContainer } from "@seocraft/core/src/types";
 
-export type ReteStore = {
+export interface ReteStore {
   workflowId: string;
   workflowSlug: string;
   projectId: string;
@@ -24,7 +24,7 @@ export type ReteStore = {
   setLayout: (layout: FlexLayout.Model) => void;
   setDi: (di: DiContainer) => void;
   setSelectedNodeId: (selectedNodeId: string | null) => void;
-};
+}
 export const createCraftStore = (initial: Partial<ReteStore>) =>
   createStore<ReteStore, [["zustand/subscribeWithSelector", never]]>(
     subscribeWithSelector((set, get) => ({

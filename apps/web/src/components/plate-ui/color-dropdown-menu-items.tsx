@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DropdownMenuItemProps } from "@radix-ui/react-dropdown-menu";
+import type { DropdownMenuItemProps } from "@radix-ui/react-dropdown-menu";
 
 import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/plate-ui/button";
@@ -13,7 +13,7 @@ import {
 } from "@/components/plate-ui/tooltip";
 import { cn } from "@/lib/utils";
 
-import { TColor } from "./color-dropdown-menu";
+import type { TColor } from "./color-dropdown-menu";
 
 type ColorDropdownMenuItemProps = {
   value: string;

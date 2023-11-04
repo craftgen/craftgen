@@ -14,10 +14,11 @@ import {
   ELEMENT_CODE_SYNTAX,
 } from "@udecode/plate-code-block";
 import { MARK_COMMENT } from "@udecode/plate-comments";
+import type {
+  PlatePluginComponent} from "@udecode/plate-common";
 import {
   PlateElement,
   PlateLeaf,
-  PlatePluginComponent,
   withProps,
 } from "@udecode/plate-common";
 import { ELEMENT_EXCALIDRAW } from "@udecode/plate-excalidraw";

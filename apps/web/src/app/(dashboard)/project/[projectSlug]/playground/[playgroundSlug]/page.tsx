@@ -5,13 +5,13 @@ import { api } from "@/trpc/server";
 
 import { InputForm } from "./components/input-form";
 
-type Props = {
+interface Props {
   params: {
     projectSlug: string;
     playgroundSlug: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+  searchParams: Record<string, string | string[] | undefined>;
+}
 
 export async function generateMetadata(
   { params, searchParams }: Props,
@@ -40,13 +40,13 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
   });
   // const output = data?.outputs?[0].context?.state?.outputs;
   const output = () => {
-    if (data?.outputs && data?.outputs[0]!) {
+    if (data?.outputs?.[0]) {
       return data?.outputs[0].context?.state?.outputs;
     }
     return undefined;
   };
   const input = () => {
-    if (data?.inputs && data?.inputs[0]!) {
+    if (data?.inputs?.[0]) {
       return data?.inputs[0].context?.state;
     }
     return undefined;

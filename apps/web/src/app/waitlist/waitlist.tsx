@@ -1,6 +1,7 @@
 "use client";
 
-import { PropsWithChildren, useState } from "react";
+import type { PropsWithChildren} from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
@@ -68,7 +69,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                 <a
                   href="https://twitter.com/seocraftai"
                   target="_blank"
-                  className="text-primary cursor-pointer font-bold"
+                  className="text-primary cursor-pointer font-bold" rel="noreferrer"
                 >
                   @seocraftai
                 </a>

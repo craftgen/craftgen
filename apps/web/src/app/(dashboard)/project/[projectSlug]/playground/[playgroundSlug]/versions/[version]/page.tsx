@@ -2,14 +2,14 @@ import type { Metadata, ResolvingMetadata } from "next";
 
 import { api } from "@/trpc/server";
 
-type Props = {
+interface Props {
   params: {
     projectSlug: string;
     playgroundSlug: string;
     version: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+  searchParams: Record<string, string | string[] | undefined>;
+}
 
 export async function generateMetadata(
   { params, searchParams }: Props,

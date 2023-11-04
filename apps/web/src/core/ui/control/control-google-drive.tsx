@@ -4,7 +4,7 @@ import useDrivePicker from "react-google-drive-picker";
 import type { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import useSWR from "swr";
 
-import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
+import type { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 
 import { getUser } from "@/app/(dashboard)/project/[projectSlug]/actions";
 import { Button } from "@/components/ui/button";

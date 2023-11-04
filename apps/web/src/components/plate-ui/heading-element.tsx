@@ -1,6 +1,8 @@
 import React from "react";
-import { PlateElement, PlateElementProps } from "@udecode/plate-common";
-import { cva, VariantProps } from "class-variance-authority";
+import type { PlateElementProps } from "@udecode/plate-common";
+import { PlateElement } from "@udecode/plate-common";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 
 const headingVariants = cva("", {
   variants: {

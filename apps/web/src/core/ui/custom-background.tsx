@@ -1,5 +1,5 @@
-import { BaseSchemes } from "rete";
-import { AreaPlugin } from "rete-area-plugin";
+import type { BaseSchemes } from "rete";
+import type { AreaPlugin } from "rete-area-plugin";
 
 export function addCustomBackground<S extends BaseSchemes, K>(
   area: AreaPlugin<S, K>,

@@ -13,9 +13,9 @@ import { CommentMoreDropdown } from "./comment-more-dropdown";
 import { CommentResolveButton } from "./comment-resolve-button";
 import { CommentValue } from "./comment-value";
 
-type PlateCommentProps = {
+interface PlateCommentProps {
   commentId: string;
-};
+}
 
 function CommentItemContent() {
   const {

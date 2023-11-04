@@ -1,17 +1,13 @@
-import React from "react";
-import { AutoformatRule } from "@udecode/plate-autoformat";
-import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
-import {
+import type React from "react";
+import type { AutoformatRule } from "@udecode/plate-autoformat";
+import type { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
+import type {
   ELEMENT_CODE_BLOCK,
   ELEMENT_CODE_LINE,
 } from "@udecode/plate-code-block";
-import { TCommentText } from "@udecode/plate-comments";
-import {
-  createPlateEditor,
+import type { TCommentText } from "@udecode/plate-comments";
+import type {
   CreatePlateEditorOptions,
-  createPluginFactory,
-  createPlugins,
-  createTEditor,
   Decorate,
   DecorateEntry,
   DOMHandler,
@@ -24,7 +20,6 @@ import {
   ENodeEntry,
   EText,
   ETextEntry,
-  getTEditor,
   InjectComponent,
   InjectProps,
   KeyboardHandler,
@@ -43,20 +38,26 @@ import {
   TElement,
   TNodeEntry,
   TReactEditor,
+  WithOverride} from "@udecode/plate-common";
+import {
+  createPlateEditor,
+  createPluginFactory,
+  createPlugins,
+  createTEditor,
+  getTEditor,
   useEditorRef,
   useEditorState,
   usePlateActions,
   usePlateEditorRef,
   usePlateEditorState,
   usePlateSelectors,
-  usePlateStates,
-  WithOverride,
+  usePlateStates
 } from "@udecode/plate-common";
-import {
+import type {
   ELEMENT_EXCALIDRAW,
   TExcalidrawElement,
 } from "@udecode/plate-excalidraw";
-import {
+import type {
   ELEMENT_H1,
   ELEMENT_H2,
   ELEMENT_H3,
@@ -64,47 +65,47 @@ import {
   ELEMENT_H5,
   ELEMENT_H6,
 } from "@udecode/plate-heading";
-import { ELEMENT_HR } from "@udecode/plate-horizontal-rule";
-import { ELEMENT_LINK, TLinkElement } from "@udecode/plate-link";
-import {
+import type { ELEMENT_HR } from "@udecode/plate-horizontal-rule";
+import type { ELEMENT_LINK, TLinkElement } from "@udecode/plate-link";
+import type {
   ELEMENT_LI,
   ELEMENT_OL,
   ELEMENT_TODO_LI,
   ELEMENT_UL,
   TTodoListItemElement,
 } from "@udecode/plate-list";
-import {
+import type {
   ELEMENT_IMAGE,
   ELEMENT_MEDIA_EMBED,
   TImageElement,
   TMediaEmbedElement,
 } from "@udecode/plate-media";
-import {
+import type {
   ELEMENT_MENTION,
   ELEMENT_MENTION_INPUT,
   TMentionElement,
   TMentionInputElement,
 } from "@udecode/plate-mention";
-import { ELEMENT_PARAGRAPH } from "@udecode/plate-paragraph";
-import {
+import type { ELEMENT_PARAGRAPH } from "@udecode/plate-paragraph";
+import type {
   ELEMENT_TABLE,
   ELEMENT_TD,
   ELEMENT_TR,
   TTableElement,
 } from "@udecode/plate-table";
-import { TText } from "@udecode/slate";
+import type { TText } from "@udecode/slate";
 
 /**
  * Text
  */
 
-export type EmptyText = {
+export interface EmptyText {
   text: "";
-};
+}
 
-export type PlainText = {
+export interface PlainText {
   text: string;
-};
+}
 
 export interface RichText extends TText, TCommentText {
   bold?: boolean;

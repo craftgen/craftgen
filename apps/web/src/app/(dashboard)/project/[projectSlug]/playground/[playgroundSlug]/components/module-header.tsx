@@ -7,16 +7,16 @@ import { formatDistanceToNow } from "date-fns";
 import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";
 
-import { RouterOutputs } from "@seocraft/api";
+import type { RouterOutputs } from "@seocraft/api";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type ModuleHeaderProps = {
+interface ModuleHeaderProps {
   workflow: RouterOutputs["craft"]["module"]["meta"];
-};
+}
 
 export const ModuleHeader = ({
   workflow: workflow,

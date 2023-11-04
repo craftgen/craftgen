@@ -19,7 +19,7 @@ import {
 import { getDrive, getWebmaster } from "@/lib/google/auth";
 import { action } from "@/lib/safe-action";
 
-import { GoogleIntegrationsScope } from "./settings/integrations/page";
+import type { GoogleIntegrationsScope } from "./settings/integrations/page";
 
 export const getProject = async (projectSlug: string) => {
   return await db.query.project.findFirst({

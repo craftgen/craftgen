@@ -3,7 +3,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { appRouter, createTRPCContext } from "@seocraft/api";
-import { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { getServiceSupabase } from "@/utils/supabase";
 

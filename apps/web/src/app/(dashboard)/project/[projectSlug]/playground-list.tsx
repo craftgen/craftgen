@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import type { ColumnDef, Row } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
 import useSWR, { mutate } from "swr";
@@ -18,7 +18,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResultOf } from "@/lib/type";
+import type { ResultOf } from "@/lib/type";
 
 import { clonePlayground, deleteWorkflow, getWorkflows } from "./actions";
 import { useProject } from "./hooks/use-project";
@@ -141,7 +141,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
         {data && (
           <DataTable
             columns={columns}
-            data={data!}
+            data={data}
             headerRight={
               <Button
                 onClick={() => setOpen(true)}

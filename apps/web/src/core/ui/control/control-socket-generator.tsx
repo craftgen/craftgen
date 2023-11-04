@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { SelectValue } from "@radix-ui/react-select";
 import { Trash2Icon, X } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
-import * as z from "zod";
+import type * as z from "zod";
 
-import {
+import type {
   formSchema,
   SocketGeneratorControl,
 } from "@seocraft/core/src/controls/socket-generator";

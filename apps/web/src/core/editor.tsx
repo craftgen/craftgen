@@ -4,15 +4,16 @@ import { createRoot } from "react-dom/client";
 import { Presets, ReactPlugin } from "rete-react-plugin";
 
 import { Editor } from "@seocraft/core";
-import { AreaExtra } from "@seocraft/core/src/editor";
-import { nodes, Schemes, WorkflowAPI } from "@seocraft/core/src/types";
+import type { AreaExtra } from "@seocraft/core/src/editor";
+import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
+import { nodes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
-import { RouterOutputs } from "@/trpc/shared";
+import type { RouterOutputs } from "@/trpc/shared";
 
 import { getControl } from "./control";
-import { ReteStoreInstance } from "./store";
+import type { ReteStoreInstance } from "./store";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomConnection } from "./ui/custom-connection";
 import { CustomNode } from "./ui/custom-node";
@@ -107,7 +108,7 @@ export async function createEditor(params: {
         },
         socket(context) {
           const { payload, ...meta } = context;
-          return (data) => CustomSocket({ data: payload as any, meta }) as any;
+          return (data) => CustomSocket({ data: payload , meta }) as any;
         },
         connection(context) {
           return CustomConnection;

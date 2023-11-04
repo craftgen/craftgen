@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/plate-ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 
-import { labels, priorities, statuses } from "../data/data";
-import { Task } from "../data/schema";
+import { priorities, statuses } from "../data/data";
+import type { Task } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 

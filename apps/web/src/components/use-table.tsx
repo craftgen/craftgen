@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Table } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table";
 
 export const TableContext = createContext<Table<any> | null>(null);
 
