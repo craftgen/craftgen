@@ -21,9 +21,16 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
   const { path } = useConnection();
   const sourceSocket = React.useMemo(() => {
     if (!props.di) return;
-    return props.di.editor.getNode(props.data.source).outputs[
-      props.data.sourceOutput
-    ];
+    if (props.data.source) {
+      return props.di.editor.getNode(props.data.source).outputs[
+        props.data.sourceOutput
+      ];
+    }
+    if (props.data.target) {
+      return props.di.editor.getNode(props.data.target).inputs[
+        props.data.targetInput
+      ];
+    }
   }, [props.data.source, props.di]);
   const sourceConfig = React.useMemo(() => {
     const socketName = sourceSocket?.socket.name as SocketNameType;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import type { WorkflowAPI } from "@seocraft/core/src/types";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -12,16 +13,12 @@ import {
 import { observer } from "mobx-react-lite";
 import { useRete } from "rete-react-plugin";
 
-import type { WorkflowAPI } from "@seocraft/core/src/types";
-
-import { getWorkflow } from "@/actions/get-workflow";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/shared";
 
@@ -135,9 +132,9 @@ export const Composer: React.FC<{
           <TooltipContent>Center the content</TooltipContent>
         </Tooltip>
       </div>
-      {/* <ContextMenuProvider> */}
-      <div ref={ref} className="h-full w-full " />
-      {/* </ContextMenuProvider> */}
+      <ContextMenuProvider>
+        <div ref={ref} className="h-full w-full " />
+      </ContextMenuProvider>
     </div>
   );
 });
