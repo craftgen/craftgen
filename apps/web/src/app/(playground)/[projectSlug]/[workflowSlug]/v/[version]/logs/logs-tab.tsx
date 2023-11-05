@@ -4,9 +4,7 @@ import React, { useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
-import useSWR, { mutate } from "swr";
 
-import { getLogs } from "@/actions/get-logs";
 import type { getWorkflow } from "@/actions/get-workflow";
 import {
   Accordion,
@@ -19,19 +17,18 @@ import { Button } from "@/components/ui/button";
 import type { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { RouterOutputs } from "@/trpc/shared";
 
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
-  const { data, error } = useSWR(
-    "/api/executions",
-    () =>
-      getLogs({
-        worfklowId: workflow.id,
-        workflowVersionId: workflow.version.id,
-      }).then((res) => res.data),
+  const { data } = api.craft.execution.list.useQuery(
     {
-      refreshInterval: 2000,
+      worfklowId: workflow.id,
+      workflowVersionId: workflow.version.id,
+    },
+    {
+      refetchInterval: 2000,
     },
   );
   return (
@@ -46,14 +43,20 @@ export const LogsTab: React.FC<{
   );
 };
 
-type Execution = ResultOfAction<typeof getLogs>["executions"][number];
+type Execution =
+  RouterOutputs["craft"]["execution"]["list"]["executions"][number];
 
 const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const utils = api.useUtils();
   const { mutateAsync: deleteExecution } =
-    api.craft.execution.delete.useMutation();
+    api.craft.execution.delete.useMutation({
+      onSettled(data, error) {
+        utils.craft.execution.list.invalidate();
+      },
+    });
   const handleDeleteExecution = (executionId: string) => {
     deleteExecution({ executionId });
     if (isActiveView(executionId)) {
@@ -61,7 +64,6 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
       search.delete("execution");
       router.replace(`${pathname}?${search.toString()}`);
     }
-    mutate("/api/executions");
   };
 
   const isActiveView = useCallback(

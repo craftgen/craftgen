@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { eq, schema } from "@seocraft/supabase/db";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -98,5 +97,49 @@ export const craftExecutionRouter = createTRPCRouter({
         .delete(schema.workflowExecution)
         .where(eq(schema.workflowExecution.id, input.executionId))
         .returning();
+    }),
+
+  list: protectedProcedure
+    .input(z.object({ worfklowId: z.string(), workflowVersionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const a = await ctx.db.query.workflowVersion.findFirst({
+        where: (workflowVersion, { eq }) =>
+          eq(workflowVersion.id, input.workflowVersionId),
+        with: {
+          workflow: {
+            with: {
+              project: {
+                columns: {
+                  slug: true,
+                },
+              },
+            },
+            columns: {
+              slug: true,
+            },
+          },
+          executions: {
+            with: {
+              steps: true,
+              executionData: {
+                orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+              },
+            },
+            orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+          },
+        },
+      });
+      if (!a) {
+        throw new Error("Workflow not found 5");
+      }
+      return {
+        ...a,
+        executions: a?.executions.map((execution) => {
+          return {
+            url: `/${a.workflow.project.slug}/${a.workflow.slug}/v/${a.version}?execution=${execution.id}`,
+            ...execution,
+          };
+        }),
+      };
     }),
 });
