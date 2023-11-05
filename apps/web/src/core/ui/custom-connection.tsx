@@ -1,7 +1,11 @@
 import * as React from "react";
-import type { ClassicScheme} from "rete-react-plugin";
+import { Editor } from "@seocraft/core";
+import { Connection } from "@seocraft/core/src/connection/connection";
+import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
 import { Presets } from "rete-react-plugin";
 import tw from "tailwind-styled-components";
+
+import { cn } from "@/lib/utils";
 
 const { useConnection } = Presets.classic;
 
@@ -13,11 +17,29 @@ const Path = tw.path<{ styles?: (props: any) => any }>`
 fill-none stroke-[5px] pointer-events-auto stroke-primary  
 `;
 
-export function CustomConnection(props: {
-  data: ClassicScheme["Connection"] & { isLoop?: boolean };
-  styles?: () => any;
-}) {
+export function CustomConnection(props: { data: Connection; di: Editor }) {
   const { path } = useConnection();
+  const sourceSocket = React.useMemo(() => {
+    if (!props.di) return;
+    return props.di.editor.getNode(props.data.source).outputs[
+      props.data.sourceOutput
+    ];
+  }, [props.data.source, props.di]);
+  const sourceConfig = React.useMemo(() => {
+    const socketName = sourceSocket?.socket.name as SocketNameType;
+    return socketConfig[socketName];
+  }, [sourceSocket]);
 
-  return <Svg data-testid="connection">{path && <Path d={path} />} huloo</Svg>;
+  return (
+    <Svg data-testid="connection">
+      {path && (
+        <Path
+          d={path}
+          className={cn(
+            sourceConfig && `stroke-${sourceConfig.connection}-400`,
+          )}
+        />
+      )}
+    </Svg>
+  );
 }

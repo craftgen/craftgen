@@ -1,12 +1,11 @@
 "use client";
 
-import { createRoot } from "react-dom/client";
-import { Presets, ReactPlugin } from "rete-react-plugin";
-
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
 import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
 import { nodes } from "@seocraft/core/src/types";
+import { createRoot } from "react-dom/client";
+import { Presets, ReactPlugin } from "rete-react-plugin";
 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
@@ -108,10 +107,11 @@ export async function createEditor(params: {
         },
         socket(context) {
           const { payload, ...meta } = context;
-          return (data) => CustomSocket({ data: payload , meta }) as any;
+          return (data) => CustomSocket({ data: payload, meta }) as any;
         },
         connection(context) {
-          return CustomConnection;
+          const { payload, ...meta } = context;
+          return (data) => CustomConnection({ data: payload, di,  ...meta }) as any;
         },
         control(data) {
           return getControl(data);
