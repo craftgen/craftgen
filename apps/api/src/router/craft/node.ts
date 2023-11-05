@@ -1,6 +1,5 @@
+import { and, eq, or, schema } from "@seocraft/supabase/db";
 import { z } from "zod";
-
-import { and, eq, schema } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -101,8 +100,31 @@ export const craftNodeRouter = createTRPCRouter({
         if (!version) {
           throw new Error("Workflow version not found");
         }
+        console.log("version", version);
         if (!version.publishedAt) {
           // delete all the execution data as well.
+          console.log("deleting node execution data");
+          await tx
+            .delete(schema.workflowExecution)
+            .where(
+              and(
+                eq(schema.workflowExecution.workflowId, input.workflowId),
+                eq(
+                  schema.workflowExecution.workflowVersionId,
+                  input.workflowVersionId,
+                ),
+                or(
+                  eq(
+                    schema.workflowExecution.entryWorkflowNodeId,
+                    input.data.id,
+                  ),
+                  eq(
+                    schema.workflowExecution.exitWorkflowNodeId,
+                    input.data.id,
+                  ),
+                ),
+              ),
+            );
           await tx
             .delete(schema.nodeExecutionData)
             .where(
