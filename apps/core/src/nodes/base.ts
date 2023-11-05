@@ -185,8 +185,9 @@ export abstract class BaseNode<
   get outputSchema() {
     return createJsonSchema(this.outputSockets);
   }
+
   get readonly() {
-    return this.di.readonly;
+    return !!this.di.executionId || this.di.readonly;
   }
 
   public executionNodeId?: string;
@@ -310,8 +311,9 @@ export abstract class BaseNode<
           context: JSON.stringify(context),
         });
       },
-      1000,
+      400,
     );
+    const saveStateDebounced = debounce(this.saveState.bind(this), 400);
     const actor = createActor(this.machine, {
       id: this.contextId,
       ...options,
@@ -344,7 +346,7 @@ export abstract class BaseNode<
           }
         }
 
-        this.saveState({ state });
+        saveStateDebounced({ state });
         if (!this.readonly) {
           saveContextDebounced({ context: state.context });
         }
