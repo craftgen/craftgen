@@ -6,8 +6,8 @@ import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { getSocketByJsonSchemaType, objectSocket } from "../../sockets";
+import { Output } from "../../input-output";
+import { objectSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
 import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
@@ -45,7 +45,7 @@ const composeObjectMachine = createMachine({
       type: "change";
       name: string;
       description: string;
-      inputs: JSONSocket[];
+      inputSockets: JSONSocket[];
       schema: any;
     };
   }>,
@@ -55,7 +55,7 @@ const composeObjectMachine = createMachine({
         change: {
           target: "idle",
           actions: assign({
-            inputs: ({ event }) => event.inputs,
+            inputSockets: ({ event }) => event.inputSockets,
             name: ({ event }) => event.name,
             description: ({ event }) => event.description,
             schema: ({ event }) => event.schema,
@@ -118,45 +118,16 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
           type: "change",
           name,
           description: description || "",
-          inputs: sockets,
+          inputSockets: sockets,
           schema,
         });
       },
     });
 
     this.addControl("inputGenerator", inputGenerator);
-    this.actor.subscribe((state) => {
-      this.process();
-    });
-    this.process();
   }
 
-  process() {
-    const state = this.actor.getSnapshot();
-    const rawTemplate = state.context.inputs as JSONSocket[];
 
-    for (const item of Object.keys(this.inputs)) {
-      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
-      const connections = this.di.editor
-        .getConnections()
-        .filter((c) => c.target === this.id && c.targetInput === item);
-      if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      this.removeInput(item);
-    }
-
-    for (const item of rawTemplate) {
-      if (this.hasInput(item.name)) {
-        const input = this.inputs[item.name];
-        if (input) {
-          input.socket = getSocketByJsonSchemaType(item.type)!;
-        }
-        continue;
-      }
-
-      const socket = getSocketByJsonSchemaType(item.type)!;
-      this.addInput(item.name, new Input(socket, item.name, false));
-    }
-  }
 
   async execute() {}
 }

@@ -1,12 +1,13 @@
-import { ConnectionBase, NodeBase, getUID } from "rete";
 import { CurveFactory } from "d3-shape";
+import { ConnectionBase, getUID, NodeBase } from "rete";
+
 import { BaseNode } from "../nodes/base";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
 export class Connection<
-  Source extends BaseNode<any, any, any>,
-  Target extends BaseNode<any, any, any>
+  Source extends BaseNode<any, any, any> = BaseNode<any, any, any>,
+  Target extends BaseNode<any, any, any> = BaseNode<any, any, any>,
 > implements ConnectionBase
 {
   /**
@@ -37,19 +38,18 @@ export class Connection<
     source: Source,
     public sourceOutput: StringKeyof<Source["outputs"]>,
     target: Target,
-    public targetInput: StringKeyof<Target["inputs"]>
+    public targetInput: StringKeyof<Target["inputs"]>,
   ) {
     if (!source.outputs[sourceOutput as string]) {
       throw new Error(
-        `source node doesn't have output with a key ${String(sourceOutput)}`
+        `source node doesn't have output with a key ${String(sourceOutput)}`,
       );
     }
     if (!target.inputs[targetInput as string]) {
       throw new Error(
-        `target node doesn't have input with a key ${String(targetInput)}`
+        `target node doesn't have input with a key ${String(targetInput)}`,
       );
     }
-
     this.id = getUID();
     this.source = source.id;
     this.target = target.id;
