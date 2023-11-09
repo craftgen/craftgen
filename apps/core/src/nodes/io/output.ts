@@ -1,5 +1,5 @@
 import { createMachine, assign } from "xstate";
-import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 import { DiContainer } from "../../types";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
 import {
@@ -26,7 +26,7 @@ const OutputNodeMachine = createMachine({
       },
       input
     ),
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       name: string;
       description: string;

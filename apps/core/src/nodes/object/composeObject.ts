@@ -10,7 +10,7 @@ import { Output } from "../../input-output";
 import { objectSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
-import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -29,7 +29,7 @@ const composeObjectMachine = createMachine({
       },
       input,
     ),
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       name: string;
       description?: string;

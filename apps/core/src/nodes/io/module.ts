@@ -9,7 +9,7 @@ import { Editor } from "../../editor";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
-import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -27,7 +27,7 @@ const ModuleNodeMachine = createMachine({
       },
       input,
     ),
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       moduleId: string;
       inputId?: string;

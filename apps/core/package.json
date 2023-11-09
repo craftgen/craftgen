@@ -30,6 +30,7 @@
     "lodash-es": "^4.17.21",
     "mobx": "^6.10.2",
     "modelfusion": "^0.27.3",
+    "openai": "^4.16.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-drive-picker": "^1.2.2",

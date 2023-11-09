@@ -1,11 +1,12 @@
 "use client";
 
+import { createRoot } from "react-dom/client";
+import { Presets, ReactPlugin } from "rete-react-plugin";
+
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
 import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
 import { nodes } from "@seocraft/core/src/types";
-import { createRoot } from "react-dom/client";
-import { Presets, ReactPlugin } from "rete-react-plugin";
 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
@@ -60,10 +61,8 @@ export async function createEditor(params: {
         async checkAPIKeyExist(params) {
           return true;
         },
-        async getAPIKey(params) {
-          return "";
-        },
         async triggerWorkflowExecutionStep(params) {},
+        getAPIKey: params.api.getAPIKey!,
         createExecution: params.api.createExecution!,
         updateNodeMetadata: params.api.updateNodeMetadata!,
         upsertNode: params.api.upsertNode!,
@@ -111,7 +110,8 @@ export async function createEditor(params: {
         },
         connection(context) {
           const { payload, ...meta } = context;
-          return (data) => CustomConnection({ data: payload, di,  ...meta }) as any;
+          return (data) =>
+            CustomConnection({ data: payload, di, ...meta }) as any;
         },
         control(data) {
           return getControl(data);
@@ -125,7 +125,6 @@ export async function createEditor(params: {
     render: render as any,
   });
   await di.setup();
-  console.log(di);
   addCustomBackground(di?.area!);
   params.store.getState().setDi(di);
   return di;

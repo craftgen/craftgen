@@ -9,6 +9,7 @@ import {
   assign,
   createActor,
   InputFrom,
+  ProvidedActor,
   Snapshot,
   StateMachine,
   waitFor,
@@ -40,14 +41,14 @@ export type ParsedNode<
   state?: SnapshotFrom<Machine>;
 };
 
-export type BaseActorInputType = {
+export type BaseInputType = {
   inputs?: Record<string, any>;
   inputSockets?: JSONSocket[];
   outputs?: Record<string, any>;
   outputSockets?: JSONSocket[];
 };
 
-export type BaseActorContextType = {
+export type BaseContextType = {
   inputs: Record<string, any>;
   outputs: Record<string, any>;
   outputSockets: JSONSocket[];
@@ -58,7 +59,7 @@ export type BaseActorContextType = {
   } | null;
 };
 
-export type BaseActorEventTypes =
+export type BaseEventTypes =
   | {
       type: "SET_VALUE";
       values: Record<string, any>;
@@ -68,7 +69,7 @@ export type BaseActorEventTypes =
       values: Record<string, any>;
     };
 
-export type BaseActorActionTypes =
+export type BaseActionTypes =
   | {
       type: "setValue";
       params?: {
@@ -77,33 +78,44 @@ export type BaseActorActionTypes =
     }
   | {
       type: "removeError";
+    }
+  | {
+      type: "setError";
+      params?: {
+        name: string;
+        message: string;
+      };
     };
+
+export type BaseActorTypes = any;
 
 type SpecialMerged<T, U> = T | U;
 
-export type BaseActorTypes<
+export type BaseMachineTypes<
   T extends {
     input: any;
     context: any;
     events?: any;
     actions?: any;
+    actors?: ProvidedActor;
   },
 > = {
-  input: MergeDeep<BaseActorInputType, T["input"]>;
-  context: MergeDeep<BaseActorContextType, T["context"]>;
-  events: SpecialMerged<BaseActorEventTypes, T["events"]>;
-  actions: SpecialMerged<BaseActorActionTypes, T["actions"]>;
+  input: MergeDeep<BaseInputType, T["input"]>;
+  context: MergeDeep<BaseContextType, T["context"]>;
+  events: SpecialMerged<BaseEventTypes, T["events"]>;
+  actions: SpecialMerged<BaseActionTypes, T["actions"]>;
+  actors: SpecialMerged<BaseActionTypes, T["actors"]>;
 };
 
 type BaseMachine = StateMachine<
-  BaseActorContextType,
-  BaseActorEventTypes,
+  BaseContextType,
+  BaseEventTypes,
+  BaseActorTypes,
+  BaseActionTypes,
   any,
-  BaseActorActionTypes,
   any,
   any,
-  any,
-  BaseActorInputType,
+  BaseInputType,
   any,
   any
 >;
@@ -129,6 +141,7 @@ export abstract class BaseNode<
   static nodeType: string;
 
   public actor: Actor<Machine>;
+  public readonly variables: string[] = [];
 
   private get pactor() {
     return this.actor as Actor<BaseMachine>;
@@ -214,6 +227,12 @@ export abstract class BaseNode<
       actions: {
         removeError: assign({
           error: () => null,
+        }),
+        setError: assign({
+          error: ({ event }) => ({
+            name: event.params?.name || "Error",
+            message: event.params?.message || "Something went wrong",
+          }),
         }),
         setValue: assign({
           inputs: ({ context, event }) => {

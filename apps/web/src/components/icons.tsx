@@ -40,6 +40,7 @@ import {
   ListOrdered,
   LogIn,
   LogOut,
+  Mails,
   MessageSquare,
   MessageSquarePlus,
   Minus,
@@ -72,8 +73,7 @@ import {
   WrapText,
   X,
 } from "lucide-react";
-import type { LucideIcon ,
-  LucideProps} from "lucide-react";
+import type { LucideIcon, LucideProps } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -314,6 +314,7 @@ export const Icons = {
   underline: Underline,
   unlink: Link2Off,
   viewing: Eye,
+  mails: Mails,
 
   // www
   gitHub: (props: LucideProps) => (

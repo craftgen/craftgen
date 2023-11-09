@@ -12,12 +12,12 @@ export const getApiKeyValue = action(
     projectId: z.string(),
     apiKey: z.string(),
   }),
-  async (params): Promise<string | null> => {
+  async (input): Promise<string | null> => {
     const variable = await db.query.variable.findFirst({
       where: (variable, { eq, and }) =>
         and(
-          eq(variable.key, params.apiKey),
-          eq(variable.project_id, params.projectId),
+          eq(variable.key, input.apiKey),
+          eq(variable.project_id, input.projectId),
         ),
     });
     return variable?.value!;

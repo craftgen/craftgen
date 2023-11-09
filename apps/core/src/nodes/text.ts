@@ -1,5 +1,5 @@
 import { type DiContainer, type Node } from "../types";
-import { BaseActorTypes, BaseNode, type ParsedNode } from "./base";
+import { BaseMachineTypes, BaseNode, type ParsedNode } from "./base";
 import { assign, createMachine } from "xstate";
 import { stringSocket } from "../sockets";
 import { TextareControl } from "../controls/textarea";
@@ -26,7 +26,7 @@ const TextNodeMachine = createMachine({
       input
     ),
   initial: "complete",
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       value: string;
       outputs: {

@@ -13,7 +13,7 @@ import {
   triggerSocket,
 } from "../../sockets";
 import { type DiContainer } from "../../types";
-import { BaseActorTypes, BaseNode, ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
 export const InputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -31,7 +31,7 @@ export const InputNodeMachine = createMachine({
       },
       input,
     ),
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       name: string;
       description: string;

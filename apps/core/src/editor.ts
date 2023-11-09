@@ -131,6 +131,8 @@ export class Editor<
     }
   > = new Map();
 
+  public variables: Map<string, string> = new Map();
+
   public content = {
     nodes: [] as NodeWithState<Registry>[],
     edges: [] as SetOptional<ConnProps, "id">[],
@@ -313,11 +315,21 @@ export class Editor<
     return di;
   }
 
+  public async setupEnv() {
+    const openai = await this.api.getAPIKey({
+      key: "OPENAI_API_KEY",
+      projectId: this.projectId,
+    });
+    this.variables.set("OPENAI_API_KEY", openai);
+  }
+
   public async setup() {
     this.editor.use(this.engine);
     this.editor.use(this.dataFlow);
 
+    await this.setupEnv();
     await this.import(this.content);
+
     this.handleNodeEvents();
 
     await this.setUI();

@@ -25,6 +25,7 @@ import {
   Wordpress,
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
+import { OpenAIThread } from "./nodes/openai/thread";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -62,6 +63,7 @@ export const nodes = {
   Number: Number,
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
+  OpenAIThread: OpenAIThread,
 
   ComposeObject: ComposeObject,
   Article: Article,
@@ -113,8 +115,8 @@ export const checkAPIKeyExistParamSchema = z.object({
   projectId: z.string(),
 });
 export const getAPIKeyParamSchema = z.object({
-  key: z.string(),
   projectId: z.string(),
+  key: z.string(),
 });
 
 export const triggerWorkflowExecutionStepParamSchema = z.object({

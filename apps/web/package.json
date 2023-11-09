@@ -134,6 +134,7 @@
     "next-safe-action": "^3.3.0",
     "next-themes": "^0.2.1",
     "next-usequerystate": "^1.9.1",
+    "openai": "^4.16.1",
     "postcss": "8.4.26",
     "posthog-js": "^1.79.0",
     "posthog-node": "^3.1.2",

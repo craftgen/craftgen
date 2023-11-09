@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import type { WorkflowAPI } from "@seocraft/core/src/types";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -12,6 +11,8 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRete } from "rete-react-plugin";
+
+import type { WorkflowAPI } from "@seocraft/core/src/types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ export const Composer: React.FC<{
     api.craft.execution.create.useMutation();
   const utils = api.useUtils();
   const getModule = utils.craft.module.getById.fetch;
+  const getAPIKey = utils.craft.variables.getValue.fetch;
 
   const workflowAPI: Partial<WorkflowAPI> = {
     upsertNode,
@@ -54,6 +56,7 @@ export const Composer: React.FC<{
     updateNodeMetadata,
     createExecution,
     getModule,
+    getAPIKey,
   };
 
   const createEditor = useMemo(() => {

@@ -13,7 +13,7 @@ import { SliderControl } from "../../controls/slider";
 import { Input, Output } from "../../input-output";
 import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
-import { BaseActorTypes, BaseNode, type ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
 // import { generateTextFn, genereteJsonFn } from "./actions";
 
@@ -62,7 +62,7 @@ const OpenAIFunctionCallMachine = createMachine({
       },
       input,
     ),
-  types: {} as BaseActorTypes<{
+  types: {} as BaseMachineTypes<{
     input: {
       inputs:
         | Record<string, any>
