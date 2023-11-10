@@ -1,13 +1,23 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  poweredByHeader: false,
   experimental: {
     serverComponentsExternalPackages: ["pg-native"],
   },
   transpilePackages: ["@seocraft/core", "@seocraft/api", "@seocraft/supabase"],
   images: {
     unoptimized: true,
+  },
+  webpack: (config, { isServer, webpack }) => {
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.IgnorePlugin({ resourceRegExp: /^node:async_hooks$/ }),
+      );
+    }
+    return config;
   },
   rewrites: async () => {
     return {

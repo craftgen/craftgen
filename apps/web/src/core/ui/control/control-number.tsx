@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
 import type { NumberControl } from "@seocraft/core/src/controls/number";
 
+import { Input } from "@/components/ui/input";
 
 export function NumberControlComponent(props: { data: NumberControl }) {
   const [value, setValue] = useState<number>(props.data.value);

@@ -87,7 +87,7 @@ export type BaseActionTypes =
       };
     };
 
-export type BaseActorTypes = any;
+export type BaseActorTypes = ProvidedActor;
 
 type SpecialMerged<T, U> = T | U;
 
@@ -104,7 +104,7 @@ export type BaseMachineTypes<
   context: MergeDeep<BaseContextType, T["context"]>;
   events: SpecialMerged<BaseEventTypes, T["events"]>;
   actions: SpecialMerged<BaseActionTypes, T["actions"]>;
-  actors: SpecialMerged<BaseActionTypes, T["actors"]>;
+  actors: SpecialMerged<BaseActorTypes, T["actors"]>;
 };
 
 type BaseMachine = StateMachine<

@@ -25,6 +25,7 @@ import {
   Wordpress,
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
+import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/thread";
 
 interface NodeTypeStatic {
@@ -64,6 +65,7 @@ export const nodes = {
   PromptTemplate: PromptTemplate,
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIThread: OpenAIThread,
+  OpenAIAssistant: OpenAIAssistant,
 
   ComposeObject: ComposeObject,
   Article: Article,

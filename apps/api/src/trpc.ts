@@ -8,10 +8,11 @@
  */
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { OpenAI } from "openai";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { db } from "@seocraft/supabase/db";
+import { and, db, eq, schema } from "@seocraft/supabase/db";
 
 /**
  * 1. CONTEXT
@@ -52,11 +53,10 @@ export const createTRPCContext = async (opts: {
   auth: Session | null;
   supabaseService?: SupabaseClient;
 }) => {
-  const session = opts.auth; //TODO: opts.auth;
+  const session = opts.auth;
 
   const source = opts.req?.headers.get("x-trpc-source") ?? "unknown";
-
-  console.log(">>> tRPC Request from", source, "by", session?.user.email);
+  console.log(">>> tRPC Request from", source, "by", `${session?.user.email} `);
 
   return createInnerTRPCContext({
     session,
@@ -131,3 +131,64 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
+  const currentProjectSlug = ctx.session?.user.user_metadata.currentProjectId;
+  console.log("currentProjectId", currentProjectSlug);
+
+  const [projectS] = await ctx.db
+    .select()
+    .from(schema.project)
+    .leftJoin(
+      schema.projectMembers,
+      and(
+        eq(schema.projectMembers.userId, ctx.session?.user.id!),
+        eq(schema.projectMembers.projectId, schema.project.id),
+      ),
+    )
+    .where(
+      and(
+        eq(schema.project.slug, currentProjectSlug),
+        eq(schema.project.id, schema.projectMembers.projectId),
+      ),
+    )
+    .limit(1);
+
+  console.log("projectS", projectS);
+
+  if (!projectS) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not a member of this project",
+    });
+  }
+
+  const [openaiApiKey] = await ctx.db
+    .select()
+    .from(schema.variable)
+    .where(
+      and(
+        eq(schema.variable.project_id, projectS.project.id),
+        eq(schema.variable.key, "OPENAI_API_KEY"),
+      ),
+    )
+    .limit(1);
+
+  if (!openaiApiKey) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "OpenAI API Key not found",
+    });
+  }
+
+  return next({
+    ctx: {
+      openai: new OpenAI({
+        apiKey: openaiApiKey.value as string,
+        dangerouslyAllowBrowser: true,
+      }),
+    },
+  });
+});
+
+export const openAiProducer = protectedProcedure.use(openaiMiddleware);

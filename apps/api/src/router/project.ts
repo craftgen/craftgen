@@ -4,9 +4,18 @@ import { desc, eq } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
-export const postRouter = createTRPCRouter({
+export const projectRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.project.findMany({});
+  }),
+  userProjects: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.projectMembers.findMany({
+      where: (projectMembers, { eq }) =>
+        eq(projectMembers.userId, ctx.session.user?.id),
+      with: {
+        project: true,
+      },
+    });
   }),
 
   // byId: publicProcedure

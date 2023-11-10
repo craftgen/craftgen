@@ -1,3 +1,5 @@
+import { action, makeObservable, observable, reaction } from "mobx";
+
 import { BaseControl } from "./base";
 
 type TextareControlOptions = {
@@ -7,9 +9,32 @@ type TextareControlOptions = {
 
 export class TextareControl extends BaseControl {
   __type = "textarea";
+  public value: string;
 
-  constructor(public value: string, public options: TextareControlOptions) {
+  constructor(
+    public observableSource: () => string, // Function that returns the observable value
+    public options: TextareControlOptions,
+  ) {
     super(70);
+
+    this.value = observableSource(); // Set the initial value
+    makeObservable(this, {
+      value: observable.ref,
+      setValue: action,
+    });
+
+    reaction(
+      () => this.observableSource(),
+      (newValue) => {
+        if (newValue !== this.value) {
+          console.log(
+            "reaction in textarea controller value is not matching",
+            newValue,
+          );
+          this.value = newValue;
+        }
+      },
+    );
   }
 
   setValue(value: string) {

@@ -1,12 +1,14 @@
 import { authRouter } from "./router/auth";
 import { craftRouter } from "./router/craft";
-import { postRouter } from "./router/post";
+import { openaiRouter } from "./router/openai";
+import { projectRouter } from "./router/project";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
-  post: postRouter,
+  project: projectRouter,
   craft: craftRouter,
+  openai: openaiRouter,
 });
 
 // export type definition of API

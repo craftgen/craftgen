@@ -53,8 +53,16 @@ export async function GET(request: Request) {
       and(eq(project.personal, true), eq(project.id, projectMembers.projectId)),
     )
     .limit(1);
+
   if (!projectS) {
+    // TODO: redirect to onboarding to create user personal project.
     redirect(`${BASE_URL}/explore`);
   }
+
+  await supabase.auth.updateUser({
+    data: {
+      currentProjectSlug: projectS.project.slug,
+    },
+  });
   redirect(`${BASE_URL}/${projectS.project.slug}`);
 }

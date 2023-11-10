@@ -9,6 +9,7 @@ import {
   PlusCircledIcon,
 } from "@radix-ui/react-icons";
 import type { PopoverTriggerProps } from "@radix-ui/react-popover";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import useSWR from "swr";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,11 +38,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 import { getUserProjects } from "../explore/actions";
 import { NewProjectForm } from "../project/new/new-project-form";
 
-type TeamSwitcherProps = PopoverTriggerProps
+type TeamSwitcherProps = PopoverTriggerProps;
 
 interface Team {
   label: string;
@@ -49,11 +51,16 @@ interface Team {
 }
 
 export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
-  const { data, isLoading } = useSWR("/api/projects", getUserProjects);
+  const { data, isLoading } = api.project.userProjects.useQuery();
   const params = useParams();
   const router = useRouter();
-  const handleChange = (value: string) => {
+  const supabase = createClientComponentClient();
+
+  const handleChange = async (value: string) => {
     if (value !== params.projectSlug) {
+      await supabase.auth.updateUser({
+        data: { currentProjectId: value },
+      });
       router.push(`/${value}`);
     }
   };

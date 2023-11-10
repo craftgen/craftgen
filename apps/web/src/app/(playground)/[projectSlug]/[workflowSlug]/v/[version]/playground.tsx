@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import type { Socket } from "@seocraft/core/src/sockets";
-import type { NodeProps } from "@seocraft/core/src/types";
 import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
@@ -19,6 +17,9 @@ import { useTheme } from "next-themes";
 import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
+
+import type { Socket } from "@seocraft/core/src/sockets";
+import type { NodeProps } from "@seocraft/core/src/types";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
@@ -458,7 +459,7 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   return (
     <>
       <div
-        className="flex flex-col space-y-1"
+        className="mb-2 flex flex-col space-y-1"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <Label htmlFor={control.id} className="capitalize">

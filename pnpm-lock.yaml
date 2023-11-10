@@ -56,6 +56,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      openai:
+        specifier: ^4.16.1
+        version: 4.16.1(encoding@0.1.13)
       superjson:
         specifier: 1.13.1
         version: 1.13.1
@@ -118,8 +121,8 @@ importers:
         specifier: ^6.10.2
         version: 6.10.2
       modelfusion:
-        specifier: ^0.27.3
-        version: 0.27.3(zod-to-json-schema@3.21.4)(zod@3.21.4)
+        specifier: ^0.63.0
+        version: 0.63.0
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
@@ -158,7 +161,7 @@ importers:
         version: 2.0.0(rete-area-plugin@2.0.1)(rete@2.0.2)
       rete-react-plugin:
         specifier: 2.0.4
-        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
+        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.1)
       rete-readonly-plugin:
         specifier: ^2.0.0
         version: 2.0.0(rete-area-plugin@2.0.1)(rete-connection-plugin@2.0.0)(rete@2.0.2)
@@ -616,8 +619,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
       modelfusion:
-        specifier: ^0.27.3
-        version: 0.27.3(zod-to-json-schema@3.21.4)(zod@3.21.4)
+        specifier: ^0.63.0
+        version: 0.63.0
       next:
         specifier: 14.0.1
         version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
@@ -713,7 +716,7 @@ importers:
         version: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
       rete-react-plugin:
         specifier: 2.0.4
-        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0)
+        version: 2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.1)
       rete-readonly-plugin:
         specifier: ^2.0.0
         version: 2.0.0(rete-area-plugin@2.0.1)(rete-connection-plugin@2.0.0)(rete@2.0.2)
@@ -10196,8 +10199,8 @@ packages:
     engines: {node: '>=0.8.x'}
     dev: false
 
-  /eventsource-parser@1.0.0:
-    resolution: {integrity: sha512-9jgfSCa3dmEme2ES3mPByGXfgZ87VbP97tng1G2nWwWx6bV2nYxm2AWCrbQjXToSe+yYlqaZNtxffR9IeQr95g==}
+  /eventsource-parser@1.1.1:
+    resolution: {integrity: sha512-3Ej2iLj6ZnX+5CMxqyUb8syl9yVZwcwm8IIMrOJlF7I51zxOOrRlU3zxSb/6hFbl03ts1ZxHAGJdWLZOLyKG7w==}
     engines: {node: '>=14.18'}
     dev: false
 
@@ -12849,23 +12852,20 @@ packages:
     resolution: {integrity: sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==}
     dev: false
 
-  /modelfusion@0.27.3(zod-to-json-schema@3.21.4)(zod@3.21.4):
-    resolution: {integrity: sha512-6MRg+aoJEEgz0DeZTs8/0mmF32V5nErVfBW4sihZpsWzKxKkf95cwVOIjyxsEuw03FvT/H4k5pYo7FxpZm24JA==}
+  /modelfusion@0.63.0:
+    resolution: {integrity: sha512-FL0BPNCJx+UxzBTuc+4m5HMtgun6CC+TjwBcYOBMTA8ZiDSXXALDdeOs+VKA46xF6cvhiwcEG3Crr+vOhwjRdQ==}
     engines: {node: '>=18'}
-    peerDependencies:
-      '@pinecone-database/pinecone': '*'
-      zod: ^3
-      zod-to-json-schema: ^3
-    peerDependenciesMeta:
-      '@pinecone-database/pinecone':
-        optional: true
     dependencies:
-      eventsource-parser: 1.0.0
+      eventsource-parser: 1.1.1
       js-tiktoken: 1.0.7
       nanoid: 3.3.6
       secure-json-parse: 2.7.0
-      zod: 3.21.4
-      zod-to-json-schema: 3.21.4(zod@3.21.4)
+      ws: 8.14.2
+      zod: 3.22.4
+      zod-to-json-schema: 3.21.4(zod@3.22.4)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /monaco-editor@0.44.0:
@@ -14819,7 +14819,7 @@ packages:
       rete-area-plugin: 2.0.1(rete@2.0.2)
     dev: false
 
-  /rete-react-plugin@2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.0):
+  /rete-react-plugin@2.0.4(react-dom@18.2.0)(react@18.2.0)(rete-area-plugin@2.0.1)(rete-render-utils@2.0.1)(rete@2.0.2)(styled-components@6.1.1):
     resolution: {integrity: sha512-t+rsaZ6wUFVbO1krfzUl8GInHI+V9Zp8q2fLj8NnDLVKRxQzq1W0sfpBvBK262dkt2TEZvHyeX9M+eqTlaowHQ==}
     peerDependencies:
       react: ^16.8.6 || ^17 || ^18
@@ -14835,7 +14835,7 @@ packages:
       rete: 2.0.2
       rete-area-plugin: 2.0.1(rete@2.0.2)
       rete-render-utils: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
-      styled-components: 6.1.0(react-dom@18.2.0)(react@18.2.0)
+      styled-components: 6.1.1(react-dom@18.2.0)(react@18.2.0)
       usehooks-ts: 2.9.1(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
@@ -15439,8 +15439,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  /styled-components@6.1.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-VWNfYYBuXzuLS/QYEeoPgMErP26WL+dX9//rEh80B2mmlS1yRxRxuL5eax4m6ybYEUoHWlTy2XOU32767mlMkg==}
+  /styled-components@6.1.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-cpZZP5RrKRIClBW5Eby4JM1wElLVP4NQrJbJ0h10TidTyJf4SIIwa3zLXOoPb4gJi8MsJ8mjq5mu2IrEhZIAcQ==}
     engines: {node: '>= 16'}
     peerDependencies:
       react: '>= 16.8.0'
@@ -16714,11 +16714,23 @@ packages:
       zod: 3.21.4
     dev: false
 
+  /zod-to-json-schema@3.21.4(zod@3.22.4):
+    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.22.4
+    dev: false
+
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
+    dev: false
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
   /zustand@3.7.2(react@18.2.0):

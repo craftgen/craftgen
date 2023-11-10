@@ -8,4 +8,6 @@ export const authRouter = createTRPCRouter({
     // testing type validation of overridden next-auth Session in @acme/auth package
     return "you can see this secret message!";
   }),
+  getCurrentTeam: protectedProcedure.query(({ ctx }) => {}),
+  setTeam: protectedProcedure.mutation(({ ctx, input }) => {}),
 });

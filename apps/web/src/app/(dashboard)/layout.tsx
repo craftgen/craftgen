@@ -19,6 +19,12 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   if (session?.provider_refresh_token && session?.provider_token) {
     await persistGoogleToken();
   }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  console.log("user", user?.user_metadata);
+  console.log("ss", session?.user.user_metadata);
   return (
     <main className="flex flex-col">
       <Navbar session={session!} />

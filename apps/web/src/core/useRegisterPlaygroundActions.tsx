@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Editor } from "@seocraft/core";
-import type { NodeTypes } from "@seocraft/core/src/types";
-import type { Action} from "kbar";
+import type { Action } from "kbar";
 import { Priority, useKBar, useRegisterActions } from "kbar";
 import { debounce } from "lodash-es";
 import useSWR from "swr";
+
+import type { Editor } from "@seocraft/core";
+import type { NodeTypes } from "@seocraft/core/src/types";
 
 import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
@@ -46,6 +47,12 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       section: "Nodes",
       icon: <Icons.component className={"text-muted-foreground mr-2"} />,
     });
+    res.push({
+      id: "assistant",
+      name: "Assistant",
+      keywords: "assistant",
+      icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
+    });
     return res;
   }, [nodes]);
 
@@ -56,7 +63,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const [w, _setWorkflow] = useState<string | undefined>(undefined);
   const setWorkflow = debounce(_setWorkflow, 250, { maxWait: 600 });
 
-  const { options } = useKBar((state) => {
+  const { options, query, currentRootActionId } = useKBar((state) => {
     if (state.currentRootActionId === "ModuleNode") {
       setQuery(state.searchQuery);
     }
@@ -66,6 +73,9 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     if (state.currentRootActionId?.startsWith("workflow_")) {
       setWorkflow(state.currentRootActionId);
     }
+    return {
+      currentRootActionId: state.currentRootActionId,
+    };
   });
 
   const { data: workflowModules } = useSWR(
@@ -99,6 +109,35 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       keepPreviousData: true,
     },
   );
+  const { data: assistants } = api.openai.assistant.list.useQuery(
+    { projectId: di?.projectId! },
+    { enabled: currentRootActionId === "assistant", keepPreviousData: true },
+  );
+  const assistantActions = useMemo<Action[]>(() => {
+    return (
+      assistants?.data.map(
+        (assistant) =>
+          ({
+            id: assistant.id,
+            name: assistant.name,
+            parent: "assistant",
+            perform: async () => {
+              await di?.addNode("OpenAIAssistant", {
+                settings: {
+                  assistantId: assistant.id,
+                  config: {
+                    name: assistant.name,
+                    model: assistant.model,
+                    instructions: assistant.instructions,
+                    tools: assistant.tools,
+                  },
+                },
+              });
+            },
+          }) as Action,
+      ) || []
+    );
+  }, [assistants]);
 
   const workflowActions = useMemo<Action[]>(() => {
     return (
@@ -156,9 +195,13 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   }, [workflowModules]);
 
   useRegisterActions(
-    [...actions, ...moduleActions, ...orgActions, ...workflowActions].filter(
-      Boolean,
-    ),
-    [actions, moduleActions, orgActions, workflowActions],
+    [
+      ...actions,
+      ...moduleActions,
+      ...orgActions,
+      ...workflowActions,
+      ...assistantActions,
+    ].filter(Boolean),
+    [actions, moduleActions, orgActions, workflowActions, assistantActions],
   );
 };

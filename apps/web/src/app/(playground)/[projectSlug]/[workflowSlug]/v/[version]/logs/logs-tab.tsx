@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -22,18 +24,30 @@ import { RouterOutputs } from "@/trpc/shared";
 export const LogsTab: React.FC<{
   workflow: ResultOfAction<typeof getWorkflow>;
 }> = ({ workflow }) => {
+  const [autoRefresh, setAutoRefresh] = React.useState(false);
   const { data } = api.craft.execution.list.useQuery(
     {
       worfklowId: workflow.id,
       workflowVersionId: workflow.version.id,
     },
     {
-      refetchInterval: 2000,
+      enabled: !!workflow,
+      refetchInterval: () => (autoRefresh ? 3000 : false),
     },
   );
   return (
     <div className="p-4">
-      <h1>Logs</h1>
+      <div className="flex items-center justify-between">
+        <h1>Logs</h1>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="auto-refresh"
+            checked={autoRefresh}
+            onCheckedChange={setAutoRefresh}
+          />
+          <Label htmlFor="auto-refresh">Auto Fetch</Label>
+        </div>
+      </div>
       <Accordion type="multiple">
         {data?.executions.map((execution) => (
           <ExecutionItem key={execution.id} execution={execution} />
