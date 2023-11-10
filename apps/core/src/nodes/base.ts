@@ -464,7 +464,7 @@ export abstract class BaseNode<
       input.index = index + 1;
       const controller = getControlBySocket(
         socket,
-        state.context.inputs[item.name],
+        () => this.snapshot.context.inputs[item.name],
         (v) => {
           this.pactor.send({
             type: "SET_VALUE",

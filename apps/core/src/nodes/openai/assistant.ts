@@ -299,6 +299,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
               name: value,
             },
           });
+          this.setLabel(value);
         },
       }),
     );

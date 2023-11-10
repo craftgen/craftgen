@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { ClassicPreset } from "rete";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
+
 import { InputControl } from "./controls/input.control";
 import { NumberControl } from "./controls/number";
 
@@ -285,8 +286,8 @@ export type Sockets = (typeof sockets)[number];
 
 export const getControlBySocket = (
   socket: AllSockets,
-  value: any,
-  onChange: (v: any) => void
+  value: () => any,
+  onChange: (v: any) => void,
 ) => {
   return match(socket)
     .with(P.instanceOf(StringSocket), () => {

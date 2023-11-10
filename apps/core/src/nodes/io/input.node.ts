@@ -162,7 +162,7 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       const input = new Input(socket, item.name, true, false);
       const controller = getControlBySocket(
         socket,
-        state.context.outputs[item.name],
+        () => this.snap.context.outputs[item.name],
         (v) => {
           this.actor.send({
             type: "SET_VALUE",
