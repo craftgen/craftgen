@@ -492,6 +492,22 @@ export class Editor<
     );
     this.area.use(this.arrange);
 
+    // const { ScopesPlugin, Presets: ScopesPresets } = await import(
+    //   "rete-scopes-plugin"
+    // );
+    // const scopes = new ScopesPlugin<Scheme>();
+    // scopes.addPreset(ScopesPresets.classic.setup());
+    // this.area.use(scopes);
+    // scopes.addPipe((context) => {
+    //   if (context.type === "scopepicked") {
+    //     console.log("Scope picked", context.data);
+    //   }
+    //   if (context.type === "scopereleased") {
+    //     console.log("Scope released", context.data);
+    //   }
+    //   return context;
+    // });
+
     const {
       HistoryPlugin,
       HistoryExtensions,
@@ -858,8 +874,11 @@ export class Editor<
             width: Math.round(data.size.width),
             height: Math.round(data.size.height),
           };
-          this.editor.getNode(data.id).setSize(size);
-          updateMeta({ id: data.id, size });
+          const node = this.editor.getNode(data.id);
+          if (node.size !== size) {
+            node.setSize(size);
+            updateMeta({ id: data.id, size });
+          }
         })
         .with({ type: "nodetranslated" }, ({ data }) => {
           if (
@@ -868,6 +887,9 @@ export class Editor<
           ) {
             updateMeta(data);
           }
+        })
+        .otherwise(() => {
+          // console.log(context.type, { context });
         });
       return context;
     });

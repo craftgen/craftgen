@@ -9,6 +9,10 @@ import {
   Assistant,
   AssistantUpdateParams,
 } from "openai/resources/beta/assistants/assistants.mjs";
+import {
+  Run,
+  RunCreateParams,
+} from "openai/resources/beta/threads/runs/runs.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import {
@@ -24,7 +28,7 @@ import { InputControl } from "../../controls/input.control";
 import { SelectControl } from "../../controls/select";
 import { TextareControl } from "../../controls/textarea";
 import { Input } from "../../input-output";
-import { objectSocket, stringSocket } from "../../sockets";
+import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
@@ -95,6 +99,26 @@ export const OpenAIAssistantMachine = createMachine({
             Assistant,
             {
               assistantId: string;
+            }
+          >;
+        }
+      | {
+          src: "createRun";
+          logic: PromiseActorLogic<
+            Run,
+            {
+              threadId: string;
+              body: RunCreateParams;
+            }
+          >;
+        }
+      | {
+          src: "retrieveRun";
+          logic: PromiseActorLogic<
+            Run,
+            {
+              threadId: string;
+              runId: string;
             }
           >;
         };
@@ -229,8 +253,6 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     return this._openai!;
   }
 
-  public name = this.snap.context.settings.config.name || "";
-
   constructor(di: DiContainer, data: OpenAIAssistantNode) {
     super("OpenAIAssistant", di, data, OpenAIAssistantMachine, {
       actors: {
@@ -243,6 +265,18 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         retrieveAssistant: fromPromise(async ({ input }) => {
           return await this.openai().beta.assistants.retrieve(
             input.assistantId,
+          );
+        }),
+        createRun: fromPromise(async ({ input }) => {
+          return await this.openai().beta.threads.runs.create(
+            input.threadId,
+            input.body,
+          );
+        }),
+        retrieveRun: fromPromise(async ({ input }) => {
+          return await this.openai().beta.threads.runs.retrieve(
+            input.threadId,
+            input.runId,
           );
         }),
       },
@@ -281,11 +315,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         }),
       },
     });
-
-    makeObservable(this, {
-      name: observable,
-    });
-
+    this.addInput("trigger", new Input(triggerSocket, "trigger", true));
     this.addInput("tools", new Input(objectSocket, "tools", true));
     this.addInput("threadId", new Input(stringSocket, "threadId", false));
     this.addControl(

@@ -168,6 +168,9 @@ importers:
       rete-render-utils:
         specifier: ^2.0.1
         version: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
+      rete-scopes-plugin:
+        specifier: ^2.0.0
+        version: 2.0.0(rete-area-plugin@2.0.1)(rete@2.0.2)
       rete-structures:
         specifier: ^2.0.0
         version: 2.0.0(rete@2.0.2)
@@ -14856,6 +14859,17 @@ packages:
     resolution: {integrity: sha512-mzNVADCE1iV0AlkVyz1Pai34GG55VYBIWWOv9MqHUl7jlnpNIIkx+hARIc3wgabcye46IdswQPUApuARhvjbmA==}
     peerDependencies:
       rete: ^2.0.0
+      rete-area-plugin: ^2.0.0
+    dependencies:
+      '@babel/runtime': 7.23.2
+      rete: 2.0.2
+      rete-area-plugin: 2.0.1(rete@2.0.2)
+    dev: false
+
+  /rete-scopes-plugin@2.0.0(rete-area-plugin@2.0.1)(rete@2.0.2):
+    resolution: {integrity: sha512-jZ82fCzJa7iwRekA5bweDAfxhqnzvbF0X2uJAPt9uqq4xanFKn6Zxdt98ZbW3a5CnGBEIDY9+I1BpLZpCrHFig==}
+    peerDependencies:
+      rete: ^2.0.1
       rete-area-plugin: ^2.0.0
     dependencies:
       '@babel/runtime': 7.23.2

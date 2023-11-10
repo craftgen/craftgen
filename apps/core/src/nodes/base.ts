@@ -164,6 +164,8 @@ export abstract class BaseNode<
     [key in keyof Outputs]?: Output<Exclude<Outputs[key], undefined>>;
   } = {};
 
+  public parent?: string;
+
   public isExecution: boolean;
   public isReady: boolean = false;
   public machine: Machine;
@@ -215,7 +217,7 @@ export abstract class BaseNode<
   ) {
     super(nodeData.label);
 
-    this.width = nodeData?.width || 200;
+    this.width = nodeData?.width || 240;
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;

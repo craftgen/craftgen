@@ -4,12 +4,23 @@ import { makeObservable, reaction } from "mobx";
 import "openai/shims/web";
 
 import { OpenAI } from "openai";
-import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
+import {
+  MessageCreateParams,
+  ThreadMessage,
+} from "openai/resources/beta/threads/messages/messages.mjs";
+import {
+  Run,
+  RunSubmitToolOutputsParams,
+} from "openai/resources/beta/threads/runs/runs.mjs";
+import { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
 import { ButtonControl } from "../../controls/button";
+import { InputControl } from "../../controls/input.control";
+import { Input } from "../../input-output";
+import { triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
@@ -71,7 +82,41 @@ export const OpenAIThreadMachine = createMachine({
         threadId: string;
       };
     };
-    actors: any;
+    actors:
+      | {
+          src: "addMessage";
+          logic: PromiseActorLogic<
+            ThreadMessage,
+            {
+              threadId: string;
+              params: MessageCreateParams;
+            }
+          >;
+        }
+      | {
+          src: "createThread";
+          logic: PromiseActorLogic<Thread, void>;
+        }
+      | {
+          src: "getThread";
+          logic: PromiseActorLogic<
+            Thread,
+            {
+              threadId: string;
+            }
+          >;
+        }
+      | {
+          src: "submitToolOutputs";
+          logic: PromiseActorLogic<
+            Run,
+            {
+              threadId: string;
+              runId: string;
+              body: RunSubmitToolOutputsParams;
+            }
+          >;
+        };
   }>,
   states: {
     idle: {
@@ -198,23 +243,14 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
           console.log("input addMessage", input);
           const message = await this.openai()?.beta.threads.messages.create(
             input.threadId,
-            {
-              role: "user",
-              content:
-                "I need to solve the equation `3x + 11 = 14`. Can you help me?",
-            },
+            input.params,
           );
           return message;
         }),
-        createThread: fromPromise(async ({ input }) => {
-          try {
-            console.log("input createThread", input);
-            const thread = await this.openai()?.beta.threads.create({});
-            console.log("thread", thread);
-            return thread;
-          } catch (e) {
-            console.log("e", e);
-          }
+        createThread: fromPromise(async () => {
+          const thread = await this.openai()?.beta.threads.create({});
+          console.log("thread", thread);
+          return thread;
         }),
         getThread: fromPromise(async ({ input }) => {
           const thread = await this.openai()?.beta.threads.retrieve(
@@ -222,10 +258,33 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
           );
           return thread;
         }),
+        submitToolOutputs: fromPromise(async ({ input }) => {
+          await this.openai()?.beta.threads.runs.list;
+          return await this.openai()?.beta.threads.runs.submitToolOutputs(
+            input.threadId,
+            input.runId,
+            input.body,
+          );
+        }),
       },
     });
 
-    makeObservable(this, {});
+    this.addInput("trigger", new Input(triggerSocket, "trigger", true));
+
+    this.addControl(
+      "Thread Id",
+      new InputControl(() => this.snap.context.settings.threadId || "", {
+        readonly: true,
+        change: (v) => {
+          this.actor.send({
+            type: "SET_THREAD_ID",
+            params: {
+              threadId: v,
+            },
+          });
+        },
+      }),
+    );
 
     this.addControl(
       "add",

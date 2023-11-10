@@ -45,6 +45,7 @@
     "rete-react-plugin": "2.0.4",
     "rete-readonly-plugin": "^2.0.0",
     "rete-render-utils": "^2.0.1",
+    "rete-scopes-plugin": "^2.0.0",
     "rete-structures": "^2.0.0",
     "squirrelly": "^9.0.0",
     "tailwind-styled-components": "^2.2.0",

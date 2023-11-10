@@ -5,13 +5,13 @@ import * as FlexLayout from "flexlayout-react";
 import { CheckCircle, Loader2, Play, Undo2, Wrench } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
-import { useDebounce, useMeasure } from "react-use";
+import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
 import type { RenderEmit } from "rete-react-plugin";
 import { Drag, Presets } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
 import { useStore } from "zustand";
 
-import type {Schemes} from "@seocraft/core/src/types";
+import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -272,6 +272,7 @@ export const Node = observer((props: Props<Schemes>) => {
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.data.setLabel(e.target.value);
   };
+  const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
 
   return (
     <ContextMenu>
@@ -451,12 +452,15 @@ export const Node = observer((props: Props<Schemes>) => {
                     </Drag.NoDrag>
                   </div>
                 )}
-                <Badge
-                  variant={"outline"}
-                  className="text-muted group-hover:text-primary w-full truncate font-mono text-xs"
-                >
-                  {props.data.id}
-                </Badge>
+                <Drag.NoDrag>
+                  <Badge
+                    variant={"outline"}
+                    className="text-muted group-hover:text-primary  cursor-copy truncate font-mono text-xs"
+                    onClick={() => copyToClipboard(props.data.id)}
+                  >
+                    {props.data.id}
+                  </Badge>
+                </Drag.NoDrag>
               </CardFooter>
             </div>
           </Card>
