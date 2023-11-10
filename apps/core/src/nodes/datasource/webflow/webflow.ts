@@ -1,14 +1,15 @@
 // TODO:
 // @ts-nocheck
 
-import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, type ParsedNode } from "../../base";
-import { DiContainer } from "../../../types";
-import { objectSocket, triggerSocket } from "../../../sockets";
-import { SelectControl } from "../../../controls/select";
-import { InputControl } from "../../../controls/input.control";
-import { Input, Output } from "../../../input-output";
 import { SetOptional } from "type-fest";
+import { assign, createMachine, StateFrom } from "xstate";
+
+import { InputControl } from "../../../controls/input.control";
+import { SelectControl } from "../../../controls/select";
+import { Input, Output } from "../../../input-output";
+import { objectSocket, triggerSocket } from "../../../sockets";
+import { DiContainer } from "../../../types";
+import { BaseNode, type ParsedNode } from "../../base";
 
 const WebflowMachine = createMachine({
   id: "webflow",
@@ -112,13 +113,13 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     // this.addControl('webflowID', )
     this.addControl(
       "webflowID",
-      new InputControl(state.context.settings.webflowId, {
+      new InputControl(() => this.snap.context.settings.webflowId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -127,7 +128,7 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     this.actor.subscribe((state) => {

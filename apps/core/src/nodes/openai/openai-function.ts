@@ -7,9 +7,9 @@ import {
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, type StateFrom } from "xstate";
 
-import { InputControl } from "../../controls/input.control";
 import { SelectControl } from "../../controls/select";
 import { SliderControl } from "../../controls/slider";
+import { TextareControl } from "../../controls/textarea";
 import { Input, Output } from "../../input-output";
 import { objectSocket, stringSocket, triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
@@ -275,7 +275,7 @@ export class OpenAIFunctionCall extends BaseNode<
     this.addControl(
       "model",
       new SelectControl<OPENAI_CHAT_MODELS_KEY>(
-        state.context.settings.openai.model,
+        () => this.snap.context.settings.openai.model,
         {
           change: (val) => {
             this.actor.send({
@@ -298,7 +298,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
     this.addControl(
       "type",
-      new SelectControl(state.context.settings.resultType, {
+      new SelectControl(() => this.snap.context.settings.resultType, {
         change: (val) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -360,7 +360,7 @@ export class OpenAIFunctionCall extends BaseNode<
 
     const input = new Input(stringSocket, "Prompt", false);
     input.addControl(
-      new InputControl(state.context.inputs?.prompt, {
+      new TextareControl(() => this.snap.context.inputs?.prompt, {
         change: (value) => {
           this.actor.send({
             type: "SET_VALUE",

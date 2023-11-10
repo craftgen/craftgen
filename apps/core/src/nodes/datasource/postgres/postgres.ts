@@ -1,14 +1,15 @@
 // TODO:
 // @ts-nocheck
 
-import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, ParsedNode } from "../../base";
-import { DiContainer } from "../../../types";
-import { SelectControl } from "../../../controls/select";
-import { objectSocket, triggerSocket } from "../../../sockets";
-import { InputControl } from "../../../controls/input.control";
-import { Input, Output } from "../../../input-output";
 import { SetOptional } from "type-fest";
+import { assign, createMachine, StateFrom } from "xstate";
+
+import { InputControl } from "../../../controls/input.control";
+import { SelectControl } from "../../../controls/select";
+import { Input, Output } from "../../../input-output";
+import { objectSocket, triggerSocket } from "../../../sockets";
+import { DiContainer } from "../../../types";
+import { BaseNode, ParsedNode } from "../../base";
 
 const PostgresMachine = createMachine({
   id: "postgres",
@@ -111,13 +112,13 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     // this.addControl('postgresID', )
     this.addControl(
       "postgresID",
-      new InputControl(state.context.settings.postgresId, {
+      new InputControl(() => this.snap.context.settings.postgresId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -126,7 +127,7 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     this.actor.subscribe((state) => {

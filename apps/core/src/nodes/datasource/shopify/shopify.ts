@@ -1,15 +1,15 @@
 // TODO:
 // @ts-nocheck
 
-
-import { StateFrom, assign, createMachine } from "xstate";
-import { BaseNode, type ParsedNode } from "../../base";
-import { DiContainer } from "../../../types";
-import { objectSocket, triggerSocket } from "../../../sockets";
-import { SelectControl } from "../../../controls/select";
-import { InputControl } from "../../../controls/input.control";
-import { Input, Output } from "../../../input-output";
 import { SetOptional } from "type-fest";
+import { assign, createMachine, StateFrom } from "xstate";
+
+import { InputControl } from "../../../controls/input.control";
+import { SelectControl } from "../../../controls/select";
+import { Input, Output } from "../../../input-output";
+import { objectSocket, triggerSocket } from "../../../sockets";
+import { DiContainer } from "../../../types";
+import { BaseNode, type ParsedNode } from "../../base";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -113,13 +113,13 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     // this.addControl('spreedsheetID', )
     this.addControl(
       "spreedsheetID",
-      new InputControl(state.context.settings.spreadsheetId, {
+      new InputControl(() => this.snap.context.settings.spreadsheetId, {
         change: (v) => {
           this.actor.send({
             type: "CONFIG_CHANGE",
@@ -128,7 +128,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
             },
           });
         },
-      })
+      }),
     );
 
     this.actor.subscribe((state) => {
