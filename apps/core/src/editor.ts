@@ -269,6 +269,10 @@ export class Editor<
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node)} not registered`);
     }
+    if (nodeMeta.nodeType === "ModuleNode") {
+      context?.moduleId === this.workflowVersionId;
+      throw new Error("Can not add self module");
+    }
     const newNode = this.createNodeInstance({
       type: node,
       label: nodeMeta?.label,

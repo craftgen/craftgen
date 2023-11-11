@@ -201,7 +201,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
           this.addControl(
             "Input",
-            new SelectControl(this.snap.context.inputId, {
+            new SelectControl(() => this.snap.context.inputId, {
               placeholder: "Select Input",
               values: this.module.inputs.map((n) => ({
                 key: n.id,

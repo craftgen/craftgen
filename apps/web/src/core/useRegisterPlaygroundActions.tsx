@@ -81,7 +81,10 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const { data: workflowModules } = useSWR(
     "/api/modules" + q,
     async () => {
-      const res = await searchModulesMeta({ query: q });
+      const res = await searchModulesMeta({
+        query: q,
+        currentModuleId: di?.workflowId!,
+      });
       return res?.data || [];
     },
     {
