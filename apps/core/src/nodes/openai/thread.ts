@@ -25,6 +25,7 @@ import {
 
 import { ButtonControl } from "../../controls/button";
 import { InputControl } from "../../controls/input.control";
+import { ThreadControl } from "../../controls/thread";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
@@ -297,17 +298,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
 
     this.addControl(
       "Thread Id",
-      new InputControl(() => this.snap.context.settings.threadId || "", {
-        readonly: true,
-        change: (v) => {
-          this.actor.send({
-            type: "SET_THREAD_ID",
-            params: {
-              threadId: v,
-            },
-          });
-        },
-      }),
+      new ThreadControl(() => this.snap.context.settings.threadId || "", {}),
     );
 
     this.addControl(

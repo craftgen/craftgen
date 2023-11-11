@@ -18,6 +18,7 @@ import { SocketGeneratorControl } from "@seocraft/core/src/controls/socket-gener
 import { SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
 import { TableControl } from "@seocraft/core/src/controls/table";
 import { TextareControl } from "@seocraft/core/src/controls/textarea";
+import { ThreadControl } from "@seocraft/core/src/controls/thread";
 import type { Schemes } from "@seocraft/core/src/types";
 
 // Control Components
@@ -31,6 +32,7 @@ import { SliderControlComponenet as SliderControlComponent } from "./ui/control/
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
 import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
 import { TableControlComponent } from "./ui/control/control-table";
+import { ThreadControlComponent } from "./ui/control/control-thread";
 import { CustomInput } from "./ui/control/custom-input";
 import { CustomTextarea } from "./ui/control/custom-textarea";
 
@@ -54,5 +56,6 @@ export const getControl = (
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
+    .with(P.instanceOf(ThreadControl), () => ThreadControlComponent)
     .otherwise(() => () => null);
 };
