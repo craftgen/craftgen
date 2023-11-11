@@ -299,7 +299,7 @@ export const Node = observer((props: Props<Schemes>) => {
             onResize={(e, { size }) => {
               setSize(size);
             }}
-            minConstraints={[200, internal.height + 20]}
+            minConstraints={[240, internal.height + 20]}
           >
             <Card
               style={{

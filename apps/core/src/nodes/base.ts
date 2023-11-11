@@ -4,6 +4,7 @@ import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
   Actor,
+  ActorStatus,
   AnyActorLogic,
   AnyStateMachine,
   assign,
@@ -551,6 +552,15 @@ export abstract class BaseNode<
     executionId: string,
   ) {
     console.log(this.identifier, "@@@", "execute", executionId);
+    if (this.actor.status === ActorStatus.Stopped) {
+      console.log("Running same node In the single execution with new input");
+      this.executionNodeId = undefined; // reset execution node id
+      this.actor = this.setupActor({
+        input: this.nodeData.context,
+      });
+      this.actor.start();
+    }
+
     this.di.engine.emit({
       type: "execution-step-start",
       data: {

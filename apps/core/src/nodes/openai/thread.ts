@@ -15,11 +15,17 @@ import {
 import { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import {
+  assign,
+  createMachine,
+  fromPromise,
+  PromiseActorLogic,
+  raise,
+} from "xstate";
 
 import { ButtonControl } from "../../controls/button";
 import { InputControl } from "../../controls/input.control";
-import { Input } from "../../input-output";
+import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
@@ -142,6 +148,14 @@ export const OpenAIThreadMachine = createMachine({
         },
         addMessage: {
           initial: "checkThread",
+          entry: [
+            assign({
+              inputs: ({ context, event }) => ({
+                ...context.inputs,
+                addMessage: event.params,
+              }),
+            }),
+          ],
           states: {
             checkThread: {
               always: {
@@ -152,12 +166,18 @@ export const OpenAIThreadMachine = createMachine({
                 src: "createThread",
                 onDone: {
                   target: "#openai-thread.running.addMessage.process",
-                  actions: assign({
-                    settings: ({ context, event }) => ({
-                      ...context.settings,
-                      threadId: event.output.id,
+                  actions: [
+                    assign({
+                      outputs: ({ context, event }) => ({
+                        ...context.outputs,
+                        threadId: event.output.id,
+                      }),
+                      settings: ({ context, event }) => ({
+                        ...context.settings,
+                        threadId: event.output.id,
+                      }),
                     }),
-                  }),
+                  ],
                 },
                 onError: {
                   target: "#openai-thread.error",
@@ -168,9 +188,9 @@ export const OpenAIThreadMachine = createMachine({
             process: {
               invoke: {
                 src: "addMessage",
-                input: ({ context, event }) => ({
+                input: ({ context }) => ({
                   threadId: context.settings.threadId,
-                  event,
+                  params: context.inputs.addMessage,
                 }),
                 onDone: {
                   target: "#openai-thread.complete",
@@ -182,7 +202,9 @@ export const OpenAIThreadMachine = createMachine({
       },
     },
     error: {},
-    complete: {},
+    complete: {
+      type: "final",
+    },
   },
 });
 
@@ -245,6 +267,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
             input.threadId,
             input.params,
           );
+          console.log(message);
           return message;
         }),
         createThread: fromPromise(async () => {
@@ -270,6 +293,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
     });
 
     this.addInput("trigger", new Input(triggerSocket, "trigger", true));
+    this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
 
     this.addControl(
       "Thread Id",
@@ -298,16 +322,93 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
         });
       }),
     );
+  }
 
-    // reaction(
-    //   () => this.snap.context.settings.threadId,
-    //   (threadId: string | null) => {
-    //     if (isNull(threadId)) {
-    //       this.actor.send({
-    //         type: "",
-    //       });
-    //     }
+  async execute(
+    input: any,
+    forward: (output: "trigger") => void,
+    executionId: string,
+  ) {
+    console.log(this.identifier, "@@@", "execute", executionId);
+    // this.di.engine.emit({
+    //   type: "execution-step-start",
+    //   data: {
+    //     payload: this,
+    //     executionId: executionId!,
     //   },
-    // );
+    // });
+
+    // EARLY RETURN IF NODE IS COMPLETE
+    if (this.actor.getSnapshot().matches("complete")) {
+      // this.di.engine.emit({
+      //   type: "execution-step-complete",
+      //   data: {
+      //     payload: this,
+      //     executionId: executionId,
+      //   },
+      // });
+      if (this.successorNodes.length > 0 && this.outputs.trigger) {
+        // forward("trigger");
+        // if (this.di.headless) {
+        //   await this.triggerSuccesors(executionId);
+        // } else {
+        forward("trigger");
+        // }
+        return;
+      }
+    }
+
+    const inputs = await this.getInputs();
+    this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
+    this.actor.send({
+      type: "ADD_MESSAGE",
+      params: {
+        content: "Roger Roger app to track your friends around the world!",
+        role: "user",
+      },
+    });
+
+    this.actor.subscribe({
+      next: (state) => {
+        // this.di.engine.emit({
+        //   type: "execution-step-update",
+        //   data: {
+        //     payload: this,
+        //     executionId: executionId,
+        //   },
+        // });
+        console.log(this.identifier, "@@@", "next", state.value, state.context);
+      },
+      complete: async () => {
+        this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+        // this.di.engine.emit({
+        //   type: "execution-step-complete",
+        //   data: {
+        //     payload: this,
+        //     executionId: executionId,
+        //   },
+        // });
+
+        if (this.successorNodes.length > 0 && this.outputs.trigger) {
+          // if (this.di.headless) {
+          //   await this.triggerSuccesors(executionId);
+          // } else {
+          forward("trigger");
+          // }
+        } else {
+          // this.di.engine.emit({
+          //   type: "execution-completed",
+          //   data: {
+          //     payload: this,
+          //     output: this.pactor.getSnapshot().output,
+          //     executionId,
+          //   },
+          // });
+        }
+      },
+    });
+    // await waitFor(this.pactor, (state) => state.matches("complete"), {
+    //   timeout: 1000 * 60 * 5,
+    // });
   }
 }

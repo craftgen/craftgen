@@ -412,7 +412,8 @@ export class Editor<
     );
     const { curveMonotoneX } = await import("d3-shape");
     const pathPlugin = new ConnectionPathPlugin<Scheme, Area2D<Scheme>>({
-      curve: (c) => c.curve || curveMonotoneX,
+      // curve: (c) => c.curve || curveMonotoneX,
+      // curve: (c) => c.curve,
     });
 
     // @ts-ignore

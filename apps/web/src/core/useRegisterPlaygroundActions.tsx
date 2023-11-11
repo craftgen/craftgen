@@ -127,13 +127,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             perform: async () => {
               await di?.addNode("OpenAIAssistant", {
                 settings: {
-                  assistantId: assistant.id,
-                  config: {
-                    name: assistant.name,
-                    model: assistant.model,
-                    instructions: assistant.instructions,
-                    tools: assistant.tools,
-                  },
+                  assistant,
                 },
               });
             },
