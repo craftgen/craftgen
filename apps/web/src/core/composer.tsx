@@ -10,8 +10,8 @@ import {
   Shrink,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useRete } from "rete-react-plugin";
 
+import { useRete } from "@seocraft/core/src/plugins/reactPlugin";
 import type { WorkflowAPI } from "@seocraft/core/src/types";
 
 import { Button } from "@/components/ui/button";

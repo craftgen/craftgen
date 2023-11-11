@@ -2,7 +2,6 @@
  * This file is also called in client side.
  */
 
-import type { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
 import { match, P } from "ts-pattern";
 
 import { ArticleControl } from "@seocraft/core/src/controls/article";
@@ -19,6 +18,7 @@ import { SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
 import { TableControl } from "@seocraft/core/src/controls/table";
 import { TextareControl } from "@seocraft/core/src/controls/textarea";
 import { ThreadControl } from "@seocraft/core/src/controls/thread";
+import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import type { Schemes } from "@seocraft/core/src/types";
 
 // Control Components

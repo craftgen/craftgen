@@ -10,14 +10,6 @@ import type {
   Zoom,
 } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
-import type {
-  ClassicScheme,
-  ReactArea2D,
-  ReactPlugin,
-  RenderEmit,
-} from "rete-react-plugin";
-import type { ExtractPayload } from "rete-react-plugin/_types/presets/classic/types";
-import type { AcceptComponent } from "rete-react-plugin/_types/presets/classic/utility-types";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
@@ -32,6 +24,14 @@ import { InputNode } from "./nodes";
 import { BaseNode, ParsedNode } from "./nodes/base";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
+import type {
+  ClassicScheme,
+  ReactArea2D,
+  ReactPlugin,
+  RenderEmit,
+} from "./plugins/reactPlugin";
+import type { ExtractPayload } from "./plugins/reactPlugin/presets/classic/types";
+import type { AcceptComponent } from "./plugins/reactPlugin/presets/classic/utility-types";
 import { AllSockets, Socket } from "./sockets";
 import { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 

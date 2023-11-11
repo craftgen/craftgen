@@ -1,10 +1,10 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import { Presets, ReactPlugin } from "rete-react-plugin";
 
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
+import { Presets, ReactPlugin } from "@seocraft/core/src/plugins/reactPlugin";
 import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
 import { nodes } from "@seocraft/core/src/types";
 

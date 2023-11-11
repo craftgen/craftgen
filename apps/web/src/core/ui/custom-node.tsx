@@ -14,11 +14,11 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
 import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
-import type { RenderEmit } from "rete-react-plugin";
-import { Drag, Presets } from "rete-react-plugin";
 import { Key } from "ts-key-enum";
 import { useStore } from "zustand";
 
+import type { RenderEmit } from "@seocraft/core/src/plugins/reactPlugin";
+import { Drag, Presets } from "@seocraft/core/src/plugins/reactPlugin";
 import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";

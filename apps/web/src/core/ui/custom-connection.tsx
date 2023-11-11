@@ -1,9 +1,10 @@
 import * as React from "react";
+import tw from "tailwind-styled-components";
+
 import { Editor } from "@seocraft/core";
 import { Connection } from "@seocraft/core/src/connection/connection";
+import { Presets } from "@seocraft/core/src/plugins/reactPlugin";
 import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
-import { Presets } from "rete-react-plugin";
-import tw from "tailwind-styled-components";
 
 import { cn } from "@/lib/utils";
 

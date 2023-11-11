@@ -1,0 +1,3 @@
+[submodule "packages/react-plugin"]
+	path = packages/react-plugin
+	url = git@github.com:Necmttn/react-plugin.git
