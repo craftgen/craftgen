@@ -50,6 +50,7 @@ const ModuleNodeMachine = createMachine({
         message: string;
       } | null;
     };
+    actors: any;
     events:
       | {
           type: "SET_MODULE";

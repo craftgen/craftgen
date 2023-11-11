@@ -44,6 +44,7 @@ export const OpenAIAssistantMachine = createMachine({
         outputSockets: [],
         settings: {
           assistantId: null,
+          runId: null,
           config: {
             model: "gpt-4-1106-preview" as OpenAIChatModelType,
           },
@@ -56,6 +57,7 @@ export const OpenAIAssistantMachine = createMachine({
     input: {
       settings: {
         assistantId: string | null;
+        runId: string | null;
         config: {
           model: OpenAIChatModelType;
         };
@@ -64,6 +66,7 @@ export const OpenAIAssistantMachine = createMachine({
     context: {
       settings: {
         assistantId: string | null;
+        runId: string | null;
         config: Partial<Assistant> & {
           model: OpenAIChatModelType;
         };

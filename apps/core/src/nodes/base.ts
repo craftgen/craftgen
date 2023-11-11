@@ -98,6 +98,12 @@ export type BaseMachineTypes<
     events?: any;
     actions?: any;
     actors?: ProvidedActor;
+  } = {
+    input: any;
+    context: any;
+    events?: any;
+    actions?: any;
+    actors?: ProvidedActor;
   },
 > = {
   input: MergeDeep<BaseInputType, T["input"]>;
