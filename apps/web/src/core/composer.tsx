@@ -136,7 +136,7 @@ export const Composer: React.FC<{
         </Tooltip>
       </div>
       <ContextMenuProvider>
-        <div ref={ref} className="h-full w-full " />
+        <div ref={ref} id="rete-root" className="h-full w-full " />
       </ContextMenuProvider>
     </div>
   );

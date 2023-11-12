@@ -342,23 +342,6 @@ export class Editor<
   public async mount(params: {
     container: HTMLElement;
     render: ReactPlugin<Scheme, AreaExtra<Scheme>>;
-    costumize?: {
-      node?: (data: ExtractPayload<Scheme, "node">) => AcceptComponent<
-        (typeof data)["payload"],
-        {
-          emit: RenderEmit<Scheme>;
-        }
-      > | null;
-      connection?: (
-        data: ExtractPayload<Scheme, "connection">,
-      ) => AcceptComponent<(typeof data)["payload"]> | null;
-      socket?: (
-        data: ExtractPayload<Scheme, "socket">,
-      ) => AcceptComponent<(typeof data)["payload"]> | null;
-      control?: (
-        data: ExtractPayload<Scheme, "control">,
-      ) => AcceptComponent<(typeof data)["payload"]> | null;
-    };
   }) {
     const { AreaExtensions, AreaPlugin, Zoom } = await import(
       "rete-area-plugin"
