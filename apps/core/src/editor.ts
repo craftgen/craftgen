@@ -140,6 +140,7 @@ export class Editor<
 
   public selectedInputId: string | null = null;
   public readonly: boolean;
+  public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;
 
   get selectedInput(): InputNode | null {
     if (this.inputs.length === 1) {
@@ -347,6 +348,7 @@ export class Editor<
       "rete-area-plugin"
     );
     const render = params.render;
+    this.render = render;
     this.area = new AreaPlugin(params.container);
     this.selector = AreaExtensions.selector();
     function accumulateOnCtrl() {

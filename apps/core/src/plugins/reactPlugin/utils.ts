@@ -1,50 +1,58 @@
-import { useEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
+import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
-export function Root({ children, rendered }: { children: JSX.Element | null, rendered: () => void }) {
+export function Root({
+  children,
+  rendered,
+}: {
+  children: JSX.Element | null;
+  rendered: () => void;
+}) {
   useEffect(() => {
-    rendered()
-  })
+    rendered();
+  });
 
-  return children
+  return children;
 }
 
 export function syncFlush() {
-  const ready = useRef(false)
+  const ready = useRef(false);
 
   useEffect(() => {
-    ready.current = true
-  }, [])
+    ready.current = true;
+  }, []);
 
   return {
     apply(f: () => void) {
       if (ready.current) {
-        queueMicrotask(() => flushSync(f))
+        queueMicrotask(() => flushSync(f));
       } else {
-        f()
+        f();
       }
-    }
-  }
+    },
+  };
 }
 
-export function useRete<T extends { destroy(): void }>(create: (el: HTMLElement) => Promise<T>) {
-  const [container, setContainer] = useState<null | HTMLElement>(null)
-  const editorRef = useRef<T>()
-  const [editor, setEditor] = useState<T | null>(null)
-  const ref = useRef(null)
+export function useRete<T extends { destroy(): void }>(
+  create: (el: HTMLElement) => Promise<T>,
+) {
+  const [container, setContainer] = useState<null | HTMLElement>(null);
+  const editorRef = useRef<T>();
+  const [editor, setEditor] = useState<T | null>(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     if (container) {
       if (editorRef.current) {
-        editorRef.current.destroy()
-        container.innerHTML = ''
+        editorRef.current.destroy();
+        container.innerHTML = "";
       }
       create(container).then((value) => {
-        editorRef.current = value
-        setEditor(value)
-      })
+        editorRef.current = value;
+        setEditor(value);
+      });
     }
-  }, [container, create])
+  }, [container, create]);
 
   useEffect(() => {
     return () => {
@@ -59,5 +67,5 @@ export function useRete<T extends { destroy(): void }>(create: (el: HTMLElement)
     }
   }, [ref.current])
 
-  return [ref, editor] as const
+  return [ref, editor] as const;
 }

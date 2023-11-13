@@ -1,10 +1,15 @@
 "use client";
 
+import { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
-import { Presets, ReactPlugin } from "@seocraft/core/src/plugins/reactPlugin";
+import {
+  Actions,
+  Presets,
+  ReactPlugin,
+} from "@seocraft/core/src/plugins/reactPlugin";
 import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
 import { nodes } from "@seocraft/core/src/types";
 
@@ -12,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import type { RouterOutputs } from "@/trpc/shared";
 
+import { ComponentRegistry } from "./composer";
 import { getControl } from "./control";
 import type { ReteStoreInstance } from "./store";
 import { addCustomBackground } from "./ui/custom-background";
@@ -23,6 +29,7 @@ export const createEditorFunc = (params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   store: ReteStoreInstance;
   api: Partial<WorkflowAPI>;
+  componentRegistry: Actions<HTMLElement, ReactNode>;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
@@ -32,6 +39,7 @@ export async function createEditor(params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
+  componentRegistry: Actions<HTMLElement, ReactNode>;
 }) {
   const di = new Editor({
     config: {
@@ -91,10 +99,12 @@ export async function createEditor(params: {
   });
 
   const render = new ReactPlugin<Schemes, AreaExtra<Schemes>>({
-    createRoot: (container) =>
-      createRoot(container, {
-        identifierPrefix: "rete-",
-      }),
+    createPortal: params.componentRegistry,
+    // createPortal,
+    // createRoot: (container) =>
+    //   createRoot(container, {
+    //     identifierPrefix: "rete-",
+    //   }),
   });
   render.addPreset(
     Presets.classic.setup({

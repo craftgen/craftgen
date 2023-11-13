@@ -1,5 +1,7 @@
 import * as ReactDOM from "react-dom";
 
+import { Actions } from "./useRegistry";
+
 export type Renderer = {
   mount: ReactDOM.Renderer;
   unmount: (container: HTMLElement) => void;
@@ -7,8 +9,12 @@ export type Renderer = {
 
 type CreateRoot = (container: Element | DocumentFragment) => any;
 
-export function getRenderer(props?: { createRoot?: CreateRoot }): Renderer {
+export function getRenderer(props?: {
+  createRoot?: CreateRoot;
+  createPortal?: Actions<HTMLElement, React.ReactNode>;
+}): Renderer {
   const createRoot = props?.createRoot;
+  const registry = props?.createPortal;
   const wrappers = new WeakMap<HTMLElement, HTMLElement>();
 
   function getWrapper(container: HTMLElement) {
@@ -26,6 +32,31 @@ export function getRenderer(props?: { createRoot?: CreateRoot }): Renderer {
 
     if (wrapper) wrapper.remove();
     wrappers.delete(container);
+  }
+
+  if (registry) {
+    return {
+      mount: (
+        element: React.DOMElement<React.DOMAttributes<any>, any>,
+        container: HTMLElement,
+      ): any => {
+        const wrapper = getWrapper(container);
+        if (!registry.has(wrapper)) {
+          registry.set(wrapper, element);
+        }
+
+        registry.set(wrapper, element);
+
+        return true;
+      },
+      unmount: (container: HTMLElement) => {
+        const portal = registry.get(container);
+        if (portal) {
+          registry.remove(container);
+          removeWrapper(container);
+        }
+      },
+    };
   }
 
   if (createRoot) {

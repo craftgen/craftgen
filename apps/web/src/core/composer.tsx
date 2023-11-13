@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { ReactElement, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -10,8 +10,9 @@ import {
   Shrink,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { createPortal } from "react-dom";
 
-import { useRete } from "@seocraft/core/src/plugins/reactPlugin";
+import { useRegistry, useRete } from "@seocraft/core/src/plugins/reactPlugin";
 import type { WorkflowAPI } from "@seocraft/core/src/types";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,14 @@ import type { RouterOutputs } from "@/trpc/shared";
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
+
+export type ComponentRegistry = Map<
+  HTMLElement,
+  {
+    element: HTMLElement;
+    component: ReactNode;
+  }
+>;
 
 export const Composer: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["get"];
@@ -59,11 +68,14 @@ export const Composer: React.FC<{
     getAPIKey,
   };
 
+  const [map, componentRegistry] = useRegistry<HTMLElement, ReactElement>();
+
   const createEditor = useMemo(() => {
     return createEditorFunc({
       workflow,
       store: store.current,
       api: workflowAPI,
+      componentRegistry,
     });
   }, [workflow, store.current]);
   const [ref, rete] = useRete(createEditor);
@@ -74,6 +86,19 @@ export const Composer: React.FC<{
   const handleReset = () => {
     di?.reset();
   };
+
+  const portals = useMemo(() => {
+    return Array.from(map.entries()).map(([key, value]) => {
+      return {
+        element: key,
+        component: value,
+      };
+    });
+  }, [map]);
+  useEffect(() => {
+    console.log("portals", portals, map);
+  });
+
   return (
     <div className="h-full w-full">
       <div className="absolute right-1 top-1 z-50 flex ">
@@ -136,7 +161,10 @@ export const Composer: React.FC<{
         </Tooltip>
       </div>
       <ContextMenuProvider>
-        <div ref={ref} id="rete-root" className="h-full w-full " />
+        {portals.map((portal) =>
+          createPortal(portal.component, portal.element),
+        )}
+        <div ref={ref} id="rete-root" className="h-full w-full "></div>
       </ContextMenuProvider>
     </div>
   );
