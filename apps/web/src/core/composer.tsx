@@ -88,16 +88,24 @@ export const Composer: React.FC<{
   };
 
   const portals = useMemo(() => {
-    return Array.from(map.entries()).map(([key, value]) => {
-      return {
-        element: key,
-        component: value,
-      };
-    });
+    return Array.from(map.entries()).reduce(
+      (prev, curr) => {
+        const [key, value] = curr;
+        if (!document.body.contains(key)) {
+          componentRegistry.remove(key);
+          return prev;
+        }
+        return [
+          ...prev,
+          {
+            element: key,
+            component: value,
+          },
+        ];
+      },
+      [] as { element: HTMLElement; component: ReactNode }[],
+    );
   }, [map]);
-  useEffect(() => {
-    console.log("portals", portals, map);
-  });
 
   return (
     <div className="h-full w-full">

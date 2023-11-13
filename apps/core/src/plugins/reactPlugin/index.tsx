@@ -5,8 +5,8 @@ import { BaseSchemes, CanAssignSignal, Scope } from "rete";
 import { RenderPreset } from "./presets/types";
 import { getRenderer, Renderer } from "./renderer";
 import { Position, RenderSignal } from "./types";
-import { Root } from "./utils";
 import { Actions } from "./useRegistry";
+import { Root } from "./utils";
 
 export * as Presets from "./presets";
 export type { ClassicScheme, ReactArea2D, RenderEmit } from "./presets/classic";
@@ -120,6 +120,7 @@ export class ReactPlugin<
           rendered={() =>
             parent.emit({ type: "rendered", data: context.data } as T)
           }
+          unmount={() => this.renderer.unmount(element)}
         >
           {result}
         </Root>

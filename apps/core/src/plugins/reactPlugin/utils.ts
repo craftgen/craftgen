@@ -4,12 +4,17 @@ import { flushSync } from "react-dom";
 export function Root({
   children,
   rendered,
+  unmount,
 }: {
   children: JSX.Element | null;
   rendered: () => void;
+  unmount: () => void;
 }) {
   useEffect(() => {
     rendered();
+    return () => {
+      unmount();
+    };
   });
 
   return children;
@@ -57,15 +62,15 @@ export function useRete<T extends { destroy(): void }>(
   useEffect(() => {
     return () => {
       if (editorRef.current) {
-        editorRef.current.destroy()
+        editorRef.current.destroy();
       }
-    }
-  }, [])
+    };
+  }, []);
   useEffect(() => {
     if (ref.current) {
-      setContainer(ref.current)
+      setContainer(ref.current);
     }
-  }, [ref.current])
+  }, [ref.current]);
 
   return [ref, editor] as const;
 }
