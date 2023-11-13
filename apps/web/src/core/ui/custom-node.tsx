@@ -186,6 +186,7 @@ export const Node = observer((props: Props<Schemes>) => {
   );
 
   const toggleDebug = () => {
+    console.log("toglle debug");
     SetDebug(!debug);
   };
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -363,14 +364,15 @@ export const Node = observer((props: Props<Schemes>) => {
                         </Button>
                       </Drag.NoDrag>
                     )}
-                    <Button
-                      ref={ref}
-                      variant={"ghost"}
-                      size={"icon"}
-                      onClick={toggleDebug}
-                    >
-                      <Wrench size={14} />
-                    </Button>
+                    <Drag.NoDrag>
+                      <Button
+                        variant={"ghost"}
+                        size={"icon"}
+                        onClick={toggleDebug}
+                      >
+                        <Wrench size={14} />
+                      </Button>
+                    </Drag.NoDrag>
                     <Button
                       ref={ref2}
                       onClick={triggerNode}

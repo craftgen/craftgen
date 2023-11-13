@@ -73,13 +73,11 @@ export class ReactPlugin<
     });
 
     this.addPipe((context) => {
-      // console.log("$$$", context.type);
       if (!context || typeof context !== "object" || !("type" in context))
         return context;
       if (context.type === "unmount") {
         this.unmount(context.data.element);
       } else if (context.type === "render") {
-        console.log("render", context);
         if ("filled" in context.data && context.data.filled) {
           return context;
         }
@@ -108,11 +106,9 @@ export class ReactPlugin<
 
   private mount(element: HTMLElement, context: Requires<Schemes>) {
     const parent = this.parentScope();
-    console.log("mount", { element, context, parent, presets: this.presets });
 
     for (const preset of this.presets) {
       const result = preset.render(context as any, this);
-      console.log("ppp r", result);
       if (!result) continue;
 
       const reactElement = (
