@@ -45,7 +45,7 @@ export function getRenderer(props?: {
           registry.set(wrapper, element);
         }
 
-        registry.set(wrapper, element);
+        // registry.set(wrapper, element);
 
         return true;
       },

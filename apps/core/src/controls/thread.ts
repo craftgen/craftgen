@@ -1,5 +1,7 @@
 import { makeObservable, observable, reaction } from "mobx";
+import { Actor } from "xstate";
 
+import { OpenAIThreadMachine } from "../nodes/openai/thread";
 import { BaseControl } from "./base";
 
 export type ThreadControlOptions = {};
@@ -11,6 +13,7 @@ export class ThreadControl extends BaseControl {
 
   constructor(
     public threadIdObservable: () => string, // Function that returns the observable value
+    public actor: Actor<typeof OpenAIThreadMachine>,
     public options: ThreadControlOptions,
   ) {
     super(50);

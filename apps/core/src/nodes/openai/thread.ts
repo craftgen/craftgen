@@ -20,11 +20,9 @@ import {
   createMachine,
   fromPromise,
   PromiseActorLogic,
-  raise,
 } from "xstate";
 
 import { ButtonControl } from "../../controls/button";
-import { InputControl } from "../../controls/input.control";
 import { ThreadControl } from "../../controls/thread";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
@@ -298,21 +296,25 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
 
     this.addControl(
       "Thread Id",
-      new ThreadControl(() => this.snap.context.settings.threadId || "", {}),
+      new ThreadControl(
+        () => this.snap.context.settings.threadId || "",
+        this.actor,
+        {},
+      ),
     );
 
-    this.addControl(
-      "add",
-      new ButtonControl("Create Thread", () => {
-        this.actor.send({
-          type: "ADD_MESSAGE",
-          params: {
-            content: "Hello, world!",
-            role: "user",
-          },
-        });
-      }),
-    );
+    // this.addControl(
+    //   "add",
+    //   new ButtonControl("Create Thread", () => {
+    //     this.actor.send({
+    //       type: "ADD_MESSAGE",
+    //       params: {
+    //         content: "Hello, world!",
+    //         role: "user",
+    //       },
+    //     });
+    //   }),
+    // );
   }
 
   async execute(

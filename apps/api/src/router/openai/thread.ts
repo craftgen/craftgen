@@ -12,4 +12,15 @@ export const threadRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.openai.beta.threads.retrieve(input.threadId);
     }),
+  messages: openAiProducer
+    .input(
+      z.object({
+        threadId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.openai.beta.threads.messages.list(input.threadId, {
+        order: "asc",
+      });
+    }),
 });

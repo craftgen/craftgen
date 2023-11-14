@@ -12,4 +12,14 @@ export const assistantRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       return ctx.openai.beta.assistants.list();
     }),
+
+  retrive: openAiProducer
+    .input(
+      z.object({
+        assistantId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.openai.beta.assistants.retrieve(input.assistantId);
+    }),
 });
