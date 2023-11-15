@@ -193,38 +193,38 @@ export const OpenAIAssistantMachine = createMachine({
         },
       },
       after: {
-        2000: "updating",
-      },
-    },
-    updating: {
-      invoke: {
-        src: "updateAssistant",
-        input: ({ context }) => ({
-          assistantId: context.settings.assistant.id!,
-          params: omit(omitBy(context.settings.assistant, isNil), [
-            "id",
-            "created_at",
-            "object",
-          ]),
-        }),
-        onDone: {
-          target: "idle",
-          actions: [
-            raise(({ event }) => ({
-              type: "UPDATE_CONFIG" as const,
-              config: event.output,
-            })),
-          ],
-        },
-        onError: {
-          target: "idle",
-          actions: ["setError"],
-        },
+        2000: "running.updating",
       },
     },
     running: {
       initial: "creating",
       states: {
+        updating: {
+          invoke: {
+            src: "updateAssistant",
+            input: ({ context }) => ({
+              assistantId: context.settings.assistant.id!,
+              params: omit(omitBy(context.settings.assistant, isNil), [
+                "id",
+                "created_at",
+                "object",
+              ]),
+            }),
+            onDone: {
+              target: "#openai-assistant.idle",
+              actions: [
+                raise(({ event }) => ({
+                  type: "UPDATE_CONFIG" as const,
+                  config: event.output,
+                })),
+              ],
+            },
+            onError: {
+              target: "#openai-assistant.idle",
+              actions: ["setError"],
+            },
+          },
+        },
         creating: {
           invoke: {
             src: "createRun",
@@ -384,10 +384,14 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     super("OpenAIAssistant", di, data, OpenAIAssistantMachine, {
       actors: {
         updateAssistant: fromPromise(async ({ input }) => {
-          return await this.openai().beta.assistants.update(
-            input.assistantId,
-            input.params,
-          );
+          return await this.openai().beta.assistants.update(input.assistantId, {
+            ...input.params,
+            // tools: [
+            //   {
+            //     type: 'function',
+            //   }
+            // ]
+          });
         }),
         retrieveAssistant: fromPromise(async ({ input }) => {
           return await this.openai().beta.assistants.retrieve(
@@ -447,6 +451,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         }),
       },
     });
+    this.setLabel(this.snap.context.settings.assistant.name || "Assistant");
     this.addInput("trigger", new Input(triggerSocket, "trigger", true));
     this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
     this.addInput("tools", new Input(objectSocket, "tools", true));
@@ -529,5 +534,34 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         },
       ),
     );
+  }
+
+  async compute() {
+    console.log(this.identifier, "COMPUTING");
+    const tools = this.di.editor
+      .getConnections()
+      .filter((c) => c.targetInput === "tools" && c.target === this.id)
+      .map((c) => this.di.editor.getNode(c.source));
+
+    this.actor.send({
+      type: "CONFIG_CHANGE",
+      config: {
+        tools: tools.map((t) => ({
+          type: "function",
+          function: {
+            name: t.label,
+            parameters: t.inputSchema,
+          },
+        })),
+      },
+    });
+
+    console.log({
+      tools,
+    });
+  }
+
+  async data(inputs: any) {
+    return super.data(inputs);
   }
 }

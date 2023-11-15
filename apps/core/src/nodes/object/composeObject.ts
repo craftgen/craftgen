@@ -18,7 +18,7 @@ const composeObjectMachine = createMachine({
   context: ({ input }) =>
     merge(
       {
-        name: "object",
+        name: "new_object",
         description: "object description",
         inputs: {},
         outputs: {},
@@ -41,6 +41,7 @@ const composeObjectMachine = createMachine({
       schema: any;
     };
     actions: any;
+    actors: any;
     events: {
       type: "change";
       name: string;
@@ -101,6 +102,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     this.addOutput("object", new Output(objectSocket, "Object"));
     this.addOutput("schema", new Output(objectSocket, "Schema"));
 
+    this.setLabel(this.snap.context.name || ComposeObject.label);
     const state = this.actor.getSnapshot();
     const inputGenerator = new SocketGeneratorControl({
       connectionType: "input",
@@ -114,6 +116,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       },
       onChange: ({ sockets, name, description }) => {
         const schema = createJsonSchema(sockets);
+        this.setLabel(name);
         this.actor.send({
           type: "change",
           name,
@@ -126,8 +129,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
     this.addControl("inputGenerator", inputGenerator);
   }
-
-
 
   async execute() {}
 }

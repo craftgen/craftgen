@@ -140,7 +140,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
         (assistant) =>
           ({
             id: assistant.id,
-            name: assistant.name,
+            name: assistant.name ?? assistant.id,
             parent: "assistant",
             icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
             section: "Assistants",

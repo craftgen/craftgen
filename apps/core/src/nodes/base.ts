@@ -509,7 +509,7 @@ export abstract class BaseNode<
   }
 
   public async updateAncestors() {
-    await waitFor(this.pactor, (state) => state.matches("complete")); //wait for the node to complete
+    // await waitFor(this.pactor, (state) => state.matches("complete")); //wait for the node to complete
 
     const outgoers = this.di.graph.outgoers(this.id).nodes();
     // this.di.logger.log(this.identifier, "updateAncestors", outgoers);

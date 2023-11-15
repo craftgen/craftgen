@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
 import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
+import PQueue from "p-queue";
 import { GetSchemes, NodeEditor, NodeId } from "rete";
 import type {
   Area2D,
@@ -660,6 +661,8 @@ export class Editor<
   }
 
   private handleNodeEvents() {
+    const queue = new PQueue({ concurrency: 1 });
+
     this.editor.addPipe((context) => {
       return match(context)
         .with({ type: "connectioncreate" }, ({ data }) => {
@@ -676,21 +679,23 @@ export class Editor<
         .with({ type: "nodecreated" }, async ({ data }) => {
           console.log("nodecreated", { data });
           const size = data.size;
-          await this.api.upsertNode({
-            workflowId: this.workflowId,
-            workflowVersionId: this.workflowVersionId,
-            projectId: this.projectId,
-            data: {
-              id: data.id,
-              type: data.ID,
-              color: "default",
-              label: data.label,
-              contextId: data.contextId,
-              context: JSON.stringify(data.actor.getSnapshot().context),
-              position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
-              ...size,
-            },
-          });
+          await queue.add(() =>
+            this.api.upsertNode({
+              workflowId: this.workflowId,
+              workflowVersionId: this.workflowVersionId,
+              projectId: this.projectId,
+              data: {
+                id: data.id,
+                type: data.ID,
+                color: "default",
+                label: data.label,
+                contextId: data.contextId,
+                context: JSON.stringify(data.actor.getSnapshot().context),
+                position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
+                ...size,
+              },
+            }),
+          );
           return context;
         })
         .with({ type: "noderemove" }, async ({ data }) => {
@@ -698,24 +703,28 @@ export class Editor<
           if (data.id === this.selectedNodeId) {
             this.setSelectedNodeId(null);
           }
-          await this.api.deleteNode({
-            workflowId: this.workflowId,
-            workflowVersionId: this.workflowVersionId,
-            data: {
-              id: data.id,
-            },
-          });
+          await queue.add(() =>
+            this.api.deleteNode({
+              workflowId: this.workflowId,
+              workflowVersionId: this.workflowVersionId,
+              data: {
+                id: data.id,
+              },
+            }),
+          );
           return context;
         })
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
-          await this.api.saveEdge({
-            workflowId: this.workflowId,
-            workflowVersionId: this.workflowVersionId,
-            data: JSON.parse(JSON.stringify(data)),
-          });
+          await queue.add(() =>
+            this.api.saveEdge({
+              workflowId: this.workflowId,
+              workflowVersionId: this.workflowVersionId,
+              data: JSON.parse(JSON.stringify(data)),
+            }),
+          );
           try {
-            await this?.editor.getNode(data.target).data(); // is this about connecttinos.
+            await this?.editor.getNode(data.target).data(); // is this about connections.
           } catch (e) {
             console.log("Failed to update", e);
           }
@@ -723,11 +732,14 @@ export class Editor<
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });
-          await this.api.deleteEdge({
-            workflowId: this.workflowId,
-            workflowVersionId: this.workflowVersionId,
-            data: JSON.parse(JSON.stringify(data)),
-          });
+          await queue.add(() =>
+            this.api.deleteEdge({
+              workflowId: this.workflowId,
+              workflowVersionId: this.workflowVersionId,
+              data: JSON.parse(JSON.stringify(data)),
+            }),
+          );
+          data.target && (await this?.editor.getNode(data.target).data()); // update target node
           return context;
         })
         .otherwise(() => context);

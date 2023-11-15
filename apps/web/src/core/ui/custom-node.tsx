@@ -5,6 +5,7 @@ import * as FlexLayout from "flexlayout-react";
 import {
   CheckCircle,
   CheckSquare,
+  Cog,
   Copy,
   Loader2,
   Play,
@@ -380,6 +381,12 @@ export const Node = observer((props: Props<Schemes>) => {
                       variant={"ghost"}
                       size="icon"
                     >
+                      {state.matches("editing") && (
+                        <Cog
+                          className="text-muted-foreground animate-spin"
+                          size={14}
+                        />
+                      )}
                       {state.matches("running") && (
                         <Loader2
                           size={14}
