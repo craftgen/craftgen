@@ -757,7 +757,7 @@ export abstract class BaseNode<
           this.outputs[key]?.socket;
         }
       } else {
-        this.addOutput(key, new Output(socket as any, key, false));
+        this.addOutput(key, new Output(socket as any, key, true));
       }
     });
 

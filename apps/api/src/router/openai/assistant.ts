@@ -3,6 +3,11 @@ import { z } from "zod";
 import { createTRPCRouter, openAiProducer } from "../../trpc";
 
 export const assistantRouter = createTRPCRouter({
+  create: openAiProducer.mutation(async ({ ctx }) => {
+    return ctx.openai.beta.assistants.create({
+      model: "gpt-4-1106-preview",
+    });
+  }),
   list: openAiProducer
     .input(
       z.object({

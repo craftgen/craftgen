@@ -27,6 +27,9 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       };
     });
   }, [di?.nodeMeta]);
+
+  const { mutateAsync: createAssistant } =
+    api.openai.assistant.create.useMutation();
   const actions = useMemo(() => {
     const res = nodes
       .filter((n) => n.nodeType !== "ModuleNode")
@@ -52,6 +55,21 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       name: "Assistant",
       keywords: "assistant",
       icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
+    });
+    res.push({
+      id: "assistant-new",
+      name: "new Assistant",
+      keywords: "assistant",
+      parent: "assistant",
+      icon: <Icons.add className={"text-muted-foreground mr-2"} />,
+      perform: async () => {
+        const assistant = await createAssistant();
+        await di?.addNode("OpenAIAssistant", {
+          settings: {
+            assistant,
+          },
+        });
+      },
     });
     return res;
   }, [nodes]);
@@ -124,6 +142,8 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             id: assistant.id,
             name: assistant.name,
             parent: "assistant",
+            icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
+            section: "Assistants",
             perform: async () => {
               await di?.addNode("OpenAIAssistant", {
                 settings: {
