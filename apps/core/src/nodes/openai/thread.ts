@@ -15,12 +15,7 @@ import {
 import { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import {
-  assign,
-  createMachine,
-  fromPromise,
-  PromiseActorLogic,
-} from "xstate";
+import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
 import { ButtonControl } from "../../controls/button";
 import { ThreadControl } from "../../controls/thread";
@@ -80,7 +75,15 @@ export const OpenAIThreadMachine = createMachine({
       | {
           type: "ADD_MESSAGE";
           params: MessageCreateParams;
+        }
+      | {
+          type: "ADD_AND_RUN_MESSAGE";
+          params: MessageCreateParams;
+        }
+      | {
+          type: "CLEAR_THREAD";
         };
+
     actions: {
       type: "setThreadId";
       params?: {
@@ -125,13 +128,41 @@ export const OpenAIThreadMachine = createMachine({
   }>,
   states: {
     idle: {
+      always: {
+        target: "ready",
+        guard: ({ context }) => !isNull(context.settings.threadId),
+      },
       on: {
-        SET_THREAD_ID: {
-          reenter: true,
-          actions: ["setThreadId"],
-        },
         ADD_MESSAGE: {
           target: "running.addMessage",
+        },
+        ADD_AND_RUN_MESSAGE: {
+          target: "running.addMessage",
+        },
+        SET_THREAD_ID: {
+          actions: ["setThreadId"],
+          target: "ready",
+        },
+      },
+    },
+    ready: {
+      on: {
+        ADD_MESSAGE: {
+          target: "running.addMessage",
+        },
+        ADD_AND_RUN_MESSAGE: {
+          target: "running.addMessageAndRun",
+        },
+        CLEAR_THREAD: {
+          target: "idle",
+          actions: [
+            assign({
+              settings: ({ context }) => ({
+                ...context.settings,
+                threadId: null,
+              }),
+            }),
+          ],
         },
       },
     },
@@ -143,6 +174,59 @@ export const OpenAIThreadMachine = createMachine({
             src: fromPromise(async ({}) => {
               throw new Error("No Action Defined");
             }),
+          },
+        },
+        addMessageAndRun: {
+          initial: "checkThread",
+          entry: [
+            assign({
+              inputs: ({ context, event }) => ({
+                ...context.inputs,
+                addMessage: event.params,
+              }),
+            }),
+          ],
+          states: {
+            checkThread: {
+              always: {
+                guard: ({ context }) => !isNull(context.settings.threadId),
+                target: "process",
+              },
+              invoke: {
+                src: "createThread",
+                onDone: {
+                  target: "process",
+                  actions: [
+                    assign({
+                      outputs: ({ context, event }) => ({
+                        ...context.outputs,
+                        threadId: event.output.id,
+                      }),
+                      settings: ({ context, event }) => ({
+                        ...context.settings,
+                        threadId: event.output.id,
+                      }),
+                    }),
+                  ],
+                },
+                onError: {
+                  target: "#openai-thread.error",
+                  actions: ["setError"],
+                },
+              },
+            },
+            process: {
+              invoke: {
+                src: "addMessageAndRun",
+                input: ({ context }) => ({
+                  threadId: context.settings.threadId,
+                  params: context.inputs.addMessage,
+                }),
+                onDone: {
+                  target: "#openai-thread.complete",
+                },
+              },
+            },
           },
         },
         addMessage: {
@@ -260,6 +344,17 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
         }),
       },
       actors: {
+        addMessageAndRun: fromPromise(async ({ input }) => {
+          console.log("input addMessage", input);
+          const message = await this.openai()?.beta.threads.messages.create(
+            input.threadId,
+            input.params,
+          );
+          await this.di.runSync({
+            inputId: this.id,
+          });
+          return message;
+        }),
         addMessage: fromPromise(async ({ input }) => {
           console.log("input addMessage", input);
           const message = await this.openai()?.beta.threads.messages.create(
@@ -302,19 +397,6 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
         {},
       ),
     );
-
-    // this.addControl(
-    //   "add",
-    //   new ButtonControl("Create Thread", () => {
-    //     this.actor.send({
-    //       type: "ADD_MESSAGE",
-    //       params: {
-    //         content: "Hello, world!",
-    //         role: "user",
-    //       },
-    //     });
-    //   }),
-    // );
   }
 
   async execute(
@@ -353,13 +435,13 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
 
     const inputs = await this.getInputs();
     this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
-    this.actor.send({
-      type: "ADD_MESSAGE",
-      params: {
-        content: "Roger Roger app to track your friends around the world!",
-        role: "user",
-      },
-    });
+    // this.actor.send({
+    //   type: "ADD_MESSAGE",
+    //   params: {
+    //     content: "Roger Roger app to track your friends around the world!",
+    //     role: "user",
+    //   },
+    // });
 
     this.actor.subscribe({
       next: (state) => {

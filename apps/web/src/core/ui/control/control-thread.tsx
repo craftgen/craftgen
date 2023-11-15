@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useSelector } from "@xstate/react";
-import { Copy, Paperclip } from "lucide-react";
+import { Paperclip } from "lucide-react";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
 import { ThreadControl } from "@seocraft/core/src/controls/thread";
 
-import { Copyable } from "@/components/copy-clipboard";
+import { Copyable } from "@/components/copyable";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
@@ -33,13 +32,23 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
 
   return (
     <div>
-      <div className="flex items-center">
-        <p className="text-sm font-bold">Thread</p>
-        <Copyable value={props.data.threadId}>
-          <span className="text-muted-foreground ml-2">
-            {props.data.threadId}
-          </span>
-        </Copyable>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <p className="text-sm font-bold">Thread</p>
+          <Copyable value={props.data.threadId}>
+            <span className="text-muted-foreground ml-2">
+              {props.data.threadId}
+            </span>
+          </Copyable>
+        </div>
+        <div>
+          <Button
+            onClick={() => actor.send({ type: "CLEAR_THREAD" })}
+            variant={"outline"}
+          >
+            Clear Thread
+          </Button>
+        </div>
       </div>
       <div className="border-1 p-2">
         <Messages messages={messages?.data ?? []} />
@@ -56,10 +65,15 @@ const InputSection: React.FC<{ actor: ThreadControl["actor"] }> = ({
   const utils = api.useUtils();
 
   const handleAddAndRun = () => {
-    handleAdd();
-    // actor.send({
-    //   type: "RUN",
-    // });
+    actor.send({
+      type: "ADD_AND_RUN_MESSAGE",
+      params: {
+        content: value,
+        role: "user",
+      },
+    });
+    setValue("");
+    utils.openai.tread.messages.invalidate();
   };
   const handleAdd = () => {
     actor.send({

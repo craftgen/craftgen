@@ -16,7 +16,7 @@ export const Copyable: React.FC<PropsWithChildren<{ value: string }>> = ({
   };
   const [copyState, copyToClipboard] = useCopyToClipboard();
   return (
-    <span onClick={handleCopy} className="flex items-center">
+    <span onClick={handleCopy} className="flex items-center cursor-pointer">
       {children}
       {copied ? (
         <CheckSquare className="ml-2  h-4 w-4 text-green-500" />
