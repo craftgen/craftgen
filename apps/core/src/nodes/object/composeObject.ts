@@ -1,6 +1,14 @@
 import { merge } from "lodash-es";
+import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import {
+  assign,
+  ContextFrom,
+  createMachine,
+  EventFrom,
+  fromPromise,
+  InferEvent,
+} from "xstate";
 
 import {
   JSONSocket,
@@ -38,31 +46,46 @@ const composeObjectMachine = createMachine({
     context: {
       name: string;
       description: string;
-      schema: any;
+      schema: object;
     };
-    actions: any;
+    actions: {
+      type: "updateConfig";
+      params?: {
+        name: string;
+        description: string;
+        inputSockets: JSONSocket[];
+        schema: object;
+      };
+    };
     actors: any;
     events: {
-      type: "change";
+      type: "CONFIG_CHANGE";
       name: string;
       description: string;
       inputSockets: JSONSocket[];
-      schema: any;
+      schema: object;
     };
   }>,
   states: {
     idle: {
+      entry: ["updateAncestors"],
       on: {
-        change: {
-          target: "idle",
-          actions: assign({
-            inputSockets: ({ event }) => event.inputSockets,
-            name: ({ event }) => event.name,
-            description: ({ event }) => event.description,
-            schema: ({ event }) => event.schema,
-          }),
+        CONFIG_CHANGE: {
+          target: "editing",
+        },
+      },
+    },
+    editing: {
+      entry: ["updateConfig"],
+      on: {
+        CONFIG_CHANGE: {
+          actions: ["updateConfig"],
+          target: "editing",
           reenter: true,
         },
+      },
+      after: {
+        2000: "idle",
       },
     },
   },
@@ -90,6 +113,37 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
   constructor(di: DiContainer, data: ComposeObjectData) {
     super("ComposeObject", di, data, composeObjectMachine, {
+      actions: {
+        updateConfig: assign({
+          inputSockets: ({ event }) =>
+            match(event)
+              .with(
+                { type: "CONFIG_CHANGE" },
+                ({ inputSockets }) => inputSockets,
+              )
+              .run(),
+          name: ({ event }) =>
+            match(event)
+              .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
+              .run(),
+          description: ({ event }) =>
+            match(event)
+              .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
+              .run(),
+          schema: ({ event }: any) =>
+            match(event)
+              .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
+              .run(),
+          outputs: ({ context, event }) =>
+            match(event)
+              .with({ type: "CONFIG_CHANGE" }, ({ schema }) => ({
+                ...context.outputs,
+                object: {},
+                schema,
+              }))
+              .run(),
+        }),
+      },
       actors: {
         process: fromPromise(async ({ input }) => {
           console.log("PROCESSING", input);
@@ -118,7 +172,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
         const schema = createJsonSchema(sockets);
         this.setLabel(name);
         this.actor.send({
-          type: "change",
+          type: "CONFIG_CHANGE",
           name,
           description: description || "",
           inputSockets: sockets,
@@ -129,6 +183,4 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
     this.addControl("inputGenerator", inputGenerator);
   }
-
-  async execute() {}
 }

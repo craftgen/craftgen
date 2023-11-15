@@ -17,7 +17,6 @@ import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
-import { ButtonControl } from "../../controls/button";
 import { ThreadControl } from "../../controls/thread";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
@@ -46,7 +45,9 @@ export const OpenAIThreadMachine = createMachine({
             required: true,
           },
         ],
-        outputs: {},
+        outputs: {
+          threadId: null,
+        },
         settings: {
           threadId: null,
         },
@@ -111,17 +112,6 @@ export const OpenAIThreadMachine = createMachine({
             Thread,
             {
               threadId: string;
-            }
-          >;
-        }
-      | {
-          src: "submitToolOutputs";
-          logic: PromiseActorLogic<
-            Run,
-            {
-              threadId: string;
-              runId: string;
-              body: RunSubmitToolOutputsParams;
             }
           >;
         };
@@ -331,6 +321,16 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
     super("OpenAIThread", di, data, OpenAIThreadMachine, {
       actions: {
         setThreadId: assign({
+          outputs: ({ context, event }) => {
+            return match(event)
+              .with({ type: "SET_THREAD_ID" }, ({ params }) => {
+                return {
+                  ...context.outputs,
+                  threadId: params.threadId,
+                };
+              })
+              .run();
+          },
           settings: ({ event, context }) => {
             return match(event)
               .with({ type: "SET_THREAD_ID" }, ({ params }) => {
@@ -374,14 +374,6 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
             input.threadId,
           );
           return thread;
-        }),
-        submitToolOutputs: fromPromise(async ({ input }) => {
-          await this.openai()?.beta.threads.runs.list;
-          return await this.openai()?.beta.threads.runs.submitToolOutputs(
-            input.threadId,
-            input.runId,
-            input.body,
-          );
         }),
       },
     });

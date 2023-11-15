@@ -393,7 +393,7 @@ export const renderFieldValueBaseOnSocketType = (
   value: any | undefined,
 ) => {
   let renderedValue = value;
-  if (renderedValue === undefined) {
+  if (renderedValue === undefined || renderedValue === null) {
     switch (socket.name) {
       case "String":
         renderedValue = "";

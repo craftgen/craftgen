@@ -81,6 +81,9 @@ export type BaseActionTypes =
       type: "removeError";
     }
   | {
+      type: "updateAncestors";
+    }
+  | {
       type: "setError";
       params?: {
         name: string;
@@ -243,6 +246,9 @@ export abstract class BaseNode<
             message: event.params?.message || "Something went wrong",
           }),
         }),
+        updateAncestors: async () => {
+          await this.updateAncestors();
+        },
         setValue: assign({
           inputs: ({ context, event }) => {
             Object.keys(context.inputs).forEach((key) => {
@@ -354,6 +360,7 @@ export abstract class BaseNode<
       next: async (state: any) => {
         this.state = state.value as any;
         this.setSnap(state);
+
         if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
           this.setInputSockets(state.context?.inputSockets || []);
         }
@@ -363,14 +370,11 @@ export abstract class BaseNode<
           this.setOutputSockets(state.context?.outputSockets || []);
         }
 
-        if (
-          !isEqual(prev.context.outputs, state.context.outputs) &&
-          state.matches("complete")
-        ) {
+        if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
           if (!this.isExecution) {
             // Only update ancestors if this is not an execution node
-            await this.updateAncestors();
+            // await this.updateAncestors();
           }
         }
 

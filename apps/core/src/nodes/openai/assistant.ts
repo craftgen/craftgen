@@ -1,4 +1,4 @@
-import { isNil, merge, omit, omitBy } from "lodash-es";
+import { isArray, isNil, merge, mergeWith, omit, omitBy } from "lodash-es";
 
 import "openai/shims/web";
 
@@ -11,6 +11,7 @@ import {
 import {
   Run,
   RunCreateParams,
+  RunSubmitToolOutputsParams,
 } from "openai/resources/beta/threads/runs/runs.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
@@ -123,6 +124,27 @@ export const OpenAIAssistantMachine = createMachine({
               runId: string;
             }
           >;
+        }
+      | {
+          src: "invokeFunction";
+          logic: PromiseActorLogic<
+            any,
+            {
+              threadId: string;
+              runId: string;
+            }
+          >;
+        }
+      | {
+          src: "submitToolOutputs";
+          logic: PromiseActorLogic<
+            Run,
+            {
+              threadId: string;
+              runId: string;
+              body: RunSubmitToolOutputsParams;
+            }
+          >;
         };
     events:
       | {
@@ -143,7 +165,7 @@ export const OpenAIAssistantMachine = createMachine({
           type: "RELOAD";
         };
   }>,
-  initial: "idle",
+  initial: "prereloding",
   states: {
     idle: {
       on: {
@@ -164,6 +186,11 @@ export const OpenAIAssistantMachine = createMachine({
         },
       },
     },
+    prereloding: {
+      after: {
+        1000: "reloading",
+      },
+    },
     reloading: {
       invoke: {
         src: "retrieveAssistant",
@@ -173,11 +200,17 @@ export const OpenAIAssistantMachine = createMachine({
         onDone: {
           target: "idle",
           actions: [
-            raise(({ event }) => ({
-              type: "UPDATE_CONFIG" as const,
-              config: event.output,
-            })),
+            assign({
+              settings: ({ context, event }) => ({
+                ...context.settings,
+                assistant: event.output,
+              }),
+            }),
           ],
+        },
+        onError: {
+          target: "idle",
+          actions: [raise({ type: "RELOAD" }, { delay: 1000 })],
         },
       },
     },
@@ -331,7 +364,16 @@ export const OpenAIAssistantMachine = createMachine({
             target: "#openai-assistant.complete",
           },
         },
-        requires_action: {},
+        requires_action: {
+          invoke: {
+            src: "invokeFunction",
+            input: ({ context }) => ({
+              threadId: context.inputs.threadId,
+              runId: context.settings.run?.id!,
+            }),
+          },
+          states: {},
+        },
         expired: {},
         cancelling: {},
         cancelled: {},
@@ -386,11 +428,6 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         updateAssistant: fromPromise(async ({ input }) => {
           return await this.openai().beta.assistants.update(input.assistantId, {
             ...input.params,
-            // tools: [
-            //   {
-            //     type: 'function',
-            //   }
-            // ]
           });
         }),
         retrieveAssistant: fromPromise(async ({ input }) => {
@@ -412,22 +449,51 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
             input.runId,
           );
         }),
+        submitToolOutputs: fromPromise(async ({ input }) => {
+          await this.openai()?.beta.threads.runs.list;
+          return await this.openai()?.beta.threads.runs.submitToolOutputs(
+            input.threadId,
+            input.runId,
+            input.body,
+          );
+        }),
       },
       actions: {
         updateConfig: assign({
           settings: ({ event, context }) => {
+            const customizer = (objValue: any, srcValue: any) => {
+              if (isArray(objValue)) {
+                return srcValue;
+              }
+            };
             return match(event)
               .with(
-                {
-                  type: "UPDATE_CONFIG",
-                },
                 {
                   type: "CONFIG_CHANGE",
                 },
                 ({ config }) => {
+                  console.log({
+                    config,
+                    context: context.settings.assistant,
+                  });
                   return {
                     ...context.settings,
-                    config: merge(context.settings.assistant, config),
+                    assistant: mergeWith(
+                      context.settings.assistant,
+                      config,
+                      customizer,
+                    ),
+                  };
+                },
+              )
+              .with(
+                {
+                  type: "UPDATE_CONFIG",
+                },
+                ({ config }) => {
+                  return {
+                    ...context.settings,
+                    assistant: config,
                   };
                 },
               )
@@ -543,21 +609,25 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
       .filter((c) => c.targetInput === "tools" && c.target === this.id)
       .map((c) => this.di.editor.getNode(c.source));
 
+    const toolFuncs = tools.map((t) => ({
+      type: "function",
+      function: {
+        name: t.label,
+        description: t.snap.context.description,
+        parameters: t.inputSchema,
+      },
+    })) as any[];
+
     this.actor.send({
       type: "CONFIG_CHANGE",
       config: {
-        tools: tools.map((t) => ({
-          type: "function",
-          function: {
-            name: t.label,
-            parameters: t.inputSchema,
-          },
-        })),
+        tools: toolFuncs,
       },
     });
 
     console.log({
       tools,
+      toolFuncs,
     });
   }
 
