@@ -31,6 +31,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
     {
       enabled: !!props.data.threadId,
       getNextPageParam: (lastPage) => lastPage?.cursor,
+      refetchInterval: 3000,
     },
   );
   useEffect(() => {
@@ -144,10 +145,10 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
     {
       enabled: !!message.run_id,
       refetchInterval: (run) => {
-        if (run?.status === "completed") {
-          return false;
+        if (["in_progress", "queued"].includes(run?.status ?? "")) {
+          return 1000;
         }
-        return 1000;
+        return false;
       },
     },
   );
