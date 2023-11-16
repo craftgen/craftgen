@@ -765,11 +765,6 @@ export class Editor<
     return this.editor.getNode(this.selectedNodeId);
   }
 
-  public async runAsync(params: {
-    inputId: string;
-    inputs: Record<string, any>;
-  }) {}
-
   public async runSync(params: { inputId: string }) {
     if (!this.executionId) {
       const { id } = await this.api.createExecution({

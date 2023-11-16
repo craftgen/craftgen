@@ -234,6 +234,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
           inputSockets: this.module?.selectedInput?.inputSockets || [],
           outputSockets: outputs || [],
         });
+        this.setLabel(`Module:(${this.module?.selectedInput?.label})`);
       },
     );
 

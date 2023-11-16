@@ -38,8 +38,18 @@ export const OpenAIAssistantMachine = createMachine({
   context: ({ input }) =>
     merge(
       {
-        inputs: {},
-        inputSockets: [],
+        inputs: {
+          threadId: null,
+        },
+        inputSockets: [
+          {
+            name: "threadId",
+            type: "string",
+            description: "Thread ID",
+            required: true,
+            isMultiple: false,
+          },
+        ],
         outputs: {},
         outputSockets: [],
         settings: {
@@ -55,6 +65,9 @@ export const OpenAIAssistantMachine = createMachine({
     ),
   types: {} as BaseMachineTypes<{
     input: {
+      inputs: {
+        threadId: string | null;
+      };
       settings: {
         run: Partial<Run> | null;
         assistant: Partial<Assistant> & {
@@ -521,7 +534,6 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     this.addInput("trigger", new Input(triggerSocket, "trigger", true));
     this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
     this.addInput("tools", new Input(objectSocket, "tools", true));
-    this.addInput("threadId", new Input(stringSocket, "threadId", false));
     this.addControl(
       "name",
       new InputControl(() => this.snap.context.settings.assistant.name || "", {

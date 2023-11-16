@@ -84,6 +84,9 @@ export type BaseActionTypes =
       type: "updateAncestors";
     }
   | {
+      type: "triggerSuccessors";
+    }
+  | {
       type: "setError";
       params?: {
         name: string;
@@ -249,6 +252,9 @@ export abstract class BaseNode<
         updateAncestors: async () => {
           await this.updateAncestors();
         },
+        triggerSuccessors: async () => {
+          await this.triggerSuccessors();
+        },
         setValue: assign({
           inputs: ({ context, event }) => {
             Object.keys(context.inputs).forEach((key) => {
@@ -270,10 +276,10 @@ export abstract class BaseNode<
       },
     }) as Machine;
 
-    if (this.isExecution) {
-      // TODO: Remove this. make everyting final.
-      set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
-    }
+    // if (this.isExecution) {
+    //   // TODO: Remove this. make everyting final.
+    //   set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
+    // }
 
     if (this.nodeData.state) {
       const actorInput = {
@@ -443,6 +449,7 @@ export abstract class BaseNode<
 
   async updateInputs(rawTemplate: JSONSocket[]) {
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
+    // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
@@ -473,7 +480,7 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const input = new Input(socket, item.name, true);
+      const input = new Input(socket, item.name, item.isMultiple);
       input.index = index + 1;
       const controller = getControlBySocket(
         socket,
@@ -645,21 +652,13 @@ export abstract class BaseNode<
     });
   }
 
-  async triggerSuccesors(executionId: string) {
+  async triggerSuccessors() {
     const cons = this.di.editor.getConnections().filter((c) => {
       return c.source === this.id && c.sourceOutput === "trigger";
     });
-
     cons.forEach(async (con) => {
       const node = this.di.editor.getNode(con.target);
-      if (!node) return;
-      await this.di.api.triggerWorkflowExecutionStep({
-        executionId,
-        workflowNodeId: node.id,
-        // projectSlug: this.nodeData.project.slug,
-        // workflowSlug: this.nodeData.workflow.slug,
-        // version: this.nodeData.workflowVersion.version,
-      });
+      await this.di.runSync({ inputId: node.id });
     });
   }
 
@@ -812,7 +811,8 @@ export abstract class BaseNode<
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
         [x: string]: string;
       };
-      // this.di.logger.log(this.identifier, "inputs from data flow", inputs);
+
+      // asign values from context to inputs if input is not connected
       const state = this.pactor.getSnapshot();
       Object.keys(this.inputs).forEach((key) => {
         if (!inputs[key] && this.inputs[key]?.control) {
@@ -822,13 +822,14 @@ export abstract class BaseNode<
 
       // Normalize inputs based on if input accepts multipleConnections
       // If not, flatten the value instead of array
-      // Object.keys(inputs).forEach((key) => {
-      //   if (!this.inputs[key]?.multipleConnections) {
-      //     inputs[key] = Array.isArray(inputs[key])
-      //       ? inputs[key][0]
-      //       : inputs[key];
-      //   }
-      // });
+      Object.keys(inputs).forEach((key) => {
+        if (!this.inputs[key]?.multipleConnections) {
+          inputs[key] = Array.isArray(inputs[key])
+            ? inputs[key][0]
+            : inputs[key];
+        }
+      });
+
       return inputs;
     } catch (e) {
       this.di.logger.error(e);

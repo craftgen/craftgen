@@ -28,7 +28,6 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   );
   const actor = props.data.actor;
   const state = useSelector(actor, (state) => state);
-  console.log({ actor, state, messages });
 
   return (
     <div>
@@ -124,17 +123,21 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
       enabled: !!message.assistant_id,
     },
   );
+  console.log({ message: message });
   return (
     <div key={message.id}>
       <div className="font-bold">{data ? data.name : message.role}</div>
       <div className="p-2">
         {message.content.map((content) =>
           content.type === "text" ? (
-            <div>{content.text.value}</div>
+            <div className="prose">
+              {content.text.value}
+            </div>
           ) : (
             <div>{content.image_file.file_id}</div>
           ),
         )}
+        <div></div>
       </div>
     </div>
   );

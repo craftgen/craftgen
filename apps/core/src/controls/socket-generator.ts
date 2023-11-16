@@ -46,6 +46,7 @@ export const socketSchema = z.object({
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
   required: z.boolean().default(false),
+  isMultiple: z.boolean().default(false),
 });
 
 export const formSchema = z.object({

@@ -127,7 +127,7 @@ export const OpenAIThreadMachine = createMachine({
           target: "running.addMessage",
         },
         ADD_AND_RUN_MESSAGE: {
-          target: "running.addMessage",
+          target: "running.addMessageAndRun",
         },
         SET_THREAD_ID: {
           actions: ["setThreadId"],
@@ -214,6 +214,7 @@ export const OpenAIThreadMachine = createMachine({
                 }),
                 onDone: {
                   target: "#openai-thread.complete",
+                  actions: ["triggerSuccessors"],
                 },
               },
             },
@@ -276,7 +277,15 @@ export const OpenAIThreadMachine = createMachine({
     },
     error: {},
     complete: {
-      type: "final",
+      on: {
+        ADD_MESSAGE: {
+          target: "running.addMessage",
+        },
+        ADD_AND_RUN_MESSAGE: {
+          target: "running.addMessageAndRun",
+        },
+      },
+      // type: "final",
     },
   },
 });
@@ -350,9 +359,6 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
             input.threadId,
             input.params,
           );
-          await this.di.runSync({
-            inputId: this.id,
-          });
           return message;
         }),
         addMessage: fromPromise(async ({ input }) => {
