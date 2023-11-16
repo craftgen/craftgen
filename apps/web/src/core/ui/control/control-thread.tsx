@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "@xstate/react";
 import { Paperclip } from "lucide-react";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
+import Markdown from "react-markdown";
 
 import { ThreadControl } from "@seocraft/core/src/controls/thread";
 
@@ -130,15 +131,20 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
       <div className="p-2">
         {message.content.map((content) =>
           content.type === "text" ? (
-            <div className="prose">
-              {content.text.value}
-            </div>
+            <TextContent content={content.text.value} />
           ) : (
             <div>{content.image_file.file_id}</div>
           ),
         )}
-        <div></div>
       </div>
     </div>
   );
 };
+
+const TextContent: React.FC<{ content: string }> = React.memo(({ content }) => {
+  return (
+    <div className="prose">
+      <Markdown>{content}</Markdown>
+    </div>
+  );
+});
