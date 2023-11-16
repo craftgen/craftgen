@@ -201,7 +201,7 @@ export const OpenAIAssistantMachine = createMachine({
     },
     prereloding: {
       after: {
-        1000: "reloading",
+        10: "reloading",
       },
     },
     reloading: {

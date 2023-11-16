@@ -567,7 +567,7 @@ export abstract class BaseNode<
       console.log("Running same node In the single execution with new input");
       this.executionNodeId = undefined; // reset execution node id
       this.actor = this.setupActor({
-        input: this.nodeData.context,
+        input: this.snapshot.context as any,
       });
       this.actor.start();
     }
@@ -603,6 +603,9 @@ export abstract class BaseNode<
 
     const inputs = await this.getInputs();
     this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
+
+    await waitFor(this.pactor, (state) => state.matches("idle")); // wait for the node to be idle
+
     this.pactor.send({
       type: "RUN",
       values: inputs,
@@ -653,6 +656,7 @@ export abstract class BaseNode<
   }
 
   async triggerSuccessors() {
+    console.log("TRIGGERING");
     const cons = this.di.editor.getConnections().filter((c) => {
       return c.source === this.id && c.sourceOutput === "trigger";
     });

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "@xstate/react";
+import { flatten } from "lodash-es";
 import { Paperclip } from "lucide-react";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 import Markdown from "react-markdown";
@@ -19,14 +20,25 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
       enabled: !!props.data.threadId,
     },
   );
-  const { data: messages } = api.openai.tread.messages.useQuery(
+  const {
+    data: messages,
+    hasNextPage,
+    fetchNextPage,
+  } = api.openai.tread.messages.useInfiniteQuery(
     {
       threadId: props.data.threadId,
     },
     {
       enabled: !!props.data.threadId,
+      getNextPageParam: (lastPage) => lastPage?.cursor,
     },
   );
+  useEffect(() => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage]);
+  const messagesList = flatten(messages?.pages.map((p) => p.data)) || [];
   const actor = props.data.actor;
   const state = useSelector(actor, (state) => state);
 
@@ -51,7 +63,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
         </div>
       </div>
       <div className="border-1 p-2">
-        <Messages messages={messages?.data ?? []} />
+        <Messages messages={messagesList || []} />
         <InputSection actor={actor} />
       </div>
     </div>
@@ -124,11 +136,35 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
       enabled: !!message.assistant_id,
     },
   );
-  console.log({ message: message });
+  const { data: run } = api.openai.tread.runs.retrieve.useQuery(
+    {
+      runId: message.run_id!,
+      threadId: message.thread_id!,
+    },
+    {
+      enabled: !!message.run_id,
+      refetchInterval: (run) => {
+        if (run?.status === "completed") {
+          return false;
+        }
+        return 1000;
+      },
+    },
+  );
+  const utils = api.useUtils();
+  useEffect(() => {
+    if (run?.status === "completed" && message.content.length === 0) {
+      utils.openai.tread.messages.invalidate({
+        threadId: message.thread_id!,
+      });
+    }
+  }, [run?.status]);
   return (
     <div key={message.id}>
       <div className="font-bold">{data ? data.name : message.role}</div>
       <div className="p-2">
+        {run && run.status === "in_progress" && <span>Thinking</span>}
+
         {message.content.map((content) =>
           content.type === "text" ? (
             <TextContent content={content.text.value} />
