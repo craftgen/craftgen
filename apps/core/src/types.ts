@@ -1,7 +1,10 @@
+import { CreateTRPCProxyClient } from "@trpc/client";
 import { type GetSchemes } from "rete";
 import type { Constructor } from "type-fest";
 import { AnyStateMachine } from "xstate";
 import * as z from "zod";
+
+import type { AppRouter } from "@seocraft/api";
 
 import { Editor } from ".";
 import { Connection } from "./connection/connection";
@@ -25,6 +28,7 @@ import {
   Wordpress,
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
+import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/thread";
 
@@ -78,6 +82,7 @@ export const nodes = {
 
   // DataSources
   GoogleSheet: GoogleSheet,
+  GoogleSearchConsole: GoogleSearchConsole,
   Shopify: Shopify,
   Webflow: Webflow,
   Wordpress: Wordpress,
@@ -224,6 +229,7 @@ export interface WorkflowAPI {
   getModulesMeta: (params: {
     query: string;
   }) => Promise<{ name: string; id: string }[]>;
+  trpc: CreateTRPCProxyClient<AppRouter>;
 }
 
 export type DiContainer = Editor;

@@ -8,6 +8,7 @@
  */
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { google } from "googleapis";
 import { OpenAI } from "openai";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -192,3 +193,31 @@ const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
 });
 
 export const openAiProducer = protectedProcedure.use(openaiMiddleware);
+
+const googleAuthMiddleware = t.middleware(async ({ ctx, next }) => {
+  const googleAuth = new google.auth.OAuth2({
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  });
+  const authUser = await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.id, ctx.session?.user?.id!),
+  });
+  if (!authUser)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "User not found",
+    });
+
+  googleAuth.setCredentials({
+    access_token: authUser?.google_access_token,
+    refresh_token: authUser?.google_refresh_token,
+  });
+
+  return next({
+    ctx: {
+      googleAuth,
+    },
+  });
+});
+
+export const googleAuthProducer = protectedProcedure.use(googleAuthMiddleware);

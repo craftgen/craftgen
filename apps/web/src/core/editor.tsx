@@ -17,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import type { RouterOutputs } from "@/trpc/shared";
 
-import { ComponentRegistry } from "./composer";
 import { getControl } from "./control";
 import type { ReteStoreInstance } from "./store";
 import { addCustomBackground } from "./ui/custom-background";
@@ -70,6 +69,7 @@ export async function createEditor(params: {
           return true;
         },
         async triggerWorkflowExecutionStep(params) {},
+        trpc: params.api.trpc!,
         getAPIKey: params.api.getAPIKey!,
         createExecution: params.api.createExecution!,
         updateNodeMetadata: params.api.updateNodeMetadata!,

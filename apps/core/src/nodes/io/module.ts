@@ -7,7 +7,7 @@ import { SelectControl } from "../../controls/select";
 import { JSONSocket } from "../../controls/socket-generator";
 import { Editor } from "../../editor";
 import { Input, Output } from "../../input-output";
-import { triggerSocket } from "../../sockets";
+import { objectSocket, triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
@@ -170,6 +170,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
     const state = this.actor.getSnapshot();
     this.addInput("trigger", new Input(triggerSocket, "trigger"));
     this.addOutput("trigger", new Output(triggerSocket, "trigger"));
+    this.addOutput("tool", new Output(objectSocket, "tool"));
 
     this.setModule(state.context.moduleId);
 

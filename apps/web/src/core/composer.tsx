@@ -66,8 +66,8 @@ export const Composer: React.FC<{
     createExecution,
     getModule,
     getAPIKey,
+    trpc: utils.client,
   };
-
   const [map, componentRegistry] = useRegistry<HTMLElement, ReactElement>();
 
   const createEditor = useMemo(() => {

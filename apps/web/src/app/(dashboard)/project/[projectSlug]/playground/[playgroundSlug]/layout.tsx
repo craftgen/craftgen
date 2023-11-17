@@ -18,7 +18,7 @@ const PlaygroundLayout = async (props: {
   if (!workflow) return notFound();
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-2 sm:py-5">
+    <div className="mx-auto max-w-5xl px-4 py-2 sm:py-5">
       <ModuleHeader workflow={workflow} />
       {props.children}
     </div>

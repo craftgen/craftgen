@@ -124,6 +124,14 @@ export const databaseIdSocket = new DatabaseIdSocket();
 
 databaseIdSocket.combineWith(stringSocket);
 
+class DateSocket extends Socket {
+  constructor() {
+    super("Date");
+  }
+}
+
+export const dateSocket = new DateSocket();
+
 const sockets = [
   numberSocket,
   booleanSocket,
@@ -137,6 +145,7 @@ const sockets = [
   taskSocket,
   imageSocket,
   databaseIdSocket,
+  dateSocket,
 ] as const;
 
 export type AllSockets = (typeof sockets)[number];
@@ -155,7 +164,8 @@ export type SocketNameType =
   | "Embedding"
   | "Task"
   | "Image"
-  | "databaseIdSocket";
+  | "databaseIdSocket"
+  | "Date";
 
 export type SocketType =
   | "anySocket"
@@ -172,7 +182,8 @@ export type SocketType =
   | "embeddingSocket"
   | "taskSocket"
   | "documentSocket"
-  | "databaseIdSocket";
+  | "databaseIdSocket"
+  | "dateSocket";
 
 export const socketNameMap: Record<SocketNameType, SocketType> = {
   Any: "anySocket",
@@ -189,6 +200,7 @@ export const socketNameMap: Record<SocketNameType, SocketType> = {
   Task: "taskSocket",
   Image: "imageSocket",
   databaseIdSocket: "databaseIdSocket",
+  Date: "dateSocket",
 };
 
 export const types = [
@@ -213,6 +225,8 @@ export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
       return arraySocket;
     case "object":
       return objectSocket;
+    case "date":
+      return dateSocket;
     default:
       return anySocket;
   }
@@ -267,6 +281,11 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
     color: "bg-stone-400",
     connection: "stone",
   },
+  Date: {
+    badge: "bg-rose-600",
+    color: "bg-rose-400",
+    connection: "rose",
+  },
 };
 
 export const useSocketConfig = (name: SocketNameType) => {
@@ -296,6 +315,11 @@ export const getControlBySocket = (
       });
     })
     .with(P.instanceOf(NumberSocket), () => {
+      return new NumberControl(value, {
+        change: onChange,
+      });
+    })
+    .with(P.instanceOf(DateSocket), () => {
       return new NumberControl(value, {
         change: onChange,
       });

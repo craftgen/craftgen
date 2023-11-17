@@ -43,6 +43,7 @@ export const OpenAIThreadMachine = createMachine({
             type: "string",
             description: "Thread ID",
             required: true,
+            isMultiple: true,
           },
         ],
         outputs: {

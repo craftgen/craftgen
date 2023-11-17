@@ -1,6 +1,7 @@
 import { getAnalytics, getProject } from "./actions";
 import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
+import { ProjectNavbar } from "./project-navbar";
 
 const ProjectPage = async ({
   params,

@@ -441,7 +441,11 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const output = new Output(socket, item.name, false) as any;
+      const output = new Output(
+        socket,
+        item.name,
+        item.isMultiple || true,
+      ) as any;
       output.index = index + 1;
       this.addOutput(item.name, output);
     }

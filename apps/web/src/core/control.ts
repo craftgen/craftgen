@@ -8,6 +8,7 @@ import { ArticleControl } from "@seocraft/core/src/controls/article";
 import { ButtonControl } from "@seocraft/core/src/controls/button";
 import { CodeControl } from "@seocraft/core/src/controls/code";
 import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
+import { DateControl } from "@seocraft/core/src/controls/date";
 import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { NumberControl } from "@seocraft/core/src/controls/number";
@@ -24,6 +25,7 @@ import type { Schemes } from "@seocraft/core/src/types";
 // Control Components
 import { CustomButton } from "./ui/control/control-button";
 import { CodeEditor } from "./ui/control/control-code";
+import { DateControlComponent } from "./ui/control/control-date";
 import { ArticleEditor } from "./ui/control/control-editor";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { NumberControlComponent } from "./ui/control/control-number";
@@ -57,5 +59,6 @@ export const getControl = (
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
     .with(P.instanceOf(ThreadControl), () => ThreadControlComponent)
+    .with(P.instanceOf(DateControl), () => DateControlComponent)
     .otherwise(() => () => null);
 };
