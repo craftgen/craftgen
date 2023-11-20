@@ -1,8 +1,7 @@
 import React from "react";
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
-import type {
-  TElement} from "@udecode/plate-common";
+import type { TElement } from "@udecode/plate-common";
 import {
   collapseSelection,
   findNode,

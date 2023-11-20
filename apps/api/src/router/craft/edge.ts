@@ -1,13 +1,15 @@
 import { z } from "zod";
 
-import { type ConnProps } from "@seocraft/core/src/types";
-import { and, desc, eq, schema } from "@seocraft/supabase/db";
+import { and, eq, schema } from "@seocraft/supabase/db";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
+
+type ConnProps = {
+  source: string;
+  target: string;
+  sourceOutput: string;
+  targetInput: string;
+};
 
 export const craftEdgeRouter = createTRPCRouter({
   create: protectedProcedure

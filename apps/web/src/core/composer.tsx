@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactElement, ReactNode, useEffect, useMemo } from "react";
 import {
   CheckCircle,
   ChevronLeftCircle,

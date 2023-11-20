@@ -1,7 +1,7 @@
 import React from "react";
 import type { PlateElementProps, Value } from "@udecode/plate-common";
 import { PlateElement } from "@udecode/plate-common";
-import type { TLinkElement} from "@udecode/plate-link";
+import type { TLinkElement } from "@udecode/plate-link";
 import { useLink } from "@udecode/plate-link";
 
 import { cn } from "@/lib/utils";

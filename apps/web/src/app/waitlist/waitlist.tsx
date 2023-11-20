@@ -1,6 +1,6 @@
 "use client";
 
-import type { PropsWithChildren} from "react";
+import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -69,7 +69,8 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                 <a
                   href="https://twitter.com/seocraftai"
                   target="_blank"
-                  className="text-primary cursor-pointer font-bold" rel="noreferrer"
+                  className="text-primary cursor-pointer font-bold"
+                  rel="noreferrer"
                 >
                   @seocraftai
                 </a>

@@ -1,8 +1,8 @@
 import * as React from "react";
 import type { ClassicPreset } from "rete";
-import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import { match } from "ts-pattern";
 
+import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import type { Socket, Sockets } from "@seocraft/core/src/sockets";
 import { socketConfig } from "@seocraft/core/src/sockets";
 import type { Schemes } from "@seocraft/core/src/types";

@@ -1,11 +1,12 @@
 import { usePathname, useRouter } from "next/navigation";
 import { ajvResolver } from "@hookform/resolvers/ajv";
-import type { InputNode } from "@seocraft/core/src/nodes";
-import type { NodeProps } from "@seocraft/core/src/types";
 import { useSelector } from "@xstate/react";
 import { Play } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useForm } from "react-hook-form";
+
+import type { InputNode } from "@seocraft/core/src/nodes";
+import type { NodeProps } from "@seocraft/core/src/types";
 
 import { createExecution } from "@/actions/create-execution";
 import { Button } from "@/components/ui/button";

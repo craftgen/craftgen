@@ -38,7 +38,7 @@ const items = [
   },
 ];
 
-export type AlignDropdownMenuProps = DropdownMenuProps
+export type AlignDropdownMenuProps = DropdownMenuProps;
 
 export function AlignDropdownMenu({
   children,

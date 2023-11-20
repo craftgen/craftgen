@@ -3,11 +3,8 @@
 import "./code-block-element.css";
 
 import React, { forwardRef } from "react";
-import type {
-  TCodeBlockElement} from "@udecode/plate-code-block";
-import {
-  useCodeBlockElementState,
-} from "@udecode/plate-code-block";
+import type { TCodeBlockElement } from "@udecode/plate-code-block";
+import { useCodeBlockElementState } from "@udecode/plate-code-block";
 import type { PlateElementProps, Value } from "@udecode/plate-common";
 import { PlateElement } from "@udecode/plate-common";
 

@@ -1,6 +1,5 @@
 import React from "react";
-import type {
-  PlaceholderProps} from "@udecode/plate-common";
+import type { PlaceholderProps } from "@udecode/plate-common";
 import {
   createNodeHOC,
   createNodesHOC,

@@ -3,10 +3,9 @@ import { createStore } from "@udecode/plate-common";
 import type {
   CursorData,
   CursorOverlayProps,
-  CursorProps} from "@udecode/plate-cursor";
-import {
-  CursorOverlay as CursorOverlayPrimitive
+  CursorProps,
 } from "@udecode/plate-cursor";
+import { CursorOverlay as CursorOverlayPrimitive } from "@udecode/plate-cursor";
 
 import { cn } from "@/lib/utils";
 

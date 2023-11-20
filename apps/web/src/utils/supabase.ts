@@ -1,5 +1,6 @@
-import type { Database } from "@seocraft/supabase/db/database.types";
 import { createClient } from "@supabase/supabase-js";
+
+import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { env } from "@/env.mjs";
 

@@ -32,9 +32,6 @@ importers:
 
   apps/api:
     dependencies:
-      '@seocraft/core':
-        specifier: ^0.1.0
-        version: link:../core
       '@seocraft/supabase':
         specifier: ^0.1.0
         version: link:../supabase

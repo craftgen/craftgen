@@ -19,7 +19,6 @@ export function TrpcSelectControlComponent<T extends string, Data>(props: {
   const [value, setValue] = useState<T | undefined>(props.data.value);
   api.google.searchConsole.sites.useQuery();
 
-
   const values = useMemo(() => {
     if (!data) return [];
     return props.data.dataTransform(data);

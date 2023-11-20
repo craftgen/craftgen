@@ -7,7 +7,7 @@ const ArticlesPage = async ({
     projectSlug: string;
   };
 }) => {
-  const project = await getProject(params.projectSlug );
+  const project = await getProject(params.projectSlug);
   return null;
 };
 

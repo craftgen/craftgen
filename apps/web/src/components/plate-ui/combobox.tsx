@@ -8,7 +8,8 @@ import type {
   ComboboxProps,
   Data,
   NoData,
-  TComboboxItem} from "@udecode/plate-combobox";
+  TComboboxItem,
+} from "@udecode/plate-combobox";
 import {
   comboboxActions,
   useActiveComboboxStore,

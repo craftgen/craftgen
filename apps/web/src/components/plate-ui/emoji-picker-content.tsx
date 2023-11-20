@@ -1,12 +1,7 @@
 // @ts-nocheck
 import React, { memo, useCallback } from "react";
-import type {
-  Emoji,
-  GridRow,
-  UseEmojiPickerType} from "@udecode/plate-emoji";
-import {
-  EmojiSettings
-} from "@udecode/plate-emoji";
+import type { Emoji, GridRow, UseEmojiPickerType } from "@udecode/plate-emoji";
+import { EmojiSettings } from "@udecode/plate-emoji";
 
 import { cn } from "@/lib/utils";
 

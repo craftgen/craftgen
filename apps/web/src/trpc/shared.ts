@@ -1,6 +1,7 @@
-import type { AppRouter } from "@seocraft/api";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
+
+import type { AppRouter } from "@seocraft/api";
 
 export const transformer = superjson;
 

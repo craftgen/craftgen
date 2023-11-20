@@ -38,7 +38,8 @@ import type {
   TElement,
   TNodeEntry,
   TReactEditor,
-  WithOverride} from "@udecode/plate-common";
+  WithOverride,
+} from "@udecode/plate-common";
 import {
   createPlateEditor,
   createPluginFactory,
@@ -51,7 +52,7 @@ import {
   usePlateEditorRef,
   usePlateEditorState,
   usePlateSelectors,
-  usePlateStates
+  usePlateStates,
 } from "@udecode/plate-common";
 import type {
   ELEMENT_EXCALIDRAW,

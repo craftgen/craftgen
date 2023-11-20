@@ -24,7 +24,7 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-type CommandDialogProps = DialogProps
+type CommandDialogProps = DialogProps;
 
 function CommandDialog({ children, ...props }: CommandDialogProps) {
   return (

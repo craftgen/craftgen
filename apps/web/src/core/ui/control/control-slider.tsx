@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Slider } from "@/components/ui/slider";
 import type { SliderControl } from "@seocraft/core/src/controls/slider";
 
+import { Slider } from "@/components/ui/slider";
 
 export function SliderControlComponenet(props: { data: SliderControl }) {
   const [value, setValue] = useState<number>(props.data.value);

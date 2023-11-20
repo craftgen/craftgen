@@ -1,13 +1,13 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import type { ClassNames, PlateElementProps, TEditor } from "@udecode/plate-common";
 import type {
-  DragItemNode} from "@udecode/plate-dnd";
-import {
-  useDraggable,
-  useDraggableState,
-} from "@udecode/plate-dnd";
+  ClassNames,
+  PlateElementProps,
+  TEditor,
+} from "@udecode/plate-common";
+import type { DragItemNode } from "@udecode/plate-dnd";
+import { useDraggable, useDraggableState } from "@udecode/plate-dnd";
 import type { DropTargetMonitor } from "react-dnd";
 
 import { Icons } from "@/components/icons";

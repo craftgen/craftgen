@@ -1,7 +1,8 @@
 import type { PropsWithChildren } from "react";
 import React, { useMemo, useRef, useState } from "react";
-import type { NodeTypes } from "@seocraft/core/src/types";
 import { useKBar, VisualState } from "kbar";
+
+import type { NodeTypes } from "@seocraft/core/src/types";
 
 import { Icons } from "@/components/icons";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";

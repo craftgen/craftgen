@@ -10,7 +10,7 @@ import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import { Separator } from "./separator";
-import type { ToggleProps} from "./toggle";
+import type { ToggleProps } from "./toggle";
 import { toggleVariants } from "./toggle";
 import {
   Tooltip,
@@ -27,7 +27,7 @@ export const linkVariants = cva("font-medium underline underline-offset-4");
 
 const ToolbarToggleGroup = ToolbarPrimitive.ToggleGroup;
 
-export type ToolbarProps = React.ComponentPropsWithoutRef<typeof Toolbar>
+export type ToolbarProps = React.ComponentPropsWithoutRef<typeof Toolbar>;
 
 const Toolbar = React.forwardRef<
   React.ElementRef<typeof ToolbarPrimitive.Root>,

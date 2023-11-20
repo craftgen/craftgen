@@ -19,8 +19,7 @@ import {
   CommentsProvider,
   createCommentsPlugin,
 } from "@udecode/plate-comments";
-import type {
-  PlateEditor} from "@udecode/plate-common";
+import type { PlateEditor } from "@udecode/plate-common";
 import {
   createPlateEditor,
   Plate,

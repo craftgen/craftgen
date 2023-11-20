@@ -1,8 +1,7 @@
 import React from "react";
 import type { PlateElementProps, Value } from "@udecode/plate-common";
 import { PlateElement } from "@udecode/plate-common";
-import type {
-  TMediaEmbedElement} from "@udecode/plate-media";
+import type { TMediaEmbedElement } from "@udecode/plate-media";
 import {
   ELEMENT_MEDIA_EMBED,
   parseTwitterUrl,

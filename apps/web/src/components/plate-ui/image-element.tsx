@@ -1,13 +1,8 @@
 import React from "react";
 import type { PlateElementProps, Value } from "@udecode/plate-common";
 import { PlateElement } from "@udecode/plate-common";
-import type {
-  TImageElement} from "@udecode/plate-media";
-import {
-  ELEMENT_IMAGE,
-  Image,
-  useMediaState,
-} from "@udecode/plate-media";
+import type { TImageElement } from "@udecode/plate-media";
+import { ELEMENT_IMAGE, Image, useMediaState } from "@udecode/plate-media";
 import { useResizableStore } from "@udecode/plate-resizable";
 
 import { cn } from "@/lib/utils";

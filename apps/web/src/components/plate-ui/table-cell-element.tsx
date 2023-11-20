@@ -1,8 +1,7 @@
 import React from "react";
 import type { PlateElementProps, Value } from "@udecode/plate-common";
 import { PlateElement } from "@udecode/plate-common";
-import type {
-  TTableCellElement} from "@udecode/plate-table";
+import type { TTableCellElement } from "@udecode/plate-table";
 import {
   useTableCellElement,
   useTableCellElementResizable,
