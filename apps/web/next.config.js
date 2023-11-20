@@ -9,19 +9,20 @@ const nextConfig = {
   poweredByHeader: false,
   experimental: {
     serverComponentsExternalPackages: ["pg-native"],
+    webpackBuildWorker: true,
   },
   transpilePackages: ["@seocraft/core", "@seocraft/api", "@seocraft/supabase"],
   images: {
     unoptimized: true,
   },
-  webpack: (config, { isServer, webpack }) => {
-    if (!isServer) {
-      config.plugins.push(
-        new webpack.IgnorePlugin({ resourceRegExp: /^node:async_hooks$/ }),
-      );
-    }
-    return config;
-  },
+  // webpack: (config, { isServer, webpack }) => {
+  //   if (!isServer) {
+  //     config.plugins.push(
+  //       new webpack.IgnorePlugin({ resourceRegExp: /^node:async_hooks$/ }),
+  //     );
+  //   }
+  //   return config;
+  // },
   rewrites: async () => {
     return {
       beforeFiles: [
