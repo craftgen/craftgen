@@ -1,8 +1,10 @@
-import { sub } from "date-fns";
 import { merge } from "lodash-es";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
+import { RouterInputs, RouterOutputs } from "@seocraft/api";
+
+import { SWRSelectControl } from "../../../controls/swr-select";
 import { DiContainer } from "../../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../../base";
 
@@ -14,8 +16,7 @@ export const GoogleSearchConsoleMachine = createMachine({
       {
         action: {
           type: "query",
-          siteUrl: "",
-          requestBody: {},
+          inputs: {},
         },
         inputs: {},
         inputSockets: [
@@ -44,25 +45,23 @@ export const GoogleSearchConsoleMachine = createMachine({
     input: {
       action: {
         type: "query";
-        siteUrl: string;
-        requestBody: {
-          startDate?: string;
-          endDate?: string;
-        };
+        inputs: RouterInputs["google"]["searchConsole"]["query"];
       };
     };
     context: {
       action: {
         type: "query";
-        siteUrl: string;
-        requestBody: {
-          startDate?: string;
-          endDate?: string;
-        };
+        inputs: RouterInputs["google"]["searchConsole"]["query"];
       };
     };
     actions: any;
-    actors: any;
+    actors: {
+      src: "query";
+      logic: PromiseActorLogic<
+        RouterOutputs["google"]["searchConsole"]["query"],
+        RouterInputs["google"]["searchConsole"]["query"]
+      >;
+    };
     events: {
       type: "R";
     };
@@ -72,6 +71,9 @@ export const GoogleSearchConsoleMachine = createMachine({
       on: {
         RUN: {
           target: "running",
+        },
+        SET_VALUE: {
+          actions: ["setValue"],
         },
       },
     },
@@ -87,8 +89,24 @@ export const GoogleSearchConsoleMachine = createMachine({
           ],
         },
         query: {
+          entry: [
+            assign({
+              action: ({ context }) => ({
+                ...context.action,
+                inputs: {
+                  siteUrl: context.inputs.siteUrl,
+                  requestBody: {
+                    ...context.action.inputs.requestBody,
+                    startDate: context.inputs.startDate,
+                    endDate: context.inputs.endDate,
+                  },
+                },
+              }),
+            }),
+          ],
           invoke: {
             src: "query",
+            input: ({ context }) => context.action.inputs,
             onDone: {
               target: "#search-console.complete",
               actions: [
@@ -134,17 +152,33 @@ export class GoogleSearchConsole extends BaseNode<
   constructor(di: DiContainer, data: GoogleSearchConsoleData) {
     super("GoogleSearchConsole", di, data, GoogleSearchConsoleMachine, {
       actors: {
-        query: fromPromise(async ({ input }) => {
-          const data = this.di.api.trpc.google.searchConsole.query.query({
-            requestBody: {
-              startDate: sub(new Date(), { days: 10 }),
-              endDate: sub(new Date(), { days: 3 }),
-            },
-            siteUrl: "sc-domain:ailifestory.com",
-          });
-          return data;
-        }),
+        query: fromPromise(({ input }) =>
+          this.di.api.trpc.google.searchConsole.query.query(input),
+        ),
       },
     });
+
+    this.addControl(
+      "site",
+      new SWRSelectControl(
+        () => this.snap.context.inputs.siteUrl,
+        "select site",
+        "trpc.google.searchConsole.sites",
+        () => this.di.api.trpc.google.searchConsole.sites.query(),
+        (vals) =>
+          vals.map((v) => ({
+            key: v.siteUrl || v.url,
+            value: v.url,
+          })),
+        (val) => {
+          this.actor.send({
+            type: "SET_VALUE",
+            values: {
+              siteUrl: val,
+            },
+          });
+        },
+      ),
+    );
   }
 }

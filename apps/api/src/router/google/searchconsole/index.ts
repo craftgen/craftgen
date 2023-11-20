@@ -1,27 +1,53 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { google } from "googleapis";
 import { z } from "zod";
 
 import { createTRPCRouter, googleAuthProducer } from "../../../trpc";
 
+export const normalizeUrl = (url: string) => {
+  if (url.startsWith("http://")) {
+    return url.replace("http://", "https://");
+  }
+  if (url.startsWith("sc-domain:")) {
+    return url.replace("sc-domain:", "");
+  }
+
+  return url;
+};
+
 export const searchConsoleRouter = createTRPCRouter({
+  sites: googleAuthProducer.query(async ({ ctx }) => {
+    const webmaster = google.webmasters({
+      version: "v3",
+      auth: ctx.googleAuth,
+    });
+    const sites = await webmaster.sites.list();
+    return (
+      sites.data.siteEntry?.map((site) => ({
+        url: normalizeUrl(site.siteUrl!),
+        ...site,
+      })) || []
+    );
+  }),
   query: googleAuthProducer
     .input(
       z.object({
         siteUrl: z.string(),
         requestBody: z.object({
-          startDate: z.date().transform((v) => format(v, "yyyy-MM-dd")),
-          endDate: z.date().transform((v) => format(v, "yyyy-MM-dd")),
+          startDate: z
+            .string()
+            .transform((v) => format(parseISO(v), "yyyy-MM-dd")),
+          endDate: z
+            .string()
+            .transform((v) => format(parseISO(v), "yyyy-MM-dd")),
         }),
       }),
     )
     .query(async ({ ctx, input }) => {
-      console.log("RUNNING", { input, ctx });
       const webmaster = google.webmasters({
         version: "v3",
         auth: ctx.googleAuth,
       });
-
       const res = await webmaster.searchanalytics.query({
         siteUrl: input.siteUrl,
         requestBody: {

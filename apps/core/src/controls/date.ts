@@ -1,15 +1,46 @@
+import { parseISO } from "date-fns";
+import { action, makeObservable, observable, reaction } from "mobx";
+
 import { BaseControl } from "./base";
+
+type DateControlOptions = {
+  change: (value: Date | null) => void;
+};
 
 export class DateControl extends BaseControl {
   __type = "date";
-  public value: Date;
+  public value: Date | null = null;
 
   constructor(
-    public observableSource: () => Date, // Function that returns the observable value
-    public options: any,
+    public observableSource: () => string, // Function that returns the observable value
+    public options: DateControlOptions,
   ) {
     super(50);
+    const initialValue = observableSource();
+    if (initialValue) {
+      this.value = parseISO(initialValue); // Set the initial value
+    }
+    makeObservable(this, {
+      value: observable.ref,
+      setValue: action,
+    });
 
-    this.value = observableSource(); // Set the initial value
+    reaction(
+      () => this.observableSource(),
+      (newValue) => {
+        if (newValue !== this.value?.toISOString()) {
+          console.log(
+            "reaction in number controller value is not matching",
+            newValue,
+          );
+          this.setValue(parseISO(newValue));
+        }
+      },
+    );
+  }
+
+  setValue(value: Date | null) {
+    this.value = value;
+    if (this.options?.change) this.options.change(value);
   }
 }

@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
 
 import type { getWorkflow } from "@/actions/get-workflow";
+import { JSONView } from "@/components/json-view";
 import {
   Accordion,
   AccordionContent,
@@ -143,7 +144,9 @@ const ExecutionNodeItem: React.FC<{
       <div className="grid grid-cols-2">
         <div>
           <LogsTable record={nodeData?.state?.context?.inputs || {}} />
-          <LogsTable record={nodeData?.state?.context?.settings || {}} />
+          {nodeData?.state?.context?.settings && (
+            <LogsTable record={nodeData?.state?.context?.settings || {}} />
+          )}
         </div>
         <div>
           <LogsTable record={nodeData?.state?.context?.outputs || {}} />
@@ -154,26 +157,9 @@ const ExecutionNodeItem: React.FC<{
 };
 
 const LogsTable: React.FC<{ record: Record<string, any> }> = ({ record }) => {
-  const columns = React.useMemo(() => {
-    return Object.keys(record).map((key) => ({
-      Header: key,
-      accessor: key,
-    }));
-  }, [record]);
   return (
     <div className="grid gap-2">
-      {columns.map((column) => (
-        <div className="even:bg-muted flex flex-row" key={column.accessor}>
-          <div className="min-w-[6rem] font-bold">{column.Header}</div>
-          <div className="flex-1">
-            {typeof record[column.accessor] === "string" ? (
-              <div>{record[column.accessor]}</div>
-            ) : (
-              <code>{JSON.stringify(record[column.accessor], null, 2)}</code>
-            )}
-          </div>
-        </div>
-      ))}
+      <JSONView data={record} />
     </div>
   );
 };

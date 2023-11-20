@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 
+import { DateControl } from "./controls/date";
 import { InputControl } from "./controls/input.control";
 import { NumberControl } from "./controls/number";
 
@@ -320,7 +321,7 @@ export const getControlBySocket = (
       });
     })
     .with(P.instanceOf(DateSocket), () => {
-      return new NumberControl(value, {
+      return new DateControl(value, {
         change: onChange,
       });
     })

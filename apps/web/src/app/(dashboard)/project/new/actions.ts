@@ -2,31 +2,11 @@
 
 import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { google } from "googleapis";
 import type { z } from "zod";
 
 import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
 
-import { getGoogleAuth } from "@/lib/google/auth";
-
-import type { newProjectSchema} from "./shared";
-import { normalizeUrl } from "./shared";
-
-export const getSites = async () => {
-  const supabase = createServerActionClient({ cookies });
-  const session = await supabase.auth.getSession();
-  const googleAuth = await getGoogleAuth({ session: session.data.session! });
-
-  const webmaster = google.webmasters({
-    version: "v3",
-    auth: googleAuth,
-  });
-  const sites = await webmaster.sites.list();
-  return sites.data.siteEntry?.map((site) => ({
-    url: normalizeUrl(site.siteUrl!),
-    ...site,
-  }));
-};
+import type { newProjectSchema } from "./shared";
 
 export const createNewProject = async (
   params: z.infer<typeof newProjectSchema>,

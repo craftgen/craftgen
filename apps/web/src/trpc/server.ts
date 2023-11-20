@@ -27,5 +27,3 @@ export const api = createTRPCProxyClient<AppRouter>({
     }),
   ],
 });
-
-api.google.searchConsole.query.query({});

@@ -1,13 +1,12 @@
 "use client";
 
-import type { PropsWithChildren} from "react";
+import type { PropsWithChildren } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Link } from "lucide-react";
 import { useForm } from "react-hook-form";
-import useSWR from "swr";
 import type * as z from "zod";
 
 import type { Database } from "@seocraft/supabase/db/database.types";
@@ -34,8 +33,9 @@ import {
 } from "@/components/ui/select";
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
+import { api } from "@/trpc/react";
 
-import { createNewProject, getSites } from "./actions";
+import { createNewProject } from "./actions";
 import { newProjectSchema, normalizeUrl } from "./shared";
 
 export const NewProjectForm: React.FC<PropsWithChildren> = ({
@@ -69,7 +69,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
       form.setValue("name", normalizeUrl(site));
     }
   }, [site, form]);
-  const { data, isLoading, error, mutate } = useSWR("sites", getSites);
+  const { data, error } = api.google.searchConsole.sites.useQuery();
   const supabase = createClientComponentClient<Database>();
   const handleConnectGoogle = async (response: any) => {
     await supabase.auth.signInWithOAuth({
@@ -127,10 +127,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
                 </FormControl>
                 <SelectContent>
                   {data?.map((site) => (
-                    <SelectItem
-                      key={site.siteUrl}
-                      value={site.siteUrl!}
-                    >
+                    <SelectItem key={site.siteUrl} value={site.siteUrl!}>
                       {site.url}
                     </SelectItem>
                   ))}

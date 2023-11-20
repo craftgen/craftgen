@@ -1,8 +1,6 @@
 // TODO:
 // @ts-nocheck
 
-
-
 import { match, P } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import {
@@ -342,7 +340,7 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
 
     this.addControl(
       "action",
-      new SelectControl("addRow", {
+      new SelectControl(() => this.snap.context.settings.action, {
         placeholder: "Select an action",
         values: [
           ...Object.values(GoogleSheetActionTypes).map((action) => ({

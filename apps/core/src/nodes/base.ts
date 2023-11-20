@@ -504,7 +504,7 @@ export abstract class BaseNode<
         this.pactor.send({
           type: "SET_VALUE",
           values: {
-            [item.name]: "",
+            [item.name]: item.type === "date" ? undefined : "",
           },
         });
       }
