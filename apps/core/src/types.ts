@@ -31,6 +31,7 @@ import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
+import { Thread } from "./nodes/thread";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -67,6 +68,8 @@ export const nodes = {
   TextNode: TextNode,
   Number: Number,
   PromptTemplate: PromptTemplate,
+  Thread: Thread,
+
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIThread: OpenAIThread,
   OpenAIAssistant: OpenAIAssistant,

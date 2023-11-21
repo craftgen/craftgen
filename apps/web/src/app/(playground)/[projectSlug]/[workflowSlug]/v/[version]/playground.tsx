@@ -83,18 +83,18 @@ const defaultLayout: FlexLayout.IJsonModel = {
               },
             ],
           },
-          {
-            type: "tabset",
-            weight: 36.11442193087009,
-            children: [
-              {
-                type: "tab",
-                name: "Inputs",
-                component: "inputWindow",
-                enableClose: false,
-              },
-            ],
-          },
+          // {
+          //   type: "tabset",
+          //   weight: 36.11442193087009,
+          //   children: [
+          //     {
+          //       type: "tab",
+          //       name: "Inputs",
+          //       component: "inputWindow",
+          //       enableClose: false,
+          //     },
+          //   ],
+          // },
         ],
       },
       {

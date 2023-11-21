@@ -257,6 +257,12 @@ export abstract class BaseNode<
             message: event.params?.message || "Something went wrong",
           }),
         }),
+        changeAction: assign({
+          action: ({ event, context }) => ({
+            ...context.action,
+            type: event.value,
+          }),
+        }),
         updateAncestors: async () => {
           await this.updateAncestors();
         },

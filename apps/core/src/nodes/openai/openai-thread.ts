@@ -12,14 +12,14 @@ import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
-import { ThreadControl } from "../../controls/thread";
+import { OpenAIThreadControl } from "../../controls/openai-thread.control";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
 export const OpenAIThreadMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgBcALAJzCwgDocIAbMAYgGUBRAFQH02AJAJRYCCAEQ4BJIQG0ADAF1EoVMlg4COZBnkgAHogAcAJgA0IAJ6IAzOYCclAKwBGAGwAWR-YDsVqbq9OAvn7GaJi4hKTkVDT0DMIiALIsTEwCAOIs0nJIIIrKquqaOgj6TpTOtub25s7FVtW2zs7GZgjO1pSO+uad+rb6ug76zgFB6Nj4xGQUlCQArhgYOBhQlBQQcXCwWDCUAMZEYDsA1mzhFAwQ6mDUGABuyIdXwWNhk1Sz84vLq+uwm9t7B2OpwgCEWdx2WDyGAyGU0ORUag0WUKjkcNg8DSsukc7m8jlsuiaiGc7nM7Xs9ixXSk7n0+nxjmGICeoQmEWmcwWSxWEDWGy2VwBRxOrwYYBIJGQJEoqFokIAZlKALaUFnjYEcj7c778-77YXA0G3ZAQqEw2RwpQI-LIxAU5xSSi4hq2dxo-EOQmmRB9WyUewOKTOezddy2GlMtUvdnvLlfXk-P6C-VA0WwrLwqEFRCo9HuTHY3HYglElr0p26dxuzrufrVHqR0asjWxz48vm-AUyyU7DbnS7XO4PVVN9WvTVx9uJruoHsbI3gyGI82ZBRWrO2hD2x3Ospuqwe+xe5rOXT2Sh9KpOfRSKx3qxugKBEAYZAQOCaKNsiiW3KI7MIFYpZ4IMjYhGO7JRGAv7WkioCFJWlDWO4lRWNYuhSHSXSlq0NieCGUghgSaJdGBzzfm8nKfDBG7wRYtg2ASNLmChAb2FILiNN6CCOGSXT6FYTgkjS4ZBkMz5fi2VHcosKg0f+m7VI6TGkqxgacaWAaOi4BJdLUWmEWRzbjq22oJrq0EZuuCl0S0NJ2BhqkUupDSlhUzhOhizhUj4ui6JYRkQVMpnxh2Sa7CmIoRPJNq2WUfoqSxznsRp3EOvolBBlI5iouYt6kro4kjOB0bBdJoXTtss4mhsMVwdoeiOI6QaOD4aFHliHQ4bYjh2OYDFoa0-mVOYgWlVQ4qSiQdUATipaFe4lB+fUPTeX5t6MhJo7jbsyBKrKYAEJZa5-rFDUIK6pZeL1LGiViTHeVYT5+EAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgBcALAJzCwgDocIAbMAYgEEARFgfQFkBRAZV6YBxbgG0ADAF1EoVMlg4COZBmkgAHogCMANjGUALAE5jAdm0BmTTssmTAGhABPRIbHbK2gKzaThk+YAOL00AJm0AX3CHNExcQlJyKhp6ZjZ2JgA5DgAlAFUMrj4BYXEpJBBZeUVlVQ0EHT0jUwsrFtsHZ3qQzX0DfUtQsRDvNwDI6PRsfGIyCmo6Rl5uABV2ZYAJbO5WdgBJFlLVSoUlFXK6hoNjPxbrTXanLSsTSmMxd91zX319cZAYqbxWZJBYMQ7lY7VM6gC66K7NAZteyPepiEyNVxiTxiN5iL4RKL-SZxGaJSjAxypDg8fhCUSSI5yE41c6IbGGSjdHG+EIBL4BYb6DpaIYvfRuWy6IyeQy-QkAkkJOYUqnpLLsPIFGnFellGRMqG1Nk4zmabmGXn8wXC1G2V4S8yOkyeZ3aAkTWLTJVUFUAYQAMttsmtNtsDgyIQbTkaECFHZQTAFDFZPAF7v0XTa-L08doAmJnrLPKm-gqvcDyQBXDAYHAYKCUCgQThwWBYGBMDAQbLVygAYyIYD7AGtlt6GBBlGBqBgAG7IYfTstAskkau1+uNiDN1vtsCd7u9gdD0fehB1+d9rBQ0rg-VVaOs1GeTSUcxiH5+At46VZ-QhTkf20fRsWCONS2JctV3XOsGybFtYDbDsux7DB+0HEcx2BBgwBIEhkBIShUFoa8ADMCIAW0oZdSWVGDN3g3dkMPNDj0ws8L2QK8b0kO8KijFkYS0F1X30MxuR8EIcTdG0zQCXp+neAIBRMMJnTlD1AVon16Lg7cEKQ-cUKPDDT2wvjIUfITn1fd9P3RM1zF-FEk16dFHS8CxvCCDSiU9Fc6JrWCtx3RC9wPVCiPwvtWwnKcZ3nRdqMggKdKChj9KYoyWKirjW3POcuOvU5bwje9mWhdRhJMUTxJuVTpO0LMQheQZNG8d8auTTwIP87Sq3SvTQsM9CTywxI4owadOKSmjvQGjchoMvdRvY4ECsvYrlFKvV+IfQSqttRpfEsQJ2u0QwbU8cVOSafNsW6WxDF6rT5rXQaQuWmBVrMibcPwwjiLIyjkr6t7dM+rKfvGigNqKniJAsgTKouESDDqswGsMGSUTzACxLdMx7kMfMsRexUK3exbIbC762N+igwTKvaKpjM10XRwxTrTbxLpRIwAOdd5BWulr2pMcmoMC6nGNp6dUGi2LJymhKFyXFL+qp4LZZGhW8sQuHuJK3jmcsg7UZq9HdHqqTsaalFroCSgekdTQAmu0CfEl1L+2QCjiLAAhGFYakijpJH9pRrQvD0HpExxWUcR0G000obFv00Vx3feWVvf6vs-YDoPVUyHJ8kKWkSlN5G2bRgmJKxnHOlCDnxTzWxM6CMxzEiQkMGQCA4FUObgUZSOYzwe3Oknyh3jn+f556PP5uSMAx9Zp9-1kqTXxa4CZVTcxixCXyR9XRJOnKw1N80cxXgtHQzEJoJNFktFXxJ0wTtlIwxnlDXwaDXXtfayJh9CvnckMPMDR7ghFknyTk6d7o1VTCEcC-8waUwhnWBQwCrKHTki8YsPNwEXRAliG0LU9BCzxEEESFg3TLywR9HW4VjKVTNlHBAiYOSQLCGmXQsCbTiUAuYNB+YnLYnMO6Pyr1mEy0ynLCKJkxrejwebRAfIXh8OgYI1Sf49B5gLAwsBNUwhMOgiwxRhllFoT1jFRC6iuGhH-JQAIYDPz6DTHPcwzVPBp2xu7a6zpzDJglhguRliFHDT3E4mM+YnbuMTP0bQ3Qj4PE6EfJ2wx3iWB8LoMQAoe4RIplE7W1iVr0xhhAOJT53buCSfJaRaSXTIk6J4QICYwi6FsKmZM7sLHS3KTE769jWy1OsqEVJs9f7gJdPmTOV04weH6F8OOZoXSnwARWf6BEJkEPkr0QJPRPBSVWaEN+xhnbeGAvoXQ2hWg9RKVLKgBd-b0CDvsi4hzXjQJAmc12cCUSyjvmAox3hJQQt7uEIAA */
   id: "openai-thread",
   initial: "idle",
   context: ({ input }) =>
@@ -203,7 +203,7 @@ export const OpenAIThreadMachine = createMachine({
             },
             process: {
               invoke: {
-                src: "addMessageAndRun",
+                src: "addMessage",
                 input: ({ context }) => ({
                   threadId: context.settings.threadId,
                   params: context.inputs.addMessage,
@@ -349,14 +349,6 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
         }),
       },
       actors: {
-        addMessageAndRun: fromPromise(async ({ input }) => {
-          console.log("input addMessage", input);
-          const message = await this.openai()?.beta.threads.messages.create(
-            input.threadId,
-            input.params,
-          );
-          return message;
-        }),
         addMessage: fromPromise(async ({ input }) => {
           console.log("input addMessage", input);
           const message = await this.openai()?.beta.threads.messages.create(
@@ -385,7 +377,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
 
     this.addControl(
       "Thread Id",
-      new ThreadControl(
+      new OpenAIThreadControl(
         () => this.snap.context.settings.threadId || "",
         this.actor,
         {},

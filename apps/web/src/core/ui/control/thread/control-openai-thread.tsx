@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "@xstate/react";
 import { flatten } from "lodash-es";
 import { Paperclip } from "lucide-react";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
-import Markdown from "react-markdown";
 
-import { ThreadControl } from "@seocraft/core/src/controls/thread";
+import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
 
 import { Copyable } from "@/components/copyable";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 
-export const ThreadControlComponent = (props: { data: ThreadControl }) => {
+import { InputSection } from "./input-section";
+import { TextContent } from "./shared";
+
+export const OpenAIThreadControlComponent = (props: {
+  data: OpenAIThreadControl;
+}) => {
   const { data: thread } = api.openai.tread.retrieve.useQuery(
     { threadId: props.data.threadId },
     {
@@ -41,7 +44,28 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   }, [hasNextPage]);
   const messagesList = flatten(messages?.pages.map((p) => p.data)) || [];
   const actor = props.data.actor;
-  const state = useSelector(actor, (state) => state);
+  const utils = api.useUtils();
+
+  const handleAdd = (value: string) => {
+    actor.send({
+      type: "ADD_MESSAGE",
+      params: {
+        content: value,
+        role: "user",
+      },
+    });
+    utils.openai.tread.messages.invalidate();
+  };
+  const handleAddAndRun = (value: string) => {
+    actor.send({
+      type: "ADD_AND_RUN_MESSAGE",
+      params: {
+        content: value,
+        role: "user",
+      },
+    });
+    utils.openai.tread.messages.invalidate();
+  };
 
   return (
     <div>
@@ -65,54 +89,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
       </div>
       <div className="border-1 p-2">
         <Messages messages={messagesList || []} />
-        <InputSection actor={actor} />
-      </div>
-    </div>
-  );
-};
-
-const InputSection: React.FC<{ actor: ThreadControl["actor"] }> = ({
-  actor,
-}) => {
-  const [value, setValue] = useState("");
-  const utils = api.useUtils();
-
-  const handleAddAndRun = () => {
-    actor.send({
-      type: "ADD_AND_RUN_MESSAGE",
-      params: {
-        content: value,
-        role: "user",
-      },
-    });
-    setValue("");
-    utils.openai.tread.messages.invalidate();
-  };
-  const handleAdd = () => {
-    actor.send({
-      type: "ADD_MESSAGE",
-      params: {
-        content: value,
-        role: "user",
-      },
-    });
-    setValue("");
-    utils.openai.tread.messages.invalidate();
-  };
-
-  return (
-    <div className="rounded border p-2">
-      <Textarea
-        className="border-none"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
-      <div className="flex items-center justify-start space-x-2 pt-2 focus-visible:ring-0">
-        <Button onClick={handleAddAndRun}>Add and Run</Button>
-        <Button onClick={handleAdd}>Add</Button>
-        <Button variant={"outline"} size="icon">
-          <Paperclip className="h-4 w-4" />
-        </Button>
+        <InputSection handleAdd={handleAdd} handleAddAndRun={handleAddAndRun} />
       </div>
     </div>
   );
@@ -177,11 +154,3 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
     </div>
   );
 };
-
-const TextContent: React.FC<{ content: string }> = React.memo(({ content }) => {
-  return (
-    <div className="prose">
-      <Markdown>{content}</Markdown>
-    </div>
-  );
-});

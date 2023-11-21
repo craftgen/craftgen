@@ -11,14 +11,16 @@ import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
 import { DateControl } from "@seocraft/core/src/controls/date";
 import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
+import { JsonControl } from "@seocraft/core/src/controls/json";
 import { NumberControl } from "@seocraft/core/src/controls/number";
+import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
 import { SelectControl } from "@seocraft/core/src/controls/select";
 import { SliderControl } from "@seocraft/core/src/controls/slider";
 import { SocketGeneratorControl } from "@seocraft/core/src/controls/socket-generator";
 import { SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
 import { TableControl } from "@seocraft/core/src/controls/table";
 import { TextareControl } from "@seocraft/core/src/controls/textarea";
-import { ThreadControl } from "@seocraft/core/src/controls/thread";
+import { ThreadControl } from "@seocraft/core/src/controls/thread.control";
 import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import type { Schemes } from "@seocraft/core/src/types";
 
@@ -28,15 +30,17 @@ import { CodeEditor } from "./ui/control/control-code";
 import { DateControlComponent } from "./ui/control/control-date";
 import { ArticleEditor } from "./ui/control/control-editor";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
+import { JsonControlComponent } from "./ui/control/control-json";
 import { NumberControlComponent } from "./ui/control/control-number";
 import { SelectControlComponent } from "./ui/control/control-select";
 import { SliderControlComponenet as SliderControlComponent } from "./ui/control/control-slider";
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
 import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
 import { TableControlComponent } from "./ui/control/control-table";
-import { ThreadControlComponent } from "./ui/control/control-thread";
 import { CustomInput } from "./ui/control/custom-input";
 import { CustomTextarea } from "./ui/control/custom-textarea";
+import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai-thread";
+import { ThreadControlComponent } from "./ui/control/thread/control-thread";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">,
@@ -58,7 +62,9 @@ export const getControl = (
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
-    .with(P.instanceOf(ThreadControl), () => ThreadControlComponent)
+    .with(P.instanceOf(OpenAIThreadControl), () => OpenAIThreadControlComponent)
     .with(P.instanceOf(DateControl), () => DateControlComponent)
+    .with(P.instanceOf(ThreadControl), () => ThreadControlComponent)
+    .with(P.instanceOf(JsonControl), () => JsonControlComponent)
     .otherwise(() => () => null);
 };

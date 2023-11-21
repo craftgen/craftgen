@@ -9,6 +9,7 @@ import { DiContainer } from "../../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../../base";
 
 export const GoogleSearchConsoleMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5SzAQwE4GMAWBaTA9gHawEA2YAdAJYQUDEASgKoByA2gAwC6ioADgVjUALtWJ8QAD0QBGABwAmSgHYVAZgAsmxQFZ1G3bNmaANCACecpZU0bZnTos3yVANjUBfT+ZQYc+MSkFDR0YPQAygCiACoA+gBqAIIAMsxRXLxIIILCYhLZMgg65lYI8rKURgCc1W7ymrLqDtUm3r5oWHiEJORU6ACuRETURFCUEGAiYOgAtqNgSZj5RPSZkrmi4kSSRS7KtbUNrfLV8uqKpYiKBpSKN5ynio+KKkry7SB+XYG9IYPDUbjACOAxmFnoEGIVFGADcCABrKjfAI9YL9IYjMaUUHghBwgiYVArTLrbKbFa7RBvTiUThvBzyU6PTjqK4IWTVXSUNxuZrVOwqTS6XRclSfFHdIJ9SgArEgsHoCEzdAEdCUfhkYkAMzVs0okt+6NlmKBOMVFnxRHhRJJPDJAiEWwKoCKNLpDMezPkrPZilOlGMfMUblqbk4uiF4s+RAIk3g2UNaL6GydlMKiFwbnZuG51RUh0LRejHX8Ur+MLCqby2ypCBUtL5HkU1ScXPUnC57IUBw0jxF6mqzzOHx8X06qOl-1NY2rzp2GYQemqPJcmmaKmMFTcsm7smU92a6g7BmcunkbglE-LxrlZsm0zmCyW6cdNZd0kQHZUq4aG63sg7n66huHcDynJonDGPm1RXmWRoyne2K4kqc6vp+CCRvIdLyKKnayPorKct2tSqDcDgmLorIinBPzJiEhCzJqUxgGhtaLkO3Ksq2ug6K2obCn6sg-ny+ZCoOFwFo8tGThWlAqmqbEfkUnF0oOEZ8ZwAm6H6TKBoBzTOAWjRDt43hAA */
   id: "search-console",
   initial: "idle",
   context: ({ input }) =>

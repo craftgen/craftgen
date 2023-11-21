@@ -80,14 +80,10 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     input.actor,
     (state) => state.context.description,
   );
-  const { projectSlug, workflowSlug } = useCraftStore((state) => ({
-    projectSlug: state.projectSlug,
-    workflowSlug: state.workflowSlug,
-  }));
   const schema = input.inputSchema as any;
   const fields = useSelector(
     input.actor,
-    (state) => state.context.outputSockets,
+    (state) => state.context.inputSockets,
   );
   const form = useForm({
     defaultValues: {
@@ -96,8 +92,6 @@ export const DynamicForm: React.FC<{ input: InputNode }> = ({ input }) => {
     resolver: ajvResolver(schema),
   });
 
-  const router = useRouter();
-  const pathname = usePathname();
   const onSubmit = async (data: any) => {
     try {
       //TODO: fix execution

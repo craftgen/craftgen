@@ -4,6 +4,7 @@ import { match, P } from "ts-pattern";
 
 import { DateControl } from "./controls/date";
 import { InputControl } from "./controls/input.control";
+import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
 
 export class Socket extends ClassicPreset.Socket {
@@ -326,7 +327,7 @@ export const getControlBySocket = (
       });
     })
     .otherwise(() => {
-      return new InputControl(value, {
+      return new JsonControl(value, {
         change: onChange,
       });
     });

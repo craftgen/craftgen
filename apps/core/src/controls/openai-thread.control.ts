@@ -4,17 +4,17 @@ import { Actor } from "xstate";
 import { OpenAIThreadMachine } from "../nodes/openai/openai-thread";
 import { BaseControl } from "./base";
 
-export type ThreadControlOptions = {};
+export type OpenAIThreadControlOptions = {};
 
-export class ThreadControl extends BaseControl {
-  __type = "thread";
+export class OpenAIThreadControl extends BaseControl {
+  __type = "openai-thread";
 
   public threadId: string;
 
   constructor(
     public threadIdObservable: () => string, // Function that returns the observable value
     public actor: Actor<typeof OpenAIThreadMachine>,
-    public options: ThreadControlOptions,
+    public options: OpenAIThreadControlOptions,
   ) {
     super(50);
 

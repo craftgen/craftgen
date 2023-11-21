@@ -1,21 +1,19 @@
+import { createId } from "@paralleldrive/cuid2";
+import { relations } from "drizzle-orm";
 import {
+  boolean,
+  integer,
+  json,
+  pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
-  uuid,
-  pgEnum,
-  json,
   unique,
-  boolean,
-  primaryKey,
-  integer,
+  uuid,
 } from "drizzle-orm/pg-core";
-import { createId } from "@paralleldrive/cuid2";
-
-import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
-
-import { relations } from "drizzle-orm";
 
 export const createIdWithPrefix = (prefix: string) => () =>
   `${prefix}_${createId()}`;
@@ -63,7 +61,7 @@ export const apiKey = pgTable(
   },
   (t) => ({
     key: unique().on(t.project_id, t.key),
-  })
+  }),
 );
 
 export const variable = pgTable(
@@ -79,7 +77,7 @@ export const variable = pgTable(
   },
   (t) => ({
     key: unique().on(t.project_id, t.key),
-  })
+  }),
 );
 
 export const workflow = pgTable(
@@ -104,7 +102,7 @@ export const workflow = pgTable(
     return {
       slug: unique().on(p.projectId, p.slug),
     };
-  }
+  },
 );
 
 export const workflowVersion = pgTable(
@@ -126,7 +124,7 @@ export const workflowVersion = pgTable(
     return {
       unique: unique().on(workflowVersion.workflowId, workflowVersion.version),
     };
-  }
+  },
 );
 
 export const workflowVersionRelations = relations(
@@ -147,7 +145,7 @@ export const workflowVersionRelations = relations(
       fields: [workflowVersion.projectId],
       references: [project.id],
     }),
-  })
+  }),
 );
 
 export const shapeOfContext = z.object({
@@ -203,10 +201,10 @@ export const workflowEdge = pgTable(
         edge.source,
         edge.target,
         edge.sourceOutput,
-        edge.targetInput
+        edge.targetInput,
       ),
     };
-  }
+  },
 );
 
 export const selectWorkflowEdgeSchema = createInsertSchema(workflowEdge);
@@ -303,7 +301,7 @@ export const workflowExecutionRelations = relations(
     }),
     steps: many(workflowExecutionStep),
     executionData: many(nodeExecutionData),
-  })
+  }),
 );
 
 export const workflowExecutionStep = pgTable("workflow_execution_step", {
@@ -375,7 +373,7 @@ export const nodeExecutionDataRelations = relations(
       fields: [nodeExecutionData.workflowExecutionId],
       references: [workflowExecution.id],
     }),
-  })
+  }),
 );
 
 export const workflowExecutionStepRelations = relations(
@@ -393,7 +391,7 @@ export const workflowExecutionStepRelations = relations(
       fields: [workflowExecutionStep.target_node_execution_data_id],
       references: [nodeExecutionData.id],
     }),
-  })
+  }),
 );
 
 export const selectWorkflowNodeSchema = createSelectSchema(workflowNode, {
@@ -434,7 +432,7 @@ export const workflowNodeRelations = relations(
       fields: [workflowNode.projectId],
       references: [project.id],
     }),
-  })
+  }),
 );
 
 export const contextRelations = relations(context, ({ one, many }) => ({
