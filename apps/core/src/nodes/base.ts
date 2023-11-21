@@ -60,6 +60,11 @@ export type BaseContextType = {
   } | null;
 };
 
+export type ChangeActionEventType<T> = {
+  type: "CHANGE_ACTION";
+  value: T;
+};
+
 export type BaseEventTypes =
   | {
       type: "SET_VALUE";
@@ -82,6 +87,9 @@ export type BaseActionTypes =
     }
   | {
       type: "updateAncestors";
+    }
+  | {
+      type: "changeAction";
     }
   | {
       type: "triggerSuccessors";

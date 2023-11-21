@@ -1,5 +1,4 @@
 import { isNull, merge } from "lodash-es";
-import { makeObservable, reaction } from "mobx";
 
 import "openai/shims/web";
 
@@ -8,10 +7,6 @@ import {
   MessageCreateParams,
   ThreadMessage,
 } from "openai/resources/beta/threads/messages/messages.mjs";
-import {
-  Run,
-  RunSubmitToolOutputsParams,
-} from "openai/resources/beta/threads/runs/runs.mjs";
 import { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";

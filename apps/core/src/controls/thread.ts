@@ -1,7 +1,7 @@
 import { makeObservable, observable, reaction } from "mobx";
 import { Actor } from "xstate";
 
-import { OpenAIThreadMachine } from "../nodes/openai/thread";
+import { OpenAIThreadMachine } from "../nodes/openai/openai-thread";
 import { BaseControl } from "./base";
 
 export type ThreadControlOptions = {};

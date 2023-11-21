@@ -30,7 +30,7 @@ import {
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
-import { OpenAIThread } from "./nodes/openai/thread";
+import { OpenAIThread } from "./nodes/openai/openai-thread";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
