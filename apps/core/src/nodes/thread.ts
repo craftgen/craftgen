@@ -215,9 +215,7 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
     super("Thread", di, data, ThreadMachine, {
       actors: {
         addMessage: fromPromise(async ({ input }) => {
-          return {
-
-          }
+          return {};
         }),
       },
     });

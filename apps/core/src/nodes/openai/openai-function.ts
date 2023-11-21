@@ -56,6 +56,7 @@ const mergeSettings = (context: any, event: any) => {
 
 export enum OpenAIFunctionCallActions {
   generateText = "generateText",
+  completeChat = "completeChat",
   generateJson = "generateJson",
 }
 
@@ -75,7 +76,7 @@ const OpenAIFunctionCallMachine = createMachine({
         },
         inputs: {
           type: OpenAIFunctionCallActions.generateText,
-          messages: [],
+          user: "",
           system: "",
         },
         inputSockets: [
@@ -120,9 +121,14 @@ const OpenAIFunctionCallMachine = createMachine({
     input: {
       inputs:
         | {
-            type: OpenAIFunctionCallActions.generateText;
+            type: OpenAIFunctionCallActions.completeChat;
             system: string;
             messages: ChatPrompt;
+          }
+        | {
+            type: OpenAIFunctionCallActions.generateText;
+            system: string;
+            user: string;
           }
         | {
             type: OpenAIFunctionCallActions.generateJson;
@@ -134,11 +140,19 @@ const OpenAIFunctionCallMachine = createMachine({
       action:
         | {
             type: OpenAIFunctionCallActions.generateText;
-            inputs: {};
+            inputs: {
+              system: string;
+              user: string;
+              openai: OpenAIChatSettings;
+            };
           }
         | {
             type: OpenAIFunctionCallActions.generateJson;
-            inputs: {};
+            inputs: {
+              system: string;
+              user: string;
+              schema: object;
+            };
           };
       outputs: Record<string, any>;
       settings: {
@@ -259,6 +273,7 @@ const OpenAIFunctionCallMachine = createMachine({
         },
       },
     },
+    
     running: {
       initial: "determineAction",
       states: {

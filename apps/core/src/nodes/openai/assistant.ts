@@ -293,6 +293,10 @@ export const OpenAIAssistantMachine = createMachine({
                 }),
               ],
             },
+            onError: {
+              target: "#openai-assistant.error",
+              actions: ["setError"],
+            },
           },
         },
         checking: {
@@ -396,6 +400,7 @@ export const OpenAIAssistantMachine = createMachine({
     complete: {
       type: "final",
     },
+    error: {},
   },
 });
 

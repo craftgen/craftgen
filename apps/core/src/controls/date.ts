@@ -4,7 +4,7 @@ import { action, makeObservable, observable, reaction } from "mobx";
 import { BaseControl } from "./base";
 
 type DateControlOptions = {
-  change: (value: Date | null) => void;
+  change: (value: string | null) => void;
 };
 
 export class DateControl extends BaseControl {
@@ -41,6 +41,7 @@ export class DateControl extends BaseControl {
 
   setValue(value: Date | null) {
     this.value = value;
-    if (this.options?.change) this.options.change(value);
+    if (this.options?.change)
+      this.options.change((value && value?.toISOString()) || null);
   }
 }

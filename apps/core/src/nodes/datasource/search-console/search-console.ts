@@ -95,7 +95,7 @@ export const GoogleSearchConsoleMachine = createMachine({
               action: ({ context }) => ({
                 ...context.action,
                 inputs: {
-                  siteUrl: context.inputs.siteUrl,
+                  siteUrl: "sc-domain:ailifestory.com",
                   requestBody: {
                     ...context.action.inputs.requestBody,
                     startDate: context.inputs.startDate,
