@@ -215,6 +215,18 @@ export const types = [
   "date",
 ] as const;
 
+export type SocketTypeMap = {
+  string: string;
+  number: number;
+  boolean: boolean;
+  any: any;
+  array: any[]; // Replace 'any' with a more specific type if needed
+  object: object; // Replace 'object' with a more specific type if needed
+  date: Date; // Assuming you want to map "date" to JavaScript Date object
+};
+
+export type JSONSocketTypeKeys = (typeof types)[number];
+
 export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
   switch (type) {
     case "string":

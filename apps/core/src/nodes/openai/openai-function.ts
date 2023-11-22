@@ -5,14 +5,14 @@ import {
   generateText,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
+  OpenAIChatMessage,
   OpenAIChatModel,
   OpenAIChatModelType,
-  OpenAICompletionModelType,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
   type OpenAIChatSettings,
 } from "modelfusion";
-import { SetOptional } from "type-fest";
+import { SetOptional, Simplify } from "type-fest";
 import {
   assign,
   createMachine,
@@ -23,8 +23,13 @@ import {
 
 import { SelectControl } from "../../controls/select";
 import { SliderControl } from "../../controls/slider";
+import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
-import { triggerSocket } from "../../sockets";
+import {
+  JSONSocketTypeKeys,
+  SocketTypeMap,
+  triggerSocket,
+} from "../../sockets";
 import type { DiContainer } from "../../types";
 import {
   BaseMachineTypes,
@@ -60,6 +65,184 @@ export enum OpenAIFunctionCallActions {
   generateJson = "generateJson",
 }
 
+interface ActionOutput {
+  result: string;
+}
+
+interface ActionInput {
+  openai: OpenAIChatSettings;
+}
+
+interface CompleteChatActionInput extends ActionInput {
+  messages: OpenAIChatMessage[];
+}
+
+interface GenerateTextActionInput extends ActionInput {
+  system: string;
+  user: string;
+}
+
+interface GenerateJsonActionInput extends ActionInput {
+  system: string;
+  user: string;
+  schema: JSONSchemaType<any>;
+}
+
+interface ActionConfig<T extends ActionInput> {
+  inputSockets: JSONSocket[];
+  outputSockets: JSONSocket[];
+  action: {
+    type: OpenAIFunctionCallActions;
+    inputs: T;
+  };
+}
+
+
+const Actions: {
+  // [K in OpenAIFunctionCallActions]: ActionConfig<ActionInput>;
+  [OpenAIFunctionCallActions.completeChat]: ActionConfig<CompleteChatActionInput>;
+  [OpenAIFunctionCallActions.generateText]: ActionConfig<GenerateTextActionInput>;
+  [OpenAIFunctionCallActions.generateJson]: ActionConfig<GenerateJsonActionInput>;
+} = {
+  [OpenAIFunctionCallActions.completeChat]: {
+    inputSockets: [
+      {
+        name: "system",
+        type: "string",
+        description: "System Message",
+        required: false,
+        isMultiple: false,
+      },
+      {
+        name: "messages",
+        type: "array",
+        description: "messages",
+        required: false,
+        isMultiple: false,
+      },
+    ] as const,
+    outputSockets: [
+      {
+        name: "result",
+        type: "string",
+        description: "Result",
+        required: true,
+        isMultiple: true,
+      },
+    ],
+    action: {
+      type: OpenAIFunctionCallActions.completeChat,
+      inputs: {} as CompleteChatActionInput,
+    },
+  },
+  [OpenAIFunctionCallActions.generateText]: {
+    inputSockets: [
+      {
+        name: "system",
+        type: "string",
+        description: "System Message",
+        required: false,
+        isMultiple: false,
+      },
+      {
+        name: "user",
+        type: "string",
+        description: "User Prompt",
+        required: true,
+        isMultiple: false,
+      },
+    ],
+    outputSockets: [
+      {
+        name: "result",
+        type: "string",
+        description: "Result",
+        required: true,
+        isMultiple: true,
+      },
+    ],
+    action: {
+      type: OpenAIFunctionCallActions.generateText,
+      inputs: {} as GenerateTextActionInput,
+    },
+  },
+  [OpenAIFunctionCallActions.generateJson]: {
+    inputSockets: [
+      {
+        name: "system",
+        type: "string",
+        description: "JSON",
+        required: true,
+        isMultiple: false,
+      },
+      {
+        name: "user",
+        type: "string",
+        description: "User Prompt",
+        required: true,
+        isMultiple: false,
+      },
+      {
+        name: "object",
+        type: "object",
+        description: "JSON",
+        required: true,
+        isMultiple: false,
+      },
+    ],
+    outputSockets: [
+      {
+        name: "result",
+        type: "string",
+        description: "Result",
+        required: true,
+        isMultiple: true,
+      },
+    ],
+    action: {
+      type: OpenAIFunctionCallActions.generateJson,
+      inputs: {} as GenerateJsonActionInput,
+    },
+  },
+};
+
+type SpecificActionType<T extends OpenAIFunctionCallActions> = {
+  type: T;
+  inputs?: (typeof Actions)[T]["action"]["inputs"];
+};
+
+const inputSockets= [
+  {
+    name: "system" as const,
+    type: "string" as const,
+    description: "System Message",
+    required: false,
+    isMultiple: false,
+  },
+  {
+    name: "messages" as const,
+    type: "array" as const,
+    description: "messages",
+    required: false,
+    isMultiple: false,
+  },
+];
+
+
+type KeyNames<T extends JSONSocket[]> = T[number]['name'];
+type MappedType<T extends JSONSocket[]> = {
+  [K in KeyNames<T>]: SocketTypeMap[Extract<T[number], { name: K }>['type']];
+};
+
+type MyNodeInputs = MappedType<typeof inputSockets>;
+
+const inputs: MyNodeInputs = {
+  system: '12',
+  messages: []
+
+};
+
+
 const OpenAIFunctionCallMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgDMBXDAYwBcdkM9SsAbegOhwnrAGIBhAeQDkAYgEkA4gH0uACQCCfEQFEA2gAYAuolCpksHJWoaQAD0QAmAJwBWJgGYA7BeUBGE44BsADjP3bAGhABPRGtXK0trR2V7d0dbazMAX3i-NExcQhIKKho6RhY2TgAlAFU+FXUkEC0dPQwDYwQAFncTJhDXE1dnMxjIiws-QMaG6yYzc1cJ22dlC2sLROT0bHxiMhraBmYAJxIMHAwoDghqMBYMADdkAGtTlOX0tayN3J2MPYOEfcu6GrKygyquiydUQTRabQ6XR69n6AUQ0SYDTMyOaDXaJjizgWIDuaVWmWoz22u32hzAWy2yC2TFQ9Cw5AIVIAtkxcSsMuscsS3qTPhdkD8sn81ADtED9BV6rZbK4mCYOhZ3A1bCYmg1lCYBqZ3MpEbNlGYJsF3FM5ti2Q8CdlNkxyZSthxiqURRVATUQQgdWZWtYTDrbMp3K4mo5HFqEPLvWFHA1nAHmnYTOalniOU8uUxSMgmbSwORCiV-q6xe7JYgYu5RuYA2iLK5bF7rOHVVYTMpwuZPCbHBYk0kcSn2Y9CRmszn2PmOIZYOR6acsAR81sABQRZTKACUHAt+M5NrHufzRc0JeBZYQFarXmUtfrjfDaMcTB77QN0sV9dViX7GGQEDgBg7mmI6bKK1RnqA9R4K44bQcmqRDlaRJ5OwYHirU57WMqcptHM0TSk0TZwo09aIso6KuIafomLYDTwfcu7pjarzvFAaGlpBiCdC0NFYWi1jttYAm+MRLhPgG4SxpROrBq49GpsO1q5HaVLsRBRiIGYN5MA4DaOEqtF+l4zbWJWsyyVMIRuPM-ZAYpyEHhOYBqRKnGNJqxGhk+7gWD2DT6i47bdN+8RAA */
   id: "openai-function-call",
@@ -69,44 +252,19 @@ const OpenAIFunctionCallMachine = createMachine({
       {
         action: {
           type: OpenAIFunctionCallActions.generateText,
-          inputs: {
-            model: "gpt-3.5-turbo-1106",
-            prompt: [],
-          },
         },
         inputs: {
           type: OpenAIFunctionCallActions.generateText,
           user: "",
           system: "",
         },
-        inputSockets: [
-          {
-            name: "system",
-            type: "string",
-            description: "system message",
-            required: false,
-            isMultiple: false,
-          },
-          {
-            name: "messages",
-            type: "array",
-            description: "Result",
-            required: true,
-            isMultiple: false,
-          },
-        ],
+        inputSockets:
+          Actions[OpenAIFunctionCallActions.generateText].inputSockets,
         outputs: {
           result: "",
         },
-        outputSockets: [
-          {
-            name: "result",
-            type: "string",
-            description: "Result",
-            required: true,
-            isMultiple: true,
-          },
-        ],
+        outputSockets:
+          Actions[OpenAIFunctionCallActions.generateText].outputSockets,
         settings: {
           openai: {
             model: "gpt-3.5-turbo-1106",
@@ -119,41 +277,28 @@ const OpenAIFunctionCallMachine = createMachine({
     ),
   types: {} as BaseMachineTypes<{
     input: {
-      inputs:
-        | {
-            type: OpenAIFunctionCallActions.completeChat;
-            system: string;
-            messages: ChatPrompt;
-          }
-        | {
-            type: OpenAIFunctionCallActions.generateText;
-            system: string;
-            user: string;
-          }
-        | {
-            type: OpenAIFunctionCallActions.generateJson;
-            schema: object;
-            system: string;
-            user: string;
-          };
+      inputs: MappedType<(typeof Actions)['completeChat']['inputSockets']>;
+      // | {
+      //     type: OpenAIFunctionCallActions.completeChat;
+      //     system: string;
+      //     messages: ChatPrompt;
+      //   }
+      // | {
+      //     type: OpenAIFunctionCallActions.generateText;
+      //     system: string;
+      //     user: string;
+      //   }
+      // | {
+      //     type: OpenAIFunctionCallActions.generateJson;
+      //     schema: object;
+      //     system: string;
+      //     user: string;
+      //   };
 
       action:
-        | {
-            type: OpenAIFunctionCallActions.generateText;
-            inputs: {
-              system: string;
-              user: string;
-              openai: OpenAIChatSettings;
-            };
-          }
-        | {
-            type: OpenAIFunctionCallActions.generateJson;
-            inputs: {
-              system: string;
-              user: string;
-              schema: object;
-            };
-          };
+        | SpecificActionType<OpenAIFunctionCallActions.completeChat>
+        | SpecificActionType<OpenAIFunctionCallActions.generateText>
+        | SpecificActionType<OpenAIFunctionCallActions.generateJson>;
       outputs: Record<string, any>;
       settings: {
         openai: OpenAIChatSettings;
@@ -161,19 +306,9 @@ const OpenAIFunctionCallMachine = createMachine({
     };
     context: {
       action:
-        | {
-            type: OpenAIFunctionCallActions.generateText;
-            inputs?: {
-              model: OpenAICompletionModelType;
-              prompt: ChatPrompt;
-            };
-          }
-        | {
-            type: OpenAIFunctionCallActions.generateJson;
-            inputs?: {
-              schema: JSONSchemaType<any>;
-            };
-          };
+        | SpecificActionType<OpenAIFunctionCallActions.completeChat>
+        | SpecificActionType<OpenAIFunctionCallActions.generateText>
+        | SpecificActionType<OpenAIFunctionCallActions.generateJson>;
       inputs: {
         type: OpenAIFunctionCallActions.generateText;
         user: string;
@@ -190,25 +325,28 @@ const OpenAIFunctionCallMachine = createMachine({
     };
     actors:
       | {
+          src: "completeChat";
+          logic: PromiseActorLogic<
+            {
+              result: string;
+            },
+            (typeof Actions)[OpenAIFunctionCallActions.completeChat]["action"]["inputs"]
+          >;
+        }
+      | {
           src: "generateText";
           logic: PromiseActorLogic<
             {
               result: string;
             },
-            {
-              model: OpenAIChatModelType;
-              messages: ChatPrompt;
-            }
+            (typeof Actions)[OpenAIFunctionCallActions.generateText]["action"]["inputs"]
           >;
         }
       | {
           src: "generateStructure";
           logic: PromiseActorLogic<
             any,
-            {
-              model: OpenAICompletionModelType;
-              prompt: string;
-            }
+            (typeof Actions)[OpenAIFunctionCallActions.generateJson]["action"]["inputs"]
           >;
         };
     actions: any;
@@ -273,12 +411,16 @@ const OpenAIFunctionCallMachine = createMachine({
         },
       },
     },
-    
     running: {
       initial: "determineAction",
       states: {
         determineAction: {
           always: [
+            {
+              guard: ({ context }) =>
+                context.action.type === OpenAIFunctionCallActions.completeChat,
+              target: "#openai-function-call.running.generateText",
+            },
             {
               guard: ({ context }) =>
                 context.action.type === OpenAIFunctionCallActions.generateText,
@@ -302,14 +444,9 @@ const OpenAIFunctionCallMachine = createMachine({
               action: ({ context }) => ({
                 type: OpenAIFunctionCallActions.generateText,
                 inputs: {
-                  model: context.settings.openai
-                    .model as OpenAICompletionModelType,
-                  prompt: [
-                    {
-                      system: context.inputs.system,
-                    },
-                    { user: context.inputs.user },
-                  ],
+                  openai: context.settings.openai,
+                  system: context.inputs.system,
+                  user: context.inputs.user,
                 },
               }),
             }),
@@ -403,16 +540,19 @@ export class OpenAIFunctionCall extends BaseNode<
     super("OpenAIFunctionCall", di, data, OpenAIFunctionCallMachine, {
       actors: {
         generateText: fromPromise(async ({ input }) => {
+          console.log({ input });
           try {
             const text = await generateText(
               new OpenAIChatModel({
                 api: this.apiModel(),
-                model: input.model,
-              }),
+                ...input.openai,
+              }).withChatPrompt(),
               [
                 {
-                  role: "user",
-                  content: "12",
+                  system: input.system,
+                },
+                {
+                  user: input.user,
                 },
               ],
             );
@@ -479,6 +619,11 @@ export class OpenAIFunctionCall extends BaseNode<
             this.actor.send({
               type: "CHANGE_ACTION",
               value: val,
+              inputSockets: Actions[val].inputSockets,
+              outputSockets: Actions[val].outputSockets,
+              action: {
+                type: val,
+              },
             });
           },
           placeholder: "Select Result Type",
@@ -490,6 +635,10 @@ export class OpenAIFunctionCall extends BaseNode<
             {
               key: OpenAIFunctionCallActions.generateText,
               value: "Text",
+            },
+            {
+              key: OpenAIFunctionCallActions.completeChat,
+              value: "Chat",
             },
           ],
         },

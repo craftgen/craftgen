@@ -17,6 +17,16 @@ export type SocketGeneratorControlOptions = {
 };
 
 export type JSONSocket = z.infer<typeof socketSchema>;
+export const socketSchema = z.object({
+  name: z.string().min(1),
+  type: z.enum(types),
+  description: z.string().optional(),
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  required: z.boolean().default(false),
+  isMultiple: z.boolean().default(false),
+});
+
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;
 
 export class SocketGeneratorControl extends BaseControl {
@@ -38,16 +48,6 @@ export class SocketGeneratorControl extends BaseControl {
     this.params.onChange(val);
   }
 }
-
-export const socketSchema = z.object({
-  name: z.string().min(1),
-  type: z.enum(types),
-  description: z.string().optional(),
-  minLength: z.number().optional(),
-  maxLength: z.number().optional(),
-  required: z.boolean().default(false),
-  isMultiple: z.boolean().default(false),
-});
 
 export const formSchema = z.object({
   name: z.string().min(1),

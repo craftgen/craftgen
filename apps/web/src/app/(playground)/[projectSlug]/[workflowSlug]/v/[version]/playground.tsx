@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -345,20 +346,19 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
       <Tabs defaultValue="controls" className="h-full p-4">
         <TabsList>
           <TabsTrigger value="controls">Controls</TabsTrigger>
-          <TabsTrigger value="inputs">Inputs</TabsTrigger>
+          {/* <TabsTrigger value="inputs">Inputs</TabsTrigger> */}
           <TabsTrigger value="outputs">Outputs</TabsTrigger>
         </TabsList>
-        <TabsContent value="controls" className="h-full">
-          <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="h-full w-full pr-4">
+        <TabsContent value="controls" className="h-full ">
+          <div className="flex h-1/2 flex-col gap-4 overflow-hidden ">
+            <ScrollArea className="h-full w-full px-4">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
             </ScrollArea>
           </div>
-        </TabsContent>
-        <TabsContent value="inputs" className="h-full">
-          <div className="flex h-full flex-col space-y-2 overflow-hidden">
+          <Separator />
+          <div className="flex h-1/2 flex-col space-y-2 overflow-hidden">
             <ScrollArea className="px-4 pb-10">
               <DynamicInputsForm inputs={node.inputs} />
             </ScrollArea>

@@ -63,6 +63,11 @@ export type BaseContextType = {
 export type ChangeActionEventType<T> = {
   type: "CHANGE_ACTION";
   value: T;
+  outputSockets: JSONSocket[];
+  inputSockets: JSONSocket[];
+  action: {
+    type: T;
+  };
 };
 
 export type BaseEventTypes =
@@ -258,6 +263,8 @@ export abstract class BaseNode<
           }),
         }),
         changeAction: assign({
+          inputSockets: ({ event }) => event.inputSockets,
+          outputSockets: ({ event }) => event.outputSockets,
           action: ({ event, context }) => ({
             ...context.action,
             type: event.value,
