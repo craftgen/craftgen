@@ -184,7 +184,7 @@
     "type-fest": "^4.5.0",
     "uuid": "^9.0.0",
     "web-worker": "^1.2.0",
-    "xstate": "5.0.0-beta.39",
+    "xstate": "5.0.0-beta.45",
     "zod": "3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
