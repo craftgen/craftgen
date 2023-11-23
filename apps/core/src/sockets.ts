@@ -6,6 +6,7 @@ import { DateControl } from "./controls/date";
 import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
+import { JSONSocket } from "./controls/socket-generator";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -226,6 +227,11 @@ export type SocketTypeMap = {
 };
 
 export type JSONSocketTypeKeys = (typeof types)[number];
+
+type KeyNames<T extends JSONSocket[]> = T[number]["name"];
+export type MappedType<T extends JSONSocket[]> = {
+  [K in KeyNames<T>]: SocketTypeMap[Extract<T[number], { name: K }>["type"]];
+};
 
 export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
   switch (type) {

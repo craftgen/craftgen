@@ -30,6 +30,7 @@ import {
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
+import { OpenAIGenerateText } from "./nodes/openai/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 
@@ -39,6 +40,7 @@ interface NodeTypeStatic {
   label: string;
   description: string;
   icon: string;
+  section?: string;
 }
 
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
@@ -71,6 +73,7 @@ export const nodes = {
   Thread: Thread,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
+  OpenAIGenerateText: OpenAIGenerateText,
   OpenAIThread: OpenAIThread,
   OpenAIAssistant: OpenAIAssistant,
 

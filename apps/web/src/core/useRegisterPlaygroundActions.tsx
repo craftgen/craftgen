@@ -31,17 +31,31 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const { mutateAsync: createAssistant } =
     api.openai.assistant.create.useMutation();
   const actions = useMemo(() => {
-    const res = nodes
-      .filter((n) => n.nodeType !== "ModuleNode")
-      .map((node) => ({
-        id: node.nodeType,
-        name: node.label,
-        section: "Nodes",
-        perform: async () => {
-          await di?.addNode(node.nodeType as NodeTypes);
-        },
-        icon: node.icon as any,
-      })) as Action[];
+    const res = [];
+
+    res.push({
+      id: "OpenAI",
+      name: "OpenAI",
+      keywords: "openai",
+      subtitle: "Add a module to your workflow",
+      section: "Nodes",
+      icon: <Icons.component className={"text-muted-foreground mr-2"} />,
+    });
+    res.push(
+      ...(nodes
+        .filter((n) => n.nodeType !== "ModuleNode")
+        .map((node) => ({
+          id: node.nodeType,
+          name: node.label,
+          parent: node.section,
+          subtitle: node.description,
+          section: node.section ?? "Nodes",
+          perform: async () => {
+            await di?.addNode(node.nodeType as NodeTypes);
+          },
+          icon: node.icon as any,
+        })) as Action[]),
+    );
     res.push({
       id: "ModuleNode",
       name: "Module",

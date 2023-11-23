@@ -295,7 +295,8 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
   static label = "OpenAI Thread";
   static description = "Thread node for OpenAI";
   static icon = "mails";
-  static category = "OpenAI";
+  static section = "OpenAI";
+
   public readonly variables = ["OPENAI_API_KEY"];
 
   static parse(

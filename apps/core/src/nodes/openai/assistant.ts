@@ -200,8 +200,9 @@ export const OpenAIAssistantMachine = createMachine({
       },
     },
     prereloding: {
-      after: {
-        10: "reloading",
+      always: {
+        guard: ({ context }) => !isNil(context.settings.assistant?.id),
+        target: "reloading",
       },
     },
     reloading: {
@@ -414,7 +415,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
   static label = " Assistant";
   static description = "OpenAI Assistant";
   static icon = "bot";
-  static category = "OpenAI";
+  static section = "OpenAI";
 
   static parse(
     params: SetOptional<OpenAIAssistantNode, "type">,

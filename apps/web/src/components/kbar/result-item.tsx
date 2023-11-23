@@ -23,6 +23,9 @@ export const ResultItem = React.forwardRef<
         </div>
         <div className="flex flex-col">
           <span className="text-foreground">{action.name}</span>
+          <span className="text-muted-foreground text-sm">
+            {action.subtitle}
+          </span>
         </div>
       </div>
       {action.shortcut?.length ? (

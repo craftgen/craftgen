@@ -8,7 +8,6 @@ import type {
   Area2D,
   AreaExtensions,
   AreaPlugin,
-  Zoom,
 } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
@@ -129,6 +128,7 @@ export class Editor<
       description: string;
       icon: string;
       class: NodeClass;
+      section?: string;
     }
   > = new Map();
 
@@ -220,6 +220,7 @@ export class Editor<
         label: value.label,
         description: value.description,
         icon: value.icon,
+        section: value.section,
         class: value,
       });
     });

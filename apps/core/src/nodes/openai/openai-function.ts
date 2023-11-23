@@ -27,6 +27,7 @@ import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import {
   JSONSocketTypeKeys,
+  MappedType,
   SocketTypeMap,
   triggerSocket,
 } from "../../sockets";
@@ -96,7 +97,6 @@ interface ActionConfig<T extends ActionInput> {
     inputs: T;
   };
 }
-
 
 const Actions: {
   // [K in OpenAIFunctionCallActions]: ActionConfig<ActionInput>;
@@ -211,7 +211,7 @@ type SpecificActionType<T extends OpenAIFunctionCallActions> = {
   inputs?: (typeof Actions)[T]["action"]["inputs"];
 };
 
-const inputSockets= [
+const inputSockets = [
   {
     name: "system" as const,
     type: "string" as const,
@@ -228,20 +228,12 @@ const inputSockets= [
   },
 ];
 
-
-type KeyNames<T extends JSONSocket[]> = T[number]['name'];
-type MappedType<T extends JSONSocket[]> = {
-  [K in KeyNames<T>]: SocketTypeMap[Extract<T[number], { name: K }>['type']];
-};
-
 type MyNodeInputs = MappedType<typeof inputSockets>;
 
 const inputs: MyNodeInputs = {
-  system: '12',
-  messages: []
-
+  system: "12",
+  messages: [],
 };
-
 
 const OpenAIFunctionCallMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgDMBXDAYwBcdkM9SsAbegOhwnrAGIBhAeQDkAYgEkA4gH0uACQCCfEQFEA2gAYAuolCpksHJWoaQAD0QAmAJwBWJgGYA7BeUBGE44BsADjP3bAGhABPRGtXK0trR2V7d0dbazMAX3i-NExcQhIKKho6RhY2TgAlAFU+FXUkEC0dPQwDYwQAFncTJhDXE1dnMxjIiws-QMaG6yYzc1cJ22dlC2sLROT0bHxiMhraBmYAJxIMHAwoDghqMBYMADdkAGtTlOX0tayN3J2MPYOEfcu6GrKygyquiydUQTRabQ6XR69n6AUQ0SYDTMyOaDXaJjizgWIDuaVWmWoz22u32hzAWy2yC2TFQ9Cw5AIVIAtkxcSsMuscsS3qTPhdkD8sn81ADtED9BV6rZbK4mCYOhZ3A1bCYmg1lCYBqZ3MpEbNlGYJsF3FM5ti2Q8CdlNkxyZSthxiqURRVATUQQgdWZWtYTDrbMp3K4mo5HFqEPLvWFHA1nAHmnYTOalniOU8uUxSMgmbSwORCiV-q6xe7JYgYu5RuYA2iLK5bF7rOHVVYTMpwuZPCbHBYk0kcSn2Y9CRmszn2PmOIZYOR6acsAR81sABQRZTKACUHAt+M5NrHufzRc0JeBZYQFarXmUtfrjfDaMcTB77QN0sV9dViX7GGQEDgBg7mmI6bKK1RnqA9R4K44bQcmqRDlaRJ5OwYHirU57WMqcptHM0TSk0TZwo09aIso6KuIafomLYDTwfcu7pjarzvFAaGlpBiCdC0NFYWi1jttYAm+MRLhPgG4SxpROrBq49GpsO1q5HaVLsRBRiIGYN5MA4DaOEqtF+l4zbWJWsyyVMIRuPM-ZAYpyEHhOYBqRKnGNJqxGhk+7gWD2DT6i47bdN+8RAA */
@@ -277,7 +269,7 @@ const OpenAIFunctionCallMachine = createMachine({
     ),
   types: {} as BaseMachineTypes<{
     input: {
-      inputs: MappedType<(typeof Actions)['completeChat']['inputSockets']>;
+      inputs: MappedType<(typeof Actions)["completeChat"]["inputSockets"]>;
       // | {
       //     type: OpenAIFunctionCallActions.completeChat;
       //     system: string;
@@ -402,12 +394,7 @@ const OpenAIFunctionCallMachine = createMachine({
           }),
         },
         SET_VALUE: {
-          actions: assign({
-            inputs: ({ context, event }) => ({
-              ...context.inputs,
-              ...event.values,
-            }),
-          }),
+          actions: ["setValue"],
         },
       },
     },
@@ -582,9 +569,8 @@ export class OpenAIFunctionCall extends BaseNode<
       },
     });
     this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    const state = this.actor.getSnapshot();
-
     this.addOutput("trigger", new Output(triggerSocket, "Exec"));
+    const state = this.actor.getSnapshot();
 
     this.addControl(
       "model",

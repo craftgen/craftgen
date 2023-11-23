@@ -205,6 +205,7 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
   static description: "Message Thread";
   static icon = "mails";
 
+
   static parse(params: SetOptional<ThreadNode, "type">): ThreadNode {
     return {
       ...params,
