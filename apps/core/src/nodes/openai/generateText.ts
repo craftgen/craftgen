@@ -8,7 +8,7 @@ import {
   throttleMaxConcurrency,
 } from "modelfusion";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 
 import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
@@ -78,9 +78,6 @@ const OpenAIGenerateTextMachine = createMachine({
     context: {
       inputs: MappedType<typeof inputSockets>;
       outputs: MappedType<typeof outputSockets>;
-      action: {
-        inputs: ReturnType<typeof generateTextActor>['start'];
-      };
       settings: {
         openai: OpenAIChatSettings;
       };
@@ -92,7 +89,6 @@ const OpenAIGenerateTextMachine = createMachine({
       type: "R";
     };
     actors: {
-      id: "generateText";
       src: "generateText";
       logic: ReturnType<typeof generateTextActor>;
     };
@@ -115,21 +111,14 @@ const OpenAIGenerateTextMachine = createMachine({
       },
     },
     running: {
-      entry: [
-        assign({
-          action: ({ context }) => ({
-            inputs: {
-              openai: context.settings.openai,
-              system: context.inputs.system,
-              user: context.inputs.user,
-            },
-          }),
-        }),
-      ],
       invoke: {
         src: "generateText",
         input: ({ context }) => {
-
+          return {
+            openai: context.settings.openai,
+            system: context.inputs.system,
+            user: context.inputs.user,
+          };
         },
         onDone: {
           target: "#openai-generate-text.complete",
