@@ -473,7 +473,6 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: JSONSocket[]) {
-    console.log("UPDATING INPUTS", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
@@ -507,7 +506,6 @@ export abstract class BaseNode<
 
       const socket = getSocketByJsonSchemaType(item.type)!;
       const input = new Input(socket, item.name, item.isMultiple);
-      console.log("ADDING INPUT", item.name, item, socket, input);
       input.index = index + 1;
       const controller = getControlBySocket(
         socket,

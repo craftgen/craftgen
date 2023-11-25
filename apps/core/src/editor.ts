@@ -4,11 +4,7 @@ import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { GetSchemes, NodeEditor, NodeId } from "rete";
-import type {
-  Area2D,
-  AreaExtensions,
-  AreaPlugin,
-} from "rete-area-plugin";
+import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
@@ -580,6 +576,7 @@ export class Editor<
     nodes: NodeWithState<Registry>[];
     edges: SetOptional<ConnProps, "id">[];
   }) {
+    return;
     const nodesMap = new Map<NodeId, NodeProps>();
     for (const n of nodes) {
       if (!this.nodeMeta.has(n.type)) {

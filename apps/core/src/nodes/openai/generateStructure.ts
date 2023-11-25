@@ -9,7 +9,6 @@ import {
   throttleMaxConcurrency,
   UncheckedStructureDefinition,
 } from "modelfusion";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 

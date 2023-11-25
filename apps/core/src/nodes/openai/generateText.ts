@@ -114,6 +114,7 @@ const OpenAIGenerateTextMachine = createMachine({
         },
         RUN: {
           target: "running",
+          actions: ["setValue"],
         },
         SET_VALUE: {
           actions: ["setValue"],
