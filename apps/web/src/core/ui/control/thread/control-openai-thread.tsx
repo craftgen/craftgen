@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { flatten } from "lodash-es";
-import { Paperclip } from "lucide-react";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
 import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
@@ -8,7 +7,6 @@ import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.c
 import { Copyable } from "@/components/copyable";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 
 import { InputSection } from "./input-section";

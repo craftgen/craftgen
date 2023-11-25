@@ -7,8 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectControl } from "@seocraft/core/src/controls/select";
 
-import type { SelectControl } from "../../controls/select";
 
 export function SelectControlComponent<T extends string>(props: {
   data: SelectControl<T>;

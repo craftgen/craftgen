@@ -378,6 +378,7 @@ export abstract class BaseNode<
       id: this.contextId,
       ...options,
     });
+    console.log("@@", actor, this.machine, options);
     let prev = actor.getSnapshot() as any;
     const listener = actor.subscribe({
       complete: async () => {

@@ -36,12 +36,7 @@ export const InputNodeMachine = createMachine({
       name: string;
       description: string;
     };
-    actions: {
-      type: "setValue";
-      params?: {
-        values: Record<string, any>;
-      };
-    };
+    actions: any;
     context: {
       name: string;
       description: string;
@@ -52,6 +47,7 @@ export const InputNodeMachine = createMachine({
       description: string;
       outputSockets: JSONSocket[];
     };
+    actors: any;
   }>,
   initial: "idle",
   states: {

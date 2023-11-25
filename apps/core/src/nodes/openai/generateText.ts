@@ -1,4 +1,4 @@
-import { merge, omit } from "lodash-es";
+import { merge } from "lodash-es";
 import {
   generateText,
   OpenAIApiConfiguration,
@@ -10,6 +10,7 @@ import {
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
+import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
 import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, triggerSocket } from "../../sockets";
@@ -86,7 +87,8 @@ const OpenAIGenerateTextMachine = createMachine({
       type: "R";
     };
     events: {
-      type: "R";
+      type: "CONFIG_CHANGE";
+      openai: OpenAIChatSettings;
     };
     actors: {
       src: "generateText";
@@ -97,11 +99,13 @@ const OpenAIGenerateTextMachine = createMachine({
   states: {
     idle: {
       on: {
-        // CONFIG_CHANGE: {
-        //   actions: assign({
-        //     settings: ({ context, event }) => mergeSettings(context, event),
-        //   }),
-        // },
+        CONFIG_CHANGE: {
+          actions: assign({
+            settings: ({ event }) => ({
+              openai: event.openai,
+            }),
+          }),
+        },
         RUN: {
           target: "running",
         },
@@ -113,7 +117,7 @@ const OpenAIGenerateTextMachine = createMachine({
     running: {
       invoke: {
         src: "generateText",
-        input: ({ context }) => {
+        input: ({ context }): GenerateTextInput => {
           return {
             openai: context.settings.openai,
             system: context.inputs.system,
@@ -142,11 +146,13 @@ const OpenAIGenerateTextMachine = createMachine({
           target: "running",
           actions: ["setValue"],
         },
-        // CONFIG_CHANGE: {
-        //   actions: assign({
-        //     settings: ({ context, event }) => mergeSettings(context, event),
-        //   }),
-        // },
+        CONFIG_CHANGE: {
+          actions: assign({
+            settings: ({ event }) => ({
+              openai: event.openai,
+            }),
+          }),
+        },
         SET_VALUE: {
           actions: ["setValue"],
         },
@@ -161,37 +167,32 @@ export type OpenAIGenerateTextNode = ParsedNode<
   typeof OpenAIGenerateTextMachine
 >;
 
+type GenerateTextInput = {
+  openai: OpenAIChatSettings;
+  system: string;
+  user: string;
+};
+
 const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
-  fromPromise(
-    async ({
-      input,
-    }: {
-      input: {
-        openai: OpenAIChatSettings;
-        system: string;
-        user: string;
-      };
-    }) => {
-      const text = await generateText(
-        new OpenAIChatModel({
-          api: api(),
-          ...input.openai,
-        }).withChatPrompt(),
-        [
-          {
-            system: input.system,
-          },
-          {
-            user: input.user,
-          },
-        ],
-      );
-      console.log({ text });
-      return {
-        result: text,
-      };
-    },
-  );
+  fromPromise(async ({ input }: { input: GenerateTextInput }) => {
+    const text = await generateText(
+      new OpenAIChatModel({
+        api: api(),
+        ...input.openai,
+      }).withChatPrompt(),
+      [
+        {
+          system: input.system,
+        },
+        {
+          user: input.user,
+        },
+      ],
+    );
+    return {
+      result: text,
+    };
+  });
 
 export class OpenAIGenerateText extends BaseNode<
   typeof OpenAIGenerateTextMachine
@@ -234,6 +235,18 @@ export class OpenAIGenerateText extends BaseNode<
         generateText: generateTextActor({ api: () => this.apiModel }),
       },
     });
+    this.addControl(
+      "openai",
+      new OpenAIChatSettingsControl(() => this.snap.context.settings.openai, {
+        change: (value) => {
+          console.log("change", value);
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            openai: value,
+          });
+        },
+      }),
+    );
     this.addInput("trigger", new Input(triggerSocket, "Exec", true));
     this.addOutput("trigger", new Output(triggerSocket, "Exec"));
   }

@@ -13,6 +13,8 @@ import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { JsonControl } from "@seocraft/core/src/controls/json";
 import { NumberControl } from "@seocraft/core/src/controls/number";
+import { OpenAIChatSettingsControl } from "@seocraft/core/src/controls/openai-chat-settings";
+import { OpenAIApiConfigurationControl } from "@seocraft/core/src/controls/openai-configuration";
 import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
 import { SelectControl } from "@seocraft/core/src/controls/select";
 import { SliderControl } from "@seocraft/core/src/controls/slider";
@@ -32,6 +34,8 @@ import { ArticleEditor } from "./ui/control/control-editor";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { JsonControlComponent } from "./ui/control/control-json";
 import { NumberControlComponent } from "./ui/control/control-number";
+import { OpenAIChatSettingsControlComponent } from "./ui/control/control-openai-chat-settings";
+import { OpenAIConfigutationControlComponent } from "./ui/control/control-openai-configuration";
 import { SelectControlComponent } from "./ui/control/control-select";
 import { SliderControlComponenet as SliderControlComponent } from "./ui/control/control-slider";
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
@@ -63,6 +67,14 @@ export const getControl = (
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
     .with(P.instanceOf(OpenAIThreadControl), () => OpenAIThreadControlComponent)
+    .with(
+      P.instanceOf(OpenAIApiConfigurationControl),
+      () => OpenAIConfigutationControlComponent,
+    )
+    .with(
+      P.instanceOf(OpenAIChatSettingsControl),
+      () => OpenAIChatSettingsControlComponent,
+    )
     .with(P.instanceOf(DateControl), () => DateControlComponent)
     .with(P.instanceOf(ThreadControl), () => ThreadControlComponent)
     .with(P.instanceOf(JsonControl), () => JsonControlComponent)
