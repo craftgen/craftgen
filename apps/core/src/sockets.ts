@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 
@@ -136,6 +137,14 @@ class DateSocket extends Socket {
 
 export const dateSocket = new DateSocket();
 
+class ToolSocket extends Socket {
+  constructor() {
+    super("Tool");
+  }
+}
+
+export const toolSocket = new ToolSocket();
+
 const sockets = [
   numberSocket,
   booleanSocket,
@@ -169,7 +178,8 @@ export type SocketNameType =
   | "Task"
   | "Image"
   | "databaseIdSocket"
-  | "Date";
+  | "Date"
+  | "Tool";
 
 export type SocketType =
   | "anySocket"
@@ -187,7 +197,8 @@ export type SocketType =
   | "taskSocket"
   | "documentSocket"
   | "databaseIdSocket"
-  | "dateSocket";
+  | "dateSocket"
+  | "toolSocket";
 
 export const socketNameMap: Record<SocketNameType, SocketType> = {
   Any: "anySocket",
@@ -205,6 +216,7 @@ export const socketNameMap: Record<SocketNameType, SocketType> = {
   Image: "imageSocket",
   databaseIdSocket: "databaseIdSocket",
   Date: "dateSocket",
+  Tool: "toolSocket",
 };
 
 export const types = [
@@ -215,7 +227,14 @@ export const types = [
   "array",
   "object",
   "date",
+  "tool",
 ] as const;
+
+export type Tool = {
+  name: string;
+  description: string;
+  schema: JSONSchemaDefinition;
+};
 
 export type SocketTypeMap = {
   string: string;
@@ -225,6 +244,7 @@ export type SocketTypeMap = {
   array: any[]; // Replace 'any' with a more specific type if needed
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
+  tool: Tool;
 };
 
 export type JSONSocketTypeKeys = (typeof types)[number];
@@ -248,6 +268,8 @@ export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
       return objectSocket;
     case "date":
       return dateSocket;
+    case "tool":
+      return toolSocket;
     default:
       return anySocket;
   }
@@ -306,6 +328,11 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
     badge: "bg-rose-600",
     color: "bg-rose-400",
     connection: "rose",
+  },
+  Tool: {
+    badge: "bg-lime-600",
+    color: "bg-lime-400",
+    connection: "lime",
   },
 };
 

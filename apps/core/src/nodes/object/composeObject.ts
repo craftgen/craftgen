@@ -1,4 +1,5 @@
 import { merge } from "lodash-es";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import {
@@ -14,8 +15,6 @@ import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
-import { Output } from "../../input-output";
-import { objectSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
 import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
@@ -29,10 +28,30 @@ const composeObjectMachine = createMachine({
         name: "new_object",
         description: "object description",
         inputs: {},
-        outputs: {},
+        outputs: {
+          schema: {
+            name: "new_object",
+            description: "object description",
+            schema: createJsonSchema([]),
+          },
+        },
         inputSockets: [],
-        outputSockets: [],
-        schema: {},
+        outputSockets: [
+          {
+            name: "object" as const,
+            type: "object" as const,
+            description: "Object",
+            required: true,
+            isMultiple: false,
+          },
+          {
+            name: "schema" as const,
+            type: "tool" as const,
+            description: "Schema",
+            required: true,
+            isMultiple: false,
+          },
+        ],
         error: null,
       },
       input,
@@ -48,6 +67,7 @@ const composeObjectMachine = createMachine({
       description: string;
       schema: object;
     };
+    actors: any;
     actions: {
       type: "updateConfig";
       params?: {
@@ -57,13 +77,12 @@ const composeObjectMachine = createMachine({
         schema: object;
       };
     };
-    actors: any;
     events: {
       type: "CONFIG_CHANGE";
       name: string;
       description: string;
       inputSockets: JSONSocket[];
-      schema: object;
+      schema: JSONSchemaDefinition;
     };
   }>,
   states: {
@@ -85,7 +104,7 @@ const composeObjectMachine = createMachine({
         },
       },
       after: {
-        2000: "idle",
+        100: "idle",
       },
     },
   },
@@ -137,24 +156,20 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
           outputs: ({ context, event }) =>
             match(event)
               .with({ type: "CONFIG_CHANGE" }, ({ schema }) => ({
-                ...context.outputs,
                 object: {},
-                schema,
+                schema: {
+                  name: event.name,
+                  description: event.description,
+                  schema: schema,
+                },
               }))
               .run(),
         }),
       },
-      actors: {
-        process: fromPromise(async ({ input }) => {
-          console.log("PROCESSING", input);
-          const schema = createJsonSchema(input.inputs);
-          return schema;
-        }),
-      },
     });
 
-    this.addOutput("object", new Output(objectSocket, "Object"));
-    this.addOutput("schema", new Output(objectSocket, "Schema"));
+    // this.addOutput("object", new Output(objectSocket, "Object"));
+    // this.addOutput("schema", new Output(toolSocket, "Schema"));
 
     this.setLabel(this.snap.context.name || ComposeObject.label);
     const state = this.actor.getSnapshot();

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
+import JsonView from "react18-json-view";
 import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match } from "ts-pattern";
 import { useStore } from "zustand";
@@ -24,6 +25,7 @@ import type { NodeProps } from "@seocraft/core/src/types";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -405,6 +407,8 @@ export const renderFieldValueBaseOnSocketType = (
       return <Input value={renderedValue} readOnly />;
     case "Number":
       return <Input type="number" value={renderedValue} readOnly />;
+    case "Tool":
+      return <JsonView src={renderedValue} displaySize collapsed={3} />;
     default:
       return null;
   }

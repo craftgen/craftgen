@@ -1,10 +1,10 @@
 import { merge } from "lodash-es";
 import {
   generateStructure,
+  openai,
   OpenAIApiConfiguration,
   OpenAIChatMessage,
   OpenAIChatSettings,
-  openai,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
   UncheckedStructureDefinition,
@@ -16,9 +16,9 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
 import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
-import { MappedType, triggerSocket } from "../../sockets";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
+import { MappedType, Tool, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
+import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
 /**
  * @type {JSONSocket[]}
@@ -42,7 +42,7 @@ const inputSockets = [
   },
   {
     name: "schema" as const,
-    type: "object" as const,
+    type: "tool" as const,
     description: "Schema",
     required: true,
     isMultiple: false,
@@ -66,7 +66,11 @@ const OpenAIGenerateStructureMachine = createMachine({
     merge<typeof input, any>(
       {
         inputs: {
-          schema: {},
+          schema: {
+            name: "",
+            description: "",
+            schema: {},
+          },
           system: "",
           user: "",
         },
@@ -190,7 +194,7 @@ type GenerateStructureInput = {
   openai: OpenAIChatSettings;
   system: string;
   user: string;
-  schema: JSONSchemaDefinition;
+  schema: Tool;
 };
 
 const generateStructureActor = ({
@@ -206,9 +210,9 @@ const generateStructureActor = ({
         ...input.openai,
       }),
       new UncheckedStructureDefinition({
-        name: "sentiment",
-        description: "Write the sentiment analysis",
-        jsonSchema: input.schema,
+        name: input.schema.name,
+        description: input.schema.description,
+        jsonSchema: input.schema.schema,
       }),
       [
         OpenAIChatMessage.system(input.system),
