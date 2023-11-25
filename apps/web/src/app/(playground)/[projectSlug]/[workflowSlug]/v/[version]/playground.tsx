@@ -350,16 +350,11 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
           <TabsTrigger value="outputs">Outputs</TabsTrigger>
         </TabsList>
         <TabsContent value="controls" className="h-full ">
-          <div className="flex h-1/2 flex-col gap-4 overflow-hidden ">
+          <div className="flex h-full flex-col gap-4 overflow-hidden ">
             <ScrollArea className="h-full w-full px-4">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
-            </ScrollArea>
-          </div>
-          <Separator />
-          <div className="flex h-1/2 flex-col space-y-2 overflow-hidden">
-            <ScrollArea className="px-4 pb-10">
               <DynamicInputsForm inputs={node.inputs} />
             </ScrollArea>
           </div>

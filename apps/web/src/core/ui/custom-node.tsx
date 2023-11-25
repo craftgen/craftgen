@@ -55,7 +55,6 @@ import "react-resizable/css/styles.css";
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { ActorStatus } from "xstate";
 
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
@@ -354,7 +353,7 @@ export const Node = observer((props: Props<Schemes>) => {
                     )}
                   </div>
                   <div className="flex">
-                    {props.data.actor.status === ActorStatus.Stopped && (
+                    {props.data.snap.status === "done" && (
                       <Drag.NoDrag>
                         <Button
                           variant={"ghost"}
