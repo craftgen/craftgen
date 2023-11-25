@@ -518,6 +518,7 @@ export abstract class BaseNode<
             },
           });
         },
+        item,
       );
       input.addControl(controller);
       this.addInput(item.name, input as any);

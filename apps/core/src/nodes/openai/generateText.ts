@@ -17,6 +17,9 @@ import { MappedType, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
+/**
+ * @type {JSONSocket[]}
+ */
 const inputSockets = [
   {
     name: "system" as const,
@@ -24,6 +27,7 @@ const inputSockets = [
     description: "System Message",
     required: false,
     isMultiple: false,
+    $controller: "textarea",
   },
   {
     name: "user" as const,
@@ -31,6 +35,7 @@ const inputSockets = [
     description: "User Prompt",
     required: true,
     isMultiple: false,
+    $controller: "textarea",
   },
 ];
 

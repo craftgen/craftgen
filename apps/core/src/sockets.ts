@@ -7,6 +7,7 @@ import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
 import { JSONSocket } from "./controls/socket-generator";
+import { TextareControl } from "./controls/textarea";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -327,9 +328,15 @@ export const getControlBySocket = (
   socket: AllSockets,
   value: () => any,
   onChange: (v: any) => void,
+  defination?: JSONSocket,
 ) => {
   return match(socket)
     .with(P.instanceOf(StringSocket), () => {
+      if (defination && defination.$controller === "textarea") {
+        return new TextareControl(value, {
+          change: onChange,
+        });
+      }
       return new InputControl(value, {
         change: onChange,
       });
