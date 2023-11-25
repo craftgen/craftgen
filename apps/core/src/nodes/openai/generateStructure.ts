@@ -1,13 +1,15 @@
 import { merge } from "lodash-es";
 import {
-  generateText,
-  openai,
+  generateStructure,
   OpenAIApiConfiguration,
   OpenAIChatMessage,
   OpenAIChatSettings,
+  openai,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
+  UncheckedStructureDefinition,
 } from "modelfusion";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
@@ -15,8 +17,8 @@ import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
 import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, triggerSocket } from "../../sockets";
-import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
+import { DiContainer } from "../../types";
 
 /**
  * @type {JSONSocket[]}
@@ -38,6 +40,14 @@ const inputSockets = [
     isMultiple: false,
     $controller: "textarea",
   },
+  {
+    name: "schema" as const,
+    type: "object" as const,
+    description: "Schema",
+    required: true,
+    isMultiple: false,
+    $controller: "socket-generator",
+  },
 ];
 
 const outputSockets = [
@@ -50,12 +60,13 @@ const outputSockets = [
   },
 ];
 
-const OpenAIGenerateTextMachine = createMachine({
-  id: "openai-generate-text",
+const OpenAIGenerateStructureMachine = createMachine({
+  id: "openai-generate-structure",
   context: ({ input }) =>
     merge<typeof input, any>(
       {
         inputs: {
+          schema: {},
           system: "",
           user: "",
         },
@@ -98,7 +109,7 @@ const OpenAIGenerateTextMachine = createMachine({
     };
     actors: {
       src: "generateText";
-      logic: ReturnType<typeof generateTextActor>;
+      logic: ReturnType<typeof generateStructureActor>;
     };
   }>,
   initial: "idle",
@@ -114,6 +125,7 @@ const OpenAIGenerateTextMachine = createMachine({
         },
         RUN: {
           target: "running",
+          actions: ["setValue"],
         },
         SET_VALUE: {
           actions: ["setValue"],
@@ -122,22 +134,23 @@ const OpenAIGenerateTextMachine = createMachine({
     },
     running: {
       invoke: {
-        src: "generateText",
-        input: ({ context }): GenerateTextInput => {
+        src: "generateStructure",
+        input: ({ context }): GenerateStructureInput => {
           return {
             openai: context.settings.openai,
             system: context.inputs.system,
             user: context.inputs.user,
+            schema: context.inputs.schema,
           };
         },
         onDone: {
-          target: "#openai-generate-text.complete",
+          target: "#openai-generate-structure.complete",
           actions: assign({
             outputs: ({ event }) => event.output,
           }),
         },
         onError: {
-          target: "#openai-generate-text.error",
+          target: "#openai-generate-structure.error",
           actions: ["setError"],
         },
       },
@@ -168,23 +181,34 @@ const OpenAIGenerateTextMachine = createMachine({
   output: ({ context }) => context.outputs,
 });
 
-export type OpenAIGenerateTextNode = ParsedNode<
-  "OpenAIGenerateText",
-  typeof OpenAIGenerateTextMachine
+export type OpenAIGenerateStructureNode = ParsedNode<
+  "OpenAIGenerateStructure",
+  typeof OpenAIGenerateStructureMachine
 >;
 
-type GenerateTextInput = {
+type GenerateStructureInput = {
   openai: OpenAIChatSettings;
   system: string;
   user: string;
+  schema: JSONSchemaDefinition;
 };
 
-const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
-  fromPromise(async ({ input }: { input: GenerateTextInput }) => {
-    const text = await generateText(
+const generateStructureActor = ({
+  api,
+}: {
+  api: () => OpenAIApiConfiguration;
+}) =>
+  fromPromise(async ({ input }: { input: GenerateStructureInput }) => {
+    console.log("@@@", { input });
+    const structure = await generateStructure(
       openai.ChatTextGenerator({
         api: api(),
         ...input.openai,
+      }),
+      new UncheckedStructureDefinition({
+        name: "sentiment",
+        description: "Write the sentiment analysis",
+        jsonSchema: input.schema,
       }),
       [
         OpenAIChatMessage.system(input.system),
@@ -192,26 +216,26 @@ const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
       ],
     );
     return {
-      result: text,
+      result: structure,
     };
   });
 
-export class OpenAIGenerateText extends BaseNode<
-  typeof OpenAIGenerateTextMachine
+export class OpenAIGenerateStructure extends BaseNode<
+  typeof OpenAIGenerateStructureMachine
 > {
-  static nodeType = "OpenAIGenerateText";
-  static label = "Generate Text";
-  static description = "Usefull for generating text from a prompt";
+  static nodeType = "OpenAIGenerateStructure";
+  static label = "Generate Structure";
+  static description = "Usefull for generating structured data from a OpenAI";
   static icon = "openAI";
 
   static section = "OpenAI";
 
   static parse(
-    params: SetOptional<OpenAIGenerateTextNode, "type">,
-  ): OpenAIGenerateTextNode {
+    params: SetOptional<OpenAIGenerateStructureNode, "type">,
+  ): OpenAIGenerateStructureNode {
     return {
       ...params,
-      type: "OpenAIGenerateText",
+      type: "OpenAIGenerateStructure",
     };
   }
 
@@ -231,10 +255,10 @@ export class OpenAIGenerateText extends BaseNode<
     return api;
   }
 
-  constructor(di: DiContainer, data: OpenAIGenerateTextNode) {
-    super("OpenAIGenerateText", di, data, OpenAIGenerateTextMachine, {
+  constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
+    super("OpenAIGenerateStructure", di, data, OpenAIGenerateStructureMachine, {
       actors: {
-        generateText: generateTextActor({ api: () => this.apiModel }),
+        generateStructure: generateStructureActor({ api: () => this.apiModel }),
       },
     });
     this.addControl(

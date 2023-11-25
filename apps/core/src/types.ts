@@ -30,6 +30,7 @@ import {
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
+import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
 import { OpenAIGenerateText } from "./nodes/openai/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
@@ -74,6 +75,7 @@ export const nodes = {
 
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIGenerateText: OpenAIGenerateText,
+  OpenAIGenerateStructure: OpenAIGenerateStructure,
   OpenAIThread: OpenAIThread,
   OpenAIAssistant: OpenAIAssistant,
 

@@ -127,8 +127,8 @@ importers:
         specifier: ^6.10.2
         version: 6.10.2
       modelfusion:
-        specifier: ^0.63.0
-        version: 0.63.0
+        specifier: ^0.80.0
+        version: 0.80.0
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
@@ -614,8 +614,8 @@ importers:
         specifier: ^22.0.2
         version: 22.0.2(slate-history@0.93.0)(slate@0.94.1)
       '@xstate/react':
-        specifier: 4.0.0-beta.10
-        version: 4.0.0-beta.10(@types/react@18.2.15)(react@18.2.0)(xstate@5.0.0-beta.45)
+        specifier: 4.0.0-beta.11
+        version: 4.0.0-beta.11(@types/react@18.2.15)(react@18.2.0)(xstate@5.0.0-beta.45)
       ajv:
         specifier: ^8.12.0
         version: 8.12.0
@@ -680,8 +680,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
       modelfusion:
-        specifier: ^0.63.0
-        version: 0.63.0
+        specifier: ^0.80.0
+        version: 0.80.0
       next:
         specifier: 14.0.3
         version: 14.0.3(@opentelemetry/api@1.7.0)(react-dom@18.2.0)(react@18.2.0)
@@ -8652,11 +8652,11 @@ packages:
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
     dev: false
 
-  /@xstate/react@4.0.0-beta.10(@types/react@18.2.15)(react@18.2.0)(xstate@5.0.0-beta.45):
-    resolution: {integrity: sha512-S77ALlcoMYMiG9cVlf9qpcy0V6hZ6Va9K/jU4xidX21JsI6YI9i8HMtmMAiRbeV+chkwThe0otEEWFFUWXNHgg==}
+  /@xstate/react@4.0.0-beta.11(@types/react@18.2.15)(react@18.2.0)(xstate@5.0.0-beta.45):
+    resolution: {integrity: sha512-qjV7cr8pkeNCZOmxjy+HuJmWV1liyR5nkLQhKz0+Ugxnz/D/Pmp9forPFrHno6UqH2Q2lVFUnLLpocihhK/Znw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      xstate: ^5.0.0-beta.29
+      xstate: ^5.0.0-beta.41
     peerDependenciesMeta:
       xstate:
         optional: true
@@ -14659,8 +14659,8 @@ packages:
     resolution: {integrity: sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==}
     dev: false
 
-  /modelfusion@0.63.0:
-    resolution: {integrity: sha512-FL0BPNCJx+UxzBTuc+4m5HMtgun6CC+TjwBcYOBMTA8ZiDSXXALDdeOs+VKA46xF6cvhiwcEG3Crr+vOhwjRdQ==}
+  /modelfusion@0.80.0:
+    resolution: {integrity: sha512-ECjksG1SrgDD2P4VV9ZShmygupQ1Plgvdof+pnng0vTOoZurHQbcI+6xJF6QBAwhYNJ9ErChSNaTM03Pok3SmA==}
     engines: {node: '>=18'}
     dependencies:
       eventsource-parser: 1.1.1
@@ -14669,7 +14669,7 @@ packages:
       secure-json-parse: 2.7.0
       ws: 8.14.2
       zod: 3.22.4
-      zod-to-json-schema: 3.21.4(zod@3.22.4)
+      zod-to-json-schema: 3.22.0(zod@3.22.4)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -18934,10 +18934,10 @@ packages:
       zod: 3.21.4
     dev: false
 
-  /zod-to-json-schema@3.21.4(zod@3.22.4):
-    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+  /zod-to-json-schema@3.22.0(zod@3.22.4):
+    resolution: {integrity: sha512-XQr8EwxPMzJGhoR+d/nRFWdi15VaZ+R5Uhssm+Xx5yS30xCpuutfKRm4rerE0SK9j2dWB5Z3FvDD0w8WMVGzkA==}
     peerDependencies:
-      zod: ^3.21.4
+      zod: ^3.22.4
     dependencies:
       zod: 3.22.4
     dev: false
