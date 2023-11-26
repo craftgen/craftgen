@@ -37,7 +37,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-drive-picker": "^1.2.2",
-    "replicate": "^0.16.1",
+    "replicate": "^0.22.0",
     "rete": "^2.0.2",
     "rete-area-plugin": "^2.0.1",
     "rete-auto-arrange-plugin": "^2.0.0",

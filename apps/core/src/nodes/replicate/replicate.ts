@@ -1,18 +1,54 @@
-import { createMachine, fromPromise } from "xstate";
-import { BaseNode, type ParsedNode } from "../base";
-import { type DiContainer } from "../../types";
+import { merge } from "lodash-es";
 import { SetOptional } from "type-fest";
+import { createMachine, fromPromise, PromiseActorLogic } from "xstate";
+
+import { type DiContainer } from "../../types";
+import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
 const replicateMachine = createMachine({
   id: "replicate",
   initial: "idle",
+  context: ({ input }) =>
+    merge<typeof input, any>(
+      {
+        settings: {
+          model_name: "",
+          owner: "",
+          version_id: "",
+        },
+        inputs: {},
+        inputSockets: [],
+        outputs: {},
+        outputSockets: [],
+      },
+      input,
+    ),
+  types: {} as BaseMachineTypes<{
+    input: {
+      settings?: {
+        model_name: string;
+        owner: string;
+        version_id: string;
+      };
+    };
+    context: {
+      settings: {
+        model_name: string;
+        owner: string;
+        version_id: string;
+      };
+    };
+    actions: any;
+    actors: {
+      src: "getModelVersion";
+      logic: PromiseActorLogic<any, any>;
+    };
+    events: any;
+  }>,
   states: {
     idle: {
       invoke: {
         src: "getModelVersion",
-        onDone: {
-          actions: ({ context, event }) => console.log(event),
-        },
       },
     },
     running: {},
@@ -27,7 +63,7 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
   static nodeType = "Replicate";
   static label = "Replicate";
   static description = "For using Replicate API";
-  static icon = "box-select";
+  static icon = "replicate";
 
   static parse(params: SetOptional<ReplicateData, "type">): ReplicateData {
     return {
@@ -41,7 +77,7 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
       actors: {
         getModelVersion: fromPromise(
           // async () => await getModelVersion({ model_name, owner, version_id })
-          async () => null
+          async () => null,
         ),
       },
     });

@@ -59,6 +59,9 @@ importers:
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
+      replicate:
+        specifier: ^0.22.0
+        version: 0.22.0
       superjson:
         specifier: 1.13.1
         version: 1.13.1
@@ -145,8 +148,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2(react-dom@18.2.0)(react@18.2.0)
       replicate:
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: ^0.22.0
+        version: 0.22.0
       rete:
         specifier: ^2.0.2
         version: 2.0.2
@@ -758,8 +761,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.6(react@18.2.0)
       replicate:
-        specifier: ^0.16.1
-        version: 0.16.1
+        specifier: ^0.22.0
+        version: 0.22.0
       rete:
         specifier: ^2.0.2
         version: 2.0.2
@@ -16652,8 +16655,8 @@ packages:
     engines: {node: '>=0.10'}
     dev: false
 
-  /replicate@0.16.1:
-    resolution: {integrity: sha512-7GlY2IRJd4CwXLSO+eTNCRjYFlT10pgHQjYnwCBczr4+qdErIZp4sAEuRFfhzXNU3Bi+sYJJLpcddnUOFxStNg==}
+  /replicate@0.22.0:
+    resolution: {integrity: sha512-jUfvYCcnnzG0l3NzgNLUBRfv7e5ZcZpBWzxGqx3v8bkvJmY0jK19JRtFtBgJFRBye61ggH1zC9cubGkburF82g==}
     engines: {git: '>=2.11.0', node: '>=18.0.0', npm: '>=7.19.0', yarn: '>=1.7.0'}
     dev: false
 

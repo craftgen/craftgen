@@ -10,6 +10,7 @@ import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { google } from "googleapis";
 import { OpenAI } from "openai";
+import Replicate from "replicate";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -133,17 +134,17 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
-const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
-  const currentProjectSlug = ctx.session?.user.user_metadata.currentProjectId;
+const getActiveProject = async (session: Session) => {
+  const currentProjectSlug = session?.user.user_metadata.currentProjectId;
   console.log("currentProjectId", currentProjectSlug);
 
-  const [projectS] = await ctx.db
+  const [projectS] = await db
     .select()
     .from(schema.project)
     .leftJoin(
       schema.projectMembers,
       and(
-        eq(schema.projectMembers.userId, ctx.session?.user.id!),
+        eq(schema.projectMembers.userId, session?.user.id!),
         eq(schema.projectMembers.projectId, schema.project.id),
       ),
     )
@@ -155,14 +156,17 @@ const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
     )
     .limit(1);
 
-  console.log("projectS", projectS);
-
   if (!projectS) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "You are not a member of this project",
     });
   }
+  return projectS;
+};
+
+const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
+  const projectS = await getActiveProject(ctx.session!);
 
   const [openaiApiKey] = await ctx.db
     .select()
@@ -175,7 +179,7 @@ const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
     )
     .limit(1);
 
-  if (!openaiApiKey) {
+  if (!openaiApiKey || !openaiApiKey.value) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "OpenAI API Key not found",
@@ -186,7 +190,6 @@ const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
     ctx: {
       openai: new OpenAI({
         apiKey: openaiApiKey.value as string,
-        dangerouslyAllowBrowser: true,
       }),
     },
   });
@@ -221,3 +224,36 @@ const googleAuthMiddleware = t.middleware(async ({ ctx, next }) => {
 });
 
 export const googleAuthProducer = protectedProcedure.use(googleAuthMiddleware);
+
+const replicateMiddleware = t.middleware(async ({ ctx, next }) => {
+  const projectS = await getActiveProject(ctx.session!);
+
+  const [replicateApiKey] = await ctx.db
+    .select()
+    .from(schema.variable)
+    .where(
+      and(
+        eq(schema.variable.project_id, projectS.project.id),
+        eq(schema.variable.key, "REPLICATE_API_KEY"),
+      ),
+    )
+    .limit(1);
+
+  if (!replicateApiKey || !replicateApiKey.value) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "OpenAI API Key not found",
+    });
+  }
+
+  const replicate = new Replicate({
+    auth: replicateApiKey.value,
+  });
+
+  return next({
+    ctx: {
+      replicate,
+    },
+  });
+});
+export const replicateProducer = protectedProcedure.use(replicateMiddleware);

@@ -21,6 +21,7 @@
     "date-fns": "^2.30.0",
     "lodash-es": "^4.17.21",
     "openai": "^4.16.1",
+    "replicate": "^0.22.0",
     "superjson": "1.13.1",
     "zod": "3.21.4"
   },
