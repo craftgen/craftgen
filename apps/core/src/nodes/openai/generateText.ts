@@ -28,7 +28,7 @@ const inputSockets = [
     description: "System Message",
     required: false,
     isMultiple: false,
-    $controller: "textarea",
+    "x-controller": "textarea",
   },
   {
     name: "user" as const,
@@ -36,7 +36,7 @@ const inputSockets = [
     description: "User Prompt",
     required: true,
     isMultiple: false,
-    $controller: "textarea",
+    "x-controller": "textarea",
   },
 ];
 

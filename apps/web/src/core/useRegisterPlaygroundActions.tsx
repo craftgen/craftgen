@@ -300,13 +300,19 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
               )
             }`,
             perform: async () => {
-              await di?.addNode("Replicate", {
-                settings: {
-                  model_name: model?.name,
-                  owner: model?.owner,
-                  version_id: model.latest_version?.id,
+              await di?.addNode(
+                "Replicate",
+                {
+                  settings: {
+                    model_name: model?.name,
+                    owner: model?.owner,
+                    version_id: model.latest_version?.id,
+                  },
                 },
-              });
+                {
+                  label: `${model?.owner}/${model?.name}`,
+                },
+              );
             },
           } as Action,
         ]),
@@ -324,14 +330,6 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       keepPreviousData: true,
     },
   );
-
-  useEffect(() => {
-    console.log("replicateModelVersions", replicateModelVersions);
-  }, [replicateModelVersions]);
-
-  useEffect(() => {
-    console.log("replicateModel", replicateModel);
-  }, [replicateModel]);
 
   const replicateModelVersionActions = useMemo<Action[]>(() => {
     if (!replicateModel) {

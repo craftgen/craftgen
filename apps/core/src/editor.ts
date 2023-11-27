@@ -263,6 +263,9 @@ export class Editor<
   public async addNode(
     node: NodeTypes,
     context?: Partial<InputFrom<AnyStateMachine>>,
+    meta?: {
+      label?: string;
+    },
   ) {
     const nodeMeta = this.nodeMeta.get(node);
     if (!nodeMeta) {
@@ -276,7 +279,7 @@ export class Editor<
     }
     const newNode = this.createNodeInstance({
       type: node,
-      label: nodeMeta?.label,
+      label: meta?.label ?? nodeMeta?.label,
       id: this.createId("node"),
       contextId: this.createId("context"),
       context,

@@ -4,8 +4,9 @@ import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
 import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
+import { JSONSocket } from "../../controls/socket-generator";
 import { type DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const replicateMachine = createMachine({
   id: "replicate",
@@ -40,7 +41,8 @@ const replicateMachine = createMachine({
         version_id: string;
       };
     };
-    actions: any;
+    actions: None;
+    events: None;
     actors: {
       src: "getModelVersion";
       logic: PromiseActorLogic<
@@ -48,10 +50,14 @@ const replicateMachine = createMachine({
         RouterInputs["replicate"]["getModelVersion"]
       >;
     };
-    events: any;
   }>,
   states: {
     init: {
+      on: {
+        SET_VALUE: {
+          actions: ["setValue"],
+        },
+      },
       invoke: {
         src: "getModelVersion",
         input: ({ context }): RouterInputs["replicate"]["getModelVersion"] => ({
@@ -63,6 +69,23 @@ const replicateMachine = createMachine({
           target: "idle",
           actions: [
             assign({
+              inputSockets: ({ event }) => {
+                const Input = (event.output.openapi_schema as any).components
+                  .schemas.Input;
+                const keys = Object.entries(Input.properties);
+                // keys to JSONSOCKET[]
+                return keys
+                  .map(([key, value]: [key: string, value: any]) => ({
+                    name: key,
+                    type: value.type,
+                    description: value.description,
+                    "x-order": value["x-order"],
+                    default: value.default,
+                  }))
+                  .sort((a, b) => a["x-order"] - b["x-order"]) as JSONSocket[];
+              },
+            }),
+            assign({
               outputs: ({ event }) => {
                 console.log("event", event);
               },
@@ -71,7 +94,13 @@ const replicateMachine = createMachine({
         },
       },
     },
-    idle: {},
+    idle: {
+      on: {
+        SET_VALUE: {
+          actions: ["setValue"],
+        },
+      },
+    },
     running: {},
     complete: {},
     error: {},

@@ -108,7 +108,9 @@ export type BaseActionTypes =
 
 export type BaseActorTypes = ProvidedActor;
 
-type SpecialMerged<T, U> = T | U;
+export type None = "None";
+
+type SpecialMerged<T, U> = U extends None ? T : T | U;
 
 export type BaseMachineTypes<
   T extends {
@@ -118,10 +120,10 @@ export type BaseMachineTypes<
     actions?: any;
     actors?: ProvidedActor;
   } = {
-    input: any;
-    context: any;
-    events?: any;
-    actions?: any;
+    input: BaseInputType;
+    context: BaseContextType;
+    events?: BaseEventTypes;
+    actions?: BaseActionTypes;
     actors?: ProvidedActor;
   },
 > = {
@@ -473,6 +475,7 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: JSONSocket[]) {
+    console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
@@ -495,6 +498,7 @@ export abstract class BaseNode<
       this.removeInput(item);
     }
 
+    const values = state.context.inputs;
     for (const [index, item] of rawTemplate.entries()) {
       if (this.hasInput(item.name)) {
         const input = this.inputs[item.name];
@@ -522,15 +526,23 @@ export abstract class BaseNode<
       );
       input.addControl(controller);
       this.addInput(item.name, input as any);
-      if (!state.context.inputs[item.name]) {
-        this.pactor.send({
-          type: "SET_VALUE",
-          values: {
-            [item.name]: item.type === "date" ? undefined : "",
-          },
-        });
+      if (!values[item.name]) {
+        console.log(
+          "setting default value",
+          item.name,
+          item.type,
+          item.default,
+        );
+
+        values[item.name] =
+          item.default || (item.type === "date" ? undefined : "");
       }
     }
+    console.log("setting values", values);
+    this.pactor.send({
+      type: "SET_VALUE",
+      values,
+    });
   }
 
   public setOutputSockets(sockets: JSONSocket[]) {

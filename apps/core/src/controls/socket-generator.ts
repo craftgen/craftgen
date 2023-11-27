@@ -25,7 +25,11 @@ export const socketSchema = z.object({
   maxLength: z.number().optional(),
   required: z.boolean().default(false),
   isMultiple: z.boolean().default(false),
-  $controller: z.string().optional(),
+
+  default: z.any().optional(),
+
+  "x-order": z.number().optional(),
+  "x-controller": z.string().optional(),
 });
 
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;

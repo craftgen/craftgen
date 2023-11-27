@@ -359,7 +359,7 @@ export const getControlBySocket = (
 ) => {
   return match(socket)
     .with(P.instanceOf(StringSocket), () => {
-      if (defination && defination.$controller === "textarea") {
+      if (defination && defination["x-controller"] === "textarea") {
         return new TextareControl(value, {
           change: onChange,
         });

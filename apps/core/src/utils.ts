@@ -1,3 +1,4 @@
+import SwaggerParser from "@apidevtools/swagger-parser";
 import { NodeEditor, NodeId } from "rete";
 
 import { JSONSocket } from "./controls/socket-generator";
@@ -16,6 +17,25 @@ export async function removeConnections(
       await editor.removeConnection(c.id);
     }
   }
+}
+
+export async function convertOpenAPIToJSONSchema(openApiSpec: any) {
+  const parser = new SwaggerParser();
+  const spec = await parser.dereference(openApiSpec);
+  // console.log(spec);
+  const requestBody = spec.paths["/predictions"]["post"]["requestBody"];
+  console.log(JSON.stringify(requestBody, null, 2));
+  // parser.dereference()
+
+  // const components = spec.components?.schemas || {};
+  // const dereferencedComponents = {};
+
+  // for (const [key, value] of Object.entries(components)) {
+  //   dereferencedComponents[key] = dereference(value, parser.$refs);
+  // }
+
+  // Here, `dereferencedComponents` is your JSON schema derived from OpenAPI components
+  // return dereferencedComponents;
 }
 
 export const createJsonSchema = (inputs: JSONSocket[]) => {

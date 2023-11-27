@@ -1,8 +1,8 @@
-import { test, expect, mock, spyOn } from "bun:test";
+import { expect, mock, spyOn, test } from "bun:test";
+
 import { Editor } from "../editor";
 import { InputNode, OutputNode, PromptTemplate } from "../nodes";
 import { mockAPI, nodeAreaDefaults } from "./shared";
-import { ActorStatus } from "xstate";
 
 test("Setup Input outputs", async () => {
   const di = new Editor({
@@ -153,9 +153,10 @@ test("Setup Input outputs", async () => {
       title: "Hello",
     },
   });
-  expect(inputNode.actor.status).toBe(ActorStatus.Stopped);
-  expect(promptTemplate.actor.status).toBe(ActorStatus.Stopped);
-  expect(outputNode.actor.status).toBe(ActorStatus.Stopped);
+
+  expect(inputNode.snap.status).toBe("done");
+  expect(promptTemplate.snap.status).toBe("done");
+  expect(outputNode.snap.status).toBe("done");
 });
 test("Check out persistence", async () => {
   const di = new Editor({
