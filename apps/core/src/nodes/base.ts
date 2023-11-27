@@ -281,11 +281,7 @@ export abstract class BaseNode<
         setValue: assign({
           inputs: ({ context, event }) => {
             Object.keys(context.inputs).forEach((key) => {
-              if (
-                !(context.inputSockets as JSONSocket[]).find(
-                  (i) => i.name === key,
-                )
-              ) {
+              if (!context.inputSockets[key]) {
                 delete context.inputs[key];
               }
             });
@@ -392,12 +388,12 @@ export abstract class BaseNode<
         this.setSnap(state);
 
         if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
-          this.setInputSockets(state.context?.inputSockets || []);
+          this.setInputSockets(state.context?.inputSockets || {});
         }
         if (
           !isEqual(prev.context?.outputSockets, state.context.outputSockets)
         ) {
-          this.setOutputSockets(state.context?.outputSockets || []);
+          this.setOutputSockets(state.context?.outputSockets || {});
         }
 
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
@@ -434,10 +430,10 @@ export abstract class BaseNode<
     this.actor.start();
   }
 
-  async updateOutputs(rawTemplate: JSONSocket[]) {
+  async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
     for (const item of Object.keys(this.outputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      if (rawTemplate[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.source === this.id && c.sourceOutput === item);
@@ -454,10 +450,10 @@ export abstract class BaseNode<
       }
       this.removeOutput(item);
     }
-
-    for (const [index, item] of rawTemplate.entries()) {
+    let index = 0;
+    for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasOutput(item.name)) {
-        const output = this.outputs[item.name];
+        const output = this.outputs[key];
         if (output) {
           output.socket = getSocketByJsonSchemaType(item.type)! as any;
         }
@@ -512,7 +508,7 @@ export abstract class BaseNode<
 
       const socket = getSocketByJsonSchemaType(item.type)!;
       const input = new Input(socket, item.name, item.isMultiple);
-      input.index = index + 1;
+      input.index = item["x-order"] ?? index + 1;
       const controller = getControlBySocket(
         socket,
         () => this.snapshot.context.inputs[item.name],
@@ -547,11 +543,11 @@ export abstract class BaseNode<
     });
   }
 
-  public setOutputSockets(sockets: JSONSocket[]) {
+  public setOutputSockets(sockets: Record<string, JSONSocket>) {
     this.outputSockets = sockets;
   }
 
-  public setInputSockets(sockets: JSONSocket[]) {
+  public setInputSockets(sockets: Record<string, JSONSocket>) {
     this.inputSockets = sockets;
   }
 

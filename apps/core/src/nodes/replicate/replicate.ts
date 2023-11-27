@@ -1,4 +1,4 @@
-import { merge } from "lodash-es";
+import { curry, merge } from "lodash-es";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
@@ -69,23 +69,55 @@ const replicateMachine = createMachine({
           target: "idle",
           actions: [
             assign({
+              outputSockets: ({ event }) => {
+                const Output = (event.output.openapi_schema as any).components
+                  .schemas.Output;
+                // const keys = Object.entries(Output.properties);
+
+                return {};
+                return keys
+                  .map(([key, value]: [key: string, value: any]) => ({
+                    name: value.title ?? key,
+                    type: value.type,
+                    isMultiple: false,
+                    required: true,
+                    description: value.description,
+                    default: value.default,
+                    "x-key": key,
+                    "x-order": value["x-order"],
+                  }))
+                  .sort((a, b) => a["x-order"] - b["x-order"])
+                  .reduce(
+                    (acc, cur) => {
+                      acc[cur["x-key"]] = cur;
+                      return acc;
+                    },
+                    {} as Record<string, JSONSocket>,
+                  );
+              },
               inputSockets: ({ event }) => {
                 const Input = (event.output.openapi_schema as any).components
                   .schemas.Input;
                 const keys = Object.entries(Input.properties);
-                // keys to JSONSOCKET[]
                 return keys
                   .map(([key, value]: [key: string, value: any]) => ({
-                    name: key,
+                    name: value.title ?? key,
                     type: value.type,
+                    isMultiple: false,
+                    required: true,
                     description: value.description,
-                    "x-order": value["x-order"],
                     default: value.default,
+                    "x-key": key,
+                    "x-order": value["x-order"],
                   }))
-                  .sort((a, b) => a["x-order"] - b["x-order"]) as JSONSocket[];
-
-
-
+                  .sort((a, b) => a["x-order"] - b["x-order"])
+                  .reduce(
+                    (acc, cur) => {
+                      acc[cur["x-key"]] = cur;
+                      return acc;
+                    },
+                    {} as Record<string, JSONSocket>,
+                  );
               },
             }),
             assign({
