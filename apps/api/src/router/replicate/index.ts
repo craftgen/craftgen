@@ -12,7 +12,7 @@ export const replicateRouter = createTRPCRouter({
         version_id: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       return await ctx.replicate.models.versions.get(
         input.owner,
         input.model_name,

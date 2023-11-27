@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatDistance } from "date-fns";
 import type { Action } from "kbar";
 import { Priority, useKBar, useRegisterActions } from "kbar";
-import { debounce, flatten } from "lodash-es";
+import { debounce, flatten, isNil } from "lodash-es";
 import useSWR from "swr";
 
 import type { Editor } from "@seocraft/core";
@@ -111,13 +111,6 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const setReplicateCollection = debounce(_setReplicateCollection, 250, {
     maxWait: 600,
   });
-  const [replicateModel, _setReplicateModel] = useState<{
-    owner: string;
-    name: string;
-  } | null>(null);
-  const setReplicateModel = debounce(_setReplicateModel, 250, {
-    maxWait: 600,
-  });
 
   function extractOwnerAndNameAndVersion(
     input: string,
@@ -151,43 +144,61 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     }
   }
 
-  const { options, query, currentRootActionId } = useKBar((state) => {
-    if (state.currentRootActionId === "ModuleNode") {
-      setQuery(state.searchQuery);
-    }
-    if (state.currentRootActionId?.startsWith("project_")) {
-      setProject(state.currentRootActionId);
-    }
-    if (state.currentRootActionId?.startsWith("workflow_")) {
-      setWorkflow(state.currentRootActionId);
-    }
-    if (state.currentRootActionId?.startsWith("replicate-collection-")) {
-      setReplicateCollection(
-        state.currentRootActionId.replace("replicate-collection-", ""),
-      );
-    }
-    if (state.currentRootActionId?.startsWith("replicate-model-")) {
-      const [owner, name] = state.currentRootActionId
-        .replace("replicate-model-", "")
-        .split("/");
-      if (owner && name) setReplicateModel({ owner, name });
-    }
-    if (
-      state.currentRootActionId === "replicate" &&
-      extractOwnerAndName(state.searchQuery)
-    ) {
-      const { owner, name } = extractOwnerAndName(state.searchQuery)!;
-      setReplicateModel({ owner, name });
-    }
-    if (
-      state.currentRootActionId === "replicate" &&
-      extractOwnerAndNameAndVersion(state.searchQuery)
-    ) {
-    }
-    return {
-      currentRootActionId: state.currentRootActionId,
-    };
-  });
+  const { options, query, currentRootActionId, replicateModel } = useKBar(
+    (state) => {
+      if (state.currentRootActionId === "ModuleNode") {
+        setQuery(state.searchQuery);
+      }
+      if (state.currentRootActionId?.startsWith("project_")) {
+        setProject(state.currentRootActionId);
+      }
+      if (state.currentRootActionId?.startsWith("workflow_")) {
+        setWorkflow(state.currentRootActionId);
+      }
+      if (state.currentRootActionId?.startsWith("replicate-collection-")) {
+        setReplicateCollection(
+          state.currentRootActionId.replace("replicate-collection-", ""),
+        );
+      }
+      let replicateModel: { owner: string; name: string } | null = null;
+
+      if (state.currentRootActionId?.startsWith("replicate-model-")) {
+        console.log("replicate-model-", { state });
+        const [owner, name] = state.currentRootActionId
+          .replace("replicate-model-", "")
+          .split("/");
+
+        if (owner && name) {
+          console.log(
+            "setting replicate-model-",
+            { owner, name },
+            replicateModel,
+          );
+          // setReplicateModel({ owner, name });
+          replicateModel = { owner, name };
+        }
+      }
+
+      if (
+        state.currentRootActionId === "replicate" &&
+        extractOwnerAndName(state.searchQuery)
+      ) {
+        const { owner, name } = extractOwnerAndName(state.searchQuery)!;
+        // setReplicateModel({ owner, name });
+        replicateModel = { owner, name };
+      }
+      if (
+        state.currentRootActionId === "replicate" &&
+        extractOwnerAndNameAndVersion(state.searchQuery)
+      ) {
+      }
+
+      return {
+        currentRootActionId: state.currentRootActionId,
+        replicateModel,
+      };
+    },
+  );
 
   const { data: workflowModules } = useSWR(
     "/api/modules" + q,
@@ -278,10 +289,16 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
             parent: `replicate-model-${model.owner}/${model.name}`,
             icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
             section: `Replicate | ${model.owner} | ${model.name}`,
-            subtitle: `created at: ${formatDistance(
-              new Date(),
-              new Date(model.latest_version?.created_at!),
-            )}`,
+            subtitle: `created at: ${
+              model.latest_version?.created_at &&
+              formatDistance(
+                new Date(model.latest_version?.created_at),
+                new Date(),
+                {
+                  addSuffix: true,
+                },
+              )
+            }`,
             perform: async () => {
               await di?.addNode("Replicate", {
                 settings: {
@@ -303,12 +320,24 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       model_name: replicateModel?.name!,
     },
     {
-      enabled: !!replicateModel,
+      enabled: !isNil(replicateModel?.name) && !isNil(replicateModel?.owner),
       keepPreviousData: true,
     },
   );
 
+  useEffect(() => {
+    console.log("replicateModelVersions", replicateModelVersions);
+  }, [replicateModelVersions]);
+
+  useEffect(() => {
+    console.log("replicateModel", replicateModel);
+  }, [replicateModel]);
+
   const replicateModelVersionActions = useMemo<Action[]>(() => {
+    if (!replicateModel) {
+      return [];
+    }
+    // console.log("replicateModelVersions", replicateModelVersions);
     const actions: Action[] = [];
     replicateModelVersions?.results
       ?.filter(
@@ -350,8 +379,11 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
           icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
           section: `Replicate | ${replicateModel?.owner} | ${replicateModel?.name}`,
           subtitle: `created at: ${formatDistance(
-            new Date(),
             new Date(version.created_at),
+            new Date(),
+            {
+              addSuffix: true,
+            },
           )}`,
           perform: async () => {
             await di?.addNode("Replicate", {
@@ -366,7 +398,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
         return actions;
       });
     return actions;
-  }, [replicateModelVersions]);
+  }, [replicateModelVersions, replicateModel]);
 
   const assistantActions = useMemo<Action[]>(() => {
     return (

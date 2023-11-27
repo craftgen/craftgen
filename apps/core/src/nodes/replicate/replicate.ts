@@ -1,13 +1,15 @@
 import { merge } from "lodash-es";
 import { SetOptional } from "type-fest";
-import { createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
+
+import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
 import { type DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
 
 const replicateMachine = createMachine({
   id: "replicate",
-  initial: "idle",
+  initial: "init",
   context: ({ input }) =>
     merge<typeof input, any>(
       {
@@ -41,19 +43,38 @@ const replicateMachine = createMachine({
     actions: any;
     actors: {
       src: "getModelVersion";
-      logic: PromiseActorLogic<any, any>;
+      logic: PromiseActorLogic<
+        RouterOutputs["replicate"]["getModelVersion"],
+        RouterInputs["replicate"]["getModelVersion"]
+      >;
     };
     events: any;
   }>,
   states: {
-    idle: {
+    init: {
       invoke: {
         src: "getModelVersion",
+        input: ({ context }): RouterInputs["replicate"]["getModelVersion"] => ({
+          owner: context.settings.owner,
+          model_name: context.settings.model_name,
+          version_id: context.settings.version_id,
+        }),
+        onDone: {
+          target: "idle",
+          actions: [
+            assign({
+              outputs: ({ event }) => {
+                console.log("event", event);
+              },
+            }),
+          ],
+        },
       },
     },
+    idle: {},
     running: {},
-    success: {},
-    failure: {},
+    complete: {},
+    error: {},
   },
 });
 
@@ -75,10 +96,9 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
   constructor(di: DiContainer, data: ReplicateData) {
     super("Replicate", di, data, replicateMachine, {
       actors: {
-        getModelVersion: fromPromise(
-          // async () => await getModelVersion({ model_name, owner, version_id })
-          async () => null,
-        ),
+        getModelVersion: fromPromise(async ({ input }) => {
+          return await di.api.trpc.replicate.getModelVersion.query(input);
+        }),
       },
     });
   }
