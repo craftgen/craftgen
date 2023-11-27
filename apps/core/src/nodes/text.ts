@@ -18,7 +18,14 @@ const TextNodeMachine = createMachine({
         inputs: {},
         inputSockets: [],
         value: "",
-        outputSockets: [],
+        outputSockets: {
+          value: {
+            name: "value",
+            type: "string",
+            description: "Result text",
+            required: true,
+          },
+        },
         outputs: {
           value: "",
         },

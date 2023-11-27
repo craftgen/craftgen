@@ -249,9 +249,8 @@ export type SocketTypeMap = {
 
 export type JSONSocketTypeKeys = (typeof types)[number];
 
-type KeyNames<T extends JSONSocket[]> = T[number]["name"];
-export type MappedType<T extends JSONSocket[]> = {
-  [K in KeyNames<T>]: SocketTypeMap[Extract<T[number], { name: K }>["type"]];
+export type MappedType<T extends Record<string, JSONSocket>> = {
+  [K in keyof T]: SocketTypeMap[T[K]["type"]];
 };
 
 export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {

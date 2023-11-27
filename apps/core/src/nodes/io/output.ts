@@ -1,14 +1,15 @@
-import { createMachine, assign } from "xstate";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
-import { DiContainer } from "../../types";
-import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
+import { merge } from "lodash-es";
+import { SetOptional } from "type-fest";
+import { assign, createMachine } from "xstate";
+
 import {
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
-import { merge } from "lodash-es";
-import { SetOptional } from "type-fest";
+import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
+import { DiContainer } from "../../types";
+import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -18,13 +19,13 @@ const OutputNodeMachine = createMachine({
       {
         name: "Output",
         description: "",
-        inputSockets: [],
-        outputSockets: [],
+        inputSockets: {},
+        outputSockets: {},
         inputs: {},
         outputs: {},
         error: null,
       },
-      input
+      input,
     ),
   types: {} as BaseMachineTypes<{
     input: {
@@ -35,12 +36,13 @@ const OutputNodeMachine = createMachine({
       name: string;
       description: string;
     };
-    actions: any;
+    actions: None;
+    actors: None;
     events: {
       type: "CHANGE";
       name: string;
       description: string;
-      inputSockets: JSONSocket[];
+      inputSockets: Record<string, JSONSocket>;
     };
   }>,
   initial: "idle",
@@ -106,14 +108,21 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.inputSockets,
+        sockets: Object.values(state.context.inputSockets),
       },
       onChange: ({ sockets, name, description }) => {
+        const inputSockets = sockets.reduce(
+          (acc, socket) => {
+            acc[socket.name] = socket;
+            return acc;
+          },
+          {} as Record<string, JSONSocket>,
+        );
         this.actor.send({
           type: "CHANGE",
           name,
           description: description || "",
-          inputSockets: sockets,
+          inputSockets,
         });
       },
     });

@@ -27,23 +27,25 @@ test("Setup Input outputs", async () => {
             inputs: {
               title: "",
             },
-            inputSockets: [
-              {
+            inputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             outputs: {
               title: "",
             },
-            outputSockets: [
-              {
+            outputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: true,
               },
-            ],
+            },
           },
           id: "node_Input",
         }),
@@ -54,13 +56,14 @@ test("Setup Input outputs", async () => {
             outputs: {
               value: "",
             },
-            inputSockets: [
-              {
+            inputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             settings: {
               template: "Create a article for {{title}}",
               variables: ["title"],
@@ -77,22 +80,24 @@ test("Setup Input outputs", async () => {
           context: {
             name: "Output",
             description: "",
-            inputSockets: [
-              {
+            inputSockets: {
+              value: {
                 name: "value",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             inputs: {},
             outputs: {},
-            outputSockets: [
-              {
+            outputSockets: {
+              value: {
                 name: "value",
                 type: "string",
                 required: true,
+                isMultiple: true,
               },
-            ],
+            },
           },
           id: "node_outputNode",
         }),
@@ -179,23 +184,25 @@ test("Check out persistence", async () => {
             name: "Prompt",
             description: "Prompt",
             inputs: {},
-            inputSockets: [
-              {
+            inputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             outputs: {
               title: "",
             },
-            outputSockets: [
-              {
+            outputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: true,
               },
-            ],
+            },
           },
           id: "node_Input",
         }),
@@ -207,13 +214,14 @@ test("Check out persistence", async () => {
             outputs: {
               value: "",
             },
-            inputSockets: [
-              {
+            inputSockets: {
+              title: {
                 name: "title",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             settings: {
               template: "Create a article for {{title}}",
               variables: ["title"],
@@ -231,20 +239,22 @@ test("Check out persistence", async () => {
           context: {
             name: "Output",
             description: "",
-            outputSockets: [
-              {
+            outputSockets: {
+              value: {
                 name: "value",
                 type: "string",
                 required: true,
+                isMultiple: true,
               },
-            ],
-            inputSockets: [
-              {
+            },
+            inputSockets: {
+              value: {
                 name: "value",
                 type: "string",
                 required: true,
+                isMultiple: false,
               },
-            ],
+            },
             inputs: {},
             outputs: {},
           },

@@ -38,7 +38,7 @@ export async function convertOpenAPIToJSONSchema(openApiSpec: any) {
   // return dereferencedComponents;
 }
 
-export const createJsonSchema = (inputs: JSONSocket[]) => {
+export const createJsonSchema = (inputs: Record<string, JSONSocket>) => {
   const socketToProperty = (input: JSONSocket) => ({
     type: input.type, // or based on input.type
     ...(input.description && { description: input.description }),
@@ -46,13 +46,13 @@ export const createJsonSchema = (inputs: JSONSocket[]) => {
     ...(input.maxLength && { maxLength: input.maxLength }),
   });
 
-  const required = inputs
+  const required = Object.values(inputs)
     .filter((input) => input.required)
     .map((input) => input.name);
 
-  const properties = inputs.reduce(
-    (acc, input) => {
-      acc[input.name] = socketToProperty(input);
+  const properties = Object.entries(inputs).reduce(
+    (acc, [key, input]) => {
+      acc[key] = socketToProperty(input);
       return acc;
     },
     {} as Record<string, any>,

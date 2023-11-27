@@ -23,31 +23,32 @@ export const OpenAIThreadMachine = createMachine({
   id: "openai-thread",
   initial: "idle",
   context: ({ input }) =>
-    merge(
+    merge<typeof input, any>(
       {
         inputs: {},
-        inputSockets: [
-          {
+        inputSockets: {
+          addMessage: {
             name: "addMessage",
             type: "object",
+            required: false,
+            isMultiple: true,
           },
-        ],
-        outputSockets: [
-          {
+        },
+        outputSockets: {
+          threadId: {
             name: "threadId",
             type: "string",
             description: "Thread ID",
             required: true,
             isMultiple: true,
           },
-        ],
+        },
         outputs: {
           threadId: null,
         },
         settings: {
           threadId: null,
         },
-        error: null,
       },
       input,
     ),

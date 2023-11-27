@@ -36,30 +36,29 @@ export const OpenAIAssistantMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWi1lh1gBcsNSA6HCAGzAGIBhAeQDkAxASQHEB9ZgAkAgu14BRANoAGALqJQqZMVI5kGRSAAeiAEx6AnFT0AOAIx6A7ADYLVg6dMAaEAE9ElgMzGDNq+Ze5gAshoZeXgC+ka5omLgERCTklDT0TACqAAoAIiIAKhKCHDy8sgpIIMqq6pqVugh6MqYyVDZ6waYArDKh5t3drh4IgTbBVMFGDrZ6XX6G0bHo2PiExGQU1LQMjABKEgAyrCI55VrVOGoaWg1dwV1UXv6z5jKGwcFPwUOewbZtXjMpi83XaNmaixAcRWiXWKS26T2GXYZ0qFyudVADS8fyoXTuDhscy6gJsPwQFjxMmpIS8AUMTSsVkh0ISa2SmyoqAATmBeXRkBAcBgoIxtBtSGAqFgAGaS7kACleAEpGKzVkkNqkeXywAKhSLUUoVJdajdPFZfBYOkSOmFOmT3L9mm0ujZAbZDDIbIFzCzlmzNfCqPzkFgDaKIBopcKAG7IADWUvVsI5qVD4eFUAQceQAGMsBjykaqiaMeaEHcHk8HF1Xu9PmNyZZTMZCTZDCT8SD-fENXDORmI4w+dzkNyuXRCzLxwBbKgp9la6hDrM5jDxgtF+Ql9Fm+qIKuPZ51t4fL7NkFeKjmS1Mjrtzq9mFL4OQU0ilglPiCUTiaTyOcZb7liiCTM2rzmI8bqmFYpiTIY4LvM+gYDqk75qJ+4rkJK0pynyCpNNSqqLkGnIYVmu7AdcB6NEYJjWrY9iOC4TojN6VhUIYtgOB0Lx1n6MRQgG-ZpiuACuGAYFmVDiagECFlmjBRhgMYbomyYiamy4hpJ0kirJ8mKSK66bopGjFoBaLUZiOieBYxjwU8t4dtSzTfGx5ghA8TJPDILnunSKGiTp3J6TJckKZhoqjuOk7TnOC5aa+g7hQZkXGdmuZbrUlkVMaNQ0aBIwOVQTk+p6bnwc2MheK0Vg9OYPRdHB55dMF2nBmFUkyXmvKZcp0Y0OpSZJX2nWpT1Bl9WAmWmfm5kYHlQGFbZDQ+qYXE+tS4KtrVXhdOSzxUA11KGLeDK9E8HUpemaVQFQeYABZgHmCZKSpanxqNpFoRJU0Pc9r3vSZ2WLct1mrRWgThDebohE1LRjI6ww+K0YRhI1cEdjYN1kXdAOPS9b1KbFE6oFOpAzty86-WJumE0DJOg+pOUWTuVkFaaRV2SMXTcTe-imP4kEyLW5JBMY-g4rM4T9CSwR439DP6Q9EBgPKs7ClmADKOFMFRUO0a83qPKdwR2C0JJ6CjiAdptfhjFYZ1hOYCxCXToX3VQ6ua9rIp64WBvmPlpZG8VJs2GbPQW04MjW7bCANZxfwi7B7R6HVphK-T3Wqz7Gt8lrquB5KjBSHood7jzDSR9HvSW-HpLkunJ021YTxPAy10e8l+P-fnvtF-7UClwbXhVzZ0M7fXsdW83bH4ptqf8zidUPu1vfjbdA8yUPNMj2P5fBJP4e83XdIx43CdHcErSp0STVzHfwSCUs2-9yre+FwfJf6+XXRT7czWp4Gel8G5xxvmxCwDxuL+A7D0GQRhEI5y9oTfexddb-ykDYIB5ZjZgPNtfBewxwgPD8AEboVhY5GFQV1b2GDD7YKsHgkC59CFX0gSQ-QnYJi2DdJ2ahd8XJ0MmvnAAjuJMAUiIBiglFKWU8olRuRIn3ZWecZKSOkZAQ2wDoY+GvE1H0r8uhIwtkdQwDsbZOxdudd278Xyfw0QZYU-AeTICgLyIgcj9Z4SUSbGQqiP7qO9q49xni4CwF0fgiOBi4bGMRt6cxbEGpR3bNxahSNvSiIJvnPMyBZwU0LrI6JbDa6lXKi5L01JqrQIalxHiwInBMUtNEISGBBRwC0J7eEK09G0TwInQZVA3KjLGW8TsOSEQMD6TE3mTQOgnX6O0ah-DqR6GbBbB4TggSwVdgyPQUyuS8lDBGWZZSwIbM8nfTiRJArOwqj4XGW9HHqL1GGM5kN+nFTqtWMwlgWoNUQh8S88F4lGDuF5HE2SXmoXphREU5ya6HijuYMYzQOiSzpB5YYlgkFlRNk82qLUnywpCvQgGSKQEIAiMYfEfwbbEm4Y0U2fg3TegZPzWYzyHFwrQfnDK0UqUVhBJxelhImU2xqp8Ph-gxbWC9DiN+wlgm529jNTKwraKTHGMCLl9xTDWAtonEWJhrE2B9HVeW2cyUTVyb1YmIMoBaojqYvQXF4J6GWfHUx5JX6bUsESAIpiXK1SOc4tWP9MEB31i63mlooLxxXl2Q1Jr3htwtR3OskwO48pVa8tVhMtEyLjbXAw4xZggjFqkow5gLGcUdlmkI1ge68vJWImSYSxwRKIKWzwTRjDNDdv0boZgO5WHJA1Hy1j8T0gcPHcN6qClFMlBAPtIwvXurCF6tFLYeheBbtQhp-h-Wrz+MyW1O8v4GV5JInAXj+BYDzHM6u1KvIdhMK8WCIRLFegcOSEk142UtRtmEcEitL1OO9mAbQqB72QHXe+3wX6AihD2v+ti7pNrtgMEydovQL1trtbvaaFA8x6joFmRDaLkPNFQ7++VLcQhmv8NQsIvQoWLsZmRijCGvlzNrjRz9dGf3oauaQiIsqHB3ydu8Qj+a+UUvzjKXADA138YuSMITXqRNob-eJnh14JWnTGHWHEEGiNXvyYUhgkp11NFCJ+4WjLwiW0PUZ9u3o9Ud0EtEIAA */
   id: "openai-assistant",
   context: ({ input }) =>
-    merge(
+    merge<typeof input, any>(
       {
         inputs: {
           threadId: null,
         },
-        inputSockets: [
-          {
+        inputSockets: {
+          threadId: {
             name: "threadId",
             type: "string",
             description: "Thread ID",
             required: true,
             isMultiple: false,
           },
-        ],
+        },
         outputs: {},
-        outputSockets: [],
+        outputSockets: {},
         settings: {
           run: null,
           assistant: {
-            id: null,
+            id: input.settings.assistant.id,
             model: "gpt-4-1106-preview" as OpenAIChatModelType,
           },
         },
-        error: null,
       },
       input,
     ),

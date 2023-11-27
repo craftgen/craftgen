@@ -37,7 +37,7 @@ export const GoogleSearchConsoleMachine = createMachine({
           },
         ],
         outputs: {},
-        outputSockets: [],
+        outputSockets: {},
         error: null,
       },
       input,

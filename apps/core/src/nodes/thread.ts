@@ -25,33 +25,34 @@ export const ThreadMachine = createMachine({
           type: ThreadActions.addMessage,
         },
         inputs: {},
-        inputSockets: [
-          // {
-          //   type: "string",
-          //   name: "system",
-          //   description: "System message",
-          //   required: false,
-          // },
-          // {
-          //   type: "array",
-          //   name: "messages",
-          //   isMultiple: true,
-          //   required: false,
-          // },
-        ] as JSONSocket[],
+        inputSockets: {},
+        // {
+        //   type: "string",
+        //   name: "system",
+        //   description: "System message",
+        //   required: false,
+        // },
+        // {
+        //   type: "array",
+        //   name: "messages",
+        //   isMultiple: true,
+        //   required: false,
+        // },
         outputs: {},
-        outputSockets: [
-          {
+        outputSockets: {
+          system: {
             name: "system",
             type: "string",
             isMultiple: true,
+            required: false,
           },
-          {
+          messages: {
             name: "messages",
             type: "array",
             isMultiple: true,
+            required: true,
           },
-        ] as JSONSocket[],
+        },
         // messages: [],
         // system: "You are a helpful, respectful and honest assistant.",
       },
@@ -204,7 +205,6 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
   static label = "Thread";
   static description: "Message Thread";
   static icon = "mails";
-
 
   static parse(params: SetOptional<ThreadNode, "type">): ThreadNode {
     return {

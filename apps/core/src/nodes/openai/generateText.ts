@@ -21,8 +21,8 @@ import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 /**
  * @type {JSONSocket[]}
  */
-const inputSockets = [
-  {
+const inputSockets = {
+  system: {
     name: "system" as const,
     type: "string" as const,
     description: "System Message",
@@ -30,7 +30,7 @@ const inputSockets = [
     isMultiple: false,
     "x-controller": "textarea",
   },
-  {
+  user: {
     name: "user" as const,
     type: "string" as const,
     description: "User Prompt",
@@ -38,17 +38,17 @@ const inputSockets = [
     isMultiple: false,
     "x-controller": "textarea",
   },
-];
+};
 
-const outputSockets = [
-  {
+const outputSockets = {
+  result: {
     name: "result" as const,
     type: "string" as const,
     description: "Result",
     required: true,
     isMultiple: true,
   },
-];
+};
 
 const OpenAIGenerateTextMachine = createMachine({
   id: "openai-generate-text",
@@ -62,8 +62,8 @@ const OpenAIGenerateTextMachine = createMachine({
         outputs: {
           result: "",
         },
-        inputSockets: inputSockets as JSONSocket[],
-        outputSockets: outputSockets as JSONSocket[],
+        inputSockets,
+        outputSockets,
         settings: {
           openai: {
             model: "gpt-3.5-turbo-1106",

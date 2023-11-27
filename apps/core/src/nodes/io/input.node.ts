@@ -24,9 +24,9 @@ export const InputNodeMachine = createMachine({
         name: "Default",
         description: "",
         inputs: {},
-        inputSockets: [],
+        inputSockets: {},
         outputs: {},
-        outputSockets: [],
+        outputSockets: {},
         error: null,
       },
       input,
@@ -45,7 +45,7 @@ export const InputNodeMachine = createMachine({
       type: "CHANGE";
       name: string;
       description: string;
-      outputSockets: JSONSocket[];
+      outputSockets: Record<string, JSONSocket>;
     };
     actors: any;
   }>,
@@ -109,25 +109,32 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.outputSockets,
+        sockets: Object.values(state.context.outputSockets),
       },
       onChange: ({ sockets, name, description }) => {
+        const outputSockets = sockets.reduce(
+          (acc, socket) => {
+            acc[socket.name] = socket;
+            return acc;
+          },
+          {} as Record<string, JSONSocket>,
+        );
         this.actor.send({
           type: "CHANGE",
           name,
           description: description || "",
-          outputSockets: sockets,
+          outputSockets,
         });
       },
     });
     this.addControl("outputGenerator", outputGenerator);
   }
 
-  async updateInputs(rawTemplate: JSONSocket[]) {
+  async updateInputs(rawTemplate: Record<string, JSONSocket>) {
     const state = this.actor.getSnapshot();
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      if (rawTemplate[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
@@ -145,9 +152,9 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       this.removeInput(item);
     }
 
-    for (const item of rawTemplate) {
+    for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasInput(item.name)) {
-        const input = this.inputs[item.name];
+        const input = this.inputs[key];
         if (input) {
           input.socket = getSocketByJsonSchemaType(item.type)! as any;
         }

@@ -13,17 +13,13 @@ import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
-import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, Tool, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
-/**
- * @type {JSONSocket[]}
- */
-const inputSockets = [
-  {
+const inputSockets = {
+  system: {
     name: "system" as const,
     type: "string" as const,
     description: "System Message",
@@ -31,7 +27,7 @@ const inputSockets = [
     isMultiple: false,
     "x-controller": "textarea",
   },
-  {
+  user: {
     name: "user" as const,
     type: "string" as const,
     description: "User Prompt",
@@ -39,7 +35,7 @@ const inputSockets = [
     isMultiple: false,
     "x-controller": "textarea",
   },
-  {
+  schema: {
     name: "schema" as const,
     type: "tool" as const,
     description: "Schema",
@@ -47,17 +43,17 @@ const inputSockets = [
     isMultiple: false,
     "x-controller": "socket-generator",
   },
-];
+};
 
-const outputSockets = [
-  {
+const outputSockets = {
+  result: {
     name: "result" as const,
     type: "string" as const,
     description: "Result",
     required: true,
     isMultiple: true,
   },
-];
+};
 
 const OpenAIGenerateStructureMachine = createMachine({
   id: "openai-generate-structure",
@@ -76,8 +72,8 @@ const OpenAIGenerateStructureMachine = createMachine({
         outputs: {
           result: "",
         },
-        inputSockets: inputSockets as JSONSocket[],
-        outputSockets: outputSockets as JSONSocket[],
+        inputSockets: inputSockets,
+        outputSockets: outputSockets,
         settings: {
           openai: {
             model: "gpt-3.5-turbo-1106",

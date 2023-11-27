@@ -21,8 +21,8 @@ const ModuleNodeMachine = createMachine({
         inputId: undefined,
         inputs: {},
         outputs: {},
-        outputSockets: [],
-        inputSockets: [],
+        outputSockets: {},
+        inputSockets: {},
         error: null,
       },
       input,
@@ -62,8 +62,8 @@ const ModuleNodeMachine = createMachine({
         }
       | {
           type: "SET_CONFIG";
-          inputSockets: JSONSocket[];
-          outputSockets: JSONSocket[];
+          inputSockets: Record<string, JSONSocket>;
+          outputSockets: Record<string, JSONSocket>;
         }
       | {
           type: "RUN";
@@ -226,14 +226,20 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
       () => this.module?.selectedInput,
       async () => {
         console.log("INPUT CHANGED", this.module?.selectedInput);
-        const outputs = this.module?.selectedOutputs?.reduce((acc, curr) => {
-          acc.push(...curr.outputSockets);
-          return acc;
-        }, [] as JSONSocket[]);
+        const outputSockets = this.module?.selectedOutputs?.reduce(
+          (acc, curr) => {
+            Object.entries(curr.outputSockets).forEach(([key, socket]) => {
+              acc[`${curr.id}-${socket.name}`] = socket; // TODO this is probably bug.
+            });
+            return acc;
+          },
+          {} as Record<string, JSONSocket>,
+        );
+
         this.actor.send({
           type: "SET_CONFIG",
-          inputSockets: this.module?.selectedInput?.inputSockets || [],
-          outputSockets: outputs || [],
+          inputSockets: this.module?.selectedInput?.inputSockets || {},
+          outputSockets: outputSockets || {},
         });
         this.setLabel(`Module:(${this.module?.selectedInput?.label})`);
       },

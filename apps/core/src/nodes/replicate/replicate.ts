@@ -20,9 +20,9 @@ const replicateMachine = createMachine({
           version_id: "",
         },
         inputs: {},
-        inputSockets: [],
+        inputSockets: {},
         outputs: {},
-        outputSockets: [],
+        outputSockets: {},
       },
       input,
     ),
@@ -83,6 +83,9 @@ const replicateMachine = createMachine({
                     default: value.default,
                   }))
                   .sort((a, b) => a["x-order"] - b["x-order"]) as JSONSocket[];
+
+
+
               },
             }),
             assign({

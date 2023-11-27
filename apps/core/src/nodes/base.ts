@@ -43,16 +43,16 @@ export type ParsedNode<
 
 export type BaseInputType = {
   inputs?: Record<string, any>;
-  inputSockets?: JSONSocket[];
+  inputSockets?: Record<string, JSONSocket>;
   outputs?: Record<string, any>;
-  outputSockets?: JSONSocket[];
+  outputSockets?: Record<string, JSONSocket>;
 };
 
 export type BaseContextType = {
   inputs: Record<string, any>;
   outputs: Record<string, any>;
-  outputSockets: JSONSocket[];
-  inputSockets: JSONSocket[];
+  outputSockets: Record<string, JSONSocket>;
+  inputSockets: Record<string, JSONSocket>;
   error: {
     name: string;
     message: string;
@@ -62,8 +62,8 @@ export type BaseContextType = {
 export type ChangeActionEventType<T> = {
   type: "CHANGE_ACTION";
   value: T;
-  outputSockets: JSONSocket[];
-  inputSockets: JSONSocket[];
+  outputSockets: Record<string, JSONSocket>;
+  inputSockets: Record<string, JSONSocket>;
   action: {
     type: T;
   };
@@ -118,7 +118,7 @@ export type BaseMachineTypes<
     context: any;
     events?: any;
     actions?: any;
-    actors?: ProvidedActor;
+    actors?: ProvidedActor | None;
   } = {
     input: BaseInputType;
     context: BaseContextType;
@@ -129,6 +129,7 @@ export type BaseMachineTypes<
 > = {
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
+
   events: SpecialMerged<BaseEventTypes, T["events"]>;
   actions: SpecialMerged<BaseActionTypes, T["actions"]>;
   actors: SpecialMerged<BaseActorTypes, T["actors"]>;
@@ -218,8 +219,8 @@ export abstract class BaseNode<
     return this.snap as SnapshotFrom<BaseMachine>;
   }
 
-  public inputSockets: JSONSocket[];
-  public outputSockets: JSONSocket[];
+  public inputSockets: Record<string, JSONSocket>;
+  public outputSockets: Record<string, JSONSocket>;
 
   get inputSchema() {
     return createJsonSchema(this.inputSockets);
@@ -315,8 +316,8 @@ export abstract class BaseNode<
     }
 
     this.snap = this.actor.getSnapshot();
-    this.inputSockets = this.snapshot.context?.inputSockets || [];
-    this.outputSockets = this.snapshot.context?.outputSockets || [];
+    this.inputSockets = this.snapshot.context?.inputSockets || {};
+    this.outputSockets = this.snapshot.context?.outputSockets || {};
 
     this.updateInputs(this.inputSockets);
     this.updateOutputs(this.outputSockets);
@@ -474,13 +475,13 @@ export abstract class BaseNode<
     }
   }
 
-  async updateInputs(rawTemplate: JSONSocket[]) {
+  async updateInputs(rawTemplate: Record<string, JSONSocket>) {
     console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
       if (item === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+      if (rawTemplate[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
@@ -499,8 +500,9 @@ export abstract class BaseNode<
     }
 
     const values = state.context.inputs;
-    for (const [index, item] of rawTemplate.entries()) {
-      if (this.hasInput(item.name)) {
+    let index = 0;
+    for (const [key, item] of Object.entries(rawTemplate)) {
+      if (this.hasInput(key)) {
         const input = this.inputs[item.name];
         if (input) {
           input.socket = getSocketByJsonSchemaType(item.type)! as any;

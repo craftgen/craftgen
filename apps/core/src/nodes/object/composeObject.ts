@@ -2,14 +2,7 @@ import { merge } from "lodash-es";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import {
-  assign,
-  ContextFrom,
-  createMachine,
-  EventFrom,
-  fromPromise,
-  InferEvent,
-} from "xstate";
+import { assign, createMachine } from "xstate";
 
 import {
   JSONSocket,
@@ -17,13 +10,13 @@ import {
 } from "../../controls/socket-generator";
 import { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
-import { BaseMachineTypes, BaseNode, type ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
   initial: "idle",
   context: ({ input }) =>
-    merge(
+    merge<typeof input, any>(
       {
         name: "new_object",
         description: "object description",
@@ -32,27 +25,26 @@ const composeObjectMachine = createMachine({
           schema: {
             name: "new_object",
             description: "object description",
-            schema: createJsonSchema([]),
+            schema: createJsonSchema({}),
           },
         },
-        inputSockets: [],
-        outputSockets: [
-          {
+        inputSockets: {},
+        outputSockets: {
+          object: {
             name: "object" as const,
             type: "object" as const,
             description: "Object",
             required: true,
             isMultiple: false,
           },
-          {
+          schema: {
             name: "schema" as const,
             type: "tool" as const,
             description: "Schema",
             required: true,
             isMultiple: false,
           },
-        ],
-        error: null,
+        },
       },
       input,
     ),
@@ -60,14 +52,13 @@ const composeObjectMachine = createMachine({
     input: {
       name: string;
       description?: string;
-      schema: any;
     };
     context: {
       name: string;
       description: string;
       schema: object;
     };
-    actors: any;
+    actors: None;
     actions: {
       type: "updateConfig";
       params?: {

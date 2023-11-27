@@ -22,14 +22,14 @@ const PromptTemplateNodeMachine = createMachine({
         outputs: {
           value: "",
         },
-        outputSockets: [
-          {
+        outputSockets: {
+          value: {
             name: "value",
             type: "string",
             description: "Result of template",
             required: true,
           },
-        ],
+        },
         settings: {
           template: "",
           variables: [],
