@@ -4,9 +4,11 @@ import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 
 import { DateControl } from "./controls/date";
+import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
+import { SelectControl } from "./controls/select";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 
@@ -360,6 +362,24 @@ export const getControlBySocket = (
     .with(P.instanceOf(StringSocket), () => {
       if (defination && defination["x-controller"] === "textarea") {
         return new TextareControl(value, {
+          change: onChange,
+        });
+      }
+      if (defination && defination["x-controller"] === "select") {
+        return new SelectControl(value, {
+          change: onChange,
+          placeholder:
+            defination?.title ?? defination?.description ?? "Select value",
+          values: (defination?.allOf?.[0] as any)?.enum?.map((v: any) => {
+            return {
+              key: v,
+              value: v,
+            };
+          }),
+        });
+      }
+      if (defination && defination?.format === "uri") {
+        return new FileControl(value, {
           change: onChange,
         });
       }

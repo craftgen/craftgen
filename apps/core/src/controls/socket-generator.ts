@@ -1,3 +1,4 @@
+import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import * as z from "zod";
 
 import { types } from "../sockets";
@@ -16,7 +17,7 @@ export type SocketGeneratorControlOptions = {
   onChange: (data: SocketGeneratorControlData) => void;
 };
 
-export type JSONSocket = z.infer<typeof socketSchema>;
+export type JSONSocket = JSONSchema & z.infer<typeof socketSchema>;
 export const socketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(types),

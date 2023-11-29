@@ -9,6 +9,7 @@ import { ButtonControl } from "@seocraft/core/src/controls/button";
 import { CodeControl } from "@seocraft/core/src/controls/code";
 import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
 import { DateControl } from "@seocraft/core/src/controls/date";
+import { FileControl } from "@seocraft/core/src/controls/file";
 import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { JsonControl } from "@seocraft/core/src/controls/json";
@@ -31,6 +32,7 @@ import { CustomButton } from "./ui/control/control-button";
 import { CodeEditor } from "./ui/control/control-code";
 import { DateControlComponent } from "./ui/control/control-date";
 import { ArticleEditor } from "./ui/control/control-editor";
+import { FileControlComponent } from "./ui/control/control-file";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { JsonControlComponent } from "./ui/control/control-json";
 import { NumberControlComponent } from "./ui/control/control-number";
@@ -63,6 +65,7 @@ export const getControl = (
     .with(P.instanceOf(InputControl), () => CustomInput)
     .with(P.instanceOf(TextareControl), () => CustomTextarea)
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
+    .with(P.instanceOf(FileControl), () => FileControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)

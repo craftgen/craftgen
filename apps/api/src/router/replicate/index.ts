@@ -1,6 +1,8 @@
 import { ModelVersion, Page } from "replicate";
 import { z } from "zod";
 
+import { convertOpenAPIToJSONSchema } from "@seocraft/utils";
+
 import { createTRPCRouter, replicateProducer } from "../../trpc";
 
 export const replicateRouter = createTRPCRouter({
@@ -13,11 +15,18 @@ export const replicateRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.replicate.models.versions.get(
+      const res = await ctx.replicate.models.versions.get(
         input.owner,
         input.model_name,
         input.version_id,
       );
+      const schema = await convertOpenAPIToJSONSchema(
+        res.openapi_schema as any,
+      );
+      return {
+        ...res,
+        schema,
+      };
     }),
   versions: replicateProducer
     .input(

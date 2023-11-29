@@ -35,6 +35,9 @@ importers:
       '@seocraft/supabase':
         specifier: ^0.1.0
         version: link:../supabase
+      '@seocraft/utils':
+        specifier: ^0.1.0
+        version: link:../../packages/utils
       '@supabase/supabase-js':
         specifier: ^2.38.1
         version: 2.38.4
@@ -99,6 +102,9 @@ importers:
       '@seocraft/api':
         specifier: ^0.1.0
         version: link:../api
+      '@seocraft/utils':
+        specifier: ^0.1.0
+        version: link:../../packages/utils
       '@trpc/client':
         specifier: ^10.43.0
         version: 10.43.0(@trpc/server@10.43.0)
@@ -138,7 +144,7 @@ importers:
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
-      openapi-jsonschema-parameters:
+      openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
       p-queue:
@@ -920,6 +926,18 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+
+  packages/utils:
+    dependencies:
+      '@apidevtools/swagger-parser':
+        specifier: ^10.1.0
+        version: 10.1.0(openapi-types@12.1.3)
+      openapi-json-schema:
+        specifier: ^2.0.0
+        version: 2.0.0
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
 
   tooling/eslint:
     dependencies:
@@ -15199,10 +15217,9 @@ packages:
       - encoding
     dev: false
 
-  /openapi-jsonschema-parameters@12.1.3:
-    resolution: {integrity: sha512-aHypKxWHwu2lVqfCIOCZeJA/2NTDiP63aPwuoIC+5ksLK5/IQZ3oKTz7GiaIegz5zFvpMDxDvLR2DMQQSkOAug==}
-    dependencies:
-      openapi-types: 12.1.3
+  /openapi-json-schema@2.0.0:
+    resolution: {integrity: sha512-jT5sg8ZuDQO8Unxpg3k0arUqPTdLmOknRxBOggvQLoGgJbExTdk/tDUECcCi2/UzmXiw22aq9ocdFI8j+MzKNQ==}
+    engines: {node: '>=14.13.1 || >= 16'}
     dev: false
 
   /openapi-types@12.1.3:

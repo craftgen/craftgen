@@ -6,6 +6,7 @@ import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
 import { JSONSocket } from "../../controls/socket-generator";
 import { type DiContainer } from "../../types";
+import { convertOpenAPIToJSONSchema } from "../../utils";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const replicateMachine = createMachine({
@@ -96,20 +97,41 @@ const replicateMachine = createMachine({
                   );
               },
               inputSockets: ({ event }) => {
-                const Input = (event.output.openapi_schema as any).components
-                  .schemas.Input;
+                const Input = event.output.schema.definitions.Input;
+                console.log("Input", Input);
+                // const Input = (event.output.openapi_schema as any).components
+                //   .schemas.Input;
                 const keys = Object.entries(Input.properties);
                 return keys
-                  .map(([key, value]: [key: string, value: any]) => ({
-                    name: value.title ?? key,
-                    type: value.type,
-                    isMultiple: false,
-                    required: true,
-                    description: value.description,
-                    default: value.default,
-                    "x-key": key,
-                    "x-order": value["x-order"],
-                  }))
+                  .map(([key, value]: [key: string, value: any]) => {
+                    let type;
+                    let isEnum = false;
+                    if (!value.type) {
+                      if (value.allOf) {
+                        type = value.allOf[0].type;
+                        isEnum = true;
+                      } else if (value.oneOf) {
+                        type = value.oneOf[0].type;
+                        isEnum = true;
+                      } else {
+                        type = "unknown";
+                      }
+                    }
+
+                    return {
+                      ...value,
+                      name: value.title ?? key,
+                      type: value.type
+                        ? value.type
+                        : value["allOf"][0]["enum"]
+                        ? value.allOf[0].type
+                        : "unknown",
+                      isMultiple: false,
+                      required: (Input?.required || []).includes(key),
+                      "x-key": key,
+                      "x-controller": isEnum && "select",
+                    };
+                  })
                   .sort((a, b) => a["x-order"] - b["x-order"])
                   .reduce(
                     (acc, cur) => {
