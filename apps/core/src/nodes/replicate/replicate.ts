@@ -190,5 +190,10 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
         }),
       },
     });
+    if (data.context?.settings?.model_name && data.context?.settings.owner) {
+      this.setLabel(
+        `${data.context?.settings.model_name}/${data.context?.settings.owner}`,
+      );
+    }
   }
 }

@@ -302,6 +302,7 @@ export const Node = observer((props: Props<Schemes>) => {
               setSize(size);
             }}
             minConstraints={[240, internal.height + 20]}
+            maxConstraints={[1000, 1000]}
           >
             <Card
               style={{
