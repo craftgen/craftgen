@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import type { NumberControl } from "@seocraft/core/src/controls/number";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export function NumberControlComponent(props: { data: NumberControl }) {
   const [value, setValue] = useState<number>(props.data.value);
@@ -14,10 +16,19 @@ export function NumberControlComponent(props: { data: NumberControl }) {
     setValue(props.data.value);
   }, [props.data.value]);
   return (
-    <Input
-      type="number"
-      value={value}
-      onChange={(e) => handleChange(Number(e.target.value))}
-    />
+    <div className="space-y-1">
+      <Label htmlFor={props.data.id}>{props.data?.defination?.title}</Label>
+      <Input
+        id={props.data.id}
+        type="number"
+        max={props.data?.options?.max}
+        min={props.data?.options?.min}
+        value={value}
+        onChange={(e) => handleChange(Number(e.target.value))}
+      />
+      <p className={cn("text-muted-foreground text-[0.8rem]")}>
+        {props.data?.defination?.description}
+      </p>
+    </div>
   );
 }

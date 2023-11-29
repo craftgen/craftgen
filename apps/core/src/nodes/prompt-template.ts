@@ -18,7 +18,7 @@ const PromptTemplateNodeMachine = createMachine({
     merge(
       {
         inputs: {},
-        inputSockets: [],
+        inputSockets: {},
         outputs: {
           value: "",
         },
@@ -87,14 +87,20 @@ const PromptTemplateNodeMachine = createMachine({
               variables: event.output.variables,
             }),
             inputSockets: ({ context, event }) => {
-              const sockets = event.output.variables.map((item: string) => {
-                return {
-                  name: item,
-                  type: "string",
-                  description: "",
-                  required: true,
-                };
-              });
+              const sockets = event.output.variables
+                .map((item: string) => {
+                  return {
+                    name: item,
+                    title: item,
+                    type: "string",
+                    description: "variable",
+                    required: true,
+                  };
+                })
+                .reduce((prev: any, curr: any) => {
+                  prev[curr.name] = curr;
+                  return prev;
+                }, {});
               return sockets;
             },
             outputs: ({ event }) => ({ value: event.output.rendered }),

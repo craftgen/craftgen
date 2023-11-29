@@ -224,6 +224,7 @@ export const socketNameMap: Record<SocketNameType, SocketType> = {
 export const types = [
   "string",
   "number",
+  "integer",
   "boolean",
   "any",
   "array",
@@ -241,6 +242,7 @@ export type Tool = {
 export type SocketTypeMap = {
   string: string;
   number: number;
+  integer: number;
   boolean: boolean;
   any: any;
   array: any[]; // Replace 'any' with a more specific type if needed
@@ -260,6 +262,7 @@ export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
     case "string":
       return stringSocket;
     case "number":
+    case "integer":
       return numberSocket;
     case "boolean":
       return booleanSocket;
@@ -361,36 +364,58 @@ export const getControlBySocket = (
   return match(socket)
     .with(P.instanceOf(StringSocket), () => {
       if (defination && defination["x-controller"] === "textarea") {
-        return new TextareControl(value, {
-          change: onChange,
-        });
+        return new TextareControl(
+          value,
+          {
+            change: onChange,
+          },
+          defination,
+        );
       }
       if (defination && defination["x-controller"] === "select") {
-        return new SelectControl(value, {
-          change: onChange,
-          placeholder:
-            defination?.title ?? defination?.description ?? "Select value",
-          values: (defination?.allOf?.[0] as any)?.enum?.map((v: any) => {
-            return {
-              key: v,
-              value: v,
-            };
-          }),
-        });
+        return new SelectControl(
+          value,
+          {
+            change: onChange,
+            placeholder:
+              defination?.title ?? defination?.description ?? "Select value",
+            values: (defination?.allOf?.[0] as any)?.enum?.map((v: any) => {
+              return {
+                key: v,
+                value: v,
+              };
+            }),
+          },
+          defination,
+        );
       }
       if (defination && defination?.format === "uri") {
-        return new FileControl(value, {
-          change: onChange,
-        });
+        return new FileControl(
+          value,
+          {
+            change: onChange,
+          },
+          defination,
+        );
       }
-      return new InputControl(value, {
-        change: onChange,
-      });
+      return new InputControl(
+        value,
+        {
+          change: onChange,
+        },
+        defination,
+      );
     })
     .with(P.instanceOf(NumberSocket), () => {
-      return new NumberControl(value, {
-        change: onChange,
-      });
+      return new NumberControl(
+        value,
+        {
+          change: onChange,
+          max: defination?.maximum,
+          min: defination?.minimum,
+        },
+        defination,
+      );
     })
     .with(P.instanceOf(DateSocket), () => {
       return new DateControl(value, {

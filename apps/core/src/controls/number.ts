@@ -1,9 +1,11 @@
 import { action, makeObservable, observable, reaction } from "mobx";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
 
 type NumberControlOptions = {
   max?: number;
+  min?: number;
   change: (value: number) => void;
 };
 
@@ -14,6 +16,7 @@ export class NumberControl extends BaseControl {
   constructor(
     public observableSource: () => number, // Function that returns the observable value
     public options: NumberControlOptions,
+    public readonly defination?: JSONSchemaDefinition,
   ) {
     super(50);
 

@@ -461,9 +461,6 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
         className="mb-2 flex flex-col space-y-1"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <Label htmlFor={control.id} className="capitalize">
-          {label}
-        </Label>
         <span ref={ref}></span>
         <ControlElement data={control} />
       </div>

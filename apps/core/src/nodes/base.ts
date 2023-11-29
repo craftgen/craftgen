@@ -511,7 +511,7 @@ export abstract class BaseNode<
       input.index = item["x-order"] ?? index + 1;
       const controller = getControlBySocket(
         socket,
-        () => this.snapshot.context.inputs[item.name],
+        () => this.snapshot.context.inputs[key],
         (v) => {
           this.pactor.send({
             type: "SET_VALUE",
@@ -523,7 +523,7 @@ export abstract class BaseNode<
         item,
       );
       input.addControl(controller);
-      this.addInput(item.name, input as any);
+      this.addInput(key, input as any);
       if (!values[item.name]) {
         console.log(
           "setting default value",
@@ -531,9 +531,11 @@ export abstract class BaseNode<
           item.type,
           item.default,
         );
-
-        values[item.name] =
-          item.default || (item.type === "date" ? undefined : "");
+        if (!isUndefined(item.default)) {
+          values[key] = item.default;
+        } else {
+          values[key] = item.type === "date" ? undefined : "";
+        }
       }
     }
     console.log("setting values", values);

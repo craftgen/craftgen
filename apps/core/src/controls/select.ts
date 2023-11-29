@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, reaction } from "mobx";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
 
@@ -16,8 +17,9 @@ export class SelectControl<T extends string> extends BaseControl {
   constructor(
     public observableSource: () => T | undefined, // Function that returns the observable value
     public options: SelectControlOptions<T>,
+    public readonly defination?: JSONSchemaDefinition,
   ) {
-    super(55);
+    super(55, defination);
 
     this.value = observableSource(); // Set the initial value
     makeObservable(this, {

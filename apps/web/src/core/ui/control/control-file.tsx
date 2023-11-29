@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import type { FileControl } from "@seocraft/core/src/controls/file";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export function FileControlComponent(props: { data: FileControl }) {
   const [value, setValue] = useState(props.data.value);
@@ -19,31 +21,25 @@ export function FileControlComponent(props: { data: FileControl }) {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(file);
     });
-    // Read the file into a buffer
-    // Set MIME type for PNG image
-    // const mimeType = "image/png";
-    // // Create the data URI
-    // const dataURI = `data:${mimeType};base64,${base64}`;
 
     setValue(base64 as any);
     props.data.setValue(base64 as any);
   };
 
   return (
-    <>
+    <div className="space-y-1">
+      <Label htmlFor={props.data.id}>{props.data?.defination?.title}</Label>
       <Input
         id={props.data.id}
         type="file"
         // value={value}
         accept=".jpg, .png"
-        onChange={(e) => {
-          console.log(e);
-          handleChange(e);
-          // setValue(e.target.files ? e.target.files[0] : null);
-          // props.data.setValue(e.target.value);
-        }}
+        onChange={handleChange}
       />
       {value && <img src={`${value}`} />}
-    </>
+      <p className={cn("text-muted-foreground text-[0.8rem]")}>
+        {props.data?.defination?.description}
+      </p>
+    </div>
   );
 }

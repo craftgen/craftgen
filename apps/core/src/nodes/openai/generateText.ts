@@ -8,6 +8,7 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
@@ -29,7 +30,8 @@ const inputSockets = {
     required: false,
     isMultiple: false,
     "x-controller": "textarea",
-  },
+    title: "System Message",
+  } as JSONSchemaDefinition,
   user: {
     name: "user" as const,
     type: "string" as const,
