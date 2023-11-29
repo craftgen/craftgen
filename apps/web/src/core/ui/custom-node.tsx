@@ -55,6 +55,7 @@ import "react-resizable/css/styles.css";
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
+import JsonView from "react18-json-view";
 
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
@@ -481,22 +482,21 @@ export const Node = observer((props: Props<Schemes>) => {
           </Resizable>
         </ContextMenuTrigger>
         {debug && (
-          <div className="absolute">
-            <pre>
-              <code>
-                {JSON.stringify(
-                  {
-                    isExection: props.data.isExecution,
-                    state: state,
-                    // executionNode: props.data.executionNode,
-                    node: props.data.nodeData,
-                    size: props.data.size,
-                  },
-                  null,
-                  2,
-                )}
-              </code>
-            </pre>
+          <div className="absolute left-0 top-0 ml-96 bg-background shadow">
+            <Drag.NoDrag>
+              <JsonView
+                src={{
+                  isExection: props.data.isExecution,
+                  status: state.status,
+                  state: state.value,
+                  context: state.context,
+                  // executionNode: props.data.executionNode,
+                  node: props.data.nodeData,
+                  size: props.data.size,
+                }}
+                collapsed={2}
+              />
+            </Drag.NoDrag>
           </div>
         )}
         <ContextMenuContent>
