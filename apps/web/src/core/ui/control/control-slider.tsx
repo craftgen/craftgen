@@ -16,22 +16,22 @@ export function SliderControlComponenet(props: { data: SliderControl }) {
     setValue(props.data.value);
   }, [props.data.value]);
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}{" "}
+        {props.data?.definition?.title || props.data?.definition?.name}{" "}
       </Label>
       <span className="bg-muted text-muted-foreground mx-4 rounded px-2 py-1">
         {value}
       </span>
-      <code>{(props.data.step, props.data.options.step)}</code>
       <Slider
         value={[value]}
         onValueChange={handleChange}
+        className="mt-2"
         max={props.data.options.max}
         step={props.data.options.step || props.data.step}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );

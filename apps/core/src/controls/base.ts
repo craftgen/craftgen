@@ -4,7 +4,7 @@ import { ClassicPreset } from "rete";
 export class BaseControl extends ClassicPreset.Control {
   constructor(
     public minHeight: number,
-    defination?: JSONSchemaDefinition,
+    definition?: JSONSchemaDefinition,
   ) {
     super();
   }

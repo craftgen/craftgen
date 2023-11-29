@@ -20,22 +20,23 @@ export const GoogleSearchConsoleMachine = createMachine({
           inputs: {},
         },
         inputs: {},
-        inputSockets: [
-          {
+        inputSockets: {
+          startDate: {
+            title: "Start Date",
             name: "startDate",
             type: "date",
             description: "Start Date",
             required: true,
             isMultiple: false,
           },
-          {
+          endDate: {
             name: "endDate",
             type: "date",
             description: "End Date",
             required: true,
             isMultiple: false,
           },
-        ],
+        },
         outputs: {},
         outputSockets: {},
         error: null,

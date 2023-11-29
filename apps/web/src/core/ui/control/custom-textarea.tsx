@@ -16,7 +16,7 @@ export function CustomTextarea(props: { data: TextareControl }) {
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}
+        {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
       <Textarea
         id={props.data.id}
@@ -30,7 +30,7 @@ export function CustomTextarea(props: { data: TextareControl }) {
         }}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );

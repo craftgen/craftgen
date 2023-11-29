@@ -28,7 +28,7 @@ export function FileControlComponent(props: { data: FileControl }) {
 
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>{props.data?.defination?.title}</Label>
+      <Label htmlFor={props.data.id}>{props.data?.definition?.title}</Label>
       <Input
         id={props.data.id}
         type="file"
@@ -38,7 +38,7 @@ export function FileControlComponent(props: { data: FileControl }) {
       />
       {value && <img src={`${value}`} />}
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );

@@ -16,19 +16,20 @@ export function CustomInput(props: { data: InputControl }) {
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}
+        {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
       <Input
         id={props.data.id}
         disabled={props.data.options.readonly}
         value={value}
+        className="w-full max-w-md"
         onChange={(e) => {
           setValue(e.target.value);
           props.data.setValue(e.target.value);
         }}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );

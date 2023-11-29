@@ -15,9 +15,9 @@ export class TextareControl extends BaseControl {
   constructor(
     public observableSource: () => string, // Function that returns the observable value
     public options: TextareControlOptions,
-    public readonly defination?: JSONSchemaDefinition,
+    public readonly definition?: JSONSchemaDefinition,
   ) {
-    super(70, defination);
+    super(70, definition);
 
     this.value = observableSource(); // Set the initial value
     makeObservable(this, {

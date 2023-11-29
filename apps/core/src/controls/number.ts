@@ -16,7 +16,7 @@ export class NumberControl extends BaseControl {
   constructor(
     public observableSource: () => number, // Function that returns the observable value
     public options: NumberControlOptions,
-    public readonly defination?: JSONSchemaDefinition,
+    public readonly definition?: JSONSchemaDefinition,
   ) {
     super(50);
 

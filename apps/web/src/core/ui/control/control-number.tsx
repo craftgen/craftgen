@@ -18,7 +18,7 @@ export function NumberControlComponent(props: { data: NumberControl }) {
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}
+        {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
       <Input
         id={props.data.id}
@@ -26,10 +26,11 @@ export function NumberControlComponent(props: { data: NumberControl }) {
         max={props.data?.options?.max}
         min={props.data?.options?.min}
         value={value}
+        className="w-full max-w-md"
         onChange={(e) => handleChange(Number(e.target.value))}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );

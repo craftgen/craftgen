@@ -186,8 +186,8 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
           return await di.api.trpc.replicate.getModelVersion.query(input);
         }),
         predict: fromPromise(async ({ input }) => {
-          return await di.api.trpc.replicate.predict.query(input);
-        })
+          return await di.api.trpc.replicate.predict.mutate(input);
+        }),
       },
     });
   }

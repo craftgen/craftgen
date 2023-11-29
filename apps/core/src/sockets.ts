@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import def from "ajv/dist/vocabularies/discriminator";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
@@ -360,9 +361,9 @@ export const getControlBySocket = (
   socket: AllSockets,
   value: () => any,
   onChange: (v: any) => void,
-  defination?: JSONSocket,
+  definition?: JSONSocket,
 ) => {
-  return match([socket, defination])
+  return match([socket, definition])
     .with(
       [
         P.instanceOf(StringSocket),
@@ -376,7 +377,7 @@ export const getControlBySocket = (
           {
             change: onChange,
           },
-          defination,
+          definition,
         );
       },
     )
@@ -393,15 +394,15 @@ export const getControlBySocket = (
           {
             change: onChange,
             placeholder:
-              defination?.title ?? defination?.description ?? "Select value",
-            values: (defination?.allOf?.[0] as any)?.enum?.map((v: any) => {
+              definition?.title ?? definition?.description ?? "Select value",
+            values: (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
               return {
                 key: v,
                 value: v,
               };
             }),
           },
-          defination,
+          definition,
         );
       },
     )
@@ -418,7 +419,7 @@ export const getControlBySocket = (
           {
             change: onChange,
           },
-          defination,
+          definition,
         );
       },
     )
@@ -435,7 +436,7 @@ export const getControlBySocket = (
           {
             change: onChange,
           },
-          defination,
+          definition,
         );
       },
     )
@@ -455,7 +456,7 @@ export const getControlBySocket = (
             max: def.maximum,
             min: def.minimum,
           },
-          defination,
+          definition,
         );
       },
     )
@@ -464,20 +465,28 @@ export const getControlBySocket = (
         value,
         {
           change: onChange,
-          max: defination?.maximum,
-          min: defination?.minimum,
+          max: definition?.maximum,
+          min: definition?.minimum,
         },
-        defination,
+        definition,
       );
     })
-    .with(P.instanceOf(DateSocket), () => {
-      return new DateControl(value, {
-        change: onChange,
-      });
+    .with([P.instanceOf(DateSocket), {}], () => {
+      return new DateControl(
+        value,
+        {
+          change: onChange,
+        },
+        definition,
+      );
     })
     .otherwise(() => {
-      return new JsonControl(value, {
-        change: onChange,
-      });
+      return new JsonControl(
+        value,
+        {
+          change: onChange,
+        },
+        definition,
+      );
     });
 };

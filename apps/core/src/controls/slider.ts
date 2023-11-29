@@ -40,9 +40,9 @@ export class SliderControl extends BaseControl {
   constructor(
     public observableSource: () => number,
     public options: SliderControlOptions,
-    public readonly defination?: JSONSchemaDefinition,
+    public readonly definition?: JSONSchemaDefinition,
   ) {
-    super(55, defination);
+    super(55, definition);
 
     this.value = observableSource(); // Set the initial value
     makeObservable(this, {

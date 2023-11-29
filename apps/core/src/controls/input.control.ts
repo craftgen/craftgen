@@ -16,9 +16,9 @@ export class InputControl extends BaseControl {
   constructor(
     public observableSource: () => string, // Function that returns the observable value
     public options: InputControlOptions,
-    public readonly defination?: JSONSchemaDefinition,
+    public readonly definition?: JSONSchemaDefinition,
   ) {
-    super(50, defination);
+    super(50, definition);
 
     this.value = observableSource(); // Set the initial value
     makeObservable(this, {

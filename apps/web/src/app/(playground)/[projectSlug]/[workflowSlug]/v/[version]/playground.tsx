@@ -353,7 +353,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
         </TabsList>
         <TabsContent value="controls" className="h-full ">
           <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="h-full w-full px-4">
+            <ScrollArea className="h-full w-full ">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}

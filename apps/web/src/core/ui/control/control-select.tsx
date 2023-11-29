@@ -29,7 +29,7 @@ export function SelectControlComponent<T extends string>(props: {
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}
+        {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
       <Select
         value={value}
@@ -40,6 +40,7 @@ export function SelectControlComponent<T extends string>(props: {
           <SelectValue
             id={props.data.id}
             placeholder={props.data.options.placeholder}
+            className="w-full max-w-md"
           />
         </SelectTrigger>
         <SelectContent className="z-50">
@@ -52,7 +53,7 @@ export function SelectControlComponent<T extends string>(props: {
       </Select>
 
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.defination?.description}
+        {props.data?.definition?.description}
       </p>
     </div>
   );
