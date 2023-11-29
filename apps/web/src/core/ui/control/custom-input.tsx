@@ -16,7 +16,7 @@ export function CustomInput(props: { data: InputControl }) {
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
-        {props.data?.defination?.title || props.data?.defination?.name}{" "}
+        {props.data?.defination?.title || props.data?.defination?.name}
       </Label>
       <Input
         id={props.data.id}

@@ -9,6 +9,7 @@ import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
 import { SelectControl } from "./controls/select";
+import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 
@@ -361,9 +362,15 @@ export const getControlBySocket = (
   onChange: (v: any) => void,
   defination?: JSONSocket,
 ) => {
-  return match(socket)
-    .with(P.instanceOf(StringSocket), () => {
-      if (defination && defination["x-controller"] === "textarea") {
+  return match([socket, defination])
+    .with(
+      [
+        P.instanceOf(StringSocket),
+        {
+          "x-controller": "textarea",
+        },
+      ],
+      () => {
         return new TextareControl(
           value,
           {
@@ -371,8 +378,16 @@ export const getControlBySocket = (
           },
           defination,
         );
-      }
-      if (defination && defination["x-controller"] === "select") {
+      },
+    )
+    .with(
+      [
+        P.instanceOf(StringSocket),
+        {
+          "x-controller": "select",
+        },
+      ],
+      () => {
         return new SelectControl(
           value,
           {
@@ -388,8 +403,16 @@ export const getControlBySocket = (
           },
           defination,
         );
-      }
-      if (defination && defination?.format === "uri") {
+      },
+    )
+    .with(
+      [
+        P.instanceOf(StringSocket),
+        {
+          "x-controller": "file",
+        },
+      ],
+      () => {
         return new FileControl(
           value,
           {
@@ -397,16 +420,46 @@ export const getControlBySocket = (
           },
           defination,
         );
-      }
-      return new InputControl(
-        value,
+      },
+    )
+    .with(
+      [
+        P.instanceOf(StringSocket),
         {
-          change: onChange,
+          type: "string",
         },
-        defination,
-      );
-    })
-    .with(P.instanceOf(NumberSocket), () => {
+      ],
+      () => {
+        return new InputControl(
+          value,
+          {
+            change: onChange,
+          },
+          defination,
+        );
+      },
+    )
+    .with(
+      [
+        P.instanceOf(NumberSocket),
+        {
+          maximum: P.number,
+          minimum: P.number,
+        },
+      ],
+      ([_, def]) => {
+        return new SliderControl(
+          value,
+          {
+            change: onChange,
+            max: def.maximum,
+            min: def.minimum,
+          },
+          defination,
+        );
+      },
+    )
+    .with([P.instanceOf(NumberSocket), {}], () => {
       return new NumberControl(
         value,
         {

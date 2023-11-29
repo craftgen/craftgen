@@ -15,7 +15,9 @@ export function CustomTextarea(props: { data: TextareControl }) {
 
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>{props.data?.defination?.title}</Label>
+      <Label htmlFor={props.data.id}>
+        {props.data?.defination?.title || props.data?.defination?.name}
+      </Label>
       <Textarea
         id={props.data.id}
         disabled={props.data.options.readonly}

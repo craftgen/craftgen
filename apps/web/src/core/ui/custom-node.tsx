@@ -482,7 +482,7 @@ export const Node = observer((props: Props<Schemes>) => {
           </Resizable>
         </ContextMenuTrigger>
         {debug && (
-          <div className="absolute left-0 top-0 ml-96 bg-background shadow">
+          <div className="bg-background absolute left-0 top-0 ml-96 shadow">
             <Drag.NoDrag>
               <JsonView
                 src={{

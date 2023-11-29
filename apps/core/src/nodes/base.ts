@@ -507,7 +507,18 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item.type)!;
-      const input = new Input(socket, item.name, item.isMultiple);
+      const input = new Input(
+        socket,
+        item.name,
+        item.isMultiple,
+        // item["x-showInput"] ?? item.default ? false : true,
+        /**
+         * TODO:
+         * We need a smarter way of determining if the input should be shown or not.
+         * need to track the if value set or not.
+         * if value is not set show the input
+         */
+      );
       input.index = item["x-order"] ?? index + 1;
       const controller = getControlBySocket(
         socket,

@@ -31,6 +31,7 @@ export const socketSchema = z.object({
 
   "x-order": z.number().optional(),
   "x-controller": z.string().optional(),
+  "x-showInput": z.boolean().default(true),
 });
 
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;

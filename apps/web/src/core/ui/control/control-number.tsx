@@ -17,7 +17,9 @@ export function NumberControlComponent(props: { data: NumberControl }) {
   }, [props.data.value]);
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>{props.data?.defination?.title}</Label>
+      <Label htmlFor={props.data.id}>
+        {props.data?.defination?.title || props.data?.defination?.name}
+      </Label>
       <Input
         id={props.data.id}
         type="number"
