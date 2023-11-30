@@ -304,9 +304,11 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
                 "Replicate",
                 {
                   settings: {
-                    model_name: model?.name,
-                    owner: model?.owner,
-                    version_id: model.latest_version?.id,
+                    model: {
+                      model_name: model?.name,
+                      owner: model?.owner,
+                      version_id: model.latest_version?.id,
+                    },
                   },
                 },
                 {
@@ -386,9 +388,11 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
           perform: async () => {
             await di?.addNode("Replicate", {
               settings: {
-                model_name: replicateModel?.name,
-                owner: replicateModel?.owner,
-                version_id: version.id,
+                model: {
+                  model_name: replicateModel?.name,
+                  owner: replicateModel?.owner,
+                  version_id: version.id,
+                },
               },
             });
           },

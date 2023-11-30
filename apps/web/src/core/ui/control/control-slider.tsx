@@ -21,14 +21,14 @@ export function SliderControlComponenet(props: { data: SliderControl }) {
         {props.data?.definition?.title || props.data?.definition?.name}{" "}
       </Label>
       <span className="bg-muted text-muted-foreground mx-4 rounded px-2 py-1">
-        {value}
+        {value} 
       </span>
       <Slider
         value={[value]}
         onValueChange={handleChange}
         className="mt-2"
         max={props.data.options.max}
-        step={props.data.options.step || props.data.step}
+        step={props.data.step}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
         {props.data?.definition?.description}

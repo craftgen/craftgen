@@ -4,6 +4,7 @@ import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 
+import { BooleanControl } from "./controls/boolean";
 import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
@@ -410,7 +411,7 @@ export const getControlBySocket = (
       [
         P.instanceOf(StringSocket),
         {
-          "format": "uri",
+          format: "uri",
         },
       ],
       () => {
@@ -467,6 +468,15 @@ export const getControlBySocket = (
           change: onChange,
           max: definition?.maximum,
           min: definition?.minimum,
+        },
+        definition,
+      );
+    })
+    .with([P.instanceOf(BooleanSocket), {}], () => {
+      return new BooleanControl(
+        value,
+        {
+          change: onChange,
         },
         definition,
       );

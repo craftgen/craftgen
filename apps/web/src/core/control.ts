@@ -5,6 +5,7 @@
 import { match, P } from "ts-pattern";
 
 import { ArticleControl } from "@seocraft/core/src/controls/article";
+import { BooleanControl } from "@seocraft/core/src/controls/boolean";
 import { ButtonControl } from "@seocraft/core/src/controls/button";
 import { CodeControl } from "@seocraft/core/src/controls/code";
 import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
@@ -27,6 +28,7 @@ import { ThreadControl } from "@seocraft/core/src/controls/thread.control";
 import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import type { Schemes } from "@seocraft/core/src/types";
 
+import { BooleanControlComponent } from "./ui/control/control-boolean";
 // Control Components
 import { CustomButton } from "./ui/control/control-button";
 import { CodeEditor } from "./ui/control/control-code";
@@ -65,6 +67,7 @@ export const getControl = (
     .with(P.instanceOf(InputControl), () => CustomInput)
     .with(P.instanceOf(TextareControl), () => CustomTextarea)
     .with(P.instanceOf(NumberControl), () => NumberControlComponent)
+    .with(P.instanceOf(BooleanControl), () => BooleanControlComponent)
     .with(P.instanceOf(FileControl), () => FileControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)

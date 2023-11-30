@@ -1,5 +1,5 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
 
@@ -16,6 +16,11 @@ export class SliderControl extends BaseControl {
   public value: number;
 
   get step(): number {
+    if (this.options.step) return this.options.step;
+    if (this.options.max === 1 && this.options.min === 0) {
+      return 0.01;
+    }
+    // Helper function to find the decimal place count
     // Helper function to find the decimal place count
     function decimalPlaceCount(value: number): number {
       if (!isFinite(value)) return 0;
@@ -28,19 +33,32 @@ export class SliderControl extends BaseControl {
       return p;
     }
 
-    // Determine the decimal places for min and max
+    // Determine the decimal places for min, max, and default
     const minDecimals = decimalPlaceCount(this.options.min);
     const maxDecimals = decimalPlaceCount(this.options.max);
 
+    const defaultDecimals =
+      this.definition?.default !== undefined
+        ? decimalPlaceCount(Number(this.definition?.default!))
+        : 0;
+
+    console.log({
+      minDecimals,
+      maxDecimals,
+      defaultDecimals,
+    });
     // Use the highest decimal count as the step size
-    const step = Math.pow(10, -Math.max(minDecimals, maxDecimals));
+    const step = Math.pow(
+      10,
+      -Math.max(minDecimals, maxDecimals, defaultDecimals),
+    );
     return step;
   }
 
   constructor(
     public observableSource: () => number,
     public options: SliderControlOptions,
-    public readonly definition?: JSONSchemaDefinition,
+    public readonly definition?: JSONSchema,
   ) {
     super(55, definition);
 
