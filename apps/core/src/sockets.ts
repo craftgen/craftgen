@@ -410,7 +410,7 @@ export const getControlBySocket = (
       [
         P.instanceOf(StringSocket),
         {
-          "x-controller": "file",
+          "format": "uri",
         },
       ],
       () => {

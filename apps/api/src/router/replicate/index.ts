@@ -4,28 +4,11 @@ import { z } from "zod";
 import { convertOpenAPIToJSONSchema } from "@seocraft/utils";
 
 import { createTRPCRouter, replicateProducer } from "../../trpc";
+import { replicatePredictionRouter } from "./prediction";
 
 export const replicateRouter = createTRPCRouter({
-  predict: replicateProducer
-    .input(
-      z.object({
-        identifier: z.object({
-          owner: z.string(),
-          model_name: z.string(),
-          version_id: z.string(),
-        }),
-        options: z.any(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const res = await ctx.replicate.run(
-        `${input.identifier.owner}/${input.identifier.model_name}:${input.identifier.version_id}`,
-        {
-          input: input.options,
-        },
-      );
-      return res;
-    }),
+  predict: replicatePredictionRouter,
+
   getModelVersion: replicateProducer
     .input(
       z.object({

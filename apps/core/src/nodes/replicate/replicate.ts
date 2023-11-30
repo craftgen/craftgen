@@ -6,7 +6,6 @@ import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
 import { JSONSocket } from "../../controls/socket-generator";
 import { type DiContainer } from "../../types";
-import { convertOpenAPIToJSONSchema } from "../../utils";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const replicateMachine = createMachine({
@@ -16,9 +15,12 @@ const replicateMachine = createMachine({
     merge<typeof input, any>(
       {
         settings: {
-          model_name: "",
-          owner: "",
-          version_id: "",
+          model: {
+            model_name: "",
+            owner: "",
+            version_id: "",
+          },
+          run: null,
         },
         inputs: {},
         inputSockets: {},
@@ -30,27 +32,41 @@ const replicateMachine = createMachine({
   types: {} as BaseMachineTypes<{
     input: {
       settings?: {
-        model_name: string;
-        owner: string;
-        version_id: string;
+        model: {
+          model_name: string;
+          owner: string;
+          version_id: string;
+        };
+        run: any;
       };
     };
     context: {
       settings: {
-        model_name: string;
-        owner: string;
-        version_id: string;
+        model: {
+          model_name: string;
+          owner: string;
+          version_id: string;
+        };
+        run: any;
       };
     };
     actions: None;
     events: None;
-    actors: {
-      src: "getModelVersion";
-      logic: PromiseActorLogic<
-        RouterOutputs["replicate"]["getModelVersion"],
-        RouterInputs["replicate"]["getModelVersion"]
-      >;
-    };
+    actors:
+      | {
+          src: "getModelVersion";
+          logic: PromiseActorLogic<
+            RouterOutputs["replicate"]["getModelVersion"],
+            RouterInputs["replicate"]["getModelVersion"]
+          >;
+        }
+      | {
+          src: "predictCreate";
+          logic: PromiseActorLogic<
+            RouterOutputs["replicate"]["predict"]["create"],
+            RouterInputs["replicate"]["predict"]["create"]
+          >;
+        };
   }>,
   states: {
     init: {
@@ -61,11 +77,8 @@ const replicateMachine = createMachine({
       },
       invoke: {
         src: "getModelVersion",
-        input: ({ context }): RouterInputs["replicate"]["getModelVersion"] => ({
-          owner: context.settings.owner,
-          model_name: context.settings.model_name,
-          version_id: context.settings.version_id,
-        }),
+        input: ({ context }): RouterInputs["replicate"]["getModelVersion"] =>
+          context.settings.model,
         onDone: {
           target: "idle",
           actions: [
@@ -73,28 +86,8 @@ const replicateMachine = createMachine({
               outputSockets: ({ event }) => {
                 const Output = (event.output.openapi_schema as any).components
                   .schemas.Output;
-                // const keys = Object.entries(Output.properties);
 
                 return {};
-                return keys
-                  .map(([key, value]: [key: string, value: any]) => ({
-                    name: value.title ?? key,
-                    type: value.type,
-                    isMultiple: false,
-                    required: true,
-                    description: value.description,
-                    default: value.default,
-                    "x-key": key,
-                    "x-order": value["x-order"],
-                  }))
-                  .sort((a, b) => a["x-order"] - b["x-order"])
-                  .reduce(
-                    (acc, cur) => {
-                      acc[cur["x-key"]] = cur;
-                      return acc;
-                    },
-                    {} as Record<string, JSONSocket>,
-                  );
               },
               inputSockets: ({ event }) => {
                 const Input = event.output.schema.definitions.Input;
@@ -156,9 +149,54 @@ const replicateMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
+        RUN: {
+          target: "running",
+          actions: ["setValue"],
+        },
       },
     },
-    running: {},
+    running: {
+      initial: "trigger",
+      states: {
+        determineState: {
+          always: [{}],
+        },
+        trigger: {
+          invoke: {
+            src: "predict",
+            input: ({ context }) => ({
+              identifier: context.settings.model,
+              input: context.inputs,
+            }),
+            onError: {
+              target: "#replicate.error",
+              actions: [
+                assign({
+                  error: ({ event }) => {
+                    console.log("event", event);
+                    return event.data as any;
+                  },
+                }),
+              ],
+            },
+            onDone: {
+              target: "#replicate.complete",
+              actions: [
+                assign({
+                  outputs: ({ event }) => {
+                    console.log("event", event);
+                    return {
+                      result: event.output,
+                    };
+                  },
+                }),
+              ],
+            },
+          },
+        },
+        waiting: {},
+      },
+    },
     complete: {},
     error: {},
   },
@@ -185,15 +223,20 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
         getModelVersion: fromPromise(async ({ input }) => {
           return await di.api.trpc.replicate.getModelVersion.query(input);
         }),
-        predict: fromPromise(async ({ input }) => {
-          return await di.api.trpc.replicate.predict.mutate(input);
+        predictCreate: fromPromise(async ({ input }) => {
+          return await di.api.trpc.replicate.predict.create.mutate(input);
         }),
       },
     });
-    if (data.context?.settings?.model_name && data.context?.settings.owner) {
-      this.setLabel(
-        `${data.context?.settings.model_name}/${data.context?.settings.owner}`,
-      );
+    if (
+      data.context?.settings?.model.model_name &&
+      data.context?.settings.model.owner
+    ) {
+      if (this.label === "Replicate") {
+        this.setLabel(
+          `${data.context?.settings.model.model_name}/${data.context?.settings.model.owner}`,
+        );
+      }
     }
   }
 }

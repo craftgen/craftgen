@@ -527,7 +527,7 @@ export abstract class BaseNode<
           this.pactor.send({
             type: "SET_VALUE",
             values: {
-              [item.name]: v,
+              [key]: v,
             },
           });
         },
@@ -545,7 +545,8 @@ export abstract class BaseNode<
         if (!isUndefined(item.default)) {
           values[key] = item.default;
         } else {
-          values[key] = item.type === "date" ? undefined : "";
+          // values[key] = item.type === "date" ? undefined : "";
+          values[key] = undefined;
         }
       }
     }
