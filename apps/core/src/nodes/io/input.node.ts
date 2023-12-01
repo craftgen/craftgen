@@ -156,12 +156,12 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       if (this.hasInput(item.name)) {
         const input = this.inputs[key];
         if (input) {
-          input.socket = getSocketByJsonSchemaType(item.type)! as any;
+          input.socket = getSocketByJsonSchemaType(item)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item.type)!;
+      const socket = getSocketByJsonSchemaType(item)!;
       const input = new Input(socket, item.name, true, false);
       const controller = getControlBySocket(
         socket,

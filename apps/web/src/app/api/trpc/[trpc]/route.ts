@@ -36,6 +36,10 @@ const handler = async (req: Request) => {
   });
   // const supabase = createMiddlewareClient<Database>({ cookies });
   const session = await supabase.auth.getSession();
+  // console.log("AUTH", req.headers.get("Cookie"));
+  console.time("GETTIN USER TOOK:");
+  const user = await supabase.auth.getUser();
+  console.timeEnd("GETTIN USER TOOK:");
   const supabaseService = getServiceSupabase();
 
   const response = await fetchRequestHandler({
@@ -44,7 +48,18 @@ const handler = async (req: Request) => {
     req,
     createContext: () =>
       createTRPCContext({
-        auth: session.data.session,
+        auth: session.data.session
+          ? {
+              ...session.data.session,
+              user: {
+                ...session.data.session.user,
+                user_metadata: {
+                  ...session.data.session.user.user_metadata,
+                  ...user?.data?.user?.user_metadata,
+                },
+              },
+            }
+          : null,
         req,
         supabaseService: supabaseService,
       }),

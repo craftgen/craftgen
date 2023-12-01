@@ -40,7 +40,6 @@ import {
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
-import { getUserProjects } from "../explore/actions";
 import { NewProjectForm } from "../project/new/new-project-form";
 
 type TeamSwitcherProps = PopoverTriggerProps;

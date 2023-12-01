@@ -155,12 +155,12 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
       if (this.hasOutput(item.name)) {
         const output = this.outputs[item.name];
         if (output) {
-          output.socket = getSocketByJsonSchemaType(item.type)! as any;
+          output.socket = getSocketByJsonSchemaType(item)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item.type)!;
+      const socket = getSocketByJsonSchemaType(item)!;
       const output = new Output(socket, item.name, false, false) as any;
       output.index = index + 1;
       this.addOutput(item.name, output);

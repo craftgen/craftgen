@@ -274,50 +274,56 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
     if (!replicateCollection?.models) return [];
     return (
       flatten(
-        replicateCollection?.models.map((model) => [
-          {
-            id: `replicate-model-${model.owner}/${model.name}`,
-            name: `${model?.owner}/${model?.name}`,
-            parent: `replicate-collection-${replicateCollection?.slug}`,
-            icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
-            section: `Replicate | ${replicateCollection?.name}`,
-            subtitle: model.description,
-          } as Action,
-          {
-            id: `replicate-model-${model.owner}/${model.name}:${model.latest_version?.id}`,
-            name: `v ${model.latest_version?.id.substring(0, 8)}`,
-            parent: `replicate-model-${model.owner}/${model.name}`,
-            icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
-            section: `Replicate | ${model.owner} | ${model.name}`,
-            subtitle: `created at: ${
-              model.latest_version?.created_at &&
-              formatDistance(
-                new Date(model.latest_version?.created_at),
-                new Date(),
-                {
-                  addSuffix: true,
-                },
-              )
-            }`,
-            perform: async () => {
-              await di?.addNode(
-                "Replicate",
-                {
-                  settings: {
-                    model: {
-                      model_name: model?.name,
-                      owner: model?.owner,
-                      version_id: model.latest_version?.id,
+        replicateCollection?.models
+          .toSorted((a, b) => b.run_count - a.run_count)
+          .map((model) => [
+            {
+              id: `replicate-model-${model.owner}/${model.name}`,
+              name: `${model?.owner}/${model?.name}`,
+              parent: `replicate-collection-${replicateCollection?.slug}`,
+              icon: (
+                <Icons.replicate className={"text-muted-foreground mr-2"} />
+              ),
+              section: `Replicate | ${replicateCollection?.name}`,
+              subtitle: model.description,
+            } as Action,
+            {
+              id: `replicate-model-${model.owner}/${model.name}:${model.latest_version?.id}`,
+              name: `v ${model.latest_version?.id.substring(0, 8)}`,
+              parent: `replicate-model-${model.owner}/${model.name}`,
+              icon: (
+                <Icons.replicate className={"text-muted-foreground mr-2"} />
+              ),
+              section: `Replicate | ${model.owner} | ${model.name}`,
+              subtitle: `created at: ${
+                model.latest_version?.created_at &&
+                formatDistance(
+                  new Date(model.latest_version?.created_at),
+                  new Date(),
+                  {
+                    addSuffix: true,
+                  },
+                )
+              }`,
+              perform: async () => {
+                await di?.addNode(
+                  "Replicate",
+                  {
+                    settings: {
+                      model: {
+                        model_name: model?.name,
+                        owner: model?.owner,
+                        version_id: model.latest_version?.id,
+                      },
                     },
                   },
-                },
-                {
-                  label: `${model?.owner}/${model?.name}`,
-                },
-              );
-            },
-          } as Action,
-        ]),
+                  {
+                    label: `${model?.owner}/${model?.name}`,
+                  },
+                );
+              },
+            } as Action,
+          ]),
       ) || []
     );
   }, [replicateCollection]);

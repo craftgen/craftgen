@@ -135,8 +135,8 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 const getActiveProject = async (session: Session) => {
-  const currentProjectSlug = session?.user.user_metadata.currentProjectId;
-  console.log("currentProjectId", currentProjectSlug);
+  const currentProjectId = session?.user.user_metadata.currentProjectId;
+  console.log("currentProjectId", session);
 
   const [projectS] = await db
     .select()
@@ -150,7 +150,7 @@ const getActiveProject = async (session: Session) => {
     )
     .where(
       and(
-        eq(schema.project.slug, currentProjectSlug),
+        eq(schema.project.id, currentProjectId),
         eq(schema.project.id, schema.projectMembers.projectId),
       ),
     )
@@ -202,6 +202,7 @@ const googleAuthMiddleware = t.middleware(async ({ ctx, next }) => {
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   });
+  console.log("ctx.session?.user?.id", ctx);
   const authUser = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, ctx.session?.user?.id!),
   });

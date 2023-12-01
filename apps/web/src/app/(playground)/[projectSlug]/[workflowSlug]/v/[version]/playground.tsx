@@ -16,7 +16,7 @@ import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import JsonView from "react18-json-view";
 import type { Input as InputNode } from "rete/_types/presets/classic";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { useStore } from "zustand";
 
 import type { Socket } from "@seocraft/core/src/sockets";
@@ -49,6 +49,7 @@ import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
 import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
+import { cn } from "@/lib/utils";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -389,29 +390,95 @@ export const renderFieldValueBaseOnSocketType = (
   socket: Socket,
   value: any | undefined,
 ) => {
-  let renderedValue = value;
-  if (renderedValue === undefined || renderedValue === null) {
-    switch (socket.name) {
-      case "String":
-        renderedValue = "";
-      case "Number":
-        renderedValue = 0;
-      default:
-    }
-  }
-  switch (socket.name) {
-    case "String":
-      if (renderedValue.length > 100) {
-        return <Textarea value={renderedValue} rows={10} />;
-      }
-      return <Input value={renderedValue} readOnly />;
-    case "Number":
-      return <Input type="number" value={renderedValue} readOnly />;
-    case "Tool":
-      return <JsonView src={renderedValue} displaySize collapsed={3} />;
-    default:
-      return null;
-  }
+  // let renderedValue = value;
+  // if (renderedValue === undefined || renderedValue === null) {
+  //   switch (socket.name) {
+  //     case "String":
+  //       renderedValue = "";
+  //     case "Number":
+  //       renderedValue = 0;
+  //     default:
+  //   }
+  // }
+  return match([socket, value])
+    .with(
+      [
+        {
+          name: "String",
+        },
+        P.string.minLength(100),
+      ],
+      ([socket, renderedValue]) => {
+        return (
+          <div>
+            <Textarea value={renderedValue} rows={10} />
+          </div>
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "Array",
+          definition: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+            "x-cog-array-type": "iterator",
+            "x-cog-array-display": "concatenate",
+          },
+        },
+        P.any,
+      ],
+      ([socket, renderedValue]) => {
+        return (
+          <div>
+            <Textarea value={renderedValue.join("")} rows={10} readOnly />
+          </div>
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "String",
+        },
+        P.string.maxLength(100),
+      ],
+      ([socket, renderedValue]) => {
+        return (
+          <div className={"space-y-1"}>
+            <Label>{socket.definition.title || socket.definition.name}</Label>
+            <Input value={renderedValue} readOnly />
+            <p className={cn("text-muted-foreground text-[0.8rem]")}>
+              {socket.definition?.description}
+            </p>
+          </div>
+        );
+      },
+    )
+    .otherwise(([_, value]) => {
+      return <JsonView src={value} displaySize collapsed={3} />;
+    });
+
+  // switch (socket.name) {
+  //   case "String":
+  //     if (renderedValue.length > 100) {
+  //       return (
+  //         <div>
+  //           <Textarea value={renderedValue} rows={10} />
+  //         </div>
+  //       );
+  //     }
+  //     return <Input value={renderedValue} readOnly />;
+  //   case "Number":
+  //     return <Input type="number" value={renderedValue} readOnly />;
+  //   case "Tool":
+  //     return <JsonView src={renderedValue} displaySize collapsed={3} />;
+  //   default:
+  //     return null;
+  // }
 };
 
 export const DynamicInputsForm: React.FC<{

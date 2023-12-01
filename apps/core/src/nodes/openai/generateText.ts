@@ -19,9 +19,6 @@ import { MappedType, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
-/**
- * @type {JSONSocket[]}
- */
 const inputSockets = {
   system: {
     name: "system" as const,
@@ -31,7 +28,7 @@ const inputSockets = {
     isMultiple: false,
     "x-controller": "textarea",
     title: "System Message",
-  } as JSONSchemaDefinition,
+  },
   user: {
     name: "user" as const,
     type: "string" as const,
@@ -46,7 +43,7 @@ const outputSockets = {
   result: {
     name: "result" as const,
     type: "string" as const,
-    description: "Result",
+    description: "Result of the generation",
     required: true,
     isMultiple: true,
   },
@@ -184,19 +181,28 @@ type GenerateTextInput = {
 
 const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
   fromPromise(async ({ input }: { input: GenerateTextInput }) => {
-    const text = await generateText(
-      openai.ChatTextGenerator({
-        api: api(),
-        ...input.openai,
-      }),
-      [
-        OpenAIChatMessage.system(input.system),
-        OpenAIChatMessage.user(input.user),
-      ],
-    );
-    return {
-      result: text,
-    };
+    console.log("INPUT", input);
+    try {
+      const text = await generateText(
+        openai.ChatTextGenerator({
+          api: api(),
+          ...input.openai,
+        }),
+        [
+          OpenAIChatMessage.system(input.system),
+          OpenAIChatMessage.user(input.user),
+        ],
+      );
+      console.log("TEXT", text);
+      return {
+        result: text,
+      };
+    } catch (err) {
+      console.log("EEEEEE", err);
+      return {
+        result: "EEEEEE",
+      };
+    }
   });
 
 export class OpenAIGenerateText extends BaseNode<

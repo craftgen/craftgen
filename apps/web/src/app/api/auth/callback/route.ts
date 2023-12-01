@@ -61,7 +61,7 @@ export async function GET(request: Request) {
 
   await supabase.auth.updateUser({
     data: {
-      currentProjectSlug: projectS.project.slug,
+      currentProjectId: projectS.project.id,
     },
   });
   redirect(`${BASE_URL}/${projectS.project.slug}`);

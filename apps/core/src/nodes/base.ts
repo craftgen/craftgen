@@ -455,12 +455,13 @@ export abstract class BaseNode<
       if (this.hasOutput(item.name)) {
         const output = this.outputs[key];
         if (output) {
-          output.socket = getSocketByJsonSchemaType(item.type)! as any;
+          output.socket = getSocketByJsonSchemaType(item)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item.type)!;
+      const socket = getSocketByJsonSchemaType(item)!;
+      socket.definition = item;
       const output = new Output(
         socket,
         item.name,
@@ -501,12 +502,13 @@ export abstract class BaseNode<
       if (this.hasInput(key)) {
         const input = this.inputs[item.name];
         if (input) {
-          input.socket = getSocketByJsonSchemaType(item.type)! as any;
+          input.socket = getSocketByJsonSchemaType(item)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item.type)!;
+      const socket = getSocketByJsonSchemaType(item)!;
+      socket.definition = item;
       const input = new Input(
         socket,
         item.name,
@@ -519,7 +521,11 @@ export abstract class BaseNode<
          * if value is not set show the input
          */
       );
-      input.index = item["x-order"] ?? index + 1;
+
+      if (item["x-order"]) {
+        index = item["x-order"];
+      }
+      input.index = index + 1;
       const controller = getControlBySocket(
         socket,
         () => this.snapshot.context.inputs[key],

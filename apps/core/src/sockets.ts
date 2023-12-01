@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import def from "ajv/dist/vocabularies/discriminator";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 
@@ -18,7 +18,10 @@ import { TextareControl } from "./controls/textarea";
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
 
-  constructor(name: SocketNameType) {
+  constructor(
+    name: SocketNameType,
+    public definition?: JSONSchema,
+  ) {
     super(name);
     this.name = name;
   }
@@ -70,8 +73,8 @@ class ArraySocket extends Socket {
 export const arraySocket = new ArraySocket();
 
 export class StringSocket extends Socket {
-  constructor() {
-    super("String");
+  constructor(public definition?: JSONSchema) {
+    super("String", definition);
   }
 }
 export const stringSocket = new StringSocket();
@@ -260,28 +263,6 @@ export type MappedType<T extends Record<string, JSONSocket>> = {
   [K in keyof T]: SocketTypeMap[T[K]["type"]];
 };
 
-export const getSocketByJsonSchemaType = (type: (typeof types)[number]) => {
-  switch (type) {
-    case "string":
-      return stringSocket;
-    case "number":
-    case "integer":
-      return numberSocket;
-    case "boolean":
-      return booleanSocket;
-    case "array":
-      return arraySocket;
-    case "object":
-      return objectSocket;
-    case "date":
-      return dateSocket;
-    case "tool":
-      return toolSocket;
-    default:
-      return anySocket;
-  }
-};
-
 type SocketConfig = {
   badge: string;
   color: string;
@@ -357,6 +338,115 @@ sockets.forEach((socket) => {
 });
 
 export type Sockets = (typeof sockets)[number];
+
+export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
+  return match(schema)
+    .with(
+      {
+        type: "string",
+      },
+      () => {
+        return stringSocket;
+      },
+    )
+    .with(
+      {
+        type: "string",
+        format: "uri",
+      },
+      () => {
+        return imageSocket;
+      },
+    )
+    .with(
+      {
+        type: "number",
+      },
+      () => {
+        return numberSocket;
+      },
+    )
+    .with(
+      {
+        type: "integer",
+      },
+      () => {
+        return numberSocket;
+      },
+    )
+    .with(
+      {
+        type: "boolean",
+      },
+      () => {
+        return booleanSocket;
+      },
+    )
+    .with(
+      {
+        type: "array",
+        "x-cog-array-type": "iterator",
+        "x-cog-array-display": "concatenate",
+      },
+      () => {
+        return stringSocket;
+      },
+    )
+    .with(
+      {
+        type: "array",
+      },
+      () => {
+        return arraySocket;
+      },
+    )
+    .with(
+      {
+        type: "object",
+      },
+      () => {
+        return objectSocket;
+      },
+    )
+    .with(
+      {
+        type: "date",
+      },
+      () => {
+        return dateSocket;
+      },
+    )
+    .with(
+      {
+        type: "tool",
+      },
+      () => {
+        return toolSocket;
+      },
+    )
+    .otherwise(() => {
+      return anySocket;
+    });
+  switch (schema.type) {
+    case "string":
+      return stringSocket;
+    case "number":
+    case "integer":
+      return numberSocket;
+    case "boolean":
+      return booleanSocket;
+    case "array":
+      return arraySocket;
+    case "object":
+      return objectSocket;
+    case "date":
+      return dateSocket;
+    case "tool":
+      return toolSocket;
+    default:
+      return anySocket;
+  }
+};
 
 export const getControlBySocket = (
   socket: AllSockets,

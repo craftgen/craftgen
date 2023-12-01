@@ -61,6 +61,7 @@ import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -464,18 +465,30 @@ export const Node = observer((props: Props<Schemes>) => {
                 </CardContent>
 
                 <CardFooter className="mt-auto flex flex-col p-1 px-2 pt-0">
-                  {props.data.snap.matches("complete") && (
-                    <div className="w-full">
-                      <Drag.NoDrag>
-                        <JSONView
-                          data={
-                            props.data.actor.getSnapshot().output ||
-                            props.data.snap.context.outputs
-                          }
-                        />
-                      </Drag.NoDrag>
-                    </div>
+                  {(props.data.snap.matches("complete") ||
+                    props.data.snap.matches("running")) && (
+                    <Drag.NoDrag>
+                      <Tabs defaultValue="JSON" className="w-full">
+                        <TabsList>
+                          <TabsTrigger value="Output">Output</TabsTrigger>
+                          <TabsTrigger value="JSON">JSON</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="Output">
+                          {props.data.snap.context.outputs?.result &&
+                            props.data.snap.context.outputs?.result[0] && (
+                              <img
+                                src={props.data.snap.context.outputs?.result[0]}
+                                className="w-full"
+                              />
+                            )}
+                        </TabsContent>
+                        <TabsContent value="JSON">
+                          <JSONView data={props.data.snap.context.outputs} />
+                        </TabsContent>
+                      </Tabs>
+                    </Drag.NoDrag>
                   )}
+
                   <NodeIdBadge id={props.data.id} />
                 </CardFooter>
               </div>

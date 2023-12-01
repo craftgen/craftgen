@@ -42,11 +42,6 @@ export class SliderControl extends BaseControl {
         ? decimalPlaceCount(Number(this.definition?.default!))
         : 0;
 
-    console.log({
-      minDecimals,
-      maxDecimals,
-      defaultDecimals,
-    });
     // Use the highest decimal count as the step size
     const step = Math.pow(
       10,
