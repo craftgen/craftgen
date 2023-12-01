@@ -34,6 +34,7 @@ import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
 import { OpenAIGenerateText } from "./nodes/openai/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
+import { IteratorNode } from "./nodes/tools/iterator";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -72,6 +73,9 @@ export const nodes = {
   Number: Number,
   PromptTemplate: PromptTemplate,
   Thread: Thread,
+
+  // Tools
+  IteratorNode: IteratorNode,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIGenerateText: OpenAIGenerateText,

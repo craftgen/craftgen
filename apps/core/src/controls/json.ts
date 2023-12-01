@@ -1,3 +1,4 @@
+import { action, makeObservable, observable, reaction } from "mobx";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
@@ -20,5 +21,27 @@ export class JsonControl extends BaseControl {
 
     const initialValue = observableSource();
     this.value = initialValue;
+    makeObservable(this, {
+      value: observable.ref,
+      setValue: action,
+    });
+
+    reaction(
+      () => this.observableSource(),
+      (newValue) => {
+        if (newValue !== this.value) {
+          console.log(
+            "reaction in textarea controller value is not matching",
+            newValue,
+          );
+          this.value = newValue;
+        }
+      },
+    );
+  }
+
+  public setValue(value: any) {
+    this.value = value;
+    this.options.change(value);
   }
 }

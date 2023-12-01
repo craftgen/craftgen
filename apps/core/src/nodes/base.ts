@@ -119,17 +119,19 @@ export type BaseMachineTypes<
     events?: any;
     actions?: any;
     actors?: ProvidedActor | None;
+    guards?: any;
   } = {
     input: BaseInputType;
     context: BaseContextType;
     events?: BaseEventTypes;
     actions?: BaseActionTypes;
     actors?: ProvidedActor;
+    guards?: any;
   },
 > = {
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
-
+  guards: T["guards"];
   events: SpecialMerged<BaseEventTypes, T["events"]>;
   actions: SpecialMerged<BaseActionTypes, T["actions"]>;
   actors: SpecialMerged<BaseActorTypes, T["actors"]>;

@@ -20,7 +20,8 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
   const nodes = useMemo(() => {
     if (!di) return [];
     return Array.from(di?.nodeMeta.values()).map((node) => {
-      const Icon = Icons[node.icon as keyof typeof Icons];
+      const Icon = Icons[node.icon as keyof typeof Icons] ?? Icons.component;
+
       return {
         ...node,
         nodeType: node.nodeType as NodeTypes,
@@ -42,22 +43,6 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       section: "Nodes",
       icon: <Icons.component className={"text-muted-foreground mr-2"} />,
     });
-    res.push(
-      ...(nodes
-        .filter((n) => n.nodeType !== "ModuleNode")
-        .filter((n) => n.nodeType !== "Replicate")
-        .map((node) => ({
-          id: node.nodeType,
-          name: node.label,
-          parent: node.section,
-          subtitle: node.description,
-          section: node.section ?? "Nodes",
-          perform: async () => {
-            await di?.addNode(node.nodeType as NodeTypes);
-          },
-          icon: node.icon as any,
-        })) as Action[]),
-    );
     res.push({
       id: "ModuleNode",
       name: "Module",
@@ -73,6 +58,14 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
       section: "Nodes",
       subtitle: "Add a model from Replicate",
       icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+    });
+    res.push({
+      id: "Tools",
+      name: "Tools",
+      keywords: "tool",
+      section: "Nodes",
+      subtitle: "Tools to help you build your workflow",
+      icon: <Icons.pocketKnife className={"text-muted-foreground mr-2"} />,
     });
     res.push({
       id: "assistant",
@@ -96,6 +89,22 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
         });
       },
     });
+    res.push(
+      ...(nodes
+        .filter((n) => n.nodeType !== "ModuleNode")
+        .filter((n) => n.nodeType !== "Replicate")
+        .map((node) => ({
+          id: node.nodeType,
+          name: node.label,
+          parent: node?.section ?? undefined,
+          subtitle: node.description,
+          section: node.section ?? "Nodes",
+          perform: async () => {
+            await di?.addNode(node.nodeType as NodeTypes);
+          },
+          icon: node.icon as any,
+        })) as Action[]),
+    );
     return res;
   }, [nodes]);
 

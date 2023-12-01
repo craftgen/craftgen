@@ -1,4 +1,5 @@
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { MergeDeep } from "type-fest";
 import * as z from "zod";
 
 import { types } from "../sockets";
@@ -17,21 +18,35 @@ export type SocketGeneratorControlOptions = {
   onChange: (data: SocketGeneratorControlData) => void;
 };
 
-export type JSONSocket = JSONSchema & z.infer<typeof socketSchema>;
+export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export const socketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(types),
   description: z.string().optional(),
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
-  required: z.boolean().default(false),
+  required: z.boolean().default(false).optional(),
   isMultiple: z.boolean().default(false),
 
-  default: z.any().optional(),
-
+  default: z
+    .union([
+      z.string().array(),
+      z.number().array(),
+      z.boolean().array(),
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.date(),
+      z.date().array(),
+      z.object({}).array(),
+      z.object({}),
+      z.null(),
+      z.null().array(),
+    ])
+    .optional(),
   "x-order": z.number().optional(),
   "x-controller": z.string().optional(),
-  "x-showInput": z.boolean().default(true),
+  "x-showInput": z.boolean().default(true).optional(),
 });
 
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;
