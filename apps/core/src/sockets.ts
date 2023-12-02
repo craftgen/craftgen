@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import def from "ajv/dist/vocabularies/discriminator";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";

@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 type BooleanControlOptions = {
   change: (value: boolean) => void;
@@ -15,7 +15,7 @@ export class BooleanControl extends BaseControl {
   constructor(
     public observableSource: () => boolean, // Function that returns the observable value
     public options: BooleanControlOptions,
-    public readonly definition?: JSONSchemaDefinition,
+    public readonly definition?: JSONSocket,
   ) {
     super(50, definition);
     this.value = observableSource(); // Set the initial value

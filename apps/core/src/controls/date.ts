@@ -1,8 +1,8 @@
 import { parseISO } from "date-fns";
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 type DateControlOptions = {
   change: (value: string | null) => void;
@@ -15,7 +15,7 @@ export class DateControl extends BaseControl {
   constructor(
     public observableSource: () => string, // Function that returns the observable value
     public options: DateControlOptions,
-    public readonly definition?: JSONSchemaDefinition,
+    public readonly definition?: JSONSocket,
   ) {
     super(50);
     const initialValue = observableSource();

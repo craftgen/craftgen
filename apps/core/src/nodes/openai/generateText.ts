@@ -8,12 +8,10 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
-import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";

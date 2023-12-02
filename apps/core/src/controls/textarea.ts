@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 type TextareControlOptions = {
   readonly?: boolean;
@@ -15,7 +15,7 @@ export class TextareControl extends BaseControl {
   constructor(
     public observableSource: () => string, // Function that returns the observable value
     public options: TextareControlOptions,
-    public readonly definition?: JSONSchemaDefinition,
+    public readonly definition?: JSONSocket,
   ) {
     super(70, definition);
 

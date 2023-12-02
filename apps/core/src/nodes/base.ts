@@ -1,5 +1,13 @@
 import { debounce, isEqual, isUndefined, set } from "lodash-es";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
+import {
+  action,
+  autorun,
+  computed,
+  flow,
+  makeObservable,
+  observable,
+  reaction,
+} from "mobx";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
@@ -324,6 +332,7 @@ export abstract class BaseNode<
 
     makeObservable(this, {
       inputs: observable,
+
       snap: observable,
       inputSockets: observable,
       inputSchema: computed,
@@ -338,6 +347,10 @@ export abstract class BaseNode<
       setExecutionNodeId: action,
     });
 
+    this.setup();
+  }
+
+  public setup() {
     const inputHandlers = reaction(
       () => this.inputSockets,
       async (sockets) => {
@@ -350,7 +363,6 @@ export abstract class BaseNode<
         await this.updateOutputs(sockets);
       },
     );
-
     this.actor.start();
     this.isReady = true;
   }
@@ -475,6 +487,7 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: Record<string, JSONSocket>) {
+    console.log("PARENT", this.snap);
     console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
@@ -511,11 +524,14 @@ export abstract class BaseNode<
 
       const socket = getSocketByJsonSchemaType(item)!;
       socket.definition = item;
+      const showInput = !isUndefined(item["x-showInput"])
+        ? item["x-showInput"]
+        : true;
       const input = new Input(
         socket,
         item.name,
         item.isMultiple,
-        // item["x-showInput"] ?? item.default ? false : true,
+        showInput,
         /**
          * TODO:
          * We need a smarter way of determining if the input should be shown or not.
@@ -620,7 +636,22 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string,
   ) {
-    console.log(this.identifier, "@@@", "execute", executionId);
+    const canRun = this.snapshot.can({
+      type: input,
+      values: {},
+    });
+
+    console.log("#".repeat(40), {
+      canRun,
+    });
+    if (canRun) {
+      this.pactor.send({
+        type: input,
+        values: {},
+      });
+    }
+
+    console.log(this.identifier, "@@@", input, "execute", executionId);
     if (this.snapshot.status === "stopped") {
       console.log("Running same node In the single execution with new input");
       this.executionNodeId = undefined; // reset execution node id

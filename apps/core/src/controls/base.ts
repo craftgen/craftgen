@@ -1,10 +1,11 @@
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
+
+import { JSONSocket } from "./socket-generator";
 
 export class BaseControl extends ClassicPreset.Control {
   constructor(
     public minHeight: number,
-    definition?: JSONSchemaDefinition,
+    definition?: JSONSocket,
   ) {
     super();
   }

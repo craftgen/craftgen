@@ -10,6 +10,7 @@ export function CustomButton(props: { data: ButtonControl }) {
       onDoubleClick={(e) => e.stopPropagation()}
       size={"sm"}
       onClick={props.data.onClick}
+      disabled={props.data.options?.disabled}
     >
       {props.data.label}
     </Button>

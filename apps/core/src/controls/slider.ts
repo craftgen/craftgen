@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 export type SliderControlOptions = {
   max: number;
@@ -53,7 +53,7 @@ export class SliderControl extends BaseControl {
   constructor(
     public observableSource: () => number,
     public options: SliderControlOptions,
-    public readonly definition?: JSONSchema,
+    public readonly definition?: JSONSocket,
   ) {
     super(55, definition);
 

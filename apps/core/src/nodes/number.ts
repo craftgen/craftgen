@@ -1,11 +1,12 @@
-import { DiContainer } from "../types";
-import { BaseNode, type ParsedNode } from "./base";
-import { assign, createMachine } from "xstate";
-import { numberSocket, triggerSocket } from "../sockets";
 import { match, P } from "ts-pattern";
+import { SetOptional } from "type-fest";
+import { assign, createMachine } from "xstate";
+
 import { NumberControl } from "../controls/number";
 import { Input, Output } from "../input-output";
-import { SetOptional } from "type-fest";
+import { numberSocket, triggerSocket } from "../sockets";
+import { DiContainer } from "../types";
+import { BaseNode, type ParsedNode } from "./base";
 
 const NumberMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
@@ -68,15 +69,13 @@ export class Number extends BaseNode<typeof NumberMachine> {
         }),
       },
     });
-    const self = this;
-    const state = this.actor.getSnapshot();
     this.addControl(
       "value",
-      new NumberControl(state?.context?.outputs?.value || 0, {
-        change(value) {
-          self.actor.send({ type: "change", value });
+      new NumberControl(() => this.snap.context?.outputs?.value || 0, {
+        change: (value) => {
+          this.actor.send({ type: "change", value });
         },
-      })
+      }),
     );
     this.addInput("increment", new Input(triggerSocket, "+"));
     this.addInput("decrement", new Input(triggerSocket, "-"));
@@ -88,7 +87,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
 
   async execute(
     trigger: "increment" | "decrement" | "reset",
-    forward: (output: "trigger") => void
+    forward: (output: "trigger") => void,
   ) {
     const state = this.actor.getSnapshot();
     match(trigger)

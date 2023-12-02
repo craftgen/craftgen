@@ -504,6 +504,8 @@ export const Node = observer((props: Props<Schemes>) => {
                   status: state.status,
                   state: state.value,
                   context: state.context,
+                  next_events: props.data.snap.getNextEvents(),
+                  dd: props.data.snap.toJSON(),
                   // executionNode: props.data.executionNode,
                   node: props.data.nodeData,
                   size: props.data.size,

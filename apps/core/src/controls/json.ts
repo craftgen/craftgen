@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 export type JsonControlOptions = {
   change: (v: any) => void;
@@ -15,7 +15,7 @@ export class JsonControl extends BaseControl {
   constructor(
     public observableSource: () => any, // Function that returns the observable value
     public options: JsonControlOptions,
-    public readonly definition?: JSONSchemaDefinition,
+    public readonly definition?: JSONSocket,
   ) {
     super(50);
 
