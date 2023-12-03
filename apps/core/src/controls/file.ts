@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
@@ -7,40 +7,19 @@ type FileControlOptions = {
   change: (value: string) => void;
 };
 
-export class FileControl extends BaseControl {
+export class FileControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "file";
 
-  public value: string;
-
   constructor(
-    public observableSource: () => string, // Function that returns the observable value
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => string, // Function that returns the observable value
     public options: FileControlOptions,
     public readonly definition?: JSONSocket,
   ) {
     super(50, definition);
-
-    this.value = observableSource(); // Set the initial value
-    makeObservable(this, {
-      value: observable.ref,
-      setValue: action,
-    });
-
-    reaction(
-      () => this.observableSource(),
-      (newValue) => {
-        if (newValue && this.value !== newValue) {
-          console.log(
-            "reaction in input controller value is not matching",
-            newValue,
-          );
-          this.value = newValue;
-        }
-      },
-    );
   }
 
   setValue(value: string) {
-    this.value = value;
     if (this.options?.change) this.options.change(value);
   }
 }

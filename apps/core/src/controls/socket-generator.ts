@@ -19,6 +19,7 @@ export type SocketGeneratorControlOptions = {
 };
 
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
+
 export const socketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(types),

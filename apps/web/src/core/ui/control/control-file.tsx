@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 
 import type { FileControl } from "@seocraft/core/src/controls/file";
 
@@ -7,11 +7,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export function FileControlComponent(props: { data: FileControl }) {
-  const [value, setValue] = useState(props.data.value);
-
-  useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
+  const value = useSelector(props.data?.actor, props.data.selector);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
@@ -22,7 +18,6 @@ export function FileControlComponent(props: { data: FileControl }) {
       reader.readAsDataURL(file);
     });
 
-    setValue(base64 as any);
     props.data.setValue(base64 as any);
   };
 

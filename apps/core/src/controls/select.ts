@@ -1,49 +1,33 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
 
-export type SelectControlOptions<T extends string> = {
-  change: (value: T) => void;
+export type SelectControlOptions<U extends string> = {
+  change: (value: U) => void;
   disabled?: boolean;
   placeholder: string;
-  values: { key: T; value: string }[];
+  values: { key: U; value: string }[];
 };
 
-export class SelectControl<T extends string> extends BaseControl {
+export class SelectControl<
+  T extends AnyActor = AnyActor,
+  U extends string = string,
+> extends BaseControl {
   __type = "select";
-  public value: T | undefined;
 
   constructor(
-    public observableSource: () => T | undefined, // Function that returns the observable value
-    public options: SelectControlOptions<T>,
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => U, // Function that returns the observable value
+    public options: SelectControlOptions<U>,
     public readonly definition?: JSONSocket,
   ) {
     super(55, definition);
 
-    this.value = observableSource(); // Set the initial value
-    makeObservable(this, {
-      value: observable.ref,
-      setValue: action,
-    });
-
-    reaction(
-      () => this.observableSource(),
-      (newValue) => {
-        if (newValue !== this.value) {
-          console.log(
-            "reaction in select controller value is not matching",
-            newValue,
-          );
-          this.value = newValue;
-        }
-      },
-    );
     this.options.disabled = this.options.disabled ?? false;
   }
 
-  setValue(value: T) {
-    this.value = value;
+  setValue(value: U) {
     if (this.options.change) this.options.change(value);
   }
 }

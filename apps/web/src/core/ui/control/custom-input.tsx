@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 
 import type { InputControl } from "@seocraft/core/src/controls/input.control";
 
@@ -7,11 +7,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export function CustomInput(props: { data: InputControl }) {
-  const [value, setValue] = useState(props.data.value);
-
-  useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
+  const value = useSelector(props.data?.actor, props.data.selector);
 
   return (
     <div className="space-y-1">
@@ -24,7 +20,6 @@ export function CustomInput(props: { data: InputControl }) {
         value={value}
         className="w-full max-w-md"
         onChange={(e) => {
-          setValue(e.target.value);
           props.data.setValue(e.target.value);
         }}
       />

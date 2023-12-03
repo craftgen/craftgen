@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
+import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
 import { DateControl } from "./controls/date";
@@ -426,33 +427,21 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
     .otherwise(() => {
       return anySocket;
     });
-  switch (schema.type) {
-    case "string":
-      return stringSocket;
-    case "number":
-    case "integer":
-      return numberSocket;
-    case "boolean":
-      return booleanSocket;
-    case "array":
-      return arraySocket;
-    case "object":
-      return objectSocket;
-    case "date":
-      return dateSocket;
-    case "tool":
-      return toolSocket;
-    default:
-      return anySocket;
-  }
 };
 
-export const getControlBySocket = (
-  socket: AllSockets,
-  value: () => any,
-  onChange: (v: any) => void,
-  definition?: JSONSocket,
-) => {
+export const getControlBySocket = <T extends AnyActor = AnyActor>({
+  socket,
+  actor,
+  selector,
+  onChange,
+  definition,
+}: {
+  socket: AllSockets;
+  actor: T;
+  selector: (emitted: SnapshotFrom<T>) => any;
+  onChange: (v: any) => void;
+  definition: JSONSocket;
+}) => {
   return match([socket, definition])
     .with(
       [
@@ -463,7 +452,8 @@ export const getControlBySocket = (
       ],
       () => {
         return new TextareControl(
-          value,
+          actor,
+          selector,
           {
             change: onChange,
           },
@@ -480,7 +470,8 @@ export const getControlBySocket = (
       ],
       () => {
         return new SelectControl(
-          value,
+          actor,
+          selector,
           {
             change: onChange,
             placeholder:
@@ -505,7 +496,8 @@ export const getControlBySocket = (
       ],
       () => {
         return new FileControl(
-          value,
+          actor,
+          selector,
           {
             change: onChange,
           },
@@ -522,7 +514,8 @@ export const getControlBySocket = (
       ],
       () => {
         return new InputControl(
-          value,
+          actor,
+          selector,
           {
             change: onChange,
           },
@@ -540,7 +533,8 @@ export const getControlBySocket = (
       ],
       ([_, def]) => {
         return new SliderControl(
-          value,
+          actor,
+          selector,
           {
             change: onChange,
             max: def.maximum,
@@ -552,7 +546,8 @@ export const getControlBySocket = (
     )
     .with([P.instanceOf(NumberSocket), {}], () => {
       return new NumberControl(
-        value,
+        actor,
+        selector,
         {
           change: onChange,
           max: definition?.maximum,
@@ -563,7 +558,8 @@ export const getControlBySocket = (
     })
     .with([P.instanceOf(BooleanSocket), {}], () => {
       return new BooleanControl(
-        value,
+        actor,
+        selector,
         {
           change: onChange,
         },
@@ -572,7 +568,8 @@ export const getControlBySocket = (
     })
     .with([P.instanceOf(DateSocket), {}], () => {
       return new DateControl(
-        value,
+        actor,
+        selector,
         {
           change: onChange,
         },
@@ -581,7 +578,8 @@ export const getControlBySocket = (
     })
     .otherwise(() => {
       return new JsonControl(
-        value,
+        actor,
+        selector,
         {
           change: onChange,
         },

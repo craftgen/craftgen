@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 
 import type { TextareControl } from "@seocraft/core/src/controls/textarea";
 
@@ -7,11 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 export function CustomTextarea(props: { data: TextareControl }) {
-  const [value, setValue] = useState(props.data.value);
-
-  useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
+  const value = useSelector(props.data?.actor, props.data.selector);
 
   return (
     <div className="space-y-1">
@@ -25,7 +21,6 @@ export function CustomTextarea(props: { data: TextareControl }) {
         value={value}
         className="resize-none hover:resize"
         onChange={(e) => {
-          setValue(e.target.value);
           props.data.setValue(e.target.value);
         }}
       />

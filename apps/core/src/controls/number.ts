@@ -1,4 +1,5 @@
 import { action, makeObservable, observable, reaction } from "mobx";
+import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
@@ -9,47 +10,46 @@ type NumberControlOptions = {
   change: (value: number) => void;
 };
 
-export class NumberControl extends BaseControl {
+export class NumberControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "number";
-  public value: number;
 
   constructor(
-    public observableSource: () => number, // Function that returns the observable value
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => number, // Function that returns the observable value
     public options: NumberControlOptions,
-    public readonly definition?: JSONSocket,
+    public definition: JSONSocket,
   ) {
-    super(50);
+    super(50, definition, actor);
     console.log("CALIFORNIA", {
-      vv: observableSource(),
-      observableSource,
+      selector,
       options,
       definition,
     });
 
-    this.value = observableSource(); // Set the initial value
-    makeObservable(this, {
-      observableSource: observable.ref,
-      value: observable.ref,
-      setValue: action,
-    });
+    // this.value = observableSource(); // Set the initial value
+    // makeObservable(this, {
+    //   observableSource: observable.ref,
+    //   value: observable,
+    //   setValue: action,
+    // });
 
-    reaction(
-      () => this.observableSource(),
-      (newValue) => {
-        console.log("VVVVVVV", newValue, this.value);
-        if (newValue !== this.value) {
-          console.log(
-            "reaction in number controller value is not matching",
-            newValue,
-          );
-          this.setValue(newValue);
-        }
-      },
-    );
+    // reaction(
+    //   () => this.observableSource(),
+    //   (newValue) => {
+    //     console.log("VVVVVVV", newValue, this.value);
+    //     if (newValue !== this.value) {
+    //       console.log(
+    //         "reaction in number controller value is not matching",
+    //         newValue,
+    //       );
+    //       this.setValue(newValue);
+    //     }
+    //   },
+    // );
   }
 
   setValue(value: number) {
-    this.value = value;
+    // this.value = value;
     if (this.options?.change) this.options.change(value);
   }
 }

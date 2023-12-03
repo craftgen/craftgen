@@ -544,10 +544,11 @@ export abstract class BaseNode<
         index = item["x-order"];
       }
       input.index = index + 1;
-      const controller = getControlBySocket(
-        socket,
-        () => this.snapshot.context.inputs[key],
-        (v) => {
+      const controller = getControlBySocket({
+        socket: socket,
+        actor: this.pactor,
+        selector: (snapshot) => snapshot.context.inputs[key],
+        onChange: (v) => {
           this.pactor.send({
             type: "SET_VALUE",
             values: {
@@ -555,8 +556,8 @@ export abstract class BaseNode<
             },
           });
         },
-        item,
-      );
+        definition: item,
+      });
       input.addControl(controller);
       this.addInput(key, input as any);
       if (!values[item.name]) {

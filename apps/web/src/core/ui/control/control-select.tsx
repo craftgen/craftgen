@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useSelector } from "@xstate/react";
 
 import { SelectControl } from "@seocraft/core/src/controls/select";
 
@@ -12,30 +12,21 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-export function SelectControlComponent<T extends string>(props: {
-  data: SelectControl<T>;
+export function SelectControlComponent<U extends string>(props: {
+  data: SelectControl<any, U>;
 }) {
-  const [value, setValue] = useState<T | undefined>(props.data.value);
+  const value = useSelector(props.data?.actor, props.data.selector);
 
   const handleChange = (value: any) => {
     props.data.setValue(value);
-    setValue(value);
   };
-
-  useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
 
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>
         {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
-      <Select
-        value={value}
-        onValueChange={handleChange}
-        defaultValue={props.data.value}
-      >
+      <Select value={value} onValueChange={handleChange} defaultValue={value}>
         <SelectTrigger className="w-full min-w-[5rem]" id={props.data.id}>
           <SelectValue
             id={props.data.id}

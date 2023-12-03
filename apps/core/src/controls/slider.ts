@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
@@ -10,10 +10,8 @@ export type SliderControlOptions = {
   change: (value: number) => void;
 };
 
-export class SliderControl extends BaseControl {
+export class SliderControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "slider";
-
-  public value: number;
 
   get step(): number {
     if (this.options.step) return this.options.step;
@@ -51,34 +49,15 @@ export class SliderControl extends BaseControl {
   }
 
   constructor(
-    public observableSource: () => number,
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => number, // Function that returns the observable value
     public options: SliderControlOptions,
     public readonly definition?: JSONSocket,
   ) {
     super(55, definition);
-
-    this.value = observableSource(); // Set the initial value
-    makeObservable(this, {
-      value: observable.ref,
-      setValue: action,
-    });
-
-    reaction(
-      () => this.observableSource(),
-      (newValue) => {
-        if (newValue && this.value !== newValue) {
-          console.log(
-            "reaction in input controller value is not matching",
-            newValue,
-          );
-          this.value = newValue;
-        }
-      },
-    );
   }
 
   setValue(value: number) {
-    this.value = value;
     if (this.options?.change) this.options.change(value);
   }
 }

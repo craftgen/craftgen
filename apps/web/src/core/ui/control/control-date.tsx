@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { format } from "date-fns";
+import { useSelector } from "@xstate/react";
+import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 import { DateControl } from "@seocraft/core/src/controls/date";
@@ -15,15 +15,10 @@ import {
 import { cn } from "@/lib/utils";
 
 export const DateControlComponent = (props: { data: DateControl }) => {
-  const [date, setDate] = useState<Date | undefined>();
+  const date = useSelector(props.data?.actor, props.data.selector);
   const handleChange = (value: Date | undefined) => {
-    setDate(value);
     props.data.setValue(value ?? null);
   };
-
-  useEffect(() => {
-    setDate(props.data.value ?? undefined);
-  }, [props.data.value]);
 
   return (
     <Popover>
@@ -41,7 +36,7 @@ export const DateControlComponent = (props: { data: DateControl }) => {
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(new Date(date), "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <p className={cn("text-muted-foreground text-[0.8rem]")}>
@@ -51,7 +46,7 @@ export const DateControlComponent = (props: { data: DateControl }) => {
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
-          selected={date}
+          selected={parseISO(date)}
           onSelect={handleChange}
           initialFocus
         />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 
 import type { BooleanControl } from "@seocraft/core/src/controls/boolean";
 
@@ -7,16 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 export const BooleanControlComponent = (props: { data: BooleanControl }) => {
-  const [value, setValue] = useState<boolean>(props.data.value);
+  const value = useSelector(props.data?.actor, props.data.selector);
 
   const handleChange = (value: boolean) => {
     props.data.setValue(value);
-    setValue(value);
   };
-
-  useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
 
   return (
     <div className="flex flex-col items-start space-y-0.5 ">

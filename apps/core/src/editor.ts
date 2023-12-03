@@ -24,10 +24,7 @@ import type {
   ClassicScheme,
   ReactArea2D,
   ReactPlugin,
-  RenderEmit,
 } from "./plugins/reactPlugin";
-import type { ExtractPayload } from "./plugins/reactPlugin/presets/classic/types";
-import type { AcceptComponent } from "./plugins/reactPlugin/presets/classic/utility-types";
 import { AllSockets, Socket } from "./sockets";
 import { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 
@@ -664,7 +661,7 @@ export class Editor<
   }
 
   private handleNodeEvents() {
-    const queue = new PQueue({ concurrency: 1 });
+    const queue = new PQueue({ concurrency: 4 });
 
     this.editor.addPipe((context) => {
       return match(context)

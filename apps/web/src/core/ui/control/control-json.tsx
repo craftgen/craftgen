@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 import JsonView from "react18-json-view";
 
 import { JsonControl } from "@seocraft/core/src/controls/json";
@@ -7,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export const JsonControlComponent = (props: { data: JsonControl }) => {
-  const [value, setValue] = useState(props.data.value);
+  const a = useSelector(props.data?.actor, props.data.selector);
+  const [value, setValue] = useState(a);
 
   useEffect(() => {
-    setValue(props.data.value);
-  }, [props.data.value]);
+    setValue(a);
+  }, [a]);
   const handleChange = (val: { src: any }) => {
     console.log(val.src);
     setValue(val.src);

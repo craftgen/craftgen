@@ -1,5 +1,5 @@
 import { merge } from "lodash-es";
-import { reaction } from "mobx";
+import { autorun, reaction } from "mobx";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, EventDescriptor, EventFrom } from "xstate";
 
@@ -36,6 +36,14 @@ export const IteratorNodeMachine = createMachine({
             isMultiple: false,
             "x-showInput": false,
             default: 0,
+          },
+          NEXT: {
+            name: "NEXT",
+            type: "tool",
+            description: "iterate to next item",
+            required: true,
+            isMultiple: true,
+            "x-showInput": true,
           },
         },
         outputSockets: {
@@ -266,20 +274,20 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
       },
     );
 
-    const input = new Input(triggerSocket, "inc", true, true);
-    input.addControl(
-      new ButtonControl(
-        "Inc",
-        () =>
-          this.actor.send({
-            type: "NEXT",
-          }),
-        {
-          disabled: !this.snap.getNextEvents().includes("NEXT"),
-        },
-      ),
-    );
-    this.addInput("NEXT", input);
+    // const input = new Input(triggerSocket, "inc", true, true);
+    // input.addControl(
+    //   new ButtonControl(
+    //     "Inc",
+    //     () =>
+    //       this.actor.send({
+    //         type: "NEXT",
+    //       }),
+    //     {
+    //       disabled: !this.snap.getNextEvents().includes("NEXT"),
+    //     },
+    //   ),
+    // );
+    // this.addInput("NEXT", input);
 
     // console.log("CHILD", this.snap);
     // const ggg = new NumberControl(() => this.snap.context.inputs.index, {
