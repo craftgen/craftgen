@@ -4,7 +4,6 @@ import { MessageCreateParams } from "openai/resources/beta/threads/messages/mess
 import { SetOptional } from "type-fest";
 import { createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
-import { JSONSocket } from "../controls/socket-generator";
 import { ThreadControl } from "../controls/thread.control";
 import { Input } from "../input-output";
 import { triggerSocket } from "../sockets";

@@ -11,8 +11,8 @@ export type SelectControlOptions<U extends string> = {
 };
 
 export class SelectControl<
-  T extends AnyActor = AnyActor,
   U extends string = string,
+  T extends AnyActor = AnyActor,
 > extends BaseControl {
   __type = "select";
 

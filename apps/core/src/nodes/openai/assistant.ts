@@ -541,18 +541,29 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     this.addInput("tools", new Input(objectSocket, "tools", true));
     this.addControl(
       "name",
-      new InputControl(() => this.snap.context.settings.assistant.name || "", {
-        change: (value) => {
-          console.log("change", value);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            config: {
-              name: value,
-            },
-          });
-          this.setLabel(value);
+      new InputControl(
+        this.actor,
+        (snap) => snap.context.settings.assistant.name || "",
+        {
+          change: (value) => {
+            console.log("change", value);
+            this.actor.send({
+              type: "CONFIG_CHANGE",
+              config: {
+                name: value,
+              },
+            });
+            this.setLabel(value);
+          },
         },
-      }),
+        {
+          name: "Assistant Name",
+          title: "Assistant Name",
+          description: "The name of the assistant",
+          isMultiple: false,
+          type: "string",
+        },
+      ),
     );
 
     this.addControl(
@@ -565,23 +576,35 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     );
     this.addControl(
       "assistantId",
-      new InputControl(() => this.snap.context.settings.assistant.id || "", {
-        readonly: true,
-        change: (value) => {
-          console.log("change", value);
-          this.actor.send({
-            type: "SET_ASSISTANT_ID",
-            params: {
-              assistantId: value,
-            },
-          });
+      new InputControl(
+        this.actor,
+        (snap) => snap.context.settings.assistant.id || "",
+        {
+          readonly: true,
+          change: (value) => {
+            console.log("change", value);
+            this.actor.send({
+              type: "SET_ASSISTANT_ID",
+              params: {
+                assistantId: value,
+              },
+            });
+          },
         },
-      }),
+        {
+          name: "Assistant ID",
+          title: "Assistant ID",
+          description: "The ID of the assistant",
+          isMultiple: false,
+          type: "string",
+        },
+      ),
     );
     this.addControl(
       "instructions",
       new TextareControl(
-        () => this.snap.context?.settings.assistant.instructions || "",
+        this.actor,
+        (snap) => snap.context?.settings.assistant.instructions || "",
         {
           change: async (value) => {
             this.actor.send({
@@ -597,7 +620,8 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     this.addControl(
       "model",
       new SelectControl<OpenAIChatModelType>(
-        () => this.snap.context.settings.assistant.model,
+        this.actor,
+        (snap) => snap.context.settings.assistant.model,
         {
           change: (val) => {
             this.actor.send({
@@ -614,6 +638,13 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
               value: key,
             })),
           ],
+        },
+        {
+          name: "Model",
+          title: "Model",
+          description: "The model to use for the assistant",
+          isMultiple: false,
+          type: "string",
         },
       ),
     );
