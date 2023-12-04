@@ -132,6 +132,10 @@ export type BaseActionTypes =
 
 export type BaseActorTypes = ProvidedActor;
 
+export type BaseGuardTypes = {
+  type: "NOOP";
+};
+
 export type None = "None";
 
 type SpecialMerged<T, U> = U extends None ? T : T | U;
@@ -155,7 +159,7 @@ export type BaseMachineTypes<
 > = {
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
-  guards: T["guards"];
+  guards: SpecialMerged<BaseGuardTypes, T["guards"]>;
   events: SpecialMerged<BaseEventTypes, T["events"]>;
   actions: SpecialMerged<BaseActionTypes, T["actions"]>;
   actors: SpecialMerged<BaseActorTypes, T["actors"]>;
@@ -166,7 +170,7 @@ type BaseMachine = StateMachine<
   BaseEventTypes,
   BaseActorTypes,
   BaseActionTypes,
-  any,
+  BaseGuardTypes,
   any,
   any,
   BaseInputType,
@@ -285,10 +289,14 @@ export abstract class BaseNode<
           error: () => null,
         }),
         setError: assign({
-          error: ({ event }) => ({
-            name: event.params?.name || "Error",
-            message: event.params?.message || "Something went wrong",
-          }),
+          error: ({ event }) => {
+            console.error("setError", event);
+            return {
+              name: event.params?.name || "Error",
+              message: event.params?.message || "Something went wrong",
+              err: event.data,
+            };
+          },
         }),
         changeAction: assign({
           inputSockets: ({ event }) => event.inputSockets,

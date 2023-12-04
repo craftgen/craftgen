@@ -5,43 +5,58 @@ import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { CodeControl } from "../controls/code";
+import { generateSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
-import { triggerSocket } from "../sockets";
+import { MappedType, triggerSocket } from "../sockets";
 import type { DiContainer } from "../types";
-import { BaseMachineTypes, BaseNode, type ParsedNode } from "./base";
+import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "./base";
+
+const inputSockets = {
+  "x-template": generateSocket({
+    name: "template",
+    type: "string",
+    description: "Template",
+    required: true,
+    default: "",
+    "x-key": "x-template",
+    "x-showInput": false,
+    "x-controller": "code",
+    "x-language": "handlebars",
+  }),
+};
 
 const PromptTemplateNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
   id: "prompt-template",
   initial: "idle",
   context: ({ input }) =>
-    merge(
+    merge<typeof input, any>(
       {
-        inputs: {},
-        inputSockets: {},
+        inputs: {
+          template: "",
+        },
+        inputSockets,
         outputs: {
           value: "",
         },
+        settings: {
+          variables: [],
+        },
         outputSockets: {
-          value: {
+          value: generateSocket({
             name: "value",
             type: "string",
             description: "Result of template",
             required: true,
-          },
+            "x-key": "value",
+          }),
         },
-        settings: {
-          template: "",
-          variables: [],
-        },
-        error: null,
       },
       input,
     ),
   types: {} as BaseMachineTypes<{
     input: {
       settings: {
-        template: string;
         variables: string[];
       };
       outputs?: {
@@ -49,36 +64,40 @@ const PromptTemplateNodeMachine = createMachine({
       };
     };
     context: {
+      inputs: MappedType<typeof inputSockets>;
       settings: {
-        template: string;
         variables: string[];
       };
       outputs: {
         value: string;
       };
     };
-    events: {
-      type: "change";
-      value: string;
-    };
-    actions: {
-      type: "updateValue";
-      params?: {
-        value: string;
-      };
-    };
-    actors: any;
+    // events: {
+    //   type: "change";
+    //   value: string;
+    // };
+    // actions: {
+    //   type: "updateValue";
+    //   params?: {
+    //     value: string;
+    //   };
+    // };
+    actions: None;
+    events: None;
+    guards: None;
+    actors: None;
   }>,
   states: {
     idle: {
       invoke: {
         src: "parse",
         input: ({ context }) => ({
-          template: context.settings.template,
+          template: context.inputs["x-template"],
           inputs: context.inputs,
         }),
         onError: {
           target: "error",
+          actions: ["setError"],
         },
         onDone: {
           actions: assign({
@@ -88,28 +107,37 @@ const PromptTemplateNodeMachine = createMachine({
             }),
             inputSockets: ({ context, event }) => {
               const sockets = event.output.variables
+                .filter((item: string) => item.length > 0)
                 .map((item: string) => {
-                  return {
+                  return generateSocket({
                     name: item,
                     title: item,
                     type: "string",
                     description: "variable",
                     required: true,
-                  };
+                    "x-key": item,
+                    "x-showInput": true,
+                  });
                 })
                 .reduce((prev: any, curr: any) => {
                   prev[curr.name] = curr;
                   return prev;
                 }, {});
-              return sockets;
+              return {
+                "x-template": context.inputSockets["x-template"],
+                ...sockets,
+              };
             },
             outputs: ({ event }) => ({ value: event.output.rendered }),
           }),
         },
       },
       on: {
-        change: {
-          target: "typing",
+        // change: {
+        //   target: "typing",
+        // },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
         SET_VALUE: {
           actions: ["setValue"],
@@ -129,11 +157,12 @@ const PromptTemplateNodeMachine = createMachine({
       invoke: {
         src: "parse",
         input: ({ context }) => ({
-          template: context.settings.template,
+          template: context.inputs.template,
           inputs: context.inputs,
         }),
         onError: {
           target: "error",
+          actions: ["setError"],
         },
         onDone: {
           target: "complete",
@@ -148,17 +177,17 @@ const PromptTemplateNodeMachine = createMachine({
       },
     },
     typing: {
-      entry: {
-        type: "updateValue",
-      },
+      // entry: {
+      //   type: "updateValue",
+      // },
       after: {
         100: "idle",
       },
       on: {
-        change: {
-          target: "typing", // self-loop to reset the timer
-          actions: "updateValue",
-        },
+        // change: {
+        //   target: "typing", // self-loop to reset the timer
+        //   actions: "updateValue",
+        // },
       },
     },
     error: {
@@ -168,9 +197,6 @@ const PromptTemplateNodeMachine = createMachine({
         });
       },
       on: {
-        change: {
-          target: "typing",
-        },
         SET_VALUE: {
           target: "idle",
           actions: ["setValue"],
@@ -181,7 +207,7 @@ const PromptTemplateNodeMachine = createMachine({
       type: "final",
       output: ({ context }) => context.outputs,
       on: {
-        change: "typing",
+        // change: "typing",
         SET_VALUE: {
           actions: ["setValue"],
           target: "idle",
@@ -252,24 +278,14 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
 
   constructor(di: DiContainer, data: PromptTemplateNode) {
     super("PromptTemplate", di, data, PromptTemplateNodeMachine, {
-      actions: {
-        updateValue: assign({
-          settings: ({ event, context }) => {
-            return match(event)
-              .with({ type: "change" }, ({ value }) => {
-                return {
-                  ...context.settings,
-                  template: value,
-                };
-              })
-              .run();
-          },
-        }),
-      },
       actors: {
         parse: fromPromise(async ({ input }) => {
+          console.log("INPUT", input);
           let variables: any[] = [];
-          // try {
+          // return {
+          //   variables,
+          //   rendered: "locoo",
+          // };
           variables = Sqrl.parse(input.template, {
             ...Sqrl.defaultConfig,
             useWith: true,
@@ -294,23 +310,5 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
         }),
       },
     });
-
-    let prev = this.actor.getSnapshot();
-    this.addInput("trigger", new Input(triggerSocket, "Trigger", true));
-    this.addOutput("trigger", new Output(triggerSocket, "Trigger"));
-    const self = this;
-    this.addControl(
-      "template",
-      new CodeControl("handlebars", {
-        initial: prev?.context?.settings.template || "",
-        theme: "dark",
-        change: (value) => {
-          self.actor.send({
-            type: "change",
-            value,
-          });
-        },
-      }),
-    );
   }
 }

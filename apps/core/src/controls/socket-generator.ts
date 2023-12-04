@@ -47,6 +47,7 @@ export const socketSchema = z.object({
   "x-controller": z.string().optional(),
   "x-showInput": z.boolean().default(true).optional(),
   "x-key": z.string(),
+  "x-language": z.string().optional(),
 });
 
 export const generateSocket = (

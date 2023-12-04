@@ -27,7 +27,6 @@ export class NumberControl<T extends AnyActor = AnyActor> extends BaseControl {
   }
 
   setValue(value: number) {
-    // this.value = value;
     if (this.options?.change) this.options.change(value);
   }
 }

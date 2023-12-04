@@ -5,6 +5,7 @@ import { match, P } from "ts-pattern";
 import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
+import { CodeControl } from "./controls/code";
 import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
@@ -497,6 +498,26 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           selector,
           {
             change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        P.instanceOf(StringSocket),
+        {
+          "x-controller": "code",
+          "x-language": P.string,
+        },
+      ],
+      () => {
+        return new CodeControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+            language: definition["x-language"],
           },
           definition,
         );

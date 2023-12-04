@@ -1,22 +1,27 @@
+import { AnyActor, SnapshotFrom } from "xstate";
+
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 export type CodeControlOptions = {
-  initial: string;
   change: (value: string) => void;
   theme?: string;
+  language?: string;
 };
 
-export class CodeControl extends BaseControl {
+export class CodeControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "code";
-  value?: string;
 
-  constructor(public language: string, public options: CodeControlOptions) {
+  constructor(
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => string, // Function that returns the observable value
+    public options: CodeControlOptions,
+    public definition: JSONSocket,
+  ) {
     super(200);
-    if (typeof options?.initial !== "undefined") this.value = options.initial;
   }
 
   setValue(value: string) {
-    this.value = value;
     if (this.options?.change) this.options.change(value);
   }
 }

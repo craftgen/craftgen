@@ -17,7 +17,7 @@ import { generateSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
+import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 
 const inputSockets = {
   system: generateSocket({
@@ -95,13 +95,14 @@ const inputSockets = {
 };
 
 const outputSockets = {
-  result: {
+  result: generateSocket({
     name: "result" as const,
     type: "string" as const,
     description: "Result of the generation",
     required: true,
     isMultiple: true,
-  },
+    "x-key": "result",
+  }),
 };
 
 const OpenAIGenerateTextMachine = createMachine({
@@ -143,6 +144,7 @@ const OpenAIGenerateTextMachine = createMachine({
       type: "CONFIG_CHANGE";
       openai: OpenAIChatSettings;
     };
+    guards: None;
     actors: {
       src: "generateText";
       logic: ReturnType<typeof generateTextActor>;
