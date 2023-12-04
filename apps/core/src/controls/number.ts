@@ -1,4 +1,3 @@
-import { action, makeObservable, observable, reaction } from "mobx";
 import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
@@ -25,27 +24,6 @@ export class NumberControl<T extends AnyActor = AnyActor> extends BaseControl {
       options,
       definition,
     });
-
-    // this.value = observableSource(); // Set the initial value
-    // makeObservable(this, {
-    //   observableSource: observable.ref,
-    //   value: observable,
-    //   setValue: action,
-    // });
-
-    // reaction(
-    //   () => this.observableSource(),
-    //   (newValue) => {
-    //     console.log("VVVVVVV", newValue, this.value);
-    //     if (newValue !== this.value) {
-    //       console.log(
-    //         "reaction in number controller value is not matching",
-    //         newValue,
-    //       );
-    //       this.setValue(newValue);
-    //     }
-    //   },
-    // );
   }
 
   setValue(value: number) {

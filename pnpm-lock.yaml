@@ -204,6 +204,9 @@ importers:
       tailwind-styled-components:
         specifier: ^2.2.0
         version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
+      ts-dedent:
+        specifier: ^2.2.0
+        version: 2.2.0
       ts-pattern:
         specifier: ^5.0.5
         version: 5.0.5
@@ -18015,6 +18018,11 @@ packages:
       typescript: '>=4.2.0'
     dependencies:
       typescript: 5.2.2
+
+  /ts-dedent@2.2.0:
+    resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
+    engines: {node: '>=6.10'}
+    dev: false
 
   /ts-easing@0.2.0:
     resolution: {integrity: sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ==}

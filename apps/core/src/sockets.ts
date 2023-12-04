@@ -18,10 +18,7 @@ import { TextareControl } from "./controls/textarea";
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
 
-  constructor(
-    name: SocketNameType,
-    public definition?: JSONSchema,
-  ) {
+  constructor(name: SocketNameType) {
     super(name);
     this.name = name;
   }
@@ -73,8 +70,8 @@ class ArraySocket extends Socket {
 export const arraySocket = new ArraySocket();
 
 export class StringSocket extends Socket {
-  constructor(public definition?: JSONSchema) {
-    super("String", definition);
+  constructor() {
+    super("String");
   }
 }
 export const stringSocket = new StringSocket();

@@ -1,4 +1,4 @@
-import { debounce, isEqual, isUndefined, set } from "lodash-es";
+import { debounce, isEqual, isUndefined, merge, set } from "lodash-es";
 import {
   action,
   autorun,
@@ -85,6 +85,14 @@ export type BaseEventTypes =
   | {
       type: "RUN";
       values: Record<string, any>;
+    }
+  | {
+      type: "UPDATE_SOCKET";
+      params: {
+        name: string;
+        side: "input" | "output";
+        socket: Partial<JSONSocket>;
+      };
     };
 
 export type BaseActionTypes =
@@ -92,6 +100,14 @@ export type BaseActionTypes =
       type: "setValue";
       params?: {
         values: Record<string, any>;
+      };
+    }
+  | {
+      type: "updateSocket";
+      params?: {
+        name: string;
+        side: "input" | "output";
+        socket: Partial<JSONSocket>;
       };
     }
   | {
@@ -288,6 +304,34 @@ export abstract class BaseNode<
         triggerSuccessors: async () => {
           await this.triggerSuccessors();
         },
+        updateSocket: assign({
+          inputSockets: ({ context, event }) => {
+            console.log("updateSocket", event);
+            if (event.params.side === "input") {
+              return {
+                ...context.inputSockets,
+                [event.params.name]: merge(
+                  context.inputSockets[event.params.name],
+                  event.params.socket,
+                ),
+              };
+            }
+            return context.inputSockets;
+          },
+          outputSockets: ({ context, event }) => {
+            console.log("updateSocket", event);
+            if (event.params.side === "output") {
+              return {
+                ...context.outputSockets,
+                [event.params.name]: merge(
+                  context.outputSockets[event.params.name],
+                  event.params.socket,
+                ),
+              };
+            }
+            return context.outputSockets;
+          },
+        }),
         setValue: assign({
           inputs: ({ context, event }) => {
             Object.keys(context.inputs).forEach((key) => {
@@ -475,7 +519,6 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item)!;
-      socket.definition = item;
       const output = new Output(
         socket,
         item.name,
@@ -523,15 +566,12 @@ export abstract class BaseNode<
       }
 
       const socket = getSocketByJsonSchemaType(item)!;
-      socket.definition = item;
-      const showInput = !isUndefined(item["x-showInput"])
-        ? item["x-showInput"]
-        : true;
       const input = new Input(
         socket,
         item.name,
         item.isMultiple,
-        showInput,
+        this.pactor,
+        (snapshot) => snapshot.context.inputSockets[key],
         /**
          * TODO:
          * We need a smarter way of determining if the input should be shown or not.

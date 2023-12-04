@@ -172,7 +172,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
       initial: {
         name: state.context.name,
         description: state.context.description,
-        sockets: state.context.inputSockets,
+        sockets: Object.values(state.context.inputSockets),
       },
       onChange: ({ sockets, name, description }) => {
         const schema = createJsonSchema(sockets);

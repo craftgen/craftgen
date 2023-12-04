@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useSelector } from "@xstate/react";
 import { OPENAI_CHAT_MODELS, OpenAIChatSettings } from "modelfusion";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,8 +29,9 @@ const config = z.custom<OpenAIChatSettings>();
 export const OpenAIChatSettingsControlComponent = (props: {
   data: OpenAIChatSettingsControl;
 }) => {
+  const value = useSelector(props.data?.actor, props.data.selector);
   const form = useForm<z.infer<typeof config>>({
-    defaultValues: props.data.value,
+    defaultValues: value as any,
   });
 
   async function onSubmitHandler(values: z.infer<typeof config>) {
@@ -55,6 +57,7 @@ export const OpenAIChatSettingsControlComponent = (props: {
     return OPENAI_CHAT_MODELS[selectedModel as keyof typeof OPENAI_CHAT_MODELS]
       .contextWindowSize;
   }, [selectedModel]);
+
   useEffect(() => {
     if (maxCompletionTokens! > maximumContextSize) {
       form.setValue("maxCompletionTokens", maximumContextSize);

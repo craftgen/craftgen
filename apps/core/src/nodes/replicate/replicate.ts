@@ -1,4 +1,4 @@
-import { merge } from "lodash-es";
+import { isNil, merge } from "lodash-es";
 import { match, P } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
@@ -85,6 +85,9 @@ const replicateMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
       },
       invoke: {
         src: "getModelVersion",
@@ -169,7 +172,7 @@ const replicateMachine = createMachine({
                         type = "unknown";
                       }
                     }
-
+                    const required = (Input?.required || []).includes(key);
                     return {
                       ...value,
                       name: value.title ?? key,
@@ -179,9 +182,10 @@ const replicateMachine = createMachine({
                         ? value.allOf[0].type
                         : "unknown",
                       isMultiple: false,
-                      required: (Input?.required || []).includes(key),
+                      required,
                       "x-key": key,
                       "x-controller": isEnum && "select",
+                      "x-showInput": isNil(value.default) && required,
                     };
                   })
                   .sort((a, b) => a["x-order"] - b["x-order"])
@@ -211,6 +215,9 @@ const replicateMachine = createMachine({
         RUN: {
           target: "running",
           actions: ["setValue"],
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
       },
     },

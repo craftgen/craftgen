@@ -1,7 +1,9 @@
+import dedent from "dedent";
 import { merge } from "lodash-es";
 import {
   generateStructure,
   openai,
+  OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
   OpenAIChatMessage,
   OpenAIChatSettings,
@@ -12,37 +14,93 @@ import {
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
-import { OpenAIChatSettingsControl } from "../../controls/openai-chat-settings";
+import { generateSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { MappedType, Tool, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
 
 const inputSockets = {
-  system: {
+  system: generateSocket({
     name: "system" as const,
     type: "string" as const,
     description: "System Message",
     required: false,
     isMultiple: false,
     "x-controller": "textarea",
-  },
-  user: {
+    "x-key": "system",
+    "x-showInput": true,
+  }),
+  user: generateSocket({
     name: "user" as const,
     type: "string" as const,
     description: "User Prompt",
     required: true,
     isMultiple: false,
     "x-controller": "textarea",
-  },
-  schema: {
+    "x-key": "user",
+    "x-showInput": true,
+  }),
+  schema: generateSocket({
     name: "schema" as const,
     type: "tool" as const,
     description: "Schema",
     required: true,
     isMultiple: false,
     "x-controller": "socket-generator",
-  },
+    "x-key": "schema",
+  }),
+  model: generateSocket({
+    "x-key": "model",
+    name: "model" as const,
+    title: "Model",
+    type: "string" as const,
+    allOf: [
+      {
+        enum: Object.keys(OPENAI_CHAT_MODELS),
+        type: "string" as const,
+      },
+    ],
+    "x-controller": "select",
+    default: "gpt-3.5-turbo-1106",
+    description: dedent`
+    The model to use for generating text. You can see available models
+    `,
+  }),
+  temperature: generateSocket({
+    "x-key": "temperature",
+    name: "temperature" as const,
+    title: "Temperature",
+    type: "number" as const,
+    description: dedent`
+    The sampling temperature, between 0 and 1. Higher values like
+    0.8 will make the output more random, while lower values like
+    0.2 will make it more focused and deterministic. If set to 0,
+    the model will use log probability to automatically increase
+    the temperature until certain thresholds are hit`,
+    required: true,
+    default: 0.7,
+    minimum: 0,
+    maximum: 1,
+    isMultiple: false,
+    "x-showInput": false,
+  }),
+  maxCompletionTokens: generateSocket({
+    "x-key": "maxCompletionTokens",
+    name: "maxCompletionTokens" as const,
+    title: "Max Completion Tokens",
+    type: "number" as const,
+    description: dedent`
+    The maximum number of tokens to generate in the chat
+    completion. The total length of input tokens and generated
+    tokens is limited by the model's context length.`,
+    required: true,
+    default: 1000,
+    minimum: 0,
+    maximum: 4141,
+    isMultiple: false,
+    "x-showInput": false,
+  }),
 };
 
 const outputSockets = {
@@ -68,19 +126,15 @@ const OpenAIGenerateStructureMachine = createMachine({
           },
           system: "",
           user: "",
+          temperature: 0.7,
+          maxCompletionTokens: 1000,
+          model: "gpt-3.5-turbo-1106",
         },
         outputs: {
           result: "",
         },
         inputSockets: inputSockets,
         outputSockets: outputSockets,
-        settings: {
-          openai: {
-            model: "gpt-3.5-turbo-1106",
-            temperature: 0.7,
-            maxCompletionTokens: 1000,
-          },
-        },
       },
       input,
     ),
@@ -100,7 +154,7 @@ const OpenAIGenerateStructureMachine = createMachine({
       };
     };
     actions: {
-      type: "R";
+      type: "adjustMaxCompletionTokens";
     };
     events: {
       type: "CONFIG_CHANGE";
@@ -126,8 +180,11 @@ const OpenAIGenerateStructureMachine = createMachine({
           target: "running",
           actions: ["setValue"],
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
         SET_VALUE: {
-          actions: ["setValue"],
+          actions: ["setValue", "adjustMaxCompletionTokens"],
         },
       },
     },
@@ -136,7 +193,11 @@ const OpenAIGenerateStructureMachine = createMachine({
         src: "generateStructure",
         input: ({ context }): GenerateStructureInput => {
           return {
-            openai: context.settings.openai,
+            openai: {
+              model: context.inputs.model,
+              temperature: context.inputs.temperature,
+              maxCompletionTokens: context.inputs.maxCompletionTokens,
+            },
             system: context.inputs.system,
             user: context.inputs.user,
             schema: context.inputs.schema,
@@ -259,19 +320,27 @@ export class OpenAIGenerateStructure extends BaseNode<
       actors: {
         generateStructure: generateStructureActor({ api: () => this.apiModel }),
       },
+      actions: {
+        adjustMaxCompletionTokens: assign({
+          inputSockets: ({ event, context }) => {
+            if (event.type !== "SET_VALUE") return context.inputSockets;
+            if (event.values.model) {
+              return {
+                ...context.inputSockets,
+                maxCompletionTokens: {
+                  ...context.inputSockets.maxCompletionTokens,
+                  maximum:
+                    OPENAI_CHAT_MODELS[
+                      event.values.model as keyof typeof OPENAI_CHAT_MODELS
+                    ].contextWindowSize,
+                },
+              };
+            }
+            return context.inputSockets;
+          },
+        }),
+      },
     });
-    this.addControl(
-      "openai",
-      new OpenAIChatSettingsControl(() => this.snap.context.settings.openai, {
-        change: (value) => {
-          console.log("change", value);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            openai: value,
-          });
-        },
-      }),
-    );
     this.addInput("trigger", new Input(triggerSocket, "Exec", true));
     this.addOutput("trigger", new Output(triggerSocket, "Exec"));
   }

@@ -57,6 +57,8 @@ import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import JsonView from "react18-json-view";
 
+import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
+
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
@@ -407,7 +409,9 @@ export const Node = observer((props: Props<Schemes>) => {
                   <div>
                     {/* Inputs */}
                     {inputs.map(([key, input]) => {
-                      if (!input || !input.showSocket) return null;
+                      // if (!input || !input.showSocket) return null;
+                      if (!input || !input.actor) return null;
+
                       return (
                         <RenderInput
                           emit={props.emit}
@@ -444,6 +448,27 @@ export const Node = observer((props: Props<Schemes>) => {
                         "@xs:block my-2 space-y-2",
                     )}
                   >
+                    {inputs.map(
+                      ([key, input]) =>
+                        input?.control && (
+                          <div className="flex flex-col space-y-1" key={key}>
+                            <Label
+                              htmlFor={input.control.id}
+                              className="capitalize"
+                            >
+                              {key}
+                            </Label>
+                            <Drag.NoDrag>
+                              <RefControl
+                                key={key}
+                                name="control"
+                                emit={props.emit}
+                                payload={input.control}
+                              />
+                            </Drag.NoDrag>
+                          </div>
+                        ),
+                    )}
                     {controls.map(([key, control]) => {
                       return control ? (
                         <div className="flex flex-col space-y-1" key={key}>
@@ -597,6 +622,12 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 ResizeHandle.displayName = "ResizeHandle";
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
+  const def = useSelector<any, JSONSocket>(
+    input.actor,
+    (snap) => snap.context.inputSockets[inputKey]["x-showInput"],
+  );
+  // if (!def["x-showInput"]) return null;
+  if (!def) return null;
   return (
     <div
       className="flex select-none items-center text-left "

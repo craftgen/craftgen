@@ -8,6 +8,8 @@ import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { debounce } from "lodash-es";
 import {
+  Circle,
+  CircleDot,
   FileClock,
   LayoutDashboard,
   MousePointerSquareDashed,
@@ -25,16 +27,15 @@ import type { NodeProps } from "@seocraft/core/src/types";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Icons } from "@/components/icons";
-import { JSONView } from "@/components/json-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
@@ -49,7 +50,6 @@ import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
 import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
-import { cn } from "@/lib/utils";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {},
@@ -354,7 +354,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
         </TabsList>
         <TabsContent value="controls" className="h-full ">
           <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="h-full w-full ">
+            <ScrollArea className="h-full w-full pr-4">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
@@ -449,11 +449,11 @@ export const renderFieldValueBaseOnSocketType = (
       ([socket, renderedValue]) => {
         return (
           <div className={"space-y-1"}>
-            <Label>{socket.definition.title || socket.definition.name}</Label>
+            {/* <Label>{socket.definition.title || socket.definition.name}</Label> */}
             <Input value={renderedValue} readOnly />
-            <p className={cn("text-muted-foreground text-[0.8rem]")}>
+            {/* <p className={cn("text-muted-foreground text-[0.8rem]")}>
               {socket.definition?.description}
-            </p>
+            </p> */}
           </div>
         );
       },
@@ -522,14 +522,42 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
     type: "control",
     payload: control,
   });
+  const handleToggle = (val: boolean) => {
+    control.actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: control.definition["x-key"],
+        side: "input",
+        socket: {
+          "x-showInput": val,
+        },
+      },
+    });
+  };
+  // const state = useSelector(control.actor, (snap) => snap);
+  const showInput = useSelector(
+    control.actor,
+    (snap) =>
+      snap.context.inputSockets[control.definition["x-key"]]["x-showInput"],
+  );
+  // console.log(control);
+
   return (
     <>
       <div
-        className="mb-2 flex flex-col space-y-1"
+        className="mb-2 flex flex-row space-x-1"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <span ref={ref}></span>
-        <ControlElement data={control} />
+        <Toggle onPressedChange={handleToggle} pressed={showInput} size={"sm"}>
+          {showInput ? (
+            <CircleDot className="h-4 w-4" />
+          ) : (
+            <Circle className="h-4 w-4" />
+          )}
+        </Toggle>
+        <span className="flex flex-1 flex-col">
+          <ControlElement data={control} />
+        </span>
       </div>
     </>
   );

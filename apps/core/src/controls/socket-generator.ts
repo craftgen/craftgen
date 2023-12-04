@@ -20,15 +20,13 @@ export type SocketGeneratorControlOptions = {
 
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 
+const sc = z.custom<JSONSchema>();
+
 export const socketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(types),
-  description: z.string().optional(),
-  minLength: z.number().optional(),
-  maxLength: z.number().optional(),
   required: z.boolean().default(false).optional(),
-  isMultiple: z.boolean().default(false),
-
+  isMultiple: z.boolean().default(false).optional(),
   default: z
     .union([
       z.string().array(),
@@ -48,7 +46,19 @@ export const socketSchema = z.object({
   "x-order": z.number().optional(),
   "x-controller": z.string().optional(),
   "x-showInput": z.boolean().default(true).optional(),
+  "x-key": z.string(),
 });
+
+export const generateSocket = (
+  socket: MergeDeep<JSONSchema, z.infer<typeof socketSchema>>,
+): JSONSocket => {
+  const valid = socketSchema.parse(socket);
+  if (!valid) throw new Error("Invalid socket");
+  return {
+    ...socket,
+    ...valid,
+  } as JSONSocket;
+};
 
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;
 
