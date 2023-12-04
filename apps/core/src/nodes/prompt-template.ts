@@ -1,13 +1,10 @@
 import { get, isString, merge, set } from "lodash-es";
 import * as Sqrl from "squirrelly";
-import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
-import { CodeControl } from "../controls/code";
 import { generateSocket } from "../controls/socket-generator";
-import { Input, Output } from "../input-output";
-import { MappedType, triggerSocket } from "../sockets";
+import { MappedType } from "../sockets";
 import type { DiContainer } from "../types";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "./base";
 
@@ -72,16 +69,6 @@ const PromptTemplateNodeMachine = createMachine({
         value: string;
       };
     };
-    // events: {
-    //   type: "change";
-    //   value: string;
-    // };
-    // actions: {
-    //   type: "updateValue";
-    //   params?: {
-    //     value: string;
-    //   };
-    // };
     actions: None;
     events: None;
     guards: None;
@@ -144,50 +131,6 @@ const PromptTemplateNodeMachine = createMachine({
           target: "idle",
           reenter: true,
         },
-        RUN: {
-          target: "running",
-          actions: ["setValue"],
-        },
-      },
-    },
-    running: {
-      after: {
-        500: "idle",
-      },
-      invoke: {
-        src: "parse",
-        input: ({ context }) => ({
-          template: context.inputs.template,
-          inputs: context.inputs,
-        }),
-        onError: {
-          target: "error",
-          actions: ["setError"],
-        },
-        onDone: {
-          target: "complete",
-          actions: assign({
-            settings: ({ context, event }) => ({
-              ...context.settings,
-              variables: event.output.variables,
-            }),
-            outputs: ({ event }) => ({ value: event.output.rendered }),
-          }),
-        },
-      },
-    },
-    typing: {
-      // entry: {
-      //   type: "updateValue",
-      // },
-      after: {
-        100: "idle",
-      },
-      on: {
-        // change: {
-        //   target: "typing", // self-loop to reset the timer
-        //   actions: "updateValue",
-        // },
       },
     },
     error: {
@@ -198,21 +141,6 @@ const PromptTemplateNodeMachine = createMachine({
       },
       on: {
         SET_VALUE: {
-          target: "idle",
-          actions: ["setValue"],
-        },
-      },
-    },
-    complete: {
-      type: "final",
-      output: ({ context }) => context.outputs,
-      on: {
-        // change: "typing",
-        SET_VALUE: {
-          actions: ["setValue"],
-          target: "idle",
-        },
-        RUN: {
           target: "idle",
           actions: ["setValue"],
         },
@@ -282,10 +210,6 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
         parse: fromPromise(async ({ input }) => {
           console.log("INPUT", input);
           let variables: any[] = [];
-          // return {
-          //   variables,
-          //   rendered: "locoo",
-          // };
           variables = Sqrl.parse(input.template, {
             ...Sqrl.defaultConfig,
             useWith: true,
