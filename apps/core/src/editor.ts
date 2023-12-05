@@ -763,7 +763,7 @@ export class Editor<
     return this.editor.getNode(this.selectedNodeId);
   }
 
-  public async runSync(params: { inputId: string }) {
+  public async runSync(params: { inputId: string; event?: string }) {
     if (!this.executionId) {
       const { id } = await this.api.createExecution({
         workflowId: this.workflowId,
@@ -776,7 +776,7 @@ export class Editor<
       });
       this.setExecutionId(id);
     }
-    this.engine.execute(params.inputId, undefined, this.executionId);
+    this.engine.execute(params.inputId, params.event, this.executionId);
   }
 
   public async run(params: { inputId: string; inputs: Record<string, any> }) {

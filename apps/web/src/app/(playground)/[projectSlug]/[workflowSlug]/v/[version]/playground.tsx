@@ -534,17 +534,12 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
       },
     });
   };
-  // const state = useSelector(control.actor, (snap) => snap);
-  console.log("RENDERING CONTROLLER", {
-    def: control.definition,
-  });
 
   const showInput = useSelector(
     control.actor,
     (snap) =>
       snap.context.inputSockets[control.definition["x-key"]]["x-showInput"],
   );
-  // console.log(control);
 
   return (
     <>

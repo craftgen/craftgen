@@ -52,9 +52,9 @@ const StartNodeMachine = createMachine({
       },
     },
     complete: {
-      type: "final",
-      output: () => {
-        timestamp: Date.now();
+      entry: ["triggerSuccessors"],
+      always: {
+        target: "idle",
       },
     },
   },

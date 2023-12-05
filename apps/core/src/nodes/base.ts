@@ -693,6 +693,7 @@ export abstract class BaseNode<
     });
 
     console.log("#".repeat(40), {
+      input,
       canRun,
     });
     if (canRun) {
@@ -700,113 +701,121 @@ export abstract class BaseNode<
         type: input,
         values: {},
       });
-    }
-
-    console.log(this.identifier, "@@@", input, "execute", executionId);
-    if (this.snapshot.status === "stopped") {
-      console.log("Running same node In the single execution with new input");
-      this.executionNodeId = undefined; // reset execution node id
-      this.actor = this.setupActor({
-        input: this.snapshot.context as any,
+    } else {
+      this.pactor.send({
+        type: "RUN",
+        values: {},
       });
-      this.actor.start();
     }
 
-    this.di.engine.emit({
-      type: "execution-step-start",
-      data: {
-        payload: this,
-        executionId: executionId!,
-      },
-    });
+    //   console.log(this.identifier, "@@@", input, "execute", executionId);
+    //   if (this.snapshot.status === "stopped") {
+    //     console.log("Running same node In the single execution with new input");
+    //     this.executionNodeId = undefined; // reset execution node id
+    //     this.actor = this.setupActor({
+    //       input: this.snapshot.context as any,
+    //     });
+    //     this.actor.start();
+    //   }
 
-    // EARLY RETURN IF NODE IS COMPLETE
-    if (this.pactor.getSnapshot().matches("complete")) {
-      // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
-      this.di.engine.emit({
-        type: "execution-step-complete",
-        data: {
-          payload: this,
-          executionId: executionId,
-        },
-      });
-      if (this.outputs.trigger) {
-        // forward("trigger");
-        // if (this.di.headless) {
-        //   await this.triggerSuccesors(executionId);
-        // } else {
-        forward("trigger");
-        // }
-        return;
-      }
-    }
+    //   this.di.engine.emit({
+    //     type: "execution-step-start",
+    //     data: {
+    //       payload: this,
+    //       executionId: executionId!,
+    //     },
+    //   });
 
-    const inputs = await this.getInputs();
-    this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
+    //   // EARLY RETURN IF NODE IS COMPLETE
+    //   if (this.pactor.getSnapshot().matches("complete")) {
+    //     // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+    //     this.di.engine.emit({
+    //       type: "execution-step-complete",
+    //       data: {
+    //         payload: this,
+    //         executionId: executionId,
+    //       },
+    //     });
+    //     if (this.outputs.trigger) {
+    //       // forward("trigger");
+    //       // if (this.di.headless) {
+    //       //   await this.triggerSuccesors(executionId);
+    //       // } else {
+    //       forward("trigger");
+    //       // }
+    //       return;
+    //     }
+    //   }
 
-    await waitFor(this.pactor, (state) => state.matches("idle")); // wait for the node to be idle
+    //   const inputs = await this.getInputs();
+    //   this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
 
-    this.pactor.send({
-      type: "RUN",
-      values: inputs,
-    });
+    //   await waitFor(this.pactor, (state) => state.matches("idle")); // wait for the node to be idle
 
-    console.log("RUNNED", {
-      succesors: this.successorNodes,
-    });
+    //   this.pactor.send({
+    //     type: "RUN",
+    //     values: inputs,
+    //   });
 
-    this.pactor.subscribe({
-      next: (state) => {
-        this.di.engine.emit({
-          type: "execution-step-update",
-          data: {
-            payload: this,
-            executionId: executionId,
-          },
-        });
-        console.log(this.identifier, "@@@", "next", state.value, state.context);
-      },
-      complete: async () => {
-        // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
-        this.di.engine.emit({
-          type: "execution-step-complete",
-          data: {
-            payload: this,
-            executionId: executionId,
-          },
-        });
+    //   console.log("RUNNED", {
+    //     succesors: this.successorNodes,
+    //   });
 
-        if (this.successorNodes.length > 0) {
-          // if (this.di.headless) {
-          //   await this.triggerSuccesors(executionId);
-          // } else {
-          forward("trigger");
-          // }
-        } else {
-          this.di.engine.emit({
-            type: "execution-completed",
-            data: {
-              payload: this,
-              output: this.pactor.getSnapshot().output,
-              executionId,
-            },
-          });
-        }
-      },
-    });
-    await waitFor(this.pactor, (state) => state.matches("complete"), {
-      timeout: 1000 * 60 * 5,
-    });
+    //   this.pactor.subscribe({
+    //     next: (state) => {
+    //       this.di.engine.emit({
+    //         type: "execution-step-update",
+    //         data: {
+    //           payload: this,
+    //           executionId: executionId,
+    //         },
+    //       });
+    //       console.log(this.identifier, "@@@", "next", state.value, state.context);
+    //     },
+    //     complete: async () => {
+    //       // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+    //       this.di.engine.emit({
+    //         type: "execution-step-complete",
+    //         data: {
+    //           payload: this,
+    //           executionId: executionId,
+    //         },
+    //       });
+
+    //       if (this.successorNodes.length > 0) {
+    //         // if (this.di.headless) {
+    //         //   await this.triggerSuccesors(executionId);
+    //         // } else {
+    //         forward("trigger");
+    //         // }
+    //       } else {
+    //         this.di.engine.emit({
+    //           type: "execution-completed",
+    //           data: {
+    //             payload: this,
+    //             output: this.pactor.getSnapshot().output,
+    //             executionId,
+    //           },
+    //         });
+    //       }
+    //     },
+    //   });
+    //   await waitFor(this.pactor, (state) => state.matches("complete"), {
+    //     timeout: 1000 * 60 * 5,
+    //   });
   }
 
   async triggerSuccessors() {
     console.log("TRIGGERING");
     const cons = this.di.editor.getConnections().filter((c) => {
+      console.log("CONNNECTION ======>", c);
       return c.source === this.id && c.sourceOutput === "trigger";
     });
     cons.forEach(async (con) => {
       const node = this.di.editor.getNode(con.target);
-      await this.di.runSync({ inputId: node.id });
+      const socket = node.snap.context.inputSockets[con.targetInput];
+
+      await this.di.runSync({ inputId: node.id, event: socket["x-event"] });
     });
   }
 
