@@ -20,35 +20,44 @@ export type SocketGeneratorControlOptions = {
 
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 
-const sc = z.custom<JSONSchema>();
-
-export const socketSchema = z.object({
-  name: z.string().min(1),
-  type: z.enum(types),
-  required: z.boolean().default(false).optional(),
-  isMultiple: z.boolean().default(false).optional(),
-  default: z
-    .union([
-      z.string().array(),
-      z.number().array(),
-      z.boolean().array(),
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.date(),
-      z.date().array(),
-      z.object({}).array(),
-      z.object({}),
-      z.null(),
-      z.null().array(),
-    ])
-    .optional(),
-  "x-order": z.number().optional(),
-  "x-controller": z.string().optional(),
-  "x-showInput": z.boolean().default(true).optional(),
-  "x-key": z.string(),
-  "x-language": z.string().optional(),
-});
+export const socketSchema = z
+  .object({
+    name: z.string().min(1),
+    type: z.enum(types),
+    required: z.boolean().default(false).optional(),
+    isMultiple: z.boolean().default(false).optional(),
+    default: z
+      .union([
+        z.string().array(),
+        z.number().array(),
+        z.boolean().array(),
+        z.string(),
+        z.number(),
+        z.boolean(),
+        z.date(),
+        z.date().array(),
+        z.object({}).array(),
+        z.object({}),
+        z.null(),
+        z.null().array(),
+      ])
+      .optional(),
+    "x-order": z.number().optional(),
+    "x-controller": z.string().optional(),
+    "x-showInput": z.boolean().default(true).optional(),
+    "x-key": z.string(),
+    "x-event": z.string().optional(),
+    "x-language": z.string().optional(),
+  })
+  .superRefine((params, ctx) => {
+    if (params.type === "trigger" && params["x-event"] === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Trigger socket must have an event",
+        path: ["type"],
+      });
+    }
+  });
 
 export const generateSocket = (
   socket: MergeDeep<JSONSchema, z.infer<typeof socketSchema>>,

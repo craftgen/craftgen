@@ -19,11 +19,6 @@ export class NumberControl<T extends AnyActor = AnyActor> extends BaseControl {
     public definition: JSONSocket,
   ) {
     super(50, definition, actor);
-    console.log("CALIFORNIA", {
-      selector,
-      options,
-      definition,
-    });
   }
 
   setValue(value: number) {

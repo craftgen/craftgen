@@ -92,6 +92,16 @@ const inputSockets = {
     isMultiple: false,
     "x-showInput": false,
   }),
+  run: generateSocket({
+    name: "run" as const,
+    type: "trigger" as const,
+    description: "Run",
+    required: false,
+    isMultiple: true,
+    "x-showInput": false,
+    "x-key": "run",
+    "x-event": "RUN",
+  }),
 };
 
 const outputSockets = {

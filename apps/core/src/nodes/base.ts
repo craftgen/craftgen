@@ -33,6 +33,7 @@ import {
   getControlBySocket,
   getSocketByJsonSchemaType,
   Socket,
+  TriggerSocket,
   type AllSockets,
 } from "../sockets";
 import { type DiContainer } from "../types";
@@ -608,7 +609,8 @@ export abstract class BaseNode<
       });
       input.addControl(controller);
       this.addInput(key, input as any);
-      if (!values[item.name]) {
+
+      if (item.type !== "trigger" && !values[item.name]) {
         console.log(
           "setting default value",
           item.name,
@@ -747,6 +749,10 @@ export abstract class BaseNode<
     this.pactor.send({
       type: "RUN",
       values: inputs,
+    });
+
+    console.log("RUNNED", {
+      succesors: this.successorNodes,
     });
 
     this.pactor.subscribe({
@@ -953,14 +959,22 @@ export abstract class BaseNode<
       const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
         [x: string]: string;
       };
+      console.log("GETTING INPUTS", { inputs, inputttt: this.inputs });
 
       // asign values from context to inputs if input is not connected
       const state = this.pactor.getSnapshot();
-      Object.keys(this.inputs).forEach((key) => {
-        if (!inputs[key] && this.inputs[key]?.control) {
-          inputs[key] = state.context.inputs[key];
-        }
-      });
+      Object.entries(this.inputs)
+        .filter(([key, input]) => {
+          return !(input.socket instanceof TriggerSocket);
+        })
+        .map(([key, input]) => {
+          return key;
+        })
+        .forEach((key) => {
+          if (!inputs[key] && this.inputs[key]?.control) {
+            inputs[key] = state.context.inputs[key];
+          }
+        });
 
       // Normalize inputs based on if input accepts multipleConnections
       // If not, flatten the value instead of array

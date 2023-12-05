@@ -1,20 +1,41 @@
-import { DiContainer } from "../types";
-import { BaseNode, ParsedNode } from "./base";
+import { SetOptional } from "type-fest";
 import { createMachine } from "xstate";
-import { triggerSocket } from "../sockets";
+
 import { ButtonControl } from "../controls/button";
 import { Output } from "../input-output";
-import { SetOptional } from "type-fest";
+import { triggerSocket } from "../sockets";
+import { DiContainer } from "../types";
+import { BaseMachineTypes, BaseNode, None, ParsedNode } from "./base";
 
 const StartNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "startNode",
-  types: {} as {
+  context: ({ input }) => ({
+    ...input,
+    inputSockets: {
+      trigger: {
+        name: "trigger",
+        type: "trigger",
+        description: "Trigger",
+        required: false,
+        isMultiple: true,
+        "x-showInput": false,
+        "x-key": "trigger",
+        "x-event": "RUN",
+      },
+    },
+  }),
+  types: {} as BaseMachineTypes<{
     events: {
       type: "RUN";
       inputs: any;
     };
-  },
+    actions: None;
+    actors: None;
+    context: {};
+    guards: None;
+    input: {};
+  }>,
   initial: "idle",
   states: {
     idle: {
@@ -24,6 +45,9 @@ const StartNodeMachine = createMachine({
           actions: () => {
             console.log("RUNNING");
           },
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
       },
     },
@@ -58,11 +82,5 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
     super("Start", di, data, StartNodeMachine, {});
 
     this.addOutput("trigger", new Output(triggerSocket, "Exec"));
-    this.addControl(
-      "trigger",
-      new ButtonControl("Execute", () => {
-        this.di?.engine?.execute(this.id);
-      })
-    );
   }
 }

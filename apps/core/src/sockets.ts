@@ -5,6 +5,7 @@ import { match, P } from "ts-pattern";
 import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
+import { ButtonControl } from "./controls/button";
 import { CodeControl } from "./controls/code";
 import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
@@ -235,6 +236,7 @@ export const types = [
   "object",
   "date",
   "tool",
+  "trigger",
 ] as const;
 
 export type Tool = {
@@ -253,6 +255,7 @@ export type SocketTypeMap = {
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
   tool: Tool;
+  trigger: (params: any[]) => void;
 };
 
 export type JSONSocketTypeKeys = (typeof types)[number];
@@ -349,6 +352,14 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
     )
     .with(
       {
+        type: "trigger",
+      },
+      () => {
+        return triggerSocket;
+      },
+    )
+    .with(
+      {
         type: "string",
         format: "uri",
       },
@@ -441,6 +452,28 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   definition: JSONSocket;
 }) => {
   return match([socket, definition])
+    .with(
+      [
+        P.instanceOf(TriggerSocket),
+        {
+          type: "trigger",
+          "x-event": P.string,
+        },
+      ],
+      () => {
+        return new ButtonControl(
+          actor,
+          selector,
+          {
+            onClick: () =>
+              actor.send({
+                type: definition["x-event"]!,
+              }),
+          },
+          definition,
+        );
+      },
+    )
     .with(
       [
         P.instanceOf(StringSocket),

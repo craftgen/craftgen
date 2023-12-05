@@ -5,6 +5,7 @@ import { assign, createMachine, EventDescriptor, EventFrom } from "xstate";
 
 import { ButtonControl } from "../../controls/button";
 import { NumberControl } from "../../controls/number";
+import { generateSocket } from "../../controls/socket-generator";
 import { Input } from "../../input-output";
 import { numberSocket, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
@@ -20,15 +21,17 @@ export const IteratorNodeMachine = createMachine({
           source: [],
         },
         inputSockets: {
-          source: {
+          source: generateSocket({
             name: "source",
             type: "array",
             description: "Source array",
             required: true,
             isMultiple: false,
+            "x-showInput": true,
             default: [],
-          },
-          index: {
+            "x-key": "source",
+          }),
+          index: generateSocket({
             name: "index",
             type: "number",
             description: "Index",
@@ -36,31 +39,56 @@ export const IteratorNodeMachine = createMachine({
             isMultiple: false,
             "x-showInput": false,
             default: 0,
-          },
-          NEXT: {
-            name: "NEXT",
-            type: "tool",
+            "x-key": "index",
+          }),
+          NEXT: generateSocket({
+            name: "Next",
+            type: "trigger",
             description: "iterate to next item",
             required: true,
             isMultiple: true,
             "x-showInput": true,
-          },
+            "x-key": "NEXT",
+            "x-event": "NEXT",
+          }),
+          PREV: generateSocket({
+            name: "Prev",
+            type: "trigger",
+            description: "iterate to prev item",
+            required: true,
+            isMultiple: true,
+            "x-showInput": true,
+            "x-key": "PREV",
+            "x-event": "PREV",
+          }),
+          RESET: generateSocket({
+            name: "Reset",
+            type: "trigger",
+            description: "reset to first item",
+            required: true,
+            isMultiple: true,
+            "x-showInput": true,
+            "x-key": "RESET",
+            "x-event": "RESET",
+          }),
         },
         outputSockets: {
-          value: {
+          value: generateSocket({
             name: "value",
             type: "any",
             description: "Value",
             required: true,
             isMultiple: true,
-          },
-          index: {
+            "x-key": "value",
+          }),
+          index: generateSocket({
             name: "index",
             type: "number",
             description: "Index",
             required: true,
             isMultiple: true,
-          },
+            "x-key": "index",
+          }),
         },
       },
       input,
@@ -134,6 +162,9 @@ export const IteratorNodeMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
         NEXT: {
           actions: "incrementIndex",
           guard: "hasNext",
@@ -157,6 +188,9 @@ export const IteratorNodeMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
         PREV: {
           actions: ["decrementIndex", "setOutputs"],
           reenter: true,
@@ -177,6 +211,9 @@ export const IteratorNodeMachine = createMachine({
       on: {
         SET_VALUE: {
           actions: ["setValue"],
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
         PREV: {
           target: "progress",
@@ -263,98 +300,12 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
       },
     });
 
-    const nextEvents = this.snap.getNextEvents();
-    this.setupControls(nextEvents);
-
     reaction(
       () => this.snap.getNextEvents(),
       async (events) => {
         console.log("events", events);
-        this.setupControls(events);
+        // this.setupControls(events);
       },
     );
-
-    // const input = new Input(triggerSocket, "inc", true, true);
-    // input.addControl(
-    //   new ButtonControl(
-    //     "Inc",
-    //     () =>
-    //       this.actor.send({
-    //         type: "NEXT",
-    //       }),
-    //     {
-    //       disabled: !this.snap.getNextEvents().includes("NEXT"),
-    //     },
-    //   ),
-    // );
-    // this.addInput("NEXT", input);
-
-    // console.log("CHILD", this.snap);
-    // const ggg = new NumberControl(() => this.snap.context.inputs.index, {
-    //   change: (value) => {
-    //     console.log("change", value);
-    //     this.actor.send({
-    //       type: "SET_VALUE",
-    //       values: {
-    //         index: value,
-    //       },
-    //     });
-    //   },
-    // });
-    // const dd = new Input(numberSocket, "nnn", true, true);
-    // numberSocket.definition = {
-    //   title: "DD",
-    //   description: "DDDD",
-    // };
-
-    // dd.addControl(ggg);
-
-    // this.addInput("nnn", dd);
-  }
-
-  private setupControls(
-    events: ReadonlyArray<
-      EventDescriptor<EventFrom<typeof IteratorNodeMachine>>
-    >,
-  ): void {
-    if (events.includes("NEXT")) {
-      !this.hasControl("inc") &&
-        this.addControl(
-          "inc",
-          new ButtonControl("Inc", () => {
-            this.actor.send({
-              type: "NEXT",
-            });
-          }),
-        );
-    } else {
-      this.removeControl("inc");
-    }
-    if (events.includes("PREV")) {
-      !this.hasControl("dec") &&
-        this.addControl(
-          "dec",
-          new ButtonControl("Dec", () => {
-            this.actor.send({
-              type: "PREV",
-            });
-          }),
-        );
-    } else {
-      this.removeControl("dec");
-    }
-    if (events.includes("RESET")) {
-      !this.hasControl("reset") &&
-        this.addControl(
-          "reset",
-          new ButtonControl("Reset", () => {
-            this.actor.send({
-              type: "RESET",
-            });
-          }),
-        );
-    } else {
-      this.removeControl("reset");
-    }
   }
 }
