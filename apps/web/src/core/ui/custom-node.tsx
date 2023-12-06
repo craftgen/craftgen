@@ -55,6 +55,7 @@ import "react-resizable/css/styles.css";
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
+import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
 
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -426,7 +427,7 @@ export const Node = observer((props: Props<Schemes>) => {
                   <div>
                     {/* Outputs */}
                     {outputs.map(([key, output]) => {
-                      if (!output || !output.showSocket) return null;
+                      if (!output || !output.actor) return null;
                       return (
                         <RenderOutput
                           emit={props.emit}
@@ -499,6 +500,13 @@ export const Node = observer((props: Props<Schemes>) => {
                           <TabsTrigger value="JSON">JSON</TabsTrigger>
                         </TabsList>
                         <TabsContent value="Output">
+                          {props.data.snap.context.outputs?.value && (
+                            <div>
+                              <Markdown>
+                                {props.data.snap.context.outputs?.value}
+                              </Markdown>
+                            </div>
+                          )}
                           {props.data.snap.context.outputs?.result &&
                             props.data.snap.context.outputs?.result[0] && (
                               <img
@@ -622,12 +630,9 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 ResizeHandle.displayName = "ResizeHandle";
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
-  const def = useSelector<any, JSONSocket>(
-    input.actor,
-    (snap) => snap.context.inputSockets[inputKey]["x-showInput"],
-  );
   // if (!def["x-showInput"]) return null;
-  if (!def) return null;
+  const showInput = input.definition["x-showInput"];
+  if (!showInput) return null;
   return (
     <div
       className="flex select-none items-center text-left "
@@ -646,6 +651,8 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
 };
 
 const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
+  const showInput = output.definition["x-showInput"];
+  if (!showInput) return null;
   return (
     <div
       className="flex select-none items-center justify-end text-right"

@@ -8,6 +8,8 @@ export class Input<
   T extends AnyActor = AnyActor,
   S extends Socket = Socket,
 > extends ClassicPreset.Input<S> {
+  public definition: JSONSocket;
+
   constructor(
     socket: S,
     name: string,
@@ -16,16 +18,34 @@ export class Input<
     public selector: (snapshot: SnapshotFrom<T>) => JSONSocket, // Function that returns the observable value
   ) {
     super(socket, name, multiple);
+    const snap = this.actor.getSnapshot();
+    this.definition = this.selector(snap);
+
+    this.actor.subscribe((snapshot) => {
+      this.definition = this.selector(snapshot);
+    });
   }
 }
 
-export class Output<S extends Socket> extends ClassicPreset.Output<S> {
+export class Output<
+  T extends AnyActor = AnyActor,
+  S extends Socket = Socket,
+> extends ClassicPreset.Output<S> {
+  public definition: JSONSocket;
+
   constructor(
     socket: S,
     name: string,
     multiple = true,
-    public showSocket = true,
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => JSONSocket, // Function that returns the observable value
   ) {
     super(socket, name, multiple);
+    const snap = this.actor.getSnapshot();
+    this.definition = this.selector(snap);
+
+    this.actor.subscribe((snapshot) => {
+      this.definition = this.selector(snapshot);
+    });
   }
 }

@@ -404,13 +404,36 @@ export class Editor<
     // @ts-ignore
     render.use(pathPlugin);
 
-    const { ConnectionPlugin, Presets: ConnectionPresets } = await import(
-      "rete-connection-plugin"
-    );
-    const connection = new ConnectionPlugin<Scheme, AreaExtra<Scheme>>();
-    connection.addPreset(ConnectionPresets.classic.setup());
-
+    const {
+      ConnectionPlugin,
+      Presets: ConnectionPresets,
+      ClassicFlow,
+      getSourceTarget,
+    } = await import("rete-connection-plugin");
     const self = this;
+    const connection = new ConnectionPlugin<Scheme, AreaExtra<Scheme>>();
+    // connection.addPreset(ConnectionPresets.classic.setup());
+    connection.addPreset(
+      () =>
+        new ClassicFlow({
+          makeConnection(from, to, context) {
+            const [source, target] = getSourceTarget(from, to) || [null, null];
+            const { editor } = context;
+            if (source && target) {
+              editor.addConnection(
+                new Connection(
+                  editor.getNode(source.nodeId),
+                  source.key as never,
+                  editor.getNode(target.nodeId),
+                  target.key as never,
+                  self,
+                ) as any,
+              );
+              return true; // ensure that the connection has been successfully added
+            }
+          },
+        }),
+    );
 
     this.editor.use(this.area);
     this.area.use(connection);
@@ -424,12 +447,19 @@ export class Editor<
         const sourceNode = self.editor.getNode(source.nodeId);
         const targetNode = self.editor.getNode(target.nodeId);
 
+        console.log("MAGNETIC createConnection", {
+          source,
+          target,
+          sourceNode,
+          targetNode,
+        });
         await self.editor.addConnection(
           new Connection(
             sourceNode,
             source.key as never,
             targetNode,
             target.key as never,
+            self,
           ) as any,
         );
       },
@@ -562,6 +592,7 @@ export class Editor<
           c.sourceOutput,
           target,
           c.targetInput,
+          this,
         );
 
         await this.editor.addConnection(conn as Scheme["Connection"]);
@@ -720,26 +751,21 @@ export class Editor<
             this.api.saveEdge({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
-              data: JSON.parse(JSON.stringify(data)),
+              data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
-          try {
-            await this?.editor.getNode(data.target).data(); // is this about connections.
-          } catch (e) {
-            console.log("Failed to update", e);
-          }
           return context;
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });
+          data.destroy();
           await queue.add(() =>
             this.api.deleteEdge({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
-              data: JSON.parse(JSON.stringify(data)),
+              data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
-          data.target && (await this?.editor.getNode(data.target).data()); // update target node
           return context;
         })
         .otherwise(() => context);

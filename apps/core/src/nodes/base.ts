@@ -1,13 +1,5 @@
 import { debounce, isEqual, isUndefined, merge, set } from "lodash-es";
-import {
-  action,
-  autorun,
-  computed,
-  flow,
-  makeObservable,
-  observable,
-  reaction,
-} from "mobx";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
@@ -113,9 +105,6 @@ export type BaseActionTypes =
     }
   | {
       type: "removeError";
-    }
-  | {
-      type: "updateAncestors";
     }
   | {
       type: "changeAction";
@@ -253,6 +242,8 @@ export abstract class BaseNode<
   public inputSockets: Record<string, JSONSocket>;
   public outputSockets: Record<string, JSONSocket>;
 
+  // public output: Record<string, any> = {};
+
   get inputSchema() {
     return createJsonSchema(this.inputSockets);
   }
@@ -307,9 +298,6 @@ export abstract class BaseNode<
             type: event.value,
           }),
         }),
-        updateAncestors: async () => {
-          await this.updateAncestors();
-        },
         triggerSuccessors: async () => {
           await this.triggerSuccessors();
         },
@@ -377,6 +365,7 @@ export abstract class BaseNode<
     this.snap = this.actor.getSnapshot();
     this.inputSockets = this.snapshot.context?.inputSockets || {};
     this.outputSockets = this.snapshot.context?.outputSockets || {};
+    // this.output = this.snapshot.context?.outputs || {};
 
     this.updateInputs(this.inputSockets);
     this.updateOutputs(this.outputSockets);
@@ -404,13 +393,21 @@ export abstract class BaseNode<
   }
 
   public setup() {
-    const inputHandlers = reaction(
+    // const outputHandlers = reaction(
+    //   () => this.output,
+    //   async (outputs) => {
+    //     console.log("OUTPUTS CHANGED", outputs);
+    //     await this.updateSuccessors();
+    //   },
+    // );
+
+    const inputSocketHandlers = reaction(
       () => this.inputSockets,
       async (sockets) => {
         await this.updateInputs(sockets);
       },
     );
-    const outputHandlers = reaction(
+    const outputSocketHandlers = reaction(
       () => this.outputSockets,
       async (sockets) => {
         await this.updateOutputs(sockets);
@@ -466,8 +463,6 @@ export abstract class BaseNode<
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
           if (!this.isExecution) {
-            // Only update ancestors if this is not an execution node
-            // await this.updateAncestors();
           }
         }
 
@@ -532,6 +527,8 @@ export abstract class BaseNode<
         socket,
         item.name,
         item.isMultiple || true,
+        this.pactor,
+        (snapshot) => snapshot.context.outputSockets[key],
       ) as any;
       output.index = index + 1;
       this.addOutput(item.name, output);
@@ -539,8 +536,6 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: Record<string, JSONSocket>) {
-    console.log("PARENT", this.snap);
-    console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
@@ -557,7 +552,7 @@ export abstract class BaseNode<
             ...c,
             target: this.id,
             targetInput: item,
-          });
+          } as any);
         }
       }
       this.removeInput(item);
@@ -610,7 +605,7 @@ export abstract class BaseNode<
       input.addControl(controller);
       this.addInput(key, input as any);
 
-      if (item.type !== "trigger" && !values[item.name]) {
+      if (item.type !== "trigger" && !values[key]) {
         console.log(
           "setting default value",
           item.name,
@@ -642,18 +637,6 @@ export abstract class BaseNode<
 
   public setSnap(snap: SnapshotFrom<Machine>) {
     this.snap = snap;
-  }
-
-  public async updateAncestors() {
-    // await waitFor(this.pactor, (state) => state.matches("complete")); //wait for the node to complete
-
-    const outgoers = this.di.graph.outgoers(this.id).nodes();
-    // this.di.logger.log(this.identifier, "updateAncestors", outgoers);
-    for (const node of outgoers) {
-      // this.di.logger.log("calling data on", node.ID, node.id);
-      const inputs = (await this.di.dataFlow?.fetchInputs(node.id)) as any; // reset cache for this node.
-      await node.compute(inputs);
-    }
   }
 
   public setExecutionNodeId(executionNodeId: string) {
@@ -807,15 +790,53 @@ export abstract class BaseNode<
 
   async triggerSuccessors() {
     console.log("TRIGGERING");
-    const cons = this.di.editor.getConnections().filter((c) => {
-      console.log("CONNNECTION ======>", c);
-      return c.source === this.id && c.sourceOutput === "trigger";
-    });
-    cons.forEach(async (con) => {
-      const node = this.di.editor.getNode(con.target);
-      const socket = node.snap.context.inputSockets[con.targetInput];
+    const cons = this.di.editor
+      .getConnections()
+      .filter((c) => {
+        return c.source === this.id;
+      })
+      .filter((c) => {
+        console.log("CONNNECTION ======>", c);
+        return this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket;
+      });
 
-      await this.di.runSync({ inputId: node.id, event: socket["x-event"] });
+    cons.forEach(async (con) => {
+      const targetNode = this.di.editor.getNode(con.target);
+      const socket = targetNode.snap.context.inputSockets[con.targetInput];
+
+      await this.di.runSync({
+        inputId: targetNode.id,
+        event: socket["x-event"],
+      });
+    });
+  }
+
+  async updateSuccessors() {
+    const cons = this.di.editor
+      .getConnections()
+      .filter((c) => {
+        return c.source === this.id;
+      })
+      .filter((c) => {
+        return !(this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket);
+      });
+
+    cons.forEach(async (con) => {
+      const targetNode = this.di.editor.getNode(con.target);
+
+      const inputCurrentValue = targetNode.snap.context.inputs[con.targetInput];
+      const outputCurrentValue =
+        this.snapshot.context.outputs[con.sourceOutput];
+
+      if (!isEqual(inputCurrentValue, outputCurrentValue)) {
+        console.log("UPDATING", con.targetInput, con.sourceOutput);
+        targetNode.actor.send({
+          type: "SET_VALUE",
+          values: {
+            [con.targetInput]: this.snapshot.context.outputs[con.sourceOutput],
+          },
+        });
+      }
     });
   }
 
@@ -856,7 +877,18 @@ export abstract class BaseNode<
     return state.context.outputs;
   }
 
-  async compute(inputs: any) {
+  async compute(inputs: ContextFrom<Machine>["inputs"]) {
+    const inputRaw = await this.getInputs();
+    Object.entries(inputRaw).forEach(([key, value]) => {
+      if (this.snapshot.context.inputs[key] !== value) {
+        this.pactor.send({
+          type: "SET_VALUE",
+          values: {
+            [key]: value,
+          },
+        });
+      }
+    });
     // this.debug.log("process", inputs);
   }
 
@@ -951,7 +983,7 @@ export abstract class BaseNode<
    */
   async getInputs() {
     try {
-      this.di.dataFlow?.reset();
+      this.di.dataFlow?.reset(this.id);
       if (this.ID === "InputNode") {
         return this.pactor.getSnapshot().context.inputs;
       }

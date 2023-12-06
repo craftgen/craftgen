@@ -495,6 +495,9 @@ export const DynamicInputsForm: React.FC<{
                 Input: <Badge>{inputKey}</Badge>
               </AlertTitle>
               <AlertDescription>
+                <pre>
+                  <code>{JSON.stringify({inputKey}, null, 2)}</code>
+                </pre>
                 This input controlled by the incoming connection.
               </AlertDescription>
             </Alert>

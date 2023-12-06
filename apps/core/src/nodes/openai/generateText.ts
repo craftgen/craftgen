@@ -20,6 +20,16 @@ import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 
 const inputSockets = {
+  RUN: generateSocket({
+    name: "Run" as const,
+    type: "trigger" as const,
+    description: "Run",
+    required: false,
+    isMultiple: true,
+    "x-showInput": true,
+    "x-key": "RUN",
+    "x-event": "RUN",
+  }),
   system: generateSocket({
     name: "system" as const,
     type: "string" as const,
@@ -92,19 +102,19 @@ const inputSockets = {
     isMultiple: false,
     "x-showInput": false,
   }),
-  RUN: generateSocket({
-    name: "Run" as const,
-    type: "trigger" as const,
-    description: "Run",
-    required: false,
-    isMultiple: true,
-    "x-showInput": true,
-    "x-key": "RUN",
-    "x-event": "RUN",
-  }),
 };
 
 const outputSockets = {
+  DONE: generateSocket({
+    name: "Done" as const,
+    type: "trigger" as const,
+    description: "Done",
+    required: false,
+    isMultiple: true,
+    "x-showInput": false,
+    "x-key": "DONE",
+    "x-event": "DONE",
+  }),
   result: generateSocket({
     name: "result" as const,
     type: "string" as const,
@@ -203,6 +213,7 @@ const OpenAIGenerateTextMachine = createMachine({
       },
     },
     complete: {
+      entry: ["triggerSuccessors"],
       type: "final",
       output: ({ context }) => context.outputs,
     },

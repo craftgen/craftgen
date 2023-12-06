@@ -1,6 +1,8 @@
 import { CurveFactory } from "d3-shape";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
+import { Editor } from "../editor";
 import { BaseNode } from "../nodes/base";
 
 type StringKeyof<T> = Extract<keyof T, string>;
@@ -34,11 +36,24 @@ export class Connection<
    * @param target Target node instance
    * @param targetInput Target node input key
    */
+
+  sourceValue: any;
+  targetValue: any;
+
+  sourceNode: BaseNode<any, any, any, any>;
+  targetNode: BaseNode<any, any, any, any>;
+  destroy: () => void;
+
+  get inSync() {
+    return this.sourceValue === this.targetValue;
+  }
+
   constructor(
     source: Source,
     public sourceOutput: StringKeyof<Source["outputs"]>,
     target: Target,
     public targetInput: StringKeyof<Target["inputs"]>,
+    public editor: Editor,
   ) {
     if (!source.outputs[sourceOutput as string]) {
       throw new Error(
@@ -53,5 +68,81 @@ export class Connection<
     this.id = getUID();
     this.source = source.id;
     this.target = target.id;
+
+    console.log("connection", this);
+
+    this.sourceNode = this.editor.editor.getNode(source.id);
+    this.targetNode = this.editor.editor.getNode(target.id);
+
+    this.sourceValue =
+      this.sourceNode.actor.getSnapshot().context.outputs[sourceOutput];
+    this.targetValue =
+      this.targetNode.actor.getSnapshot().context.inputs[targetInput];
+
+    this.sourceNode.actor.subscribe((state) => {
+      if (this.sourceValue !== state.context.outputs[sourceOutput]) {
+        this.setSourceValue(state.context.outputs[sourceOutput]);
+      }
+    });
+    this.targetNode.actor.subscribe((state) => {
+      if (this.targetValue !== state.context.inputs[targetInput]) {
+        this.setTargetValue(state.context.inputs[targetInput]);
+      }
+    });
+
+    makeObservable(this, {
+      sourceValue: observable,
+      targetValue: observable,
+
+      setTargetValue: action,
+      setSourceValue: action,
+
+      inSync: computed,
+    });
+
+    if (!this.inSync) {
+      this.sync();
+    }
+    this.destroy = reaction(
+      () => this.inSync,
+      () => {
+        if (!this.inSync) {
+          this.sync();
+        }
+      },
+    );
+  }
+
+  public sync() {
+    console.log("VALUES ARE NOT MATCHING", {
+      type: "SET_VALUE",
+      values: {
+        [this.targetInput]: this.sourceValue,
+      },
+    });
+    this.targetNode.actor.send({
+      type: "SET_VALUE",
+      values: {
+        [this.targetInput]: this.sourceValue,
+      },
+    });
+  }
+
+  public setTargetValue(value: any) {
+    this.targetValue = value;
+  }
+
+  public setSourceValue(value: any) {
+    this.sourceValue = value;
+  }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      source: this.source,
+      target: this.target,
+      sourceOutput: this.sourceOutput,
+      targetInput: this.targetInput,
+    };
   }
 }

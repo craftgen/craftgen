@@ -1,31 +1,48 @@
 import { merge } from "lodash-es";
-import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
-import { TextareControl } from "../controls/textarea";
-import { Output } from "../input-output";
-import { stringSocket } from "../sockets";
+import { generateSocket } from "../controls/socket-generator";
 import { type DiContainer, type Node } from "../types";
-import { BaseMachineTypes, BaseNode, type ParsedNode } from "./base";
+import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "./base";
+
+const inputSockets = {
+  value: generateSocket({
+    name: "value",
+    type: "string",
+    description: "Text",
+    required: false,
+    isMultiple: false,
+    "x-showInput": false,
+    "x-key": "value",
+    "x-controller": "textarea",
+  }),
+};
+
+const outputSockets = {
+  value: generateSocket({
+    name: "value",
+    type: "string",
+    description: "Result text",
+    required: true,
+    isMultiple: false,
+    "x-showInput": true,
+    "x-key": "value",
+    "x-controller": "textarea",
+  }),
+};
 
 const TextNodeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDpkBPABwEsA7KAYgGUBRAFQH0A1AQQBkBVegbQAMAXUSgS2WGWRlsFUSCKIAjAA4ATPgCsKgOxqALDoBsmgMxLNAlaYA0INIktL8agJxG1pla9VGjrnQBfQLtUDBw8QlJKGjRYZABDVHwEgDNUACcACjUBAQBKajCsXAJicipBESQQcUlpWXkHBCcXd09vX38dO0UEJVN9LV0DYzMLK1Ng0PQSyIBjbABbEgAbMFQ6JjYuXir5OqkZORrmtSNTfFNXG9yBVxUVASVXfV7EcwF8C7NNHU1XGolAITMEQiAKKV4DVihEwAcJEdGqdEABafQqd4IQz4Kx6UxGdQGVxeILg2GlKIVKAI+rHJofZ74HT6EkXHwqPwBLGqDTaPSGEzmSzWaYgCkLZZrDbwmqHBonUDNARY8w6XEjQXjEVgwJAA */
   id: "textNode",
   context: ({ input }) =>
     merge(
       {
-        inputs: {},
-        inputSockets: [],
-        value: "",
-        outputSockets: {
-          value: {
-            name: "value",
-            type: "string",
-            description: "Result text",
-            required: true,
-          },
+        inputs: {
+          value: "",
         },
+        inputSockets,
+        outputSockets,
         outputs: {
           value: "",
         },
@@ -47,28 +64,24 @@ const TextNodeMachine = createMachine({
         value: string;
       };
     };
-    events: {
-      type: "change";
-      value: string;
-    };
-    actors: any;
-    actions: {
-      type: "updateValue";
-      params?: {
-        value: string;
-      };
-    };
+    actors: None;
+    actions: None;
+    guards: None;
+    events: None;
   }>,
   states: {
     typing: {
-      entry: ["updateValue"],
       after: {
-        200: "complete",
+        10: "complete",
       },
       on: {
-        change: {
-          target: "typing", // self-loop to reset the timer
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
+        SET_VALUE: {
+          target: "typing",
           reenter: true,
+          actions: ["setValue"],
         },
       },
     },
@@ -78,13 +91,17 @@ const TextNodeMachine = createMachine({
       entry: [
         assign({
           outputs: ({ context }) => ({
-            value: context.value,
+            value: context.inputs.value,
           }),
         }),
       ],
       on: {
-        change: {
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
+        SET_VALUE: {
           target: "typing",
+          actions: ["setValue"],
         },
       },
     },
@@ -108,26 +125,6 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
   }
 
   constructor(di: DiContainer, data: TextNodeData) {
-    super("TextNode", di, data, TextNodeMachine, {
-      actions: {
-        updateValue: assign({
-          value: ({ event }) =>
-            match(event)
-              .with({ type: "change" }, ({ value }) => {
-                return value;
-              })
-              .run(),
-        }),
-      },
-    });
-    this.addControl(
-      "value",
-      new TextareControl(() => this.snap.context?.outputs?.value, {
-        change: async (value) => {
-          this.actor.send({ type: "change", value });
-        },
-      }),
-    );
-    this.addOutput("value", new Output(stringSocket, "Value"));
+    super("TextNode", di, data, TextNodeMachine, {});
   }
 }
