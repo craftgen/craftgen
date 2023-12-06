@@ -1,13 +1,9 @@
-import { merge } from "lodash-es";
-import { autorun, reaction } from "mobx";
+import { get, merge } from "lodash-es";
+import { reaction } from "mobx";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, EventDescriptor, EventFrom } from "xstate";
+import { assign, createMachine, enqueueActions } from "xstate";
 
-import { ButtonControl } from "../../controls/button";
-import { NumberControl } from "../../controls/number";
 import { generateSocket } from "../../controls/socket-generator";
-import { Input } from "../../input-output";
-import { numberSocket, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 
@@ -79,6 +75,7 @@ export const IteratorNodeMachine = createMachine({
             description: "Value",
             required: true,
             isMultiple: true,
+            "x-showInput": true,
             "x-key": "value",
           }),
           index: generateSocket({
@@ -160,7 +157,10 @@ export const IteratorNodeMachine = createMachine({
       ],
       on: {
         SET_VALUE: {
-          actions: ["setValue"],
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("setValue");
+            enqueue("setOutputs");
+          }),
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -186,7 +186,10 @@ export const IteratorNodeMachine = createMachine({
       ],
       on: {
         SET_VALUE: {
-          actions: ["setValue"],
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("setValue");
+            enqueue("setOutputs");
+          }),
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -210,7 +213,10 @@ export const IteratorNodeMachine = createMachine({
       entry: ["setOutputs"],
       on: {
         SET_VALUE: {
-          actions: ["setValue"],
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("setValue");
+            enqueue("setOutputs");
+          }),
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -275,10 +281,17 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
           }),
         }),
         setOutputs: assign({
-          outputs: ({ context }) => ({
-            value: context.inputs.source[context.inputs.index],
-            index: context.inputs.index,
-          }),
+          outputs: ({ context }) => {
+            const value = get(
+              context.inputs.source,
+              context.inputs.index,
+              undefined,
+            );
+            return {
+              value,
+              index: context.inputs.index,
+            };
+          },
         }),
       },
       guards: {

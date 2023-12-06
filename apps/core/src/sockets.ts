@@ -512,7 +512,7 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
                 key: v,
                 value: v,
               };
-            }),
+            }) || [],
           },
           definition,
         );

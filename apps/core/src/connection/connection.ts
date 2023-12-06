@@ -37,8 +37,8 @@ export class Connection<
    * @param targetInput Target node input key
    */
 
-  sourceValue: any;
-  targetValue: any;
+  sourceValue?: any = undefined;
+  targetValue?: any = undefined;
 
   sourceNode: BaseNode<any, any, any, any>;
   targetNode: BaseNode<any, any, any, any>;
@@ -74,12 +74,23 @@ export class Connection<
     this.sourceNode = this.editor.editor.getNode(source.id);
     this.targetNode = this.editor.editor.getNode(target.id);
 
-    this.sourceValue =
-      this.sourceNode.actor.getSnapshot().context.outputs[sourceOutput];
+    if (
+      this.sourceNode.snap.context.outputs &&
+      this.sourceNode.snap.context.outputs[sourceOutput]
+    ) {
+      this.sourceValue = this.sourceNode.snap.context.outputs[sourceOutput];
+    }
+
     this.targetValue =
-      this.targetNode.actor.getSnapshot().context.inputs[targetInput];
+      this.targetNode.snap.context.inputs[targetInput] ?? undefined;
 
     this.sourceNode.actor.subscribe((state) => {
+      if (
+        state.context.outputs === undefined ||
+        state.context.outputs[sourceOutput] === undefined
+      ) {
+        return;
+      }
       if (this.sourceValue !== state.context.outputs[sourceOutput]) {
         this.setSourceValue(state.context.outputs[sourceOutput]);
       }

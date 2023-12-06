@@ -42,9 +42,7 @@ export function useNoDrag(
 ) {
   React.useEffect(() => {
     const handleClick = (e: PointerEvent) => {
-      console.log("handleClick", e);
       if (disabled) return;
-      console.log("handleClick");
 
       // const root = findReactRoot(e.target as HTMLElement);
       // const target = React.version.startsWith("16") ? document : root;

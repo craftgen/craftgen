@@ -158,13 +158,14 @@ export type BaseMachineTypes<
 type BaseMachine = StateMachine<
   BaseContextType,
   BaseEventTypes,
+  any,
   BaseActorTypes,
   BaseActionTypes,
   BaseGuardTypes,
   any,
   any,
-  BaseInputType,
   any,
+  BaseInputType,
   any
 >;
 
@@ -420,7 +421,7 @@ export abstract class BaseNode<
   public setupActor(
     options:
       | {
-          state: SnapshotFrom<Machine>;
+          snapshot: SnapshotFrom<Machine>;
         }
       | {
           input: InputFrom<Machine> | ContextFrom<Machine> | undefined;
@@ -507,7 +508,7 @@ export abstract class BaseNode<
             ...c,
             source: this.id,
             sourceOutput: item,
-          });
+          } as any);
         }
       }
       this.removeOutput(item);
@@ -1035,7 +1036,7 @@ export abstract class BaseNode<
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {
-    const state = this.actor.getPersistedState() as Snapshot<Machine> as any; //TODO: types
+    const state = this.actor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
     return {
       ...this.nodeData,
       state: state,

@@ -5,11 +5,35 @@ import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
 import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
-import { JSONSocket } from "../../controls/socket-generator";
+import { generateSocket, JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import { type DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
+
+const inputSockets = {
+  run: generateSocket({
+    type: "trigger",
+    name: "Run",
+    isMultiple: false,
+    required: true,
+    "x-key": "run",
+    "x-event": "RUN",
+    "x-showInput": true,
+  }),
+};
+
+const outputSockets = {
+  onDone: generateSocket({
+    type: "trigger",
+    name: "On Done",
+    isMultiple: false,
+    required: true,
+    "x-showInput": true,
+    "x-key": "onDone",
+    "x-event": "RUN",
+  }),
+};
 
 const replicateMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QCcwAcA2BLAxgQwBcwA6LAOywIGIIB7Mk8gN1oGsTVNdDGKCFmtfASz0A2gAYAupKmJQaWrEqiy8kAA9EAJgAc24voBsugMxGA7JdMWArEdsAaEAE9EARgCcnw9pvv9W20LCwAWfQBfCOdObGFeSioAZQBRABUAfQA1AEEAGQBVFNl1RWURenUtBHdtIwNTAO8jCTMJC31nNxr3CUNTU3tdTxDQ0aiY9DieUggMMGT07PyikqQQMpVK9er3Sx89C1MJT3r3d1DtLo9Q92JQ09DTW8CLP1MJkFjuIln5qgASgUAHJrBRKLZqHaIIyNYgSPaeUKhEzmc5XVyIXR3UzabSedy2PbuUxmYafb7xYjIACuZAoZCgxAgYCIyAAtuQwEkCDwqGCNhCKlDQNUjJ5dMRtO4wrYJNLgo9rjUEaFiEYHINQrYUY0nhSpj8OHSGUyWWzOQweXyxO45OtNsKqjCJVKZdr5bULErMQhPANiETjhdsW1cQauFTafTyGbWWAOVzrUR+dp7eDyqpnTUnrYpWEjg4JHLWkZlednuqznY9VqPtEvoaoybY8z44mrbyU2JTOnBZntqKXZLpbLPYqjKFlboierWt6Wtog9oI9NftHTW2LUmuwsxKE+46s9CEOKR+65QqF1PfUZasRzp4-JOkdqLKujdSW4ziARkFgoBgZAaHoXgWHYakmxmDdWz-ACgIEMgWGEVRZAFI9B00RBGlMeFdDecwJXaJdPCcX19EleUngeUkLEJCQjA-ZsYx-ODAITKgE2QWhkGITBCAAMx49lIMjaDvyZNiEMEFDxGkdChWPIcc0GfMxnMOUS10MtfRJOV1TsGUKysUkmPElimRwAALMAcFYWMQIYUgkLYDgoPXCTiGs2z7MZRDkMIVD5OkUpFMw3YEQOCUZV0WLvCCDFugsdpDHw7UlyCUIJEGMyPIs4hYF5ZAREZKgNEKmY8AEtkAApegkCQAEoqEpczNwq4rYwUgcRSwlUvClaKOji0i8XLVUq1sLUdVhC560mMS8s3NBuJwOBlFK8rd2IKrauOJqWvc418pWoR1q6kKHTC3qIoG-FsWG4ZRsSxB-QMKxeh1DonjozxcuO9qaRwNbIEgflLozSFszmvNgnUostJ07pah1B8dXiiQ3xaUJ-uILieMWTJckKYoIf7KGTyCctbDse4Hm0cI7wRLxGIbVrfnx4CgVBMmMJumEXpzXQ+gvfEdXOHVbCiBsyFoFl4HWdmwFCnrswAWncZU1aMeEGr1-W9bo3HyEoFWKeUsZlWlO5ego4WUWRJd3zZo6-mVq7VcpgaLiJU47GlXELCt25iBCCXcSJKa3mdha1wB2MzadE8HmVBLQ-OI5bGGGmQl0XGYJ-c0E0tbld0TpS+rlHXtUaJcxjefFpwee49gZjpTCffQY8bRb49Y-92OQcvwteoPyKyqVpWREkGNsf1Wdjz8C8smy7ITj3zb62psvuJ3s41aURmVN4fHFZE5RGScZyll3e6-fKOpKqBh-5hBYruYbbnxFoTM8caSWIAMOorR2iWGRH9W+cd77LVWudRkL9szaT6IMQ4rQJTDEFp4Vo8ISRHAatKdoYR86eVgEDEGLIIAIJPLUDUODxR4hGOcWKphyxLgMPoPwYtwH1Hmj3KBy9iACTwFgeYlCN5J2UkgwBQR8JoLioLXQzdMoykxlgrKDNiH5XwGQNaoiqGSJaNI1Bwx5HKiZvCZ4TNSIjGCAvPhn4cC0HZJgeM+it5zwsC3BENMvDnExoLWo956GEiXGePSuNOZuN2PUTxxw55YNGJjMI1MGqBksL0f0vR8QjGlhEIAA */
@@ -27,9 +51,9 @@ const replicateMachine = createMachine({
           run: null,
         },
         inputs: {},
-        inputSockets: {},
+        inputSockets,
         outputs: {},
-        outputSockets: {},
+        outputSockets,
       },
       input,
     ),
@@ -56,6 +80,7 @@ const replicateMachine = createMachine({
     };
     actions: None;
     events: None;
+    guards: None;
     actors:
       | {
           src: "getModelVersion";
@@ -128,12 +153,15 @@ const replicateMachine = createMachine({
                     // )
                     .otherwise(() => {
                       return {
+                        onDone: outputSockets.onDone,
                         result: {
                           ...Output,
                           name: "result",
                           isMultiple: true,
                           required: true,
+                          default: [],
                           "x-key": "result",
+                          "x-showInput": true,
                         },
                       };
                     })
@@ -157,7 +185,7 @@ const replicateMachine = createMachine({
                 // const Input = (event.output.openapi_schema as any).components
                 //   .schemas.Input;
                 const keys = Object.entries(Input.properties);
-                return keys
+                const modelSockets  = keys
                   .map(([key, value]: [key: string, value: any]) => {
                     let type;
                     let isEnum = false;
@@ -196,6 +224,10 @@ const replicateMachine = createMachine({
                     },
                     {} as Record<string, JSONSocket>,
                   );
+                return {
+                  ...inputSockets,
+                  ...modelSockets
+                };
               },
             }),
             assign({
@@ -425,8 +457,8 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
     });
     this.updateLabel();
 
-    this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    this.addOutput("trigger", new Output(triggerSocket, "Exec"));
+    // this.addInput("trigger", new Input(triggerSocket, "Exec", true));
+    // this.addOutput("trigger", new Output(triggerSocket, "Exec"));
   }
 
   private updateLabel() {
