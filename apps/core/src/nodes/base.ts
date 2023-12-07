@@ -354,7 +354,7 @@ export abstract class BaseNode<
 
     if (this.nodeData.state) {
       const actorInput = {
-        state: this.nodeData.state,
+        snapshot: this.nodeData.state,
       };
       this.actor = this.setupActor(actorInput);
     } else {
@@ -364,6 +364,10 @@ export abstract class BaseNode<
     }
 
     this.snap = this.actor.getSnapshot();
+    console.log("INITITIITITIIT", this.actor, {
+      input: this.nodeData.context,
+      snapshot: this.nodeData.state,
+    });
     this.inputSockets = this.snapshot.context?.inputSockets || {};
     this.outputSockets = this.snapshot.context?.outputSockets || {};
     // this.output = this.snapshot.context?.outputs || {};
@@ -494,8 +498,9 @@ export abstract class BaseNode<
   }
 
   async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
+    console.log("updateOutputs", rawTemplate);
     for (const item of Object.keys(this.outputs)) {
-      if (item === "trigger") continue; // don't remove the trigger socket
+      console.log("item", item, rawTemplate[item]);
       if (rawTemplate[item]) continue;
       const connections = this.di.editor
         .getConnections()
@@ -515,7 +520,7 @@ export abstract class BaseNode<
     }
     let index = 0;
     for (const [key, item] of Object.entries(rawTemplate)) {
-      if (this.hasOutput(item.name)) {
+      if (this.hasOutput(key)) {
         const output = this.outputs[key];
         if (output) {
           output.socket = getSocketByJsonSchemaType(item)! as any;
@@ -526,21 +531,21 @@ export abstract class BaseNode<
       const socket = getSocketByJsonSchemaType(item)!;
       const output = new Output(
         socket,
-        item.name,
+        key,
         item.isMultiple || true,
         this.pactor,
         (snapshot) => snapshot.context.outputSockets[key],
       ) as any;
       output.index = index + 1;
-      this.addOutput(item.name, output);
+      this.addOutput(key, output);
     }
   }
 
   async updateInputs(rawTemplate: Record<string, JSONSocket>) {
+    console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {
-      if (item === "trigger") continue; // don't remove the trigger socket
       if (rawTemplate[item]) continue;
       const connections = this.di.editor
         .getConnections()
@@ -573,7 +578,7 @@ export abstract class BaseNode<
       const socket = getSocketByJsonSchemaType(item)!;
       const input = new Input(
         socket,
-        item.name,
+        key,
         item.isMultiple,
         this.pactor,
         (snapshot) => snapshot.context.inputSockets[key],
@@ -671,6 +676,16 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string,
   ) {
+    console.log(this.identifier, "@@@", input, "execute", executionId);
+
+    if (this.snapshot.status === "stopped") {
+      console.log("Running same node In the single execution with new input");
+      this.executionNodeId = undefined; // reset execution node id
+      this.actor = this.setupActor({
+        input: this.snapshot.context as any,
+      });
+      this.actor.start();
+    }
     const canRun = this.snapshot.can({
       type: input,
       values: {},
@@ -691,16 +706,6 @@ export abstract class BaseNode<
         values: {},
       });
     }
-
-    //   console.log(this.identifier, "@@@", input, "execute", executionId);
-    //   if (this.snapshot.status === "stopped") {
-    //     console.log("Running same node In the single execution with new input");
-    //     this.executionNodeId = undefined; // reset execution node id
-    //     this.actor = this.setupActor({
-    //       input: this.snapshot.context as any,
-    //     });
-    //     this.actor.start();
-    //   }
 
     //   this.di.engine.emit({
     //     type: "execution-step-start",
@@ -797,13 +802,15 @@ export abstract class BaseNode<
         return c.source === this.id;
       })
       .filter((c) => {
-        console.log("CONNNECTION ======>", c);
         return this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket;
       });
 
     cons.forEach(async (con) => {
+      console.log("CONNNECTION ======>", con);
       const targetNode = this.di.editor.getNode(con.target);
       const socket = targetNode.snap.context.inputSockets[con.targetInput];
+
+      console.log("TRIGGERING", targetNode.id, socket["x-event"]);
 
       await this.di.runSync({
         inputId: targetNode.id,

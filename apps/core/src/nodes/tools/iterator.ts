@@ -53,7 +53,7 @@ export const IteratorNodeMachine = createMachine({
             description: "iterate to prev item",
             required: true,
             isMultiple: true,
-            "x-showInput": true,
+            "x-showInput": false,
             "x-key": "PREV",
             "x-event": "PREV",
           }),
@@ -63,7 +63,7 @@ export const IteratorNodeMachine = createMachine({
             description: "reset to first item",
             required: true,
             isMultiple: true,
-            "x-showInput": true,
+            "x-showInput": false,
             "x-key": "RESET",
             "x-event": "RESET",
           }),
@@ -312,13 +312,5 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
         },
       },
     });
-
-    reaction(
-      () => this.snap.getNextEvents(),
-      async (events) => {
-        console.log("events", events);
-        // this.setupControls(events);
-      },
-    );
   }
 }

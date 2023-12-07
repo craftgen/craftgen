@@ -1,27 +1,31 @@
 import { isNil, merge } from "lodash-es";
 import { match, P } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import {
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  PromiseActorLogic,
+} from "xstate";
 
 import { RouterInputs, RouterOutputs } from "@seocraft/api";
 
 import { generateSocket, JSONSocket } from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { triggerSocket } from "../../sockets";
 import { type DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const inputSockets = {
-  run: generateSocket({
+  RUN: generateSocket({
     type: "trigger",
     name: "Run",
     isMultiple: false,
     required: true,
-    "x-key": "run",
+    "x-key": "RUN",
     "x-event": "RUN",
     "x-showInput": true,
   }),
-};
+} as const;
 
 const outputSockets = {
   onDone: generateSocket({
@@ -43,6 +47,7 @@ const replicateMachine = createMachine({
     merge<typeof input, any>(
       {
         settings: {
+          loaded: false,
           model: {
             model_name: "",
             owner: "",
@@ -51,15 +56,20 @@ const replicateMachine = createMachine({
           run: null,
         },
         inputs: {},
-        inputSockets,
+        inputSockets: {
+          ...inputSockets, // Otherwise this causes a closure error.
+        },
         outputs: {},
-        outputSockets,
+        outputSockets: {
+          ...outputSockets, // Otherwise this causes a closure error.
+        },
       },
       input,
     ),
   types: {} as BaseMachineTypes<{
     input: {
       settings?: {
+        loaded: boolean;
         model: {
           model_name: string;
           owner: string;
@@ -70,6 +80,7 @@ const replicateMachine = createMachine({
     };
     context: {
       settings: {
+        loaded: boolean;
         model: {
           model_name: string;
           owner: string;
@@ -105,15 +116,7 @@ const replicateMachine = createMachine({
         };
   }>,
   states: {
-    init: {
-      on: {
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
-      },
+    load: {
       invoke: {
         src: "getModelVersion",
         input: ({ context }): RouterInputs["replicate"]["getModelVersion"] => ({
@@ -128,64 +131,37 @@ const replicateMachine = createMachine({
               outputSockets: ({ event }) => {
                 const Output = (event.output.openapi_schema as any).components
                   .schemas.Output;
-                return (
-                  match(Output)
-                    // .with(
-                    //   {
-                    //     items: {
-                    //       type: "string",
-                    //       format: "uri",
-                    //     },
-                    //   },
-                    //   (output) => {
-                    //     return {
-                    //       result: {
-                    //         ...Output,
-                    //         name: "result",
-                    //         type: "file",
-                    //         isMultiple: true,
-                    //         required: true,
-                    //         "x-key": "result",
-                    //         "x-controller": "select",
-                    //       },
-                    //     };
-                    //   },
-                    // )
-                    .otherwise(() => {
-                      return {
-                        onDone: outputSockets.onDone,
-                        result: {
-                          ...Output,
-                          name: "result",
-                          isMultiple: true,
-                          required: true,
-                          default: [],
-                          "x-key": "result",
-                          "x-showInput": true,
-                        },
-                      };
-                    })
-                );
+                return match(Output).otherwise(() => {
+                  return {
+                    onDone: outputSockets.onDone,
+                    result: {
+                      ...Output,
+                      name: "result",
+                      isMultiple: true,
+                      required: true,
+                      default: [],
+                      "x-key": "result",
+                      "x-showInput": true,
+                    },
+                  };
+                });
               },
               settings: ({ event, context }) => {
                 console.log("event", event);
                 const { id, ...rest } = event.output;
                 return {
                   ...context.settings,
+                  loaded: true,
                   model: {
                     ...context.settings.model,
                     ...rest,
                   },
                 };
               },
-
               inputSockets: ({ event }) => {
                 const Input = event.output.schema.definitions.Input;
-                console.log("Input", Input);
-                // const Input = (event.output.openapi_schema as any).components
-                //   .schemas.Input;
                 const keys = Object.entries(Input.properties);
-                const modelSockets  = keys
+                const modelSockets = keys
                   .map(([key, value]: [key: string, value: any]) => {
                     let type;
                     let isEnum = false;
@@ -226,16 +202,31 @@ const replicateMachine = createMachine({
                   );
                 return {
                   ...inputSockets,
-                  ...modelSockets
+                  ...modelSockets,
                 };
               },
             }),
-            assign({
-              outputs: ({ event }) => {
-                console.log("event", event);
-              },
-            }),
           ],
+        },
+      },
+    },
+    init: {
+      always: [
+        {
+          guard: ({ context }) => context.settings.loaded,
+          target: "idle",
+        },
+        {
+          guard: ({ context }) => !context.settings.loaded,
+          target: "load",
+        },
+      ],
+      on: {
+        SET_VALUE: {
+          actions: ["setValue"],
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
       },
     },
@@ -386,29 +377,32 @@ const replicateMachine = createMachine({
     },
     complete: {
       type: "final",
-      entry: assign({
-        outputs: ({ context }) => {
-          console.log("context", context);
-          const result = match(context.outputSockets.result)
-            .with(
-              {
-                type: "array",
-                items: { type: "string" },
-                title: "Output",
-                "x-cog-array-type": "iterator",
-                "x-cog-array-display": "concatenate",
-              },
-              () => {
-                return context.settings.run.output.join("");
-              },
-            )
-            .otherwise((output) => {
-              return context.settings.run.output;
-            });
-          return {
-            result,
-          };
-        },
+      entry: enqueueActions(({ enqueue }) => {
+        enqueue.assign({
+          outputs: ({ context }) => {
+            console.log("context", context);
+            const result = match(context.outputSockets.result)
+              .with(
+                {
+                  type: "array",
+                  items: { type: "string" },
+                  title: "Output",
+                  "x-cog-array-type": "iterator",
+                  "x-cog-array-display": "concatenate",
+                },
+                () => {
+                  return context.settings.run.output.join("");
+                },
+              )
+              .otherwise((output) => {
+                return context.settings.run.output;
+              });
+            return {
+              result,
+            };
+          },
+        });
+        enqueue("triggerSuccessors");
       }),
     },
     error: {

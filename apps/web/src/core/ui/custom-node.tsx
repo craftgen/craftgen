@@ -58,8 +58,6 @@ import { observer } from "mobx-react-lite";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
 
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
-
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
@@ -490,7 +488,7 @@ export const Node = observer((props: Props<Schemes>) => {
                   </section>
                 </CardContent>
 
-                <CardFooter className="mt-auto flex flex-col p-1 px-2 pt-0">
+                <CardFooter className="mt-auto flex flex-col p-1 px-2 pt-0 overflow-hidden">
                   {(props.data.snap.matches("complete") ||
                     props.data.snap.matches("running")) && (
                     <Drag.NoDrag>
@@ -537,7 +535,6 @@ export const Node = observer((props: Props<Schemes>) => {
                   status: state.status,
                   state: state.value,
                   context: state.context,
-                  next_events: props.data.snap.getNextEvents(),
                   dd: props.data.snap.toJSON(),
                   // executionNode: props.data.executionNode,
                   node: props.data.nodeData,
