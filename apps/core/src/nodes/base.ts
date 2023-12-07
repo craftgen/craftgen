@@ -490,10 +490,10 @@ export abstract class BaseNode<
       input: this.nodeData.context,
     });
 
-    const outgoers = this.di.graph.outgoers(this.id).nodes();
-    outgoers.forEach((n) => {
-      n.reset();
-    });
+    // const outgoers = this.di.graph.outgoers(this.id).nodes();
+    // outgoers.forEach((n) => {
+    //   n.reset();
+    // });
     this.actor.start();
   }
 
@@ -677,8 +677,20 @@ export abstract class BaseNode<
     executionId: string,
   ) {
     console.log(this.identifier, "@@@", input, "execute", executionId);
+    const allConnections = this.di.editor
+      .getConnections()
+      .filter((c) => c.target === this.id);
+    const isInSYNC = allConnections.every((c) => c.inSync);
+    console.log("isInSYNC", isInSYNC);
 
-    if (this.snapshot.status === "stopped") {
+    if (!isInSYNC) {
+      allConnections.forEach((c) => {
+        c.sync();
+      });
+    }
+
+    console.log(this.snapshot.status);
+    if (this.snapshot.status === "done") {
       console.log("Running same node In the single execution with new input");
       this.executionNodeId = undefined; // reset execution node id
       this.actor = this.setupActor({

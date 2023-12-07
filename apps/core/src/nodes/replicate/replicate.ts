@@ -369,6 +369,30 @@ const replicateMachine = createMachine({
           },
         },
         succeeded: {
+          entry: assign({
+            outputs: ({ context }) => {
+              console.log("context", context);
+              const result = match(context.outputSockets.result)
+                .with(
+                  {
+                    type: "array",
+                    items: { type: "string" },
+                    title: "Output",
+                    "x-cog-array-type": "iterator",
+                    "x-cog-array-display": "concatenate",
+                  },
+                  () => {
+                    return context.settings.run.output.join("");
+                  },
+                )
+                .otherwise((output) => {
+                  return context.settings.run.output;
+                });
+              return {
+                result,
+              };
+            },
+          }),
           always: "#replicate.complete",
         },
         failed: {},
@@ -378,30 +402,6 @@ const replicateMachine = createMachine({
     complete: {
       type: "final",
       entry: enqueueActions(({ enqueue }) => {
-        enqueue.assign({
-          outputs: ({ context }) => {
-            console.log("context", context);
-            const result = match(context.outputSockets.result)
-              .with(
-                {
-                  type: "array",
-                  items: { type: "string" },
-                  title: "Output",
-                  "x-cog-array-type": "iterator",
-                  "x-cog-array-display": "concatenate",
-                },
-                () => {
-                  return context.settings.run.output.join("");
-                },
-              )
-              .otherwise((output) => {
-                return context.settings.run.output;
-              });
-            return {
-              result,
-            };
-          },
-        });
         enqueue("triggerSuccessors");
       }),
     },

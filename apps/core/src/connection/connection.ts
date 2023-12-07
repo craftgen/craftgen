@@ -91,6 +91,9 @@ export class Connection<
       ) {
         return;
       }
+      if (state.context.outputs) {
+        [];
+      }
       if (this.sourceValue !== state.context.outputs[sourceOutput]) {
         this.setSourceValue(state.context.outputs[sourceOutput]);
       }
@@ -114,14 +117,33 @@ export class Connection<
     if (!this.inSync) {
       this.sync();
     }
-    this.destroy = reaction(
-      () => this.inSync,
+    const a = reaction(
+      () => this.sourceValue,
       () => {
+        console.log(this.identifier, "source value changed", this.sourceValue);
         if (!this.inSync) {
           this.sync();
         }
       },
     );
+    const b = reaction(
+      () => this.targetValue,
+      () => {
+        console.log(this.identifier, "target value changed", this.targetValue);
+        if (!this.inSync) {
+          this.sync();
+        }
+      },
+    );
+
+    this.destroy = () => {
+      a();
+      b();
+    };
+  }
+
+  get identifier() {
+    return `${this.sourceNode.label}-${this.sourceOutput}-${this.targetNode.label}-${this.targetInput}`;
   }
 
   public sync() {
@@ -131,6 +153,12 @@ export class Connection<
         [this.targetInput]: this.sourceValue,
       },
     });
+    const canSetValue = this.targetNode.snap.can({
+      type: "SET_VALUE",
+    });
+    if (!canSetValue) {
+      console.log("cannot set value");
+    }
     this.targetNode.actor.send({
       type: "SET_VALUE",
       values: {

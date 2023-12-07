@@ -43,6 +43,7 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
       {path && (
         <Path
           d={path}
+          strokeDasharray={props.data.inSync ? "0" : "5,5"}
           className={cn(
             sourceConfig && `stroke-${sourceConfig.connection}-400`,
           )}
