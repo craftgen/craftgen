@@ -35,6 +35,7 @@ import { OpenAIGenerateText } from "./nodes/openai/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { IteratorNode } from "./nodes/tools/iterator";
+import { BranchNode } from "./nodes/tools/branch";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -76,6 +77,7 @@ export const nodes = {
 
   // Tools
   IteratorNode: IteratorNode,
+  BranchNode: BranchNode,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIGenerateText: OpenAIGenerateText,

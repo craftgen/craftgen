@@ -3,6 +3,8 @@ import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
+  ActionArgs,
+  ActionFunction,
   Actor,
   AnyActorLogic,
   AnyStateMachine,
@@ -111,6 +113,9 @@ export type BaseActionTypes =
     }
   | {
       type: "triggerSuccessors";
+      params?: {
+        port: string;
+      };
     }
   | {
       type: "setError";
@@ -299,8 +304,14 @@ export abstract class BaseNode<
             type: event.value,
           }),
         }),
-        triggerSuccessors: async () => {
-          await this.triggerSuccessors();
+        triggerSuccessors: async (
+          action: ActionArgs<any, any, any>,
+          params?: {
+            port: string;
+          },
+        ) => {
+          console.log("triggerSuccessors", action, params);
+          await this.triggerSuccessors(params?.port);
         },
         updateSocket: assign({
           inputSockets: ({ context, event }) => {
@@ -806,8 +817,8 @@ export abstract class BaseNode<
     //   });
   }
 
-  async triggerSuccessors() {
-    console.log("TRIGGERING");
+  async triggerSuccessors(outputKey?: keyof Outputs) {
+    console.log("TRIGGERING", outputKey);
     const cons = this.di.editor
       .getConnections()
       .filter((c) => {
@@ -815,6 +826,9 @@ export abstract class BaseNode<
       })
       .filter((c) => {
         return this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket;
+      })
+      .filter((c) => {
+        return !outputKey || c.sourceOutput === outputKey;
       });
 
     cons.forEach(async (con) => {
