@@ -315,27 +315,27 @@ export abstract class BaseNode<
         },
         updateSocket: assign({
           inputSockets: ({ context, event }) => {
-            console.log("updateSocket", event);
             if (event.params.side === "input") {
+              console.log("updateSocket", event);
               return {
                 ...context.inputSockets,
-                [event.params.name]: merge(
-                  context.inputSockets[event.params.name],
-                  event.params.socket,
-                ),
+                [event.params.name]: {
+                  ...context.inputSockets[event.params.name],
+                  ...event.params.socket,
+                },
               };
             }
             return context.inputSockets;
           },
           outputSockets: ({ context, event }) => {
-            console.log("updateSocket", event);
             if (event.params.side === "output") {
+              console.log("updateSocket", event);
               return {
                 ...context.outputSockets,
-                [event.params.name]: merge(
-                  context.outputSockets[event.params.name],
-                  event.params.socket,
-                ),
+                [event.params.name]: {
+                  ...context.outputSockets[event.params.name],
+                  ...event.params.socket,
+                },
               };
             }
             return context.outputSockets;
@@ -592,7 +592,9 @@ export abstract class BaseNode<
         key,
         item.isMultiple,
         this.pactor,
-        (snapshot) => snapshot.context.inputSockets[key],
+        (snapshot) => {
+          return snapshot.context.inputSockets[key];
+        },
         /**
          * TODO:
          * We need a smarter way of determining if the input should be shown or not.

@@ -650,6 +650,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
 
 const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
   const showInput = output.definition["x-showInput"];
+
   if (!showInput) return null;
   return (
     <div
