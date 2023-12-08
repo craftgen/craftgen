@@ -32,7 +32,14 @@ import { TextareControl } from "../../controls/textarea";
 import { Input, Output } from "../../input-output";
 import { objectSocket, triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  None,
+  ParsedNode,
+} from "../base";
 
 const inputSockets = {
   threadId: generateSocket({
@@ -114,13 +121,18 @@ export const OpenAIAssistantMachine = createMachine({
       {
         inputs: {
           threadId: null,
+          RUN: undefined,
+          name: null,
+          instructions: null,
           ...input.settings.assistant,
         },
         inputSockets: {
           ...inputSockets,
         },
         outputs: {},
-        outputSockets: {},
+        outputSockets: {
+          ...outputSockets,
+        },
         settings: {
           run: null,
           assistant: {
@@ -132,7 +144,7 @@ export const OpenAIAssistantMachine = createMachine({
       input,
     ),
   types: {} as BaseMachineTypes<{
-    input: {
+    input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
       inputs: {
         threadId: string | null;
       };
@@ -145,7 +157,7 @@ export const OpenAIAssistantMachine = createMachine({
       };
     };
     guards: None;
-    context: {
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
       settings: {
         run: Partial<Run> | null;
         assistant: Partial<Assistant> & {
@@ -260,11 +272,12 @@ export const OpenAIAssistantMachine = createMachine({
         RELOAD: {
           target: "reloading",
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
         RUN: {
           target: "running",
-          actions: assign({
-            inputs: ({ event }) => event.values,
-          }),
+          guard: ({ context }) => !isNil(context.inputs.threadId),
         },
       },
     },
@@ -306,6 +319,9 @@ export const OpenAIAssistantMachine = createMachine({
           actions: "updateConfig",
           target: "editing", // self-loop to reset the timer
           reenter: true,
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
       },
       after: {
