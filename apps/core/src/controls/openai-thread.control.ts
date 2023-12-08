@@ -1,38 +1,21 @@
-import { makeObservable, observable, reaction } from "mobx";
-import { Actor } from "xstate";
+import { AnyActor, SnapshotFrom } from "xstate";
 
-import { OpenAIThreadMachine } from "../nodes/openai/openai-thread";
 import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
 
 export type OpenAIThreadControlOptions = {};
 
-export class OpenAIThreadControl extends BaseControl {
+export class OpenAIThreadControl<
+  T extends AnyActor = AnyActor,
+> extends BaseControl {
   __type = "openai-thread";
 
-  public threadId: string;
-
   constructor(
-    public threadIdObservable: () => string, // Function that returns the observable value
-    public actor: Actor<typeof OpenAIThreadMachine>,
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => string | null, // Function that returns the observable value
     public options: OpenAIThreadControlOptions,
+    public definition: JSONSocket,
   ) {
     super(50);
-
-    this.threadId = threadIdObservable(); // Set the initial value
-    makeObservable(this, {
-      threadId: observable.ref,
-    });
-    reaction(
-      () => this.threadIdObservable(),
-      (newValue) => {
-        if (newValue !== this.threadId) {
-          console.log(
-            "reaction in select controller value is not matching",
-            newValue,
-          );
-          this.threadId = newValue;
-        }
-      },
-    );
   }
 }

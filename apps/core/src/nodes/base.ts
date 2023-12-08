@@ -26,6 +26,7 @@ import { Input, Output } from "../input-output";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
+  MappedType,
   Socket,
   TriggerSocket,
   type AllSockets,
@@ -44,18 +45,24 @@ export type ParsedNode<
   state?: SnapshotFrom<Machine>;
 };
 
-export type BaseInputType = {
-  inputs?: Record<string, any>;
-  inputSockets?: Record<string, JSONSocket>;
-  outputs?: Record<string, any>;
-  outputSockets?: Record<string, JSONSocket>;
+export type BaseInputType<
+  I extends Record<string, any> = {},
+  O extends Record<string, any> = {},
+> = {
+  inputs?: MappedType<I>;
+  inputSockets?: I;
+  outputs?: MappedType<O>;
+  outputSockets?: O;
 };
 
-export type BaseContextType = {
-  inputs: Record<string, any>;
-  outputs: Record<string, any>;
-  outputSockets: Record<string, JSONSocket>;
-  inputSockets: Record<string, JSONSocket>;
+export type BaseContextType<
+  I extends Record<string, JSONSocket> = {},
+  O extends Record<string, JSONSocket> = {},
+> = {
+  inputs: MappedType<I>;
+  outputs: MappedType<O>;
+  outputSockets: O;
+  inputSockets: I;
   error: {
     name: string;
     message: string;
@@ -137,14 +144,14 @@ type SpecialMerged<T, U> = U extends None ? T : T | U;
 
 export type BaseMachineTypes<
   T extends {
-    input: any;
+    input?: any;
     context: any;
     events?: any;
     actions?: any;
     actors?: ProvidedActor | None;
     guards?: any;
   } = {
-    input: BaseInputType;
+    input?: BaseInputType;
     context: BaseContextType;
     events?: BaseEventTypes;
     actions?: BaseActionTypes;
@@ -152,6 +159,17 @@ export type BaseMachineTypes<
     guards?: any;
   },
 > = {
+  // input: MergeDeep<
+  //   BaseInputType<T["input"]["inputSockets"], T["input"]["outputSockets"]>,
+  //   T["input"] | {}
+  // >;
+  // context: MergeDeep<
+  //   BaseContextType<
+  //     T["context"]["inputSockets"],
+  //     T["context"]["outputSockets"]
+  //   >,
+  //   T["context"]
+  // >;
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
   guards: SpecialMerged<BaseGuardTypes, T["guards"]>;

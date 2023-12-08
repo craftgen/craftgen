@@ -2,7 +2,7 @@ import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { MergeDeep } from "type-fest";
 import * as z from "zod";
 
-import { types } from "../sockets";
+import { JSONSocketTypeKeys, types } from "../sockets";
 import { BaseControl } from "./base";
 
 export type SocketGeneratorControlOptions = {
@@ -59,16 +59,35 @@ export const socketSchema = z
     }
   });
 
-export const generateSocket = (
-  socket: MergeDeep<JSONSchema, z.infer<typeof socketSchema>>,
-): JSONSocket => {
+export const generateSocket = <
+  T extends string,
+  TypeOfSocket extends JSONSocketTypeKeys,
+>(
+  socket: { "x-key": T; type: TypeOfSocket } & MergeDeep<
+    JSONSchema,
+    z.infer<typeof socketSchema>
+  >,
+) => {
   const valid = socketSchema.parse(socket);
   if (!valid) throw new Error("Invalid socket");
   return {
     ...socket,
     ...valid,
-  } as JSONSocket;
+    type: socket["type"] as TypeOfSocket,
+    "x-key": socket["x-key"] as T,
+  };
 };
+
+// export const generateSocket = (
+//   socket: MergeDeep<JSONSchema, z.infer<typeof socketSchema>>,
+// ) => {
+//   const valid = socketSchema.parse(socket);
+//   if (!valid) throw new Error("Invalid socket");
+//   return {
+//     ...socket,
+//     ...valid,
+//   };
+// };
 
 export type SocketGeneratorControlData = z.infer<typeof formSchema>;
 

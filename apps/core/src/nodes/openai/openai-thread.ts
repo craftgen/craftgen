@@ -13,10 +13,52 @@ import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
 import { OpenAIThreadControl } from "../../controls/openai-thread.control";
+import { generateSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
 import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  None,
+  ParsedNode,
+} from "../base";
+
+const inputSockets = {
+  trigger: generateSocket({
+    name: "trigger",
+    type: "trigger",
+    description: "Trigger",
+    required: false,
+    isMultiple: true,
+    "x-showInput": false,
+    "x-key": "trigger",
+    "x-event": "RUN",
+  }),
+  threadId: generateSocket({
+    name: "threadId",
+    type: "string",
+    description: "Thread ID",
+    required: false,
+    isMultiple: false,
+    "x-showInput": false,
+    "x-key": "threadId",
+    "x-controller": "openai-thread-control",
+  }),
+};
+const outputSockets = {
+  threadId: generateSocket({
+    name: "threadId",
+    type: "string" as const,
+    description: "Thread ID",
+    required: true,
+    isMultiple: true,
+    "x-showInput": true,
+    "x-key": "threadId",
+  }),
+};
 
 export const OpenAIThreadMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgBcALAJzCwgDocIAbMAYgEEARFgfQFkBRAZV6YBxbgG0ADAF1EoVMlg4COZBmkgAHogCMANjGUALAE5jAdm0BmTTssmTAGhABPRIbHbK2gKzaThk+YAOL00AJm0AX3CHNExcQlJyKhp6ZjZ2JgA5DgAlAFUMrj4BYXEpJBBZeUVlVQ0EHT0jUwsrFtsHZ3qQzX0DfUtQsRDvNwDI6PRsfGIyCmo6Rl5uABV2ZYAJbO5WdgBJFlLVSoUlFXK6hoNjPxbrTXanLSsTSmMxd91zX319cZAYqbxWZJBYMQ7lY7VM6gC66K7NAZteyPepiEyNVxiTxiN5iL4RKL-SZxGaJSjAxypDg8fhCUSSI5yE41c6IbGGSjdHG+EIBL4BYb6DpaIYvfRuWy6IyeQy-QkAkkJOYUqnpLLsPIFGnFellGRMqG1Nk4zmabmGXn8wXC1G2V4S8yOkyeZ3aAkTWLTJVUFUAYQAMttsmtNtsDgyIQbTkaECFHZQTAFDFZPAF7v0XTa-L08doAmJnrLPKm-gqvcDyQBXDAYHAYKCUCgQThwWBYGBMDAQbLVygAYyIYD7AGtlt6GBBlGBqBgAG7IYfTstAskkau1+uNiDN1vtsCd7u9gdD0fehB1+d9rBQ0rg-VVaOs1GeTSUcxiH5+At46VZ-QhTkf20fRsWCONS2JctV3XOsGybFtYDbDsux7DB+0HEcx2BBgwBIEhkBIShUFoa8ADMCIAW0oZdSWVGDN3g3dkMPNDj0ws8L2QK8b0kO8KijFkYS0F1X30MxuR8EIcTdG0zQCXp+neAIBRMMJnTlD1AVon16Lg7cEKQ-cUKPDDT2wvjIUfITn1fd9P3RM1zF-FEk16dFHS8CxvCCDSiU9Fc6JrWCtx3RC9wPVCiPwvtWwnKcZ3nRdqMggKdKChj9KYoyWKirjW3POcuOvU5bwje9mWhdRhJMUTxJuVTpO0LMQheQZNG8d8auTTwIP87Sq3SvTQsM9CTywxI4owadOKSmjvQGjchoMvdRvY4ECsvYrlFKvV+IfQSqttRpfEsQJ2u0QwbU8cVOSafNsW6WxDF6rT5rXQaQuWmBVrMibcPwwjiLIyjkr6t7dM+rKfvGigNqKniJAsgTKouESDDqswGsMGSUTzACxLdMx7kMfMsRexUK3exbIbC762N+igwTKvaKpjM10XRwxTrTbxLpRIwAOdd5BWulr2pMcmoMC6nGNp6dUGi2LJymhKFyXFL+qp4LZZGhW8sQuHuJK3jmcsg7UZq9HdHqqTsaalFroCSgekdTQAmu0CfEl1L+2QCjiLAAhGFYakijpJH9pRrQvD0HpExxWUcR0G000obFv00Vx3feWVvf6vs-YDoPVUyHJ8kKWkSlN5G2bRgmJKxnHOlCDnxTzWxM6CMxzEiQkMGQCA4FUObgUZSOYzwe3Oknyh3jn+f556PP5uSMAx9Zp9-1kqTXxa4CZVTcxixCXyR9XRJOnKw1N80cxXgtHQzEJoJNFktFXxJ0wTtlIwxnlDXwaDXXtfayJh9CvnckMPMDR7ghFknyTk6d7o1VTCEcC-8waUwhnWBQwCrKHTki8YsPNwEXRAliG0LU9BCzxEEESFg3TLywR9HW4VjKVTNlHBAiYOSQLCGmXQsCbTiUAuYNB+YnLYnMO6Pyr1mEy0ynLCKJkxrejwebRAfIXh8OgYI1Sf49B5gLAwsBNUwhMOgiwxRhllFoT1jFRC6iuGhH-JQAIYDPz6DTHPcwzVPBp2xu7a6zpzDJglhguRliFHDT3E4mM+YnbuMTP0bQ3Qj4PE6EfJ2wx3iWB8LoMQAoe4RIplE7W1iVr0xhhAOJT53buCSfJaRaSXTIk6J4QICYwi6FsKmZM7sLHS3KTE769jWy1OsqEVJs9f7gJdPmTOV04weH6F8OOZoXSnwARWf6BEJkEPkr0QJPRPBSVWaEN+xhnbeGAvoXQ2hWg9RKVLKgBd-b0CDvsi4hzXjQJAmc12cCUSyjvmAox3hJQQt7uEIAA */
@@ -25,44 +67,25 @@ export const OpenAIThreadMachine = createMachine({
   context: ({ input }) =>
     merge<typeof input, any>(
       {
-        inputs: {},
-        inputSockets: {
-          addMessage: {
-            name: "addMessage",
-            type: "object",
-            required: false,
-            isMultiple: true,
-          },
-        },
-        outputSockets: {
-          threadId: {
-            name: "threadId",
-            type: "string",
-            description: "Thread ID",
-            required: true,
-            isMultiple: true,
-          },
-        },
-        outputs: {
+        inputs: {
           threadId: null,
         },
-        settings: {
+        inputSockets: {
+          ...inputSockets,
+        },
+        outputSockets: {
+          ...outputSockets,
+        },
+        outputs: {
           threadId: null,
         },
       },
       input,
     ),
   types: {} as BaseMachineTypes<{
-    input: {
-      settings: {
-        threadId: string | null;
-      };
-    };
-    context: {
-      settings: {
-        threadId: string | null;
-      };
-    };
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+    guards: None;
     events:
       | {
           type: "SET_THREAD_ID";
@@ -81,7 +104,6 @@ export const OpenAIThreadMachine = createMachine({
       | {
           type: "CLEAR_THREAD";
         };
-
     actions: {
       type: "setThreadId";
       params?: {
@@ -117,7 +139,7 @@ export const OpenAIThreadMachine = createMachine({
     idle: {
       always: {
         target: "ready",
-        guard: ({ context }) => !isNull(context.settings.threadId),
+        guard: ({ context }) => !isNull(context.inputs.threadId),
       },
       on: {
         ADD_MESSAGE: {
@@ -144,8 +166,8 @@ export const OpenAIThreadMachine = createMachine({
           target: "idle",
           actions: [
             assign({
-              settings: ({ context }) => ({
-                ...context.settings,
+              inputs: ({ context }) => ({
+                ...context.inputs,
                 threadId: null,
               }),
             }),
@@ -176,7 +198,7 @@ export const OpenAIThreadMachine = createMachine({
           states: {
             checkThread: {
               always: {
-                guard: ({ context }) => !isNull(context.settings.threadId),
+                guard: ({ context }) => !isNull(context.inputs.threadId),
                 target: "process",
               },
               invoke: {
@@ -189,8 +211,8 @@ export const OpenAIThreadMachine = createMachine({
                         ...context.outputs,
                         threadId: event.output.id,
                       }),
-                      settings: ({ context, event }) => ({
-                        ...context.settings,
+                      inputs: ({ context, event }) => ({
+                        ...context.inputs,
                         threadId: event.output.id,
                       }),
                     }),
@@ -206,7 +228,7 @@ export const OpenAIThreadMachine = createMachine({
               invoke: {
                 src: "addMessage",
                 input: ({ context }) => ({
-                  threadId: context.settings.threadId,
+                  threadId: context.inputs.threadId,
                   params: context.inputs.addMessage,
                 }),
                 onDone: {
@@ -230,7 +252,7 @@ export const OpenAIThreadMachine = createMachine({
           states: {
             checkThread: {
               always: {
-                guard: ({ context }) => !isNull(context.settings.threadId),
+                guard: ({ context }) => !isNull(context.inputs.threadId),
                 target: "process",
               },
               invoke: {
@@ -243,8 +265,8 @@ export const OpenAIThreadMachine = createMachine({
                         ...context.outputs,
                         threadId: event.output.id,
                       }),
-                      settings: ({ context, event }) => ({
-                        ...context.settings,
+                      inputs: ({ context, event }) => ({
+                        ...context.inputs,
                         threadId: event.output.id,
                       }),
                     }),
@@ -260,7 +282,7 @@ export const OpenAIThreadMachine = createMachine({
               invoke: {
                 src: "addMessage",
                 input: ({ context }) => ({
-                  threadId: context.settings.threadId,
+                  threadId: context.inputs.threadId,
                   params: context.inputs.addMessage,
                 }),
                 onDone: {
@@ -338,11 +360,11 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
               })
               .run();
           },
-          settings: ({ event, context }) => {
+          inputs: ({ event, context }) => {
             return match(event)
               .with({ type: "SET_THREAD_ID" }, ({ params }) => {
                 return {
-                  ...context.settings,
+                  ...context.inputs,
                   threadId: params.threadId,
                 };
               })
@@ -374,104 +396,112 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
       },
     });
 
-    this.addInput("trigger", new Input(triggerSocket, "trigger", true));
-    this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
+    // this.addInput("trigger", new Input(triggerSocket, "trigger", true));
+    // this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
 
-    this.addControl(
-      "Thread Id",
-      new OpenAIThreadControl(
-        () => this.snap.context.settings.threadId || "",
-        this.actor,
-        {},
-      ),
-    );
+    // this.addControl(
+    //   "Thread Id",
+    //   new OpenAIThreadControl(
+    //     this.actor,
+    //     (snap) => snap.context.settings.threadId,
+    //     {},
+    //     {
+    //       name: "threadId",
+    //       type: "string",
+    //       required: false,
+    //       isMultiple: false,
+    //       "x-key": "threadId",
+    //       "x-showInput": true,
+    //     },
+    //   ),
+    // );
   }
 
-  async execute(
-    input: any,
-    forward: (output: "trigger") => void,
-    executionId: string,
-  ) {
-    console.log(this.identifier, "@@@", "execute", executionId);
-    // this.di.engine.emit({
-    //   type: "execution-step-start",
-    //   data: {
-    //     payload: this,
-    //     executionId: executionId!,
-    //   },
-    // });
+  // async execute(
+  //   input: any,
+  //   forward: (output: "trigger") => void,
+  //   executionId: string,
+  // ) {
+  //   console.log(this.identifier, "@@@", "execute", executionId);
+  //   // this.di.engine.emit({
+  //   //   type: "execution-step-start",
+  //   //   data: {
+  //   //     payload: this,
+  //   //     executionId: executionId!,
+  //   //   },
+  //   // });
 
-    // EARLY RETURN IF NODE IS COMPLETE
-    if (this.actor.getSnapshot().matches("complete")) {
-      // this.di.engine.emit({
-      //   type: "execution-step-complete",
-      //   data: {
-      //     payload: this,
-      //     executionId: executionId,
-      //   },
-      // });
-      if (this.successorNodes.length > 0 && this.outputs.trigger) {
-        // forward("trigger");
-        // if (this.di.headless) {
-        //   await this.triggerSuccesors(executionId);
-        // } else {
-        forward("trigger");
-        // }
-        return;
-      }
-    }
+  //   // EARLY RETURN IF NODE IS COMPLETE
+  //   if (this.actor.getSnapshot().matches("complete")) {
+  //     // this.di.engine.emit({
+  //     //   type: "execution-step-complete",
+  //     //   data: {
+  //     //     payload: this,
+  //     //     executionId: executionId,
+  //     //   },
+  //     // });
+  //     if (this.successorNodes.length > 0 && this.outputs.trigger) {
+  //       // forward("trigger");
+  //       // if (this.di.headless) {
+  //       //   await this.triggerSuccesors(executionId);
+  //       // } else {
+  //       forward("trigger");
+  //       // }
+  //       return;
+  //     }
+  //   }
 
-    const inputs = await this.getInputs();
-    this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
-    // this.actor.send({
-    //   type: "ADD_MESSAGE",
-    //   params: {
-    //     content: "Roger Roger app to track your friends around the world!",
-    //     role: "user",
-    //   },
-    // });
+  //   const inputs = await this.getInputs();
+  //   this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
+  //   // this.actor.send({
+  //   //   type: "ADD_MESSAGE",
+  //   //   params: {
+  //   //     content: "Roger Roger app to track your friends around the world!",
+  //   //     role: "user",
+  //   //   },
+  //   // });
 
-    this.actor.subscribe({
-      next: (state) => {
-        // this.di.engine.emit({
-        //   type: "execution-step-update",
-        //   data: {
-        //     payload: this,
-        //     executionId: executionId,
-        //   },
-        // });
-        console.log(this.identifier, "@@@", "next", state.value, state.context);
-      },
-      complete: async () => {
-        this.di.logger.log(this.identifier, "finito Execute", this.outputs);
-        // this.di.engine.emit({
-        //   type: "execution-step-complete",
-        //   data: {
-        //     payload: this,
-        //     executionId: executionId,
-        //   },
-        // });
+  //   this.actor.subscribe({
+  //     next: (state) => {
+  //       // this.di.engine.emit({
+  //       //   type: "execution-step-update",
+  //       //   data: {
+  //       //     payload: this,
+  //       //     executionId: executionId,
+  //       //   },
+  //       // });
+  //       console.log(this.identifier, "@@@", "next", state.value, state.context);
+  //     },
+  //     complete: async () => {
+  //       this.di.logger.log(this.identifier, "finito Execute", this.outputs);
+  //       // this.di.engine.emit({
+  //       //   type: "execution-step-complete",
+  //       //   data: {
+  //       //     payload: this,
+  //       //     executionId: executionId,
+  //       //   },
+  //       // });
 
-        if (this.successorNodes.length > 0 && this.outputs.trigger) {
-          // if (this.di.headless) {
-          //   await this.triggerSuccesors(executionId);
-          // } else {
-          forward("trigger");
-          // }
-        } else {
-          // this.di.engine.emit({
-          //   type: "execution-completed",
-          //   data: {
-          //     payload: this,
-          //     output: this.pactor.getSnapshot().output,
-          //     executionId,
-          //   },
-          // });
-        }
-      },
-    });
-    // await waitFor(this.pactor, (state) => state.matches("complete"), {
-    //   timeout: 1000 * 60 * 5,
-    // });
-  }
+  //       if (this.successorNodes.length > 0 && this.outputs.trigger) {
+  //         // if (this.di.headless) {
+  //         //   await this.triggerSuccesors(executionId);
+  //         // } else {
+  //         forward("trigger");
+  //         // }
+  //       } else {
+  //         // this.di.engine.emit({
+  //         //   type: "execution-completed",
+  //         //   data: {
+  //         //     payload: this,
+  //         //     output: this.pactor.getSnapshot().output,
+  //         //     executionId,
+  //         //   },
+  //         // });
+  //       }
+  //     },
+  //   });
+  //   // await waitFor(this.pactor, (state) => state.matches("complete"), {
+  //   //   timeout: 1000 * 60 * 5,
+  //   // });
+  // }
 }

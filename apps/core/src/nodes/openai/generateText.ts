@@ -131,6 +131,7 @@ const OpenAIGenerateTextMachine = createMachine({
     merge<typeof input, any>(
       {
         inputs: {
+          RUN: undefined,
           system: "",
           user: "",
           temperature: 0.7,
@@ -138,6 +139,7 @@ const OpenAIGenerateTextMachine = createMachine({
           maxCompletionTokens: 1000,
         },
         outputs: {
+          DONE: undefined,
           result: "",
         },
         inputSockets,
@@ -192,12 +194,12 @@ const OpenAIGenerateTextMachine = createMachine({
         input: ({ context }): GenerateTextInput => {
           return {
             openai: {
-              model: context.inputs.model,
-              temperature: context.inputs.temperature,
-              maxCompletionTokens: context.inputs.maxCompletionTokens,
+              model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
+              temperature: context.inputs.temperature!,
+              maxCompletionTokens: context.inputs.maxCompletionTokens!,
             },
-            system: context.inputs.system,
-            user: context.inputs.user,
+            system: context.inputs.system!,
+            user: context.inputs.user!,
           };
         },
         onDone: {
@@ -317,7 +319,7 @@ export class OpenAIGenerateText extends BaseNode<
               return {
                 ...context.inputSockets,
                 maxCompletionTokens: {
-                  ...context.inputSockets.maxCompletionTokens,
+                  ...context.inputSockets.maxCompletionTokens!,
                   maximum:
                     OPENAI_CHAT_MODELS[
                       event.values.model as keyof typeof OPENAI_CHAT_MODELS

@@ -4,9 +4,10 @@ import { MessageCreateParams } from "openai/resources/beta/threads/messages/mess
 import { SetOptional } from "type-fest";
 import { createMachine, fromPromise, PromiseActorLogic } from "xstate";
 
-import { ThreadControl } from "../controls/thread.control";
-import { Input } from "../input-output";
-import { triggerSocket } from "../sockets";
+import { generateSocket } from "../controls/socket-generator";
+// import { ThreadControl } from "../controls/thread.control";
+// import { Input } from "../input-output";
+// import { triggerSocket } from "../sockets";
 import { DiContainer } from "../types";
 import { BaseMachineTypes, BaseNode, ParsedNode } from "./base";
 
@@ -39,18 +40,21 @@ export const ThreadMachine = createMachine({
         // },
         outputs: {},
         outputSockets: {
-          system: {
+          system: generateSocket({
             name: "system",
             type: "string",
             isMultiple: true,
             required: false,
-          },
-          messages: {
+            "x-key": "system",
+          }),
+          messages: generateSocket({
             name: "messages",
             type: "array",
             isMultiple: true,
             required: true,
-          },
+            "x-key": "messages",
+            "x-showInput": true,
+          }),
         },
         // messages: [],
         // system: "You are a helpful, respectful and honest assistant.",
@@ -219,7 +223,7 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
         }),
       },
     });
-    this.addControl("thread", new ThreadControl(this.actor, {}));
-    this.addOutput("trigger", new Input(triggerSocket, "trigger"));
+    // this.addControl("thread", new ThreadControl(this.actor, {}));
+    // this.addOutput("trigger", new Input(triggerSocket, "trigger"));
   }
 }

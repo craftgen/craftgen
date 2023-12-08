@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
+import { SetOptional } from "type-fest";
 import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
@@ -12,6 +13,7 @@ import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
 import { NumberControl } from "./controls/number";
+import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
@@ -255,13 +257,14 @@ export type SocketTypeMap = {
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
   tool: Tool;
-  trigger: (params: any[]) => void;
+  // trigger: (params: any[]) => void | undefined;
+  trigger: undefined;
 };
 
 export type JSONSocketTypeKeys = (typeof types)[number];
 
 export type MappedType<T extends Record<string, JSONSocket>> = {
-  [K in keyof T]: SocketTypeMap[T[K]["type"]];
+  [K in keyof T]: SocketTypeMap[T[K]["type"]] | null;
 };
 
 type SocketConfig = {
@@ -507,12 +510,13 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
             change: onChange,
             placeholder:
               definition?.title ?? definition?.description ?? "Select value",
-            values: (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
-              return {
-                key: v,
-                value: v,
-              };
-            }) || [],
+            values:
+              (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
+                return {
+                  key: v,
+                  value: v,
+                };
+              }) || [],
           },
           definition,
         );
@@ -554,6 +558,17 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           },
           definition,
         );
+      },
+    )
+    .with(
+      [
+        P.instanceOf(StringSocket),
+        {
+          "x-controller": "openai-thread-control",
+        },
+      ],
+      () => {
+        return new OpenAIThreadControl(actor, selector, {}, definition);
       },
     )
     .with(

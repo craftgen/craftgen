@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
 import { flatten } from "lodash-es";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
@@ -15,10 +16,11 @@ import { TextContent } from "./shared";
 export const OpenAIThreadControlComponent = (props: {
   data: OpenAIThreadControl;
 }) => {
+  const threadId = useSelector(props.data?.actor, props.data.selector);
   const { data: thread } = api.openai.tread.retrieve.useQuery(
-    { threadId: props.data.threadId },
+    { threadId: threadId! },
     {
-      enabled: !!props.data.threadId,
+      enabled: !!threadId,
     },
   );
   const {
@@ -27,10 +29,10 @@ export const OpenAIThreadControlComponent = (props: {
     fetchNextPage,
   } = api.openai.tread.messages.useInfiniteQuery(
     {
-      threadId: props.data.threadId,
+      threadId: threadId!,
     },
     {
-      enabled: !!props.data.threadId,
+      enabled: !!threadId,
       getNextPageParam: (lastPage) => lastPage?.cursor,
       refetchInterval: 3000,
     },
@@ -70,11 +72,11 @@ export const OpenAIThreadControlComponent = (props: {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <p className="text-sm font-bold">Thread</p>
-          <Copyable value={props.data.threadId}>
-            <span className="text-muted-foreground ml-2">
-              {props.data.threadId}
-            </span>
-          </Copyable>
+          {threadId && (
+            <Copyable value={threadId}>
+              <span className="text-muted-foreground ml-2">{threadId}</span>
+            </Copyable>
+          )}
         </div>
         <div>
           <Button
@@ -136,7 +138,7 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
     }
   }, [run?.status]);
   return (
-    <div key={message.id}>
+    <div>
       <div className="font-bold">{data ? data.name : message.role}</div>
       <div className="p-2">
         {run && run.status === "in_progress" && <span>Thinking</span>}
