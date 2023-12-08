@@ -488,9 +488,10 @@ export const Node = observer((props: Props<Schemes>) => {
                   </section>
                 </CardContent>
 
-                <CardFooter className="mt-auto flex flex-col p-1 px-2 pt-0 overflow-hidden">
+                <CardFooter className="mt-auto flex flex-col overflow-hidden p-1 px-2 pt-0">
                   {(props.data.snap.matches("complete") ||
-                    props.data.snap.matches("running")) && (
+                    props.data.snap.matches("running") ||
+                    props.data.snap.matches("typing")) && (
                     <Drag.NoDrag>
                       <Tabs defaultValue="JSON" className="w-full">
                         <TabsList>

@@ -2,9 +2,9 @@ import { merge } from "lodash-es";
 import { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
-import { generateSocket } from "../controls/socket-generator";
-import { type DiContainer, type Node } from "../types";
-import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "./base";
+import { generateSocket } from "../../controls/socket-generator";
+import { type DiContainer, type Node } from "../../types";
+import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
 
 const inputSockets = {
   value: generateSocket({
@@ -41,8 +41,12 @@ const TextNodeMachine = createMachine({
         inputs: {
           value: "",
         },
-        inputSockets,
-        outputSockets,
+        inputSockets: {
+          ...inputSockets,
+        },
+        outputSockets: {
+          ...outputSockets,
+        },
         outputs: {
           value: "",
         },
