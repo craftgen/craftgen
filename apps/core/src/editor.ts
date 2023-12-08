@@ -132,6 +132,13 @@ export class Editor<
     edges: [] as SetOptional<ConnProps, "id">[],
   };
 
+  public setContent(content: {
+    nodes: NodeWithState<Registry>[];
+    edges: SetOptional<ConnProps, "id">[];
+  }) {
+    this.content = content;
+  }
+
   public selectedInputId: string | null = null;
   public readonly: boolean;
   public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;

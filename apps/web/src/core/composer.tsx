@@ -41,19 +41,64 @@ export const Composer: React.FC<{
   store: any;
 }> = observer(({ workflow, store }) => {
   const di = useCraftStore((state) => state.di);
-  const { mutateAsync: upsertNode } = api.craft.node.upsert.useMutation();
-  const { mutateAsync: deleteNode } = api.craft.node.delete.useMutation();
-  const { mutateAsync: saveEdge } = api.craft.edge.create.useMutation();
-  const { mutateAsync: deleteEdge } = api.craft.edge.delete.useMutation();
-  const { mutateAsync: setContext } = api.craft.node.setContext.useMutation();
-  const { mutateAsync: setState } = api.craft.execution.setState.useMutation();
-  const { mutateAsync: updateNodeMetadata } =
-    api.craft.node.updateMetadata.useMutation();
-  const { mutateAsync: createExecution } =
-    api.craft.execution.create.useMutation();
   const utils = api.useUtils();
+  const { data: latestWorkflow, refetch } = api.craft.module.get.useQuery(
+    {
+      projectSlug: workflow.project.slug,
+      version: workflow.version.version,
+      workflowSlug: workflow.slug,
+      executionId: workflow?.execution?.id,
+    },
+    {
+      initialData: workflow,
+    },
+  );
+  const { mutateAsync: upsertNode } = api.craft.node.upsert.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: deleteNode } = api.craft.node.delete.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: saveEdge } = api.craft.edge.create.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: deleteEdge } = api.craft.edge.delete.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: setContext } = api.craft.node.setContext.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: setState } = api.craft.execution.setState.useMutation({
+    onSuccess() {
+      refetch();
+    },
+  });
+  const { mutateAsync: updateNodeMetadata } =
+    api.craft.node.updateMetadata.useMutation({
+      onSuccess() {
+        refetch();
+      },
+    });
+  const { mutateAsync: createExecution } =
+    api.craft.execution.create.useMutation({});
   const getModule = utils.craft.module.getById.fetch;
   const getAPIKey = utils.craft.variables.getValue.fetch;
+  useEffect(() => {
+    rete?.setContent({
+      nodes: latestWorkflow.nodes as any,
+      edges: latestWorkflow.edges as any,
+    });
+  }, [latestWorkflow]);
 
   const workflowAPI: Partial<WorkflowAPI> = {
     upsertNode,
@@ -72,7 +117,7 @@ export const Composer: React.FC<{
 
   const createEditor = useMemo(() => {
     return createEditorFunc({
-      workflow,
+      workflow: latestWorkflow,
       store: store.current,
       api: workflowAPI,
       componentRegistry,
