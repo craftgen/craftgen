@@ -29,7 +29,7 @@ const inputSockets = {
     isMultiple: false,
     "x-controller": "textarea",
     "x-key": "system",
-    "x-showInput": true,
+    "x-showSocket": true,
   }),
   user: generateSocket({
     name: "user" as const,
@@ -39,7 +39,7 @@ const inputSockets = {
     isMultiple: false,
     "x-controller": "textarea",
     "x-key": "user",
-    "x-showInput": true,
+    "x-showSocket": true,
   }),
   schema: generateSocket({
     name: "schema" as const,
@@ -83,7 +83,7 @@ const inputSockets = {
     minimum: 0,
     maximum: 1,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
   }),
   maxCompletionTokens: generateSocket({
     "x-key": "maxCompletionTokens",
@@ -99,7 +99,7 @@ const inputSockets = {
     minimum: 0,
     maximum: 4141,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
   }),
 };
 

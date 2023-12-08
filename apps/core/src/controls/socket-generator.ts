@@ -44,7 +44,7 @@ export const socketSchema = z
       .optional(),
     "x-order": z.number().optional(),
     "x-controller": z.string().optional(),
-    "x-showInput": z.boolean().default(true).optional(),
+    "x-showSocket": z.boolean().default(true).optional(),
     "x-key": z.string(),
     "x-event": z.string().optional(),
     "x-language": z.string().optional(),

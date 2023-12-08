@@ -53,7 +53,7 @@ export const ThreadMachine = createMachine({
             isMultiple: true,
             required: true,
             "x-key": "messages",
-            "x-showInput": true,
+            "x-showSocket": true,
           }),
         },
         // messages: [],

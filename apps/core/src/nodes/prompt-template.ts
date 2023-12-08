@@ -16,7 +16,7 @@ const inputSockets = {
     required: true,
     default: "",
     "x-key": "x-template",
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-controller": "code",
     "x-language": "handlebars",
   }),
@@ -45,7 +45,7 @@ const PromptTemplateNodeMachine = createMachine({
             type: "string",
             description: "Result of template",
             required: true,
-            "x-showInput": true,
+            "x-showSocket": true,
             "x-key": "value",
           }),
         },
@@ -104,7 +104,7 @@ const PromptTemplateNodeMachine = createMachine({
                     description: "variable",
                     required: true,
                     "x-key": item,
-                    "x-showInput": true,
+                    "x-showSocket": true,
                   });
                 })
                 .reduce((prev: any, curr: any) => {

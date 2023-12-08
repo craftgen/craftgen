@@ -41,7 +41,7 @@ const inputSockets = {
     description: "Thread ID",
     required: true,
     isMultiple: false,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "threadId",
   }),
   RUN: generateSocket({
@@ -50,7 +50,7 @@ const inputSockets = {
     description: "Trigger",
     required: false,
     isMultiple: true,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "RUN",
     "x-event": "RUN",
   }),
@@ -60,7 +60,7 @@ const inputSockets = {
     description: "Assistant Name",
     required: false,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "name",
   }),
   instructions: generateSocket({
@@ -69,7 +69,7 @@ const inputSockets = {
     description: "Instructions",
     required: false,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "instructions",
     "x-controller": "textarea",
   }),
@@ -81,7 +81,7 @@ const inputSockets = {
     `,
     required: true,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "model",
     allOf: [
       {
@@ -100,7 +100,7 @@ const outputSockets = {
     description: "Trigger",
     required: false,
     isMultiple: true,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "trigger",
     "x-event": "RUN",
   }),

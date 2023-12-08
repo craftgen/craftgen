@@ -27,25 +27,35 @@ import {
 } from "../base";
 
 const inputSockets = {
-  trigger: generateSocket({
-    name: "trigger",
-    type: "trigger",
-    description: "Trigger",
-    required: false,
-    isMultiple: true,
-    "x-showInput": false,
-    "x-key": "trigger",
-    "x-event": "RUN",
-  }),
   threadId: generateSocket({
     name: "threadId",
     type: "string",
     description: "Thread ID",
     required: false,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "threadId",
     "x-controller": "openai-thread-control",
+  }),
+  ADD_MESSAGE: generateSocket({
+    name: "Add Message",
+    type: "trigger",
+    description: "Add Message",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "ADD_MESSAGE",
+    "x-event": "ADD_MESSAGE",
+  }),
+  ADD_MESSAGE_AND_RUN: generateSocket({
+    name: "Add Message and Run",
+    type: "trigger",
+    description: "Add Message and Run",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "ADD_MESSAGE_AND_RUN",
+    "x-event": "ADD_MESSAGE_AND_RUN",
   }),
 };
 const outputSockets = {
@@ -55,7 +65,7 @@ const outputSockets = {
     description: "Thread ID",
     required: true,
     isMultiple: true,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "threadId",
   }),
 };
@@ -152,6 +162,9 @@ export const OpenAIThreadMachine = createMachine({
           actions: ["setThreadId"],
           target: "ready",
         },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
       },
     },
     ready: {
@@ -172,6 +185,9 @@ export const OpenAIThreadMachine = createMachine({
               }),
             }),
           ],
+        },
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
         },
       },
     },
@@ -304,7 +320,6 @@ export const OpenAIThreadMachine = createMachine({
           target: "running.addMessageAndRun",
         },
       },
-      // type: "final",
     },
   },
 });
@@ -411,7 +426,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
     //       required: false,
     //       isMultiple: false,
     //       "x-key": "threadId",
-    //       "x-showInput": true,
+    //       "x-showSocket": true,
     //     },
     //   ),
     // );

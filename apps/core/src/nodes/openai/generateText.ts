@@ -26,7 +26,7 @@ const inputSockets = {
     description: "Run",
     required: false,
     isMultiple: true,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "RUN",
     "x-event": "RUN",
   }),
@@ -38,7 +38,7 @@ const inputSockets = {
     isMultiple: false,
     "x-controller": "textarea",
     title: "System Message",
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "system",
   }),
   user: generateSocket({
@@ -49,7 +49,7 @@ const inputSockets = {
     isMultiple: false,
     "x-controller": "textarea",
     "x-key": "user",
-    "x-showInput": true,
+    "x-showSocket": true,
   }),
   model: generateSocket({
     "x-key": "model",
@@ -84,7 +84,7 @@ const inputSockets = {
     minimum: 0,
     maximum: 1,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
   }),
   maxCompletionTokens: generateSocket({
     "x-key": "maxCompletionTokens",
@@ -100,7 +100,7 @@ const inputSockets = {
     minimum: 0,
     maximum: 4141,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
   }),
 };
 
@@ -111,7 +111,7 @@ const outputSockets = {
     description: "Done",
     required: false,
     isMultiple: true,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "DONE",
     "x-event": "DONE",
   }),

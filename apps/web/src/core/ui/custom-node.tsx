@@ -628,8 +628,8 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 ResizeHandle.displayName = "ResizeHandle";
 
 const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
-  // if (!def["x-showInput"]) return null;
-  const showInput = input.definition["x-showInput"];
+  // if (!def["x-showSocket"]) return null;
+  const showInput = input.definition["x-showSocket"];
   if (!showInput) return null;
   return (
     <div
@@ -649,7 +649,7 @@ const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
 };
 
 const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
-  const showInput = output.definition["x-showInput"];
+  const showInput = output.definition["x-showSocket"];
 
   if (!showInput) return null;
   return (

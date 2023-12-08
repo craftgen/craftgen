@@ -13,7 +13,7 @@ const inputSockets = {
     description: "Value",
     required: true,
     isMultiple: false,
-    "x-showInput": false,
+    "x-showSocket": false,
     "x-key": "value",
   }),
 };
@@ -25,7 +25,7 @@ const outputSockets = {
     description: "Number Value",
     required: true,
     isMultiple: true,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "value",
   }),
 };

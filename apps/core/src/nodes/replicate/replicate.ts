@@ -23,7 +23,7 @@ const inputSockets = {
     required: true,
     "x-key": "RUN",
     "x-event": "RUN",
-    "x-showInput": true,
+    "x-showSocket": true,
   }),
 } as const;
 
@@ -33,7 +33,7 @@ const outputSockets = {
     name: "On Done",
     isMultiple: false,
     required: true,
-    "x-showInput": true,
+    "x-showSocket": true,
     "x-key": "onDone",
     "x-event": "RUN",
   }),
@@ -141,7 +141,7 @@ const replicateMachine = createMachine({
                       required: true,
                       default: [],
                       "x-key": "result",
-                      "x-showInput": true,
+                      "x-showSocket": true,
                     },
                   };
                 });
@@ -189,7 +189,7 @@ const replicateMachine = createMachine({
                       required,
                       "x-key": key,
                       "x-controller": isEnum && "select",
-                      "x-showInput": isNil(value.default) && required,
+                      "x-showSocket": isNil(value.default) && required,
                     };
                   })
                   .sort((a, b) => a["x-order"] - b["x-order"])

@@ -489,6 +489,7 @@ export const DynamicInputsForm: React.FC<{
       {Object.entries(inputs).map(([inputKey, input]) => {
         if (!input?.control || !input?.showControl) {
           if (input?.socket.name === "Trigger") return null;
+          console.log(input)
           return (
             <Alert variant={"default"} key={inputKey}>
               <AlertTitle>
@@ -532,7 +533,7 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
         name: control.definition["x-key"],
         side: "input",
         socket: {
-          "x-showInput": val,
+          "x-showSocket": val,
         },
       },
     });
@@ -541,7 +542,7 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
   const showInput = useSelector(
     control.actor,
     (snap) =>
-      snap.context.inputSockets[control.definition["x-key"]]["x-showInput"],
+      snap.context.inputSockets[control.definition["x-key"]]["x-showSocket"],
   );
 
   return (
