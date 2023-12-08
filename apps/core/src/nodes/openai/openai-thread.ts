@@ -33,6 +33,7 @@ const inputSockets = {
     description: "Thread ID",
     required: false,
     isMultiple: false,
+    default: null,
     "x-showSocket": false,
     "x-key": "threadId",
     "x-controller": "openai-thread-control",

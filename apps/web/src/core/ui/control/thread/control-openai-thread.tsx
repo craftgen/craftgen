@@ -143,13 +143,15 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
       <div className="p-2">
         {run && run.status === "in_progress" && <span>Thinking</span>}
 
-        {message.content.map((content) =>
-          content.type === "text" ? (
-            <TextContent content={content.text.value} />
-          ) : (
-            <div>{content.image_file.file_id}</div>
-          ),
-        )}
+        {message.content.map((content, i) => (
+          <span key={`${message.id}-${i}`}>
+            {content.type === "text" ? (
+              <TextContent content={content.text.value} />
+            ) : (
+              <div>{content.image_file.file_id}</div>
+            )}
+          </span>
+        ))}
       </div>
     </div>
   );

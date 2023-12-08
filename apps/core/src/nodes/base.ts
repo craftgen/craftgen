@@ -607,7 +607,7 @@ export abstract class BaseNode<
       const socket = getSocketByJsonSchemaType(item)!;
       const input = new Input(
         socket,
-        key,
+        item.name,
         item.isMultiple,
         this.pactor,
         (snapshot) => {

@@ -42,6 +42,10 @@ const nextConfig = {
           destination: "/project/:project",
         },
         {
+          source: "/:project/settings",
+          destination: "/project/:project/settings",
+        },
+        {
           source: "/:project/settings/:path*",
           destination: "/project/:project/settings/:path*",
         },
