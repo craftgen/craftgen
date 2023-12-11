@@ -275,6 +275,9 @@ export const OpenAIAssistantMachine = createMachine({
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
         },
+        SET_VALUE: {
+          actions: ["setValue"],
+        },
         RUN: {
           target: "running",
           guard: ({ context }) => !isNil(context.inputs.threadId),
@@ -282,10 +285,16 @@ export const OpenAIAssistantMachine = createMachine({
       },
     },
     prereloding: {
-      always: {
-        guard: ({ context }) => !isNil(context.settings.assistant?.id),
-        target: "reloading",
-      },
+      always: [
+        {
+          guard: ({ context }) => isNil(context.settings.assistant?.id),
+          target: "reloading",
+        },
+        {
+          guard: ({ context }) => !isNil(context.settings.assistant?.id),
+          target: "idle",
+        },
+      ],
     },
     reloading: {
       invoke: {

@@ -44,7 +44,7 @@ const inputSockets = {
     description: "Add Message",
     required: false,
     isMultiple: true,
-    "x-showSocket": true,
+    "x-showSocket": false,
     "x-key": "ADD_MESSAGE",
     "x-event": "ADD_MESSAGE",
   }),
@@ -54,7 +54,7 @@ const inputSockets = {
     description: "Add Message and Run",
     required: false,
     isMultiple: true,
-    "x-showSocket": true,
+    "x-showSocket": false,
     "x-key": "ADD_MESSAGE_AND_RUN",
     "x-event": "ADD_MESSAGE_AND_RUN",
   }),
@@ -68,6 +68,26 @@ const outputSockets = {
     isMultiple: true,
     "x-showSocket": true,
     "x-key": "threadId",
+  }),
+  onMessageAdded: generateSocket({
+    name: "On Message Added",
+    type: "trigger" as const,
+    description: "On Message Added",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": false,
+    "x-key": "onMessageAdded",
+    "x-event": "RUN",
+  }),
+  onRun: generateSocket({
+    name: "On Run",
+    type: "trigger" as const,
+    description: "On Done",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "onRun",
+    "x-event": "RUN",
   }),
 };
 
@@ -159,9 +179,8 @@ export const OpenAIThreadMachine = createMachine({
         ADD_AND_RUN_MESSAGE: {
           target: "running.addMessageAndRun",
         },
-        SET_THREAD_ID: {
-          actions: ["setThreadId"],
-          target: "ready",
+        SET_VALUE: {
+          actions: ["setValue"],
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -175,6 +194,9 @@ export const OpenAIThreadMachine = createMachine({
         },
         ADD_AND_RUN_MESSAGE: {
           target: "running.addMessageAndRun",
+        },
+        SET_VALUE: {
+          actions: ["setValue"],
         },
         CLEAR_THREAD: {
           target: "idle",
@@ -250,7 +272,14 @@ export const OpenAIThreadMachine = createMachine({
                 }),
                 onDone: {
                   target: "#openai-thread.complete",
-                  actions: ["triggerSuccessors"],
+                  actions: [
+                    {
+                      type: "triggerSuccessors",
+                      params: {
+                        port: "onRun",
+                      },
+                    },
+                  ],
                 },
               },
             },

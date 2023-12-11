@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "@xstate/react";
-import { flatten } from "lodash-es";
+import { flatten, uniqBy } from "lodash-es";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
 import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
@@ -34,7 +34,7 @@ export const OpenAIThreadControlComponent = (props: {
     {
       enabled: !!threadId,
       getNextPageParam: (lastPage) => lastPage?.cursor,
-      refetchInterval: 3000,
+      // refetchInterval: 3000,
     },
   );
   useEffect(() => {
@@ -42,7 +42,8 @@ export const OpenAIThreadControlComponent = (props: {
       fetchNextPage();
     }
   }, [hasNextPage]);
-  const messagesList = flatten(messages?.pages.map((p) => p.data)) || [];
+  const messagesList =
+    uniqBy(flatten(messages?.pages.map((p) => p.data)), "id") || [];
   const actor = props.data.actor;
   const utils = api.useUtils();
 
@@ -96,6 +97,9 @@ export const OpenAIThreadControlComponent = (props: {
 };
 
 const Messages = (props: { messages: ThreadMessage[] }) => {
+  console.log({
+    messages: props.messages,
+  });
   return (
     <div className="min-h-[10rem] flex-1">
       <ScrollArea>

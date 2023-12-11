@@ -708,6 +708,7 @@ export abstract class BaseNode<
     executionId: string,
   ) {
     console.log(this.identifier, "@@@", input, "execute", executionId);
+
     const allConnections = this.di.editor
       .getConnections()
       .filter((c) => c.target === this.id);
@@ -719,6 +720,7 @@ export abstract class BaseNode<
         c.sync();
       });
     }
+    
 
     console.log(this.snapshot.status);
     if (this.snapshot.status === "done") {
