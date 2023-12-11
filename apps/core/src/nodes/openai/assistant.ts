@@ -166,19 +166,12 @@ export const OpenAIAssistantMachine = createMachine({
         };
       };
     };
-    actions:
-      | {
-          type: "setAssistantId";
-          params?: {
-            assistantId: string;
-          };
-        }
-      | {
-          type: "updateConfig";
-          params?: {
-            config: Partial<AssistantUpdateParams>;
-          };
-        };
+    actions: {
+      type: "setAssistantId";
+      params?: {
+        assistantId: string;
+      };
+    };
     actors:
       | {
           src: "updateAssistant";
@@ -248,10 +241,6 @@ export const OpenAIAssistantMachine = createMachine({
           };
         }
       | {
-          type: "CONFIG_CHANGE";
-          config?: Partial<AssistantUpdateParams>;
-        }
-      | {
           type: "UPDATE_CONFIG";
           config?: Assistant;
         }
@@ -263,20 +252,16 @@ export const OpenAIAssistantMachine = createMachine({
   states: {
     idle: {
       on: {
-        CONFIG_CHANGE: {
-          target: "editing",
-        },
-        UPDATE_CONFIG: {
-          actions: ["updateConfig"],
-        },
         RELOAD: {
           target: "reloading",
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
+          target: "editing",
         },
         SET_VALUE: {
           actions: ["setValue"],
+          target: "editing",
         },
         RUN: {
           target: "running",
@@ -320,12 +305,9 @@ export const OpenAIAssistantMachine = createMachine({
       },
     },
     editing: {
-      entry: {
-        type: "updateConfig",
-      },
       on: {
-        CONFIG_CHANGE: {
-          actions: "updateConfig",
+        SET_VALUE: {
+          actions: "setValue",
           target: "editing", // self-loop to reset the timer
           reenter: true,
         },
@@ -343,14 +325,22 @@ export const OpenAIAssistantMachine = createMachine({
         updating: {
           invoke: {
             src: "updateAssistant",
-            input: ({ context }) => ({
-              assistantId: context.settings.assistant.id!,
-              params: omit(omitBy(context.settings.assistant, isNil), [
-                "id",
-                "created_at",
-                "object",
-              ]),
-            }),
+            input: ({ context }) => {
+              return {
+                assistantId: context.settings.assistant.id!,
+                params: {
+                  ...omit(omitBy(context.settings.assistant, isNil), [
+                    "id",
+                    "created_at",
+                    "object",
+                  ]),
+                  name: context.inputs.name,
+                  instructions: context.inputs.instructions,
+                  threadId: context.inputs.threadId,
+                  model: context.settings.assistant.model,
+                },
+              };
+            },
             onDone: {
               target: "#openai-assistant.idle",
               actions: [
@@ -539,6 +529,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     super("OpenAIAssistant", di, data, OpenAIAssistantMachine, {
       actors: {
         updateAssistant: fromPromise(async ({ input }) => {
+          console.log("@@", { input });
           return await this.openai().beta.assistants.update(input.assistantId, {
             ...input.params,
           });
@@ -572,47 +563,6 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         }),
       },
       actions: {
-        updateConfig: assign({
-          settings: ({ event, context }) => {
-            const customizer = (objValue: any, srcValue: any) => {
-              if (isArray(objValue)) {
-                return srcValue;
-              }
-            };
-            return match(event)
-              .with(
-                {
-                  type: "CONFIG_CHANGE",
-                },
-                ({ config }) => {
-                  console.log({
-                    config,
-                    context: context.settings.assistant,
-                  });
-                  return {
-                    ...context.settings,
-                    assistant: mergeWith(
-                      context.settings.assistant,
-                      config,
-                      customizer,
-                    ),
-                  };
-                },
-              )
-              .with(
-                {
-                  type: "UPDATE_CONFIG",
-                },
-                ({ config }) => {
-                  return {
-                    ...context.settings,
-                    assistant: config,
-                  };
-                },
-              )
-              .run();
-          },
-        }),
         setAssistantId: assign({
           settings: ({ event, context }) => {
             return match(event)
@@ -631,150 +581,5 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
       },
     });
     this.setLabel(this.snap.context.settings.assistant.name || "Assistant");
-    // this.addInput("trigger", new Input(triggerSocket, "trigger", true));
-    // this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
-    // this.addInput("tools", new Input(objectSocket, "tools", true));
-    // this.addControl(
-    //   "name",
-    //   new InputControl(
-    //     this.actor,
-    //     (snap) => snap.context.settings.assistant.name || "",
-    //     {
-    //       change: (value) => {
-    //         console.log("change", value);
-    //         this.actor.send({
-    //           type: "CONFIG_CHANGE",
-    //           config: {
-    //             name: value,
-    //           },
-    //         });
-    //         this.setLabel(value);
-    //       },
-    //     },
-    //     {
-    //       name: "Assistant Name",
-    //       title: "Assistant Name",
-    //       description: "The name of the assistant",
-    //       isMultiple: false,
-    //       type: "string",
-    //     },
-    //   ),
-    // );
-
-    // this.addControl(
-    //   "update",
-    //   new ButtonControl("Update", () => {
-    //     this.actor.send({
-    //       type: "RELOAD",
-    //     });
-    //   }),
-    // );
-    // this.addControl(
-    //   "assistantId",
-    //   new InputControl(
-    //     this.actor,
-    //     (snap) => snap.context.settings.assistant.id || "",
-    //     {
-    //       readonly: true,
-    //       change: (value) => {
-    //         console.log("change", value);
-    //         this.actor.send({
-    //           type: "SET_ASSISTANT_ID",
-    //           params: {
-    //             assistantId: value,
-    //           },
-    //         });
-    //       },
-    //     },
-    //     {
-    //       name: "Assistant ID",
-    //       title: "Assistant ID",
-    //       description: "The ID of the assistant",
-    //       isMultiple: false,
-    //       type: "string",
-    //     },
-    //   ),
-    // );
-    // this.addControl(
-    //   "instructions",
-    //   new TextareControl(
-    //     this.actor,
-    //     (snap) => snap.context?.settings.assistant.instructions || "",
-    //     {
-    //       change: async (value) => {
-    //         this.actor.send({
-    //           type: "CONFIG_CHANGE",
-    //           config: {
-    //             instructions: value,
-    //           },
-    //         });
-    //       },
-    //     },
-    //   ),
-    // );
-    // this.addControl(
-    //   "model",
-    //   new SelectControl<OpenAIChatModelType>(
-    //     this.actor,
-    //     (snap) => snap.context.settings.assistant.model,
-    //     {
-    //       change: (val) => {
-    //         this.actor.send({
-    //           type: "CONFIG_CHANGE",
-    //           config: {
-    //             model: val,
-    //           },
-    //         });
-    //       },
-    //       placeholder: "Select Model",
-    //       values: [
-    //         ...Object.keys(OPENAI_CHAT_MODELS).map((key) => ({
-    //           key: key as OpenAIChatModelType,
-    //           value: key,
-    //         })),
-    //       ],
-    //     },
-    //     {
-    //       name: "Model",
-    //       title: "Model",
-    //       description: "The model to use for the assistant",
-    //       isMultiple: false,
-    //       type: "string",
-    //     },
-    //   ),
-    // );
   }
-
-  // async compute() {
-  //   console.log(this.identifier, "COMPUTING");
-  //   const tools = this.di.editor
-  //     .getConnections()
-  //     .filter((c) => c.targetInput === "tools" && c.target === this.id)
-  //     .map((c) => this.di.editor.getNode(c.source));
-
-  //   const toolFuncs = tools.map((t) => ({
-  //     type: "function",
-  //     function: {
-  //       name: t.label,
-  //       description: t.snap.context.description,
-  //       parameters: t.inputSchema,
-  //     },
-  //   })) as any[];
-
-  //   this.actor.send({
-  //     type: "CONFIG_CHANGE",
-  //     config: {
-  //       tools: toolFuncs,
-  //     },
-  //   });
-
-  //   console.log({
-  //     tools,
-  //     toolFuncs,
-  //   });
-  // }
-
-  // async data(inputs: any) {
-  //   return super.data(inputs);
-  // }
 }

@@ -1,4 +1,4 @@
-import { debounce, isEqual, isUndefined, merge, set } from "lodash-es";
+import { debounce, isEqual, isNil, isUndefined, merge, set } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
@@ -720,7 +720,6 @@ export abstract class BaseNode<
         c.sync();
       });
     }
-    
 
     console.log(this.snapshot.status);
     if (this.snapshot.status === "done") {
@@ -930,7 +929,10 @@ export abstract class BaseNode<
       await waitFor(this.pactor, (state) => state.matches("complete"));
     }
     state = this.actor.getSnapshot();
-    return state.context.outputs;
+
+    return {
+      ...state.context.outputs,
+    };
   }
 
   async compute(inputs: ContextFrom<Machine>["inputs"]) {

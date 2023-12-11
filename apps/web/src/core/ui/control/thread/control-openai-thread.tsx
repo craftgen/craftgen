@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { api } from "@/trpc/react";
 
 import { InputSection } from "./input-section";
-import { TextContent } from "./shared";
+import { Content, TextContent } from "./shared";
 
 export const OpenAIThreadControlComponent = (props: {
   data: OpenAIThreadControl;
@@ -146,16 +146,7 @@ const MessageItem = ({ message }: { message: ThreadMessage }) => {
       <div className="font-bold">{data ? data.name : message.role}</div>
       <div className="p-2">
         {run && run.status === "in_progress" && <span>Thinking</span>}
-
-        {message.content.map((content, i) => (
-          <span key={`${message.id}-${i}`}>
-            {content.type === "text" ? (
-              <TextContent content={content.text.value} />
-            ) : (
-              <div>{content.image_file.file_id}</div>
-            )}
-          </span>
-        ))}
+        <Content content={message.content} />
       </div>
     </div>
   );

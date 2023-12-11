@@ -18,6 +18,7 @@ import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
+import { ThreadControl } from "./controls/thread.control";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -642,6 +643,24 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
         definition,
       );
     })
+    .with(
+      [
+        P.instanceOf(ArraySocket),
+        {
+          "x-controller": "thread",
+        },
+      ],
+      () => {
+        return new ThreadControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
     .otherwise(() => {
       return new JsonControl(
         actor,

@@ -1,20 +1,73 @@
+import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
-import { ChatPrompt } from "modelfusion";
 import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import { SetOptional } from "type-fest";
-import { createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import {
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  PromiseActorLogic,
+} from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 // import { ThreadControl } from "../controls/thread.control";
 // import { Input } from "../input-output";
 // import { triggerSocket } from "../sockets";
 import { DiContainer } from "../types";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "./base";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  None,
+  ParsedNode,
+} from "./base";
 
 export enum ThreadActions {
   addMessage = "addMessage",
   addAndRunMessage = "addAndRunMessage",
 }
+
+const inputSockets = {
+  addMessage: generateSocket({
+    name: "addMessage",
+    type: "trigger",
+    isMultiple: true,
+    required: false,
+    "x-key": "addMessage",
+    "x-showSocket": true,
+    "x-event": "ADD_MESSAGE",
+  }),
+  messages: generateSocket({
+    name: "Thread",
+    description: "Thread of messages",
+    "x-showSocket": false,
+    "x-key": "messages",
+    type: "array",
+    "x-controller": "thread",
+    isMultiple: false,
+    default: [],
+  }),
+};
+const outputSockets = {
+  onRun: generateSocket({
+    name: "onRun",
+    type: "trigger",
+    isMultiple: true,
+    required: false,
+    "x-key": "onRun",
+    "x-showSocket": true,
+    "x-event": "RUN",
+  }),
+  messages: generateSocket({
+    name: "messages",
+    type: "array",
+    isMultiple: true,
+    "x-key": "messages",
+    "x-showSocket": true,
+  }),
+};
 
 export const ThreadMachine = createMachine({
   id: "thread",
@@ -24,45 +77,21 @@ export const ThreadMachine = createMachine({
         action: {
           type: ThreadActions.addMessage,
         },
-        inputs: {},
-        inputSockets: {},
-        // {
-        //   type: "string",
-        //   name: "system",
-        //   description: "System message",
-        //   required: false,
-        // },
-        // {
-        //   type: "array",
-        //   name: "messages",
-        //   isMultiple: true,
-        //   required: false,
-        // },
-        outputs: {},
-        outputSockets: {
-          system: generateSocket({
-            name: "system",
-            type: "string",
-            isMultiple: true,
-            required: false,
-            "x-key": "system",
-          }),
-          messages: generateSocket({
-            name: "messages",
-            type: "array",
-            isMultiple: true,
-            required: true,
-            "x-key": "messages",
-            "x-showSocket": true,
-          }),
+        inputs: {
+          messages: [],
         },
-        // messages: [],
-        // system: "You are a helpful, respectful and honest assistant.",
+        inputSockets: {
+          ...inputSockets,
+        },
+        outputs: {
+          messages: [],
+        },
+        outputSockets: { ...outputSockets },
       },
       input,
     ),
   types: {} as BaseMachineTypes<{
-    input: {
+    input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
       action:
         | {
             type: ThreadActions.addMessage;
@@ -77,33 +106,41 @@ export const ThreadMachine = createMachine({
             };
           };
     };
-    context: {
-      action:
-        | {
-            type: ThreadActions.addMessage;
-            inputs?: {
-              params: MessageCreateParams;
-            };
-          }
-        | {
-            type: ThreadActions.addAndRunMessage;
-            inputs?: {
-              params: MessageCreateParams;
-            };
-          };
-      inputs:
-        | {
-            type: ThreadActions.addMessage;
-            message: string;
-          }
-        | {
-            type: ThreadActions.addAndRunMessage;
-            message: string;
-          };
-      messages: ChatPrompt;
-      system: string;
+    guards: None;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+      // action:
+      //   | {
+      //       type: ThreadActions.addMessage;
+      //       inputs?: {
+      //         params: MessageCreateParams;
+      //       };
+      //     }
+      //   | {
+      //       type: ThreadActions.addAndRunMessage;
+      //       inputs?: {
+      //         params: MessageCreateParams;
+      //       };
+      //     };
+      // inputs:
+      //   | {
+      //       type: ThreadActions.addMessage;
+      //       message: string;
+      //     }
+      //   | {
+      //       type: ThreadActions.addAndRunMessage;
+      //       message: string;
+      //     };
+      // messages: ChatPrompt;
+      // system: string;
     };
-    actions: any;
+    actions:
+      | {
+          type: "updateOutputMessages";
+        }
+      | {
+          type: "addMessage";
+          // params: MessageCreateParams;
+        };
     events:
       | {
           type: "ADD_MESSAGE";
@@ -144,55 +181,51 @@ export const ThreadMachine = createMachine({
   initial: "idle",
   states: {
     idle: {
+      entry: ["updateOutputMessages"],
       on: {
         ADD_MESSAGE: {
-          target: "running.addMessage",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue({
+              type: "addMessage",
+            });
+            enqueue({
+              type: "updateOutputMessages",
+            });
+          }),
+          reenter: true,
+        },
+        CLEAR_THREAD: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              inputs: ({ context }) => {
+                return {
+                  ...context.inputs,
+                  messages: [],
+                };
+              },
+            });
+            enqueue({
+              type: "updateOutputMessages",
+            });
+          }),
+          reenter: true,
         },
         ADD_AND_RUN_MESSAGE: {
-          target: "running.addMessageAndRun",
-        },
-      },
-    },
-    running: {
-      initial: "determineAction",
-      states: {
-        determineAction: {
-          invoke: {
-            src: fromPromise(async ({}) => {
-              throw new Error("No Action Defined");
-            }),
-          },
-        },
-        addMessage: {
-          invoke: {
-            src: "addMessage",
-            input: ({ context }) => ({
-              params: context.inputs.addMessage,
-            }),
-            onDone: {
-              target: "#thread.complete",
-            },
-            onError: {
-              target: "#thread.error",
-              actions: ["setError"],
-            },
-          },
-        },
-        addMessageAndRun: {
-          invoke: {
-            src: "addMessage",
-            input: ({ context }) => ({
-              params: context.inputs.addMessage,
-            }),
-            onDone: {
-              target: "#thread.complete",
-              actions: ["triggerSuccessors"],
-            },
-            onError: {
-              target: "#thread.error",
-              actions: ["setError"],
-            },
-          },
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue({
+              type: "addMessage",
+            });
+            enqueue({
+              type: "updateOutputMessages",
+            });
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onRun",
+              },
+            });
+          }),
+          reenter: true,
         },
       },
     },
@@ -217,13 +250,36 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
   }
   constructor(di: DiContainer, data: ThreadNode) {
     super("Thread", di, data, ThreadMachine, {
+      actions: {
+        updateOutputMessages: assign({
+          outputs: ({ context }) => {
+            return {
+              messages: context.inputs.messages,
+            };
+          },
+        }),
+        addMessage: assign({
+          inputs: ({ context, event }) => {
+            const id = `message_${createId()}`;
+            return {
+              ...context.inputs,
+              messages: [
+                ...context.inputs.messages,
+                {
+                  id,
+                  ...event.params,
+                },
+              ],
+            };
+          },
+        }),
+      },
+
       actors: {
         addMessage: fromPromise(async ({ input }) => {
           return {};
         }),
       },
     });
-    // this.addControl("thread", new ThreadControl(this.actor, {}));
-    // this.addOutput("trigger", new Input(triggerSocket, "trigger"));
   }
 }

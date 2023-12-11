@@ -14,8 +14,7 @@ import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { MappedType, triggerSocket } from "../../sockets";
+import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 
@@ -105,15 +104,15 @@ const inputSockets = {
 };
 
 const outputSockets = {
-  DONE: generateSocket({
-    name: "Done" as const,
+  onDone: generateSocket({
+    name: "On Done" as const,
     type: "trigger" as const,
     description: "Done",
     required: false,
     isMultiple: true,
-    "x-showSocket": false,
-    "x-key": "DONE",
-    "x-event": "DONE",
+    "x-showSocket": true,
+    "x-key": "onDone",
+    "x-event": "onDone",
   }),
   result: generateSocket({
     name: "result" as const,
@@ -121,6 +120,7 @@ const outputSockets = {
     description: "Result of the generation",
     required: true,
     isMultiple: true,
+    "x-showSocket": true,
     "x-key": "result",
   }),
 };
@@ -139,7 +139,7 @@ const OpenAIGenerateTextMachine = createMachine({
           maxCompletionTokens: 1000,
         },
         outputs: {
-          DONE: undefined,
+          onDone: undefined,
           result: "",
         },
         inputSockets,
@@ -155,9 +155,6 @@ const OpenAIGenerateTextMachine = createMachine({
     context: {
       inputs: MappedType<typeof inputSockets>;
       outputs: MappedType<typeof outputSockets>;
-      // settings: {
-      //   openai: OpenAIChatSettings;
-      // };
     };
     actions: {
       type: "adjustMaxCompletionTokens";
@@ -215,7 +212,14 @@ const OpenAIGenerateTextMachine = createMachine({
       },
     },
     complete: {
-      entry: ["triggerSuccessors"],
+      entry: [
+        {
+          type: "triggerSuccessors",
+          params: {
+            port: "onDone",
+          },
+        },
+      ],
       type: "final",
       output: ({ context }) => context.outputs,
     },
@@ -332,23 +336,5 @@ export class OpenAIGenerateText extends BaseNode<
         }),
       },
     });
-    // this.addControl(
-    //   "openai",
-    //   new OpenAIChatSettingsControl(
-    //     this.actor,
-    //     (snap) => snap.context.settings.openai,
-    //     {
-    //       change: (value) => {
-    //         console.log("change", value);
-    //         this.actor.send({
-    //           type: "CONFIG_CHANGE",
-    //           openai: value,
-    //         });
-    //       },
-    //     },
-    //   ),
-    // );
-    // this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    // this.addOutput("trigger", new Output(triggerSocket, "Exec"));
   }
 }

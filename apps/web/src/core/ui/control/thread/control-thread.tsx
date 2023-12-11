@@ -1,12 +1,20 @@
-import { ThreadControl } from "@seocraft/core/src/controls/thread.control";
+import { useSelector } from "@xstate/react";
 
-import { Copyable } from "@/components/copyable";
+import {
+  Message,
+  MessageContent,
+  ThreadControl,
+} from "@seocraft/core/src/controls/thread.control";
+
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { InputSection } from "./input-section";
+import { Content } from "./shared";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   const actor = props.data.actor;
+  const messages = useSelector(props.data.actor, props.data.selector);
 
   const handleAdd = (value: string) => {
     actor.send({
@@ -47,8 +55,33 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
         </div>
       </div>
       <div className="border-1 p-2">
-        {/* <Messages messages={messagesList || []} /> */}
+        <Messages messages={messages || []} />
         <InputSection handleAdd={handleAdd} handleAddAndRun={handleAddAndRun} />
+      </div>
+    </div>
+  );
+};
+const Messages = (props: { messages: Message[] }) => {
+  console.log({
+    messages: props.messages,
+  });
+  return (
+    <div className="min-h-[10rem] flex-1">
+      <ScrollArea>
+        {props.messages.map((message) => (
+          <MessageItem key={message.id} message={message} />
+        ))}
+      </ScrollArea>
+    </div>
+  );
+};
+
+const MessageItem = ({ message }: { message: Message }) => {
+  return (
+    <div>
+      <div className="font-bold">{message.role}</div>
+      <div className="p-2">
+        <Content content={message.content} />
       </div>
     </div>
   );
