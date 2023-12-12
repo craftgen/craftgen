@@ -155,6 +155,7 @@ const OpenAICompleteChatMachine = createMachine({
         outputs: {
           onDone: undefined,
           result: "",
+          messages: [],
         },
         inputSockets: {
           ...inputSockets,
@@ -177,7 +178,7 @@ const OpenAICompleteChatMachine = createMachine({
         }
       | {
           type: "addMessage";
-          // params: MessageCreateParams;
+          params: OpenAIChatMessage;
         };
     events:
       | {
@@ -189,7 +190,7 @@ const OpenAICompleteChatMachine = createMachine({
         }
       | {
           type: "ADD_MESSAGE";
-          params: MessageCreateParams;
+          params: OpenAIChatMessage;
         }
       | {
           type: "ADD_AND_RUN_MESSAGE";
@@ -210,6 +211,10 @@ const OpenAICompleteChatMachine = createMachine({
           actions: enqueueActions(({ enqueue }) => {
             enqueue({
               type: "addMessage",
+              params: ({ event }) => ({
+                content: event.params.content,
+                role: event.params.role,
+              }),
             });
             enqueue({
               type: "updateOutputMessages",
@@ -230,6 +235,10 @@ const OpenAICompleteChatMachine = createMachine({
           actions: enqueueActions(({ enqueue }) => {
             enqueue({
               type: "addMessage",
+              params: ({ event }) => ({
+                content: event.params.content,
+                role: event.params.role,
+              }),
             });
             enqueue({
               type: "updateOutputMessages",
@@ -274,8 +283,22 @@ const OpenAICompleteChatMachine = createMachine({
         },
         onDone: {
           target: "#openai-complete-chat.complete",
-          actions: assign({
-            outputs: ({ event }) => event.output,
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue({
+              type: "addMessage",
+              params: ({ event }) => ({
+                content: event.output.result,
+                role: "assistant",
+              }),
+            });
+            enqueue.assign({
+              outputs: ({ context, event }) => {
+                return {
+                  ...context.outputs,
+                  result: event.output.result,
+                };
+              },
+            });
           }),
         },
         onError: {
@@ -369,7 +392,7 @@ export class OpenAICompleteChat extends BaseNode<
           },
         }),
         addMessage: assign({
-          inputs: ({ context, event }) => {
+          inputs: ({ context }, params) => {
             const id = `message_${createId()}`;
             return {
               ...context.inputs,
@@ -377,7 +400,7 @@ export class OpenAICompleteChat extends BaseNode<
                 ...context.inputs.messages,
                 {
                   id,
-                  ...event.params,
+                  ...params,
                 },
               ],
             };
