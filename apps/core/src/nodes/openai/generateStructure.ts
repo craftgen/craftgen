@@ -1,4 +1,3 @@
-import dedent from "dedent";
 import { merge } from "lodash-es";
 import {
   generateStructure,
@@ -11,6 +10,7 @@ import {
   throttleMaxConcurrency,
   UncheckedStructureDefinition,
 } from "modelfusion";
+import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 

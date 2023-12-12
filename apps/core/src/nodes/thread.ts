@@ -210,6 +210,7 @@ export const ThreadMachine = createMachine({
           }),
           reenter: true,
         },
+        
         ADD_AND_RUN_MESSAGE: {
           actions: enqueueActions(({ enqueue }) => {
             enqueue({

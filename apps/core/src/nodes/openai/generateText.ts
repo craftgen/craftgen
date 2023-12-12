@@ -1,4 +1,3 @@
-import dedent from "dedent";
 import { merge } from "lodash-es";
 import {
   generateText,
@@ -10,6 +9,7 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
+import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 

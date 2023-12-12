@@ -1,5 +1,5 @@
-import dedent from "dedent";
 import { isArray, isNil, merge, mergeWith, omit, omitBy } from "lodash-es";
+import dedent from "ts-dedent";
 
 import "openai/shims/web";
 
