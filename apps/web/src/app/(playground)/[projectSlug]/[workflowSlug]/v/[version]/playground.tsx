@@ -489,7 +489,7 @@ export const DynamicInputsForm: React.FC<{
       {Object.entries(inputs).map(([inputKey, input]) => {
         if (!input?.control || !input?.showControl) {
           if (input?.socket.name === "Trigger") return null;
-          console.log(input)
+          console.log(input);
           return (
             <Alert variant={"default"} key={inputKey}>
               <AlertTitle>
@@ -526,6 +526,20 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
     type: "control",
     payload: control,
   });
+
+  if (!control.definition) {
+    return (
+      <div
+        className="mb-2 flex flex-row space-x-1"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <span className="flex flex-1 flex-col">
+          <ControlElement data={control} />
+        </span>
+      </div>
+    );
+  }
+
   const handleToggle = (val: boolean) => {
     control.actor.send({
       type: "UPDATE_SOCKET",

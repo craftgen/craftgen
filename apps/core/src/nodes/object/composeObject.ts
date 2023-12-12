@@ -2,7 +2,7 @@ import { merge } from "lodash-es";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine } from "xstate";
+import { assign, createMachine, enqueueActions } from "xstate";
 
 import {
   JSONSocket,
@@ -59,15 +59,20 @@ const composeObjectMachine = createMachine({
       schema: object;
     };
     actors: None;
-    actions: {
-      type: "updateConfig";
-      params?: {
-        name: string;
-        description: string;
-        inputSockets: JSONSocket[];
-        schema: object;
-      };
-    };
+    guards: None;
+    actions:
+      | {
+          type: "updateConfig";
+          params?: {
+            name: string;
+            description: string;
+            inputSockets: JSONSocket[];
+            schema: object;
+          };
+        }
+      | {
+          type: "updateOutputObject";
+        };
     events: {
       type: "CONFIG_CHANGE";
       name: string;
@@ -78,10 +83,21 @@ const composeObjectMachine = createMachine({
   }>,
   states: {
     idle: {
-      entry: ["updateAncestors"],
+      // entry: ["updateAncestors"],
       on: {
+        UPDATE_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("updateSocket");
+          }),
+        },
         CONFIG_CHANGE: {
           target: "editing",
+        },
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("setValue");
+            enqueue("updateOutputObject");
+          }),
         },
       },
     },
@@ -89,9 +105,18 @@ const composeObjectMachine = createMachine({
       entry: ["updateConfig"],
       on: {
         CONFIG_CHANGE: {
-          actions: ["updateConfig"],
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("updateConfig");
+            enqueue("updateOutputObject");
+          }),
           target: "editing",
           reenter: true,
+        },
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("setValue");
+            enqueue("updateOutputObject");
+          }),
         },
       },
       after: {
@@ -124,6 +149,13 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   constructor(di: DiContainer, data: ComposeObjectData) {
     super("ComposeObject", di, data, composeObjectMachine, {
       actions: {
+        updateOutputObject: assign({
+          outputs: ({ context }) => ({
+            ...context.outputs,
+            object: context.inputs,
+            // schema: createJsonSchema(context.inputSockets),
+          }),
+        }),
         updateConfig: assign({
           inputSockets: ({ event }) =>
             match(event)
@@ -147,7 +179,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
           outputs: ({ context, event }) =>
             match(event)
               .with({ type: "CONFIG_CHANGE" }, ({ schema }) => ({
-                object: {},
+                object: context.inputs,
                 schema: {
                   name: event.name,
                   description: event.description,
@@ -164,28 +196,31 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
 
     this.setLabel(this.snap.context.name || ComposeObject.label);
     const state = this.actor.getSnapshot();
-    const inputGenerator = new SocketGeneratorControl({
-      connectionType: "input",
-      name: "Input Sockets",
-      ignored: ["trigger"],
-      tooltip: "Add input sockets",
-      initial: {
-        name: state.context.name,
-        description: state.context.description,
-        sockets: Object.values(state.context.inputSockets),
+    const inputGenerator = new SocketGeneratorControl(
+      this.actor,
+      (s) => s.context.inputSockets,
+      {
+        connectionType: "input",
+        name: "Input Sockets",
+        ignored: ["trigger"],
+        tooltip: "Add input sockets",
+        initial: {
+          name: state.context.name,
+          description: state.context.description,
+        },
+        onChange: ({ sockets, name, description }) => {
+          const schema = createJsonSchema(sockets);
+          this.setLabel(name);
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            name,
+            description: description || "",
+            inputSockets: sockets,
+            schema,
+          });
+        },
       },
-      onChange: ({ sockets, name, description }) => {
-        const schema = createJsonSchema(sockets);
-        this.setLabel(name);
-        this.actor.send({
-          type: "CONFIG_CHANGE",
-          name,
-          description: description || "",
-          inputSockets: sockets,
-          schema,
-        });
-      },
-    });
+    );
 
     this.addControl("inputGenerator", inputGenerator);
   }

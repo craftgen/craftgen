@@ -1,5 +1,6 @@
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { MergeDeep } from "type-fest";
+import { AnyActor, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
 import { JSONSocketTypeKeys, types } from "../sockets";
@@ -13,7 +14,6 @@ export type SocketGeneratorControlOptions = {
   initial: {
     name: string;
     description: string;
-    sockets: JSONSocket[];
   };
   onChange: (data: SocketGeneratorControlData) => void;
 };
@@ -78,33 +78,35 @@ export const generateSocket = <
   };
 };
 
-// export const generateSocket = (
-//   socket: MergeDeep<JSONSchema, z.infer<typeof socketSchema>>,
-// ) => {
-//   const valid = socketSchema.parse(socket);
-//   if (!valid) throw new Error("Invalid socket");
-//   return {
-//     ...socket,
-//     ...valid,
-//   };
-// };
+export type SocketGeneratorControlData = z.infer<typeof formOnSubmitSchema>;
+export const formOnSubmitSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  sockets: z.record(z.string(), socketSchema),
+});
 
-export type SocketGeneratorControlData = z.infer<typeof formSchema>;
-
-export class SocketGeneratorControl extends BaseControl {
+export class SocketGeneratorControl<
+  T extends AnyActor = AnyActor,
+> extends BaseControl {
   __type = "socket-generator";
   name: string;
   description?: string;
-  sockets: JSONSocket[] = [];
-  constructor(public params: SocketGeneratorControlOptions) {
-    super(300);
-    this.sockets = params.initial.sockets;
+  constructor(
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => Record<string, JSONSocket>, // Function that returns the observable value
+    public params: SocketGeneratorControlOptions,
+    public definition?: JSONSocket,
+  ) {
+    super(300, definition, actor);
     this.name = params.initial.name;
     this.description = params.initial.description;
   }
 
-  setValue(val: { sockets: JSONSocket[]; name: string; description?: string }) {
-    this.sockets = val.sockets;
+  setValue(val: {
+    sockets: Record<string, JSONSocket>;
+    name: string;
+    description?: string;
+  }) {
     this.name = val.name;
     this.description = val.description;
     this.params.onChange(val);

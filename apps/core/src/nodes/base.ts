@@ -366,6 +366,11 @@ export abstract class BaseNode<
                 delete context.inputs[key];
               }
             });
+            Object.keys(event.values).forEach((key) => {
+              if (!context.inputSockets[key]) {
+                delete event.values[key];
+              }
+            });
             return {
               ...context.inputs,
               ...event.values,
@@ -593,11 +598,14 @@ export abstract class BaseNode<
       this.removeInput(item);
     }
 
-    const values = state.context.inputs;
+    const values = {
+      ...state.context.inputs,
+    };
+    console.log(values);
     let index = 0;
     for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasInput(key)) {
-        const input = this.inputs[item.name];
+        const input = this.inputs[key];
         if (input) {
           input.socket = getSocketByJsonSchemaType(item)! as any;
         }
@@ -641,7 +649,6 @@ export abstract class BaseNode<
       });
       input.addControl(controller);
       this.addInput(key, input as any);
-
       if (item.type !== "trigger" && !values[key]) {
         console.log(
           "setting default value",

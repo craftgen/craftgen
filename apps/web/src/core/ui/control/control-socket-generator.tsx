@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { SelectValue } from "@radix-ui/react-select";
+import { useSelector } from "@xstate/react";
 import { Trash2Icon, X } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import type * as z from "zod";
 
 import type {
   formSchema,
+  JSONSocket,
   SocketGeneratorControl,
 } from "@seocraft/core/src/controls/socket-generator";
 import { types } from "@seocraft/core/src/sockets";
@@ -35,30 +35,36 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;
 }) {
+  const sockets = useSelector<any, Record<string, JSONSocket>>(
+    props.data.actor,
+    props.data.selector,
+  );
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       name: props.data.name,
       description: props.data.description,
-      sockets: props.data.sockets,
+      sockets: Object.values(sockets),
     },
     values: {
       name: props.data.name,
       description: props.data.description,
-      sockets: props.data.sockets,
+      sockets: Object.values(sockets),
     },
     mode: "onBlur",
   });
 
-  useEffect(() => {
-    form.setValue("sockets", props.data.sockets);
-  }, [props.data.sockets]);
+  // useEffect(() => {
+  //   form.setValue("sockets", props.data.sockets);
+  // }, [props.data.sockets]);
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
@@ -68,13 +74,32 @@ export function SocketGeneratorControlComponent(props: {
   );
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
     const fieldsValue = form.getValues();
-    props.data.setValue(fieldsValue);
+    console.log("@$", fieldsValue);
+    const sockets = fieldsValue.sockets
+      .filter((s) => s.name.length > 0)
+      .reduce(
+        (acc, socket) => {
+          const socketKey = slugify(socket.name, "_");
+          socket["x-key"] = socketKey;
+          socket["x-showSocket"] = socket["x-showSocket"] ?? true;
+
+          acc[socketKey] = socket as JSONSocket;
+          return acc;
+        },
+        {} as Record<string, JSONSocket>,
+      );
+    props.data.setValue({
+      ...fieldsValue,
+      sockets,
+    });
   };
   const handleAppend = () => {
     append({
       name: "",
       type: "string",
       description: "",
+      "x-key": "",
+      "x-showSocket": true,
       required: true,
     });
     onSubmit();
@@ -157,6 +182,26 @@ export function SocketGeneratorControlComponent(props: {
                   <div className="@container relative mb-4 flex flex-col rounded border p-2 shadow">
                     <div className="absolute right-2 top-2"></div>
                     <div className="@lg:grid-cols-3 @md:grid-cols-2 grid grid-cols-1 gap-2">
+                      {/* <FormField
+                        control={form.control}
+                        name={`sockets.${index}.x-key`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Key</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="key"
+                                {...field}
+                                autoComplete="false"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              This is your public display name.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      /> */}
                       <FormField
                         control={form.control}
                         name={`sockets.${index}.name`}
