@@ -796,19 +796,24 @@ export class Editor<
     return this.editor.getNode(this.selectedNodeId);
   }
 
-  public async runSync(params: { inputId: string; event?: string }) {
+  public async createExecution(entryNodeId?: string) {
     if (!this.executionId) {
+      const input = entryNodeId || this.rootNodes[0]?.id;
       const { id } = await this.api.createExecution({
         workflowId: this.workflowId,
         workflowVersionId: this.workflowVersionId,
         input: {
-          id: params.inputId,
+          id: input,
           values: {},
         },
         headless: false,
       });
       this.setExecutionId(id);
     }
+  }
+
+  public async runSync(params: { inputId: string; event?: string }) {
+    await this.createExecution(params.inputId);
     this.engine.execute(params.inputId, params.event, this.executionId);
   }
 
@@ -826,19 +831,7 @@ export class Editor<
         `Input data is not valid: ${JSON.stringify(validator.errors)}`,
       );
     }
-    if (!this.executionId) {
-      const { id } = await this.api.createExecution({
-        workflowId: this.workflowId,
-        workflowVersionId: this.workflowVersionId,
-        input: {
-          id: params.inputId,
-          values: {},
-        },
-        headless: false,
-      });
-      console.log("Execution Created", id);
-      this.setExecutionId(id);
-    }
+    await this.createExecution(params.inputId);
 
     inputNode.actor.send({
       type: "SET_VALUE",
@@ -865,7 +858,7 @@ export class Editor<
 
   public reset() {
     this.setExecutionId(undefined);
-    // TODO: reset all nodes to their context.
+    this.setSelectedNodeId(null);
     this.editor.getNodes().forEach((n) => {
       n.reset();
     });

@@ -229,16 +229,21 @@ export abstract class BaseNode<
   public count = 0;
 
   public inputs: {
-    [key in keyof Inputs]?: Input<Exclude<Inputs[key], undefined>>;
+    [key in keyof Inputs]?: Input<
+      Actor<Machine>,
+      Exclude<Inputs[key], undefined>
+    >;
   } = {};
 
   public outputs: {
-    [key in keyof Outputs]?: Output<Exclude<Outputs[key], undefined>>;
+    [key in keyof Outputs]?: Output<
+      Actor<Machine>,
+      Exclude<Outputs[key], undefined>
+    >;
   } = {};
 
   public parent?: string;
 
-  public isExecution: boolean;
   public isReady: boolean = false;
   public machine: Machine;
   // executionNode: Node["nodeExectutions"][number] | undefined;
@@ -295,8 +300,6 @@ export abstract class BaseNode<
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;
-
-    this.isExecution = !isUndefined(this.executionId);
 
     this.machine = machine.provide({
       ...(this.machineImplements as any),
@@ -425,6 +428,7 @@ export abstract class BaseNode<
       setSnap: action,
 
       executionNodeId: observable,
+      executionId: computed,
       setExecutionNodeId: action,
     });
 
@@ -432,13 +436,14 @@ export abstract class BaseNode<
   }
 
   public setup() {
-    // const outputHandlers = reaction(
-    //   () => this.output,
-    //   async (outputs) => {
-    //     console.log("OUTPUTS CHANGED", outputs);
-    //     await this.updateSuccessors();
-    //   },
-    // );
+    const reactForExecutionId = reaction(
+      () => this.executionId,
+      async (executionId) => {
+        if (!executionId) {
+          this.setExecutionNodeId(undefined);
+        }
+      },
+    );
 
     const inputSocketHandlers = reaction(
       () => this.inputSockets,
@@ -476,7 +481,29 @@ export abstract class BaseNode<
       400,
     );
     const saveStateDebounced = debounce(this.saveState.bind(this), 400);
-    const actor = createActor(this.machine, {
+    const self = this;
+    function withLogging(actorLogic: any) {
+      const enhancedLogic = {
+        ...actorLogic,
+        transition: (state, event, actorCtx) => {
+          console.log("State:", state, "Event:", event);
+
+          // if (state.value === "complete") {
+          // console.log("setting up a new one");
+          // self.setupActor({
+          //   input: state.context,
+          // });
+          // console.log("STARTING NEW ONE");
+          // self.actor.start();
+          // self.actor.send(event);
+          // }
+          return actorLogic.transition(state, event, actorCtx);
+        },
+      };
+
+      return enhancedLogic;
+    }
+    const actor = createActor(withLogging(this.machine), {
       id: this.contextId,
       ...options,
     });
@@ -501,10 +528,8 @@ export abstract class BaseNode<
 
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-          if (!this.isExecution) {
-          }
         }
-
+        console.log("SAVE STATE", this.actor.getPersistedSnapshot());
         saveStateDebounced({ state });
         if (!this.readonly) {
           saveContextDebounced({ context: state.context });
@@ -520,14 +545,17 @@ export abstract class BaseNode<
 
   public async reset() {
     this.unsubscribe();
-    this.actor = this.setupActor({
-      input: this.nodeData.context,
+    const context = await this.di.api.trpc.craft.node.getContext.query({
+      contextId: this.contextId,
     });
 
-    // const outgoers = this.di.graph.outgoers(this.id).nodes();
-    // outgoers.forEach((n) => {
-    //   n.reset();
-    // });
+    this.actor = this.setupActor({
+      input: context.state as ContextFrom<Machine>,
+    });
+    this.updateInputs(context.state.inputSockets);
+    this.updateOutputs(context.state.outputSockets);
+    this.di.area?.update("node", this.id);
+
     this.actor.start();
   }
 
@@ -608,6 +636,11 @@ export abstract class BaseNode<
         const input = this.inputs[key];
         if (input) {
           input.socket = getSocketByJsonSchemaType(item)! as any;
+          input.actor = this.actor;
+          if (input.control) {
+            input.control.actor = this.actor;
+            await this.di.area?.update("control", input.control.id);
+          }
         }
         continue;
       }
@@ -683,7 +716,7 @@ export abstract class BaseNode<
     this.snap = snap;
   }
 
-  public setExecutionNodeId(executionNodeId: string) {
+  public setExecutionNodeId(executionNodeId: string | undefined) {
     this.executionNodeId = executionNodeId;
   }
 

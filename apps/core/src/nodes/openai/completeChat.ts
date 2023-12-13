@@ -12,7 +12,7 @@ import {
 } from "modelfusion";
 import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import dedent from "ts-dedent";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import { assign, createMachine, enqueueActions, fromPromise, log } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { DiContainer } from "../../types";
@@ -282,7 +282,7 @@ const OpenAICompleteChatMachine = createMachine({
           };
         },
         onDone: {
-          target: "#openai-complete-chat.complete",
+          target: "#openai-complete-chat.idle",
           actions: enqueueActions(({ enqueue }) => {
             enqueue({
               type: "addMessage",

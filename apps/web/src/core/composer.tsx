@@ -204,6 +204,28 @@ export const Composer: React.FC<{
             </Tooltip>
           </>
         )}
+        {
+          !di?.executionId && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => di?.createExecution()}
+                  >
+                    <Play size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <>
+                    <Play size={14} />
+                    Create a Execution
+                  </>
+                </TooltipContent>
+              </Tooltip>
+            </>,
+          )
+        }
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>

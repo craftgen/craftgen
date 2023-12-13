@@ -54,6 +54,7 @@ import type { ReteStoreInstance } from "../store";
 import "react-resizable/css/styles.css";
 
 import { useState } from "react";
+import { isNil } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
@@ -532,7 +533,8 @@ export const Node = observer((props: Props<Schemes>) => {
             <Drag.NoDrag>
               <JsonView
                 src={{
-                  isExection: props.data.isExecution,
+                  isExection: !isNil(props.data.executionId),
+                  executionNodeId: props.data.executionNodeId,
                   status: state.status,
                   state: state.value,
                   context: state.context,

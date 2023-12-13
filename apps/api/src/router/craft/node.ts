@@ -160,6 +160,20 @@ export const craftNodeRouter = createTRPCRouter({
           .where(eq(schema.context.id, node.contextId)); // TODO: soft delete
       });
     }),
+  getContext: protectedProcedure
+    .input(
+      z.object({
+        contextId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const [context] = await ctx.db
+        .select()
+        .from(schema.context)
+        .where(eq(schema.context.id, input.contextId))
+        .limit(1);
+      return context;
+    }),
   setContext: protectedProcedure
     .input(
       z.object({
