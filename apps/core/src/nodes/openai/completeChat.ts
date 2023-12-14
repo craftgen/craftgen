@@ -12,9 +12,18 @@ import {
 } from "modelfusion";
 import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import dedent from "ts-dedent";
-import { assign, createMachine, enqueueActions, fromPromise, log } from "xstate";
+import {
+  ActorRefFrom,
+  assign,
+  createMachine,
+  enqueueActions,
+  forwardTo,
+  fromPromise,
+  log,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
+import { ThreadControl } from "../../controls/thread.control";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -24,6 +33,7 @@ import {
   None,
   ParsedNode,
 } from "../base";
+import { Thread, ThreadMachine } from "../thread";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -54,6 +64,7 @@ const inputSockets = {
     "x-key": "messages",
     type: "array",
     "x-controller": "thread",
+    "x-actor": "Thread",
     isMultiple: false,
     default: [],
   }),
@@ -139,178 +150,217 @@ const outputSockets = {
   }),
 };
 
-const OpenAICompleteChatMachine = createMachine({
-  id: "openai-complete-chat",
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        inputs: {
-          RUN: undefined,
-          system: "",
-          messages: [],
-          temperature: 0.7,
-          model: "gpt-3.5-turbo-1106",
-          maxCompletionTokens: 1000,
-        },
-        outputs: {
-          onDone: undefined,
-          result: "",
-          messages: [],
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    ),
-  types: {} as BaseMachineTypes<{
-    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
-    actions:
-      | {
-          type: "adjustMaxCompletionTokens";
-        }
-      | {
-          type: "updateOutputMessages";
-        }
-      | {
-          type: "addMessage";
-          params: OpenAIChatMessage;
-        };
-    events:
-      | {
-          type: "CONFIG_CHANGE";
-          openai: OpenAIChatSettings;
-        }
-      | {
-          type: "CLEAR_THREAD";
-        }
-      | {
-          type: "ADD_MESSAGE";
-          params: OpenAIChatMessage;
-        }
-      | {
-          type: "ADD_AND_RUN_MESSAGE";
-          params: MessageCreateParams;
-        };
-    guards: None;
-    actors: {
-      src: "completeChat";
-      logic: ReturnType<typeof completeChatActor>;
-    };
-  }>,
-  initial: "idle",
-  states: {
-    idle: {
-      entry: ["updateOutputMessages"],
-      on: {
-        ADD_MESSAGE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue({
-              type: "addMessage",
-              params: ({ event }) => ({
-                content: event.params.content,
-                role: event.params.role,
-              }),
-            });
-            enqueue({
-              type: "updateOutputMessages",
-            });
-          }),
-          reenter: true,
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
-        RUN: {
-          target: "running",
-        },
-        SET_VALUE: {
-          actions: ["setValue", "adjustMaxCompletionTokens"],
-        },
-        ADD_AND_RUN_MESSAGE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue({
-              type: "addMessage",
-              params: ({ event }) => ({
-                content: event.params.content,
-                role: event.params.role,
-              }),
-            });
-            enqueue({
-              type: "updateOutputMessages",
-            });
-          }),
-          target: "running",
-          reenter: true,
-        },
-        CLEAR_THREAD: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue.assign({
-              inputs: ({ context }) => {
-                return {
-                  ...context.inputs,
-                  messages: [],
-                };
-              },
-            });
-            enqueue({
-              type: "updateOutputMessages",
-            });
-          }),
-          reenter: true,
-        },
-      },
-    },
-    running: {
-      invoke: {
-        src: "completeChat",
-        input: ({ context }): CompleteChatInput => {
+const OpenAICompleteChatMachine = createMachine(
+  {
+    id: "openai-complete-chat",
+    entry: [
+      assign({
+        inputs: ({ context, spawn }) => {
+          const threadActor = spawn("thread", {
+            id: "thread",
+            syncSnapshot: true,
+          });
           return {
-            openai: {
-              model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
-              temperature: context.inputs.temperature!,
-              maxCompletionTokens: context.inputs.maxCompletionTokens!,
-            },
-            system: context.inputs.system!,
-            messages: context.inputs.messages?.map(({ id, ...rest }) => {
-              return rest;
-            }) as OpenAIChatMessage[],
+            ...context.inputs,
+            messages: threadActor,
           };
         },
-        onDone: {
-          target: "#openai-complete-chat.idle",
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue({
-              type: "addMessage",
-              params: ({ event }) => ({
-                content: event.output.result,
-                role: "assistant",
-              }),
-            });
-            enqueue.assign({
-              outputs: ({ context, event }) => {
-                return {
-                  ...context.outputs,
-                  result: event.output.result,
-                };
-              },
-            });
-          }),
+      }),
+    ],
+    context: ({ input }) =>
+      merge<typeof input, any>(
+        {
+          thread: null,
+          inputs: {
+            RUN: undefined,
+            system: "",
+            messages: null,
+            temperature: 0.7,
+            model: "gpt-3.5-turbo-1106",
+            maxCompletionTokens: 1000,
+          },
+          outputs: {
+            onDone: undefined,
+            result: "",
+            messages: [],
+          },
+          inputSockets: {
+            ...inputSockets,
+          },
+          outputSockets: {
+            ...outputSockets,
+          },
         },
-        onError: {
-          target: "#openai-complete-chat.error",
-          actions: ["setError"],
+        input,
+      ),
+    types: {} as BaseMachineTypes<{
+      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
+        thread: ActorRefFrom<typeof ThreadMachine> | null;
+      };
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        thread: ActorRefFrom<typeof ThreadMachine>;
+      };
+      actions:
+        | {
+            type: "adjustMaxCompletionTokens";
+          }
+        | {
+            type: "updateOutputMessages";
+          }
+        | {
+            type: "addMessage";
+            params: OpenAIChatMessage;
+          };
+      events:
+        | {
+            type: "CONFIG_CHANGE";
+            openai: OpenAIChatSettings;
+          }
+        | {
+            type: "CLEAR_THREAD";
+          }
+        | {
+            type: "ADD_MESSAGE";
+            params: OpenAIChatMessage;
+          }
+        | {
+            type: "ADD_AND_RUN_MESSAGE";
+            params: MessageCreateParams;
+          };
+      guards: None;
+      actors: {
+        src: "completeChat";
+        logic: ReturnType<typeof completeChatActor>;
+      };
+    }>,
+    initial: "idle",
+    states: {
+      idle: {
+        entry: ["updateOutputMessages"],
+        on: {
+          ADD_MESSAGE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue(log());
+              enqueue(forwardTo("thread"));
+            }),
+          },
+          // ADD_MESSAGE: {
+          //   actions: enqueueActions(({ enqueue }) => {
+          //     // enqueue({
+          //     //   type: "addMessage",
+          //     //   params: ({ event }) => ({
+          //     //     content: event.params.content,
+          //     //     role: event.params.role,
+          //     //   }),
+          //     // });
+          //     // enqueue.sendTo(({ system }) => system.get("thread"), {
+          //     //   type: "ADD_MESSAGE",
+          //     //   params: ({ event }) => ({
+          //     //     content: event.params.content,
+          //     //     role: event.params.role,
+          //     //   }),
+          //     // });
+          //     enqueue({
+          //       type: "updateOutputMessages",
+          //     });
+          //   }),
+          //   reenter: true,
+          // },
+          UPDATE_SOCKET: {
+            actions: ["updateSocket"],
+          },
+          RUN: {
+            target: "running",
+          },
+          SET_VALUE: {
+            actions: ["setValue", "adjustMaxCompletionTokens"],
+          },
+          ADD_AND_RUN_MESSAGE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue({
+                type: "addMessage",
+                params: ({ event }) => ({
+                  content: event.params.content,
+                  role: event.params.role,
+                }),
+              });
+              enqueue({
+                type: "updateOutputMessages",
+              });
+            }),
+            target: "running",
+            reenter: true,
+          },
+          CLEAR_THREAD: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue.assign({
+                inputs: ({ context }) => {
+                  return {
+                    ...context.inputs,
+                    messages: [],
+                  };
+                },
+              });
+              enqueue({
+                type: "updateOutputMessages",
+              });
+            }),
+            reenter: true,
+          },
         },
       },
+      running: {
+        invoke: {
+          src: "completeChat",
+          input: ({ context }): CompleteChatInput => {
+            return {
+              openai: {
+                model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
+                temperature: context.inputs.temperature!,
+                maxCompletionTokens: context.inputs.maxCompletionTokens!,
+              },
+              system: context.inputs.system!,
+              messages: context.inputs.messages?.map(({ id, ...rest }) => {
+                return rest;
+              }) as OpenAIChatMessage[],
+            };
+          },
+          onDone: {
+            target: "#openai-complete-chat.idle",
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue({
+                type: "addMessage",
+                params: ({ event }) => ({
+                  content: event.output.result,
+                  role: "assistant",
+                }),
+              });
+              enqueue.assign({
+                outputs: ({ context, event }) => {
+                  return {
+                    ...context.outputs,
+                    result: event.output.result,
+                  };
+                },
+              });
+            }),
+          },
+          onError: {
+            target: "#openai-complete-chat.error",
+            actions: ["setError"],
+          },
+        },
+      },
+      complete: {},
+      error: {},
     },
-    complete: {},
-    error: {},
   },
-});
+  {
+    actors: {
+      thread: ThreadMachine,
+    },
+  },
+);
 
 export type OpenAICompleteChatData = ParsedNode<
   "OpenAICompleteChat",
@@ -426,5 +476,16 @@ export class OpenAICompleteChat extends BaseNode<
         }),
       },
     });
+    // this.addControl(
+    //   "thread",
+    //   new ThreadControl(
+    //     this.snap.context.thread,
+    //     (snap) => snap.context.inputs.messages,
+    //     {},
+    //     {
+    //       ...this.snap.context.inputSockets.messages,
+    //     },
+    //   ),
+    // );
   }
 }

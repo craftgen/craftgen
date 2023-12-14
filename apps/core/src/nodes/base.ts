@@ -89,6 +89,9 @@ export type BaseEventTypes =
       values: Record<string, any>;
     }
   | {
+      type: "RESET";
+    }
+  | {
       type: "UPDATE_SOCKET";
       params: {
         name: string;
@@ -300,7 +303,6 @@ export abstract class BaseNode<
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;
-
     this.machine = machine.provide({
       ...(this.machineImplements as any),
       actions: {
@@ -388,14 +390,24 @@ export abstract class BaseNode<
     //   // TODO: Remove this. make everyting final.
     //   set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
     // }
+    set(this.machine.config.on, "RESET", {
+      target: "idle",
+    });
 
     if (this.nodeData.state) {
+      // EXECUTION STATE
       const actorInput = {
         snapshot: this.nodeData.state,
       };
       this.actor = this.setupActor(actorInput);
+    } else if (this.nodeData.context) {
+      // CONTEXT STATE
+      this.actor = this.setupActor({
+        snapshot: this.nodeData.context!,
+      });
     } else {
       this.actor = this.setupActor({
+        // NEW NODE
         input: this.nodeData.context,
       });
     }
@@ -481,7 +493,6 @@ export abstract class BaseNode<
       400,
     );
     const saveStateDebounced = debounce(this.saveState.bind(this), 400);
-    const self = this;
     function withLogging(actorLogic: any) {
       const enhancedLogic = {
         ...actorLogic,
@@ -529,10 +540,11 @@ export abstract class BaseNode<
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         }
-        console.log("SAVE STATE", this.actor.getPersistedSnapshot());
-        saveStateDebounced({ state });
+        const persistedState = this.actor.getPersistedSnapshot();
+        console.log("SAVE STATE", persistedState);
+        saveStateDebounced({ state: persistedState as any });
         if (!this.readonly) {
-          saveContextDebounced({ context: state.context });
+          saveContextDebounced({ context: persistedState as any });
         }
         prev = state as any;
       },
@@ -666,21 +678,55 @@ export abstract class BaseNode<
         index = item["x-order"];
       }
       input.index = index + 1;
-      const controller = getControlBySocket({
-        socket: socket,
-        actor: this.pactor,
-        selector: (snapshot) => snapshot.context.inputs[key],
-        onChange: (v) => {
-          this.pactor.send({
-            type: "SET_VALUE",
-            values: {
-              [key]: v,
-            },
-          });
-        },
-        definition: item,
-      });
-      input.addControl(controller);
+      if (item["x-actor"]) {
+        console.log("SETTING UP WITH ACTOR", {
+          key,
+          input,
+          actor: this.actor,
+          inputActor: this.snapshot.context.inputs[key],
+          selector: (snapshot) => snapshot.context.inputs[key],
+          onChange: (v) => {
+            this.pactor.send({
+              type: "SET_VALUE",
+              values: {
+                [key]: v,
+              },
+            });
+          },
+          definition: item,
+        });
+        const controller = getControlBySocket({
+          socket: socket,
+          actor: this.snapshot.context.inputs[key],
+          selector: (snapshot) => snapshot.context.inputs[key],
+          onChange: (v) => {
+            this.pactor.send({
+              type: "SET_VALUE",
+              values: {
+                [key]: v,
+              },
+            });
+          },
+          definition: item,
+        });
+        input.addControl(controller);
+      } else {
+        const controller = getControlBySocket({
+          socket: socket,
+          actor: this.pactor,
+          selector: (snapshot) => snapshot.context.inputs[key],
+          onChange: (v) => {
+            this.pactor.send({
+              type: "SET_VALUE",
+              values: {
+                [key]: v,
+              },
+            });
+          },
+          definition: item,
+        });
+        input.addControl(controller);
+      }
       this.addInput(key, input as any);
       if (item.type !== "trigger" && !values[key]) {
         console.log(

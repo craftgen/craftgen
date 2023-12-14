@@ -16,6 +16,11 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   const actor = props.data.actor;
   const messages = useSelector(props.data.actor, props.data.selector);
 
+  console.log('INI', {
+    messages,
+    actor,
+    selector: props.data.selector,
+  });
   const handleAdd = (value: string) => {
     actor.send({
       type: "ADD_MESSAGE",

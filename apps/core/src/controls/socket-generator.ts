@@ -47,6 +47,7 @@ export const socketSchema = z
     "x-showSocket": z.boolean().default(true).optional(),
     "x-key": z.string(),
     "x-event": z.string().optional(),
+    "x-actor": z.string().optional(),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {
