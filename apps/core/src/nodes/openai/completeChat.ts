@@ -170,7 +170,6 @@ const OpenAICompleteChatMachine = createMachine(
     context: ({ input }) =>
       merge<typeof input, any>(
         {
-          thread: null,
           inputs: {
             RUN: undefined,
             system: "",
@@ -194,22 +193,14 @@ const OpenAICompleteChatMachine = createMachine(
         input,
       ),
     types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-        thread: ActorRefFrom<typeof ThreadMachine> | null;
-      };
-      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        thread: ActorRefFrom<typeof ThreadMachine>;
-      };
+      input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
       actions:
         | {
             type: "adjustMaxCompletionTokens";
           }
         | {
             type: "updateOutputMessages";
-          }
-        | {
-            type: "addMessage";
-            params: OpenAIChatMessage;
           };
       events:
         | {
@@ -277,13 +268,14 @@ const OpenAICompleteChatMachine = createMachine(
           },
           ADD_AND_RUN_MESSAGE: {
             actions: enqueueActions(({ enqueue }) => {
-              enqueue({
-                type: "addMessage",
-                params: ({ event }) => ({
-                  content: event.params.content,
-                  role: event.params.role,
-                }),
-              });
+              enqueue(forwardTo("thread"));
+              // enqueue({
+              //   type: "addMessage",
+              //   params: ({ event }) => ({
+              //     content: event.params.content,
+              //     role: event.params.role,
+              //   }),
+              // });
               enqueue({
                 type: "updateOutputMessages",
               });
@@ -313,6 +305,10 @@ const OpenAICompleteChatMachine = createMachine(
         invoke: {
           src: "completeChat",
           input: ({ context }): CompleteChatInput => {
+            console.log("CONTEXT", context);
+            const messages = context.inputs.messages as ActorRefFrom<
+              typeof ThreadMachine
+            >;
             return {
               openai: {
                 model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
@@ -320,21 +316,29 @@ const OpenAICompleteChatMachine = createMachine(
                 maxCompletionTokens: context.inputs.maxCompletionTokens!,
               },
               system: context.inputs.system!,
-              messages: context.inputs.messages?.map(({ id, ...rest }) => {
-                return rest;
-              }) as OpenAIChatMessage[],
+              messages: messages!
+                .getSnapshot()
+                .context.outputs?.messages.map(({ id, ...rest }) => {
+                  return rest;
+                }) as OpenAIChatMessage[],
+              // messages: context.inputs.messages?.map(({ id, ...rest }) => {
+              //   return rest;
+              // }) as OpenAIChatMessage[],
             };
           },
           onDone: {
             target: "#openai-complete-chat.idle",
             actions: enqueueActions(({ enqueue }) => {
-              enqueue({
-                type: "addMessage",
-                params: ({ event }) => ({
-                  content: event.output.result,
-                  role: "assistant",
+              enqueue.sendTo(
+                ({ context }) => context.inputs.messages,
+                ({ context, event }) => ({
+                  type: "ADD_MESSAGE",
+                  params: {
+                    content: event.output.result,
+                    role: "assistant",
+                  },
                 }),
-              });
+              );
               enqueue.assign({
                 outputs: ({ context, event }) => {
                   return {
@@ -438,21 +442,6 @@ export class OpenAICompleteChat extends BaseNode<
             return {
               ...context.outputs,
               messages: context.inputs.messages,
-            };
-          },
-        }),
-        addMessage: assign({
-          inputs: ({ context }, params) => {
-            const id = `message_${createId()}`;
-            return {
-              ...context.inputs,
-              messages: [
-                ...context.inputs.messages,
-                {
-                  id,
-                  ...params,
-                },
-              ],
             };
           },
         }),
