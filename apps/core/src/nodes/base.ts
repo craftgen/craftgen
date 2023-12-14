@@ -493,21 +493,21 @@ export abstract class BaseNode<
       400,
     );
     const saveStateDebounced = debounce(this.saveState.bind(this), 400);
+
+    const self = this;
     function withLogging(actorLogic: any) {
       const enhancedLogic = {
         ...actorLogic,
         transition: (state, event, actorCtx) => {
           console.log("State:", state, "Event:", event);
 
-          // if (state.value === "complete") {
-          // console.log("setting up a new one");
-          // self.setupActor({
-          //   input: state.context,
-          // });
-          // console.log("STARTING NEW ONE");
-          // self.actor.start();
-          // self.actor.send(event);
-          // }
+          const persistedState = self.actor.getPersistedSnapshot();
+          console.log("SAVE STATE", persistedState);
+          saveStateDebounced({ state: persistedState as any });
+          if (!self.readonly) {
+            saveContextDebounced({ context: persistedState as any });
+          }
+
           return actorLogic.transition(state, event, actorCtx);
         },
       };
@@ -540,12 +540,12 @@ export abstract class BaseNode<
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         }
-        const persistedState = this.actor.getPersistedSnapshot();
-        console.log("SAVE STATE", persistedState);
-        saveStateDebounced({ state: persistedState as any });
-        if (!this.readonly) {
-          saveContextDebounced({ context: persistedState as any });
-        }
+        // const persistedState = this.actor.getPersistedSnapshot();
+        // console.log("SAVE STATE", persistedState);
+        // saveStateDebounced({ state: persistedState as any });
+        // if (!this.readonly) {
+        //   saveContextDebounced({ context: persistedState as any });
+        // }
         prev = state as any;
       },
     });
@@ -556,16 +556,18 @@ export abstract class BaseNode<
   }
 
   public async reset() {
+    // TODO: implement this
+
     this.unsubscribe();
-    const context = await this.di.api.trpc.craft.node.getContext.query({
+    const nodeContext = await this.di.api.trpc.craft.node.getContext.query({
       contextId: this.contextId,
     });
 
     this.actor = this.setupActor({
-      input: context.state as ContextFrom<Machine>,
+      snapshot: nodeContext.state as ContextFrom<Machine>,
     });
-    this.updateInputs(context.state.inputSockets);
-    this.updateOutputs(context.state.outputSockets);
+    this.updateInputs(nodeContext.state.context.inputSockets);
+    this.updateOutputs(nodeContext.state.context.outputSockets);
     this.di.area?.update("node", this.id);
 
     this.actor.start();
@@ -650,7 +652,11 @@ export abstract class BaseNode<
           input.socket = getSocketByJsonSchemaType(item)! as any;
           input.actor = this.actor;
           if (input.control) {
-            input.control.actor = this.actor;
+            if (item["x-actor"]) {
+              input.control.actor = state.context.inputs[key]; // update the actor;
+            } else {
+              input.control.actor = this.pactor; // update the actor;
+            }
             await this.di.area?.update("control", input.control.id);
           }
         }

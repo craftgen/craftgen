@@ -1,6 +1,7 @@
 import { ClassicPreset } from "rete";
 import { AnyActor, SnapshotFrom } from "xstate";
 
+import { BaseControl } from "./controls/base";
 import { JSONSocket } from "./controls/socket-generator";
 import { Socket } from "./sockets";
 
@@ -9,6 +10,8 @@ export class Input<
   S extends Socket = Socket,
 > extends ClassicPreset.Input<S> {
   public definition: JSONSocket;
+
+  declare control: BaseControl | null;
 
   constructor(
     socket: S,

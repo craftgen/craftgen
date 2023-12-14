@@ -21,6 +21,7 @@ import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match, P } from "ts-pattern";
 import { useStore } from "zustand";
 
+import { Input } from "@seocraft/core/src/input-output";
 import type { Socket } from "@seocraft/core/src/sockets";
 import type { NodeProps } from "@seocraft/core/src/types";
 
@@ -30,7 +31,6 @@ import { Icons } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -487,39 +487,83 @@ export const DynamicInputsForm: React.FC<{
   return (
     <>
       {Object.entries(inputs).map(([inputKey, input]) => {
-        if (!input?.control || !input?.showControl) {
-          if (input?.socket.name === "Trigger") return null;
-          console.log(input);
-          return (
-            <Alert variant={"default"} key={inputKey}>
-              <AlertTitle>
-                Input: <Badge>{inputKey}</Badge>
-              </AlertTitle>
-              <AlertDescription>
-                <pre>
-                  <code>{JSON.stringify({ inputKey }, null, 2)}</code>
-                </pre>
-                This input controlled by the incoming connection.
-              </AlertDescription>
-            </Alert>
-          );
-        }
-        return (
-          <ControlWrapper
-            key={inputKey}
-            control={input.control}
-            label={inputKey}
-          />
-        );
+        return <InputWrapper key={inputKey} input={input} />;
+        // if (!input?.control || !input?.showControl) {
+        //   if (input?.socket.name === "Trigger") return null;
+        //   console.log(input);
+        //   return (
+        //     <Alert variant={"default"} key={inputKey}>
+        //       <AlertTitle>
+        //         Input: <Badge>{inputKey}</Badge>
+        //       </AlertTitle>
+        //       <AlertDescription>
+        //         <pre>
+        //           <code>{JSON.stringify({ inputKey }, null, 2)}</code>
+        //         </pre>
+        //         This input controlled by the incoming connection.
+        //       </AlertDescription>
+        //     </Alert>
+        //   );
+        // }
+        // return (
+        //   <ControlWrapper
+        //     key={inputKey}
+        //     control={input.control}
+        //     label={inputKey}
+        //   />
+        // );
       })}
     </>
   );
 };
 
-export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
-  control,
-  label,
-}) => {
+export const InputWrapper: React.FC<{ input: Input }> = ({ input }) => {
+  if (!input.control || !input.showControl) {
+    return (
+      <Alert variant={"default"} key={input.label}>
+        <AlertTitle>
+          Input: <Badge>{input.id}</Badge>
+        </AlertTitle>
+        <AlertDescription>
+          This input controlled by the incoming connection.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  const handleToggle = (val: boolean) => {
+    input.actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: input.definition["x-key"],
+        side: "input",
+        socket: {
+          "x-showSocket": val,
+        },
+      },
+    });
+  };
+
+  const showInput = useSelector(
+    input.actor,
+    (snap) =>
+      snap.context.inputSockets[input.definition["x-key"]]["x-showSocket"],
+  );
+
+  return (
+    <div className="mb-2 flex flex-row space-x-1">
+      <Toggle onPressedChange={handleToggle} pressed={showInput} size={"sm"}>
+        {showInput ? (
+          <CircleDot className="h-4 w-4" />
+        ) : (
+          <Circle className="h-4 w-4" />
+        )}
+      </Toggle>
+      <ControlWrapper control={input.control} />
+    </div>
+  );
+};
+
+export const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
   const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,
@@ -540,41 +584,13 @@ export const ControlWrapper: React.FC<{ control: any; label: string }> = ({
     );
   }
 
-  const handleToggle = (val: boolean) => {
-    control.actor.send({
-      type: "UPDATE_SOCKET",
-      params: {
-        name: control.definition["x-key"],
-        side: "input",
-        socket: {
-          "x-showSocket": val,
-        },
-      },
-    });
-  };
-
-  const showInput = useSelector(
-    control.actor,
-    (snap) =>
-      snap.context.inputSockets[control.definition["x-key"]]["x-showSocket"],
-  );
-
   return (
     <>
       <div
-        className="mb-2 flex flex-row space-x-1"
+        className="flex flex-1 flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <Toggle onPressedChange={handleToggle} pressed={showInput} size={"sm"}>
-          {showInput ? (
-            <CircleDot className="h-4 w-4" />
-          ) : (
-            <Circle className="h-4 w-4" />
-          )}
-        </Toggle>
-        <span className="flex flex-1 flex-col">
-          <ControlElement data={control} />
-        </span>
+        <ControlElement data={control} />
       </div>
     </>
   );
