@@ -400,7 +400,7 @@ export abstract class BaseNode<
         snapshot: this.nodeData.state,
       };
       this.actor = this.setupActor(actorInput);
-    } else if (this.nodeData.context) {
+    } else if (this.nodeData.context && this.nodeData.context !== {}) {
       // CONTEXT STATE
       this.actor = this.setupActor({
         snapshot: this.nodeData.context!,
@@ -413,10 +413,6 @@ export abstract class BaseNode<
     }
 
     this.snap = this.actor.getSnapshot();
-    console.log("INITITIITITIIT", this.actor, {
-      input: this.nodeData.context,
-      snapshot: this.nodeData.state,
-    });
     this.inputSockets = this.snapshot.context?.inputSockets || {};
     this.outputSockets = this.snapshot.context?.outputSockets || {};
     // this.output = this.snapshot.context?.outputs || {};
@@ -644,6 +640,7 @@ export abstract class BaseNode<
       ...state.context.inputs,
     };
     console.log(values);
+
     let index = 0;
     for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasInput(key)) {
@@ -741,7 +738,7 @@ export abstract class BaseNode<
           item.type,
           item.default,
         );
-        if (!isUndefined(item.default)) {
+        if (!isUndefined(item.default) && !item["x-actor"]) {
           values[key] = item.default;
         } else {
           // values[key] = item.type === "date" ? undefined : "";
@@ -750,10 +747,10 @@ export abstract class BaseNode<
       }
     }
     console.log("setting values", values);
-    this.pactor.send({
-      type: "SET_VALUE",
-      values,
-    });
+    // this.pactor.send({
+    //   type: "SET_VALUE",
+    //   values,
+    // });
   }
 
   public setOutputSockets(sockets: Record<string, JSONSocket>) {

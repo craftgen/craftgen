@@ -12,7 +12,13 @@ import { InputSection } from "./input-section";
 import { Content } from "./shared";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
+  console.log(props.data.id, { props });
+  if (!props.data.actor) {
+    return null;
+  }
+  // return null;
   const actor = props.data.actor;
+
   const messages = useSelector(props.data.actor, props.data.selector);
 
   const handleAdd = (value: string) => {

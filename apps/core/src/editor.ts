@@ -601,6 +601,7 @@ export class Editor<
           c.targetInput,
           this,
         );
+        conn.sync();
 
         await this.editor.addConnection(conn as Scheme["Connection"]);
       }

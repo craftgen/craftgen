@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { merge } from "lodash-es";
+import { isUndefined, merge } from "lodash-es";
 import {
   generateText,
   openai,
@@ -153,20 +153,38 @@ const outputSockets = {
 const OpenAICompleteChatMachine = createMachine(
   {
     id: "openai-complete-chat",
-    entry: [
-      assign({
-        inputs: ({ context, spawn }) => {
-          const threadActor = spawn("thread", {
-            id: "thread",
-            syncSnapshot: true,
-          });
-          return {
-            ...context.inputs,
-            messages: threadActor,
-          };
-        },
-      }),
-    ],
+    // always: {
+    //   guard: ({ context }) => isUndefined(context.inputs.messages),
+    //   target: "idle",
+    //   actions: assign({
+    //     inputs: ({ context, spawn }) => {
+    //       const threadActor = spawn("thread", {
+    //         id: "thread",
+    //         syncSnapshot: true,
+    //       });
+    //       return {
+    //         ...context.inputs,
+    //         messages: threadActor,
+    //       };
+    //     },
+    //   }),
+    // },
+    entry: enqueueActions(({ enqueue, check }) => {
+      if (check(({ context }) => !context.inputs.messages)) {
+        enqueue.assign({
+          inputs: ({ context, spawn }) => {
+            const threadActor = spawn("thread", {
+              id: "thread",
+              syncSnapshot: true,
+            });
+            return {
+              ...context.inputs,
+              messages: threadActor,
+            };
+          },
+        });
+      }
+    }),
     context: ({ input }) =>
       merge<typeof input, any>(
         {
@@ -264,7 +282,24 @@ const OpenAICompleteChatMachine = createMachine(
             target: "running",
           },
           SET_VALUE: {
-            actions: ["setValue", "adjustMaxCompletionTokens"],
+            actions: enqueueActions(({ enqueue, check }) => {
+              enqueue("setValue");
+              enqueue("adjustMaxCompletionTokens");
+              if (check(({ context }) => !context.inputs.messages)) {
+                enqueue.assign({
+                  inputs: ({ context, spawn }) => {
+                    const threadActor = spawn("thread", {
+                      id: "thread",
+                      syncSnapshot: true,
+                    });
+                    return {
+                      ...context.inputs,
+                      messages: threadActor,
+                    };
+                  },
+                });
+              }
+            }),
           },
           ADD_AND_RUN_MESSAGE: {
             actions: enqueueActions(({ enqueue }) => {
@@ -309,6 +344,10 @@ const OpenAICompleteChatMachine = createMachine(
             const messages = context.inputs.messages as ActorRefFrom<
               typeof ThreadMachine
             >;
+            console.log("MESSAGES", {
+              context,
+              messages,
+            });
             return {
               openai: {
                 model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
