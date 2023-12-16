@@ -1,6 +1,6 @@
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { MergeDeep } from "type-fest";
-import { AnyActor, SnapshotFrom } from "xstate";
+import { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
 import { JSONSocketTypeKeys, types } from "../sockets";
@@ -47,7 +47,9 @@ export const socketSchema = z
     "x-showSocket": z.boolean().default(true).optional(),
     "x-key": z.string(),
     "x-event": z.string().optional(),
-    "x-actor": z.string().optional(),
+    "x-actor": z.custom<AnyActor>().optional(),
+    "x-actor-ref": z.custom<AnyActorRef>().optional(),
+    "x-actor-type": z.string().optional(),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {

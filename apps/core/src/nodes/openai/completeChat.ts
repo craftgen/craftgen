@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isUndefined, merge } from "lodash-es";
+import { isNil, isUndefined, merge } from "lodash-es";
 import {
   generateText,
   openai,
@@ -20,8 +20,10 @@ import {
   forwardTo,
   fromPromise,
   log,
+  spawnChild,
 } from "xstate";
 
+import { context } from "../../../../supabase/db";
 import { generateSocket } from "../../controls/socket-generator";
 import { ThreadControl } from "../../controls/thread.control";
 import { DiContainer } from "../../types";
@@ -33,7 +35,7 @@ import {
   None,
   ParsedNode,
 } from "../base";
-import { Thread, ThreadMachine } from "../thread";
+import { Thread, ThreadMachine, ThreadMachineEvent } from "../thread";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -64,7 +66,7 @@ const inputSockets = {
     "x-key": "messages",
     type: "array",
     "x-controller": "thread",
-    "x-actor": "Thread",
+    "x-actor-type": "Thread",
     isMultiple: false,
     default: [],
   }),
@@ -169,17 +171,40 @@ const OpenAICompleteChatMachine = createMachine(
     //     },
     //   }),
     // },
-    entry: enqueueActions(({ enqueue, check }) => {
+    entry: enqueueActions(({ enqueue, check, context }) => {
+      for (const [key, value] of Object.entries(context.inputSockets)) {
+        if (value["x-actor-type"] && isNil(value["x-actor"])) {
+          enqueue.assign({
+            inputSockets: ({ context, spawn }) => {
+              const actor = spawn(value["x-actor-type"], {
+                id: `child_${createId()}`,
+                syncSnapshot: true,
+              });
+              return {
+                ...context.inputSockets,
+                [key]: {
+                  ...context.inputSockets[key],
+                  "x-actor": actor,
+                  "x-actor-ref": actor,
+                },
+              };
+            },
+          });
+        }
+      }
       if (check(({ context }) => !context.inputs.messages)) {
         enqueue.assign({
-          inputs: ({ context, spawn }) => {
+          inputsSockets: ({ context, spawn }) => {
             const threadActor = spawn("thread", {
               id: "thread",
               syncSnapshot: true,
             });
             return {
-              ...context.inputs,
-              messages: threadActor,
+              ...context.inputsSockets,
+              messages: {
+                ...context.inputsSockets.messages,
+                default: threadActor,
+              },
             };
           },
         });
@@ -191,7 +216,7 @@ const OpenAICompleteChatMachine = createMachine(
           inputs: {
             RUN: undefined,
             system: "",
-            messages: null,
+            messages: [],
             temperature: 0.7,
             model: "gpt-3.5-turbo-1106",
             maxCompletionTokens: 1000,
@@ -225,17 +250,7 @@ const OpenAICompleteChatMachine = createMachine(
             type: "CONFIG_CHANGE";
             openai: OpenAIChatSettings;
           }
-        | {
-            type: "CLEAR_THREAD";
-          }
-        | {
-            type: "ADD_MESSAGE";
-            params: OpenAIChatMessage;
-          }
-        | {
-            type: "ADD_AND_RUN_MESSAGE";
-            params: MessageCreateParams;
-          };
+        | ThreadMachineEvent;
       guards: None;
       actors: {
         src: "completeChat";
@@ -243,38 +258,17 @@ const OpenAICompleteChatMachine = createMachine(
       };
     }>,
     initial: "idle",
+    on: {
+      "THREAD.*": {
+        actions: forwardTo(
+          ({ context }) => context.inputSockets.messages["x-actor-ref"]!,
+        ),
+      },
+    },
     states: {
       idle: {
         entry: ["updateOutputMessages"],
         on: {
-          ADD_MESSAGE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue(log());
-              enqueue(forwardTo("thread"));
-            }),
-          },
-          // ADD_MESSAGE: {
-          //   actions: enqueueActions(({ enqueue }) => {
-          //     // enqueue({
-          //     //   type: "addMessage",
-          //     //   params: ({ event }) => ({
-          //     //     content: event.params.content,
-          //     //     role: event.params.role,
-          //     //   }),
-          //     // });
-          //     // enqueue.sendTo(({ system }) => system.get("thread"), {
-          //     //   type: "ADD_MESSAGE",
-          //     //   params: ({ event }) => ({
-          //     //     content: event.params.content,
-          //     //     role: event.params.role,
-          //     //   }),
-          //     // });
-          //     enqueue({
-          //       type: "updateOutputMessages",
-          //     });
-          //   }),
-          //   reenter: true,
-          // },
           UPDATE_SOCKET: {
             actions: ["updateSocket"],
           },
@@ -285,54 +279,7 @@ const OpenAICompleteChatMachine = createMachine(
             actions: enqueueActions(({ enqueue, check }) => {
               enqueue("setValue");
               enqueue("adjustMaxCompletionTokens");
-              if (check(({ context }) => !context.inputs.messages)) {
-                enqueue.assign({
-                  inputs: ({ context, spawn }) => {
-                    const threadActor = spawn("thread", {
-                      id: "thread",
-                      syncSnapshot: true,
-                    });
-                    return {
-                      ...context.inputs,
-                      messages: threadActor,
-                    };
-                  },
-                });
-              }
             }),
-          },
-          ADD_AND_RUN_MESSAGE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue(forwardTo("thread"));
-              // enqueue({
-              //   type: "addMessage",
-              //   params: ({ event }) => ({
-              //     content: event.params.content,
-              //     role: event.params.role,
-              //   }),
-              // });
-              enqueue({
-                type: "updateOutputMessages",
-              });
-            }),
-            target: "running",
-            reenter: true,
-          },
-          CLEAR_THREAD: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue.assign({
-                inputs: ({ context }) => {
-                  return {
-                    ...context.inputs,
-                    messages: [],
-                  };
-                },
-              });
-              enqueue({
-                type: "updateOutputMessages",
-              });
-            }),
-            reenter: true,
           },
         },
       },
@@ -341,13 +288,7 @@ const OpenAICompleteChatMachine = createMachine(
           src: "completeChat",
           input: ({ context }): CompleteChatInput => {
             console.log("CONTEXT", context);
-            const messages = context.inputs.messages as ActorRefFrom<
-              typeof ThreadMachine
-            >;
-            console.log("MESSAGES", {
-              context,
-              messages,
-            });
+
             return {
               openai: {
                 model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
@@ -355,21 +296,16 @@ const OpenAICompleteChatMachine = createMachine(
                 maxCompletionTokens: context.inputs.maxCompletionTokens!,
               },
               system: context.inputs.system!,
-              messages: messages!
-                .getSnapshot()
-                .context.outputs?.messages.map(({ id, ...rest }) => {
-                  return rest;
-                }) as OpenAIChatMessage[],
-              // messages: context.inputs.messages?.map(({ id, ...rest }) => {
-              //   return rest;
-              // }) as OpenAIChatMessage[],
+              messages: context.inputs.messages?.map(({ id, ...rest }) => {
+                return rest;
+              }) as OpenAIChatMessage[],
             };
           },
           onDone: {
             target: "#openai-complete-chat.idle",
             actions: enqueueActions(({ enqueue }) => {
               enqueue.sendTo(
-                ({ context }) => context.inputs.messages,
+                ({ context }) => context.inputSockets.messages["x-actor-ref"],
                 ({ context, event }) => ({
                   type: "ADD_MESSAGE",
                   params: {
@@ -400,7 +336,7 @@ const OpenAICompleteChatMachine = createMachine(
   },
   {
     actors: {
-      thread: ThreadMachine,
+      Thread: ThreadMachine,
     },
   },
 );
@@ -504,16 +440,5 @@ export class OpenAICompleteChat extends BaseNode<
         }),
       },
     });
-    // this.addControl(
-    //   "thread",
-    //   new ThreadControl(
-    //     this.snap.context.thread,
-    //     (snap) => snap.context.inputs.messages,
-    //     {},
-    //     {
-    //       ...this.snap.context.inputSockets.messages,
-    //     },
-    //   ),
-    // );
   }
 }

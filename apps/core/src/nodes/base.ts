@@ -649,8 +649,8 @@ export abstract class BaseNode<
           input.socket = getSocketByJsonSchemaType(item)! as any;
           input.actor = this.actor;
           if (input.control) {
-            if (item["x-actor"]) {
-              input.control.actor = state.context.inputs[key]; // update the actor;
+            if (item["x-actor-ref"]) {
+              input.control.actor = item["x-actor-ref"]; // update the actor;
             } else {
               input.control.actor = this.pactor; // update the actor;
             }
@@ -686,7 +686,8 @@ export abstract class BaseNode<
           key,
           input,
           actor: this.actor,
-          inputActor: this.snapshot.context.inputs[key],
+          inputActor: item["x-actor"],
+          inputActorRef: item["x-actor-ref"],
           selector: (snapshot) => snapshot.context.inputs[key],
           onChange: (v) => {
             this.pactor.send({
@@ -698,9 +699,20 @@ export abstract class BaseNode<
           },
           definition: item,
         });
+        // this.actor.send({
+        //   type: "UPDATE_SOCKET",
+        //   params: {
+        //     name: key,
+        //     side: "input",
+        //     socket: {
+        //       ...item,
+        //       "x-actor":
+        //     },
+        //   },
+        // }),
         const controller = getControlBySocket({
           socket: socket,
-          actor: this.snapshot.context.inputs[key],
+          actor: item["x-actor-ref"],
           selector: (snapshot) => snapshot.context.inputs[key],
           onChange: (v) => {
             this.pactor.send({

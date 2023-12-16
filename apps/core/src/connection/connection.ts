@@ -141,9 +141,16 @@ export class Connection<
       b();
       if (this.targetInput === "messages" && this.d) {
         this.targetNode.actor.send({
-          type: "SET_VALUE",
-          values: {
-            [this.targetInput]: undefined,
+          type: "UPDATE_SOCKET",
+          params: {
+            name: this.targetInput,
+            side: "input",
+            socket: {
+              "x-actor-ref":
+                this.targetNode.snap.context.inputSockets[this.targetInput][
+                  "x-actor"
+                ],
+            },
           },
         });
       }
@@ -160,39 +167,47 @@ export class Connection<
     console.log("SYNC");
     if (this.targetInput === "messages" && !this.d) {
       console.log("UPDATING THE REFERENCE", {
-        type: "SET_VALUE",
-        values: {
-          [this.targetInput]: this.sourceNode.actor.ref,
+        type: "UPDATE_SOCKET",
+        params: {
+          name: this.targetInput,
+          side: "input",
+          socket: {
+            "x-actor-ref": this.sourceNode.actor.ref,
+          },
         },
       });
 
       this.targetNode.actor.send({
-        type: "SET_VALUE",
-        values: {
-          [this.targetInput]: this.sourceNode.actor.ref,
+        type: "UPDATE_SOCKET",
+        params: {
+          name: this.targetInput,
+          side: "input",
+          socket: {
+            "x-actor-ref": this.sourceNode.actor.ref,
+          },
         },
       });
       this.d = true;
     }
 
-    // console.log("VALUES ARE NOT MATCHING", {
-    //   type: "SET_VALUE",
-    //   values: {
-    //     [this.targetInput]: this.sourceValue,
-    //   },
-    // });
-    // const canSetValue = this.targetNode.snap.can({
-    //   type: "SET_VALUE",
-    // });
-    // if (!canSetValue) {
-    //   console.log("cannot set value");
-    // }
-    // this.targetNode.actor.send({
-    //   type: "SET_VALUE",
-    //   values: {
-    //     [this.targetInput]: this.sourceValue,
-    //   },
-    // });
+    console.log("VALUES ARE NOT MATCHING", {
+      type: "SET_VALUE",
+      values: {
+        [this.targetInput]: this.sourceValue,
+      },
+    });
+    const canSetValue = this.targetNode.snap.can({
+      type: "SET_VALUE",
+    });
+    if (!canSetValue) {
+      console.log("cannot set value");
+    }
+    this.targetNode.actor.send({
+      type: "SET_VALUE",
+      values: {
+        [this.targetInput]: this.sourceValue,
+      },
+    });
   }
 
   public setTargetValue(value: any) {

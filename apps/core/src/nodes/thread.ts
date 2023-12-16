@@ -4,10 +4,12 @@ import { MessageCreateParams } from "openai/resources/beta/threads/messages/mess
 import { SetOptional } from "type-fest";
 import {
   assign,
+  createEmptyActor,
   createMachine,
   enqueueActions,
   log,
   PromiseActorLogic,
+  sendTo,
 } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
@@ -68,6 +70,27 @@ const outputSockets = {
     "x-showSocket": true,
   }),
 };
+
+export const THREAD = "THREAD";
+
+export enum ThreadMachineEvents {
+  addMessage = `${THREAD}.ADD_MESSAGE`,
+  addAndRunMessage = `${THREAD}.ADD_AND_RUN_MESSAGE`,
+  clearThread = `${THREAD}.CLEAR_THREAD`,
+}
+
+export type ThreadMachineEvent =
+  | {
+      type: ThreadMachineEvents.addMessage;
+      params: MessageCreateParams;
+    }
+  | {
+      type: ThreadMachineEvents.addAndRunMessage;
+      params: MessageCreateParams;
+    }
+  | {
+      type: ThreadMachineEvents.clearThread;
+    };
 
 export const ThreadMachine = createMachine(
   {
@@ -142,18 +165,7 @@ export const ThreadMachine = createMachine(
             type: "addMessage";
             // params: MessageCreateParams;
           };
-      events:
-        | {
-            type: "ADD_MESSAGE";
-            params: MessageCreateParams;
-          }
-        | {
-            type: "ADD_AND_RUN_MESSAGE";
-            params: MessageCreateParams;
-          }
-        | {
-            type: "CLEAR_THREAD";
-          };
+      events: ThreadMachineEvent;
       actors:
         | {
             src: "addMessage";
@@ -184,7 +196,7 @@ export const ThreadMachine = createMachine(
       idle: {
         entry: ["updateOutputMessages"],
         on: {
-          ADD_MESSAGE: {
+          [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               console.log("addMessage INSIDE", context, event);
               enqueue(log("addMessage"));
@@ -197,7 +209,8 @@ export const ThreadMachine = createMachine(
             }),
             reenter: true,
           },
-          CLEAR_THREAD: {
+
+          [ThreadMachineEvents.clearThread]: {
             actions: enqueueActions(({ enqueue }) => {
               enqueue.assign({
                 inputs: ({ context }) => {
@@ -214,7 +227,7 @@ export const ThreadMachine = createMachine(
             reenter: true,
           },
 
-          ADD_AND_RUN_MESSAGE: {
+          [ThreadMachineEvents.addAndRunMessage]: {
             actions: enqueueActions(({ enqueue }) => {
               enqueue({
                 type: "addMessage",
@@ -239,13 +252,45 @@ export const ThreadMachine = createMachine(
   },
   {
     actions: {
-      updateOutputMessages: assign({
-        outputs: ({ context }) => {
-          return {
-            messages: context.inputs.messages,
-          };
+      updateOutputMessages: enqueueActions(
+        ({ enqueue, event, context, check }) => {
+          console.log("UPDATE OUTPUTS", event, context);
+          enqueue.assign({
+            outputs: ({ context }) => {
+              return {
+                messages: context.inputs.messages,
+              };
+            },
+          });
+
+          // enqueue(
+          //   sendParent({
+          //     type: "SET_VALUE",
+          //     values: {
+          //       messages: context.inputs.messages,
+          //     },
+          //   }),
+          // );
+
+          enqueue(
+            sendTo(
+              ({ self }) => {
+                if (self._parent) {
+                  return self._parent;
+                }
+
+                return createEmptyActor();
+              },
+              {
+                type: "SET_VALUE",
+                values: {
+                  messages: context.inputs.messages,
+                },
+              },
+            ),
+          );
         },
-      }),
+      ),
       addMessage: assign({
         inputs: ({ context, event }) => {
           const id = `message_${createId()}`;
@@ -281,31 +326,5 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
   }
   constructor(di: DiContainer, data: ThreadNode) {
     super("Thread", di, data, ThreadMachine, {});
-    // super("Thread", di, data, ThreadMachine, {
-    //   actions: {
-    //     updateOutputMessages: assign({
-    //       outputs: ({ context }) => {
-    //         return {
-    //           messages: context.inputs.messages,
-    //         };
-    //       },
-    //     }),
-    //     addMessage: assign({
-    //       inputs: ({ context, event }) => {
-    //         const id = `message_${createId()}`;
-    //         return {
-    //           ...context.inputs,
-    //           messages: [
-    //             ...context.inputs.messages,
-    //             {
-    //               id,
-    //               ...event.params,
-    //             },
-    //           ],
-    //         };
-    //       },
-    //     }),
-    //   },
-    // });
   }
 }

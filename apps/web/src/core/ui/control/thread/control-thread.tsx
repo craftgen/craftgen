@@ -4,6 +4,7 @@ import {
   Message,
   ThreadControl,
 } from "@seocraft/core/src/controls/thread.control";
+import { ThreadMachineEvents } from "@seocraft/core/src/nodes/thread";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,7 +13,7 @@ import { InputSection } from "./input-section";
 import { Content } from "./shared";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
-  console.log(props.data.id, { props });
+  // console.log(props.data.id, { props });
   if (!props.data.actor) {
     return null;
   }
@@ -23,7 +24,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
 
   const handleAdd = (value: string) => {
     actor.send({
-      type: "ADD_MESSAGE",
+      type: ThreadMachineEvents.addMessage,
       params: {
         content: value,
         role: "user",
@@ -32,7 +33,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   };
   const handleAddAndRun = (value: string) => {
     actor.send({
-      type: "ADD_AND_RUN_MESSAGE",
+      type: ThreadMachineEvents.addAndRunMessage,
       params: {
         content: value,
         role: "user",
@@ -52,7 +53,9 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
         </div>
         <div>
           <Button
-            onClick={() => actor.send({ type: "CLEAR_THREAD" })}
+            onClick={() =>
+              actor.send({ type: ThreadMachineEvents.clearThread })
+            }
             variant={"outline"}
           >
             Clear Thread
@@ -67,9 +70,6 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   );
 };
 const Messages = (props: { messages: Message[] }) => {
-  console.log({
-    messages: props.messages,
-  });
   return (
     <div className="min-h-[10rem] flex-1">
       <ScrollArea>
