@@ -42,6 +42,7 @@ import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
+import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
@@ -518,7 +519,9 @@ export const DynamicInputsForm: React.FC<{
 };
 
 export const InputWrapper: React.FC<{ input: Input }> = ({ input }) => {
-  if (!input.control || !input.showControl) {
+  console.log(input);
+  if (!input.control) {
+    // if (!input.control || !input.showControl) {
     return (
       <Alert variant={"default"} key={input.label}>
         <AlertTitle>
@@ -550,8 +553,18 @@ export const InputWrapper: React.FC<{ input: Input }> = ({ input }) => {
   );
 
   return (
-    <div className="mb-2 flex flex-row space-x-1">
-      <Toggle onPressedChange={handleToggle} pressed={showInput} size={"sm"}>
+    <div
+      className={cn(
+        "mb-2 flex flex-row space-x-1 p-2",
+        !input.showControl && "bg-muted/30 rounded border",
+      )}
+    >
+      <Toggle
+        onPressedChange={handleToggle}
+        pressed={showInput}
+        size={"sm"}
+        disabled={!input.showControl}
+      >
         {showInput ? (
           <CircleDot className="h-4 w-4" />
         ) : (

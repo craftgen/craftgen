@@ -139,7 +139,21 @@ export class Connection<
     this.destroy = () => {
       a();
       b();
-      if (this.targetInput === "messages" && this.d) {
+      if (this.targetInput === "messages") {
+        console.log("@@@@", "RESTORING THE REFERENCE", {
+          type: "UPDATE_SOCKET",
+          params: {
+            name: this.targetInput,
+            side: "input",
+            socket: {
+              "x-actor-ref":
+                this.targetNode.snap.context.inputSockets[this.targetInput][
+                  "x-actor"
+                ],
+            },
+          },
+        });
+
         this.targetNode.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -153,6 +167,11 @@ export class Connection<
             },
           },
         });
+        const targetInput = this.targetNode.inputs[this.targetInput];
+        if (targetInput?.control?.id) {
+          this.targetNode.di.area?.update("control", targetInput?.control?.id);
+        }
+        this.targetNode.di.area?.update("node", this.targetNode.id);
       }
     };
   }
@@ -161,22 +180,13 @@ export class Connection<
     return `${this.sourceNode.label}-${this.sourceOutput}-${this.targetNode.label}-${this.targetInput}`;
   }
 
-  public d = false;
-
   public sync() {
     console.log("SYNC");
-    if (this.targetInput === "messages" && !this.d) {
-      console.log("UPDATING THE REFERENCE", {
-        type: "UPDATE_SOCKET",
-        params: {
-          name: this.targetInput,
-          side: "input",
-          socket: {
-            "x-actor-ref": this.sourceNode.actor.ref,
-          },
-        },
-      });
-
+    const outputDefinitiation =
+      this.sourceNode.snap.context.outputSockets[this.sourceOutput];
+    const inputDefinition =
+      this.targetNode.snap.context.inputSockets[this.targetInput];
+    if (inputDefinition["x-actor-type"] === this.sourceNode.ID) {
       this.targetNode.actor.send({
         type: "UPDATE_SOCKET",
         params: {
@@ -187,7 +197,6 @@ export class Connection<
           },
         },
       });
-      this.d = true;
     }
 
     console.log("VALUES ARE NOT MATCHING", {

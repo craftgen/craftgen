@@ -35,7 +35,12 @@ import {
   None,
   ParsedNode,
 } from "../base";
-import { Thread, ThreadMachine, ThreadMachineEvent } from "../thread";
+import {
+  Thread,
+  ThreadMachine,
+  ThreadMachineEvent,
+  ThreadMachineEvents,
+} from "../thread";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -260,9 +265,17 @@ const OpenAICompleteChatMachine = createMachine(
     initial: "idle",
     on: {
       "THREAD.*": {
-        actions: forwardTo(
-          ({ context }) => context.inputSockets.messages["x-actor-ref"]!,
-        ),
+        actions: enqueueActions(({ enqueue, check }) => {
+          if (
+            check(
+              ({ context }) => !context.inputSockets.messages["x-actor-ref"],
+            )
+          ) {
+            forwardTo(
+              ({ context }) => context.inputSockets.messages["x-actor-ref"],
+            );
+          }
+        }),
       },
     },
     states: {
@@ -305,9 +318,9 @@ const OpenAICompleteChatMachine = createMachine(
             target: "#openai-complete-chat.idle",
             actions: enqueueActions(({ enqueue }) => {
               enqueue.sendTo(
-                ({ context }) => context.inputSockets.messages["x-actor-ref"],
+                ({ context }) => context.inputSockets.messages["x-actor-ref"]!,
                 ({ context, event }) => ({
-                  type: "ADD_MESSAGE",
+                  type: ThreadMachineEvents.addMessage,
                   params: {
                     content: event.output.result,
                     role: "assistant",

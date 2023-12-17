@@ -390,9 +390,9 @@ export abstract class BaseNode<
     //   // TODO: Remove this. make everyting final.
     //   set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
     // }
-    set(this.machine.config.on, "RESET", {
-      target: "idle",
-    });
+    // set(this.machine.config.on, "RESET", {
+    //   target: "idle",
+    // });
 
     if (this.nodeData.state) {
       // EXECUTION STATE
@@ -1197,8 +1197,8 @@ export abstract class BaseNode<
     const state = this.actor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
     return {
       ...this.nodeData,
-      state: state,
-      context: state.context,
+      // state: state,
+      context: state,
       width: this.width,
       height: this.height,
     };
