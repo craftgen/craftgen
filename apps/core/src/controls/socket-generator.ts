@@ -50,6 +50,7 @@ export const socketSchema = z
     "x-actor": z.custom<AnyActor>().optional(),
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
     "x-actor-type": z.string().optional(),
+    // "x-connection": z.record(z.string(), z.string()).optional().default({}),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {

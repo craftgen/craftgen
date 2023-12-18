@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import type { Session } from "@supabase/supabase-js";
@@ -17,10 +17,11 @@ import {
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import JsonView from "react18-json-view";
-import type { Input as InputNode } from "rete/_types/presets/classic";
 import { match, P } from "ts-pattern";
+import { AnyActor } from "xstate";
 import { useStore } from "zustand";
 
+import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import { Input } from "@seocraft/core/src/input-output";
 import type { Socket } from "@seocraft/core/src/sockets";
 import type { NodeProps } from "@seocraft/core/src/types";
@@ -286,7 +287,7 @@ const LoginToContinue: React.FC<{}> = ({}) => {
 const InspectorWindow: React.FC<{}> = observer(({}) => {
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
-  const selectedNode = di?.selectedNode;
+  const selectedNode = useMemo(() => di?.selectedNode, [di?.selectedNodeId]);
 
   const handlePinTab = () => {
     if (!selectedNode) return;
@@ -312,16 +313,12 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
     <>
       {selectedNode ? (
         <div className="flex h-full flex-col">
-          {/* <Button onClick={handlePinTab}>Pin</Button> */}
           <InspectorNode node={selectedNode} />
         </div>
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center">
-          <div>Select a node to inspect</div>
-          <div>
-            <pre>
-              <code>execId: {di?.executionId}</code>
-            </pre>
+          <div className="text-muted-foreground border-spacing-3 border  border-dashed p-4 py-6 font-sans text-xl font-bold">
+            Select a node to inspect
           </div>
         </div>
       )}
@@ -329,8 +326,7 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   );
 });
 
-const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
-  const di = useCraftStore((state) => state.di);
+const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
   const controls = Object.entries(node.controls);
   const state = useSelector(node.actor, (state) => state);
   const outputs = useMemo(() => {
@@ -385,7 +381,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
       )}
     </div>
   );
-};
+});
 
 export const renderFieldValueBaseOnSocketType = (
   socket: Socket,
@@ -483,119 +479,103 @@ export const renderFieldValueBaseOnSocketType = (
 };
 
 export const DynamicInputsForm: React.FC<{
-  inputs: Record<string, InputNode<Socket> | undefined>;
-}> = ({ inputs }) => {
+  inputs: Record<string, Input<AnyActor, Socket>>;
+}> = observer(({ inputs }) => {
   return (
     <>
       {Object.entries(inputs).map(([inputKey, input]) => {
         return <InputWrapper key={inputKey} input={input} />;
-        // if (!input?.control || !input?.showControl) {
-        //   if (input?.socket.name === "Trigger") return null;
-        //   console.log(input);
-        //   return (
-        //     <Alert variant={"default"} key={inputKey}>
-        //       <AlertTitle>
-        //         Input: <Badge>{inputKey}</Badge>
-        //       </AlertTitle>
-        //       <AlertDescription>
-        //         <pre>
-        //           <code>{JSON.stringify({ inputKey }, null, 2)}</code>
-        //         </pre>
-        //         This input controlled by the incoming connection.
-        //       </AlertDescription>
-        //     </Alert>
-        //   );
-        // }
-        // return (
-        //   <ControlWrapper
-        //     key={inputKey}
-        //     control={input.control}
-        //     label={inputKey}
-        //   />
-        // );
       })}
     </>
   );
-};
+});
 
-export const InputWrapper: React.FC<{ input: Input }> = ({ input }) => {
-  console.log(input);
-  if (!input.control) {
-    // if (!input.control || !input.showControl) {
-    return (
-      <Alert variant={"default"} key={input.label}>
-        <AlertTitle>
-          Input: <Badge>{input.id}</Badge>
-        </AlertTitle>
-        <AlertDescription>
-          This input controlled by the incoming connection.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  const handleToggle = (val: boolean) => {
-    input.actor.send({
-      type: "UPDATE_SOCKET",
-      params: {
-        name: input.definition["x-key"],
-        side: "input",
-        socket: {
-          "x-showSocket": val,
+export const InputWrapper: React.FC<{ input: Input }> = observer(
+  ({ input }) => {
+    if (!input.control) {
+      // if (!input.control || !input.showControl) {
+      return (
+        <Alert variant={"default"} key={input.label}>
+          <AlertTitle>
+            Input: <Badge>{input.id}</Badge>
+          </AlertTitle>
+          <AlertDescription>
+            This input controlled by the incoming connection.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    const handleToggle = (val: boolean) => {
+      input.actor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          name: input.definition["x-key"],
+          side: "input",
+          socket: {
+            "x-showSocket": val,
+          },
         },
-      },
-    });
-  };
+      });
+    };
 
-  const showInput = useSelector(
-    input.actor,
-    (snap) =>
-      snap.context.inputSockets[input.definition["x-key"]]["x-showSocket"],
-  );
+    const definition = useSelector(input.actor, input.selector);
+    const connections = useMemo(() => {
+      return Object.entries(definition["x-connection"] || {});
+    }, [definition["x-connection"]]);
+    const hasConnection = useMemo(() => {
+      return connections.length > 0;
+    }, [connections]);
 
-  return (
-    <div
-      className={cn(
-        "mb-2 flex flex-row space-x-1 p-2",
-        !input.showControl && "bg-muted/30 rounded border",
-      )}
-    >
-      <Toggle
-        onPressedChange={handleToggle}
-        pressed={showInput}
-        size={"sm"}
-        disabled={!input.showControl}
-      >
-        {showInput ? (
-          <CircleDot className="h-4 w-4" />
-        ) : (
-          <Circle className="h-4 w-4" />
+    return (
+      <div
+        className={cn(
+          "mb-2 flex flex-row space-x-1 p-2",
+          hasConnection && "bg-muted/30 rounded border",
         )}
-      </Toggle>
-      <ControlWrapper control={input.control} />
-    </div>
-  );
-};
+      >
+        <Toggle
+          onPressedChange={handleToggle}
+          pressed={definition["x-showSocket"]}
+          size={"sm"}
+          disabled={hasConnection}
+        >
+          {definition["x-showSocket"] ? (
+            <CircleDot className="h-4 w-4" />
+          ) : (
+            <Circle className="h-4 w-4" />
+          )}
+        </Toggle>
+        <ControlWrapper control={input.control} definition={definition} />
+      </div>
+    );
+  },
+);
 
-export const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
+export const ControlWrapper: React.FC<{
+  control: any;
+  definition: JSONSocket;
+}> = observer(({ control, definition }) => {
   const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,
     type: "control",
     payload: control,
   });
+  const [count, setCount] = useState(0);
 
-  if (!control.definition) {
-    return (
-      <div
-        className="mb-2 flex flex-row space-x-1"
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <span className="flex flex-1 flex-col">
-          <ControlElement data={control} />
-        </span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (
+      definition["x-actor-ref"] &&
+      control.actor.id !== definition["x-actor-ref"].id
+    ) {
+      console.log("Actors are not matching", {
+        definition,
+        control,
+      });
+
+      setCount((c) => c + 1);
+    }
+  }, [definition, control.actor]);
 
   return (
     <>
@@ -603,8 +583,9 @@ export const ControlWrapper: React.FC<{ control: any }> = ({ control }) => {
         className="flex flex-1 flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
+        <span className="hidden">{count}</span>
         <ControlElement data={control} />
       </div>
     </>
   );
-};
+});

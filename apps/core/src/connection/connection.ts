@@ -42,10 +42,16 @@ export class Connection<
 
   sourceNode: BaseNode<any, any, any, any>;
   targetNode: BaseNode<any, any, any, any>;
-  destroy: () => void;
+  destroy: () => Promise<void>;
 
   get inSync() {
     return this.sourceValue === this.targetValue;
+  }
+  get sourceDefintion() {
+    return this.sourceNode.snap.context.outputSockets[this.sourceOutput];
+  }
+  get targetDefintion() {
+    return this.targetNode.snap.context.inputSockets[this.targetInput];
   }
 
   constructor(
@@ -98,6 +104,7 @@ export class Connection<
         this.setSourceValue(state.context.outputs[sourceOutput]);
       }
     });
+
     this.targetNode.actor.subscribe((state) => {
       if (this.targetValue !== state.context.inputs[targetInput]) {
         this.setTargetValue(state.context.inputs[targetInput]);
@@ -114,9 +121,37 @@ export class Connection<
       inSync: computed,
     });
 
+    this.targetNode.actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: this.targetInput,
+        side: "input",
+        socket: {
+          "x-connection": {
+            ...this.targetDefintion?.["x-connection"],
+            [this.sourceNode.id]: this.sourceOutput,
+          },
+        },
+      },
+    });
+    this.sourceNode.actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: this.sourceOutput,
+        side: "output",
+        socket: {
+          "x-connection": {
+            ...this.sourceDefintion?.["x-connection"],
+            [this.targetNode.id]: this.targetInput,
+          },
+        },
+      },
+    });
+
     if (!this.inSync) {
       this.sync();
     }
+
     const a = reaction(
       () => this.sourceValue,
       () => {
@@ -136,10 +171,74 @@ export class Connection<
       },
     );
 
-    this.destroy = () => {
+    this.destroy = async () => {
       a();
       b();
-      if (this.targetInput === "messages") {
+      // const sourceConnections = { ...this.sourceDefintion?.["x-connection"] };
+      // delete sourceConnections[this.targetNode.ID];
+
+      const sourceConnections = this.editor.editor
+        .getConnections()
+        .filter(
+          (connection) =>
+            connection.source === this.source &&
+            connection.sourceOutput === this.sourceOutput,
+        )
+        .reduce((acc, connection) => {
+          return {
+            ...acc,
+            [connection.target]: connection.targetInput,
+          };
+        }, {});
+
+      console.log("sourceConnections", sourceConnections);
+
+      this.sourceNode.actor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          name: this.sourceOutput,
+          side: "output",
+          socket: {
+            "x-connection": {
+              ...sourceConnections,
+            },
+          },
+        },
+      });
+
+      // const targetConnections = { ...this.targetDefintion?.["x-connection"] };
+      // delete targetConnections[this.sourceNode.ID];
+
+      const targetConnections = this.editor.editor
+        .getConnections()
+        .filter(
+          (connection) =>
+            connection.target === this.target &&
+            connection.targetInput === this.targetInput,
+        )
+        .reduce((acc, connection) => {
+          return {
+            ...acc,
+            [connection.source]: connection.sourceOutput,
+          };
+        }, {});
+
+      console.log("targetConnections", targetConnections);
+
+      this.targetNode.actor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          name: this.targetInput,
+          side: "input",
+          socket: {
+            "x-connection": {
+              ...targetConnections,
+            },
+          },
+        },
+      });
+
+      if (this.isActorRef) {
         console.log("@@@@", "RESTORING THE REFERENCE", {
           type: "UPDATE_SOCKET",
           params: {
@@ -160,18 +259,30 @@ export class Connection<
             name: this.targetInput,
             side: "input",
             socket: {
-              "x-actor-ref":
-                this.targetNode.snap.context.inputSockets[this.targetInput][
-                  "x-actor"
-                ],
+              "x-actor-ref": undefined,
             },
           },
         });
+
+        this.targetNode.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: this.targetInput,
+            side: "input",
+            socket: {
+              "x-actor-ref": this.targetDefintion?.["x-actor"],
+            },
+          },
+        });
+
         const targetInput = this.targetNode.inputs[this.targetInput];
         if (targetInput?.control?.id) {
-          this.targetNode.di.area?.update("control", targetInput?.control?.id);
+          await this.targetNode.di.area?.update(
+            "control",
+            targetInput?.control?.id,
+          );
         }
-        this.targetNode.di.area?.update("node", this.targetNode.id);
+        await this.targetNode.di.area?.update("node", this.targetNode.id);
       }
     };
   }
@@ -179,6 +290,8 @@ export class Connection<
   get identifier() {
     return `${this.sourceNode.label}-${this.sourceOutput}-${this.targetNode.label}-${this.targetInput}`;
   }
+
+  public isActorRef = false;
 
   public sync() {
     console.log("SYNC");
@@ -197,6 +310,7 @@ export class Connection<
           },
         },
       });
+      this.isActorRef = true;
     }
 
     console.log("VALUES ARE NOT MATCHING", {

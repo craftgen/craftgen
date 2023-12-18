@@ -762,11 +762,19 @@ export class Editor<
               data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
+          if (this.selectedNodeId && data.target === this.selectedNodeId) {
+            this.setSelectedNodeId(null);
+            this.setSelectedNodeId(data.target);
+          }
+          if (this.selectedNodeId && data.source === this.selectedNodeId) {
+            this.setSelectedNodeId(null);
+            this.setSelectedNodeId(data.source);
+          }
           return context;
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
           console.log("connectionremoved", { data });
-          data.destroy();
+          await data.destroy();
           await queue.add(() =>
             this.api.deleteEdge({
               workflowId: this.workflowId,
@@ -774,6 +782,14 @@ export class Editor<
               data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
+          if (this.selectedNodeId && data.target === this.selectedNodeId) {
+            this.setSelectedNodeId(null);
+            this.setSelectedNodeId(data.target);
+          }
+          if (this.selectedNodeId && data.source === this.selectedNodeId) {
+            this.setSelectedNodeId(null);
+            this.setSelectedNodeId(data.source);
+          }
           return context;
         })
         .otherwise(() => context);

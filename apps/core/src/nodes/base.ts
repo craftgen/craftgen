@@ -642,74 +642,14 @@ export abstract class BaseNode<
     console.log(values);
 
     let index = 0;
-    for (const [key, item] of Object.entries(rawTemplate)) {
-      if (this.hasInput(key)) {
-        const input = this.inputs[key];
-        if (input) {
-          input.socket = getSocketByJsonSchemaType(item)! as any;
-          input.actor = this.actor;
-          if (input.control) {
-            if (item["x-actor-ref"]) {
-              input.control.actor = item["x-actor-ref"]; // update the actor;
-            } else {
-              input.control.actor = this.pactor; // update the actor;
-            }
-            await this.di.area?.update("control", input.control.id);
-          }
-        }
-        continue;
-      }
 
-      const socket = getSocketByJsonSchemaType(item)!;
-      const input = new Input(
-        socket,
-        item.name,
-        item.isMultiple,
-        this.pactor,
-        (snapshot) => {
-          return snapshot.context.inputSockets[key];
-        },
-        /**
-         * TODO:
-         * We need a smarter way of determining if the input should be shown or not.
-         * need to track the if value set or not.
-         * if value is not set show the input
-         */
-      );
-
-      if (item["x-order"]) {
-        index = item["x-order"];
-      }
-      input.index = index + 1;
-      if (item["x-actor"]) {
-        console.log("SETTING UP WITH ACTOR", {
-          key,
-          input,
-          actor: this.actor,
-          inputActor: item["x-actor"],
-          inputActorRef: item["x-actor-ref"],
-          selector: (snapshot) => snapshot.context.inputs[key],
-          onChange: (v) => {
-            this.pactor.send({
-              type: "SET_VALUE",
-              values: {
-                [key]: v,
-              },
-            });
-          },
-          definition: item,
-        });
-        // this.actor.send({
-        //   type: "UPDATE_SOCKET",
-        //   params: {
-        //     name: key,
-        //     side: "input",
-        //     socket: {
-        //       ...item,
-        //       "x-actor":
-        //     },
-        //   },
-        // }),
+    const addController = (
+      input: Input,
+      item: JSONSocket,
+      key: string,
+      socket: Socket,
+    ) => {
+      if (item["x-actor-ref"]) {
         const controller = getControlBySocket({
           socket: socket,
           actor: item["x-actor-ref"],
@@ -742,6 +682,43 @@ export abstract class BaseNode<
         });
         input.addControl(controller);
       }
+    };
+    for (const [key, item] of Object.entries(rawTemplate)) {
+      if (this.hasInput(key)) {
+        const input = this.inputs[key];
+        if (input) {
+          input.socket = getSocketByJsonSchemaType(item)! as any;
+          input.actor = this.actor;
+          if (input.control) {
+            input.removeControl();
+            addController(input, item, key, input.socket);
+          }
+        }
+        continue;
+      }
+
+      const socket = getSocketByJsonSchemaType(item)!;
+      const input = new Input(
+        socket,
+        item.name,
+        item.isMultiple,
+        this.pactor,
+        (snapshot) => {
+          return snapshot.context.inputSockets[key];
+        },
+        /**
+         * TODO:
+         * We need a smarter way of determining if the input should be shown or not.
+         * need to track the if value set or not.
+         * if value is not set show the input
+         */
+      );
+
+      if (item["x-order"]) {
+        index = item["x-order"];
+      }
+      input.index = index + 1;
+      addController(input, item, key, socket);
       this.addInput(key, input as any);
       if (item.type !== "trigger" && !values[key]) {
         console.log(
@@ -759,10 +736,10 @@ export abstract class BaseNode<
       }
     }
     console.log("setting values", values);
-    // this.pactor.send({
-    //   type: "SET_VALUE",
-    //   values,
-    // });
+    this.pactor.send({
+      type: "SET_VALUE",
+      values,
+    });
   }
 
   public setOutputSockets(sockets: Record<string, JSONSocket>) {

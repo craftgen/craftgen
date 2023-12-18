@@ -10,10 +10,8 @@ import {
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
-import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import dedent from "ts-dedent";
 import {
-  ActorRefFrom,
   assign,
   createMachine,
   enqueueActions,
@@ -23,9 +21,7 @@ import {
   spawnChild,
 } from "xstate";
 
-import { context } from "../../../../supabase/db";
 import { generateSocket } from "../../controls/socket-generator";
-import { ThreadControl } from "../../controls/thread.control";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -67,7 +63,7 @@ const inputSockets = {
   messages: generateSocket({
     name: "Messages",
     description: "Thread of messages",
-    "x-showSocket": false,
+    "x-showSocket": true,
     "x-key": "messages",
     type: "array",
     "x-controller": "thread",

@@ -77,6 +77,7 @@ export enum ThreadMachineEvents {
   addMessage = `${THREAD}.ADD_MESSAGE`,
   addAndRunMessage = `${THREAD}.ADD_AND_RUN_MESSAGE`,
   clearThread = `${THREAD}.CLEAR_THREAD`,
+  updateOutput = `${THREAD}.UPDATE_OUTPUT`,
 }
 
 export type ThreadMachineEvent =
@@ -90,6 +91,9 @@ export type ThreadMachineEvent =
     }
   | {
       type: ThreadMachineEvents.clearThread;
+    }
+  | {
+      type: ThreadMachineEvents.updateOutput;
     };
 
 export const ThreadMachine = createMachine(
@@ -159,7 +163,7 @@ export const ThreadMachine = createMachine(
       };
       actions:
         | {
-            type: "updateOutputMessages";
+            type: "updateOutput";
           }
         | {
             type: "addMessage";
@@ -192,9 +196,14 @@ export const ThreadMachine = createMachine(
           };
     }>,
     initial: "idle",
+    on: {
+      [ThreadMachineEvents.updateOutput]: {
+        actions: ["updateOutput"],
+      },
+    },
     states: {
       idle: {
-        entry: ["updateOutputMessages"],
+        entry: ["updateOutput"],
         on: {
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
@@ -204,7 +213,7 @@ export const ThreadMachine = createMachine(
                 type: "addMessage",
               });
               enqueue({
-                type: "updateOutputMessages",
+                type: "updateOutput",
               });
             }),
             reenter: true,
@@ -221,7 +230,7 @@ export const ThreadMachine = createMachine(
                 },
               });
               enqueue({
-                type: "updateOutputMessages",
+                type: "updateOutput",
               });
             }),
             reenter: true,
@@ -233,7 +242,7 @@ export const ThreadMachine = createMachine(
                 type: "addMessage",
               });
               enqueue({
-                type: "updateOutputMessages",
+                type: "updateOutput",
               });
               enqueue({
                 type: "triggerSuccessors",
@@ -246,51 +255,37 @@ export const ThreadMachine = createMachine(
           },
         },
       },
-      complete: {},
-      error: {},
     },
   },
   {
     actions: {
-      updateOutputMessages: enqueueActions(
-        ({ enqueue, event, context, check }) => {
-          console.log("UPDATE OUTPUTS", event, context);
-          enqueue.assign({
-            outputs: ({ context }) => {
-              return {
-                messages: context.inputs.messages,
-              };
+      updateOutput: enqueueActions(({ enqueue, event, context, check }) => {
+        console.log("UPDATE OUTPUTS", event, context);
+        enqueue.assign({
+          outputs: ({ context }) => {
+            return {
+              messages: context.inputs.messages,
+            };
+          },
+        });
+
+        enqueue(
+          sendTo(
+            ({ self }) => {
+              if (self._parent) {
+                return self._parent;
+              }
+              return createEmptyActor();
             },
-          });
-
-          // enqueue(
-          //   sendParent({
-          //     type: "SET_VALUE",
-          //     values: {
-          //       messages: context.inputs.messages,
-          //     },
-          //   }),
-          // );
-
-          enqueue(
-            sendTo(
-              ({ self }) => {
-                if (self._parent) {
-                  return self._parent;
-                }
-
-                return createEmptyActor();
+            {
+              type: "SET_VALUE",
+              values: {
+                messages: context.inputs.messages,
               },
-              {
-                type: "SET_VALUE",
-                values: {
-                  messages: context.inputs.messages,
-                },
-              },
-            ),
-          );
-        },
-      ),
+            },
+          ),
+        );
+      }),
       addMessage: assign({
         inputs: ({ context, event }) => {
           const id = `message_${createId()}`;
