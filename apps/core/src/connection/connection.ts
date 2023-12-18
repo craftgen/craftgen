@@ -7,6 +7,9 @@ import { BaseNode } from "../nodes/base";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
+type NODEID = string;
+type SOCKET_KEY = string;
+
 export class Connection<
   Source extends BaseNode<any, any, any> = BaseNode<any, any, any>,
   Target extends BaseNode<any, any, any> = BaseNode<any, any, any>,
@@ -174,24 +177,8 @@ export class Connection<
     this.destroy = async () => {
       a();
       b();
-      // const sourceConnections = { ...this.sourceDefintion?.["x-connection"] };
-      // delete sourceConnections[this.targetNode.ID];
 
-      const sourceConnections = this.editor.editor
-        .getConnections()
-        .filter(
-          (connection) =>
-            connection.source === this.source &&
-            connection.sourceOutput === this.sourceOutput,
-        )
-        .reduce((acc, connection) => {
-          return {
-            ...acc,
-            [connection.target]: connection.targetInput,
-          };
-        }, {});
-
-      console.log("sourceConnections", sourceConnections);
+      const sourceConnections = this.sourceConnections;
 
       this.sourceNode.actor.send({
         type: "UPDATE_SOCKET",
@@ -206,24 +193,7 @@ export class Connection<
         },
       });
 
-      // const targetConnections = { ...this.targetDefintion?.["x-connection"] };
-      // delete targetConnections[this.sourceNode.ID];
-
-      const targetConnections = this.editor.editor
-        .getConnections()
-        .filter(
-          (connection) =>
-            connection.target === this.target &&
-            connection.targetInput === this.targetInput,
-        )
-        .reduce((acc, connection) => {
-          return {
-            ...acc,
-            [connection.source]: connection.sourceOutput,
-          };
-        }, {});
-
-      console.log("targetConnections", targetConnections);
+      const targetConnections = this.targetConnections;
 
       this.targetNode.actor.send({
         type: "UPDATE_SOCKET",
@@ -253,16 +223,18 @@ export class Connection<
           },
         });
 
-        this.targetNode.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: this.targetInput,
-            side: "input",
-            socket: {
-              "x-actor-ref": undefined,
-            },
-          },
-        });
+        // this.targetNode.actor.send({
+        //   type: "UPDATE_SOCKET",
+        //   params: {
+        //     name: this.targetInput,
+        //     side: "input",
+        //     socket: {
+        //       "x-actor-ref": undefined,
+        //     },
+        //   },
+        // });
+
+        const childActor = this.targetDefintion?.["x-actor"];
 
         this.targetNode.actor.send({
           type: "UPDATE_SOCKET",
@@ -270,9 +242,12 @@ export class Connection<
             name: this.targetInput,
             side: "input",
             socket: {
-              "x-actor-ref": this.targetDefintion?.["x-actor"],
+              "x-actor-ref": childActor,
             },
           },
+        });
+        childActor.send({
+          type: "UPDATE_OUTPUTS",
         });
 
         const targetInput = this.targetNode.inputs[this.targetInput];
@@ -287,6 +262,38 @@ export class Connection<
     };
   }
 
+  get sourceConnections(): Record<NODEID, SOCKET_KEY> {
+    return this.editor.editor
+      .getConnections()
+      .filter(
+        (connection) =>
+          connection.source === this.source &&
+          connection.sourceOutput === this.sourceOutput,
+      )
+      .reduce((acc, connection) => {
+        return {
+          ...acc,
+          [connection.target]: connection.targetInput,
+        };
+      }, {});
+  }
+
+  get targetConnections(): Record<NODEID, SOCKET_KEY> {
+    return this.editor.editor
+      .getConnections()
+      .filter(
+        (connection) =>
+          connection.target === this.target &&
+          connection.targetInput === this.targetInput,
+      )
+      .reduce((acc, connection) => {
+        return {
+          ...acc,
+          [connection.source]: connection.sourceOutput,
+        };
+      }, {});
+  }
+
   get identifier() {
     return `${this.sourceNode.label}-${this.sourceOutput}-${this.targetNode.label}-${this.targetInput}`;
   }
@@ -299,7 +306,12 @@ export class Connection<
       this.sourceNode.snap.context.outputSockets[this.sourceOutput];
     const inputDefinition =
       this.targetNode.snap.context.inputSockets[this.targetInput];
-    if (inputDefinition["x-actor-type"] === this.sourceNode.ID) {
+    if (
+      inputDefinition["x-actor-type"] === this.sourceNode.ID &&
+      (!this.isActorRef ||
+        inputDefinition["x-actor-ref"] !== this.sourceNode.actor.ref)
+    ) {
+      console.log("SETTING ACTOR REF");
       this.targetNode.actor.send({
         type: "UPDATE_SOCKET",
         params: {
@@ -313,17 +325,11 @@ export class Connection<
       this.isActorRef = true;
     }
 
-    console.log("VALUES ARE NOT MATCHING", {
-      type: "SET_VALUE",
-      values: {
-        [this.targetInput]: this.sourceValue,
-      },
-    });
     const canSetValue = this.targetNode.snap.can({
       type: "SET_VALUE",
     });
     if (!canSetValue) {
-      console.log("cannot set value");
+      console.error("cannot set value");
     }
     this.targetNode.actor.send({
       type: "SET_VALUE",

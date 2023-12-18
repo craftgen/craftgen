@@ -10,7 +10,7 @@ import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
+import { AnyActor, AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -681,12 +681,12 @@ export class Editor<
 
     const output =
       source &&
-      (source.outputs as Record<string, Input<AllSockets>>)[
+      (source.outputs as Record<string, Input<AnyActor, AllSockets>>)[
         connection.sourceOutput
       ];
     const input =
       target &&
-      (target.inputs as Record<string, Output<AllSockets>>)[
+      (target.inputs as Record<string, Output<AnyActor, AllSockets>>)[
         connection.targetInput
       ];
     if (!output || !input) {

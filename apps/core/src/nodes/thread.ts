@@ -77,7 +77,7 @@ export enum ThreadMachineEvents {
   addMessage = `${THREAD}.ADD_MESSAGE`,
   addAndRunMessage = `${THREAD}.ADD_AND_RUN_MESSAGE`,
   clearThread = `${THREAD}.CLEAR_THREAD`,
-  updateOutput = `${THREAD}.UPDATE_OUTPUT`,
+  updateOutputs = `UPDATE_OUTPUTS`,
 }
 
 export type ThreadMachineEvent =
@@ -93,7 +93,7 @@ export type ThreadMachineEvent =
       type: ThreadMachineEvents.clearThread;
     }
   | {
-      type: ThreadMachineEvents.updateOutput;
+      type: ThreadMachineEvents.updateOutputs;
     };
 
 export const ThreadMachine = createMachine(
@@ -197,7 +197,7 @@ export const ThreadMachine = createMachine(
     }>,
     initial: "idle",
     on: {
-      [ThreadMachineEvents.updateOutput]: {
+      [ThreadMachineEvents.updateOutputs]: {
         actions: ["updateOutput"],
       },
     },

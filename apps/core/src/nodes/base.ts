@@ -636,10 +636,9 @@ export abstract class BaseNode<
       this.removeInput(item);
     }
 
-    const values = {
+    const values: Record<string, any> = {
       ...state.context.inputs,
     };
-    console.log(values);
 
     let index = 0;
 
@@ -720,7 +719,7 @@ export abstract class BaseNode<
       input.index = index + 1;
       addController(input, item, key, socket);
       this.addInput(key, input as any);
-      if (item.type !== "trigger" && !values[key]) {
+      if (item.type !== "trigger" && isUndefined(values[key])) {
         console.log(
           "setting default value",
           item.name,

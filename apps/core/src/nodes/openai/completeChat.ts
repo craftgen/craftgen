@@ -156,22 +156,6 @@ const outputSockets = {
 const OpenAICompleteChatMachine = createMachine(
   {
     id: "openai-complete-chat",
-    // always: {
-    //   guard: ({ context }) => isUndefined(context.inputs.messages),
-    //   target: "idle",
-    //   actions: assign({
-    //     inputs: ({ context, spawn }) => {
-    //       const threadActor = spawn("thread", {
-    //         id: "thread",
-    //         syncSnapshot: true,
-    //       });
-    //       return {
-    //         ...context.inputs,
-    //         messages: threadActor,
-    //       };
-    //     },
-    //   }),
-    // },
     entry: enqueueActions(({ enqueue, check, context }) => {
       for (const [key, value] of Object.entries(context.inputSockets)) {
         if (value["x-actor-type"] && isNil(value["x-actor"])) {
