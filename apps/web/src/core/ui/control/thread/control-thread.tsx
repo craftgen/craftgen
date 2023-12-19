@@ -21,6 +21,7 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   const actor = props.data.actor;
 
   const messages = useSelector(props.data.actor, props.data.selector);
+  const state = useSelector(props.data.actor, (state) => state);
 
   const handleAdd = (value: string) => {
     actor.send({
@@ -40,6 +41,12 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
       },
     });
   };
+  const canAdd = state.can({
+    type: ThreadMachineEvents.addMessage,
+  } as any);
+  const canAddAndRun = state.can({
+    type: ThreadMachineEvents.addAndRunMessage,
+  } as any);
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -64,7 +71,12 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
       </div>
       <div className="border-1 p-2">
         <Messages messages={messages || []} />
-        <InputSection handleAdd={handleAdd} handleAddAndRun={handleAddAndRun} />
+        <InputSection
+          handleAdd={handleAdd}
+          canAdd={canAdd}
+          handleAddAndRun={handleAddAndRun}
+          canAddAndRun={canAddAndRun}
+        />
       </div>
     </div>
   );

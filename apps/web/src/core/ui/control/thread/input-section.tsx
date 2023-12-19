@@ -7,7 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 export const InputSection: React.FC<{
   handleAdd: (value: string) => void;
   handleAddAndRun: (value: string) => void;
-}> = ({ handleAdd: _add, handleAddAndRun: _addAndRun }) => {
+  canAdd?: boolean;
+  canAddAndRun?: boolean;
+}> = ({
+  handleAdd: _add,
+  handleAddAndRun: _addAndRun,
+  canAdd,
+  canAddAndRun,
+}) => {
   const [value, setValue] = useState("");
 
   const handleAddAndRun = () => {
@@ -28,8 +35,12 @@ export const InputSection: React.FC<{
         onChange={(e) => setValue(e.target.value)}
       />
       <div className="flex items-center justify-start space-x-2 pt-2 focus-visible:ring-0">
-        <Button onClick={handleAddAndRun}>Add and Run</Button>
-        <Button onClick={handleAdd}>Add</Button>
+        <Button onClick={handleAddAndRun} disabled={!canAddAndRun}>
+          Add and Run
+        </Button>
+        <Button onClick={handleAdd} disabled={!canAdd}>
+          Add
+        </Button>
         <Button variant={"outline"} size="icon">
           <Paperclip className="h-4 w-4" />
         </Button>
