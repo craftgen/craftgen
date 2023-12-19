@@ -237,6 +237,16 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.addAndRunMessage]: {
+            guard: ({ context }) => {
+              if (
+                context.outputSockets.onRun["x-connection"] &&
+                Object.entries(context.outputSockets.onRun["x-connection"])
+                  .length > 0
+              ) {
+                return true;
+              }
+              return false;
+            },
             actions: enqueueActions(({ enqueue }) => {
               enqueue({
                 type: "addMessage",
