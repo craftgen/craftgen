@@ -710,15 +710,15 @@ export class Editor<
 
     this.editor.addPipe((context) => {
       return match(context)
-        .with({ type: "connectioncreate" }, ({ data }) => {
+        .with({ type: "connectioncreate" }, async ({ data }) => {
           console.log("CONNECTIONCREATE", { data });
           const { source, target } = this.getConnectionSockets(data);
-          if (target && !source.isCompatibleWith(target)) {
+          if (target && !target.isCompatibleWith(source)) {
             this.handlers.incompatibleConnection?.({
               source,
               target,
             });
-            data.destroy();
+            await data.destroy();
             return undefined;
           }
           return context;
