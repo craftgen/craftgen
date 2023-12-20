@@ -18,7 +18,7 @@ import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
-import { ThreadControl } from "./controls/thread.control";
+import { Message, ThreadControl } from "./controls/thread.control";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -155,6 +155,15 @@ class ToolSocket extends Socket {
 
 export const toolSocket = new ToolSocket();
 
+class ThreadSocket extends Socket {
+  constructor() {
+    super("Thread");
+  }
+}
+
+export const threadSocket = new ThreadSocket();
+threadSocket.combineWith(arraySocket);
+
 const sockets = [
   numberSocket,
   booleanSocket,
@@ -189,7 +198,8 @@ export type SocketNameType =
   | "Image"
   | "databaseIdSocket"
   | "Date"
-  | "Tool";
+  | "Tool"
+  | "Thread";
 
 export type SocketType =
   | "anySocket"
@@ -208,7 +218,8 @@ export type SocketType =
   | "documentSocket"
   | "databaseIdSocket"
   | "dateSocket"
-  | "toolSocket";
+  | "toolSocket"
+  | "threadSocket";
 
 export const socketNameMap: Record<SocketNameType, SocketType> = {
   Any: "anySocket",
@@ -227,6 +238,7 @@ export const socketNameMap: Record<SocketNameType, SocketType> = {
   databaseIdSocket: "databaseIdSocket",
   Date: "dateSocket",
   Tool: "toolSocket",
+  Thread: "threadSocket",
 };
 
 export const types = [
@@ -240,6 +252,7 @@ export const types = [
   "date",
   "tool",
   "trigger",
+  "thread",
 ] as const;
 
 export type Tool = {
@@ -260,6 +273,7 @@ export type SocketTypeMap = {
   tool: Tool;
   // trigger: (params: any[]) => void | undefined;
   trigger: undefined;
+  thread: Message[];
 };
 
 export type JSONSocketTypeKeys = (typeof types)[number];
@@ -326,6 +340,11 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
     badge: "bg-lime-600",
     color: "bg-lime-400",
     connection: "lime",
+  },
+  Thread: {
+    badge: "bg-amber-600",
+    color: "bg-amber-400",
+    connection: "amber",
   },
 };
 
@@ -435,6 +454,14 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
       },
       () => {
         return toolSocket;
+      },
+    )
+    .with(
+      {
+        type: "thread",
+      },
+      () => {
+        return threadSocket;
       },
     )
     .otherwise(() => {
@@ -646,6 +673,24 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     .with(
       [
         P.instanceOf(ArraySocket),
+        {
+          "x-controller": "thread",
+        },
+      ],
+      () => {
+        return new ThreadControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        P.instanceOf(ThreadSocket),
         {
           "x-controller": "thread",
         },
