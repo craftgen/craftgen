@@ -66,7 +66,14 @@ const outputSockets = {
     name: "messages",
     type: "array",
     isMultiple: true,
-    "x-key": "messages",
+    "x-key": "thread",
+    "x-showSocket": true,
+  }),
+  thread: generateSocket({
+    name: "Thread",
+    type: "tool",
+    isMultiple: true,
+    "x-key": "thread",
     "x-showSocket": true,
   }),
 };
@@ -113,6 +120,11 @@ export const ThreadMachine = createMachine(
           },
           outputs: {
             messages: [],
+            thread: {
+              name: "Thread",
+              description: "Thread of messages",
+              schema: {},
+            },
           },
           outputSockets: { ...outputSockets },
         },

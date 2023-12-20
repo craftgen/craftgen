@@ -10,7 +10,13 @@ import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { AnyActor, AnyStateMachine, ContextFrom, InputFrom, SnapshotFrom } from "xstate";
+import {
+  AnyActor,
+  AnyStateMachine,
+  ContextFrom,
+  InputFrom,
+  SnapshotFrom,
+} from "xstate";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -705,12 +711,14 @@ export class Editor<
     this.editor.addPipe((context) => {
       return match(context)
         .with({ type: "connectioncreate" }, ({ data }) => {
+          console.log("CONNECTIONCREATE", { data });
           const { source, target } = this.getConnectionSockets(data);
           if (target && !source.isCompatibleWith(target)) {
             this.handlers.incompatibleConnection?.({
               source,
               target,
             });
+            data.destroy();
             return undefined;
           }
           return context;

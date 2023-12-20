@@ -64,6 +64,11 @@ export const ThreadControlComponent = (props: { data: ThreadControl }) => {
               actor.send({ type: ThreadMachineEvents.clearThread })
             }
             variant={"outline"}
+            disabled={
+              !state.can({
+                type: ThreadMachineEvents.clearThread,
+              })
+            }
           >
             Clear Thread
           </Button>

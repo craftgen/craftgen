@@ -71,6 +71,17 @@ const inputSockets = {
     isMultiple: false,
     default: [],
   }),
+  // thread: generateSocket({
+  //   name: "Thread",
+  //   description: "Thread of messages",
+  //   "x-showSocket": true,
+  //   "x-key": "thread",
+  //   type: "tool",
+  //   "x-controller": "thread",
+  //   "x-actor-type": "Thread",
+  //   isMultiple: false,
+  //   default: [],
+  // }),
   model: generateSocket({
     "x-key": "model",
     name: "model" as const,
@@ -177,23 +188,6 @@ const OpenAICompleteChatMachine = createMachine(
           });
         }
       }
-      if (check(({ context }) => !context.inputs.messages)) {
-        enqueue.assign({
-          inputsSockets: ({ context, spawn }) => {
-            const threadActor = spawn("thread", {
-              id: "thread",
-              syncSnapshot: true,
-            });
-            return {
-              ...context.inputsSockets,
-              messages: {
-                ...context.inputsSockets.messages,
-                default: threadActor,
-              },
-            };
-          },
-        });
-      }
     }),
     context: ({ input }) =>
       merge<typeof input, any>(
@@ -243,21 +237,21 @@ const OpenAICompleteChatMachine = createMachine(
       };
     }>,
     initial: "idle",
-    on: {
-      "THREAD.*": {
-        actions: enqueueActions(({ enqueue, check }) => {
-          if (
-            check(
-              ({ context }) => !context.inputSockets.messages["x-actor-ref"],
-            )
-          ) {
-            forwardTo(
-              ({ context }) => context.inputSockets.messages["x-actor-ref"],
-            );
-          }
-        }),
-      },
-    },
+    // on: {
+    //   "THREAD.*": {
+    //     actions: enqueueActions(({ enqueue, check }) => {
+    //       if (
+    //         check(
+    //           ({ context }) => !context.inputSockets.messages["x-actor-ref"],
+    //         )
+    //       ) {
+    //         forwardTo(
+    //           ({ context }) => context.inputSockets.messages["x-actor-ref"],
+    //         );
+    //       }
+    //     }),
+    //   },
+    // },
     states: {
       idle: {
         entry: ["updateOutputMessages"],
@@ -289,7 +283,7 @@ const OpenAICompleteChatMachine = createMachine(
                 maxCompletionTokens: context.inputs.maxCompletionTokens!,
               },
               system: context.inputs.system!,
-              messages: context.inputs.messages?.map(({ id, ...rest }) => {
+              messages: context.inputs.thread?.map(({ id, ...rest }) => {
                 return rest;
               }) as OpenAIChatMessage[],
             };
@@ -298,7 +292,7 @@ const OpenAICompleteChatMachine = createMachine(
             target: "#openai-complete-chat.idle",
             actions: enqueueActions(({ enqueue }) => {
               enqueue.sendTo(
-                ({ context }) => context.inputSockets.messages["x-actor-ref"]!,
+                ({ context }) => context.inputSockets.thread["x-actor-ref"]!,
                 ({ context, event }) => ({
                   type: ThreadMachineEvents.addMessage,
                   params: {
@@ -409,7 +403,7 @@ export class OpenAICompleteChat extends BaseNode<
           outputs: ({ context }) => {
             return {
               ...context.outputs,
-              messages: context.inputs.messages,
+              messages: context.inputs.thread,
             };
           },
         }),
