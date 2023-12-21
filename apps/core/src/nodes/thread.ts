@@ -53,14 +53,6 @@ const inputSockets = {
   }),
 };
 const outputSockets = {
-  thread: generateSocket({
-    name: "Thread",
-    type: "Thread",
-    "x-controller": "thread",
-    isMultiple: true,
-    "x-key": "thread",
-    "x-showSocket": true,
-  }),
   onRun: generateSocket({
     name: "onRun",
     type: "trigger",
@@ -69,6 +61,14 @@ const outputSockets = {
     "x-key": "onRun",
     "x-showSocket": true,
     "x-event": "RUN",
+  }),
+  thread: generateSocket({
+    name: "Thread",
+    type: "Thread",
+    "x-controller": "thread",
+    isMultiple: true,
+    "x-key": "thread",
+    "x-showSocket": true,
   }),
   messages: generateSocket({
     name: "messages",

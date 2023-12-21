@@ -343,7 +343,11 @@ export abstract class BaseNode<
       },
     ) => {
       console.log("triggerSuccessors", action, params);
-      await this.triggerSuccessors(params?.port);
+      if (!params?.port) {
+        throw new Error("Missing params");
+      }
+      const port = action.context.outputSockets[params?.port!];
+      await this.triggerSuccessors(port);
     },
     updateSocket: assign({
       inputSockets: ({ context, event }) => {
@@ -979,32 +983,44 @@ export abstract class BaseNode<
     //   });
   }
 
-  async triggerSuccessors(outputKey?: keyof Outputs) {
-    console.log("TRIGGERING", outputKey);
-    const cons = this.di.editor
-      .getConnections()
-      .filter((c) => {
-        return c.source === this.id;
-      })
-      .filter((c) => {
-        return this.outputs[c.sourceOutput]?.socket.name === "trigger";
-      })
-      .filter((c) => {
-        return !outputKey || c.sourceOutput === outputKey;
-      });
-
-    cons.forEach(async (con) => {
-      console.log("CONNNECTION ======>", con);
-      const targetNode = this.di.editor.getNode(con.target);
-      const socket = targetNode.snap.context.inputSockets[con.targetInput];
-
+  async triggerSuccessors(outputSocket: JSONSocket) {
+    console.log("TRIGGERING", outputSocket);
+    const connections = outputSocket["x-connection"] || {};
+    for (const [nodeId, inputKey] of Object.entries(connections)) {
+      const targetNode = this.di.editor.getNode(nodeId);
+      const socket = targetNode.snap.context.inputSockets[inputKey];
       console.log("TRIGGERING", targetNode.id, socket["x-event"]);
 
       await this.di.runSync({
         inputId: targetNode.id,
         event: socket["x-event"],
       });
-    });
+    }
+
+    // const cons = this.di.editor
+    //   .getConnections()
+    //   .filter((c) => {
+    //     return c.source === this.id;
+    //   })
+    //   .filter((c) => {
+    //     return this.outputs[c.sourceOutput]?.socket.name === "trigger";
+    //   })
+    //   .filter((c) => {
+    //     return !outputKey || c.sourceOutput === outputKey;
+    //   });
+
+    // cons.forEach(async (con) => {
+    //   console.log("CONNNECTION ======>", con);
+    //   const targetNode = this.di.editor.getNode(con.target);
+    //   const socket = targetNode.snap.context.inputSockets[con.targetInput];
+
+    //   console.log("TRIGGERING", targetNode.id, socket["x-event"]);
+
+    //   await this.di.runSync({
+    //     inputId: targetNode.id,
+    //     event: socket["x-event"],
+    //   });
+    // });
   }
 
   get successorNodes() {

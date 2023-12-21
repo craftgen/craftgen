@@ -55,7 +55,12 @@ export const socketSchema = z
       .record(z.string().describe("source"), z.string().describe("target"))
       .default({})
       .optional(),
+    "x-actor-config": z
+      .record(z.string().describe("source"), z.string().describe("target"))
+      .default({})
+      .optional(),
     "x-connection": z.record(z.string(), z.string()).default({}).optional(),
+
     "x-compatible": z.array(z.string()).default([]).optional(),
     "x-language": z.string().optional(),
   })
