@@ -66,23 +66,6 @@ DataTableToolbarProps<TData>) {
       </div>
       <DataTableViewOptions table={table} />
       {right}
-      {/* <NewArticleButton /> */}
     </div>
   );
 }
-
-// const NewArticleButton = () => {
-//   const { data: project } = useProject();
-
-//   const handleNewArticle = () => {
-//     if (!project) return;
-//     const article = createArticle({
-//       projectId: project?.id,
-//     });
-//   };
-//   return (
-//     <Button className="ml-4" size={"sm"} onClick={handleNewArticle}>
-//       New Article
-//     </Button>
-//   );
-// };

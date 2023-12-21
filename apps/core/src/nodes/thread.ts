@@ -53,6 +53,14 @@ const inputSockets = {
   }),
 };
 const outputSockets = {
+  thread: generateSocket({
+    name: "Thread",
+    type: "Thread",
+    "x-controller": "thread",
+    isMultiple: true,
+    "x-key": "thread",
+    "x-showSocket": true,
+  }),
   onRun: generateSocket({
     name: "onRun",
     type: "trigger",
@@ -65,13 +73,6 @@ const outputSockets = {
   messages: generateSocket({
     name: "messages",
     type: "array",
-    isMultiple: true,
-    "x-key": "thread",
-    "x-showSocket": true,
-  }),
-  thread: generateSocket({
-    name: "Thread",
-    type: "tool",
     isMultiple: true,
     "x-key": "thread",
     "x-showSocket": true,
@@ -147,32 +148,7 @@ export const ThreadMachine = createMachine(
             };
       };
       guards: None;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        // action:
-        //   | {
-        //       type: ThreadActions.addMessage;
-        //       inputs?: {
-        //         params: MessageCreateParams;
-        //       };
-        //     }
-        //   | {
-        //       type: ThreadActions.addAndRunMessage;
-        //       inputs?: {
-        //         params: MessageCreateParams;
-        //       };
-        //     };
-        // inputs:
-        //   | {
-        //       type: ThreadActions.addMessage;
-        //       message: string;
-        //     }
-        //   | {
-        //       type: ThreadActions.addAndRunMessage;
-        //       message: string;
-        //     };
-        // messages: ChatPrompt;
-        // system: string;
-      };
+      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
       actions:
         | {
             type: "updateOutput";
@@ -217,6 +193,9 @@ export const ThreadMachine = createMachine(
       idle: {
         entry: ["updateOutput"],
         on: {
+          UPDATE_SOCKET: {
+            actions: ["updateSocket"],
+          },
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               console.log("addMessage INSIDE", context, event);
@@ -290,23 +269,36 @@ export const ThreadMachine = createMachine(
             };
           },
         });
+        const connections = context.outputSockets.messages["x-connection"];
+        console.log("CONNECTIONS", connections);
 
-        enqueue(
-          sendTo(
-            ({ self }) => {
-              if (self._parent) {
-                return self._parent;
-              }
-              return createEmptyActor();
+        for (const [target, inputKey] of Object.entries(connections || {})) {
+          enqueue({
+            type: "syncConnection",
+            params: {
+              nodeId: target,
+              outputKey: "messages",
+              inputKey,
             },
-            {
-              type: "SET_VALUE",
-              values: {
-                messages: context.inputs.messages,
-              },
-            },
-          ),
-        );
+          });
+        }
+
+        // enqueue(
+        //   sendTo(
+        //     ({ self }) => {
+        //       if (self._parent) {
+        //         return self._parent;
+        //       }
+        //       return createEmptyActor();
+        //     },
+        //     {
+        //       type: "SET_VALUE",
+        //       values: {
+        //         messages: context.inputs.messages,
+        //       },
+        //     },
+        //   ),
+        // );
       }),
       addMessage: assign({
         inputs: ({ context, event }) => {
@@ -343,5 +335,6 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
   }
   constructor(di: DiContainer, data: ThreadNode) {
     super("Thread", di, data, ThreadMachine, {});
+    this.setup();
   }
 }

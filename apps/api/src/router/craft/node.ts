@@ -44,7 +44,7 @@ export const craftNodeRouter = createTRPCRouter({
               id: input.data.contextId,
               project_id: input.projectId,
               type: input.data.type,
-              state: {},
+              state: {} as any,
             })
             .returning();
         }

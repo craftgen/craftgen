@@ -8,7 +8,7 @@ import { ClassicScheme } from "./types";
 export type ControlFlowNodeSetup<
   T extends ClassicScheme["Node"],
   I extends (keyof T["inputs"])[] = string[],
-  O extends (keyof T["outputs"])[] = string[]
+  O extends (keyof T["outputs"])[] = string[],
 > = {
   /** Specifies the inputs which are part of the control flow */
   inputs: () => I;
@@ -18,7 +18,7 @@ export type ControlFlowNodeSetup<
   execute(
     input: I[number],
     forward: (output: O[number], execId?: string) => any,
-    execId?: string
+    execId?: string,
   ): any;
 };
 
@@ -45,7 +45,7 @@ export class ControlFlow<Schemes extends ClassicScheme> {
       T,
       (keyof T["inputs"])[],
       (keyof T["outputs"])[]
-    >
+    >,
   ) {
     const affected = this.setups.get(node.id);
 
@@ -74,6 +74,12 @@ export class ControlFlow<Schemes extends ClassicScheme> {
     if (!setup) throw new Error("node is not initialized");
     const inputKeys = setup.inputs();
 
+    console.log("EXECUTER", {
+      nodeId,
+      input,
+      inputKeys,
+    });
+
     if (input && !inputKeys.includes(input))
       throw new Error("inputs don't have a key");
 
@@ -93,7 +99,7 @@ export class ControlFlow<Schemes extends ClassicScheme> {
           this.execute(con.target, con.targetInput, execId);
         });
       },
-      execId
+      execId,
     );
   }
 }

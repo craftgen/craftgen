@@ -150,8 +150,10 @@ export const workflowVersionRelations = relations(
 
 export const shapeOfContext = z.object({
   inputs: z.any(),
+  inputSockets: z.record(z.string(), z.any()),
   settings: z.any(),
   outputs: z.any(),
+  outputSockets: z.record(z.string(), z.any()),
 });
 
 export const shapeOfState = z.object({
@@ -170,7 +172,7 @@ export const context = pgTable("context", {
     .references(() => project.id, { onDelete: "cascade" }),
   previousContextId: text("previous_context_id"),
   type: text("type").notNull(),
-  state: json("state").$type<z.infer<typeof shapeOfContext>>(), // TODO: rename to context
+  state: json("state").$type<z.infer<typeof shapeOfState>>(),
 });
 
 export const workflowEdge = pgTable(

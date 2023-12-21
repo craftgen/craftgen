@@ -31,7 +31,7 @@ import type {
   ReactArea2D,
   ReactPlugin,
 } from "./plugins/reactPlugin";
-import { AllSockets, Socket } from "./sockets";
+import { Socket } from "./sockets";
 import { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
@@ -687,12 +687,12 @@ export class Editor<
 
     const output =
       source &&
-      (source.outputs as Record<string, Input<AnyActor, AllSockets>>)[
+      (source.outputs as Record<string, Input<AnyActor, Socket>>)[
         connection.sourceOutput
       ];
     const input =
       target &&
-      (target.inputs as Record<string, Output<AnyActor, AllSockets>>)[
+      (target.inputs as Record<string, Output<AnyActor, Socket>>)[
         connection.targetInput
       ];
     if (!output || !input) {
@@ -713,7 +713,7 @@ export class Editor<
         .with({ type: "connectioncreate" }, async ({ data }) => {
           console.log("CONNECTIONCREATE", { data });
           const { source, target } = this.getConnectionSockets(data);
-          if (target && !target.isCompatibleWith(source)) {
+          if (target && !target.isCompatibleWith(source.name)) {
             this.handlers.incompatibleConnection?.({
               source,
               target,
@@ -838,6 +838,7 @@ export class Editor<
   }
 
   public async runSync(params: { inputId: string; event?: string }) {
+    console.log("runSync", params);
     await this.createExecution(params.inputId);
     this.engine.execute(params.inputId, params.event, this.executionId);
   }

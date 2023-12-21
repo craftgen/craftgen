@@ -19,6 +19,7 @@ import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 import { Message, ThreadControl } from "./controls/thread.control";
+import { NodeTypes } from "./types";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -28,178 +29,18 @@ export class Socket extends ClassicPreset.Socket {
     this.name = name;
   }
 
-  compatible: Socket[] = [];
+  compatible: string[] = [];
 
-  combineWith(socket: Socket) {
+  combineWith(socket: string) {
     this.compatible.push(socket);
   }
 
-  isCompatibleWith(socket: Socket) {
-    return this === socket || this.compatible.includes(socket);
-  }
-}
-export class TriggerSocket extends Socket {
-  constructor() {
-    super("Trigger");
+  isCompatibleWith(socket: string) {
+    return this.name === socket || this.compatible.includes(socket);
   }
 }
 
-export const triggerSocket = new TriggerSocket();
-
-class AnySocket extends Socket {
-  constructor() {
-    super("Any");
-  }
-}
-export const anySocket = new AnySocket();
-
-export class NumberSocket extends Socket {
-  constructor() {
-    super("Number");
-  }
-}
-export const numberSocket = new NumberSocket();
-
-class BooleanSocket extends Socket {
-  constructor() {
-    super("Boolean");
-  }
-}
-export const booleanSocket = new BooleanSocket();
-
-class ArraySocket extends Socket {
-  constructor() {
-    super("Array");
-  }
-}
-export const arraySocket = new ArraySocket();
-
-export class StringSocket extends Socket {
-  constructor() {
-    super("String");
-  }
-}
-export const stringSocket = new StringSocket();
-
-class ObjectSocket extends Socket {
-  constructor() {
-    super("Object");
-  }
-}
-export const objectSocket = new ObjectSocket();
-
-class EventSocket extends Socket {
-  constructor() {
-    super("Event");
-  }
-}
-export const eventSocket = new EventSocket();
-
-class AudioSocket extends Socket {
-  constructor() {
-    super("Audio");
-  }
-}
-export const audioSocket = new AudioSocket();
-
-class DocumentSocket extends Socket {
-  constructor() {
-    super("Document");
-  }
-}
-export const documentSocket = new DocumentSocket();
-
-class EmbeddingSocket extends Socket {
-  constructor() {
-    super("Embedding");
-  }
-}
-export const embeddingSocket = new EmbeddingSocket();
-
-class TaskSocket extends Socket {
-  constructor() {
-    super("Task");
-  }
-}
-export const taskSocket = new TaskSocket();
-
-class ImageSocket extends Socket {
-  constructor() {
-    super("Image");
-  }
-}
-export const imageSocket = new ImageSocket();
-
-class DatabaseIdSocket extends Socket {
-  constructor() {
-    super("databaseIdSocket");
-  }
-}
-export const databaseIdSocket = new DatabaseIdSocket();
-
-databaseIdSocket.combineWith(stringSocket);
-
-class DateSocket extends Socket {
-  constructor() {
-    super("Date");
-  }
-}
-
-export const dateSocket = new DateSocket();
-
-class ToolSocket extends Socket {
-  constructor() {
-    super("Tool");
-  }
-}
-
-export const toolSocket = new ToolSocket();
-
-class ThreadSocket extends Socket {
-  constructor() {
-    super("Thread");
-  }
-}
-
-export const threadSocket = new ThreadSocket();
-threadSocket.combineWith(arraySocket);
-
-const sockets = [
-  numberSocket,
-  booleanSocket,
-  stringSocket,
-  arraySocket,
-  objectSocket,
-  eventSocket,
-  audioSocket,
-  documentSocket,
-  embeddingSocket,
-  taskSocket,
-  imageSocket,
-  databaseIdSocket,
-  dateSocket,
-] as const;
-
-export type AllSockets = (typeof sockets)[number];
-
-export type SocketNameType =
-  | "Trigger"
-  | "Any"
-  | "Number"
-  | "Boolean"
-  | "Array"
-  | "String"
-  | "Object"
-  | "Event"
-  | "Audio"
-  | "Document"
-  | "Embedding"
-  | "Task"
-  | "Image"
-  | "databaseIdSocket"
-  | "Date"
-  | "Tool"
-  | "Thread";
+export type SocketNameType = JSONSocketTypeKeys | NodeTypes;
 
 export type SocketType =
   | "anySocket"
@@ -220,26 +61,6 @@ export type SocketType =
   | "dateSocket"
   | "toolSocket"
   | "threadSocket";
-
-export const socketNameMap: Record<SocketNameType, SocketType> = {
-  Any: "anySocket",
-  Number: "numberSocket",
-  Boolean: "booleanSocket",
-  Array: "arraySocket",
-  String: "stringSocket",
-  Object: "objectSocket",
-  Trigger: "triggerSocket",
-  Event: "eventSocket",
-  Audio: "audioSocket",
-  Document: "documentSocket",
-  Embedding: "embeddingSocket",
-  Task: "taskSocket",
-  Image: "imageSocket",
-  databaseIdSocket: "databaseIdSocket",
-  Date: "dateSocket",
-  Tool: "toolSocket",
-  Thread: "threadSocket",
-};
 
 export const types = [
   "string",
@@ -289,39 +110,38 @@ type SocketConfig = {
 };
 
 export const socketConfig: Record<SocketNameType, SocketConfig> = {
-  Trigger: { badge: "bg-red-600", color: "bg-red-400", connection: "red" },
-  Any: { badge: "bg-gray-600", color: "bg-gray-400", connection: "gray" },
-  Number: {
+  trigger: { badge: "bg-red-600", color: "bg-red-400", connection: "red" },
+  any: { badge: "bg-gray-600", color: "bg-gray-400", connection: "gray" },
+  number: {
     badge: "bg-indigo-600",
     color: "bg-indigo-400",
     connection: "indigo",
   },
-  Boolean: {
+  boolean: {
     badge: "bg-yellow-600",
     color: "bg-yellow-400",
     connection: "yellow",
   },
-  Array: { badge: "bg-green-600", color: "bg-green-400", connection: "green" },
-  String: { badge: "bg-teal-600", color: "bg-teal-400", connection: "teal" },
-  Object: { badge: "bg-blue-600", color: "bg-blue-400", connection: "blue" },
-  Event: { badge: "bg-pink-600", color: "bg-pink-400", connection: "pink" },
-  Audio: {
+  array: { badge: "bg-green-600", color: "bg-green-400", connection: "green" },
+  string: { badge: "bg-teal-600", color: "bg-teal-400", connection: "teal" },
+  object: { badge: "bg-blue-600", color: "bg-blue-400", connection: "blue" },
+  audio: {
     badge: "bg-purple-600",
     color: "bg-purple-400",
     connection: "purple",
   },
-  Document: {
+  document: {
     badge: "bg-violet-600",
     color: "bg-violet-400",
     connection: "violet",
   },
-  Embedding: { badge: "bg-cyan-600", color: "bg-cyan-400", connection: "cyan" },
-  Task: {
+  embedding: { badge: "bg-cyan-600", color: "bg-cyan-400", connection: "cyan" },
+  task: {
     badge: "bg-orange-600",
     color: "bg-orange-400",
     connection: "orange",
   },
-  Image: {
+  image: {
     badge: "bg-emerald-600",
     color: "bg-emerald-400",
     connection: "emerald",
@@ -331,17 +151,17 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
     color: "bg-stone-400",
     connection: "stone",
   },
-  Date: {
+  date: {
     badge: "bg-rose-600",
     color: "bg-rose-400",
     connection: "rose",
   },
-  Tool: {
+  tool: {
     badge: "bg-lime-600",
     color: "bg-lime-400",
     connection: "lime",
   },
-  Thread: {
+  thread: {
     badge: "bg-amber-600",
     color: "bg-amber-400",
     connection: "amber",
@@ -355,118 +175,18 @@ export const useSocketConfig = (name: SocketNameType) => {
   return getConfig(name);
 };
 
-sockets.forEach((socket) => {
-  if (socket.name === "Trigger") return;
-  anySocket.combineWith(socket);
-  socket.combineWith(anySocket);
-});
-
-export type Sockets = (typeof sockets)[number];
-
 export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
-  return match(schema)
-    .with(
-      {
-        type: "string",
-      },
-      () => {
-        return stringSocket;
-      },
-    )
-    .with(
-      {
-        type: "trigger",
-      },
-      () => {
-        return triggerSocket;
-      },
-    )
-    .with(
-      {
-        type: "string",
-        format: "uri",
-      },
-      () => {
-        return imageSocket;
-      },
-    )
-    .with(
-      {
-        type: "number",
-      },
-      () => {
-        return numberSocket;
-      },
-    )
-    .with(
-      {
-        type: "integer",
-      },
-      () => {
-        return numberSocket;
-      },
-    )
-    .with(
-      {
-        type: "boolean",
-      },
-      () => {
-        return booleanSocket;
-      },
-    )
-    .with(
-      {
-        type: "array",
-        "x-cog-array-type": "iterator",
-        "x-cog-array-display": "concatenate",
-      },
-      () => {
-        return stringSocket;
-      },
-    )
-    .with(
-      {
-        type: "array",
-      },
-      () => {
-        return arraySocket;
-      },
-    )
-    .with(
-      {
-        type: "object",
-      },
-      () => {
-        return objectSocket;
-      },
-    )
-    .with(
-      {
-        type: "date",
-      },
-      () => {
-        return dateSocket;
-      },
-    )
-    .with(
-      {
-        type: "tool",
-      },
-      () => {
-        return toolSocket;
-      },
-    )
-    .with(
-      {
-        type: "thread",
-      },
-      () => {
-        return threadSocket;
-      },
-    )
-    .otherwise(() => {
-      return anySocket;
+  const socket = new Socket(schema.type);
+  socket.combineWith(socket.name); // comine with itself
+  socket.combineWith("any"); // combine with any
+
+  if (schema["x-compatible"]) {
+    // combine with compatible
+    schema["x-compatible"].forEach((compatible: string) => {
+      socket.combineWith(compatible);
     });
+  }
+  return socket;
 };
 
 export const getControlBySocket = <T extends AnyActor = AnyActor>({
@@ -476,7 +196,7 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   onChange,
   definition,
 }: {
-  socket: AllSockets;
+  socket: Socket;
   actor: T;
   selector: (emitted: SnapshotFrom<T>) => any;
   onChange: (v: any) => void;
@@ -485,7 +205,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   return match([socket, definition])
     .with(
       [
-        P.instanceOf(TriggerSocket),
+        {
+          name: "trigger",
+        },
         {
           type: "trigger",
           "x-event": P.string,
@@ -507,7 +229,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           "x-controller": "textarea",
         },
@@ -525,7 +249,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           "x-controller": "select",
         },
@@ -552,7 +278,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           format: "uri",
         },
@@ -570,7 +298,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           "x-controller": "code",
           "x-language": P.string,
@@ -590,7 +320,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           "x-controller": "openai-thread-control",
         },
@@ -601,7 +333,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(StringSocket),
+        {
+          name: "string",
+        },
         {
           type: "string",
         },
@@ -619,7 +353,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(NumberSocket),
+        {
+          name: "number",
+        },
         {
           maximum: P.number,
           minimum: P.number,
@@ -638,41 +374,67 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
         );
       },
     )
-    .with([P.instanceOf(NumberSocket), {}], () => {
-      return new NumberControl(
-        actor,
-        selector,
-        {
-          change: onChange,
-          max: definition?.maximum,
-          min: definition?.minimum,
-        },
-        definition,
-      );
-    })
-    .with([P.instanceOf(BooleanSocket), {}], () => {
-      return new BooleanControl(
-        actor,
-        selector,
-        {
-          change: onChange,
-        },
-        definition,
-      );
-    })
-    .with([P.instanceOf(DateSocket), {}], () => {
-      return new DateControl(
-        actor,
-        selector,
-        {
-          change: onChange,
-        },
-        definition,
-      );
-    })
     .with(
       [
-        P.instanceOf(ArraySocket),
+        {
+          name: "number",
+        },
+        {},
+      ],
+      () => {
+        return new NumberControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+            max: definition?.maximum,
+            min: definition?.minimum,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "boolean",
+        },
+        {},
+      ],
+      () => {
+        return new BooleanControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "date",
+        },
+        {},
+      ],
+      () => {
+        return new DateControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "array",
+        },
         {
           "x-controller": "thread",
         },
@@ -690,7 +452,9 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     )
     .with(
       [
-        P.instanceOf(ThreadSocket),
+        {
+          name: "thread",
+        },
         {
           "x-controller": "thread",
         },

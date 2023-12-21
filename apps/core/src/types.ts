@@ -9,7 +9,6 @@ import type { AppRouter } from "@seocraft/api";
 import { Editor } from ".";
 import { Connection } from "./connection/connection";
 import {
-  Article,
   ComposeObject,
   GoogleSheet,
   InputNode,
@@ -68,6 +67,7 @@ export type Node = {
   label: string;
   color?: string;
 };
+
 export const nodes = {
   Start: Start,
   Log: Log,
@@ -88,7 +88,6 @@ export const nodes = {
   OpenAIAssistant: OpenAIAssistant,
 
   ComposeObject: ComposeObject,
-  Article: Article,
 
   InputNode,
   OutputNode,

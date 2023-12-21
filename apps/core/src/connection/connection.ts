@@ -2,6 +2,7 @@ import { CurveFactory } from "d3-shape";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
+import { JSONSocket } from "../controls/socket-generator";
 import { Editor } from "../editor";
 import { BaseNode } from "../nodes/base";
 
@@ -48,6 +49,11 @@ export class Connection<
   destroy: () => Promise<void>;
 
   get inSync() {
+    if (this.isActorRef) {
+      return (
+        this.targetDefintion?.["x-actor-ref"] === this.sourceNode.actor.ref
+      );
+    }
     return this.sourceValue === this.targetValue;
   }
   get sourceDefintion() {
@@ -137,6 +143,7 @@ export class Connection<
         },
       },
     });
+
     this.sourceNode.actor.send({
       type: "UPDATE_SOCKET",
       params: {
@@ -223,17 +230,6 @@ export class Connection<
           },
         });
 
-        // this.targetNode.actor.send({
-        //   type: "UPDATE_SOCKET",
-        //   params: {
-        //     name: this.targetInput,
-        //     side: "input",
-        //     socket: {
-        //       "x-actor-ref": undefined,
-        //     },
-        //   },
-        // });
-
         const childActor = this.targetDefintion?.["x-actor"];
 
         this.targetNode.actor.send({
@@ -302,12 +298,13 @@ export class Connection<
 
   public sync() {
     console.log("SYNC");
-    const outputDefinitiation =
+    const outputDefinitiation: JSONSocket =
       this.sourceNode.snap.context.outputSockets[this.sourceOutput];
-    const inputDefinition =
+    const inputDefinition: JSONSocket =
       this.targetNode.snap.context.inputSockets[this.targetInput];
     if (
-      inputDefinition["x-actor-type"] === this.sourceNode.ID &&
+      inputDefinition["x-compatible"] &&
+      inputDefinition["x-compatible"].includes(outputDefinitiation.type) &&
       (!this.isActorRef ||
         inputDefinition["x-actor-ref"] !== this.sourceNode.actor.ref)
     ) {
@@ -322,21 +319,66 @@ export class Connection<
           },
         },
       });
-      this.isActorRef = true;
-    }
 
-    const canSetValue = this.targetNode.snap.can({
-      type: "SET_VALUE",
-    });
-    if (!canSetValue) {
-      console.error("cannot set value");
+      if (this.targetDefintion["x-actor-connections"]) {
+        const connections = Object.entries(
+          this.targetDefintion["x-actor-connections"],
+        );
+        for (const [key, value] of connections) {
+          console.log({
+            key,
+            value,
+          });
+          this.sourceNode.actor.send({
+            type: "UPDATE_SOCKET",
+            params: {
+              name: key,
+              side: "output",
+              socket: {
+                "x-connection": {
+                  ...this.sourceDefintion?.["x-connection"],
+                  [this.targetNode.id]: value,
+                },
+              },
+            },
+          });
+        }
+      }
+
+      this.sourceNode.actor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          name: "messages",
+          side: "output",
+          socket: {
+            "x-connection": {
+              ...this.sourceDefintion?.["x-connection"],
+              [this.targetNode.id]: this.targetInput,
+            },
+          },
+        },
+      });
+
+      this.sourceNode.actor.send({
+        type: "UPDATE_OUTPUTS",
+      });
+      this.isActorRef = true;
+    } else if (!this.isActorRef) {
+      const canSetValue = this.targetNode.snap.can({
+        type: "SET_VALUE",
+      });
+      if (!canSetValue) {
+        console.error("cannot set value");
+      }
+      this.targetNode.actor.send({
+        type: "SET_VALUE",
+        values: {
+          [this.targetInput]: this.sourceValue,
+        },
+      });
+    } else {
+      console.log("DO NOTHING");
     }
-    this.targetNode.actor.send({
-      type: "SET_VALUE",
-      values: {
-        [this.targetInput]: this.sourceValue,
-      },
-    });
   }
 
   public setTargetValue(value: any) {

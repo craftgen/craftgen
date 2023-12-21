@@ -1,23 +1,24 @@
+import { DataflowEngine, DataflowEngineScheme } from "rete-engine";
+
 import {
   ControlFlowEngine,
   ControlFlowEngineScheme,
 } from "./control-flow-engine";
-import { DataflowEngine, DataflowEngineScheme } from "rete-engine";
 
 export { ControlFlowEngine, DataflowEngine };
 
 export const createControlFlowEngine = <
-  Schemes extends ControlFlowEngineScheme
+  Schemes extends ControlFlowEngineScheme,
 >() => {
   const engine = new ControlFlowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>
         Object.entries(inputs)
-          .filter(([_, input]) => input?.socket?.name === "Trigger")
+          .filter(([_, input]) => input?.socket?.name === "trigger")
           .map(([name]) => name),
       outputs: () =>
         Object.entries(outputs)
-          .filter(([_, input]) => input?.socket?.name === "Trigger")
+          .filter(([_, input]) => input?.socket?.name === "trigger")
           .map(([name]) => name),
     };
   });
@@ -25,17 +26,17 @@ export const createControlFlowEngine = <
 };
 
 export const createDataFlowEngine = <
-  Schemes extends DataflowEngineScheme
+  Schemes extends DataflowEngineScheme,
 >() => {
   const dataFlow = new DataflowEngine<Schemes>(({ inputs, outputs }) => {
     return {
       inputs: () =>
         Object.entries(inputs)
-          .filter(([_, input]) => input?.socket?.name !== "Trigger")
+          .filter(([_, input]) => input?.socket?.name !== "trigger")
           .map(([name]) => name),
       outputs: () =>
         Object.entries(outputs)
-          .filter(([_, input]) => input?.socket?.name !== "Trigger")
+          .filter(([_, input]) => input?.socket?.name !== "trigger")
           .map(([name]) => name),
     };
   });

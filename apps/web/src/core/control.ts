@@ -4,7 +4,6 @@
 
 import { match, P } from "ts-pattern";
 
-import { ArticleControl } from "@seocraft/core/src/controls/article";
 import { BooleanControl } from "@seocraft/core/src/controls/boolean";
 import { ButtonControl } from "@seocraft/core/src/controls/button";
 import { CodeControl } from "@seocraft/core/src/controls/code";
@@ -33,7 +32,6 @@ import { BooleanControlComponent } from "./ui/control/control-boolean";
 import { CustomButton } from "./ui/control/control-button";
 import { CodeEditor } from "./ui/control/control-code";
 import { DateControlComponent } from "./ui/control/control-date";
-import { ArticleEditor } from "./ui/control/control-editor";
 import { FileControlComponent } from "./ui/control/control-file";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { JsonControlComponent } from "./ui/control/control-json";
@@ -56,7 +54,6 @@ export const getControl = (
   return match(data.payload)
     .with(P.instanceOf(ButtonControl), () => CustomButton)
     .with(P.instanceOf(CodeControl), () => CodeEditor)
-    .with(P.instanceOf(ArticleControl), () => ArticleEditor)
     .with(P.instanceOf(SelectControl), () => SelectControlComponent)
     .with(P.instanceOf(SWRSelectControl), () => SWRSelectControlComponent)
     .with(P.instanceOf(TableControl), () => TableControlComponent)

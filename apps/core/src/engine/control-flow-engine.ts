@@ -87,6 +87,7 @@ export class ControlFlowEngine<
 
     this.addPipe((context) => {
       if (context.type === "nodecreated") {
+        console.log("ENGINE ADD NODE", context.data);
         this.add(context.data);
       }
       if (context.type === "noderemoved") {

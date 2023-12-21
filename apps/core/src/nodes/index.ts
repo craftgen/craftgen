@@ -7,8 +7,6 @@ export { OpenAIFunctionCall } from "./openai/openai-function";
 
 export { ComposeObject } from "./object/composeObject";
 
-export { Article } from "./article";
-
 export { InputNode } from "./io/input.node";
 export { OutputNode } from "./io/output";
 

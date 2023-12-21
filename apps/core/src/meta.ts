@@ -43,11 +43,6 @@ export const nodesMeta: Record<
     description: "Node for composing objects",
     icon: "braces",
   },
-  Article: {
-    name: "Article",
-    description: "Node for handling articles",
-    icon: "newspaper",
-  },
   InputNode: {
     name: "Input",
     description: "Node for handling inputs",

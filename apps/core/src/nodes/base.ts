@@ -1,10 +1,9 @@
-import { debounce, isEqual, isNil, isUndefined, merge, set } from "lodash-es";
+import { debounce, isEqual, isUndefined } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
   ActionArgs,
-  ActionFunction,
   Actor,
   AnyActorLogic,
   AnyStateMachine,
@@ -28,8 +27,6 @@ import {
   getSocketByJsonSchemaType,
   MappedType,
   Socket,
-  TriggerSocket,
-  type AllSockets,
 } from "../sockets";
 import { type DiContainer } from "../types";
 import type { Node, NodeTypes } from "../types";
@@ -128,6 +125,14 @@ export type BaseActionTypes =
       };
     }
   | {
+      type: "syncConnection";
+      params?: {
+        nodeId: string;
+        outputKey: string;
+        inputKey: string;
+      };
+    }
+  | {
       type: "setError";
       params?: {
         name: string;
@@ -198,14 +203,14 @@ type BaseMachine = StateMachine<
 export abstract class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
-    [key in string]?: AllSockets;
+    [key in string]?: Socket;
   } = {
-    [key in string]?: AllSockets;
+    [key in string]?: Socket;
   },
   Outputs extends {
-    [key in string]?: AllSockets;
+    [key in string]?: Socket;
   } = {
-    [key in string]?: AllSockets;
+    [key in string]?: Socket;
   },
   Controls extends {
     [key in string]?: BaseControl & { name?: string };
@@ -290,12 +295,117 @@ export abstract class BaseNode<
   public executionNodeId?: string;
   unsubscribe: () => void = () => {};
 
+  public baseActions = {
+    removeError: assign({
+      error: () => null,
+    }),
+    setError: assign({
+      error: ({ event }) => {
+        console.error("setError", event);
+        return {
+          name: event.params?.name || "Error",
+          message: event.params?.message || "Something went wrong",
+          err: event.data,
+        };
+      },
+    }),
+    changeAction: assign({
+      inputSockets: ({ event }) => event.inputSockets,
+      outputSockets: ({ event }) => event.outputSockets,
+      action: ({ event, context }) => ({
+        ...context.action,
+        type: event.value,
+      }),
+    }),
+    syncConnection: async (
+      action: ActionArgs<any, any, any>,
+      params?: {
+        nodeId: string;
+        outputKey: string;
+        inputKey: string;
+      },
+    ) => {
+      if (!params) {
+        throw new Error("Missing params");
+      }
+      const targetNode = this.di.editor.getNode(params?.nodeId);
+      targetNode.actor.send({
+        type: "SET_VALUE",
+        values: {
+          [params.inputKey]: action.context.inputs[params.outputKey],
+        },
+      });
+    },
+    triggerSuccessors: async (
+      action: ActionArgs<any, any, any>,
+      params?: {
+        port: string;
+      },
+    ) => {
+      console.log("triggerSuccessors", action, params);
+      await this.triggerSuccessors(params?.port);
+    },
+    updateSocket: assign({
+      inputSockets: ({ context, event }) => {
+        if (event.params.side === "input") {
+          console.log("updateSocket", event);
+          return {
+            ...context.inputSockets,
+            [event.params.name]: {
+              ...context.inputSockets[event.params.name],
+              ...event.params.socket,
+            },
+          };
+        }
+        return context.inputSockets;
+      },
+      outputSockets: ({ context, event }) => {
+        if (event.params.side === "output") {
+          console.log("updateSocket", event);
+          return {
+            ...context.outputSockets,
+            [event.params.name]: {
+              ...context.outputSockets[event.params.name],
+              ...event.params.socket,
+            },
+          };
+        }
+        return context.outputSockets;
+      },
+    }),
+    setValue: assign({
+      inputs: ({ context, event }) => {
+        Object.keys(context.inputs).forEach((key) => {
+          if (!context.inputSockets[key]) {
+            delete context.inputs[key];
+          }
+        });
+        Object.keys(event.values).forEach((key) => {
+          if (!context.inputSockets[key]) {
+            delete event.values[key];
+          }
+        });
+        return {
+          ...context.inputs,
+          ...event.values,
+        };
+      },
+    }),
+  };
+
+  public machineImplements: MachineImplementationsFrom<Machine>;
+
+  public extendMachine(implementations: MachineImplementationsFrom<Machine>) {
+    this.machine = this.machine.provide(implementations);
+    this.machineImplements = this.machine.implementations;
+  }
+
   constructor(
     public readonly ID: NodeTypes,
     public di: DiContainer,
     public nodeData: ParsedNode<NodeTypes, Machine>,
     machine: Machine,
-    public machineImplements: MachineImplementationsFrom<Machine>,
+    machineImplements?: MachineImplementationsFrom<Machine>,
   ) {
     super(nodeData.label);
 
@@ -303,124 +413,48 @@ export abstract class BaseNode<
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;
-    this.machine = machine.provide({
-      ...(this.machineImplements as any),
+    this.machineImplements = {
+      ...(machineImplements as any),
       actions: {
-        removeError: assign({
-          error: () => null,
-        }),
-        setError: assign({
-          error: ({ event }) => {
-            console.error("setError", event);
-            return {
-              name: event.params?.name || "Error",
-              message: event.params?.message || "Something went wrong",
-              err: event.data,
-            };
-          },
-        }),
-        changeAction: assign({
-          inputSockets: ({ event }) => event.inputSockets,
-          outputSockets: ({ event }) => event.outputSockets,
-          action: ({ event, context }) => ({
-            ...context.action,
-            type: event.value,
-          }),
-        }),
-        triggerSuccessors: async (
-          action: ActionArgs<any, any, any>,
-          params?: {
-            port: string;
-          },
-        ) => {
-          console.log("triggerSuccessors", action, params);
-          await this.triggerSuccessors(params?.port);
-        },
-        updateSocket: assign({
-          inputSockets: ({ context, event }) => {
-            if (event.params.side === "input") {
-              console.log("updateSocket", event);
-              return {
-                ...context.inputSockets,
-                [event.params.name]: {
-                  ...context.inputSockets[event.params.name],
-                  ...event.params.socket,
-                },
-              };
-            }
-            return context.inputSockets;
-          },
-          outputSockets: ({ context, event }) => {
-            if (event.params.side === "output") {
-              console.log("updateSocket", event);
-              return {
-                ...context.outputSockets,
-                [event.params.name]: {
-                  ...context.outputSockets[event.params.name],
-                  ...event.params.socket,
-                },
-              };
-            }
-            return context.outputSockets;
-          },
-        }),
-        setValue: assign({
-          inputs: ({ context, event }) => {
-            Object.keys(context.inputs).forEach((key) => {
-              if (!context.inputSockets[key]) {
-                delete context.inputs[key];
-              }
-            });
-            Object.keys(event.values).forEach((key) => {
-              if (!context.inputSockets[key]) {
-                delete event.values[key];
-              }
-            });
-            return {
-              ...context.inputs,
-              ...event.values,
-            };
-          },
-        }),
-        ...(this.machineImplements.actions as any),
+        ...this.baseActions,
+        ...(machineImplements.actions as any),
       },
+    };
+
+    this.machine = machine.provide({
+      ...this.machineImplements,
     }) as Machine;
 
-    // if (this.isExecution) {
-    //   // TODO: Remove this. make everyting final.
-    //   set(this.machine.config.states!, "complete.type", "final"); // inject complete "final" in the execution instance.
+    this.snap = nodeData.context?.state || {};
+    this.inputSockets = nodeData.context?.state?.context?.inputSockets || {};
+    this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
+    this.executionNodeId = this.nodeData?.executionNodeId;
+
+    // if (this.nodeData.state) {
+    //   // EXECUTION STATE
+    //   const actorInput = {
+    //     snapshot: this.nodeData.state,
+    //   };
+    //   this.actor = this.setupActor(actorInput);
+    // } else if (this.nodeData.context && this.nodeData.context !== {}) {
+    //   // CONTEXT STATE
+    //   this.actor = this.setupActor({
+    //     snapshot: this.nodeData.context!,
+    //   });
+    // } else {
+    //   this.actor = this.setupActor({
+    //     // NEW NODE
+    //     input: this.nodeData.context,
+    //   });
     // }
-    // set(this.machine.config.on, "RESET", {
-    //   target: "idle",
-    // });
 
-    if (this.nodeData.state) {
-      // EXECUTION STATE
-      const actorInput = {
-        snapshot: this.nodeData.state,
-      };
-      this.actor = this.setupActor(actorInput);
-    } else if (this.nodeData.context && this.nodeData.context !== {}) {
-      // CONTEXT STATE
-      this.actor = this.setupActor({
-        snapshot: this.nodeData.context!,
-      });
-    } else {
-      this.actor = this.setupActor({
-        // NEW NODE
-        input: this.nodeData.context,
-      });
-    }
+    // this.snap = this.actor.getSnapshot();
+    // this.inputSockets = this.snapshot.context?.inputSockets || {};
+    // this.outputSockets = this.snapshot.context?.outputSockets || {};
+    // // this.output = this.snapshot.context?.outputs || {};
 
-    this.snap = this.actor.getSnapshot();
-    this.inputSockets = this.snapshot.context?.inputSockets || {};
-    this.outputSockets = this.snapshot.context?.outputSockets || {};
-    // this.output = this.snapshot.context?.outputs || {};
-
-    this.updateInputs(this.inputSockets);
-    this.updateOutputs(this.outputSockets);
-
-    this.executionNodeId = this.nodeData.executionNodeId;
+    // this.updateInputs(this.inputSockets);
+    // this.updateOutputs(this.outputSockets);
 
     makeObservable(this, {
       inputs: observable,
@@ -440,10 +474,39 @@ export abstract class BaseNode<
       setExecutionNodeId: action,
     });
 
-    this.setup();
+    // this.setup();
   }
 
   public setup() {
+    if (this.nodeData.state) {
+      // EXECUTION STATE
+      const actorInput = {
+        snapshot: this.nodeData.state,
+      };
+      this.actor = this.setupActor(actorInput);
+    } else if (this.nodeData.context && this.nodeData.context !== {}) {
+      // CONTEXT STATE
+      this.actor = this.setupActor({
+        snapshot: this.nodeData.context!,
+      });
+    } else {
+      this.actor = this.setupActor({
+        // NEW NODE
+        input: this.nodeData.context,
+      });
+    }
+    this.setSnap(this.actor.getSnapshot() as any);
+
+    console.log("setup", {
+      snapshot: this.snapshot,
+      raw: this.actor.getSnapshot(),
+    });
+
+    this.inputSockets = this.snapshot.context?.inputSockets || {};
+    this.outputSockets = this.snapshot.context?.outputSockets || {};
+
+    this.updateInputs(this.inputSockets);
+    this.updateOutputs(this.outputSockets);
     const reactForExecutionId = reaction(
       () => this.executionId,
       async (executionId) => {
@@ -536,12 +599,6 @@ export abstract class BaseNode<
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         }
-        // const persistedState = this.actor.getPersistedSnapshot();
-        // console.log("SAVE STATE", persistedState);
-        // saveStateDebounced({ state: persistedState as any });
-        // if (!this.readonly) {
-        //   saveContextDebounced({ context: persistedState as any });
-        // }
         prev = state as any;
       },
     });
@@ -686,7 +743,14 @@ export abstract class BaseNode<
       if (this.hasInput(key)) {
         const input = this.inputs[key];
         if (input) {
-          input.socket = getSocketByJsonSchemaType(item)! as any;
+          const socket = getSocketByJsonSchemaType(item)! as any;
+          if (item["x-compatible"]) {
+            for (const compatible of item["x-compatible"]) {
+              socket.combineWith(compatible);
+            }
+          }
+
+          input.socket = socket;
           input.actor = this.actor;
           if (input.control) {
             input.removeControl();
@@ -923,7 +987,7 @@ export abstract class BaseNode<
         return c.source === this.id;
       })
       .filter((c) => {
-        return this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket;
+        return this.outputs[c.sourceOutput]?.socket.name === "trigger";
       })
       .filter((c) => {
         return !outputKey || c.sourceOutput === outputKey;
@@ -940,35 +1004,6 @@ export abstract class BaseNode<
         inputId: targetNode.id,
         event: socket["x-event"],
       });
-    });
-  }
-
-  async updateSuccessors() {
-    const cons = this.di.editor
-      .getConnections()
-      .filter((c) => {
-        return c.source === this.id;
-      })
-      .filter((c) => {
-        return !(this.outputs[c.sourceOutput]?.socket instanceof TriggerSocket);
-      });
-
-    cons.forEach(async (con) => {
-      const targetNode = this.di.editor.getNode(con.target);
-
-      const inputCurrentValue = targetNode.snap.context.inputs[con.targetInput];
-      const outputCurrentValue =
-        this.snapshot.context.outputs[con.sourceOutput];
-
-      if (!isEqual(inputCurrentValue, outputCurrentValue)) {
-        console.log("UPDATING", con.targetInput, con.sourceOutput);
-        targetNode.actor.send({
-          type: "SET_VALUE",
-          values: {
-            [con.targetInput]: this.snapshot.context.outputs[con.sourceOutput],
-          },
-        });
-      }
     });
   }
 

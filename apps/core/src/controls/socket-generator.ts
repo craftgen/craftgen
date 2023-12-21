@@ -1,9 +1,10 @@
-import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { JSONSchema } from "openai/lib/jsonschema.mjs";
 import { MergeDeep } from "type-fest";
 import { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
-import { JSONSocketTypeKeys, types } from "../sockets";
+import { JSONSocketTypeKeys, SocketNameType, types } from "../sockets";
+import { nodes, NodeTypes } from "../types";
 import { BaseControl } from "./base";
 
 export type SocketGeneratorControlOptions = {
@@ -23,7 +24,7 @@ export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export const socketSchema = z
   .object({
     name: z.string().min(1),
-    type: z.enum(types),
+    type: z.custom<JSONSocketTypeKeys | NodeTypes>(),
     required: z.boolean().default(false).optional(),
     isMultiple: z.boolean().default(false).optional(),
     default: z
@@ -50,7 +51,12 @@ export const socketSchema = z
     "x-actor": z.custom<AnyActor>().optional(),
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
     "x-actor-type": z.string().optional(),
-    // "x-connection": z.record(z.string(), z.string()).optional().default({}),
+    "x-actor-connections": z
+      .record(z.string().describe("source"), z.string().describe("target"))
+      .default({})
+      .optional(),
+    "x-connection": z.record(z.string(), z.string()).default({}).optional(),
+    "x-compatible": z.array(z.string()).default([]).optional(),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {
@@ -65,7 +71,7 @@ export const socketSchema = z
 
 export const generateSocket = <
   T extends string,
-  TypeOfSocket extends JSONSocketTypeKeys,
+  TypeOfSocket extends SocketNameType,
 >(
   socket: { "x-key": T; type: TypeOfSocket } & MergeDeep<
     JSONSchema,
