@@ -4,12 +4,10 @@ import { MessageCreateParams } from "openai/resources/beta/threads/messages/mess
 import { SetOptional } from "type-fest";
 import {
   assign,
-  createEmptyActor,
   createMachine,
   enqueueActions,
   log,
   PromiseActorLogic,
-  sendTo,
 } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
