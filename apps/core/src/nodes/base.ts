@@ -1,6 +1,7 @@
-import { debounce, isEqual, isUndefined } from "lodash-es";
+import { debounce, has, isEqual, isUndefined } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
+import { match, P } from "ts-pattern";
 import { MergeDeep } from "type-fest";
 import {
   ActionArgs,
@@ -421,7 +422,7 @@ export abstract class BaseNode<
       ...(machineImplements as any),
       actions: {
         ...this.baseActions,
-        ...(machineImplements.actions as any),
+        ...((machineImplements?.actions as any) || {}),
       },
     };
 
@@ -488,7 +489,11 @@ export abstract class BaseNode<
         snapshot: this.nodeData.state,
       };
       this.actor = this.setupActor(actorInput);
-    } else if (this.nodeData.context && this.nodeData.context !== {}) {
+    } else if (
+      this.nodeData.context &&
+      has(this.nodeData.context, "context") &&
+      has(this.nodeData.context, "value")
+    ) {
       // CONTEXT STATE
       this.actor = this.setupActor({
         snapshot: this.nodeData.context!,
@@ -558,6 +563,8 @@ export abstract class BaseNode<
     const saveStateDebounced = debounce(this.saveState.bind(this), 400);
 
     const self = this;
+
+    console.log("setupActor", options);
     function withLogging(actorLogic: any) {
       const enhancedLogic = {
         ...actorLogic,
@@ -616,18 +623,20 @@ export abstract class BaseNode<
     // TODO: implement this
 
     this.unsubscribe();
-    const nodeContext = await this.di.api.trpc.craft.node.getContext.query({
-      contextId: this.contextId,
-    });
+    // const nodeContext = await this.di.api.trpc.craft.node.getContext.query({
+    //   contextId: this.contextId,
+    // });
 
-    this.actor = this.setupActor({
-      snapshot: nodeContext.state as ContextFrom<Machine>,
-    });
-    this.updateInputs(nodeContext.state.context.inputSockets);
-    this.updateOutputs(nodeContext.state.context.outputSockets);
+    // this.actor = this.setupActor({
+    //   snapshot: nodeContext.state as ContextFrom<Machine>,
+    // });
+    // this.updateInputs(nodeContext.state.context.inputSockets);
+    // this.updateOutputs(nodeContext.state.context.outputSockets);
+
+    this.setup();
     this.di.area?.update("node", this.id);
 
-    this.actor.start();
+    // this.actor.start();
   }
 
   async updateOutputs(rawTemplate: Record<string, JSONSocket>) {

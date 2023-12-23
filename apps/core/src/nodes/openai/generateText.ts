@@ -1,13 +1,13 @@
 import { merge } from "lodash-es";
 import {
   generateText,
+  ollama,
+  OllamaChatModel,
   openai,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
   OpenAIChatMessage,
   OpenAIChatSettings,
-  retryWithExponentialBackoff,
-  throttleMaxConcurrency,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
@@ -178,7 +178,7 @@ const OpenAIGenerateTextMachine = createMachine({
         },
         RUN: {
           target: "running",
-          actions: ["setValue"],
+          // actions: ["setValue"],
         },
         SET_VALUE: {
           actions: ["setValue", "adjustMaxCompletionTokens"],
@@ -254,14 +254,31 @@ const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
     console.log("INPUT", input);
     try {
       const text = await generateText(
-        openai.ChatTextGenerator({
-          api: api(),
-          ...input.openai,
+        ollama.ChatTextGenerator({
+          api: api() as any,
+
+          model: "llama2",
+          // ...input.openai,
         }),
         [
-          ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
-          OpenAIChatMessage.user(input.user),
+          {
+            role: "system",
+            content: input.system,
+          },
+          {
+            role: "user",
+            content: input.user,
+          },
         ],
+
+        // openai.ChatTextGenerator({
+        //   api: api(),
+        //   ...input.openai,
+        // }),
+        // [
+        //   ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
+        //   OpenAIChatMessage.user(input.user),
+        // ],
       );
       console.log("TEXT", text);
       return {
@@ -295,18 +312,19 @@ export class OpenAIGenerateText extends BaseNode<
   }
 
   get apiModel() {
-    if (!this.di.variables.has("OPENAI_API_KEY")) {
-      throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
-    }
-    const api = new OpenAIApiConfiguration({
-      apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
-      throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
-      retry: retryWithExponentialBackoff({
-        maxTries: 2,
-        initialDelayInMs: 1000,
-        backoffFactor: 2,
-      }),
-    });
+    const api = ollama.Api({});
+    // if (!this.di.variables.has("OPENAI_API_KEY")) {
+    //   throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
+    // }
+    // const api = new OpenAIApiConfiguration({
+    //   apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
+    //   throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
+    //   retry: retryWithExponentialBackoff({
+    //     maxTries: 2,
+    //     initialDelayInMs: 1000,
+    //     backoffFactor: 2,
+    //   }),
+    // });
     return api;
   }
 
@@ -336,5 +354,6 @@ export class OpenAIGenerateText extends BaseNode<
         }),
       },
     });
+    this.setup();
   }
 }

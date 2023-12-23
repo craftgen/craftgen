@@ -28,6 +28,7 @@ import {
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
+import { Ollama } from "./nodes/ollama/ollama";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAICompleteChat } from "./nodes/openai/completeChat";
 import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
@@ -79,6 +80,9 @@ export const nodes = {
   // Tools
   IteratorNode: IteratorNode,
   BranchNode: BranchNode,
+
+  // Models
+  Ollama: Ollama,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIGenerateText: OpenAIGenerateText,

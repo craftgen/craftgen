@@ -256,6 +256,14 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           "x-controller": "select",
         },
       ],
+      [
+        {
+          name: "integer",
+        },
+        {
+          "x-controller": "select",
+        },
+      ],
       () => {
         return new SelectControl(
           actor,
@@ -354,6 +362,15 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     .with(
       [
         {
+          name: "integer",
+        },
+        {
+          maximum: P.number,
+          minimum: P.number,
+        },
+      ],
+      [
+        {
           name: "number",
         },
         {
@@ -377,9 +394,15 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
     .with(
       [
         {
+          name: "integer",
+        },
+        P._,
+      ],
+      [
+        {
           name: "number",
         },
-        {},
+        P._,
       ],
       () => {
         return new NumberControl(

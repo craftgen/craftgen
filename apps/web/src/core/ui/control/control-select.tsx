@@ -31,7 +31,7 @@ export function SelectControlComponent<U extends string>(props: {
           <SelectValue
             id={props.data.id}
             placeholder={props.data.options.placeholder}
-            className="w-full max-w-md"
+            className="w-full max-w-md truncate"
           />
         </SelectTrigger>
         <SelectContent className="z-50">

@@ -237,7 +237,6 @@ const replicateMachine = createMachine({
         },
         RUN: {
           target: "running",
-          actions: ["setValue"],
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -265,7 +264,7 @@ const replicateMachine = createMachine({
               guard: ({ context }) => {
                 return context.settings.run?.status === "succeeded";
               },
-              target: "#replicate.complete",
+              target: "succeeded",
             },
             {
               guard: ({ context }) => {
@@ -402,7 +401,12 @@ const replicateMachine = createMachine({
     complete: {
       type: "final",
       entry: enqueueActions(({ enqueue }) => {
-        enqueue("triggerSuccessors");
+        enqueue({
+          type: "triggerSuccessors",
+          params: {
+            port: "onDone",
+          },
+        });
       }),
     },
     error: {
@@ -449,7 +453,9 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
         }),
       },
     });
-    this.updateLabel();
+
+    // this.updateLabel();
+    this.setup();
 
     // this.addInput("trigger", new Input(triggerSocket, "Exec", true));
     // this.addOutput("trigger", new Output(triggerSocket, "Exec"));
