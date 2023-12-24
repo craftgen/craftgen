@@ -280,23 +280,6 @@ export const ThreadMachine = createMachine(
             },
           });
         }
-
-        // enqueue(
-        //   sendTo(
-        //     ({ self }) => {
-        //       if (self._parent) {
-        //         return self._parent;
-        //       }
-        //       return createEmptyActor();
-        //     },
-        //     {
-        //       type: "SET_VALUE",
-        //       values: {
-        //         messages: context.inputs.messages,
-        //       },
-        //     },
-        //   ),
-        // );
       }),
       addMessage: assign({
         inputs: ({ context, event }) => {

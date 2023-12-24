@@ -165,27 +165,7 @@ const outputSockets = {
 const OpenAICompleteChatMachine = createMachine({
   id: "openai-complete-chat",
   entry: enqueueActions(({ enqueue, context }) => {
-    for (const [key, value] of Object.entries(context.inputSockets)) {
-      if (value["x-actor-type"] && isNil(value["x-actor"])) {
-        enqueue.assign({
-          inputSockets: ({ context, spawn }) => {
-            const actor = spawn(value["x-actor-type"], {
-              id: `child_${createId()}`,
-              syncSnapshot: true,
-            });
-
-            return {
-              ...context.inputSockets,
-              [key]: {
-                ...context.inputSockets[key],
-                "x-actor": actor,
-                "x-actor-ref": actor,
-              },
-            };
-          },
-        });
-      }
-    }
+    enqueue("spawnInputActors");
     enqueue("setupInternalActorConnections");
   }),
   context: ({ input }) =>
@@ -222,9 +202,6 @@ const OpenAICompleteChatMachine = createMachine({
         }
       | {
           type: "updateOutputMessages";
-        }
-      | {
-          type: "setupInternalActorConnections";
         };
     events:
       | {
@@ -399,34 +376,34 @@ export class OpenAICompleteChat extends BaseNode<
         Thread: ThreadMachine.provide({ actions: this.baseActions }),
       },
       actions: {
-        setupInternalActorConnections: async (action) => {
-          const { context, spawn } = action;
-          const { inputSockets } = context;
-          for (const socket of Object.values(inputSockets)) {
-            if (socket["x-actor-config"]) {
-              const conf = Object.entries(socket["x-actor-config"]);
-              for (const [key, value] of conf) {
-                console.log("$@$@", {
-                  key,
-                  value,
-                });
-                socket["x-actor"]?.send({
-                  type: "UPDATE_SOCKET",
-                  params: {
-                    name: key,
-                    side: "output",
-                    socket: {
-                      "x-connection": {
-                        ...socket["x-connection"],
-                        [this.id]: value,
-                      },
-                    },
-                  },
-                });
-              }
-            }
-          }
-        },
+        // setupInternalActorConnections: async (action) => {
+        //   const { context, spawn } = action;
+        //   const { inputSockets } = context;
+        //   for (const socket of Object.values(inputSockets)) {
+        //     if (socket["x-actor-config"]) {
+        //       const conf = Object.entries(socket["x-actor-config"]);
+        //       for (const [key, value] of conf) {
+        //         console.log("$@$@", {
+        //           key,
+        //           value,
+        //         });
+        //         socket["x-actor"]?.send({
+        //           type: "UPDATE_SOCKET",
+        //           params: {
+        //             name: key,
+        //             side: "output",
+        //             socket: {
+        //               "x-connection": {
+        //                 ...socket["x-connection"],
+        //                 [this.id]: value,
+        //               },
+        //             },
+        //           },
+        //         });
+        //       }
+        //     }
+        //   }
+        // },
         updateOutputMessages: assign({
           outputs: ({ context }) => {
             return {

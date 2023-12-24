@@ -2,21 +2,21 @@ import { merge } from "lodash-es";
 import {
   generateText,
   ollama,
-  OllamaChatModel,
+  OllamaChatModelSettings,
   openai,
   OPENAI_CHAT_MODELS,
-  OpenAIApiConfiguration,
-  OpenAIChatMessage,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
+import { match, P } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
+import { OllamaModelMachine } from "../ollama/ollama";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -28,6 +28,26 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "RUN",
     "x-event": "RUN",
+  }),
+  llm: generateSocket({
+    "x-key": "llm",
+    name: "Language Model",
+    title: "Language Model",
+    type: "object",
+    "x-compatible": ["Ollama"],
+    description: dedent`
+    The language model to use for generating text. 
+    `,
+    "x-actor-type": "Ollama",
+    "x-actor-connections": {
+      config: "llm",
+    },
+    "x-actor-config": {
+      // FOR INTERNAL
+      config: "llm",
+    },
+    "x-showSocket": true,
+    isMultiple: false,
   }),
   system: generateSocket({
     name: "system" as const,
@@ -50,57 +70,58 @@ const inputSockets = {
     "x-key": "user",
     "x-showSocket": true,
   }),
-  model: generateSocket({
-    "x-key": "model",
-    name: "model" as const,
-    title: "Model",
-    type: "string" as const,
-    allOf: [
-      {
-        enum: Object.keys(OPENAI_CHAT_MODELS),
-        type: "string" as const,
-      },
-    ],
-    "x-controller": "select",
-    default: "gpt-3.5-turbo-1106",
-    description: dedent`
-    The model to use for generating text. You can see available models
-    `,
-  }),
-  temperature: generateSocket({
-    "x-key": "temperature",
-    name: "temperature" as const,
-    title: "Temperature",
-    type: "number" as const,
-    description: dedent`
-    The sampling temperature, between 0 and 1. Higher values like
-    0.8 will make the output more random, while lower values like
-    0.2 will make it more focused and deterministic. If set to 0,
-    the model will use log probability to automatically increase
-    the temperature until certain thresholds are hit`,
-    required: true,
-    default: 0.7,
-    minimum: 0,
-    maximum: 1,
-    isMultiple: false,
-    "x-showSocket": false,
-  }),
-  maxCompletionTokens: generateSocket({
-    "x-key": "maxCompletionTokens",
-    name: "maxCompletionTokens" as const,
-    title: "Max Completion Tokens",
-    type: "number" as const,
-    description: dedent`
-    The maximum number of tokens to generate in the chat
-    completion. The total length of input tokens and generated
-    tokens is limited by the model's context length.`,
-    required: true,
-    default: 1000,
-    minimum: 0,
-    maximum: 4141,
-    isMultiple: false,
-    "x-showSocket": false,
-  }),
+
+  // model: generateSocket({
+  //   "x-key": "model",
+  //   name: "model" as const,
+  //   title: "Model",
+  //   type: "string" as const,
+  //   allOf: [
+  //     {
+  //       enum: Object.keys(OPENAI_CHAT_MODELS),
+  //       type: "string" as const,
+  //     },
+  //   ],
+  //   "x-controller": "select",
+  //   default: "gpt-3.5-turbo-1106",
+  //   description: dedent`
+  //   The model to use for generating text. You can see available models
+  //   `,
+  // }),
+  // temperature: generateSocket({
+  //   "x-key": "temperature",
+  //   name: "temperature" as const,
+  //   title: "Temperature",
+  //   type: "number" as const,
+  //   description: dedent`
+  //   The sampling temperature, between 0 and 1. Higher values like
+  //   0.8 will make the output more random, while lower values like
+  //   0.2 will make it more focused and deterministic. If set to 0,
+  //   the model will use log probability to automatically increase
+  //   the temperature until certain thresholds are hit`,
+  //   required: true,
+  //   default: 0.7,
+  //   minimum: 0,
+  //   maximum: 1,
+  //   isMultiple: false,
+  //   "x-showSocket": false,
+  // }),
+  // maxCompletionTokens: generateSocket({
+  //   "x-key": "maxCompletionTokens",
+  //   name: "maxCompletionTokens" as const,
+  //   title: "Max Completion Tokens",
+  //   type: "number" as const,
+  //   description: dedent`
+  //   The maximum number of tokens to generate in the chat
+  //   completion. The total length of input tokens and generated
+  //   tokens is limited by the model's context length.`,
+  //   required: true,
+  //   default: 1000,
+  //   minimum: 0,
+  //   maximum: 4141,
+  //   isMultiple: false,
+  //   "x-showSocket": false,
+  // }),
 };
 
 const outputSockets = {
@@ -134,9 +155,10 @@ const OpenAIGenerateTextMachine = createMachine({
           RUN: undefined,
           system: "",
           user: "",
-          temperature: 0.7,
-          model: "gpt-3.5-turbo-1106",
-          maxCompletionTokens: 1000,
+          llm: null,
+          // temperature: 0.7,
+          // model: "gpt-3.5-turbo-1106",
+          // maxCompletionTokens: 1000,
         },
         outputs: {
           onDone: undefined,
@@ -147,6 +169,10 @@ const OpenAIGenerateTextMachine = createMachine({
       },
       input,
     ),
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("spawnInputActors");
+    enqueue("setupInternalActorConnections");
+  }),
   types: {} as BaseMachineTypes<{
     input: {
       inputs: MappedType<typeof inputSockets>;
@@ -166,7 +192,7 @@ const OpenAIGenerateTextMachine = createMachine({
     guards: None;
     actors: {
       src: "generateText";
-      logic: ReturnType<typeof generateTextActor>;
+      logic: typeof generateTextActor;
     };
   }>,
   initial: "idle",
@@ -190,19 +216,25 @@ const OpenAIGenerateTextMachine = createMachine({
         src: "generateText",
         input: ({ context }): GenerateTextInput => {
           return {
-            openai: {
-              model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
-              temperature: context.inputs.temperature!,
-              maxCompletionTokens: context.inputs.maxCompletionTokens!,
-            },
+            llm: context.inputs.llm! as
+              | (OllamaChatModelSettings & { provider: "ollama" })
+              | (OpenAIChatSettings & { provider: "openai" }),
             system: context.inputs.system!,
             user: context.inputs.user!,
           };
         },
         onDone: {
-          target: "#openai-generate-text.complete",
-          actions: assign({
-            outputs: ({ event }) => event.output,
+          target: "#openai-generate-text.idle",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ event }) => event.output,
+            });
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
           }),
         },
         onError: {
@@ -211,18 +243,7 @@ const OpenAIGenerateTextMachine = createMachine({
         },
       },
     },
-    complete: {
-      entry: [
-        {
-          type: "triggerSuccessors",
-          params: {
-            port: "onDone",
-          },
-        },
-      ],
-      type: "final",
-      output: ({ context }) => context.outputs,
-    },
+    complete: {},
     error: {
       on: {
         RUN: {
@@ -235,7 +256,6 @@ const OpenAIGenerateTextMachine = createMachine({
       },
     },
   },
-  output: ({ context }) => context.outputs,
 });
 
 export type OpenAIGenerateTextNode = ParsedNode<
@@ -244,42 +264,45 @@ export type OpenAIGenerateTextNode = ParsedNode<
 >;
 
 type GenerateTextInput = {
-  openai: OpenAIChatSettings;
+  llm:
+    | (OpenAIChatSettings & { provider: "openai" })
+    | (OllamaChatModelSettings & { provider: "ollama" });
   system: string;
   user: string;
 };
 
-const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
-  fromPromise(async ({ input }: { input: GenerateTextInput }) => {
+const generateTextActor = fromPromise(
+  async ({ input }: { input: GenerateTextInput }) => {
     console.log("INPUT", input);
+    const model = match(input.llm)
+      .with(
+        {
+          provider: "ollama",
+        },
+        (config) => {
+          return ollama.ChatTextGenerator(config);
+        },
+      )
+      .with(
+        {
+          provider: "openai",
+        },
+        (config) => {
+          return openai.ChatTextGenerator(config);
+        },
+      )
+      .exhaustive();
     try {
-      const text = await generateText(
-        ollama.ChatTextGenerator({
-          api: api() as any,
-
-          model: "llama2",
-          // ...input.openai,
-        }),
-        [
-          {
-            role: "system",
-            content: input.system,
-          },
-          {
-            role: "user",
-            content: input.user,
-          },
-        ],
-
-        // openai.ChatTextGenerator({
-        //   api: api(),
-        //   ...input.openai,
-        // }),
-        // [
-        //   ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
-        //   OpenAIChatMessage.user(input.user),
-        // ],
-      );
+      const text = await generateText(model, [
+        {
+          role: "system",
+          content: input.system,
+        },
+        {
+          role: "user",
+          content: input.user,
+        },
+      ]);
       console.log("TEXT", text);
       return {
         result: text,
@@ -290,7 +313,8 @@ const generateTextActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
         result: "EEEEEE",
       };
     }
-  });
+  },
+);
 
 export class OpenAIGenerateText extends BaseNode<
   typeof OpenAIGenerateTextMachine
@@ -311,27 +335,10 @@ export class OpenAIGenerateText extends BaseNode<
     };
   }
 
-  get apiModel() {
-    const api = ollama.Api({});
-    // if (!this.di.variables.has("OPENAI_API_KEY")) {
-    //   throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
-    // }
-    // const api = new OpenAIApiConfiguration({
-    //   apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
-    //   throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
-    //   retry: retryWithExponentialBackoff({
-    //     maxTries: 2,
-    //     initialDelayInMs: 1000,
-    //     backoffFactor: 2,
-    //   }),
-    // });
-    return api;
-  }
-
   constructor(di: DiContainer, data: OpenAIGenerateTextNode) {
     super("OpenAIGenerateText", di, data, OpenAIGenerateTextMachine, {
       actors: {
-        generateText: generateTextActor({ api: () => this.apiModel }),
+        generateText: generateTextActor,
       },
       actions: {
         adjustMaxCompletionTokens: assign({
@@ -350,6 +357,15 @@ export class OpenAIGenerateText extends BaseNode<
               };
             }
             return context.inputSockets;
+          },
+        }),
+      },
+    });
+    this.extendMachine({
+      actors: {
+        Ollama: OllamaModelMachine.provide({
+          actions: {
+            ...this.baseActions,
           },
         }),
       },

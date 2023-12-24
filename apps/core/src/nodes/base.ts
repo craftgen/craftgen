@@ -1,7 +1,7 @@
-import { debounce, has, isEqual, isUndefined } from "lodash-es";
+import { createId } from "@paralleldrive/cuid2";
+import { debounce, has, isEqual, isNil, isUndefined } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
-import { match, P } from "ts-pattern";
 import { MergeDeep } from "type-fest";
 import {
   ActionArgs,
@@ -10,6 +10,7 @@ import {
   AnyStateMachine,
   assign,
   createActor,
+  enqueueActions,
   InputFrom,
   ProvidedActor,
   Snapshot,
@@ -47,7 +48,7 @@ export type BaseInputType<
   I extends Record<string, any> = {},
   O extends Record<string, any> = {},
 > = {
-  inputs?: MappedType<I>;
+  inputs?: Partial<MappedType<I>>;
   inputSockets?: I;
   outputs?: MappedType<O>;
   outputSockets?: O;
@@ -139,6 +140,12 @@ export type BaseActionTypes =
         name: string;
         message: string;
       };
+    }
+  | {
+      type: "spawnInputActors";
+    }
+  | {
+      type: "setupInternalActorConnections";
     };
 
 export type BaseActorTypes = ProvidedActor;
@@ -318,6 +325,61 @@ export abstract class BaseNode<
         type: event.value,
       }),
     }),
+    spawnInputActors: enqueueActions(({ enqueue, context }) => {
+      for (const [key, value] of Object.entries(context.inputSockets)) {
+        console.log("spawnInputActors", key, value);
+        if (value["x-actor-type"] && isNil(value["x-actor"])) {
+          enqueue.assign({
+            inputSockets: ({ context, spawn }) => {
+              const actor = spawn(value["x-actor-type"], {
+                id: `child_${createId()}`,
+                syncSnapshot: true,
+              });
+
+              return {
+                ...context.inputSockets,
+                [key]: {
+                  ...context.inputSockets[key],
+                  "x-actor": actor,
+                  "x-actor-ref": actor,
+                },
+              };
+            },
+          });
+        }
+      }
+    }),
+    setupInternalActorConnections: async (
+      action: ActionArgs<ContextFrom<Machine>, any, any>,
+    ) => {
+      const { context, spawn } = action;
+      const { inputSockets } = context;
+      for (const socket of Object.values(inputSockets)) {
+        if (socket["x-actor-config"]) {
+          const conf = Object.entries(socket["x-actor-config"]);
+          for (const [key, value] of conf) {
+            console.log("$@$@", {
+              key,
+              value,
+            });
+            socket["x-actor"]?.send({
+              type: "UPDATE_SOCKET",
+              params: {
+                name: key,
+                side: "output",
+                socket: {
+                  "x-connection": {
+                    ...socket["x-connection"],
+                    [this.id]: value,
+                  },
+                },
+              },
+            });
+          }
+        }
+      }
+    },
+
     syncConnection: async (
       action: ActionArgs<any, any, any>,
       params?: {
@@ -330,12 +392,14 @@ export abstract class BaseNode<
         throw new Error("Missing params");
       }
       const targetNode = this.di.editor.getNode(params?.nodeId);
-      targetNode.actor.send({
-        type: "SET_VALUE",
-        values: {
-          [params.inputKey]: action.context.inputs[params.outputKey],
-        },
-      });
+      if (targetNode) {
+        targetNode.actor.send({
+          type: "SET_VALUE",
+          values: {
+            [params.inputKey]: action.context.outputs[params.outputKey],
+          },
+        });
+      }
     },
     triggerSuccessors: async (
       action: ActionArgs<any, any, any>,
@@ -719,10 +783,12 @@ export abstract class BaseNode<
       socket: Socket,
     ) => {
       if (item["x-actor-ref"]) {
+        console.log({ socket, item, input, key });
         const controller = getControlBySocket({
           socket: socket,
           actor: item["x-actor-ref"],
-          selector: (snapshot) => snapshot.context.inputs[key],
+          // selector: (snapshot) => snapshot.context.inputs[key],
+          selector: (snapshot) => snapshot.context.outputs["config"],
           onChange: (v) => {
             this.pactor.send({
               type: "SET_VALUE",

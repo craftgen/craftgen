@@ -26,7 +26,7 @@ import { SliderControl } from "../../controls/slider";
 import { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import {
-  JSONSocketTypeKeys,
+  JSONSocketPrimitiveTypeKeys,
   MappedType,
   SocketTypeMap,
   triggerSocket,

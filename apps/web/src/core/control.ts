@@ -13,6 +13,7 @@ import { FileControl } from "@seocraft/core/src/controls/file";
 import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 import { InputControl } from "@seocraft/core/src/controls/input.control";
 import { JsonControl } from "@seocraft/core/src/controls/json";
+import { NodeControl } from "@seocraft/core/src/controls/node";
 import { NumberControl } from "@seocraft/core/src/controls/number";
 import { OpenAIChatSettingsControl } from "@seocraft/core/src/controls/openai-chat-settings";
 import { OpenAIApiConfigurationControl } from "@seocraft/core/src/controls/openai-configuration";
@@ -35,6 +36,7 @@ import { DateControlComponent } from "./ui/control/control-date";
 import { FileControlComponent } from "./ui/control/control-file";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
 import { JsonControlComponent } from "./ui/control/control-json";
+import { NodeControlComponent } from "./ui/control/control-node";
 import { NumberControlComponent } from "./ui/control/control-number";
 import { OpenAIChatSettingsControlComponent } from "./ui/control/control-openai-chat-settings";
 import { OpenAIConfigutationControlComponent } from "./ui/control/control-openai-configuration";
@@ -48,10 +50,13 @@ import { CustomTextarea } from "./ui/control/custom-textarea";
 import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai-thread";
 import { ThreadControlComponent } from "./ui/control/thread/control-thread";
 
+export const getControlWithDefinition = (definition: any) => {};
+
 export const getControl = (
   data: ExtractPayload<Schemes, "control">,
 ): (({ data }: { data: any }) => JSX.Element | null) => {
   return match(data.payload)
+    .with(P.instanceOf(NodeControl), () => NodeControlComponent)
     .with(P.instanceOf(ButtonControl), () => CustomButton)
     .with(P.instanceOf(CodeControl), () => CodeEditor)
     .with(P.instanceOf(SelectControl), () => SelectControlComponent)

@@ -12,6 +12,7 @@ import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
 import { JsonControl } from "./controls/json";
+import { NodeControl } from "./controls/node";
 import { NumberControl } from "./controls/number";
 import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SelectControl } from "./controls/select";
@@ -40,7 +41,7 @@ export class Socket extends ClassicPreset.Socket {
   }
 }
 
-export type SocketNameType = JSONSocketTypeKeys | NodeTypes;
+export type SocketNameType = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
 export type SocketType =
   | "anySocket"
@@ -97,7 +98,7 @@ export type SocketTypeMap = {
   thread: Message[];
 };
 
-export type JSONSocketTypeKeys = (typeof types)[number];
+export type JSONSocketPrimitiveTypeKeys = (typeof types)[number];
 
 export type MappedType<T extends Record<string, JSONSocket>> = {
   [K in keyof T]: SocketTypeMap[T[K]["type"]] | null;
@@ -170,7 +171,7 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
 
 export const useSocketConfig = (name: SocketNameType) => {
   const getConfig = useCallback((name: SocketNameType) => {
-    return socketConfig[name];
+    return socketConfig[name] || socketConfig["any"];
   }, []);
   return getConfig(name);
 };
@@ -203,6 +204,26 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   definition: JSONSocket;
 }) => {
   return match([socket, definition])
+    .with(
+      [
+        {
+          name: "object",
+        },
+        {
+          "x-actor-ref": P.any,
+        },
+      ],
+      () => {
+        return new NodeControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
     .with(
       [
         {
@@ -251,6 +272,14 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
       [
         {
           name: "string",
+        },
+        {
+          "x-controller": "select",
+        },
+      ],
+      [
+        {
+          name: "number",
         },
         {
           "x-controller": "select",

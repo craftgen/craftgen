@@ -308,7 +308,6 @@ export class Connection<
       (!this.isActorRef ||
         inputDefinition["x-actor-ref"] !== this.sourceNode.actor.ref)
     ) {
-      console.log("SETTING ACTOR REF");
       this.targetNode.actor.send({
         type: "UPDATE_SOCKET",
         params: {
@@ -344,20 +343,6 @@ export class Connection<
           });
         }
       }
-
-      this.sourceNode.actor.send({
-        type: "UPDATE_SOCKET",
-        params: {
-          name: "messages",
-          side: "output",
-          socket: {
-            "x-connection": {
-              ...this.sourceDefintion?.["x-connection"],
-              [this.targetNode.id]: this.targetInput,
-            },
-          },
-        },
-      });
 
       this.sourceNode.actor.send({
         type: "UPDATE_OUTPUTS",

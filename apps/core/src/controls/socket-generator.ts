@@ -3,7 +3,7 @@ import { MergeDeep } from "type-fest";
 import { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
-import { JSONSocketTypeKeys, SocketNameType, types } from "../sockets";
+import { JSONSocketPrimitiveTypeKeys, SocketNameType, types } from "../sockets";
 import { nodes, NodeTypes } from "../types";
 import { BaseControl } from "./base";
 
@@ -20,11 +20,12 @@ export type SocketGeneratorControlOptions = {
 };
 
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
+export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
 export const socketSchema = z
   .object({
     name: z.string().min(1),
-    type: z.custom<JSONSocketTypeKeys | NodeTypes>(),
+    type: z.custom<JSONSocketTypes>(),
     required: z.boolean().default(false).optional(),
     isMultiple: z.boolean().default(false).optional(),
     default: z
@@ -50,7 +51,7 @@ export const socketSchema = z
     "x-event": z.string().optional(),
     "x-actor": z.custom<AnyActor>().optional(),
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
-    "x-actor-type": z.string().optional(),
+    "x-actor-type": z.custom<NodeTypes>().optional(),
     "x-actor-connections": z
       .record(z.string().describe("source"), z.string().describe("target"))
       .default({})
@@ -61,7 +62,7 @@ export const socketSchema = z
       .optional(),
     "x-connection": z.record(z.string(), z.string()).default({}).optional(),
 
-    "x-compatible": z.array(z.string()).default([]).optional(),
+    "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {
