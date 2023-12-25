@@ -294,6 +294,14 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           "x-controller": "select",
         },
       ],
+      [
+        {
+          name: P.any,
+        },
+        {
+          "x-controller": "select",
+        },
+      ],
       () => {
         return new SelectControl(
           actor,
@@ -405,7 +413,7 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
         },
         {
           maximum: P.number,
-          minimum: P.number.gt(0),
+          minimum: P.number.gte(0),
         },
       ],
       ([_, def]) => {

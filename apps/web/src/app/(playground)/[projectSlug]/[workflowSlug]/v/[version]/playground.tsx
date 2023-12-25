@@ -530,19 +530,19 @@ export const ControlWrapper: React.FC<{
   });
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    if (
-      definition["x-actor-ref"] &&
-      control.actor.id !== definition["x-actor-ref"].id
-    ) {
-      console.log("Actors are not matching", {
-        definition,
-        control,
-      });
+  // useEffect(() => {
+  //   if (
+  //     definition["x-actor-ref"] &&
+  //     control.actor.id !== definition["x-actor-ref"].id
+  //   ) {
+  //     console.log("Actors are not matching", {
+  //       definition,
+  //       control,
+  //     });
 
-      setCount((c) => c + 1);
-    }
-  }, [definition, control.actor]);
+  //     setCount((c) => c + 1);
+  //   }
+  // }, [definition, control.actor]);
 
   return (
     <>

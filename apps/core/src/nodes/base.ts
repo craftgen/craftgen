@@ -326,9 +326,14 @@ export abstract class BaseNode<
       }),
     }),
     spawnInputActors: enqueueActions(({ enqueue, context }) => {
-      for (const [key, value] of Object.entries(context.inputSockets)) {
+      for (const [key, value] of Object.entries<JSONSocket>(
+        context.inputSockets,
+      )) {
         console.log("spawnInputActors", key, value);
-        if (value["x-actor-type"] && isNil(value["x-actor"])) {
+        if (
+          (value["x-actor-type"] && isNil(value["x-actor"])) ||
+          value["x-actor-type"] !== value["x-actor-ref-type"]
+        ) {
           enqueue.assign({
             inputSockets: ({ context, spawn }) => {
               const actor = spawn(value["x-actor-type"], {
@@ -342,6 +347,7 @@ export abstract class BaseNode<
                   ...context.inputSockets[key],
                   "x-actor": actor,
                   "x-actor-ref": actor,
+                  "x-actor-ref-type": value["x-actor-type"],
                 },
               };
             },
@@ -783,41 +789,41 @@ export abstract class BaseNode<
       key: string,
       socket: Socket,
     ) => {
-      if (item["x-actor-ref"]) {
-        console.log({ socket, item, input, key });
-        const controller = getControlBySocket({
-          socket: socket,
-          actor: item["x-actor-ref"],
-          // selector: (snapshot) => snapshot.context.inputs[key],
-          selector: (snapshot) => snapshot.context.outputs["config"],
-          onChange: (v) => {
-            this.pactor.send({
-              type: "SET_VALUE",
-              values: {
-                [key]: v,
-              },
-            });
-          },
-          definition: item,
-        });
-        input.addControl(controller);
-      } else {
-        const controller = getControlBySocket({
-          socket: socket,
-          actor: this.pactor,
-          selector: (snapshot) => snapshot.context.inputs[key],
-          onChange: (v) => {
-            this.pactor.send({
-              type: "SET_VALUE",
-              values: {
-                [key]: v,
-              },
-            });
-          },
-          definition: item,
-        });
-        input.addControl(controller);
-      }
+      // if (item["x-actor-ref"]) {
+      //   console.log({ socket, item, input, key });
+      //   const controller = getControlBySocket({
+      //     socket: socket,
+      //     actor: item["x-actor-ref"],
+      //     selector: (snapshot) => snapshot.context.inputs[key], //TODO:
+      //     // selector: (snapshot) => snapshot.context.outputs["config"],
+      //     onChange: (v) => {
+      //       this.pactor.send({
+      //         type: "SET_VALUE",
+      //         values: {
+      //           [key]: v,
+      //         },
+      //       });
+      //     },
+      //     definition: item,
+      //   });
+      //   input.addControl(controller);
+      // } else {
+      const controller = getControlBySocket({
+        socket: socket,
+        actor: this.pactor,
+        selector: (snapshot) => snapshot.context.inputs[key],
+        onChange: (v) => {
+          this.pactor.send({
+            type: "SET_VALUE",
+            values: {
+              [key]: v,
+            },
+          });
+        },
+        definition: item,
+      });
+      input.addControl(controller);
+      // }
     };
     for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasInput(key)) {

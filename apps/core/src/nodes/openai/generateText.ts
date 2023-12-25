@@ -32,8 +32,8 @@ const inputSockets = {
   }),
   llm: generateSocket({
     "x-key": "llm",
-    name: "Language Model",
-    title: "Language Model",
+    name: "Model",
+    title: "Model",
     type: "object",
     description: dedent`
     The language model to use for generating text. 
@@ -146,7 +146,9 @@ const OpenAIGenerateTextMachine = createMachine({
       outputs: MappedType<typeof outputSockets>;
     };
     actions: None;
-    events: None;
+    events: {
+      type: "UPDATE_CHILD_ACTORS";
+    };
     guards: None;
     actors: {
       src: "generateText";
@@ -159,6 +161,12 @@ const OpenAIGenerateTextMachine = createMachine({
       on: {
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
+        },
+        UPDATE_CHILD_ACTORS: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("spawnInputActors");
+            enqueue("setupInternalActorConnections");
+          }),
         },
         RUN: {
           target: "running",

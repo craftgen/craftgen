@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
+import { omit } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
 
@@ -14,24 +15,72 @@ import { ControlWrapper } from "@/app/(playground)/[projectSlug]/[workflowSlug]/
 
 export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   const state = useSelector(props.data.actor, (state) => state);
-  console.log("@@@", props.data.actor, state);
+  const item = useSelector<AnyActor, JSONSocket>(
+    props.data.actor,
+    (state) => state.context.inputSockets[props.data.definition["x-key"]],
+  );
+
+  const actorSelector = useMemo(() => {
+    if (Object.keys(item["x-connection"]).length > 0) {
+      return null;
+    }
+    const controller = getControlBySocket({
+      socket: getSocketByJsonSchemaType(item),
+      actor: props.data.actor,
+      selector: (snapshot) =>
+        state.context.inputSockets[props.data.definition["x-key"]][
+          "x-actor-type"
+        ],
+      onChange: (v) => {
+        console.log("onChange", v);
+        props.data.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: item["x-key"],
+            side: "input",
+            socket: {
+              "x-actor-type": v,
+            },
+          },
+        });
+        props.data.actor.send({
+          type: "UPDATE_CHILD_ACTORS",
+        });
+      },
+      definition: omit(item, ["x-actor-ref"]),
+    });
+    return <ControlWrapper control={controller} definition={item} />;
+  }, [item]);
+
+  const selectedActor = useSelector<AnyActor, AnyActor>(
+    props.data.actor,
+    (state) =>
+      state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
+  );
+  const selectedActorState = useSelector<AnyActor, any>(
+    selectedActor,
+    (state) => state,
+  );
 
   const inputs = useMemo(() => {
     return Object.entries(
-      state.context.inputSockets as Record<string, JSONSocket>,
+      (selectedActorState?.context.inputSockets as Record<
+        string,
+        JSONSocket
+      >) || {},
     ).map(([key, item]) => {
       return (
-        <InputItem
-          key={key}
-          itemKey={key}
-          item={item}
-          actor={props.data.actor}
-        />
+        <InputItem key={key} itemKey={key} item={item} actor={selectedActor} />
       );
     });
-  }, [state.context.inputSockets]);
+  }, [selectedActorState.context.inputSockets]);
 
-  return <div className="space-y-1">{inputs}</div>;
+  return (
+    <div className="space-y-1">
+      {actorSelector}
+      {inputs}
+    </div>
+  );
 });
 
 const InputItem = observer(
