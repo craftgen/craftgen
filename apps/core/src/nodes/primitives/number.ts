@@ -127,19 +127,6 @@ export class Number extends BaseNode<typeof NumberMachine> {
   }
   constructor(di: DiContainer, data: NumberData) {
     super("Number", di, data, NumberMachine, {});
-    // this.addControl(
-    //   "value",
-    //   new NumberControl(() => this.snap.context?.outputs?.value || 0, {
-    //     change: (value) => {
-    //       this.actor.send({ type: "change", value });
-    //     },
-    //   }),
-    // );
-    // this.addInput("increment", new Input(triggerSocket, "+"));
-    // this.addInput("decrement", new Input(triggerSocket, "-"));
-    // this.addInput("reset", new Input(triggerSocket, "reset"));
-
-    // this.addOutput("trigger", new Output(triggerSocket, "trigger"));
-    // this.addOutput("value", new Output(numberSocket, "Value"));
+    this.setup();
   }
 }
