@@ -34,17 +34,26 @@ const inputSockets = {
     name: "Language Model",
     title: "Language Model",
     type: "object",
-    "x-compatible": ["Ollama"],
     description: dedent`
     The language model to use for generating text. 
     `,
+    allOf: [
+      {
+        enum: ["Ollama", "OpenAI"],
+        type: "string" as const,
+      },
+    ],
+    "x-controller": "select",
     "x-actor-type": "Ollama",
-    "x-actor-connections": {
-      config: "llm",
-    },
     "x-actor-config": {
-      // FOR INTERNAL
-      config: "llm",
+      Ollama: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
     },
     "x-showSocket": true,
     isMultiple: false,

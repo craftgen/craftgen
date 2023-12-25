@@ -20,24 +20,27 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     return Object.entries(
       state.context.inputSockets as Record<string, JSONSocket>,
     ).map(([key, item]) => {
-      return <InputItem key={key} item={item} actor={props.data.actor} />;
+      return (
+        <InputItem
+          key={key}
+          itemKey={key}
+          item={item}
+          actor={props.data.actor}
+        />
+      );
     });
   }, [state.context.inputSockets]);
 
-  return (
-    <div className="space-y-1">
-      {inputs}
-    </div>
-  );
+  return <div className="space-y-1">{inputs}</div>;
 });
 
 const InputItem = observer(
   ({
-    key,
+    itemKey,
     item,
     actor,
   }: {
-    key: string;
+    itemKey: string;
     item: JSONSocket;
     actor: AnyActor;
   }) => {
@@ -45,20 +48,20 @@ const InputItem = observer(
     const controller = getControlBySocket({
       socket,
       actor: actor,
-      selector: (snapshot) => snapshot.context.inputs[key],
+      selector: (snapshot) => snapshot.context.inputs[itemKey],
       onChange: (v) => {
         console.log("onChange", v);
         actor.send({
           type: "SET_VALUE",
           values: {
-            [key]: v,
+            [itemKey]: v,
           },
         });
       },
       definition: item,
     });
     return (
-      <div key={key} className="space-y-1">
+      <div className="space-y-1">
         <ControlWrapper control={controller} definition={item} />
       </div>
     );

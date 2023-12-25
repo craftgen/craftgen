@@ -387,16 +387,6 @@ export const renderFieldValueBaseOnSocketType = (
   socket: Socket,
   value: any | undefined,
 ) => {
-  // let renderedValue = value;
-  // if (renderedValue === undefined || renderedValue === null) {
-  //   switch (socket.name) {
-  //     case "String":
-  //       renderedValue = "";
-  //     case "Number":
-  //       renderedValue = 0;
-  //     default:
-  //   }
-  // }
   return match([socket, value])
     .with(
       [
@@ -446,11 +436,7 @@ export const renderFieldValueBaseOnSocketType = (
       ([socket, renderedValue]) => {
         return (
           <div className={"space-y-1"}>
-            {/* <Label>{socket.definition.title || socket.definition.name}</Label> */}
             <Input value={renderedValue} readOnly />
-            {/* <p className={cn("text-muted-foreground text-[0.8rem]")}>
-              {socket.definition?.description}
-            </p> */}
           </div>
         );
       },
@@ -458,24 +444,6 @@ export const renderFieldValueBaseOnSocketType = (
     .otherwise(([_, value]) => {
       return <JsonView src={value} displaySize collapsed={3} />;
     });
-
-  // switch (socket.name) {
-  //   case "String":
-  //     if (renderedValue.length > 100) {
-  //       return (
-  //         <div>
-  //           <Textarea value={renderedValue} rows={10} />
-  //         </div>
-  //       );
-  //     }
-  //     return <Input value={renderedValue} readOnly />;
-  //   case "Number":
-  //     return <Input type="number" value={renderedValue} readOnly />;
-  //   case "Tool":
-  //     return <JsonView src={renderedValue} displaySize collapsed={3} />;
-  //   default:
-  //     return null;
-  // }
 };
 
 export const DynamicInputsForm: React.FC<{
@@ -493,7 +461,6 @@ export const DynamicInputsForm: React.FC<{
 export const InputWrapper: React.FC<{ input: Input }> = observer(
   ({ input }) => {
     if (!input.control) {
-      // if (!input.control || !input.showControl) {
       return (
         <Alert variant={"default"} key={input.label}>
           <AlertTitle>

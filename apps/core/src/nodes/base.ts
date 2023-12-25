@@ -350,14 +350,15 @@ export abstract class BaseNode<
       }
     }),
     setupInternalActorConnections: async (
-      action: ActionArgs<ContextFrom<Machine>, any, any>,
+      action: ActionArgs<ContextFrom<BaseMachine>, any, any>,
     ) => {
-      const { context, spawn } = action;
+      const { context } = action;
       const { inputSockets } = context;
-      for (const socket of Object.values(inputSockets)) {
+      for (const socket of Object.values<JSONSocket>(inputSockets)) {
         if (socket["x-actor-config"]) {
-          const conf = Object.entries(socket["x-actor-config"]);
-          for (const [key, value] of conf) {
+          const conf = socket["x-actor-config"][socket["x-actor-type"]!];
+          if (!conf) continue;
+          for (const [key, value] of Object.entries(conf?.internal)) {
             console.log("$@$@", {
               key,
               value,

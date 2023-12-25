@@ -22,6 +22,23 @@ export type SocketGeneratorControlOptions = {
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
+export const actorConfigSchema = z
+  .record(
+    z.custom<NodeTypes>().describe("Actor Name"),
+    z.object({
+      connections: z
+        .record(z.string().describe("source"), z.string().describe("target"))
+        .default({}),
+      internal: z
+        .record(z.string().describe("source"), z.string().describe("target"))
+        .default({}),
+    }),
+  )
+  .default({})
+  .optional();
+
+export type AnyActorConfig = z.infer<typeof actorConfigSchema>;
+
 export const socketSchema = z
   .object({
     name: z.string().min(1),
@@ -52,16 +69,12 @@ export const socketSchema = z
     "x-actor": z.custom<AnyActor>().optional(),
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
     "x-actor-type": z.custom<NodeTypes>().optional(),
-    "x-actor-connections": z
-      .record(z.string().describe("source"), z.string().describe("target"))
-      .default({})
-      .optional(),
-    "x-actor-config": z
-      .record(z.string().describe("source"), z.string().describe("target"))
-      .default({})
-      .optional(),
+    // "x-actor-connections": z
+    //   .record(z.string().describe("source"), z.string().describe("target"))
+    //   .default({})
+    //   .optional(),
+    "x-actor-config": actorConfigSchema,
     "x-connection": z.record(z.string(), z.string()).default({}).optional(),
-
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),
     "x-language": z.string().optional(),
   })
@@ -86,6 +99,14 @@ export const generateSocket = <
 ) => {
   const valid = socketSchema.parse(socket);
   if (!valid) throw new Error("Invalid socket");
+
+  // Set the x-compatible field base on the x-actor-config
+  if (socket["x-actor-config"]) {
+    valid["x-compatible"] = Object.keys(
+      socket["x-actor-config"],
+    ) as NodeTypes[];
+  }
+
   return {
     ...socket,
     ...valid,
