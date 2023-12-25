@@ -17,6 +17,7 @@ import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 import { OllamaModelMachine } from "../ollama/ollama";
+import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -54,6 +55,14 @@ const inputSockets = {
           config: "llm",
         },
       },
+      OpenAI: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
     },
     "x-showSocket": true,
     isMultiple: false,
@@ -79,58 +88,6 @@ const inputSockets = {
     "x-key": "user",
     "x-showSocket": true,
   }),
-
-  // model: generateSocket({
-  //   "x-key": "model",
-  //   name: "model" as const,
-  //   title: "Model",
-  //   type: "string" as const,
-  //   allOf: [
-  //     {
-  //       enum: Object.keys(OPENAI_CHAT_MODELS),
-  //       type: "string" as const,
-  //     },
-  //   ],
-  //   "x-controller": "select",
-  //   default: "gpt-3.5-turbo-1106",
-  //   description: dedent`
-  //   The model to use for generating text. You can see available models
-  //   `,
-  // }),
-  // temperature: generateSocket({
-  //   "x-key": "temperature",
-  //   name: "temperature" as const,
-  //   title: "Temperature",
-  //   type: "number" as const,
-  //   description: dedent`
-  //   The sampling temperature, between 0 and 1. Higher values like
-  //   0.8 will make the output more random, while lower values like
-  //   0.2 will make it more focused and deterministic. If set to 0,
-  //   the model will use log probability to automatically increase
-  //   the temperature until certain thresholds are hit`,
-  //   required: true,
-  //   default: 0.7,
-  //   minimum: 0,
-  //   maximum: 1,
-  //   isMultiple: false,
-  //   "x-showSocket": false,
-  // }),
-  // maxCompletionTokens: generateSocket({
-  //   "x-key": "maxCompletionTokens",
-  //   name: "maxCompletionTokens" as const,
-  //   title: "Max Completion Tokens",
-  //   type: "number" as const,
-  //   description: dedent`
-  //   The maximum number of tokens to generate in the chat
-  //   completion. The total length of input tokens and generated
-  //   tokens is limited by the model's context length.`,
-  //   required: true,
-  //   default: 1000,
-  //   minimum: 0,
-  //   maximum: 4141,
-  //   isMultiple: false,
-  //   "x-showSocket": false,
-  // }),
 };
 
 const outputSockets = {
@@ -165,9 +122,6 @@ const OpenAIGenerateTextMachine = createMachine({
           system: "",
           user: "",
           llm: null,
-          // temperature: 0.7,
-          // model: "gpt-3.5-turbo-1106",
-          // maxCompletionTokens: 1000,
         },
         outputs: {
           onDone: undefined,
@@ -191,13 +145,8 @@ const OpenAIGenerateTextMachine = createMachine({
       inputs: MappedType<typeof inputSockets>;
       outputs: MappedType<typeof outputSockets>;
     };
-    actions: {
-      type: "adjustMaxCompletionTokens";
-    };
-    events: {
-      type: "CONFIG_CHANGE";
-      openai: OpenAIChatSettings;
-    };
+    actions: None;
+    events: None;
     guards: None;
     actors: {
       src: "generateText";
@@ -213,10 +162,9 @@ const OpenAIGenerateTextMachine = createMachine({
         },
         RUN: {
           target: "running",
-          // actions: ["setValue"],
         },
         SET_VALUE: {
-          actions: ["setValue", "adjustMaxCompletionTokens"],
+          actions: ["setValue"],
         },
       },
     },
@@ -349,30 +297,15 @@ export class OpenAIGenerateText extends BaseNode<
       actors: {
         generateText: generateTextActor,
       },
-      actions: {
-        adjustMaxCompletionTokens: assign({
-          inputSockets: ({ event, context }) => {
-            if (event.type !== "SET_VALUE") return context.inputSockets;
-            if (event.values.model) {
-              return {
-                ...context.inputSockets,
-                maxCompletionTokens: {
-                  ...context.inputSockets.maxCompletionTokens!,
-                  maximum:
-                    OPENAI_CHAT_MODELS[
-                      event.values.model as keyof typeof OPENAI_CHAT_MODELS
-                    ].contextWindowSize,
-                },
-              };
-            }
-            return context.inputSockets;
-          },
-        }),
-      },
     });
     this.extendMachine({
       actors: {
         Ollama: OllamaModelMachine.provide({
+          actions: {
+            ...this.baseActions,
+          },
+        }),
+        OpenAI: OpenaiModelMachine.provide({
           actions: {
             ...this.baseActions,
           },

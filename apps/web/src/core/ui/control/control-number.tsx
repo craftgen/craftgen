@@ -24,6 +24,7 @@ export const NumberControlComponent = observer(
           type="number"
           max={props.data?.options?.max}
           min={props.data?.options?.min}
+          step={props.data?.step}
           value={value}
           className="w-full max-w-md"
           onChange={(e) => handleChange(Number(e.target.value))}

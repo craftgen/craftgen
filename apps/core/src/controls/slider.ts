@@ -18,6 +18,9 @@ export class SliderControl<T extends AnyActor = AnyActor> extends BaseControl {
     if (this.options.max === 1 && this.options.min === 0) {
       return 0.01;
     }
+    if (this.options.min < 0) {
+      return 0.01;
+    }
     // Helper function to find the decimal place count
     // Helper function to find the decimal place count
     function decimalPlaceCount(value: number): number {

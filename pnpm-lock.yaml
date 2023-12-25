@@ -142,8 +142,8 @@ importers:
         specifier: ^6.10.2
         version: 6.10.2
       modelfusion:
-        specifier: ^0.100.0
-        version: 0.100.0
+        specifier: ^0.104.0
+        version: 0.104.0
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
@@ -704,8 +704,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
       modelfusion:
-        specifier: ^0.100.0
-        version: 0.100.0
+        specifier: ^0.104.0
+        version: 0.104.0
       next:
         specifier: 14.0.3
         version: 14.0.3(@opentelemetry/api@1.7.0)(react-dom@18.2.0)(react@18.2.0)
@@ -14751,8 +14751,8 @@ packages:
     resolution: {integrity: sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==}
     dev: false
 
-  /modelfusion@0.100.0:
-    resolution: {integrity: sha512-vTyXKCaUglw6GJRjYWY7fUXYqdICNkJMOOYGpVJ95SrL/o2058eCYFjbTiHjMoYxQV20QhlpvNyTsXbiDN9goA==}
+  /modelfusion@0.104.0:
+    resolution: {integrity: sha512-Qs+ZydjhTn9R0yKL/6RrNzD+tqjcB81e8UjAyXtEYPN4sNZAIVfTDzDeQPZzSH9BkBfQfuQmxIqE0v4unMlsYQ==}
     engines: {node: '>=18'}
     dependencies:
       eventsource-parser: 1.1.1
@@ -14761,7 +14761,7 @@ packages:
       secure-json-parse: 2.7.0
       ws: 8.14.2
       zod: 3.22.4
-      zod-to-json-schema: 3.22.1(zod@3.22.4)
+      zod-to-json-schema: 3.22.3(zod@3.22.4)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -19051,8 +19051,8 @@ packages:
       zod: 3.21.4
     dev: false
 
-  /zod-to-json-schema@3.22.1(zod@3.22.4):
-    resolution: {integrity: sha512-bVSWQ2JF3ZglQefafkM+Kk9KQ2fqqSi4VhxWaup1NJX9FS5jDg0EkEioVCWui0PiIQvcXJUjmN71bg672+a+tA==}
+  /zod-to-json-schema@3.22.3(zod@3.22.4):
+    resolution: {integrity: sha512-9isG8SqRe07p+Aio2ruBZmLm2Q6Sq4EqmXOiNpDxp+7f0LV6Q/LX65fs5Nn+FV/CzfF3NLBoksXbS2jNYIfpKw==}
     peerDependencies:
       zod: ^3.22.4
     dependencies:

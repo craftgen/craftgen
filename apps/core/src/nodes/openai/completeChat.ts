@@ -1,4 +1,3 @@
-import { createId } from "@paralleldrive/cuid2";
 import { isNil, merge } from "lodash-es";
 import {
   generateText,
@@ -11,16 +10,7 @@ import {
   throttleMaxConcurrency,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import {
-  AnyStateMachine,
-  assign,
-  createMachine,
-  enqueueActions,
-  fromPromise,
-  MachineImplementations,
-  MachineImplementationsFrom,
-  StateMachine,
-} from "xstate";
+import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { DiContainer } from "../../types";
@@ -68,15 +58,17 @@ const inputSockets = {
     type: "array",
     "x-controller": "thread",
     "x-actor-type": "Thread",
-    "x-actor-connections": {
-      messages: "messages",
-    },
     "x-actor-config": {
-      // FOR INTERNAL
-      messages: "messages",
-      onRun: "RUN",
+      Thread: {
+        connections: {
+          messages: "messages",
+        },
+        internal: {
+          messages: "messages",
+          onRun: "RUN",
+        },
+      },
     },
-    "x-compatible": ["Thread"],
     isMultiple: false,
     default: [],
   }),
@@ -376,34 +368,6 @@ export class OpenAICompleteChat extends BaseNode<
         Thread: ThreadMachine.provide({ actions: this.baseActions }),
       },
       actions: {
-        // setupInternalActorConnections: async (action) => {
-        //   const { context, spawn } = action;
-        //   const { inputSockets } = context;
-        //   for (const socket of Object.values(inputSockets)) {
-        //     if (socket["x-actor-config"]) {
-        //       const conf = Object.entries(socket["x-actor-config"]);
-        //       for (const [key, value] of conf) {
-        //         console.log("$@$@", {
-        //           key,
-        //           value,
-        //         });
-        //         socket["x-actor"]?.send({
-        //           type: "UPDATE_SOCKET",
-        //           params: {
-        //             name: key,
-        //             side: "output",
-        //             socket: {
-        //               "x-connection": {
-        //                 ...socket["x-connection"],
-        //                 [this.id]: value,
-        //               },
-        //             },
-        //           },
-        //         });
-        //       }
-        //     }
-        //   }
-        // },
         updateOutputMessages: assign({
           outputs: ({ context }) => {
             return {

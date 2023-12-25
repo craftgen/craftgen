@@ -9,6 +9,8 @@ export { ComposeObject } from "./object/composeObject";
 
 export { InputNode } from "./io/input.node";
 export { OutputNode } from "./io/output";
+export { Ollama } from "./ollama/ollama";
+export { OpenAI } from "./openai/openai";
 
 export { ModuleNode } from "./io/module";
 export { Replicate } from "./replicate/replicate";

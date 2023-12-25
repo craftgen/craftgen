@@ -15,6 +15,8 @@ import {
   Log,
   ModuleNode,
   Number,
+  Ollama,
+  OpenAI,
   OpenAIFunctionCall,
   OutputNode,
   Postgres,
@@ -28,7 +30,6 @@ import {
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
-import { Ollama } from "./nodes/ollama/ollama";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAICompleteChat } from "./nodes/openai/completeChat";
 import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
@@ -83,6 +84,7 @@ export const nodes = {
 
   // Models
   Ollama: Ollama,
+  OpenAI: OpenAI,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
   OpenAIGenerateText: OpenAIGenerateText,

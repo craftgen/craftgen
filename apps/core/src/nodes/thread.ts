@@ -30,15 +30,15 @@ export enum ThreadActions {
 }
 
 const inputSockets = {
-  addMessage: generateSocket({
-    name: "addMessage",
-    type: "trigger",
-    isMultiple: true,
-    required: false,
-    "x-key": "addMessage",
-    "x-showSocket": true,
-    "x-event": "ADD_MESSAGE",
-  }),
+  // addMessage: generateSocket({
+  //   name: "addMessage",
+  //   type: "trigger",
+  //   isMultiple: true,
+  //   required: false,
+  //   "x-key": "addMessage",
+  //   "x-showSocket": true,
+  //   "x-event": "ADD_MESSAGE",
+  // }),
   messages: generateSocket({
     name: "Thread",
     description: "Thread of messages",
@@ -268,8 +268,6 @@ export const ThreadMachine = createMachine(
           },
         });
         const connections = context.outputSockets.messages["x-connection"];
-        console.log("CONNECTIONS", connections);
-
         for (const [target, inputKey] of Object.entries(connections || {})) {
           enqueue({
             type: "syncConnection",

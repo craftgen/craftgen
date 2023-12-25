@@ -96,7 +96,7 @@ export const useRegisterPlaygroundActions = ({ di }: { di: Editor | null }) => {
         .map((node) => ({
           id: node.nodeType,
           name: node.label,
-          parent: node?.section ?? undefined,
+          // parent: node?.section ?? undefined,
           subtitle: node.description,
           section: node.section ?? "Nodes",
           perform: async () => {

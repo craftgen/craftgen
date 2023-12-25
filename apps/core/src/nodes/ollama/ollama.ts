@@ -224,7 +224,6 @@ const inputSockets = {
     description: dedent`
     Sets the random number seed to use for generation. Setting this to a
     specific number will make the model generate the same text for the same prompt.
-    (Default: 0)
     `,
     required: false,
     default: undefined,
@@ -458,6 +457,7 @@ export class Ollama extends BaseNode<typeof OllamaModelMachine> {
   static description = "Local Ollama model";
 
   static icon = "ollama";
+  static section = "Model Providers";
 
   static parse = (params: SetOptional<OllamaModelNode, "type">) => {
     return {

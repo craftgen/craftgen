@@ -4,7 +4,7 @@ import { match } from "ts-pattern";
 
 import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
 import type { Socket, Sockets } from "@seocraft/core/src/sockets";
-import { socketConfig } from "@seocraft/core/src/sockets";
+import { socketConfig, useSocketConfig } from "@seocraft/core/src/sockets";
 import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +18,7 @@ export function CustomSocket<T extends Socket>(props: {
   };
   meta: Omit<ExtractPayload<Schemes, "socket">, "payload">;
 }) {
-  const config = React.useMemo(() => {
-    return socketConfig[props.data.socket.name];
-  }, [props.data.socket.name]);
+  const config = useSocketConfig(props.data.socket.name);
 
   const data = React.useMemo(() => {
     return match(props)

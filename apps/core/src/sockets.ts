@@ -206,9 +206,10 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   return match([socket, definition])
     .with(
       [
-        {
-          name: "object",
-        },
+        // {
+        //   name: "",
+        // },
+        P.any,
         {
           "x-actor-ref": P.any,
         },
@@ -404,7 +405,7 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
         },
         {
           maximum: P.number,
-          minimum: P.number,
+          minimum: P.number.gt(0),
         },
       ],
       ([_, def]) => {
