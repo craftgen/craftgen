@@ -1,17 +1,11 @@
 import ky from "ky";
-import { merge, update } from "lodash-es";
-import {
-  ApiConfiguration,
-  ollama,
-  OllamaChatModel,
-  OllamaChatModelSettings,
-} from "modelfusion";
+import { merge } from "lodash-es";
+import { ApiConfiguration, ollama, OllamaChatModelSettings } from "modelfusion";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -33,6 +27,20 @@ const OllamaApi = ky.create({
   },
 });
 
+const OllamaRegistry = ky.create({
+  prefixUrl: "https://registry.ollama.ai/v2",
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        request.headers.set(
+          "Accept",
+          "application/vnd.docker.distribution.manifest.v2+json",
+        );
+      },
+    ],
+  },
+});
+
 declare interface ModelResponse {
   name: string;
   modified_at: string;
@@ -48,10 +56,51 @@ declare interface ModelDetails {
   parameter_size: string;
   quantization_level: string;
 }
+declare interface ShowResponse {
+  license?: string;
+  modelfile?: string;
+  parameters?: string;
+  template?: string;
+  system?: string;
+  details?: ModelDetails;
+}
 
 const getModels = fromPromise(
   async (): Promise<{ models: ModelResponse[] }> => {
     const models = await OllamaApi.get("tags");
+    return models.json();
+  },
+);
+
+const checkModel = fromPromise(
+  async ({ input }: { input: { modelName: string } }): Promise<boolean> => {
+    const model = await OllamaRegistry.get(input.modelName);
+    return model.status === 200;
+  },
+);
+
+const getModel = fromPromise(
+  async ({
+    input,
+  }: {
+    input: { modelName: string };
+  }): Promise<ShowResponse> => {
+    const model = await OllamaApi.post("show", {
+      json: {
+        name: input.modelName,
+      },
+    });
+    return model.json();
+  },
+);
+
+const listModels = fromPromise(
+  async (): Promise<{ models: ModelResponse[] }> => {
+    const models = await OllamaApi.get("_catalog", {
+      searchParams: {
+        n: 1000,
+      },
+    });
     return models.json();
   },
 );
@@ -71,7 +120,7 @@ const inputSockets = {
     required: true,
     isMultiple: false,
     "x-showSocket": true,
-    "x-controller": "select",
+    "x-controller": "combobox",
     description: dedent`
     Ollama model to use
     `,
@@ -355,7 +404,9 @@ export const OllamaModelMachine = createMachine(
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        model?: ShowResponse;
+      };
       actions: {
         type: "updateOutput";
       };
@@ -385,6 +436,17 @@ export const OllamaModelMachine = createMachine(
             reenter: true,
           },
         },
+        always: [
+          {
+            guard: ({ context }) =>
+              context.inputs.model !== undefined && context.model === undefined,
+            target: "loading",
+          },
+          {
+            guard: ({ context }) => context.model !== undefined,
+            target: "complete",
+          },
+        ],
         invoke: {
           src: "getModels",
           onDone: {
@@ -411,11 +473,49 @@ export const OllamaModelMachine = createMachine(
           },
         },
       },
+      loading: {
+        invoke: {
+          src: "getModel",
+          input: ({ context }) => ({
+            modelName: context.inputs.model,
+          }),
+          onDone: {
+            target: "#ollama-model.complete",
+            actions: assign({
+              model: ({ event }) => event.output,
+            }),
+          },
+          onError: {
+            actions: ["setError"],
+            target: "idle",
+          },
+        },
+        after: {
+          1000: "idle",
+        },
+      },
+      complete: {
+        // entry: ["updateOutput"],
+        on: {
+          UPDATE_OUTPUTS: {
+            actions: "updateOutput",
+          },
+          UPDATE_SOCKET: {
+            actions: ["updateSocket", "updateOutput"],
+          },
+          SET_VALUE: {
+            actions: ["setValue", "updateOutput"],
+            target: "idle",
+            reenter: true,
+          },
+        },
+      },
     },
   },
   {
     actors: {
       getModels,
+      getModel,
     },
     actions: {
       updateOutput: enqueueActions(({ enqueue, context }) => {

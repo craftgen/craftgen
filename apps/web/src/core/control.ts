@@ -32,6 +32,7 @@ import { BooleanControlComponent } from "./ui/control/control-boolean";
 // Control Components
 import { CustomButton } from "./ui/control/control-button";
 import { CodeEditor } from "./ui/control/control-code";
+import { ComboboxControlComponent } from "./ui/control/control-combobox";
 import { DateControlComponent } from "./ui/control/control-date";
 import { FileControlComponent } from "./ui/control/control-file";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
@@ -73,7 +74,7 @@ export const getControl = (
     .with(P.instanceOf(FileControl), () => FileControlComponent)
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
-    .with(P.instanceOf(ComboboxControl), () => SWRSelectControlComponent)
+    .with(P.instanceOf(ComboboxControl), () => ComboboxControlComponent)
     .with(P.instanceOf(OpenAIThreadControl), () => OpenAIThreadControlComponent)
     .with(
       P.instanceOf(OpenAIApiConfigurationControl),

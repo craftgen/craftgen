@@ -12,9 +12,15 @@ import { SetOptional } from "type-fest";
 import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  None,
+  ParsedNode,
+} from "../base";
 import { OllamaModelMachine } from "../ollama/ollama";
 import { OpenaiModelMachine } from "../openai/openai";
 
@@ -136,14 +142,8 @@ const OpenAIGenerateTextMachine = createMachine({
     enqueue("setupInternalActorConnections");
   }),
   types: {} as BaseMachineTypes<{
-    input: {
-      inputs: MappedType<typeof inputSockets>;
-      outputs: MappedType<typeof outputSockets>;
-    };
-    context: {
-      inputs: MappedType<typeof inputSockets>;
-      outputs: MappedType<typeof outputSockets>;
-    };
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
     actions: None;
     events: {
       type: "UPDATE_CHILD_ACTORS";

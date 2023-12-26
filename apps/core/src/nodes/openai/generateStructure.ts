@@ -1,6 +1,7 @@
 import { merge } from "lodash-es";
 import {
   generateStructure,
+  OllamaChatModelSettings,
   openai,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
@@ -12,13 +13,21 @@ import {
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { MappedType, Tool, triggerSocket } from "../../sockets";
+import { Tool } from "../../sockets";
 import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, ParsedNode } from "../base";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  None,
+  ParsedNode,
+} from "../base";
+import { OllamaModelMachine } from "../ollama/ollama";
+import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   system: generateSocket({
@@ -50,141 +59,120 @@ const inputSockets = {
     "x-controller": "socket-generator",
     "x-key": "schema",
   }),
-  model: generateSocket({
-    "x-key": "model",
-    name: "model" as const,
+  llm: generateSocket({
+    "x-key": "llm",
+    name: "Model",
     title: "Model",
-    type: "string" as const,
+    type: "object",
+    description: dedent`
+    The language model to use for generating text. 
+    `,
     allOf: [
       {
-        enum: Object.keys(OPENAI_CHAT_MODELS),
+        enum: ["Ollama", "OpenAI"],
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    default: "gpt-3.5-turbo-1106",
-    description: dedent`
-    The model to use for generating text. You can see available models
-    `,
-  }),
-  temperature: generateSocket({
-    "x-key": "temperature",
-    name: "temperature" as const,
-    title: "Temperature",
-    type: "number" as const,
-    description: dedent`
-    The sampling temperature, between 0 and 1. Higher values like
-    0.8 will make the output more random, while lower values like
-    0.2 will make it more focused and deterministic. If set to 0,
-    the model will use log probability to automatically increase
-    the temperature until certain thresholds are hit`,
-    required: true,
-    default: 0.7,
-    minimum: 0,
-    maximum: 1,
+    "x-actor-type": "OpenAI",
+    "x-actor-config": {
+      Ollama: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
+      OpenAI: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
+    },
+    "x-showSocket": true,
     isMultiple: false,
-    "x-showSocket": false,
-  }),
-  maxCompletionTokens: generateSocket({
-    "x-key": "maxCompletionTokens",
-    name: "maxCompletionTokens" as const,
-    title: "Max Completion Tokens",
-    type: "number" as const,
-    description: dedent`
-    The maximum number of tokens to generate in the chat
-    completion. The total length of input tokens and generated
-    tokens is limited by the model's context length.`,
-    required: true,
-    default: 1000,
-    minimum: 0,
-    maximum: 4141,
-    isMultiple: false,
-    "x-showSocket": false,
   }),
 };
 
 const outputSockets = {
-  result: {
+  result: generateSocket({
     name: "result" as const,
     type: "string" as const,
     description: "Result",
     required: true,
     isMultiple: true,
-  },
+    "x-key": "result",
+  }),
 };
 
 const OpenAIGenerateStructureMachine = createMachine({
   id: "openai-generate-structure",
-  context: ({ input }) =>
-    merge<typeof input, any>(
+  context: ({ input }) => {
+    const defaultInputs: (typeof input)["inputs"] = {};
+    for (const [key, socket] of Object.entries(inputSockets)) {
+      if (socket.default) {
+        defaultInputs[key as any] = socket.default;
+      } else {
+        defaultInputs[key as any] = undefined;
+      }
+    }
+    return merge<typeof input, any>(
       {
         inputs: {
-          schema: {
-            name: "",
-            description: "",
-            schema: {},
-          },
-          system: "",
-          user: "",
-          temperature: 0.7,
-          maxCompletionTokens: 1000,
-          model: "gpt-3.5-turbo-1106",
+          ...defaultInputs,
         },
         outputs: {
           result: "",
         },
-        inputSockets: inputSockets,
-        outputSockets: outputSockets,
+        inputSockets: {
+          ...inputSockets,
+        },
+        outputSockets: {
+          ...outputSockets,
+        },
       },
       input,
-    ),
+    );
+  },
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("spawnInputActors");
+    enqueue("setupInternalActorConnections");
+  }),
   types: {} as BaseMachineTypes<{
-    input: {
-      inputs: MappedType<typeof inputSockets>;
-      outputs: MappedType<typeof outputSockets>;
-      settings: {
-        openai: OpenAIChatSettings;
-      };
-    };
-    context: {
-      inputs: MappedType<typeof inputSockets>;
-      outputs: MappedType<typeof outputSockets>;
-      settings: {
-        openai: OpenAIChatSettings;
-      };
-    };
-    actions: {
-      type: "adjustMaxCompletionTokens";
-    };
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+    actions: None;
     events: {
-      type: "CONFIG_CHANGE";
-      openai: OpenAIChatSettings;
+      type: "UPDATE_CHILD_ACTORS";
     };
     actors: {
       src: "generateText";
       logic: ReturnType<typeof generateStructureActor>;
     };
+    guards: None;
   }>,
   initial: "idle",
   states: {
     idle: {
       on: {
-        CONFIG_CHANGE: {
-          actions: assign({
-            settings: ({ event }) => ({
-              openai: event.openai,
-            }),
-          }),
-        },
         RUN: {
           target: "running",
-          actions: ["setValue"],
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
         },
+        UPDATE_CHILD_ACTORS: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("spawnInputActors");
+            enqueue("setupInternalActorConnections");
+          }),
+        },
         SET_VALUE: {
-          actions: ["setValue", "adjustMaxCompletionTokens"],
+          actions: ["setValue"],
         },
       },
     },
@@ -193,11 +181,9 @@ const OpenAIGenerateStructureMachine = createMachine({
         src: "generateStructure",
         input: ({ context }): GenerateStructureInput => {
           return {
-            openai: {
-              model: context.inputs.model,
-              temperature: context.inputs.temperature,
-              maxCompletionTokens: context.inputs.maxCompletionTokens,
-            },
+            llm: context.inputs.llm! as
+            | (OllamaChatModelSettings & { provider: "ollama" })
+            | (OpenAIChatSettings & { provider: "openai" }),
             system: context.inputs.system,
             user: context.inputs.user,
             schema: context.inputs.schema,
@@ -247,7 +233,9 @@ export type OpenAIGenerateStructureNode = ParsedNode<
 >;
 
 type GenerateStructureInput = {
-  openai: OpenAIChatSettings;
+  llm:
+    | (OpenAIChatSettings & { provider: "openai" })
+    | (OllamaChatModelSettings & { provider: "ollama" });
   system: string;
   user: string;
   schema: Tool;
@@ -341,7 +329,21 @@ export class OpenAIGenerateStructure extends BaseNode<
         }),
       },
     });
-    this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    this.addOutput("trigger", new Output(triggerSocket, "Exec"));
+    this.extendMachine({
+      actors: {
+        Ollama: OllamaModelMachine.provide({
+          actions: {
+            ...this.baseActions,
+          },
+        }),
+        OpenAI: OpenaiModelMachine.provide({
+          actions: {
+            ...this.baseActions,
+          },
+        }),
+      },
+    });
+
+    this.setup();
   }
 }

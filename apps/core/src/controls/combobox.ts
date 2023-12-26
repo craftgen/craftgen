@@ -1,16 +1,33 @@
-import { BaseControl } from "./base";
+import { AnyActor, SnapshotFrom } from "xstate";
 
-export class ComboboxControl<T extends string, Data> extends BaseControl {
+import { BaseControl } from "./base";
+import { JSONSocket } from "./socket-generator";
+
+export type ComboboxControlOptions<U extends string> = {
+  placeholder?: string;
+  dataKey?: string;
+  change: (value: U) => void;
+  dataFetch?: () => Promise<U[]>;
+  dataTransform?: (data: U[]) => { key: string; value: string }[];
+  values: { key: U; value: string }[];
+};
+
+export class ComboboxControl<
+  Data,
+  T extends AnyActor = AnyActor,
+> extends BaseControl {
   __type = "combobox";
 
   constructor(
-    public value: T | undefined,
-    public placeholder: string,
-    public dataKey: string,
-    public dataFetch: () => Promise<Data[]>,
-    public dataTransform: (data: Data[]) => { key: T; value: string }[],
-    public setValue: (value: T) => void
+    public actor: T,
+    public selector: (snapshot: SnapshotFrom<T>) => string, // Function that returns the observable value
+    public options: ComboboxControlOptions<string>,
+    public readonly definition?: JSONSocket,
   ) {
     super(55);
+  }
+
+  setValue(value: string) {
+    if (this.options.change) this.options.change(value);
   }
 }

@@ -398,6 +398,7 @@ export abstract class BaseNode<
       if (!params) {
         throw new Error("Missing params");
       }
+      console.log("syncConnection", this.identifier, params);
       const targetNode = this.di.editor.getNode(params?.nodeId);
       if (targetNode) {
         targetNode.actor.send({
@@ -641,13 +642,9 @@ export abstract class BaseNode<
         ...actorLogic,
         transition: (state, event, actorCtx) => {
           console.log("State:", state, "Event:", event);
-
-          const persistedState = self.actor.getPersistedSnapshot();
-          console.log("SAVE STATE", persistedState);
-          saveStateDebounced({ state: persistedState as any });
-          if (!self.readonly) {
-            saveContextDebounced({ context: persistedState as any });
-          }
+          // Transition state only contains the pre transition state.
+          // event getting persisted snapshot will endup with the pre transition state.
+          // better persist state in actor subscribe.next listener.
 
           return actorLogic.transition(state, event, actorCtx);
         },
@@ -667,6 +664,7 @@ export abstract class BaseNode<
       },
       next: async (state: any) => {
         this.state = state.value as any;
+        console.log("next", state.value, state.context);
         this.setSnap(state);
 
         if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
@@ -680,6 +678,13 @@ export abstract class BaseNode<
 
         if (!isEqual(prev.context.outputs, state.context.outputs)) {
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
+        }
+
+        const persistedState = actor.getPersistedSnapshot();
+        console.log("SAVE STATE", persistedState);
+        saveStateDebounced({ state: persistedState as any });
+        if (!self.readonly) {
+          saveContextDebounced({ context: persistedState as any });
         }
         prev = state as any;
       },
@@ -884,11 +889,11 @@ export abstract class BaseNode<
         }
       }
     }
-    console.log("setting values", values);
-    this.pactor.send({
-      type: "SET_VALUE",
-      values,
-    });
+    // console.log("setting values", values);
+    // this.pactor.send({
+    //   type: "SET_VALUE",
+    //   values,
+    // });
   }
 
   public setOutputSockets(sockets: Record<string, JSONSocket>) {

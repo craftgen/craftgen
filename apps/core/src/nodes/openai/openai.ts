@@ -187,6 +187,7 @@ export const OpenaiModelMachine = createMachine(
       guards: None;
     }>,
     initial: "idle",
+    entry: ["updateOutput"],
     states: {
       idle: {
         entry: ["updateOutput"],

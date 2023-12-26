@@ -580,6 +580,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
         }),
       },
     });
+    this.setup();
     this.setLabel(this.snap.context.settings.assistant.name || "Assistant");
   }
 }

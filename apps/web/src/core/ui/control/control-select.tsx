@@ -1,4 +1,5 @@
 import { useSelector } from "@xstate/react";
+import { AnyActor } from "xstate";
 
 import { SelectControl } from "@seocraft/core/src/controls/select";
 
@@ -12,8 +13,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-export function SelectControlComponent<U extends string>(props: {
-  data: SelectControl<any, U>;
+export function SelectControlComponent<T extends AnyActor = AnyActor>(props: {
+  data: SelectControl<T, string>;
 }) {
   const value = useSelector(props.data?.actor, props.data.selector);
 

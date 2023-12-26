@@ -8,6 +8,7 @@ import { AnyActor, SnapshotFrom } from "xstate";
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
 import { CodeControl } from "./controls/code";
+import { ComboboxControl } from "./controls/combobox";
 import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
@@ -317,6 +318,33 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
                   value: v,
                 };
               }) || [],
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "string",
+        },
+        {
+          "x-controller": "combobox",
+          allOf: P.array({ enum: P.array(P.string) }),
+        },
+      ],
+      () => {
+        return new ComboboxControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+            values: definition?.allOf?.[0]?.enum?.map((v: any) => {
+              return {
+                key: v,
+                value: v,
+              };
+            }),
           },
           definition,
         );
