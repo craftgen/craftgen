@@ -348,7 +348,7 @@ export abstract class BaseNode<
                   "x-actor": actor,
                   "x-actor-ref": actor,
                   "x-actor-ref-type": value["x-actor-type"],
-                },
+                } as Partial<JSONSocket>,
               };
             },
           });

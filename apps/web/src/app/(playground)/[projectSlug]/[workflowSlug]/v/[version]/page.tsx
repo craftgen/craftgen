@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { getWorkflow } from "@/actions/get-workflow";
 import { api } from "@/trpc/server";
 
 const PlaygroundPage = async (props: {

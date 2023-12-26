@@ -43,6 +43,7 @@ export const socketSchema = z
   .object({
     name: z.string().min(1),
     type: z.custom<JSONSocketTypes>(),
+    description: z.string().optional(),
     required: z.boolean().default(false).optional(),
     isMultiple: z.boolean().default(false).optional(),
     default: z
@@ -62,18 +63,20 @@ export const socketSchema = z
       ])
       .optional(),
     "x-order": z.number().optional(),
+
     "x-controller": z.string().optional(),
-    "x-showSocket": z.boolean().default(true).optional(),
+
+    "x-showSocket": z.boolean().default(true),
+    "x-showController": z.boolean().default(true),
+
     "x-key": z.string(),
     "x-event": z.string().optional(),
     "x-actor": z.custom<AnyActor>().optional(),
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
     "x-actor-type": z.custom<NodeTypes>().optional(),
-    // "x-actor-connections": z
-    //   .record(z.string().describe("source"), z.string().describe("target"))
-    //   .default({})
-    //   .optional(),
+    "x-actor-ref-type": z.custom<NodeTypes>().optional(),
     "x-actor-config": actorConfigSchema,
+
     "x-connection": z.record(z.string(), z.string()).default({}).optional(),
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),
     "x-language": z.string().optional(),
@@ -92,9 +95,8 @@ export const generateSocket = <
   T extends string,
   TypeOfSocket extends SocketNameType,
 >(
-  socket: { "x-key": T; type: TypeOfSocket } & MergeDeep<
-    JSONSchema,
-    z.infer<typeof socketSchema>
+  socket: { "x-key": T; type: TypeOfSocket } & Partial<
+    MergeDeep<JSONSchema, z.infer<typeof socketSchema>>
   >,
 ) => {
   const valid = socketSchema.parse(socket);
@@ -107,12 +109,13 @@ export const generateSocket = <
     ) as NodeTypes[];
   }
 
-  return {
+  const res = {
     ...socket,
     ...valid,
     type: socket["type"] as TypeOfSocket,
     "x-key": socket["x-key"] as T,
   };
+  return res;
 };
 
 export type SocketGeneratorControlData = z.infer<typeof formOnSubmitSchema>;

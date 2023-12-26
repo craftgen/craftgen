@@ -8,6 +8,8 @@ import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { debounce } from "lodash-es";
 import {
+  ChevronDown,
+  ChevronRight,
   Circle,
   CircleDot,
   FileClock,
@@ -312,7 +314,7 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   return (
     <>
       {selectedNode ? (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col p-4">
           <InspectorNode node={selectedNode} />
         </div>
       ) : (
@@ -342,16 +344,15 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
       });
   }, [state]);
   return (
-    <div className="flex h-full w-full flex-col">
-      <Tabs defaultValue="controls" className="h-full p-4">
+    <div className="flex h-full w-full flex-1 flex-col">
+      <Tabs defaultValue="controls">
         <TabsList>
           <TabsTrigger value="controls">Controls</TabsTrigger>
-          {/* <TabsTrigger value="inputs">Inputs</TabsTrigger> */}
           <TabsTrigger value="outputs">Outputs</TabsTrigger>
         </TabsList>
         <TabsContent value="controls" className="h-full ">
           <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="h-full w-full pr-4">
+            <ScrollArea className="w-full">
               {controls.map(([key, control]) => (
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
@@ -472,7 +473,7 @@ export const InputWrapper: React.FC<{ input: Input }> = observer(
         </Alert>
       );
     }
-    const handleToggle = (val: boolean) => {
+    const handleToggleSocket = (val: boolean) => {
       input.actor.send({
         type: "UPDATE_SOCKET",
         params: {
@@ -492,6 +493,18 @@ export const InputWrapper: React.FC<{ input: Input }> = observer(
     const hasConnection = useMemo(() => {
       return connections.length > 0;
     }, [connections]);
+    const handleToggleController = (val: boolean) => {
+      input.actor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          name: input.definition["x-key"],
+          side: "input",
+          socket: {
+            "x-showControl": val,
+          },
+        },
+      });
+    };
 
     return (
       <div
@@ -500,18 +513,33 @@ export const InputWrapper: React.FC<{ input: Input }> = observer(
           hasConnection && "bg-muted/30 rounded border",
         )}
       >
-        <Toggle
-          onPressedChange={handleToggle}
-          pressed={definition["x-showSocket"]}
-          size={"sm"}
-          disabled={hasConnection}
-        >
-          {definition["x-showSocket"] ? (
-            <CircleDot className="h-4 w-4" />
-          ) : (
-            <Circle className="h-4 w-4" />
+        <div className="flex flex-col space-y-1">
+          <Toggle
+            onPressedChange={handleToggleSocket}
+            pressed={definition["x-showSocket"]}
+            size={"sm"}
+            disabled={hasConnection}
+          >
+            {definition["x-showSocket"] ? (
+              <CircleDot className="h-4 w-4" />
+            ) : (
+              <Circle className="h-4 w-4" />
+            )}
+          </Toggle>
+          {definition["x-actor-ref"] && (
+            <Toggle
+              variant={"default"}
+              size={"sm"}
+              onPressedChange={handleToggleController}
+            >
+              {definition["x-showControl"] ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Toggle>
           )}
-        </Toggle>
+        </div>
         <ControlWrapper control={input.control} definition={definition} />
       </div>
     );

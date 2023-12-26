@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
+import { LayoutGroup, motion } from "framer-motion";
 import { omit } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
@@ -21,7 +22,8 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   );
 
   const actorSelector = useMemo(() => {
-    if (Object.keys(item["x-connection"]).length > 0) {
+    if (!item) return null;
+    if (item["x-connection"] && Object.keys(item["x-connection"]).length > 0) {
       return null;
     }
     const controller = getControlBySocket({
@@ -76,9 +78,11 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   }, [selectedActorState.context.inputSockets]);
 
   return (
-    <div className="space-y-1">
-      {actorSelector}
-      {inputs}
+    <div>
+      <LayoutGroup>
+        {actorSelector}
+        <motion.div layout>{item["x-showControl"] && inputs}</motion.div>
+      </LayoutGroup>
     </div>
   );
 });
@@ -110,9 +114,9 @@ const InputItem = observer(
       definition: item,
     });
     return (
-      <div className="space-y-1">
+      <motion.div className="space-y-1" layout>
         <ControlWrapper control={controller} definition={item} />
-      </div>
+      </motion.div>
     );
   },
 );

@@ -33,7 +33,7 @@ import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-co
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAICompleteChat } from "./nodes/openai/completeChat";
 import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
-import { OpenAIGenerateText } from "./nodes/openai/generateText";
+import { OpenAIGenerateText } from "./nodes/function/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";

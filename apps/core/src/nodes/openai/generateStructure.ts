@@ -8,7 +8,7 @@ import {
   OpenAIChatSettings,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
-  UncheckedStructureDefinition,
+  UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
@@ -265,7 +265,7 @@ const generateStructureActor = ({
         api: api(),
         ...input.openai,
       }),
-      new UncheckedStructureDefinition({
+      new UncheckedSchema({
         name: input.schema.name,
         description: input.schema.description,
         jsonSchema: input.schema.schema,

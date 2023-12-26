@@ -452,12 +452,12 @@ export const Node = observer((props: Props<Schemes>) => {
                       ([key, input]) =>
                         input?.control && (
                           <div className="flex flex-col space-y-1" key={key}>
-                            <Label
+                            {/* <Label
                               htmlFor={input.control.id}
                               className="capitalize"
                             >
                               {key}
-                            </Label>
+                            </Label> */}
                             <Drag.NoDrag>
                               <RefControl
                                 key={key}
@@ -472,9 +472,9 @@ export const Node = observer((props: Props<Schemes>) => {
                     {controls.map(([key, control]) => {
                       return control ? (
                         <div className="flex flex-col space-y-1" key={key}>
-                          <Label htmlFor={control.id} className="capitalize">
+                          {/* <Label htmlFor={control.id} className="capitalize">
                             {key}
-                          </Label>
+                          </Label> */}
                           <Drag.NoDrag>
                             <RefControl
                               key={key}

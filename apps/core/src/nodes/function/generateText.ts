@@ -4,20 +4,19 @@ import {
   ollama,
   OllamaChatModelSettings,
   openai,
-  OPENAI_CHAT_MODELS,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { match, P } from "ts-pattern";
+import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { MappedType } from "../../sockets";
 import { DiContainer } from "../../types";
 import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
 import { OllamaModelMachine } from "../ollama/ollama";
-import { OpenaiModelMachine } from "./openai";
+import { OpenaiModelMachine } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
