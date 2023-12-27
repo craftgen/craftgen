@@ -1,6 +1,8 @@
 import { isNil, merge } from "lodash-es";
 import {
   generateText,
+  ollama,
+  OllamaChatModelSettings,
   openai,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
@@ -10,6 +12,7 @@ import {
   throttleMaxConcurrency,
 } from "modelfusion";
 import dedent from "ts-dedent";
+import { match } from "ts-pattern";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
@@ -22,11 +25,13 @@ import {
   None,
   ParsedNode,
 } from "../base";
+import { OllamaModelMachine } from "../ollama/ollama";
 import {
   ThreadMachine,
   ThreadMachineEvent,
   ThreadMachineEvents,
 } from "../thread";
+import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -56,7 +61,13 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "messages",
     type: "array",
-    "x-controller": "thread",
+    allOf: [
+      {
+        enum: ["Thread"],
+        type: "string" as const,
+      },
+    ],
+    "x-controller": "select",
     "x-actor-type": "Thread",
     "x-actor-config": {
       Thread: {
@@ -72,56 +83,42 @@ const inputSockets = {
     isMultiple: false,
     default: [],
   }),
-  model: generateSocket({
-    "x-key": "model",
-    name: "model" as const,
+  llm: generateSocket({
+    "x-key": "llm",
+    name: "Model",
     title: "Model",
-    type: "string" as const,
+    type: "object",
+    description: dedent`
+    The language model to use for generating text. 
+    `,
     allOf: [
       {
-        enum: Object.keys(OPENAI_CHAT_MODELS),
+        enum: ["Ollama", "OpenAI"],
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    default: "gpt-3.5-turbo-1106",
-    description: dedent`
-    The model to use for complation of chat. You can see available models
-    `,
-  }),
-  temperature: generateSocket({
-    "x-key": "temperature",
-    name: "temperature" as const,
-    title: "Temperature",
-    type: "number" as const,
-    description: dedent`
-    The sampling temperature, between 0 and 1. Higher values like
-    0.8 will make the output more random, while lower values like
-    0.2 will make it more focused and deterministic. If set to 0,
-    the model will use log probability to automatically increase
-    the temperature until certain thresholds are hit`,
-    required: true,
-    default: 0.7,
-    minimum: 0,
-    maximum: 1,
+    "x-actor-type": "Ollama",
+    "x-actor-config": {
+      Ollama: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
+      OpenAI: {
+        connections: {
+          config: "llm",
+        },
+        internal: {
+          config: "llm",
+        },
+      },
+    },
+    "x-showSocket": true,
     isMultiple: false,
-    "x-showSocket": false,
-  }),
-  maxCompletionTokens: generateSocket({
-    "x-key": "maxCompletionTokens",
-    name: "maxCompletionTokens" as const,
-    title: "Max Completion Tokens",
-    type: "number" as const,
-    description: dedent`
-    The maximum number of tokens to generate in the chat
-    completion. The total length of input tokens and generated
-    tokens is limited by the model's context length.`,
-    required: true,
-    default: 1000,
-    minimum: 0,
-    maximum: 4141,
-    isMultiple: false,
-    "x-showSocket": false,
   }),
 };
 
@@ -236,11 +233,9 @@ const OpenAICompleteChatMachine = createMachine({
           console.log("CONTEXT", context);
 
           return {
-            openai: {
-              model: context.inputs.model as keyof typeof OPENAI_CHAT_MODELS,
-              temperature: context.inputs.temperature!,
-              maxCompletionTokens: context.inputs.maxCompletionTokens!,
-            },
+            llm: context.inputs.llm! as
+              | (OllamaChatModelSettings & { provider: "ollama" })
+              | (OpenAIChatSettings & { provider: "openai" }),
             system: context.inputs.system!,
             messages: context.inputs.messages?.map(({ id, ...rest }) => {
               return rest;
@@ -300,7 +295,9 @@ export type OpenAICompleteChatData = ParsedNode<
 >;
 
 type CompleteChatInput = {
-  openai: OpenAIChatSettings;
+  llm:
+    | (OpenAIChatSettings & { provider: "openai" })
+    | (OllamaChatModelSettings & { provider: "ollama" });
   system: string;
   messages: OpenAIChatMessage[];
 };
@@ -308,18 +305,30 @@ type CompleteChatInput = {
 const completeChatActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
   fromPromise(async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
+    const model = match(input.llm)
+      .with(
+        {
+          provider: "ollama",
+        },
+        (config) => {
+          return ollama.ChatTextGenerator(config);
+        },
+      )
+      .with(
+        {
+          provider: "openai",
+        },
+        (config) => {
+          return openai.ChatTextGenerator(config);
+        },
+      )
+      .exhaustive();
 
     try {
-      const text = await generateText(
-        openai.ChatTextGenerator({
-          api: api(),
-          ...input.openai,
-        }),
-        [
-          ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
-          ...input.messages,
-        ],
-      );
+      const text = await generateText(model, [
+        ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
+        ...input.messages,
+      ]);
       console.log("TEXT", text);
       return {
         result: text,
@@ -376,22 +385,18 @@ export class OpenAICompleteChat extends BaseNode<
             };
           },
         }),
-        adjustMaxCompletionTokens: assign({
-          inputSockets: ({ event, context }) => {
-            if (event.type !== "SET_VALUE") return context.inputSockets;
-            if (event.values.model) {
-              return {
-                ...context.inputSockets,
-                maxCompletionTokens: {
-                  ...context.inputSockets.maxCompletionTokens!,
-                  maximum:
-                    OPENAI_CHAT_MODELS[
-                      event.values.model as keyof typeof OPENAI_CHAT_MODELS
-                    ].contextWindowSize,
-                },
-              };
-            }
-            return context.inputSockets;
+      },
+    });
+    this.extendMachine({
+      actors: {
+        Ollama: OllamaModelMachine.provide({
+          actions: {
+            ...this.baseActions,
+          },
+        }),
+        OpenAI: OpenaiModelMachine.provide({
+          actions: {
+            ...this.baseActions,
           },
         }),
       },
