@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import { omit } from "lodash-es";
+import { groupBy, omit } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
 
@@ -13,6 +13,8 @@ import {
 } from "@seocraft/core/src/sockets";
 
 import { ControlWrapper } from "@/app/(playground)/[projectSlug]/[workflowSlug]/v/[version]/playground";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   const state = useSelector(props.data.actor, (state) => state);
@@ -51,7 +53,11 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
       },
       definition: omit(item, ["x-actor-ref"]),
     });
-    return <ControlWrapper control={controller} definition={item} />;
+    return (
+      <div className="space-y-1">
+        <ControlWrapper control={controller} definition={item} />
+      </div>
+    );
   }, [item]);
 
   const selectedActor = useSelector<AnyActor, AnyActor>(
@@ -59,33 +65,83 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     (state) =>
       state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
   );
-  const selectedActorState = useSelector<AnyActor, any>(
-    selectedActor,
-    (state) => state,
-  );
-
-  const inputs = useMemo(() => {
-    return Object.entries(
-      (selectedActorState?.context.inputSockets as Record<
-        string,
-        JSONSocket
-      >) || {},
-    ).map(([key, item]) => {
-      return (
-        <InputItem key={key} itemKey={key} item={item} actor={selectedActor} />
-      );
-    });
-  }, [selectedActorState.context.inputSockets]);
 
   return (
     <div>
       <LayoutGroup>
         {actorSelector}
-        <motion.div layout>{item["x-showControl"] && inputs}</motion.div>
+        {
+          <InputsList
+            actor={selectedActor}
+            showAdvanced={item["x-showControl"]}
+          />
+        }
       </LayoutGroup>
     </div>
   );
 });
+
+const InputsList = observer(
+  (props: { actor: AnyActor; showAdvanced: boolean }) => {
+    const selectedActorState = useSelector<AnyActor, any>(
+      props.actor,
+      (state) => state,
+    );
+    // const [showAdvanced, setShowAdvanced] = useState(false);
+    // const showAdvanced = ["x-showControl"];
+    const { true: advanceInputs, false: basicInputs } = useMemo(() => {
+      return (
+        groupBy(
+          Object.values<JSONSocket>(selectedActorState.context.inputSockets),
+          (input) => {
+            return input["x-isAdvanced"];
+          },
+        ) || { true: [], false: [] }
+      );
+    }, [selectedActorState.context.inputSockets]);
+    return (
+      <LayoutGroup>
+        {basicInputs?.map((item) => {
+          return (
+            <InputItem
+              key={item["x-key"]}
+              itemKey={item["x-key"]}
+              item={item}
+              actor={props.actor}
+            />
+          );
+        })}
+
+        {/* {advanceInputs?.length > 0 && (
+        <div
+          className={cn("flex w-full items-center justify-center divide-x-2")}
+        >
+          <Button
+            variant={showAdvanced ? "outline" : "ghost"}
+            onClick={() => setShowAdvanced(!showAdvanced)}
+          >
+            {showAdvanced ? "Hide" : "Show"} Advance Settings
+          </Button>
+        </div>
+      )} */}
+        {props.showAdvanced && (
+          <motion.div layout>
+            {advanceInputs?.map((item) => {
+              return (
+                <InputItem
+                  key={item["x-key"]}
+                  itemKey={item["x-key"]}
+                  item={item}
+                  actor={props.actor}
+                />
+              );
+            })}
+          </motion.div>
+        )}
+      </LayoutGroup>
+    );
+  },
+);
 
 const InputItem = observer(
   ({

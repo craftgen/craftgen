@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Separator } from "@radix-ui/react-separator";
 import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
-import { debounce } from "lodash-es";
+import { LayoutGroup, motion } from "framer-motion";
+import { debounce, get, groupBy } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,
@@ -314,11 +316,13 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   return (
     <>
       {selectedNode ? (
-        <div className="flex h-full flex-col p-4">
-          <InspectorNode node={selectedNode} />
-        </div>
+        <ScrollArea className="h-full">
+          <div className="mr-4 flex h-full flex-col p-4 pr-0 ">
+            <InspectorNode node={selectedNode} />
+          </div>
+        </ScrollArea>
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center">
+        <div className="my-auto flex h-full w-full flex-1 flex-col items-center justify-center">
           <div className="text-muted-foreground border-spacing-3 border  border-dashed p-4 py-6 font-sans text-xl font-bold">
             Select a node to inspect
           </div>
@@ -450,12 +454,41 @@ export const renderFieldValueBaseOnSocketType = (
 export const DynamicInputsForm: React.FC<{
   inputs: Record<string, Input<AnyActor, Socket>>;
 }> = observer(({ inputs }) => {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const { true: advanceInputs, false: basicInputs } = useMemo(() => {
+    return (
+      groupBy(Object.values(inputs), (input) => {
+        return input.definition["x-isAdvanced"];
+      }) || { true: [], false: [] }
+    );
+  }, [inputs]);
+
   return (
-    <>
-      {Object.entries(inputs).map(([inputKey, input]) => {
-        return <InputWrapper key={inputKey} input={input} />;
-      })}
-    </>
+    <motion.div>
+      <LayoutGroup>
+        {basicInputs?.map((input) => {
+          return <InputWrapper key={input.definition["x-key"]} input={input} />;
+        })}
+        {advanceInputs?.length > 0 && (
+          <div
+            className={cn("flex w-full items-center justify-center divide-x-2")}
+          >
+            <Button
+              variant={showAdvanced ? "outline" : "ghost"}
+              onClick={() => setShowAdvanced(!showAdvanced)}
+            >
+              {showAdvanced ? "Hide" : "Show"} Advance Settings
+            </Button>
+          </div>
+        )}
+        {showAdvanced &&
+          advanceInputs?.map((input) => {
+            return (
+              <InputWrapper key={input.definition["x-key"]} input={input} />
+            );
+          })}
+      </LayoutGroup>
+    </motion.div>
   );
 });
 
@@ -507,7 +540,11 @@ export const InputWrapper: React.FC<{ input: Input }> = observer(
     };
 
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        exit={{ opacity: 0 }}
         className={cn(
           "mb-2 flex flex-row space-x-1 p-2",
           hasConnection && "bg-muted/30 rounded border",
@@ -541,7 +578,7 @@ export const InputWrapper: React.FC<{ input: Input }> = observer(
           )}
         </div>
         <ControlWrapper control={input.control} definition={definition} />
-      </div>
+      </motion.div>
     );
   },
 );
@@ -556,21 +593,6 @@ export const ControlWrapper: React.FC<{
     type: "control",
     payload: control,
   });
-  const [count, setCount] = useState(0);
-
-  // useEffect(() => {
-  //   if (
-  //     definition["x-actor-ref"] &&
-  //     control.actor.id !== definition["x-actor-ref"].id
-  //   ) {
-  //     console.log("Actors are not matching", {
-  //       definition,
-  //       control,
-  //     });
-
-  //     setCount((c) => c + 1);
-  //   }
-  // }, [definition, control.actor]);
 
   return (
     <>
@@ -578,7 +600,6 @@ export const ControlWrapper: React.FC<{
         className="flex flex-1 flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <span className="hidden">{count}</span>
         <ControlElement data={control} />
       </div>
     </>

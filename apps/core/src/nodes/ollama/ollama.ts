@@ -161,6 +161,7 @@ const inputSockets = {
     required: false,
     default: 0,
     isMultiple: false,
+    "x-isAdvanced": true,
     "x-controller": "select",
     "x-showSocket": false,
   }),
@@ -178,6 +179,7 @@ const inputSockets = {
     default: 0.1,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   mirostatTau: generateSocket({
     "x-key": "mirostatTau",
@@ -192,6 +194,7 @@ const inputSockets = {
     default: 5.0,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   numGqa: generateSocket({
     "x-key": "numGqa",
@@ -206,6 +209,7 @@ const inputSockets = {
     default: 8,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   numGpu: generateSocket({
     "x-key": "numGpu",
@@ -220,6 +224,7 @@ const inputSockets = {
     default: 1,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   numThreads: generateSocket({
     "x-key": "numThreads",
@@ -235,6 +240,7 @@ const inputSockets = {
     default: undefined,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   repeatLastN: generateSocket({
     "x-key": "repeatLastN",
@@ -249,6 +255,7 @@ const inputSockets = {
     default: 64,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   repeatPenalty: generateSocket({
     "x-key": "repeatPenalty",
@@ -264,6 +271,7 @@ const inputSockets = {
     default: 1.1,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   seed: generateSocket({
     "x-key": "seed",
@@ -278,6 +286,7 @@ const inputSockets = {
     default: undefined,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   tfsZ: generateSocket({
     "x-key": "tfsZ",
@@ -293,6 +302,7 @@ const inputSockets = {
     default: 1,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   topK: generateSocket({
     "x-key": "topK",
@@ -308,6 +318,7 @@ const inputSockets = {
     default: 40,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   topP: generateSocket({
     "x-key": "topP",
@@ -323,6 +334,7 @@ const inputSockets = {
     default: 0.9,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   format: generateSocket({
     "x-key": "format",
@@ -344,6 +356,7 @@ const inputSockets = {
     default: undefined,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   template: generateSocket({
     "x-key": "template",
@@ -357,6 +370,7 @@ const inputSockets = {
     default: undefined,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
 };
 const outputSockets = {

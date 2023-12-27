@@ -13,6 +13,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -37,50 +38,61 @@ export function ComboboxControlComponent(props: {
   const [open, setOpen] = useState(false);
   console.log(value);
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {value
-            ? props.data.options.values.find(
-                (framework) => framework.key === value,
-              )?.value
-            : "Select framework..."}
-          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
-          <CommandEmpty>No framework found.</CommandEmpty>
-          <CommandGroup>
-            {props.data.options.values.map((framework) => (
-              <CommandItem
-                key={framework.key}
-                value={framework.key}
-                onSelect={(currentValue) => {
-                  props.data.setValue(
-                    currentValue === value ? "" : currentValue,
-                  );
-                  setOpen(false);
-                }}
-              >
-                {framework.value}
-                <CheckIcon
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    value === framework.key ? "opacity-100" : "opacity-0",
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <div className="space-y-1">
+      <Label htmlFor={props.data.id}>
+        {props.data?.definition?.title || props.data?.definition?.name}
+      </Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {value
+              ? props.data.options.values.find(
+                  (framework) => framework.key === value,
+                )?.value
+              : "Select framework..."}
+            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput
+              placeholder={props.data.options.placeholder}
+              className="h-9"
+            />
+            <CommandEmpty>No {props.data.definition.name} found.</CommandEmpty>
+            <CommandGroup>
+              {props.data.options.values.map((framework) => (
+                <CommandItem
+                  key={framework.key}
+                  value={framework.key}
+                  onSelect={(currentValue) => {
+                    props.data.setValue(
+                      currentValue === value ? "" : currentValue,
+                    );
+                    setOpen(false);
+                  }}
+                >
+                  {framework.value}
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      value === framework.key ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      <p className={cn("text-muted-foreground text-[0.8rem]")}>
+        {props.data?.definition?.description}
+      </p>
+    </div>
   );
 }

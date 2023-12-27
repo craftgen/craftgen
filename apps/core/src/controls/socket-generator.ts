@@ -68,6 +68,7 @@ export const socketSchema = z
 
     "x-showSocket": z.boolean().default(true),
     "x-showController": z.boolean().default(true),
+    "x-isAdvanced": z.boolean().default(false),
 
     "x-key": z.string(),
     "x-event": z.string().optional(),
