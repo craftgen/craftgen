@@ -121,6 +121,8 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
   static description = "Node for handling static text";
   static icon = "text";
 
+  static section = "Primitives";
+
   static parse(params: SetOptional<TextNodeData, "type">): TextNodeData {
     return {
       ...params,

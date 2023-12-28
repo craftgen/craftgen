@@ -4,7 +4,7 @@ import { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
 import { JSONSocketPrimitiveTypeKeys, SocketNameType, types } from "../sockets";
-import { nodes, NodeTypes } from "../types";
+import { NodeTypes } from "../types";
 import { BaseControl } from "./base";
 
 export type SocketGeneratorControlOptions = {

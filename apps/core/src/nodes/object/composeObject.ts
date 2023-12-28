@@ -1,16 +1,37 @@
 import { merge } from "lodash-es";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import {
+  generateSocket,
   JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
+import { slugify } from "../../lib/string";
 import { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
 import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
+
+const outputSockets = {
+  object: generateSocket({
+    name: "object" as const,
+    type: "object" as const,
+    description: "Object",
+    required: true,
+    isMultiple: false,
+    "x-key": "object",
+  }),
+  schema: generateSocket({
+    name: "schema" as const,
+    type: "tool" as const,
+    description: "Schema",
+    required: true,
+    isMultiple: false,
+    "x-key": "schema",
+  }),
+};
 
 const composeObjectMachine = createMachine({
   id: "composeObject",
@@ -25,25 +46,13 @@ const composeObjectMachine = createMachine({
           schema: {
             name: "new_object",
             description: "object description",
+
             schema: createJsonSchema({}),
           },
         },
         inputSockets: {},
         outputSockets: {
-          object: {
-            name: "object" as const,
-            type: "object" as const,
-            description: "Object",
-            required: true,
-            isMultiple: false,
-          },
-          schema: {
-            name: "schema" as const,
-            type: "tool" as const,
-            description: "Schema",
-            required: true,
-            isMultiple: false,
-          },
+          ...outputSockets,
         },
       },
       input,
@@ -178,14 +187,21 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
               .run(),
           outputs: ({ context, event }) =>
             match(event)
-              .with({ type: "CONFIG_CHANGE" }, ({ schema }) => ({
-                object: context.inputs,
-                schema: {
-                  name: event.name,
-                  description: event.description,
-                  schema: schema,
+              .with(
+                {
+                  type: "CONFIG_CHANGE",
+                  name: P.string,
+                  description: P.string,
                 },
-              }))
+                ({ schema }) => ({
+                  object: context.inputs,
+                  schema: {
+                    name: slugify(event.name, "_"),
+                    description: event.description,
+                    schema: schema,
+                  },
+                }),
+              )
               .run(),
         }),
       },
@@ -194,7 +210,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     // this.addOutput("object", new Output(objectSocket, "Object"));
     // this.addOutput("schema", new Output(toolSocket, "Schema"));
 
-    this.setLabel(this.snap.context.name || ComposeObject.label);
+    this.setup();
     const state = this.actor.getSnapshot();
     const inputGenerator = new SocketGeneratorControl(
       this.actor,
@@ -223,5 +239,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     );
 
     this.addControl("inputGenerator", inputGenerator);
+    this.setLabel(this.snap.context.name || ComposeObject.label);
   }
 }

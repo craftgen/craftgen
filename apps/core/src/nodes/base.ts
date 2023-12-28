@@ -85,7 +85,7 @@ export type BaseEventTypes =
     }
   | {
       type: "RUN";
-      values: Record<string, any>;
+      // values: Record<string, any>;
     }
   | {
       type: "RESET";
@@ -151,7 +151,7 @@ export type BaseActionTypes =
 export type BaseActorTypes = ProvidedActor;
 
 export type BaseGuardTypes = {
-  type: "NOOP";
+  type: "connectionsDeSync";
 };
 
 export type None = "None";
@@ -303,6 +303,16 @@ export abstract class BaseNode<
   public executionNodeId?: string;
   unsubscribe: () => void = () => {};
 
+  public baseGuards = {
+    connectionsDeSync: ({ context }) => {
+      console.log("connectionsDeSync", context.inputSockets);
+      Object.entries(context.inputSockets);
+      return true;
+    },
+  };
+
+
+
   public baseActions = {
     removeError: assign({
       error: () => null,
@@ -363,7 +373,10 @@ export abstract class BaseNode<
       for (const socket of Object.values<JSONSocket>(inputSockets)) {
         if (socket["x-actor-config"]) {
           const conf = socket["x-actor-config"][socket["x-actor-type"]!];
-          if (!conf) continue;
+          if (!conf) {
+            console.error("Missing config for", socket["x-actor-type"]);
+            continue;
+          }
           for (const [key, value] of Object.entries(conf?.internal)) {
             console.log("$@$@", {
               key,
@@ -398,8 +411,12 @@ export abstract class BaseNode<
       if (!params) {
         throw new Error("Missing params");
       }
-      console.log("syncConnection", this.identifier, params);
       const targetNode = this.di.editor.getNode(params?.nodeId);
+      console.group("syncConnection");
+      console.log("NODES", this.di.editor.getNodes());
+      console.log("syncConnection", this.identifier, params);
+      console.log("targetNode", targetNode);
+      console.groupEnd();
       if (targetNode) {
         targetNode.actor.send({
           type: "SET_VALUE",
@@ -468,6 +485,11 @@ export abstract class BaseNode<
         };
       },
     }),
+  };
+
+  public baseImplentations = {
+    guards: this.baseGuards,
+    actions: this.baseActions,
   };
 
   public machineImplements: MachineImplementationsFrom<Machine>;
@@ -964,7 +986,6 @@ export abstract class BaseNode<
     }
     const canRun = this.snapshot.can({
       type: input,
-      values: {},
     });
 
     console.log("#".repeat(40), {
@@ -974,12 +995,12 @@ export abstract class BaseNode<
     if (canRun) {
       this.pactor.send({
         type: input,
-        values: {},
+        // values: {},
       });
     } else {
       this.pactor.send({
         type: "RUN",
-        values: {},
+        // values {},
       });
     }
 

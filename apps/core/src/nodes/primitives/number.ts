@@ -119,6 +119,8 @@ export class Number extends BaseNode<typeof NumberMachine> {
   static description = "Node for handling numbers";
   static icon = "numbers";
 
+  static section = "Primitives";
+
   static parse(params: SetOptional<NumberData, "type">): NumberData {
     return {
       ...params,

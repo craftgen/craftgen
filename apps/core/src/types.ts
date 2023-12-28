@@ -31,9 +31,9 @@ import {
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
-import { OpenAICompleteChat } from "./nodes/openai/completeChat";
-import { OpenAIGenerateStructure } from "./nodes/openai/generateStructure";
-import { OpenAIGenerateText } from "./nodes/function/generateText";
+import { CompleteChat as CompleteChat } from "./nodes/openai/completeChat";
+import { GenerateStructure } from "./nodes/openai/generateStructure";
+import { GenerateText as GenerateText } from "./nodes/function/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
@@ -87,9 +87,9 @@ export const nodes = {
   OpenAI: OpenAI,
 
   OpenAIFunctionCall: OpenAIFunctionCall,
-  OpenAIGenerateText: OpenAIGenerateText,
-  OpenAIGenerateStructure: OpenAIGenerateStructure,
-  OpenAICompleteChat: OpenAICompleteChat,
+  GenerateText: GenerateText,
+  GenerateStructure: GenerateStructure,
+  CompleteChat: CompleteChat,
   OpenAIThread: OpenAIThread,
   OpenAIAssistant: OpenAIAssistant,
 

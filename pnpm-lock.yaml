@@ -142,8 +142,8 @@ importers:
         specifier: ^6.10.2
         version: 6.10.2
       modelfusion:
-        specifier: ^0.104.0
-        version: 0.104.0
+        specifier: ^0.105.0
+        version: 0.105.0
       openai:
         specifier: ^4.16.1
         version: 4.16.1(encoding@0.1.13)
@@ -704,8 +704,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
       modelfusion:
-        specifier: ^0.104.0
-        version: 0.104.0
+        specifier: ^0.105.0
+        version: 0.105.0
       next:
         specifier: 14.0.3
         version: 14.0.3(@opentelemetry/api@1.7.0)(react-dom@18.2.0)(react@18.2.0)
@@ -14751,8 +14751,8 @@ packages:
     resolution: {integrity: sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==}
     dev: false
 
-  /modelfusion@0.104.0:
-    resolution: {integrity: sha512-Qs+ZydjhTn9R0yKL/6RrNzD+tqjcB81e8UjAyXtEYPN4sNZAIVfTDzDeQPZzSH9BkBfQfuQmxIqE0v4unMlsYQ==}
+  /modelfusion@0.105.0:
+    resolution: {integrity: sha512-oEG5q5XyGF88RFagIUyH1T4jy1ITNmWWqks6jgVQCkuc3GhACofXGsN0xPbh+R6n1eXR2IhYN9vHy8SmthrEqg==}
     engines: {node: '>=18'}
     dependencies:
       eventsource-parser: 1.1.1
