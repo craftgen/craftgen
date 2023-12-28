@@ -1,6 +1,11 @@
 import ky from "ky";
 import { merge } from "lodash-es";
-import { ApiConfiguration, ollama, OllamaChatModelSettings } from "modelfusion";
+import {
+  ApiConfiguration,
+  BaseUrlApiConfigurationOptions,
+  ollama,
+  OllamaChatModelSettings,
+} from "modelfusion";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
@@ -536,14 +541,18 @@ export const OllamaModelMachine = createMachine(
         console.log("updateOutput", context);
         enqueue.assign({
           outputs: ({ context }) => {
-            const api = ollama.Api({});
+            // const api = ollama.Api({});
+            // console.log("api", api);
+            const api = {
+              baseUrl: "http://127.0.0.1:11434",
+            } as BaseUrlApiConfigurationOptions;
             return {
               ...context.outputs,
               config: {
                 provider: "ollama",
-                api: api as ApiConfiguration,
+                apiConfiguration: api,
                 ...context.inputs,
-              } as OllamaChatModelSettings,
+              } as OllamaModelConfig,
             };
           },
         });
@@ -562,6 +571,11 @@ export const OllamaModelMachine = createMachine(
     },
   },
 );
+
+export type OllamaModelConfig = OllamaChatModelSettings & {
+  provider: "ollama";
+  apiConfiguration: BaseUrlApiConfigurationOptions;
+};
 
 export type OllamaModelNode = ParsedNode<"Ollama", typeof OllamaModelMachine>;
 

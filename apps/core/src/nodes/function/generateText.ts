@@ -1,9 +1,11 @@
 import { merge } from "lodash-es";
 import {
+  BaseUrlApiConfiguration,
   generateText,
   ollama,
   OllamaChatModelSettings,
   openai,
+  OpenAIApiConfiguration,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
@@ -22,7 +24,7 @@ import {
   ParsedNode,
 } from "../base";
 import { OllamaModelMachine } from "../ollama/ollama";
-import { OpenaiModelMachine } from "../openai/openai";
+import { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -227,9 +229,7 @@ export type GenerateTextNode = ParsedNode<
 >;
 
 type GenerateTextInput = {
-  llm:
-    | (OpenAIChatSettings & { provider: "openai" })
-    | (OllamaChatModelSettings & { provider: "ollama" });
+  llm: OpenAIModelConfig | (OllamaChatModelSettings & { provider: "ollama" });
   system: string;
   user: string;
 };
@@ -251,7 +251,10 @@ const generateTextActor = fromPromise(
           provider: "openai",
         },
         (config) => {
-          return openai.ChatTextGenerator(config);
+          return openai.ChatTextGenerator({
+            ...config,
+            api: new BaseUrlApiConfiguration(config.apiConfiguration),
+          });
         },
       )
       .exhaustive();

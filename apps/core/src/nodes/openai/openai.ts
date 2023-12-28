@@ -1,12 +1,14 @@
 import { merge } from "lodash-es";
 import {
   ApiConfiguration,
+  BaseUrlApiConfiguration,
+  BaseUrlApiConfigurationOptions,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { SetOptional } from "type-fest";
+import { Constructor, SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
@@ -142,6 +144,11 @@ const outputSockets = {
   }),
 };
 
+export type OpenAIModelConfig = OpenAIChatSettings & {
+  provider: "openai";
+  apiConfiguration: BaseUrlApiConfigurationOptions;
+};
+
 export const OpenaiModelMachine = createMachine(
   {
     id: "openai-model",
@@ -274,16 +281,20 @@ export const OpenaiModelMachine = createMachine(
         console.log("updateOutput", context);
         enqueue.assign({
           outputs: ({ context }) => {
-            const api = new OpenAIApiConfiguration({
-              apiKey: "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",
-            });
+            const api = {
+              baseUrl: "https://api.openai.com/v1",
+              headers: {
+                Authorization:
+                  "Bearer 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",
+              },
+            } as BaseUrlApiConfigurationOptions;
             return {
               ...context.outputs,
               config: {
                 provider: "openai",
-                api: api as ApiConfiguration,
+                apiConfiguration: api,
                 ...context.inputs,
-              } as OpenAIChatSettings,
+              } as OpenAIModelConfig,
             };
           },
         });

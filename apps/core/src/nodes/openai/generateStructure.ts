@@ -1,16 +1,20 @@
 import { merge } from "lodash-es";
 import {
+  BaseUrlApiConfiguration,
+  ChatMLPrompt,
   generateStructure,
+  jsonStructurePrompt,
   ollama,
   OllamaChatModelSettings,
   openai,
+  OpenAIApiConfiguration,
   OpenAIChatSettings,
   UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { Tool } from "../../sockets";
@@ -24,9 +28,19 @@ import {
   ParsedNode,
 } from "../base";
 import { OllamaModelMachine } from "../ollama/ollama";
-import { OpenaiModelMachine } from "./openai";
+import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
+  RUN: generateSocket({
+    name: "Run" as const,
+    type: "trigger" as const,
+    description: "Run",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "RUN",
+    "x-event": "RUN",
+  }),
   system: generateSocket({
     name: "system" as const,
     type: "string" as const,
@@ -95,9 +109,39 @@ const inputSockets = {
     "x-showSocket": true,
     isMultiple: false,
   }),
+  method: generateSocket({
+    "x-key": "method",
+    name: "Method",
+    title: "Method",
+    type: "string",
+    description: dedent`
+    The method to use for generating text. 
+    Function calling is only available for OpenAI models.
+    JSON
+    `,
+    allOf: [
+      {
+        enum: ["json", "functionCall"],
+        type: "string" as const,
+      },
+    ],
+    "x-controller": "select",
+    "x-showSocket": false,
+    default: "json",
+  }),
 };
 
 const outputSockets = {
+  onDone: generateSocket({
+    name: "On Done" as const,
+    type: "trigger" as const,
+    description: "Done",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "onDone",
+    "x-event": "onDone",
+  }),
   result: generateSocket({
     name: "result" as const,
     type: "string" as const,
@@ -182,16 +226,25 @@ const OpenAIGenerateStructureMachine = createMachine({
           return {
             llm: context.inputs.llm! as
               | (OllamaChatModelSettings & { provider: "ollama" })
-              | (OpenAIChatSettings & { provider: "openai" }),
+              | OpenAIModelConfig,
+            method: context.inputs.method,
             system: context.inputs.system,
             user: context.inputs.user,
             schema: context.inputs.schema,
           };
         },
         onDone: {
-          target: "#openai-generate-structure.complete",
-          actions: assign({
-            outputs: ({ event }) => event.output,
+          target: "#openai-generate-structure.idle",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ event }) => event.output,
+            });
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
           }),
         },
         onError: {
@@ -220,9 +273,8 @@ export type OpenAIGenerateStructureNode = ParsedNode<
 >;
 
 type GenerateStructureInput = {
-  llm:
-    | (OpenAIChatSettings & { provider: "openai" })
-    | (OllamaChatModelSettings & { provider: "ollama" });
+  llm: OpenAIModelConfig | (OllamaChatModelSettings & { provider: "ollama" });
+  method: "json" | "functionCall";
   system: string;
   user: string;
   schema: Tool;
@@ -232,56 +284,113 @@ const generateStructureActor = fromPromise(
   async ({ input }: { input: GenerateStructureInput }) => {
     console.log("@@@", { input });
 
-    const model = match(input.llm)
-      // .with(
-      //   {
-      //     provider: "ollama",
-      //   },
-      //   (config) => {
-      //     return ollama.ChatTextGenerator(config);
-      //     // .asStructureGenerationModel(
-      //     //   // Instruct the model to generate a JSON object that matches the given schema.
-      //     //   jsonStructurePrompt((instruction: string, schema) => ({
-      //     //     system:
-      //     //       "JSON schema: \n" +
-      //     //       JSON.stringify(schema.getJsonSchema()) +
-      //     //       "\n\n" +
-      //     //       "Respond only using JSON that matches the above schema.",
-      //     //     instruction,
-      //     //   }));
-      //   },
-      // )
+    const model = match([input.llm, input.method])
       .with(
-        {
-          provider: "openai",
+        [
+          {
+            provider: "ollama",
+          },
+          "json",
+        ],
+        ([config]) => {
+          const model = ollama
+            .CompletionTextGenerator({
+              ...config,
+              api: new BaseUrlApiConfiguration(config.apiConfiguration),
+              format: "json",
+              raw: true, // prevent Ollama from adding its own prompts
+            })
+            .withTextPrompt()
+            .withPromptTemplate(ChatMLPrompt.instruction())
+            .asStructureGenerationModel(
+              jsonStructurePrompt((instruction: string, schema) => ({
+                system:
+                  input.system +
+                  "JSON schema: \n" +
+                  JSON.stringify(schema.getJsonSchema()) +
+                  "\n\n" +
+                  "Respond only using JSON that matches the above schema.",
+                instruction,
+              })),
+            );
+          return () =>
+            generateStructure(
+              model,
+              new UncheckedSchema(input.schema.schema),
+              input.user,
+            );
         },
-        (config) => {
-          return openai
-            .ChatTextGenerator(config)
+      )
+      .with(
+        [
+          {
+            provider: "openai",
+          },
+          "json",
+        ],
+        ([config]) => {
+          const model = openai
+            .ChatTextGenerator({
+              ...config,
+              api: new BaseUrlApiConfiguration(config.apiConfiguration),
+              responseFormat: { type: "json_object" }, // force JSON output
+            })
+            .asStructureGenerationModel(
+              // Instruct the model to generate a JSON object that matches the given schema.
+              jsonStructurePrompt((instruction: string, schema) => [
+                openai.ChatMessage.system(
+                  "JSON schema: \n" +
+                    JSON.stringify(schema.getJsonSchema()) +
+                    "\n\n" +
+                    "Respond only using JSON that matches the above schema.",
+                ),
+                openai.ChatMessage.user(instruction),
+              ]),
+            );
+          return () =>
+            generateStructure(
+              model,
+              new UncheckedSchema(input.schema.schema),
+              input.user,
+            );
+        },
+      )
+      .with(
+        [
+          {
+            provider: "openai",
+          },
+          "functionCall",
+        ],
+        ([config]) => {
+          const model = openai
+            .ChatTextGenerator({
+              ...config,
+              api: new BaseUrlApiConfiguration(config.apiConfiguration),
+            })
             .asFunctionCallStructureGenerationModel({
               fnName: input.schema.name,
               fnDescription: input.schema.description,
             });
-          // .withInstructionPrompt();
+          return () =>
+            generateStructure(model, new UncheckedSchema(input.schema.schema), [
+              ...(input.system
+                ? [
+                    {
+                      role: "system" as const,
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...(input.user
+                ? [{ role: "user" as const, content: input.user }]
+                : []),
+            ]);
         },
       )
       .run();
-    // .exhaustive();
+    const structure = await model();
 
-    const structure = await generateStructure(
-      model,
-      new UncheckedSchema(input.schema.schema),
-      [
-        {
-          role: "system",
-          content: input.system,
-        },
-        {
-          role: "user",
-          content: input.user,
-        },
-      ],
-    );
     return {
       result: structure,
     };
