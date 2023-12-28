@@ -509,7 +509,7 @@ export const OllamaModelMachine = createMachine(
         },
       },
       complete: {
-        // entry: ["updateOutput"],
+        entry: ["updateOutput"],
         on: {
           UPDATE_OUTPUTS: {
             actions: "updateOutput",

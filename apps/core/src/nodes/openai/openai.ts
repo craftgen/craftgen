@@ -89,6 +89,7 @@ const inputSockets = {
     maximum: 1,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   seed: generateSocket({
     "x-key": "seed",
@@ -103,6 +104,7 @@ const inputSockets = {
     required: false,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
   presencePenalty: generateSocket({
     "x-key": "presencePenalty",
@@ -121,6 +123,7 @@ const inputSockets = {
     required: false,
     isMultiple: false,
     "x-showSocket": false,
+    "x-isAdvanced": true,
   }),
 };
 
@@ -187,7 +190,23 @@ export const OpenaiModelMachine = createMachine(
       guards: None;
     }>,
     initial: "idle",
-    entry: ["updateOutput"],
+    after: {
+      100: {
+        actions: "updateOutput",
+      },
+    },
+    // always: {
+    //   guard: "connectionsDeSync",
+    //   actions: assign({
+    //     outputSockets: ({ context }) => ({
+    //       ...context.outputSockets,
+    //       config: {
+    //         ...context.outputSockets.config,
+    //         "x-connection": {},
+    //       },
+    //     }),
+    //   }),
+    // },
     states: {
       idle: {
         entry: ["updateOutput"],
@@ -196,12 +215,37 @@ export const OpenaiModelMachine = createMachine(
             actions: ["updateOutput"],
           },
           UPDATE_SOCKET: {
-            actions: ["updateSocket", "updateOutput"],
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("updateSocket");
+              enqueue("updateOutput");
+            }),
           },
           SET_VALUE: {
-            actions: ["setValue", "adjustMaxCompletionTokens", "updateOutput"],
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("setValue");
+              enqueue("updateOutput");
+            }),
             reenter: true,
           },
+          // "*": {
+          //   guard: "connectionsDeSync",
+          //   actions: enqueueActions(({ enqueue, context }) => {
+          //     console.log("HEREHEERE")
+          //     const connections = context.outputSockets.config["x-connection"];
+          //     for (const [target, inputKey] of Object.entries(
+          //       connections || {},
+          //     )) {
+          //       enqueue({
+          //         type: "syncConnection",
+          //         params: {
+          //           nodeId: target,
+          //           outputKey: "config",
+          //           inputKey,
+          //         },
+          //       });
+          //     }
+          //   }),
+          // },
         },
       },
     },
@@ -264,9 +308,9 @@ export type OpenaiModelNode = ParsedNode<"OpenAI", typeof OpenaiModelMachine>;
 export class OpenAI extends BaseNode<typeof OpenaiModelMachine> {
   static nodeType = "OpenAI";
   static label = "OpenAI";
+  static description = "OpenAI model configuration";
 
   static icon = "openAI";
-
   static section = "Model Providers";
 
   static parse = (

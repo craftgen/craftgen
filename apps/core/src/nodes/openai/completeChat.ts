@@ -98,7 +98,7 @@ const inputSockets = {
       },
     ],
     "x-controller": "select",
-    "x-actor-type": "Ollama",
+    "x-actor-type": "OpenAI",
     "x-actor-config": {
       Ollama: {
         connections: {
@@ -164,9 +164,7 @@ const OpenAICompleteChatMachine = createMachine({
           RUN: undefined,
           system: "",
           messages: [],
-          temperature: 0.7,
-          model: "gpt-3.5-turbo-1106",
-          maxCompletionTokens: 1000,
+          llm: null,
         },
         outputs: {
           onDone: undefined,
@@ -192,22 +190,17 @@ const OpenAICompleteChatMachine = createMachine({
       | {
           type: "updateOutputMessages";
         };
-    events:
-      | {
-          type: "CONFIG_CHANGE";
-          openai: OpenAIChatSettings;
-        }
-      | ThreadMachineEvent;
+    events: ThreadMachineEvent;
     guards: None;
     actors: {
       src: "completeChat";
-      logic: ReturnType<typeof completeChatActor>;
+      logic: typeof completeChatActor;
     };
   }>,
   initial: "idle",
   states: {
     idle: {
-      entry: ["updateOutputMessages"],
+      // entry: ["updateOutputMessages"],
       on: {
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -290,7 +283,7 @@ const OpenAICompleteChatMachine = createMachine({
 });
 
 export type OpenAICompleteChatData = ParsedNode<
-  "OpenAICompleteChat",
+  "CompleteChat",
   typeof OpenAICompleteChatMachine
 >;
 
@@ -302,8 +295,8 @@ type CompleteChatInput = {
   messages: OpenAIChatMessage[];
 };
 
-const completeChatActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
-  fromPromise(async ({ input }: { input: CompleteChatInput }) => {
+const completeChatActor = fromPromise(
+  async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
     const model = match(input.llm)
       .with(
@@ -339,19 +332,18 @@ const completeChatActor = ({ api }: { api: () => OpenAIApiConfiguration }) =>
         result: "EEEEEE",
       };
     }
-  });
+  },
+);
 
-export class OpenAICompleteChat extends BaseNode<
-  typeof OpenAICompleteChatMachine
-> {
+export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
   static nodeType = "OpenAICompleteChat";
   static label = "OpenAI Complete Chat";
   static description = dedent`
-    OpenAI Complete Chat
+    Use LLMs to complete a chat. 
   `;
   static icon = "openAI";
 
-  static section = "OpenAI";
+  static section = "Functions";
 
   get apiModel() {
     if (!this.di.variables.has("OPENAI_API_KEY")) {
@@ -370,10 +362,10 @@ export class OpenAICompleteChat extends BaseNode<
   }
 
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
-    super("OpenAICompleteChat", di, data, OpenAICompleteChatMachine, {});
+    super("CompleteChat", di, data, OpenAICompleteChatMachine, {});
     this.extendMachine({
       actors: {
-        completeChat: completeChatActor({ api: () => this.apiModel }),
+        completeChat: completeChatActor,
         Thread: ThreadMachine.provide({ actions: this.baseActions }),
       },
       actions: {

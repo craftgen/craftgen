@@ -1,17 +1,14 @@
 import { merge } from "lodash-es";
 import {
   generateStructure,
+  ollama,
   OllamaChatModelSettings,
   openai,
-  OPENAI_CHAT_MODELS,
-  OpenAIApiConfiguration,
-  OpenAIChatMessage,
   OpenAIChatSettings,
-  retryWithExponentialBackoff,
-  throttleMaxConcurrency,
   UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
+import { match } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
@@ -36,6 +33,7 @@ const inputSockets = {
     description: "System Message",
     required: false,
     isMultiple: false,
+    default: "",
     "x-controller": "textarea",
     "x-key": "system",
     "x-showSocket": true,
@@ -46,6 +44,7 @@ const inputSockets = {
     description: "User Prompt",
     required: true,
     isMultiple: false,
+    default: "",
     "x-controller": "textarea",
     "x-key": "user",
     "x-showSocket": true,
@@ -151,7 +150,7 @@ const OpenAIGenerateStructureMachine = createMachine({
     };
     actors: {
       src: "generateText";
-      logic: ReturnType<typeof generateStructureActor>;
+      logic: typeof generateStructureActor;
     };
     guards: None;
   }>,
@@ -182,8 +181,8 @@ const OpenAIGenerateStructureMachine = createMachine({
         input: ({ context }): GenerateStructureInput => {
           return {
             llm: context.inputs.llm! as
-            | (OllamaChatModelSettings & { provider: "ollama" })
-            | (OpenAIChatSettings & { provider: "openai" }),
+              | (OllamaChatModelSettings & { provider: "ollama" })
+              | (OpenAIChatSettings & { provider: "openai" }),
             system: context.inputs.system,
             user: context.inputs.user,
             schema: context.inputs.schema,
@@ -201,22 +200,11 @@ const OpenAIGenerateStructureMachine = createMachine({
         },
       },
     },
-    complete: {
-      type: "final",
-      output: ({ context }) => context.outputs,
-    },
+    complete: {},
     error: {
       on: {
         RUN: {
           target: "running",
-          actions: ["setValue"],
-        },
-        CONFIG_CHANGE: {
-          actions: assign({
-            settings: ({ event }) => ({
-              openai: event.openai,
-            }),
-          }),
         },
         SET_VALUE: {
           actions: ["setValue"],
@@ -224,11 +212,10 @@ const OpenAIGenerateStructureMachine = createMachine({
       },
     },
   },
-  output: ({ context }) => context.outputs,
 });
 
 export type OpenAIGenerateStructureNode = ParsedNode<
-  "OpenAIGenerateStructure",
+  "GenerateStructure",
   typeof OpenAIGenerateStructureMachine
 >;
 
@@ -241,105 +228,98 @@ type GenerateStructureInput = {
   schema: Tool;
 };
 
-const generateStructureActor = ({
-  api,
-}: {
-  api: () => OpenAIApiConfiguration;
-}) =>
-  fromPromise(async ({ input }: { input: GenerateStructureInput }) => {
+const generateStructureActor = fromPromise(
+  async ({ input }: { input: GenerateStructureInput }) => {
     console.log("@@@", { input });
+
+    const model = match(input.llm)
+      // .with(
+      //   {
+      //     provider: "ollama",
+      //   },
+      //   (config) => {
+      //     return ollama.ChatTextGenerator(config);
+      //     // .asStructureGenerationModel(
+      //     //   // Instruct the model to generate a JSON object that matches the given schema.
+      //     //   jsonStructurePrompt((instruction: string, schema) => ({
+      //     //     system:
+      //     //       "JSON schema: \n" +
+      //     //       JSON.stringify(schema.getJsonSchema()) +
+      //     //       "\n\n" +
+      //     //       "Respond only using JSON that matches the above schema.",
+      //     //     instruction,
+      //     //   }));
+      //   },
+      // )
+      .with(
+        {
+          provider: "openai",
+        },
+        (config) => {
+          return openai
+            .ChatTextGenerator(config)
+            .asFunctionCallStructureGenerationModel({
+              fnName: input.schema.name,
+              fnDescription: input.schema.description,
+            });
+          // .withInstructionPrompt();
+        },
+      )
+      .run();
+    // .exhaustive();
+
     const structure = await generateStructure(
-      openai.ChatTextGenerator({
-        api: api(),
-        ...input.openai,
-      }),
-      new UncheckedSchema({
-        name: input.schema.name,
-        description: input.schema.description,
-        jsonSchema: input.schema.schema,
-      }),
+      model,
+      new UncheckedSchema(input.schema.schema),
       [
-        OpenAIChatMessage.system(input.system),
-        OpenAIChatMessage.user(input.user),
+        {
+          role: "system",
+          content: input.system,
+        },
+        {
+          role: "user",
+          content: input.user,
+        },
       ],
     );
     return {
       result: structure,
     };
-  });
+  },
+);
 
-export class OpenAIGenerateStructure extends BaseNode<
+export class GenerateStructure extends BaseNode<
   typeof OpenAIGenerateStructureMachine
 > {
   static nodeType = "OpenAIGenerateStructure";
   static label = "Generate Structure";
-  static description = "Usefull for generating structured data from a OpenAI";
+  static description = "Use LLMs to create a structed data";
   static icon = "openAI";
 
-  static section = "OpenAI";
+  static section = "Functions";
 
   static parse(
     params: SetOptional<OpenAIGenerateStructureNode, "type">,
   ): OpenAIGenerateStructureNode {
     return {
       ...params,
-      type: "OpenAIGenerateStructure",
+      type: "GenerateStructure",
     };
   }
 
-  get apiModel() {
-    if (!this.di.variables.has("OPENAI_API_KEY")) {
-      throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
-    }
-    const api = new OpenAIApiConfiguration({
-      apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
-      throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
-      retry: retryWithExponentialBackoff({
-        maxTries: 2,
-        initialDelayInMs: 1000,
-        backoffFactor: 2,
-      }),
-    });
-    return api;
-  }
-
   constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
-    super("OpenAIGenerateStructure", di, data, OpenAIGenerateStructureMachine, {
+    super("GenerateStructure", di, data, OpenAIGenerateStructureMachine, {
       actors: {
-        generateStructure: generateStructureActor({ api: () => this.apiModel }),
-      },
-      actions: {
-        adjustMaxCompletionTokens: assign({
-          inputSockets: ({ event, context }) => {
-            if (event.type !== "SET_VALUE") return context.inputSockets;
-            if (event.values.model) {
-              return {
-                ...context.inputSockets,
-                maxCompletionTokens: {
-                  ...context.inputSockets.maxCompletionTokens,
-                  maximum:
-                    OPENAI_CHAT_MODELS[
-                      event.values.model as keyof typeof OPENAI_CHAT_MODELS
-                    ].contextWindowSize,
-                },
-              };
-            }
-            return context.inputSockets;
-          },
-        }),
+        generateStructure: generateStructureActor,
       },
     });
     this.extendMachine({
       actors: {
         Ollama: OllamaModelMachine.provide({
-          actions: {
-            ...this.baseActions,
-          },
+          ...(this.baseImplentations as any),
         }),
         OpenAI: OpenaiModelMachine.provide({
-          actions: {
-            ...this.baseActions,
-          },
+          ...(this.baseImplentations as any),
         }),
       },
     });

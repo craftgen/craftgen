@@ -117,7 +117,7 @@ const outputSockets = {
   }),
 };
 
-const OpenAIGenerateTextMachine = createMachine({
+const GenerateTextMachine = createMachine({
   id: "openai-generate-text",
   context: ({ input }) =>
     merge<typeof input, any>(
@@ -212,7 +212,6 @@ const OpenAIGenerateTextMachine = createMachine({
       on: {
         RUN: {
           target: "running",
-          actions: ["setValue"],
         },
         SET_VALUE: {
           actions: ["setValue"],
@@ -222,9 +221,9 @@ const OpenAIGenerateTextMachine = createMachine({
   },
 });
 
-export type OpenAIGenerateTextNode = ParsedNode<
-  "OpenAIGenerateText",
-  typeof OpenAIGenerateTextMachine
+export type GenerateTextNode = ParsedNode<
+  "GenerateText",
+  typeof GenerateTextMachine
 >;
 
 type GenerateTextInput = {
@@ -280,27 +279,25 @@ const generateTextActor = fromPromise(
   },
 );
 
-export class OpenAIGenerateText extends BaseNode<
-  typeof OpenAIGenerateTextMachine
-> {
-  static nodeType = "OpenAIGenerateText";
+export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
+  static nodeType = "GenerateText";
   static label = "Generate Text";
-  static description = "Usefull for generating text from a prompt";
+  static description = "Use LLMs to generate text base on a prompt";
   static icon = "openAI";
 
-  static section = "OpenAI";
+  static section = "Functions";
 
   static parse(
-    params: SetOptional<OpenAIGenerateTextNode, "type">,
-  ): OpenAIGenerateTextNode {
+    params: SetOptional<GenerateTextNode, "type">,
+  ): GenerateTextNode {
     return {
       ...params,
-      type: "OpenAIGenerateText",
+      type: "GenerateText",
     };
   }
 
-  constructor(di: DiContainer, data: OpenAIGenerateTextNode) {
-    super("OpenAIGenerateText", di, data, OpenAIGenerateTextMachine, {
+  constructor(di: DiContainer, data: GenerateTextNode) {
+    super("GenerateText", di, data, GenerateTextMachine, {
       actors: {
         generateText: generateTextActor,
       },
