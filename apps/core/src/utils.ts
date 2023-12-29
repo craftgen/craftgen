@@ -28,11 +28,16 @@ export const createJsonSchema = (inputs: Record<string, JSONSocket>) => {
 
   const required = Object.values(inputs)
     .filter((input) => input.required)
-    .map((input) => input.name);
+    .map((input) => input["x-key"]);
 
   const properties = Object.entries(inputs).reduce(
     (acc, [key, input]) => {
       acc[key] = socketToProperty(input);
+      if (acc[key].type === "array") {
+        acc[key].items = {
+          type: "string",
+        };
+      }
       return acc;
     },
     {} as Record<string, any>,

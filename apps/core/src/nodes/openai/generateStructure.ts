@@ -261,6 +261,7 @@ const OpenAIGenerateStructureMachine = createMachine({
         },
         SET_VALUE: {
           actions: ["setValue"],
+          target: "idle",
         },
       },
     },
