@@ -311,5 +311,6 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
         },
       },
     });
+    this.setup();
   }
 }
