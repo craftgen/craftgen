@@ -5,10 +5,7 @@ import {
   generateStructure,
   jsonStructurePrompt,
   ollama,
-  OllamaChatModelSettings,
   openai,
-  OpenAIApiConfiguration,
-  OpenAIChatSettings,
   UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
@@ -27,7 +24,7 @@ import {
   None,
   ParsedNode,
 } from "../base";
-import { OllamaModelMachine } from "../ollama/ollama";
+import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
@@ -224,10 +221,8 @@ const OpenAIGenerateStructureMachine = createMachine({
         src: "generateStructure",
         input: ({ context }): GenerateStructureInput => {
           return {
-            llm: context.inputs.llm! as
-              | (OllamaChatModelSettings & { provider: "ollama" })
-              | OpenAIModelConfig,
-            method: context.inputs.method,
+            llm: context.inputs.llm! as OpenAIModelConfig | OllamaModelConfig,
+            method: context.inputs.method!,
             system: context.inputs.system,
             user: context.inputs.user,
             schema: context.inputs.schema,
@@ -274,10 +269,10 @@ export type OpenAIGenerateStructureNode = ParsedNode<
 >;
 
 type GenerateStructureInput = {
-  llm: OpenAIModelConfig | (OllamaChatModelSettings & { provider: "ollama" });
+  llm: OpenAIModelConfig | OllamaModelConfig;
   method: "json" | "functionCall";
-  system: string;
-  user: string;
+  system?: string;
+  user?: string;
   schema: Tool;
 };
 

@@ -1,5 +1,6 @@
 import { isNil, merge } from "lodash-es";
 import {
+  BaseUrlApiConfiguration,
   generateText,
   ollama,
   OllamaChatModelSettings,
@@ -25,13 +26,17 @@ import {
   None,
   ParsedNode,
 } from "../base";
-import { OllamaModelMachine } from "../ollama/ollama";
+import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import {
   ThreadMachine,
   ThreadMachineEvent,
   ThreadMachineEvents,
 } from "../thread";
-import { OpenaiModelMachine } from "./openai";
+import {
+  OpenAIModelConfig,
+  OpenaiModelMachine,
+  OpenaiModelNode,
+} from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -224,11 +229,8 @@ const OpenAICompleteChatMachine = createMachine({
         src: "completeChat",
         input: ({ context }): CompleteChatInput => {
           console.log("CONTEXT", context);
-
           return {
-            llm: context.inputs.llm! as
-              | (OllamaChatModelSettings & { provider: "ollama" })
-              | (OpenAIChatSettings & { provider: "openai" }),
+            llm: context.inputs.llm! as OpenAIModelConfig | OllamaModelConfig,
             system: context.inputs.system!,
             messages: context.inputs.messages?.map(({ id, ...rest }) => {
               return rest;
@@ -288,9 +290,7 @@ export type OpenAICompleteChatData = ParsedNode<
 >;
 
 type CompleteChatInput = {
-  llm:
-    | (OpenAIChatSettings & { provider: "openai" })
-    | (OllamaChatModelSettings & { provider: "ollama" });
+  llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   messages: OpenAIChatMessage[];
 };
@@ -312,7 +312,10 @@ const completeChatActor = fromPromise(
           provider: "openai",
         },
         (config) => {
-          return openai.ChatTextGenerator(config);
+          return openai.ChatTextGenerator({
+            ...config,
+            api: new BaseUrlApiConfiguration(config.apiConfiguration),
+          });
         },
       )
       .exhaustive();

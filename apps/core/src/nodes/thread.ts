@@ -73,7 +73,7 @@ const outputSockets = {
     type: "array",
     isMultiple: true,
     "x-key": "thread",
-    "x-showSocket": true,
+    "x-showSocket": false,
   }),
 };
 
@@ -84,6 +84,7 @@ export enum ThreadMachineEvents {
   addAndRunMessage = `${THREAD}.ADD_AND_RUN_MESSAGE`,
   clearThread = `${THREAD}.CLEAR_THREAD`,
   updateOutputs = `UPDATE_OUTPUTS`,
+  run = `${THREAD}.ON_RUN`,
 }
 
 export type ThreadMachineEvent =
@@ -100,6 +101,9 @@ export type ThreadMachineEvent =
     }
   | {
       type: ThreadMachineEvents.updateOutputs;
+    }
+  | {
+      type: ThreadMachineEvents.run;
     };
 
 export const ThreadMachine = createMachine(
@@ -225,6 +229,25 @@ export const ThreadMachine = createMachine(
             reenter: true,
           },
 
+          [ThreadMachineEvents.run]: {
+            guard: ({ context }) => {
+              if (
+                context.outputSockets.onRun["x-connection"] &&
+                Object.entries(context.outputSockets.onRun["x-connection"])
+                  .length > 0
+              ) {
+                return true;
+              }
+              return false;
+            },
+            actions: {
+              type: "triggerSuccessors",
+              params: {
+                port: "onRun",
+              },
+            },
+          },
+
           [ThreadMachineEvents.addAndRunMessage]: {
             guard: ({ context }) => {
               if (
@@ -243,12 +266,14 @@ export const ThreadMachine = createMachine(
               enqueue({
                 type: "updateOutput",
               });
-              enqueue({
-                type: "triggerSuccessors",
-                params: {
-                  port: "onRun",
+              enqueue.raise(
+                {
+                  type: ThreadMachineEvents.run,
                 },
-              });
+                {
+                  delay: 100,
+                },
+              );
             }),
             reenter: true,
           },

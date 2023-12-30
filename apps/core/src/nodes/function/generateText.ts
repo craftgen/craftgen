@@ -5,7 +5,6 @@ import {
   ollama,
   OllamaChatModelSettings,
   openai,
-  OpenAIApiConfiguration,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
@@ -23,7 +22,7 @@ import {
   None,
   ParsedNode,
 } from "../base";
-import { OllamaModelMachine } from "../ollama/ollama";
+import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
 
 const inputSockets = {
@@ -229,7 +228,9 @@ export type GenerateTextNode = ParsedNode<
 >;
 
 type GenerateTextInput = {
-  llm: OpenAIModelConfig | (OllamaChatModelSettings & { provider: "ollama" });
+  llm: 
+  | OpenAIModelConfig 
+  | OllamaModelConfig;
   system: string;
   user: string;
 };
