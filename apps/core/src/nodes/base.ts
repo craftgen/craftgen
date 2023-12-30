@@ -97,6 +97,9 @@ export type BaseEventTypes =
         side: "input" | "output";
         socket: Partial<JSONSocket>;
       };
+    }
+  | {
+      type: "UPDATE_CHILD_ACTORS";
     };
 
 export type BaseActionTypes =
@@ -310,8 +313,6 @@ export abstract class BaseNode<
       return true;
     },
   };
-
-
 
   public baseActions = {
     removeError: assign({

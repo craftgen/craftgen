@@ -216,6 +216,12 @@ const OpenAICompleteChatMachine = createMachine({
             return (context.inputs.messages || []).length > 0;
           },
         },
+        UPDATE_CHILD_ACTORS: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue("spawnInputActors");
+            enqueue("setupInternalActorConnections");
+          }),
+        },
         SET_VALUE: {
           actions: enqueueActions(({ enqueue, check }) => {
             enqueue("setValue");

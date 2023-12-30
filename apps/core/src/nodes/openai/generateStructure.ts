@@ -186,9 +186,6 @@ const OpenAIGenerateStructureMachine = createMachine({
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
     context: BaseContextType<typeof inputSockets, typeof outputSockets>;
     actions: None;
-    events: {
-      type: "UPDATE_CHILD_ACTORS";
-    };
     actors: {
       src: "generateText";
       logic: typeof generateStructureActor;

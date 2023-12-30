@@ -22,22 +22,24 @@ export type SocketGeneratorControlOptions = {
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
-export const actorConfigSchema = z
+export const actorConfigSchema = z.object({
+  connections: z
+    .record(z.string().describe("source"), z.string().describe("target"))
+    .default({}),
+  internal: z
+    .record(z.string().describe("source"), z.string().describe("target"))
+    .default({}),
+});
+
+export const actorConfigRecordSchema = z
   .record(
     z.custom<NodeTypes>().describe("Actor Name"),
-    z.object({
-      connections: z
-        .record(z.string().describe("source"), z.string().describe("target"))
-        .default({}),
-      internal: z
-        .record(z.string().describe("source"), z.string().describe("target"))
-        .default({}),
-    }),
+    actorConfigSchema.optional(),
   )
   .default({})
   .optional();
 
-export type AnyActorConfig = z.infer<typeof actorConfigSchema>;
+export type ActorConfig = z.infer<typeof actorConfigSchema>;
 
 export const socketSchema = z
   .object({
@@ -76,7 +78,7 @@ export const socketSchema = z
     "x-actor-ref": z.custom<AnyActorRef>().optional(),
     "x-actor-type": z.custom<NodeTypes>().optional(),
     "x-actor-ref-type": z.custom<NodeTypes>().optional(),
-    "x-actor-config": actorConfigSchema,
+    "x-actor-config": actorConfigRecordSchema,
 
     "x-connection": z.record(z.string(), z.string()).default({}).optional(),
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),

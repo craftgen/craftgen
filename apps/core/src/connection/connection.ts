@@ -1,8 +1,13 @@
 import { CurveFactory } from "d3-shape";
+import { get } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
-import { JSONSocket } from "../controls/socket-generator";
+import {
+  ActorConfig,
+  AnyActorConfig,
+  JSONSocket,
+} from "../controls/socket-generator";
 import { Editor } from "../editor";
 import { BaseNode } from "../nodes/base";
 
@@ -56,10 +61,10 @@ export class Connection<
     }
     return this.sourceValue === this.targetValue;
   }
-  get sourceDefintion() {
+  get sourceDefintion(): JSONSocket {
     return this.sourceNode.snap.context.outputSockets[this.sourceOutput];
   }
-  get targetDefintion() {
+  get targetDefintion(): JSONSocket {
     return this.targetNode.snap.context.inputSockets[this.targetInput];
   }
 
@@ -318,12 +323,13 @@ export class Connection<
           },
         },
       });
-
-      if (this.targetDefintion["x-actor-connections"]) {
-        const connections = Object.entries(
-          this.targetDefintion["x-actor-connections"],
-        );
-        for (const [key, value] of connections) {
+      const config = get(this.targetDefintion, [
+        "x-actor-config",
+        this.sourceNode.ID,
+      ]) as ActorConfig;
+      if (config) {
+        console.log(config);
+        for (const [key, value] of Object.entries(config.connections)) {
           console.log({
             key,
             value,

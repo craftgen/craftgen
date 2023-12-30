@@ -374,6 +374,21 @@ const inputSockets = {
     required: false,
     default: undefined,
     isMultiple: false,
+    "x-controller": "code",
+    "x-language": "handlebars",
+    "x-showSocket": false,
+    "x-isAdvanced": true,
+  }),
+  modelfile: generateSocket({
+    "x-key": "modelfile",
+    name: "modelfile" as const,
+    description: "Model file",
+    "x-controller": "code",
+    type: "string",
+    required: false,
+    default: undefined,
+    isMultiple: false,
+    "x-language": "handlebars",
     "x-showSocket": false,
     "x-isAdvanced": true,
   }),
@@ -502,6 +517,13 @@ export const OllamaModelMachine = createMachine(
             target: "#ollama-model.complete",
             actions: assign({
               model: ({ event }) => event.output,
+              inputs: ({ context, event }) => {
+                return {
+                  ...context.inputs,
+                  modelfile: event.output.modelfile,
+                  template: event.output.template,
+                };
+              },
             }),
           },
           onError: {
@@ -525,7 +547,6 @@ export const OllamaModelMachine = createMachine(
           SET_VALUE: {
             actions: ["setValue", "updateOutput"],
             target: "idle",
-            reenter: true,
           },
         },
       },
