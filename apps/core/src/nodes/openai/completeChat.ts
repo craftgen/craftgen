@@ -2,21 +2,20 @@ import { isNil, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
+  generateToolCallsOrText,
   ollama,
-  OllamaChatModelSettings,
   openai,
-  OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
   OpenAIChatMessage,
-  OpenAIChatSettings,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
+import { Message } from "../../controls/thread.control";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -124,6 +123,17 @@ const inputSockets = {
     },
     "x-showSocket": true,
     isMultiple: false,
+  }),
+  tools: generateSocket({
+    "x-key": "tools",
+    name: "Tools",
+    title: "Tools",
+    type: "tool",
+    description: dedent`
+    The tools agent to use. 
+    `,
+    "x-showSocket": true,
+    isMultiple: true,
   }),
 };
 
@@ -298,49 +308,109 @@ export type OpenAICompleteChatData = ParsedNode<
 type CompleteChatInput = {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
-  messages: OpenAIChatMessage[];
+  messages: Omit<Message, "id">[];
+  tools: any[];
 };
 
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
-    const model = match(input.llm)
+    const result = match(input)
       .with(
         {
-          provider: "ollama",
+          llm: {
+            provider: "ollama",
+          },
         },
-        (config) => {
-          return ollama.ChatTextGenerator(config);
+        ({ llm }) => {
+          const model = ollama.ChatTextGenerator(llm);
+          return () =>
+            generateText(model, [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...input.messages,
+            ]);
         },
       )
       .with(
         {
-          provider: "openai",
+          llm: {
+            provider: "openai",
+          },
+          tools: P.array(),
         },
-        (config) => {
-          return openai.ChatTextGenerator({
-            ...config,
-            api: new BaseUrlApiConfiguration(config.apiConfiguration),
+        ({ llm, tools }) => {
+          const model = openai.ChatTextGenerator({
+            ...llm,
+            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
+          return () =>
+            generateToolCallsOrText(model, tools, [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...input.messages,
+            ]);
+        },
+      )
+      .with(
+        {
+          llm: {
+            provider: "openai",
+          },
+        },
+        ({ llm }) => {
+          const model = openai.ChatTextGenerator({
+            ...llm,
+            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+          });
+          return () =>
+            generateText(model, [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...(input.messages as any),
+            ]);
         },
       )
       .exhaustive();
 
-    try {
-      const text = await generateText(model, [
-        ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
-        ...input.messages,
-      ]);
-      console.log("TEXT", text);
-      return {
-        result: text,
-      };
-    } catch (err) {
-      console.log("EEEEEE", err);
-      return {
-        result: "EEEEEE",
-      };
-    }
+    const res = await result();
+    return {
+      result: res,
+    };
+
+    // try {
+    //   const text = await generateText(model, [
+    //     ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
+    //     ...input.messages,
+    //   ]);
+    //   console.log("TEXT", text);
+    //   return {
+    //     result: text,
+    //   };
+    // } catch (err) {
+    //   console.log("EEEEEE", err);
+    //   return {
+    //     result: "EEEEEE",
+    //   };
+    // }
   },
 );
 
