@@ -1,6 +1,7 @@
 import { isNil, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
+  ChatMessage,
   generateText,
   generateToolCallsOrText,
   ollama,
@@ -9,10 +10,18 @@ import {
   OpenAIChatMessage,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
+  ToolDefinition,
+  UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import {
+  AnyActorRef,
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import { Message } from "../../controls/thread.control";
@@ -26,16 +35,8 @@ import {
   ParsedNode,
 } from "../base";
 import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
-import {
-  ThreadMachine,
-  ThreadMachineEvent,
-  ThreadMachineEvents,
-} from "../thread";
-import {
-  OpenAIModelConfig,
-  OpenaiModelMachine,
-  OpenaiModelNode,
-} from "./openai";
+import { ThreadMachine } from "../thread";
+import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -167,6 +168,7 @@ const outputSockets = {
 };
 
 const OpenAICompleteChatMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2AIxKATKYDMdu47vnzAGhABPRDcADkZzT2CPAFYbVzsYgF8EvzRMXEIScioaAnomFnYAJQ4AOWU1JBBNbV19QxMER3NTRiildo9TYKaAFi8ev0CEPtDu4KjIl2sJ0zsklPRsfCJSCmo6BmZWME5eQVEpAAkASQAZHhE+KQEJQrFyw2qdPQNKhvDGdq-v77tBxEcjhcjB6PXMSmCSnMLiUpihUR68xAqSWGVW2Q2+W2bDE8hEADU+KcOEIHpUnrVXqAGh4lGEobE+l9HDYBgFEB5Ql4gT1gsFTI4etYei4kSj0issutcpsAE4AVwwGBwGCgzAwIlQsuQUFlcFgbAg+jA6oAbsgANYm8XLTJrHJ5RgKpUqtUqzXa3X6hAq80EBgvcpkjRaZ51N6IHqA1o9GzBbxxhzBFxsoYiqJhPouFw2CbQkXeMWLCV2jEypjO5Wq9UenV62AGsCy7WyxjkBgAM2QsuIjBtaKlDrliqrbo1Wrr3t9yH9lKDqkeocp9TMs0Ydmsjic0JcMQs-wQUSilns0NhYx6UVMiOSyOLtvR0sdlddNYnXobbCkRNOIhuElOYMqiXF4VwQVk7EYCCBUhFxzCibMXAPS9QijcZOliFNc3MIs0gfQdMSdEdXz1ABHeUcHrEQsAISk2H-X9v1OQCF3JEDw2pRAIKgvoYKUOCEOzZCISg-j2kcK8XGTcIklvDBkAgOBDH7SV7UxRcalAiMEDwGwDzwDMuh+Yy7GCXDUVUstHQKMANLDKljA5UyrC3CZLyUbkbHMP52WGZzrFzUEeihcIcxscyS0fIcK2I1U7OXbSczpON7AsQFwhsKY9N8xx+Rcvld3g6EEKiCL8LU8siJdat3Xfet4DYzSOMc4YRJSjdwiaFksoPQTPjsMFMpsLc7BzMzbxU0sn2Haq1Us6gIHirTOOGKJIIscINwkhxdxzA84Msbb4MBXKdsSCb7wHCrn1itUyIoqiaISkMmoc944UYKZgjQ-jXGsJDfMvYEPN5cxxm+3oczKq6rM2ebbMa+ywKjZDvBBYJ7Fy8wbFiTLTGh+HCKbFsluahpjwPDGWkQhMJlZXL8dkoA */
   id: "openai-complete-chat",
   entry: enqueueActions(({ enqueue, context }) => {
     enqueue("spawnInputActors");
@@ -180,6 +182,25 @@ const OpenAICompleteChatMachine = createMachine({
           system: "",
           messages: [],
           llm: null,
+          tools: [
+            // {
+            //   name: "Math" as const,
+            //   description: dedent`
+            // A tool for evaluating mathematical expressions. Example expressions:
+            // '1.2 * (2 + 4.5)', '12.7 cm to inch', 'sin(45 deg) ^ 2'.
+            // `,
+            //   parameters: {
+            //     type: "object",
+            //     properties: {
+            //       expression: {
+            //         type: "string",
+            //         description: "The expression to evaluate",
+            //       },
+            //     },
+            //     required: ["expression"],
+            //   },
+            // },
+          ],
         },
         outputs: {
           onDone: undefined,
@@ -205,7 +226,21 @@ const OpenAICompleteChatMachine = createMachine({
       | {
           type: "updateOutputMessages";
         };
-    events: ThreadMachineEvent;
+    events:
+      | {
+          type: "TOOL_REQUEST";
+          params: {
+            name: string;
+            parameters: any;
+          };
+        }
+      | {
+          type: "TOOL_RESULT";
+          params: {
+            name: string;
+            result: any;
+          };
+        };
     guards: None;
     actors: {
       src: "completeChat";
@@ -235,63 +270,163 @@ const OpenAICompleteChatMachine = createMachine({
         SET_VALUE: {
           actions: enqueueActions(({ enqueue, check }) => {
             enqueue("setValue");
-            enqueue("adjustMaxCompletionTokens");
           }),
         },
       },
     },
     running: {
-      invoke: {
-        src: "completeChat",
-        input: ({ context }): CompleteChatInput => {
-          console.log("CONTEXT", context);
-          return {
-            llm: context.inputs.llm! as OpenAIModelConfig | OllamaModelConfig,
-            system: context.inputs.system!,
-            messages: context.inputs.messages?.map(({ id, ...rest }) => {
-              return rest;
-            }) as OpenAIChatMessage[],
-          };
-        },
-        onDone: {
-          target: "#openai-complete-chat.idle",
-          actions: enqueueActions(({ enqueue, check }) => {
-            if (
-              check(
-                ({ context }) =>
-                  !isNil(context.inputSockets.messages["x-actor-ref"]),
-              )
-            ) {
-              enqueue.sendTo(
-                ({ context }) => context.inputSockets.messages["x-actor-ref"],
-                ({ context, event }) => ({
-                  type: ThreadMachineEvents.addMessage,
-                  params: {
-                    content: event.output.result,
-                    role: "assistant",
-                  },
+      initial: "in_progress",
+      states: {
+        in_progress: {
+          on: {
+            TOOL_REQUEST: {
+              target: "requires_action",
+              actions: enqueueActions(({ enqueue, check, event }) => {
+                console.log("TOOL_REQUEST", event);
+                // TODO: call the tool for result.
+                // enqueue.sendTo(
+                //   ({ context }) =>
+                //     context.inputSockets.tools["x-actor-ref"] as AnyActorRef,
+                //   ({ context, event }) => ({
+                //     type: "TOOL_REQUEST",
+                //     params: event.params,
+                //   }),
+                // );
+              }),
+            },
+            SET_VALUE: {
+              actions: enqueueActions(({ enqueue, check }) => {
+                enqueue("setValue");
+              }),
+            },
+          },
+          invoke: {
+            src: "completeChat",
+            input: ({ context }): CompleteChatInput => {
+              console.log("CONTEXT", context);
+              return {
+                llm: context.inputs.llm! as
+                  | OpenAIModelConfig
+                  | OllamaModelConfig,
+                system: context.inputs.system!,
+                messages: context.inputs.messages?.map(({ id, ...rest }) => {
+                  return rest;
+                }) as OpenAIChatMessage[],
+                tools: context.inputs.tools?.map((t) => {
+                  return {
+                    name: t.name,
+                    description: t.description,
+                    parameters: new UncheckedSchema(t.parameters),
+                  };
                 }),
-              );
-            }
-            enqueue.assign({
-              outputs: ({ context, event }) => {
-                return {
-                  ...context.outputs,
-                  result: event.output.result,
-                };
-              },
-            });
-            enqueue({
-              type: "triggerSuccessors",
-              params: {
-                port: "onDone",
-              },
-            });
-          }),
+              };
+            },
+            onDone: {
+              actions: enqueueActions(({ enqueue, check, event }) => {
+                console.log("EVENT", event);
+                // We write the result whatever the result is.
+                enqueue.assign({
+                  outputs: ({ context, event }) => {
+                    return {
+                      ...context.outputs,
+                      result: event.output.result,
+                    };
+                  },
+                });
+
+                if (
+                  check(
+                    ({ event }) =>
+                      event.output.result.toolCalls &&
+                      event.output.result.toolCalls.length > 0,
+                  )
+                ) {
+                  enqueue.raise({
+                    type: "TOOL_REQUEST",
+                    params: event.output.result.toolCalls,
+                  });
+
+                  return;
+                }
+                // match(event)
+                //   .with(
+                //     {
+                //       output: {
+                //         result: {
+                //           text: P.nullish,
+                //           toolCalls: P.array(),
+                //         },
+                //       },
+                //     },
+                //     ({ output }) => {
+                //       enqueue.sendTo(
+                //         ({ context }) =>
+                //           context.inputSockets.messages[
+                //             "x-actor-ref"
+                //           ] as AnyActorRef,
+                //         ({ context, event }) => ({
+                //           type: ThreadMachineEvents.addMessage,
+                //           params: ChatMessage.assistant({
+                //             ...output.result,
+                //           }),
+                //         }),
+                //       );
+                //     },
+                //   )
+                //   .run();
+
+                if (
+                  check(
+                    ({ context }) =>
+                      !isNil(context.inputSockets.messages["x-actor-ref"]),
+                  )
+                ) {
+                  enqueue.sendTo(
+                    ({ context }) =>
+                      context.inputSockets.messages[
+                        "x-actor-ref"
+                      ] as AnyActorRef,
+                    ({ context, event }) => ({
+                      type: ThreadMachineEvents.addMessage,
+                      params: ChatMessage.assistant(event.output.result),
+                    }),
+                  );
+                }
+
+                enqueue({
+                  type: "triggerSuccessors",
+                  params: {
+                    port: "onDone",
+                  },
+                });
+              }),
+            },
+            onError: {
+              target: "#openai-complete-chat.error",
+              actions: ["setError"],
+            },
+          },
         },
-        onError: {
-          target: "#openai-complete-chat.error",
-          actions: ["setError"],
+        completed: {},
+        requires_action: {
+          entry: [
+            enqueueActions(({ enqueue, event }) => {
+              event.params.forEach((toolCall) => {
+                enqueue.sendTo(
+                  ({ context }) =>
+                    context.inputSockets.tools["x-actor-ref"] as AnyActorRef,
+                  ({ context, event }) => ({
+                    type: "TOOL_REQUEST",
+                    params: event.params,
+                  }),
+                );
+              });
+              console.log("REQUIRES ACTION", event);
+            }),
+          ],
+          on: {
+            TOOL_RESULT: {},
+          },
         },
       },
     },
@@ -309,33 +444,33 @@ type CompleteChatInput = {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   messages: Omit<Message, "id">[];
-  tools: any[];
+  tools: ToolDefinition<string, any>[];
 };
 
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
-    const result = match(input)
+    const result = await match(input)
       .with(
         {
           llm: {
             provider: "ollama",
           },
         },
-        ({ llm }) => {
+        async ({ llm }) => {
           const model = ollama.ChatTextGenerator(llm);
-          return () =>
-            generateText(model, [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...input.messages,
-            ]);
+          const res = await generateText(model, [
+            ...(input.system
+              ? [
+                  {
+                    role: "system",
+                    content: input.system,
+                  },
+                ]
+              : []),
+            ...input.messages,
+          ]);
+          return { text: res };
         },
       )
       .with(
@@ -345,23 +480,23 @@ const completeChatActor = fromPromise(
           },
           tools: P.array(),
         },
-        ({ llm, tools }) => {
+        async ({ llm, tools }) => {
+          console.log("here", llm, tools);
           const model = openai.ChatTextGenerator({
             ...llm,
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
-          return () =>
-            generateToolCallsOrText(model, tools, [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...input.messages,
-            ]);
+          return await generateToolCallsOrText(model, tools, [
+            ...(input.system
+              ? [
+                  {
+                    role: "system",
+                    content: input.system,
+                  },
+                ]
+              : []),
+            ...input.messages,
+          ]);
         },
       )
       .with(
@@ -370,47 +505,32 @@ const completeChatActor = fromPromise(
             provider: "openai",
           },
         },
-        ({ llm }) => {
+        async ({ llm }) => {
           const model = openai.ChatTextGenerator({
             ...llm,
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
-          return () =>
-            generateText(model, [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...(input.messages as any),
-            ]);
+          const res = await generateText(model, [
+            ...(input.system
+              ? [
+                  {
+                    role: "system",
+                    content: input.system,
+                  },
+                ]
+              : []),
+            ...(input.messages as any),
+          ]);
+
+          return {
+            text: res,
+          };
         },
       )
-      .exhaustive();
-
-    const res = await result();
+      .run();
     return {
-      result: res,
+      result,
     };
-
-    // try {
-    //   const text = await generateText(model, [
-    //     ...(input.system ? [OpenAIChatMessage.system(input.system)] : []),
-    //     ...input.messages,
-    //   ]);
-    //   console.log("TEXT", text);
-    //   return {
-    //     result: text,
-    //   };
-    // } catch (err) {
-    //   console.log("EEEEEE", err);
-    //   return {
-    //     result: "EEEEEE",
-    //   };
-    // }
   },
 );
 

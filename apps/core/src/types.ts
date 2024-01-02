@@ -30,14 +30,15 @@ import {
 } from "./nodes";
 import { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
+import { GenerateText } from "./nodes/function/generateText";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
-import { CompleteChat as CompleteChat } from "./nodes/openai/completeChat";
+import { CompleteChat } from "./nodes/openai/completeChat";
 import { GenerateStructure } from "./nodes/openai/generateStructure";
-import { GenerateText as GenerateText } from "./nodes/function/generateText";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
+import { MathNode } from "./nodes/tools/math";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -81,6 +82,7 @@ export const nodes = {
   // Tools
   IteratorNode: IteratorNode,
   BranchNode: BranchNode,
+  MathNode: MathNode,
 
   // Models
   Ollama: Ollama,

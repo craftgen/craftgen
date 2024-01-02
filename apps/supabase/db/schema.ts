@@ -260,6 +260,7 @@ export const workflowNode = pgTable("workflow_node", {
   width: integer("width").notNull(),
   height: integer("height").notNull(),
   label: text("label").notNull(),
+  description: text("description"),
   color: text("color").notNull(),
   type: text("type").notNull(),
 });

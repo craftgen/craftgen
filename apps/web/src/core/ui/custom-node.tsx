@@ -358,7 +358,7 @@ export const Node = observer((props: Props<Schemes>) => {
                     )}
                   </div>
                   <div className="flex">
-                    {props.data.snap.status === "done" && (
+                    {props.data.snap.value === "complete" && (
                       <Drag.NoDrag>
                         <Button
                           variant={"ghost"}

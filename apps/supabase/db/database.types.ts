@@ -539,6 +539,7 @@ export interface Database {
         Row: {
           color: string
           context_id: string
+          description: string | null
           height: number
           id: string
           label: string
@@ -552,6 +553,7 @@ export interface Database {
         Insert: {
           color: string
           context_id: string
+          description?: string | null
           height: number
           id: string
           label: string
@@ -565,6 +567,7 @@ export interface Database {
         Update: {
           color?: string
           context_id?: string
+          description?: string | null
           height?: number
           id?: string
           label?: string

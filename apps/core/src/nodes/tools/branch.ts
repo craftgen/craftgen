@@ -127,5 +127,6 @@ export class BranchNode extends BaseNode<typeof BranchNodeMachine> {
 
   constructor(di: DiContainer, data: BranchNodeData) {
     super("BranchNode", di, data, BranchNodeMachine, {});
+    this.setup();
   }
 }

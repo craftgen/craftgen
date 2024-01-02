@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { ToolDefinition } from "modelfusion";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
@@ -81,7 +82,7 @@ export const types = [
 export type Tool = {
   name: string;
   description: string;
-  schema: JSONSchemaDefinition;
+  parameters: JSONSchemaDefinition;
 };
 
 export type SocketTypeMap = {
@@ -93,7 +94,7 @@ export type SocketTypeMap = {
   array: any[]; // Replace 'any' with a more specific type if needed
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
-  tool: Tool;
+  tool: Tool[];
   // trigger: (params: any[]) => void | undefined;
   trigger: undefined;
   thread: Message[];

@@ -1,6 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
+import { ChatMessage } from "modelfusion";
 import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
+import { Chat } from "openai/resources/index.mjs";
 import { SetOptional } from "type-fest";
 import {
   assign,
@@ -11,9 +13,6 @@ import {
 } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-// import { ThreadControl } from "../controls/thread.control";
-// import { Input } from "../input-output";
-// import { triggerSocket } from "../sockets";
 import { DiContainer } from "../types";
 import {
   BaseContextType,
@@ -90,11 +89,11 @@ export enum ThreadMachineEvents {
 export type ThreadMachineEvent =
   | {
       type: ThreadMachineEvents.addMessage;
-      params: MessageCreateParams;
+      params: ChatMessage;
     }
   | {
       type: ThreadMachineEvents.addAndRunMessage;
-      params: MessageCreateParams;
+      params: ChatMessage;
     }
   | {
       type: ThreadMachineEvents.clearThread;
@@ -112,9 +111,6 @@ export const ThreadMachine = createMachine(
     context: ({ input }) =>
       merge<typeof input, any>(
         {
-          action: {
-            type: ThreadActions.addMessage,
-          },
           inputs: {
             messages: [],
           },
@@ -135,29 +131,23 @@ export const ThreadMachine = createMachine(
       ),
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-        action:
-          | {
-              type: ThreadActions.addMessage;
-              inputs?: {
-                params: MessageCreateParams;
-              };
-            }
-          | {
-              type: ThreadActions.addAndRunMessage;
-              inputs?: {
-                params: MessageCreateParams;
-              };
-            };
+        inputs: {
+          messages: ChatMessage & { id: string }[];
+        };
       };
       guards: None;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        inputs: {
+          messages: ChatMessage & { id: string }[];
+        };
+      };
       actions:
         | {
             type: "updateOutput";
           }
         | {
             type: "addMessage";
-            // params: MessageCreateParams;
+            params: ChatMessage;
           };
       events: ThreadMachineEvent;
       actors:
@@ -202,8 +192,12 @@ export const ThreadMachine = createMachine(
             actions: enqueueActions(({ enqueue, context, event }) => {
               console.log("addMessage INSIDE", context, event);
               enqueue(log("addMessage"));
+
               enqueue({
                 type: "addMessage",
+                params: {
+                  ...event.params,
+                },
               });
               enqueue({
                 type: "updateOutput",
@@ -259,9 +253,12 @@ export const ThreadMachine = createMachine(
               }
               return false;
             },
-            actions: enqueueActions(({ enqueue }) => {
+            actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
                 type: "addMessage",
+                params: {
+                  ...event.params,
+                },
               });
               enqueue({
                 type: "updateOutput",
@@ -305,7 +302,7 @@ export const ThreadMachine = createMachine(
         }
       }),
       addMessage: assign({
-        inputs: ({ context, event }) => {
+        inputs: ({ context, event }, params) => {
           const id = `message_${createId()}`;
           return {
             ...context.inputs,
@@ -313,7 +310,7 @@ export const ThreadMachine = createMachine(
               ...context.inputs.messages,
               {
                 id,
-                ...event.params,
+                ...params,
               },
             ],
           };

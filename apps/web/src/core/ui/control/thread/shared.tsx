@@ -14,63 +14,53 @@ export const TextContent: React.FC<{ content: string }> = React.memo(
   },
 );
 
-export const Content = ({ content}: { content: MessageContent }) => {
+export const Content = ({ content }: { content: MessageContent }) => {
   return match(content)
-    .with(
-      P.string,
-      (content) => <TextContent content={content} />,
-    )
-    .with(
-      P.array(),
-      (content) => {
-        console.log('Its array', content)
-        return (
-          <>
+    .with(P.string, (content) => <TextContent content={content} />)
+    .with(P.array(), (content) => {
+      return (
+        <>
           {content.map((c, i) => {
-            return (
-            <Content key={`${i}`} content={c} />
-            )
+            return <Content key={`${i}`} content={c} />;
           })}
-          </>
-        )
-      },
-    )
+        </>
+      );
+    })
     .with(
       {
-        type: 'text',
-        text: P.string
+        type: "text",
+        text: P.string,
       },
       (content) => {
-        return <Content content={content.text} />
+        return <Content content={content.text} />;
       },
     )
     .with(
       {
-        type: 'text',
+        type: "text",
         text: {
-          value: P.string
-        } 
+          value: P.string,
+        },
       },
       (content) => {
-        return <Content content={content.text.value} />
+        return <Content content={content.text.value} />;
       },
     )
     .with(
       {
-        type: 'image_url',
-        image_url: P.string
+        type: "image_url",
+        image_url: P.string,
       },
-      (content) => <img src={content.image_url} />
+      (content) => <img src={content.image_url} />,
     )
     .with(
       {
-        type: 'image_file',
-        file_id: P.string
+        type: "image_file",
+        file_id: P.string,
       },
-      (content) => <img src={content.file_id} />
+      (content) => <img src={content.file_id} />,
     )
     .otherwise((message) => {
-      return <div>{JSON.stringify(message.content)}</div>;
+      return <div>{JSON.stringify(message)}</div>;
     });
 };
-

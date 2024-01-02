@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { debounce, has, isEqual, isNil, isUndefined } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { Tool, ToolDefinition } from "modelfusion";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
@@ -1327,6 +1328,14 @@ export abstract class BaseNode<
       this.di.logger.error(e);
       return {};
     }
+  }
+
+  get toolDefination(): ToolDefinition<string, any> {
+    return {
+      name: this.label,
+      description: this.description,
+      parameters: this.inputSchema,
+    };
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {

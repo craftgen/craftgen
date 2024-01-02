@@ -440,26 +440,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
         }),
       },
     });
-
-    // this.addInput("trigger", new Input(triggerSocket, "trigger", true));
-    // this.addOutput("trigger", new Output(triggerSocket, "trigger", true));
-
-    // this.addControl(
-    //   "Thread Id",
-    //   new OpenAIThreadControl(
-    //     this.actor,
-    //     (snap) => snap.context.settings.threadId,
-    //     {},
-    //     {
-    //       name: "threadId",
-    //       type: "string",
-    //       required: false,
-    //       isMultiple: false,
-    //       "x-key": "threadId",
-    //       "x-showSocket": true,
-    //     },
-    //   ),
-    // );
+    this.setup();
   }
 
   // async execute(

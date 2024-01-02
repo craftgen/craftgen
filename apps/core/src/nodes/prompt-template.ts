@@ -234,5 +234,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
         }),
       },
     });
+
+    this.setup();
   }
 }
