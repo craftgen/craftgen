@@ -1,3 +1,4 @@
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { NodeEditor, NodeId } from "rete";
 
 import { JSONSocket } from "./controls/socket-generator";
@@ -18,7 +19,11 @@ export async function removeConnections(
   }
 }
 
-export const createJsonSchema = (inputs: Record<string, JSONSocket>) => {
+export const createJsonSchema = (
+  inputs: Record<string, JSONSocket>,
+): JSONSchemaDefinition & {
+  $schema: "http://json-schema.org/draft-07/schema#";
+} => {
   const socketToProperty = (input: JSONSocket) => ({
     type: input.type, // or based on input.type
     ...(input.description && { description: input.description }),

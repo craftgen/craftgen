@@ -198,6 +198,7 @@ export class MathNode extends BaseNode<typeof MathNodeMachine> {
 
   constructor(di: DiContainer, data: MathNodeData) {
     super("MathNode", di, data, MathNodeMachine, {});
+    this.description = data.description || MathNode.description;
     this.setup();
   }
 }

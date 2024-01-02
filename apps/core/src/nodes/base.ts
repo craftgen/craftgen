@@ -1,7 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
-import { debounce, has, isEqual, isNil, isUndefined } from "lodash-es";
+import { md5 } from "hash-wasm";
+import { debounce, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
-import { Tool, ToolDefinition } from "modelfusion";
 import { ClassicPreset } from "rete";
 import { MergeDeep } from "type-fest";
 import {
@@ -25,11 +25,13 @@ import {
 import { BaseControl } from "../controls/base";
 import { JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
+import { slugify } from "../lib/string";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
   MappedType,
   Socket,
+  Tool,
 } from "../sockets";
 import { type DiContainer } from "../types";
 import type { Node, NodeTypes } from "../types";
@@ -179,17 +181,6 @@ export type BaseMachineTypes<
     guards?: any;
   },
 > = {
-  // input: MergeDeep<
-  //   BaseInputType<T["input"]["inputSockets"], T["input"]["outputSockets"]>,
-  //   T["input"] | {}
-  // >;
-  // context: MergeDeep<
-  //   BaseContextType<
-  //     T["context"]["inputSockets"],
-  //     T["context"]["outputSockets"]
-  //   >,
-  //   T["context"]
-  // >;
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
   guards: SpecialMerged<BaseGuardTypes, T["guards"]>;
@@ -234,6 +225,7 @@ export abstract class BaseNode<
 
   public actor: Actor<Machine>;
   public readonly variables: string[] = [];
+  description: any;
 
   private get pactor() {
     return this.actor as Actor<BaseMachine>;
@@ -514,6 +506,7 @@ export abstract class BaseNode<
     this.height = nodeData?.height || 200;
     this.contextId = nodeData.contextId;
     this.id = nodeData.id;
+    this.description = nodeData.description;
     this.machineImplements = {
       ...(machineImplements as any),
       actions: {
@@ -1330,11 +1323,20 @@ export abstract class BaseNode<
     }
   }
 
-  get toolDefination(): ToolDefinition<string, any> {
-    return {
-      name: this.label,
+  get toolDefination(): Record<string, Tool> {
+    // TODO: if the node has multiple triggers create a array of tools.
+
+    const parameters = createJsonSchema(
+      pickBy(this.inputSockets, (s) => s.type !== "trigger"),
+    );
+    const tool = {
+      name: slugify(this.label, "_"),
       description: this.description,
-      parameters: this.inputSchema,
+      parameters,
+    };
+    // const hash = await md5(JSON.stringify(tool));
+    return {
+      [this.id]: tool,
     };
   }
 

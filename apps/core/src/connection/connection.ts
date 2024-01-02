@@ -1,13 +1,10 @@
 import { CurveFactory } from "d3-shape";
+import { md5 } from "hash-wasm";
 import { get } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
-import {
-  ActorConfig,
-  AnyActorConfig,
-  JSONSocket,
-} from "../controls/socket-generator";
+import { ActorConfig, JSONSocket } from "../controls/socket-generator";
 import { Editor } from "../editor";
 import { BaseNode } from "../nodes/base";
 
@@ -58,6 +55,31 @@ export class Connection<
       return (
         this.targetDefintion?.["x-actor-ref"] === this.sourceNode.actor.ref
       );
+    }
+    if (this.targetDefintion.type === "tool") {
+      console.log("$$$$ TOOL $$$$", {
+        targetValue: this.targetValue,
+        sourceNode: this.sourceNode.toolDefination,
+      });
+
+      for (const [key, value] of Object.entries(
+        this.sourceNode.toolDefination,
+      )) {
+        console.log({
+          key,
+          value,
+        });
+        const hashTarget = JSON.stringify(this.targetValue[key]);
+        const hashSource = JSON.stringify(value);
+        console.log({
+          hashTarget,
+          hashSource,
+        });
+        if (hashTarget !== hashSource) {
+          return false;
+        }
+      }
+      return true;
     }
     return this.sourceValue === this.targetValue;
   }
@@ -303,57 +325,29 @@ export class Connection<
 
   public sync() {
     console.log("SYNC");
-    const outputDefinitiation: JSONSocket =
-      this.sourceNode.snap.context.outputSockets[this.sourceOutput];
-    const inputDefinition: JSONSocket =
-      this.targetNode.snap.context.inputSockets[this.targetInput];
     if (
-      inputDefinition["x-compatible"] &&
-      inputDefinition["x-compatible"].includes(outputDefinitiation.type) &&
+      this.targetDefintion["x-compatible"] &&
+      this.targetDefintion["x-compatible"].includes(
+        this.sourceDefintion.type,
+      ) &&
       (!this.isActorRef ||
-        inputDefinition["x-actor-ref"] !== this.sourceNode.actor.ref)
+        this.targetDefintion["x-actor-ref"] !== this.sourceNode.actor.ref)
     ) {
-      this.targetNode.actor.send({
-        type: "UPDATE_SOCKET",
-        params: {
-          name: this.targetInput,
-          side: "input",
-          socket: {
-            "x-actor-ref": this.sourceNode.actor.ref,
-          },
-        },
-      });
-      const config = get(this.targetDefintion, [
-        "x-actor-config",
-        this.sourceNode.ID,
-      ]) as ActorConfig;
-      if (config) {
-        console.log(config);
-        for (const [key, value] of Object.entries(config.connections)) {
-          console.log({
-            key,
-            value,
-          });
-          this.sourceNode.actor.send({
-            type: "UPDATE_SOCKET",
-            params: {
-              name: key,
-              side: "output",
-              socket: {
-                "x-connection": {
-                  ...this.sourceDefintion?.["x-connection"],
-                  [this.targetNode.id]: value,
-                },
-              },
-            },
-          });
-        }
-      }
-
+      this.updateActorReference();
       this.sourceNode.actor.send({
         type: "UPDATE_OUTPUTS",
       });
       this.isActorRef = true;
+    } else if (this.targetDefintion.type === "tool") {
+      this.targetNode.actor.send({
+        type: "SET_VALUE",
+        values: {
+          [this.targetInput]: {
+            ...this.targetValue,
+            ...this.sourceNode.toolDefination,
+          },
+        },
+      });
     } else if (!this.isActorRef) {
       const canSetValue = this.targetNode.snap.can({
         type: "SET_VALUE",
@@ -369,6 +363,46 @@ export class Connection<
       });
     } else {
       console.log("DO NOTHING");
+    }
+  }
+
+  private updateActorReference() {
+    console.log("UPDATE ACTOR REFERENCE");
+    this.targetNode.actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: this.targetInput,
+        side: "input",
+        socket: {
+          "x-actor-ref": this.sourceNode.actor.ref,
+        },
+      },
+    });
+    const config = get(this.targetDefintion, [
+      "x-actor-config",
+      this.sourceNode.ID,
+    ]) as ActorConfig;
+    if (config) {
+      console.log(config);
+      for (const [key, value] of Object.entries(config.connections)) {
+        console.log({
+          key,
+          value,
+        });
+        this.sourceNode.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: key,
+            side: "output",
+            socket: {
+              "x-connection": {
+                ...this.sourceDefintion?.["x-connection"],
+                [this.targetNode.id]: value,
+              },
+            },
+          },
+        });
+      }
     }
   }
 

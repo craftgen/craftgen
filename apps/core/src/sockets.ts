@@ -94,7 +94,7 @@ export type SocketTypeMap = {
   array: any[]; // Replace 'any' with a more specific type if needed
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
-  tool: Tool[];
+  tool: Record<string, Tool>;
   // trigger: (params: any[]) => void | undefined;
   trigger: undefined;
   thread: Message[];

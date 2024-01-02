@@ -182,7 +182,7 @@ const OpenAICompleteChatMachine = createMachine({
           system: "",
           messages: [],
           llm: null,
-          tools: [
+          tools: {
             // {
             //   name: "Math" as const,
             //   description: dedent`
@@ -200,7 +200,7 @@ const OpenAICompleteChatMachine = createMachine({
             //     required: ["expression"],
             //   },
             // },
-          ],
+          },
         },
         outputs: {
           onDone: undefined,

@@ -68,6 +68,7 @@ export type Node = {
   width?: number;
   height?: number;
   label: string;
+  description?: string;
   color?: string;
 };
 
