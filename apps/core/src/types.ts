@@ -114,6 +114,9 @@ export const nodes = {
 } as const;
 
 type ValueOf<T> = T[keyof T];
+
+export const nodeTypes = Object.keys(nodes) as NodeTypes[];
+
 export type NodeTypes = ValueOf<{
   [Property in keyof typeof nodes as string]: Property;
 }>;

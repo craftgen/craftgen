@@ -1,4 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
+import { th } from "date-fns/locale";
 import { md5 } from "hash-wasm";
 import { debounce, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
@@ -8,6 +9,7 @@ import {
   ActionArgs,
   Actor,
   AnyActorLogic,
+  AnyActorRef,
   AnyStateMachine,
   assign,
   createActor,
@@ -84,11 +86,17 @@ export type ChangeActionEventType<T> = {
 export type BaseEventTypes =
   | {
       type: "SET_VALUE";
-      values: Record<string, any>;
+      params: {
+        values: Record<string, any>;
+      };
     }
   | {
       type: "RUN";
-      // values: Record<string, any>;
+      params?: {
+        executionNodeId?: string;
+        sender?: AnyActorRef;
+        values?: Record<string, any>;
+      };
     }
   | {
       type: "RESET";
@@ -130,6 +138,22 @@ export type BaseActionTypes =
       type: "triggerSuccessors";
       params?: {
         port: string;
+      };
+    }
+  | {
+      type: "setExecutionNodeId";
+      params: {
+        executionNodeId: string;
+      };
+    }
+  | {
+      type: "triggerNode";
+      params: {
+        nodeId: string;
+        event: {
+          type: string;
+          params?: any;
+        };
       };
     }
   | {
@@ -414,11 +438,50 @@ export abstract class BaseNode<
       if (targetNode) {
         targetNode.actor.send({
           type: "SET_VALUE",
-          values: {
-            [params.inputKey]: action.context.outputs[params.outputKey],
+          params: {
+            values: {
+              [params.inputKey]: action.context.outputs[params.outputKey],
+            },
           },
         });
       }
+    },
+    triggerNode: async (
+      action: ActionArgs<any, any, any>,
+      params: {
+        nodeId: string;
+        event: {
+          type: string;
+          params: {
+            executionNodeId?: string;
+            values?: Record<string, any>;
+            sender?: AnyActorRef;
+          };
+        };
+      },
+    ) => {
+      if (!params) {
+        throw new Error("Missing params");
+      }
+      const targetNode = this.di.editor.getNode(params?.nodeId);
+      if (!targetNode) {
+        throw new Error("Missing targetNode");
+      }
+
+      params.event.params.sender = this.pactor.ref;
+      targetNode.actor.send(params.event);
+    },
+    setExecutionNodeId: async (
+      action: ActionArgs<any, any, any>,
+      params: {
+        executionNodeId: string;
+      },
+    ) => {
+      if (!params) {
+        throw new Error("Missing params");
+      }
+      this.setExecutionNodeId(params.executionNodeId);
+      this.setup();
     },
     triggerSuccessors: async (
       action: ActionArgs<any, any, any>,
@@ -462,20 +525,22 @@ export abstract class BaseNode<
       },
     }),
     setValue: assign({
-      inputs: ({ context, event }) => {
+      inputs: ({ context, event }, params: { values: Record<string, any> }) => {
+        console.log("SETTING VALUE", event, params);
+        const values = event.params?.values || params?.values;
         Object.keys(context.inputs).forEach((key) => {
           if (!context.inputSockets[key]) {
             delete context.inputs[key];
           }
         });
-        Object.keys(event.values).forEach((key) => {
+        Object.keys(values).forEach((key) => {
           if (!context.inputSockets[key]) {
-            delete event.values[key];
+            delete values[key];
           }
         });
         return {
           ...context.inputs,
-          ...event.values,
+          ...values,
         };
       },
     }),
@@ -670,7 +735,7 @@ export abstract class BaseNode<
       return enhancedLogic;
     }
     const actor = createActor(withLogging(this.machine), {
-      id: this.contextId,
+      id: this.executionNodeId || this.contextId,
       ...options,
     });
     console.log("@@", actor, this.machine, options);
@@ -837,8 +902,10 @@ export abstract class BaseNode<
         onChange: (v) => {
           this.pactor.send({
             type: "SET_VALUE",
-            values: {
-              [key]: v,
+            params: {
+              values: {
+                [key]: v,
+              },
             },
           });
         },
@@ -1172,8 +1239,10 @@ export abstract class BaseNode<
       if (this.snapshot.context.inputs[key] !== value) {
         this.pactor.send({
           type: "SET_VALUE",
-          values: {
-            [key]: value,
+          params: {
+            values: {
+              [key]: value,
+            },
           },
         });
       }
@@ -1325,19 +1394,34 @@ export abstract class BaseNode<
 
   get toolDefination(): Record<string, Tool> {
     // TODO: if the node has multiple triggers create a array of tools.
+    const triggers = pickBy(this.inputSockets, (s) => s.type === "trigger");
+    if (Object.keys(triggers).length > 0) {
+      const tools: Record<string, Tool> = {};
+      for (const [key, value] of Object.entries(triggers)) {
+        if (
+          !this.snapshot.can({
+            type: value["x-event"] as any,
+          })
+        ) {
+          continue;
+        }
 
-    const parameters = createJsonSchema(
-      pickBy(this.inputSockets, (s) => s.type !== "trigger"),
-    );
-    const tool = {
-      name: slugify(this.label, "_"),
-      description: this.description,
-      parameters,
-    };
-    // const hash = await md5(JSON.stringify(tool));
-    return {
-      [this.id]: tool,
-    };
+        const parameters = createJsonSchema(
+          pickBy(
+            this.inputSockets,
+            (s) => s.type !== "trigger" && s["x-showSocket"],
+          ),
+        );
+        const tool = {
+          name: `${slugify(this.label, "_")}-${key}`,
+          description: this.description,
+          parameters,
+        };
+        tools[`${this.id}/${key}`] = tool;
+      }
+      return tools;
+    }
+    return {};
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {

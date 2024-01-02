@@ -1,9 +1,10 @@
-import { merge } from "lodash-es";
+import { isNil, merge } from "lodash-es";
 import * as mathjs from "mathjs";
 import dedent from "ts-dedent";
 import { P } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import {
+  AnyActorRef,
   createMachine,
   enqueueActions,
   fromPromise,
@@ -44,6 +45,16 @@ const inputSockets = {
   }),
 };
 const outputSockets = {
+  onDone: generateSocket({
+    name: "onDone",
+    type: "trigger",
+    description: "On Done",
+    required: false,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "onDone",
+    "x-event": "DONE",
+  }),
   result: generateSocket({
     name: "Result",
     type: "number",
@@ -55,7 +66,7 @@ const outputSockets = {
   }),
   Math: generateSocket({
     name: "Math",
-    type: "tool",
+    type: "MathNode",
     description: "Math",
     required: false,
     isMultiple: true,
@@ -97,7 +108,12 @@ export const MathNodeMachine = createMachine(
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        parent?: {
+          id: string; // Call ID.
+          ref: AnyActorRef;
+        };
+      };
       actions: None;
       actors: {
         src: "Run";
@@ -112,6 +128,30 @@ export const MathNodeMachine = createMachine(
         on: {
           RUN: {
             target: "running",
+            actions: enqueueActions(({ enqueue, check, event }) => {
+              if (check(({ event }) => !isNil(event.params?.executionNodeId))) {
+                enqueue({
+                  type: "setExecutionNodeId",
+                  params: {
+                    executionNodeId: event.params?.executionNodeId!,
+                  },
+                });
+              }
+              if (check(({ event }) => !isNil(event.params?.sender))) {
+                enqueue.assign({
+                  parent: ({ event }) => ({
+                    ref: event.params?.sender!,
+                    id: event.params?.executionNodeId!,
+                  }),
+                });
+              }
+              if (check(({ event }) => !isNil(event.params))) {
+                enqueue({
+                  type: "setValue",
+                  params: event.params as any,
+                });
+              }
+            }),
           },
           SET_VALUE: {
             actions: ["setValue"],
@@ -124,18 +164,33 @@ export const MathNodeMachine = createMachine(
       running: {
         invoke: {
           src: "Run",
-          input: ({ context }) => ({
+          input: ({ context, event }) => ({
             expression: context.inputs.expression,
           }),
           onDone: {
             target: "complete",
-            actions: enqueueActions(({ enqueue }) => {
+            actions: enqueueActions(({ enqueue, check, self }) => {
               enqueue.assign({
                 outputs: ({ context, event }) => ({
                   ...context.outputs,
                   result: event.output,
                 }),
               });
+              if (check(({ context }) => !isNil(context.parent))) {
+                enqueue.sendTo(
+                  ({ context }) => context.parent.ref!,
+                  ({ context }) => ({
+                    type: "TOOL_RESULT",
+                    params: {
+                      id: context.parent.id!,
+                      res: {
+                        result: context.outputs.result,
+                        ok: true,
+                      },
+                    },
+                  }),
+                );
+              }
             }),
           },
           onError: {

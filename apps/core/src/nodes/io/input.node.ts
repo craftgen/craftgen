@@ -169,8 +169,10 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
         (v) => {
           this.actor.send({
             type: "SET_VALUE",
-            values: {
-              [item.name]: v,
+            params: {
+              values: {
+                [item.name]: v,
+              },
             },
           });
         },
@@ -180,8 +182,10 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
       if (!state.context.inputs[item.name]) {
         this.actor.send({
           type: "SET_VALUE",
-          values: {
-            [item.name]: "",
+          params: {
+            values: {
+              [item.name]: "",
+            },
           },
         });
       }

@@ -57,24 +57,20 @@ export class Connection<
       );
     }
     if (this.targetDefintion.type === "tool") {
-      console.log("$$$$ TOOL $$$$", {
-        targetValue: this.targetValue,
-        sourceNode: this.sourceNode.toolDefination,
-      });
+      // console.log("$$$$ TOOL $$$$", {
+      //   targetValue: this.targetValue,
+      //   sourceNode: this.sourceNode.toolDefination,
+      // });
 
       for (const [key, value] of Object.entries(
         this.sourceNode.toolDefination,
       )) {
-        console.log({
-          key,
-          value,
-        });
         const hashTarget = JSON.stringify(this.targetValue[key]);
         const hashSource = JSON.stringify(value);
-        console.log({
-          hashTarget,
-          hashSource,
-        });
+        // console.log({
+        //   hashTarget,
+        //   hashSource,
+        // });
         if (hashTarget !== hashSource) {
           return false;
         }
@@ -341,10 +337,12 @@ export class Connection<
     } else if (this.targetDefintion.type === "tool") {
       this.targetNode.actor.send({
         type: "SET_VALUE",
-        values: {
-          [this.targetInput]: {
-            ...this.targetValue,
-            ...this.sourceNode.toolDefination,
+        params: {
+          values: {
+            [this.targetInput]: {
+              ...this.targetValue,
+              ...this.sourceNode.toolDefination,
+            },
           },
         },
       });
@@ -357,8 +355,10 @@ export class Connection<
       }
       this.targetNode.actor.send({
         type: "SET_VALUE",
-        values: {
-          [this.targetInput]: this.sourceValue,
+        params: {
+          values: {
+            [this.targetInput]: this.sourceValue,
+          },
         },
       });
     } else {

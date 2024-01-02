@@ -162,8 +162,10 @@ const InputItem = observer(
         console.log("onChange", v);
         actor.send({
           type: "SET_VALUE",
-          values: {
-            [itemKey]: v,
+          params: {
+            values: {
+              [itemKey]: v,
+            },
           },
         });
       },

@@ -175,8 +175,10 @@ export class GoogleSearchConsole extends BaseNode<
         (val) => {
           this.actor.send({
             type: "SET_VALUE",
-            values: {
-              siteUrl: val,
+            params: {
+              values: {
+                siteUrl: val,
+              },
             },
           });
         },

@@ -68,6 +68,15 @@ export const IteratorNodeMachine = createMachine({
           }),
         },
         outputSockets: {
+          Iterator: generateSocket({
+            name: "Iterator",
+            type: "IteratorNode",
+            description: "Iterator Node instance",
+            required: false,
+            isMultiple: true,
+            "x-showSocket": true,
+            "x-key": "Iterator",
+          }),
           value: generateSocket({
             name: "value",
             type: "any",

@@ -3,7 +3,6 @@ import { ToolDefinition } from "modelfusion";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
-import { SetOptional } from "type-fest";
 import { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
@@ -22,7 +21,7 @@ import { SliderControl } from "./controls/slider";
 import { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 import { Message, ThreadControl } from "./controls/thread.control";
-import { NodeTypes } from "./types";
+import { NodeTypes, nodeTypes } from "./types";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -187,6 +186,11 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
     // combine with compatible
     schema["x-compatible"].forEach((compatible: string) => {
       socket.combineWith(compatible);
+    });
+  }
+  if (schema.type === "tool") {
+    nodeTypes.forEach((key) => {
+      socket.combineWith(key);
     });
   }
   return socket;

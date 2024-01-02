@@ -10,6 +10,10 @@ import {
   OpenAIChatMessage,
   retryWithExponentialBackoff,
   throttleMaxConcurrency,
+  ToolCall,
+  ToolCallError,
+  ToolCallResult,
+  // ToolCallResult,
   ToolDefinition,
   UncheckedSchema,
 } from "modelfusion";
@@ -17,14 +21,16 @@ import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
 import {
   AnyActorRef,
+  assertEvent,
   assign,
   createMachine,
   enqueueActions,
   fromPromise,
 } from "xstate";
 
-import { generateSocket } from "../../controls/socket-generator";
+import { generateSocket, JSONSocket } from "../../controls/socket-generator";
 import { Message } from "../../controls/thread.control";
+import { Tool } from "../../sockets";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -35,7 +41,7 @@ import {
   ParsedNode,
 } from "../base";
 import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
-import { ThreadMachine } from "../thread";
+import { ThreadMachine, ThreadMachineEvents } from "../thread";
 import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
@@ -167,6 +173,25 @@ const outputSockets = {
   }),
 };
 
+export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
+  tool: NAME;
+  toolCall: ToolCall<NAME, PARAMETERS>;
+  args: PARAMETERS;
+} & (
+  | {
+      ok: true;
+      result: RETURN_TYPE;
+    }
+  | {
+      ok: false;
+      result: ToolCallError;
+    }
+  | {
+      ok: null;
+      result: null;
+    }
+);
+
 const OpenAICompleteChatMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2AIxKATKYDMdu47vnzAGhABPRDcADkZzT2CPAFYbVzsYgF8EvzRMXEIScioaAnomFnYAJQ4AOWU1JBBNbV19QxMER3NTRiildo9TYKaAFi8ev0CEPtDu4KjIl2sJ0zsklPRsfCJSCmo6BmZWME5eQVEpAAkASQAZHhE+KQEJQrFyw2qdPQNKhvDGdq-v77tBxEcjhcjB6PXMSmCSnMLiUpihUR68xAqSWGVW2Q2+W2bDE8hEADU+KcOEIHpUnrVXqAGh4lGEobE+l9HDYBgFEB5Ql4gT1gsFTI4etYei4kSj0issutcpsAE4AVwwGBwGCgzAwIlQsuQUFlcFgbAg+jA6oAbsgANYm8XLTJrHJ5RgKpUqtUqzXa3X6hAq80EBgvcpkjRaZ51N6IHqA1o9GzBbxxhzBFxsoYiqJhPouFw2CbQkXeMWLCV2jEypjO5Wq9UenV62AGsCy7WyxjkBgAM2QsuIjBtaKlDrliqrbo1Wrr3t9yH9lKDqkeocp9TMs0Ydmsjic0JcMQs-wQUSilns0NhYx6UVMiOSyOLtvR0sdlddNYnXobbCkRNOIhuElOYMqiXF4VwQVk7EYCCBUhFxzCibMXAPS9QijcZOliFNc3MIs0gfQdMSdEdXz1ABHeUcHrEQsAISk2H-X9v1OQCF3JEDw2pRAIKgvoYKUOCEOzZCISg-j2kcK8XGTcIklvDBkAgOBDH7SV7UxRcalAiMEDwGwDzwDMuh+Yy7GCXDUVUstHQKMANLDKljA5UyrC3CZLyUbkbHMP52WGZzrFzUEeihcIcxscyS0fIcK2I1U7OXbSczpON7AsQFwhsKY9N8xx+Rcvld3g6EEKiCL8LU8siJdat3Xfet4DYzSOMc4YRJSjdwiaFksoPQTPjsMFMpsLc7BzMzbxU0sn2Haq1Us6gIHirTOOGKJIIscINwkhxdxzA84Msbb4MBXKdsSCb7wHCrn1itUyIoqiaISkMmoc944UYKZgjQ-jXGsJDfMvYEPN5cxxm+3oczKq6rM2ebbMa+ywKjZDvBBYJ7Fy8wbFiTLTGh+HCKbFsluahpjwPDGWkQhMJlZXL8dkoA */
   id: "openai-complete-chat",
@@ -182,26 +207,9 @@ const OpenAICompleteChatMachine = createMachine({
           system: "",
           messages: [],
           llm: null,
-          tools: {
-            // {
-            //   name: "Math" as const,
-            //   description: dedent`
-            // A tool for evaluating mathematical expressions. Example expressions:
-            // '1.2 * (2 + 4.5)', '12.7 cm to inch', 'sin(45 deg) ^ 2'.
-            // `,
-            //   parameters: {
-            //     type: "object",
-            //     properties: {
-            //       expression: {
-            //         type: "string",
-            //         description: "The expression to evaluate",
-            //       },
-            //     },
-            //     required: ["expression"],
-            //   },
-            // },
-          },
+          tools: {},
         },
+        toolCalls: {},
         outputs: {
           onDone: undefined,
           result: "",
@@ -217,8 +225,12 @@ const OpenAICompleteChatMachine = createMachine({
       input,
     ),
   types: {} as BaseMachineTypes<{
-    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+    input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
+      toolCalls: Record<string, ToolCallInstance<string, any, any>>;
+    };
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+      toolCalls: Record<string, ToolCallInstance<string, any, any>>;
+    };
     actions:
       | {
           type: "adjustMaxCompletionTokens";
@@ -229,18 +241,19 @@ const OpenAICompleteChatMachine = createMachine({
     events:
       | {
           type: "TOOL_REQUEST";
-          params: {
-            name: string;
-            parameters: any;
-          };
+          params: ToolCall<string, any>[];
         }
       | {
           type: "TOOL_RESULT";
           params: {
-            name: string;
-            result: any;
+            id: string;
+            res: ToolCallResult<string, any, any>;
           };
+        }
+      | {
+          type: "COMPLETE";
         };
+
     guards: None;
     actors: {
       src: "completeChat";
@@ -283,21 +296,15 @@ const OpenAICompleteChatMachine = createMachine({
               target: "requires_action",
               actions: enqueueActions(({ enqueue, check, event }) => {
                 console.log("TOOL_REQUEST", event);
-                // TODO: call the tool for result.
-                // enqueue.sendTo(
-                //   ({ context }) =>
-                //     context.inputSockets.tools["x-actor-ref"] as AnyActorRef,
-                //   ({ context, event }) => ({
-                //     type: "TOOL_REQUEST",
-                //     params: event.params,
-                //   }),
-                // );
               }),
             },
             SET_VALUE: {
               actions: enqueueActions(({ enqueue, check }) => {
                 enqueue("setValue");
               }),
+            },
+            COMPLETE: {
+              target: "#openai-complete-chat.running.completed",
             },
           },
           invoke: {
@@ -312,13 +319,16 @@ const OpenAICompleteChatMachine = createMachine({
                 messages: context.inputs.messages?.map(({ id, ...rest }) => {
                   return rest;
                 }) as OpenAIChatMessage[],
-                tools: context.inputs.tools?.map((t) => {
+                tools: Object.values(
+                  context.inputs.tools as Record<string, Tool>,
+                ).map((t) => {
                   return {
                     name: t.name,
                     description: t.description,
                     parameters: new UncheckedSchema(t.parameters),
                   };
                 }),
+                toolCalls: context.toolCalls,
               };
             },
             onDone: {
@@ -345,35 +355,12 @@ const OpenAICompleteChatMachine = createMachine({
                     type: "TOOL_REQUEST",
                     params: event.output.result.toolCalls,
                   });
-
                   return;
+                } else {
+                  enqueue.assign({
+                    toolCalls: {},
+                  });
                 }
-                // match(event)
-                //   .with(
-                //     {
-                //       output: {
-                //         result: {
-                //           text: P.nullish,
-                //           toolCalls: P.array(),
-                //         },
-                //       },
-                //     },
-                //     ({ output }) => {
-                //       enqueue.sendTo(
-                //         ({ context }) =>
-                //           context.inputSockets.messages[
-                //             "x-actor-ref"
-                //           ] as AnyActorRef,
-                //         ({ context, event }) => ({
-                //           type: ThreadMachineEvents.addMessage,
-                //           params: ChatMessage.assistant({
-                //             ...output.result,
-                //           }),
-                //         }),
-                //       );
-                //     },
-                //   )
-                //   .run();
 
                 if (
                   check(
@@ -392,12 +379,8 @@ const OpenAICompleteChatMachine = createMachine({
                     }),
                   );
                 }
-
-                enqueue({
-                  type: "triggerSuccessors",
-                  params: {
-                    port: "onDone",
-                  },
+                enqueue.raise({
+                  type: "COMPLETE",
                 });
               }),
             },
@@ -407,25 +390,94 @@ const OpenAICompleteChatMachine = createMachine({
             },
           },
         },
-        completed: {},
+        completed: {
+          after: {
+            10: "#openai-complete-chat.idle",
+          },
+          entry: enqueueActions(({ enqueue }) => {
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
+          }),
+        },
         requires_action: {
           entry: [
-            enqueueActions(({ enqueue, event }) => {
-              event.params.forEach((toolCall) => {
-                enqueue.sendTo(
-                  ({ context }) =>
-                    context.inputSockets.tools["x-actor-ref"] as AnyActorRef,
-                  ({ context, event }) => ({
-                    type: "TOOL_REQUEST",
-                    params: event.params,
-                  }),
-                );
+            enqueueActions(({ enqueue, event, context }) => {
+              console.log({
+                TOOOLS: context.inputSockets.tools["x-connection"],
               });
+              assertEvent(event, "TOOL_REQUEST");
+
+              const toolCalls = event.params.reduce(
+                (acc, toolCall) => {
+                  acc[toolCall.id] = {
+                    tool: toolCall.name,
+                    args: toolCall.args,
+                    result: null,
+                    ok: null,
+                    toolCall,
+                  };
+                  return acc;
+                },
+                {} as Record<string, ToolCallInstance<string, any, any>>,
+              );
+              enqueue.assign({
+                toolCalls,
+              });
+              for (const toolCall of event.params) {
+                const { name, args } = toolCall;
+                const nodeId = Object.keys(
+                  context.inputSockets.tools["x-connection"],
+                )[0];
+                console.log("NODE ID", nodeId);
+                const eventType = name.split("-")[1];
+                enqueue({
+                  type: "triggerNode",
+                  params: {
+                    nodeId,
+                    event: {
+                      type: eventType,
+                      params: {
+                        executionNodeId: toolCall.id,
+                        values: {
+                          ...args,
+                        },
+                      },
+                    },
+                  },
+                });
+              }
               console.log("REQUIRES ACTION", event);
             }),
           ],
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(context.toolCalls).every((t) => t.result),
+              target: "in_progress",
+            },
+          ],
           on: {
-            TOOL_RESULT: {},
+            TOOL_RESULT: {
+              actions: enqueueActions(({ enqueue, event, context }) => {
+                console.log("GOT TOOL RESULT", { event });
+                enqueue.assign({
+                  toolCalls: ({ context }) => {
+                    return {
+                      ...context.toolCalls,
+                      [event.params.id]: {
+                        ...context.toolCalls[event.params.id],
+                        result: event.params.res,
+                        ok: event.params.res.ok as true,
+                      },
+                    };
+                  },
+                });
+              }),
+            },
           },
         },
       },
@@ -445,6 +497,7 @@ type CompleteChatInput = {
   system: string;
   messages: Omit<Message, "id">[];
   tools: ToolDefinition<string, any>[];
+  toolCalls: Record<string, ToolCallInstance<string, any, any>>;
 };
 
 const completeChatActor = fromPromise(
@@ -479,14 +532,39 @@ const completeChatActor = fromPromise(
             provider: "openai",
           },
           tools: P.array(),
+          toolCalls: P.any,
         },
-        async ({ llm, tools }) => {
+        async ({ llm, tools, toolCalls }) => {
           console.log("here", llm, tools);
-          const model = openai.ChatTextGenerator({
-            ...llm,
-            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-          });
-          return await generateToolCallsOrText(model, tools, [
+          const model = openai
+            .ChatTextGenerator({
+              ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+            })
+            .withChatPrompt();
+
+          const toolCallResponses: ChatMessage[] = [];
+          if (Object.keys(toolCalls).length > 0) {
+            toolCallResponses.push(
+              ChatMessage.assistant({
+                text: null,
+                toolResults: Object.values(toolCalls) as ToolCallResult<
+                  string,
+                  any,
+                  any
+                >[],
+              }),
+              ChatMessage.tool({
+                toolResults: Object.values(toolCalls) as ToolCallResult<
+                  string,
+                  any,
+                  any
+                >[],
+              }),
+            );
+          }
+
+          console.log("MESSAGES", [
             ...(input.system
               ? [
                   {
@@ -496,7 +574,25 @@ const completeChatActor = fromPromise(
                 ]
               : []),
             ...input.messages,
+            ...toolCallResponses,
           ]);
+
+          return await generateToolCallsOrText(model, tools, {
+            system: input.system,
+            messages: [
+              ...input.messages.map((m) => {
+                if (m.role === "user") {
+                  return ChatMessage.user({ text: m.content as string });
+                } else {
+                  return ChatMessage.assistant({
+                    text: m.content as string,
+                    toolResults: null,
+                  });
+                }
+              }),
+              ...toolCallResponses,
+            ],
+          });
         },
       )
       .with(

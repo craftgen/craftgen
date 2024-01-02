@@ -861,7 +861,9 @@ export class Editor<
 
     inputNode.actor.send({
       type: "SET_VALUE",
-      values: params.inputs,
+      params: {
+        values: params.inputs,
+      },
     });
 
     this.engine.execute(inputNode.id, undefined, this.executionId);
