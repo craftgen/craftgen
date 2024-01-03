@@ -1,6 +1,7 @@
 import { isNil, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
+  chat,
   ChatMessage,
   generateText,
   generateToolCallsOrText,
@@ -470,8 +471,7 @@ const OpenAICompleteChatMachine = createMachine({
                       ...context.toolCalls,
                       [event.params.id]: {
                         ...context.toolCalls[event.params.id],
-                        result: event.params.res,
-                        ok: event.params.res.ok as true,
+                        ...event.params.res,
                       },
                     };
                   },
@@ -535,33 +535,39 @@ const completeChatActor = fromPromise(
           toolCalls: P.any,
         },
         async ({ llm, tools, toolCalls }) => {
-          console.log("here", llm, tools);
-          const model = openai
-            .ChatTextGenerator({
-              ...llm,
-              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-            })
-            .withChatPrompt();
+          console.log("here", llm, tools, toolCalls);
+          const model = openai.ChatTextGenerator({
+            ...llm,
+            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+          });
 
-          const toolCallResponses: ChatMessage[] = [];
+          const toolCallResponses: OpenAIChatMessage[] = [];
+
           if (Object.keys(toolCalls).length > 0) {
             toolCallResponses.push(
-              ChatMessage.assistant({
-                text: null,
-                toolResults: Object.values(toolCalls) as ToolCallResult<
-                  string,
-                  any,
-                  any
-                >[],
+              openai.ChatMessage.assistant(null, {
+                toolCalls: Object.values(toolCalls).map((t) => t.toolCall),
               }),
-              ChatMessage.tool({
-                toolResults: Object.values(toolCalls) as ToolCallResult<
-                  string,
-                  any,
-                  any
-                >[],
-              }),
+              // openai.ChatMessage.tool({}),
+              // openai.ChatMessage.tool({
+              //   toolCallId:
+              // })
+              // ChatMessage.tool({
+              //   toolResults: Object.values(toolCalls) as ToolCallResult<
+              //     string,
+              //     any,
+              //     any
+              //   >[],
+              // }),
             );
+            Object.values(toolCalls).forEach((toolCall) => {
+              toolCallResponses.push(
+                openai.ChatMessage.tool({
+                  toolCallId: toolCall.toolCall.id,
+                  content: toolCall.result,
+                }),
+              );
+            });
           }
 
           console.log("MESSAGES", [
@@ -577,22 +583,28 @@ const completeChatActor = fromPromise(
             ...toolCallResponses,
           ]);
 
-          return await generateToolCallsOrText(model, tools, {
-            system: input.system,
-            messages: [
-              ...input.messages.map((m) => {
-                if (m.role === "user") {
-                  return ChatMessage.user({ text: m.content as string });
-                } else {
-                  return ChatMessage.assistant({
-                    text: m.content as string,
-                    toolResults: null,
-                  });
-                }
-              }),
-              ...toolCallResponses,
-            ],
-          });
+          return await generateToolCallsOrText(model, tools, [
+            ...(input.system
+              ? [
+                  {
+                    role: "system",
+                    content: input.system,
+                  },
+                ]
+              : []),
+            ...input.messages,
+            // ...input.messages.map((m) => {
+            //   if (m.role === "user") {
+            //     return ChatMessage.user({ text: m.content as string });
+            //   } else {
+            //     return ChatMessage.assistant({
+            //       text: m.content as string,
+            //       toolResults: null,
+            //     });
+            //   }
+            // }),
+            ...toolCallResponses,
+          ]);
         },
       )
       .with(

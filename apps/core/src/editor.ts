@@ -560,7 +560,7 @@ export class Editor<
       options: {
         "elk.spacing.nodeNode": 100,
         "spacing.nodeNodeBetweenLayers": 100,
-      } as any,
+      } as any
     });
   }
 
