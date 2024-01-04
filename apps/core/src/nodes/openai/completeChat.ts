@@ -4,7 +4,7 @@ import {
   chat,
   ChatMessage,
   generateText,
-  generateToolCallsOrText,
+  generateToolCalls,
   ollama,
   openai,
   OpenAIApiConfiguration,
@@ -14,7 +14,6 @@ import {
   ToolCall,
   ToolCallError,
   ToolCallResult,
-  // ToolCallResult,
   ToolDefinition,
   UncheckedSchema,
 } from "modelfusion";
@@ -194,7 +193,7 @@ export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
 );
 
 const OpenAICompleteChatMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2AIxKATKYDMdu47vnzAGhABPRDcADkZzT2CPAFYbVzsYgF8EvzRMXEIScioaAnomFnYAJQ4AOWU1JBBNbV19QxMER3NTRiildo9TYKaAFi8ev0CEPtDu4KjIl2sJ0zsklPRsfCJSCmo6BmZWME5eQVEpAAkASQAZHhE+KQEJQrFyw2qdPQNKhvDGdq-v77tBxEcjhcjB6PXMSmCSnMLiUpihUR68xAqSWGVW2Q2+W2bDE8hEADU+KcOEIHpUnrVXqAGh4lGEobE+l9HDYBgFEB5Ql4gT1gsFTI4etYei4kSj0issutcpsAE4AVwwGBwGCgzAwIlQsuQUFlcFgbAg+jA6oAbsgANYm8XLTJrHJ5RgKpUqtUqzXa3X6hAq80EBgvcpkjRaZ51N6IHqA1o9GzBbxxhzBFxsoYiqJhPouFw2CbQkXeMWLCV2jEypjO5Wq9UenV62AGsCy7WyxjkBgAM2QsuIjBtaKlDrliqrbo1Wrr3t9yH9lKDqkeocp9TMs0Ydmsjic0JcMQs-wQUSilns0NhYx6UVMiOSyOLtvR0sdlddNYnXobbCkRNOIhuElOYMqiXF4VwQVk7EYCCBUhFxzCibMXAPS9QijcZOliFNc3MIs0gfQdMSdEdXz1ABHeUcHrEQsAISk2H-X9v1OQCF3JEDw2pRAIKgvoYKUOCEOzZCISg-j2kcK8XGTcIklvDBkAgOBDH7SV7UxRcalAiMEDwGwDzwDMuh+Yy7GCXDUVUstHQKMANLDKljA5UyrC3CZLyUbkbHMP52WGZzrFzUEeihcIcxscyS0fIcK2I1U7OXbSczpON7AsQFwhsKY9N8xx+Rcvld3g6EEKiCL8LU8siJdat3Xfet4DYzSOMc4YRJSjdwiaFksoPQTPjsMFMpsLc7BzMzbxU0sn2Haq1Us6gIHirTOOGKJIIscINwkhxdxzA84Msbb4MBXKdsSCb7wHCrn1itUyIoqiaISkMmoc944UYKZgjQ-jXGsJDfMvYEPN5cxxm+3oczKq6rM2ebbMa+ywKjZDvBBYJ7Fy8wbFiTLTGh+HCKbFsluahpjwPDGWkQhMJlZXL8dkoA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2JaYCMD0wBYlADgcBmLwBoQAJ6ILg4ArIyhDuahXnYuAEw2FqYAvin+aJi4hCTkVDQE9Ews7ABKHAByympIIJrauvqGJgjx5qYRSl0OSuZeoaZeLqb+QQih8V6M5kqh7kn27jOmoWkZ6Nj4RKQU1HQMzKxgnLyColIAEgCSADI8InxSAhKlYtWG9Tp6BrUt5vGMLpA4HAhyjRBeeJKRjxBKeJRDdymdwhNYgTKbHI7fL7YpHNhieQiABqfBuHCE71qn0aP1ALQcUOmvRs7ncoVC-yS83BrVhVlZSnipjaNn+jPMaIx2W2eT2hQOACcAK4YDA4DBQZgYESoRXIKCKuCwNgQfRgbUAN2QAGsLdKtrldgUiowVWqNVqNbr9YbjQgNdaCAxvtUqRotF8mr9gvEAaEXKz2UMYimXLzEwCESjzGK2gjJlKNjKnTiFUx3erNdqfQajbATWBFfrFYxyAwAGbIRXERgOrFyl1K1VVr06vV1-2B5DB2lh1QfSO05qIHqTRjOdpeVwOGwTNm87fuKyeNnbkLzdpFrKO7Hy12Vz01id+htsZ4SG4iUpCACKFLERQF2pJdvhXBAbBCRhIOcGxNyGcwXHcXkbC8Y9HATBwlkiRklBsa9MVlZ1cTdEcn29F96xNQkBBJMkKXDOpQOjelghcSwbHiKJOPiJZcy8MFAghGwbGmVCklCPd2KSFwXAIks7yHCsyOrCjfSotgpAkABZLgbnkSlgIjBowJjCCoJg2x4PYpDeTaSwE1QpDzHFXNEnk29BxIx9qyI-IIDYIxYEoBgLSwDtqEVAAKHoAEo2H7Pz72HD1fNLagIEYmlTNYhBnCmRlPBEiw+KSXlCo3CZYlMJQkIcJDZg8gdiPLUjUq1I0AEdlRwesRCwAhaXfCRP2-IQxA4G4gJqYyozpYxEHcflYTg2FYVsLxzF5BNoTg+YsMgjkYlSdJ0WLTyWofFSOrAbrergfrBu+NgsuY+a-jaE8VnFSJeiw7aRUBRw4z6ETzEZeI0lOjBkAgOBDES9KlMXEyWIWhA8BsXlMcBEE8aUeqmqSpTDgoFG5vApx0KhTlHEKoZ-qE8YwmmEUoVQzl5nc07EcU7zrvJ5czNiXb9tsOMhkTWJypEqxczguYnB6DlJR587mrLK72ufdTjUFnL0bcY9WTg8XJlk8TtoGRgBKw5EwZZOS1ZvDXkuU7XiYgfW0ZaJapkhJDUPcWJnBcUI7ITGFrE5doRWcp31hd4n+e1rqer6gahdmrP0aWgFt3BzahjQ4Pw6ZyDoSRSE2VsP6liJpGSOJ733tjGXRPYlEeNZCHg4bvnWqbFsW-AzleQsSwuLjLD2REpYHChlIgA */
   id: "openai-complete-chat",
   entry: enqueueActions(({ enqueue, context }) => {
     enqueue("spawnInputActors");
@@ -456,13 +455,13 @@ const OpenAICompleteChatMachine = createMachine({
           ],
           always: [
             {
-              guard: ({ context }) =>
-                Object.values(context.toolCalls).every((t) => t.result),
+              guard: ({ context }) => // WHEN ALL TOOL CALLS HAVE BEEN COMPLETED, WE CAN CONTINUE.
+                Object.values(context.toolCalls).every((t) => t.result),  
               target: "in_progress",
             },
           ],
           on: {
-            TOOL_RESULT: {
+            TOOL_RESULT: {  // HANDLE RESPONSES FROM TOOLS.
               actions: enqueueActions(({ enqueue, event, context }) => {
                 console.log("GOT TOOL RESULT", { event });
                 enqueue.assign({
@@ -548,17 +547,6 @@ const completeChatActor = fromPromise(
               openai.ChatMessage.assistant(null, {
                 toolCalls: Object.values(toolCalls).map((t) => t.toolCall),
               }),
-              // openai.ChatMessage.tool({}),
-              // openai.ChatMessage.tool({
-              //   toolCallId:
-              // })
-              // ChatMessage.tool({
-              //   toolResults: Object.values(toolCalls) as ToolCallResult<
-              //     string,
-              //     any,
-              //     any
-              //   >[],
-              // }),
             );
             Object.values(toolCalls).forEach((toolCall) => {
               toolCallResponses.push(
@@ -583,7 +571,7 @@ const completeChatActor = fromPromise(
             ...toolCallResponses,
           ]);
 
-          return await generateToolCallsOrText(model, tools, [
+          return await generateToolCalls(model, tools, [
             ...(input.system
               ? [
                   {
@@ -593,16 +581,6 @@ const completeChatActor = fromPromise(
                 ]
               : []),
             ...input.messages,
-            // ...input.messages.map((m) => {
-            //   if (m.role === "user") {
-            //     return ChatMessage.user({ text: m.content as string });
-            //   } else {
-            //     return ChatMessage.assistant({
-            //       text: m.content as string,
-            //       toolResults: null,
-            //     });
-            //   }
-            // }),
             ...toolCallResponses,
           ]);
         },

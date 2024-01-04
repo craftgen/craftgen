@@ -145,10 +145,12 @@ export const MathNodeMachine = createMachine(
                   }),
                 });
               }
-              if (check(({ event }) => !isNil(event.params))) {
+              if (check(({ event }) => !isNil(event.params?.values))) {
                 enqueue({
                   type: "setValue",
-                  params: event.params as any,
+                  params: {
+                    values: event.params?.values!,
+                  },
                 });
               }
             }),
@@ -195,7 +197,23 @@ export const MathNodeMachine = createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError"],
+            actions: enqueueActions(({ enqueue, check, self }) => {
+              if (check(({ context }) => !isNil(context.parent))) {
+                enqueue.sendTo(
+                  ({ context }) => context.parent.ref!,
+                  ({ context, event }) => ({
+                    type: "TOOL_RESULT",
+                    params: {
+                      id: context.parent.id!,
+                      res: {
+                        result: event.error,
+                        ok: false,
+                      },
+                    },
+                  }),
+                );
+              }
+            }),
           },
         },
       },
