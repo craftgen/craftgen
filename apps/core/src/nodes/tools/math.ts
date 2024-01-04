@@ -5,6 +5,7 @@ import { P } from "ts-pattern";
 import { SetOptional } from "type-fest";
 import {
   AnyActorRef,
+  assertEvent,
   createMachine,
   enqueueActions,
   fromPromise,
@@ -129,30 +130,30 @@ export const MathNodeMachine = createMachine(
           RUN: {
             target: "running",
             actions: enqueueActions(({ enqueue, check, event }) => {
-              if (check(({ event }) => !isNil(event.params?.executionNodeId))) {
-                enqueue({
-                  type: "setExecutionNodeId",
-                  params: {
-                    executionNodeId: event.params?.executionNodeId!,
-                  },
-                });
-              }
-              if (check(({ event }) => !isNil(event.params?.sender))) {
-                enqueue.assign({
-                  parent: ({ event }) => ({
-                    ref: event.params?.sender!,
-                    id: event.params?.executionNodeId!,
-                  }),
-                });
-              }
-              if (check(({ event }) => !isNil(event.params?.values))) {
-                enqueue({
-                  type: "setValue",
-                  params: {
-                    values: event.params?.values!,
-                  },
-                });
-              }
+              // if (check(({ event }) => !isNil(event.params?.executionNodeId))) {
+              //   enqueue({
+              //     type: "setExecutionNodeId",
+              //     params: {
+              //       executionNodeId: event.params?.executionNodeId!,
+              //     },
+              //   });
+              // }
+              // if (check(({ event }) => !isNil(event.params?.sender))) {
+              //   enqueue.assign({
+              //     parent: ({ event }) => ({
+              //       ref: event.params?.sender!,
+              //       id: event.params?.executionNodeId!,
+              //     }),
+              //   });
+              // }
+              // if (check(({ event }) => !isNil(event.params?.values))) {
+              //   enqueue({
+              //     type: "setValue",
+              //     params: {
+              //       values: event.params?.values!,
+              //     },
+              //   });
+              // }
             }),
           },
           SET_VALUE: {
@@ -164,6 +165,48 @@ export const MathNodeMachine = createMachine(
         },
       },
       running: {
+        entry: enqueueActions(({ enqueue, check, self, event }) => {
+          assertEvent(event, "RUN");
+          if (
+            check(({ event }) => {
+              assertEvent(event, "RUN");
+              return !isNil(event.params?.executionNodeId);
+            })
+          ) {
+            enqueue({
+              type: "setExecutionNodeId",
+              params: {
+                executionNodeId: event.params?.executionNodeId!,
+              },
+            });
+          }
+          if (
+            check(({ event }) => {
+              assertEvent(event, "RUN");
+              return !isNil(event.params?.sender);
+            })
+          ) {
+            enqueue.assign({
+              parent: {
+                ref: event.params?.sender!,
+                id: event.params?.executionNodeId!,
+              },
+            });
+          }
+          if (
+            check(({ event }) => {
+              assertEvent(event, "RUN");
+              return !isNil(event.params?.values);
+            })
+          ) {
+            enqueue({
+              type: "setValue",
+              params: {
+                values: event.params?.values!,
+              },
+            });
+          }
+        }),
         invoke: {
           src: "Run",
           input: ({ context, event }) => ({
@@ -198,7 +241,7 @@ export const MathNodeMachine = createMachine(
           onError: {
             target: "error",
             actions: enqueueActions(({ enqueue, check, self }) => {
-              if (check(({ context }) => !isNil(context.parent))) {
+              if (check(({ context }) => !isNil(context.parent.ref))) {
                 enqueue.sendTo(
                   ({ context }) => context.parent.ref!,
                   ({ context, event }) => ({

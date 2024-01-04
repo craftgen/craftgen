@@ -142,8 +142,8 @@ export type BaseActionTypes =
     }
   | {
       type: "setExecutionNodeId";
-      params: {
-        executionNodeId: string;
+      params?: {
+        executionNodeId?: string;
       };
     }
   | {
@@ -317,7 +317,7 @@ export abstract class BaseNode<
   }
 
   get readonly() {
-    return !!this.di.executionId || this.di.readonly;
+    return !isNil(this.di.executionId) || this.di.readonly;
   }
 
   public executionNodeId?: string;
@@ -473,14 +473,15 @@ export abstract class BaseNode<
     },
     setExecutionNodeId: async (
       action: ActionArgs<any, any, any>,
-      params: {
-        executionNodeId: string;
+      params?: {
+        executionNodeId?: string;
       },
     ) => {
-      if (!params) {
-        throw new Error("Missing params");
+      if (params?.executionNodeId) {
+        this.setExecutionNodeId(params?.executionNodeId);
+      } else {
+        this.setExecutionNodeId(this.di.createId("state"));
       }
-      this.setExecutionNodeId(params.executionNodeId);
       this.setup();
     },
     triggerSuccessors: async (
@@ -526,17 +527,25 @@ export abstract class BaseNode<
     }),
     setValue: assign({
       inputs: ({ context, event }, params: { values: Record<string, any> }) => {
-        console.log("SETTING VALUE", event, params);
+        console.log("SETTING VALUE 1 ", event, params);
         const values = event.params?.values || params?.values;
+        console.log("SETTING VALUE 2", values);
         Object.keys(context.inputs).forEach((key) => {
           if (!context.inputSockets[key]) {
             delete context.inputs[key];
           }
         });
+        console.log("SETTING VALUE 3", context.inputs);
         Object.keys(values).forEach((key) => {
           if (!context.inputSockets[key]) {
             delete values[key];
           }
+        });
+        console.log("SETTING VALUE 4", values);
+
+        console.log("SETTING VALUE 5", {
+          ...context.inputs,
+          ...values,
         });
         return {
           ...context.inputs,
@@ -714,7 +723,6 @@ export abstract class BaseNode<
       },
       400,
     );
-    const saveStateDebounced = debounce(this.saveState.bind(this), 400);
 
     const self = this;
 
@@ -763,8 +771,7 @@ export abstract class BaseNode<
         }
 
         const persistedState = actor.getPersistedSnapshot();
-        console.log("SAVE STATE", persistedState);
-        saveStateDebounced({ state: persistedState as any });
+        this.saveState({ state: persistedState as any });
         if (!self.readonly) {
           saveContextDebounced({ context: persistedState as any });
         }
@@ -997,6 +1004,11 @@ export abstract class BaseNode<
   }
 
   async saveState({ state }: { state: SnapshotFrom<Machine> }) {
+
+    if (this.executionNodeId && !this.executionId) {
+      this.di.createExecution(this.id);
+    }
+
     if (this.executionId) {
       console.log("Execution NodeId:", this.executionNodeId);
       if (!this.executionNodeId) {

@@ -46,6 +46,7 @@ import {
   Mails,
   MessageSquare,
   MessageSquarePlus,
+  MessageSquareText,
   Minus,
   Moon,
   MoreHorizontal,
@@ -451,6 +452,7 @@ export const Icons = {
   ollama: Ollama,
   power: Power,
   bug: Bug,
+  "message-square-text": MessageSquareText,
 } as const;
 
 export const iconVariants = cva("", {

@@ -289,6 +289,11 @@ const OpenAICompleteChatMachine = createMachine({
     },
     running: {
       initial: "in_progress",
+      entry: enqueueActions(({ enqueue }) => {
+        enqueue({
+          type: "setExecutionNodeId",
+        });
+      }),
       states: {
         in_progress: {
           on: {
@@ -623,12 +628,12 @@ const completeChatActor = fromPromise(
 );
 
 export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
-  static nodeType = "OpenAICompleteChat";
-  static label = "OpenAI Complete Chat";
+  static nodeType = "CompleteChat";
+  static label = "Complete Chat";
   static description = dedent`
     Use LLMs to complete a chat. 
   `;
-  static icon = "openAI";
+  static icon = "message-square-text";
 
   static section = "Functions";
 
