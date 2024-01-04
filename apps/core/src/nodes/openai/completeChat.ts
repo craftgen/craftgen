@@ -28,7 +28,7 @@ import {
   fromPromise,
 } from "xstate";
 
-import { generateSocket, JSONSocket } from "../../controls/socket-generator";
+import { generateSocket } from "../../controls/socket-generator";
 import { Message } from "../../controls/thread.control";
 import { Tool } from "../../sockets";
 import { DiContainer } from "../../types";
@@ -455,13 +455,15 @@ const OpenAICompleteChatMachine = createMachine({
           ],
           always: [
             {
-              guard: ({ context }) => // WHEN ALL TOOL CALLS HAVE BEEN COMPLETED, WE CAN CONTINUE.
-                Object.values(context.toolCalls).every((t) => t.result),  
+              guard: (
+                { context }, // WHEN ALL TOOL CALLS HAVE BEEN COMPLETED, WE CAN CONTINUE.
+              ) => Object.values(context.toolCalls).every((t) => t.result),
               target: "in_progress",
             },
           ],
           on: {
-            TOOL_RESULT: {  // HANDLE RESPONSES FROM TOOLS.
+            TOOL_RESULT: {
+              // HANDLE RESPONSES FROM TOOLS.
               actions: enqueueActions(({ enqueue, event, context }) => {
                 console.log("GOT TOOL RESULT", { event });
                 enqueue.assign({
