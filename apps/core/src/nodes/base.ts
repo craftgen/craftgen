@@ -1,9 +1,16 @@
 import { createId } from "@paralleldrive/cuid2";
-import { th } from "date-fns/locale";
-import { md5 } from "hash-wasm";
-import { debounce, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
+import { has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
+import { merge, of, Subject } from "rxjs";
+import {
+  catchError,
+  debounceTime,
+  filter,
+  groupBy,
+  mergeMap,
+} from "rxjs/operators";
+import { match, P } from "ts-pattern";
 import { MergeDeep } from "type-fest";
 import {
   ActionArgs,
@@ -18,6 +25,7 @@ import {
   ProvidedActor,
   Snapshot,
   StateMachine,
+  Subscription,
   waitFor,
   type ContextFrom,
   type MachineImplementationsFrom,
@@ -321,7 +329,10 @@ export abstract class BaseNode<
   }
 
   public executionNodeId?: string;
-  unsubscribe: () => void = () => {};
+  // public unsubscribe: () => void | undefined;
+
+  actors: Map<string, Actor<Machine>> = new Map();
+  actorListeners: Map<string, Subscription> = new Map();
 
   public baseGuards = {
     connectionsDeSync: ({ context }) => {
@@ -527,26 +538,18 @@ export abstract class BaseNode<
     }),
     setValue: assign({
       inputs: ({ context, event }, params: { values: Record<string, any> }) => {
-        console.log("SETTING VALUE 1 ", event, params);
         const values = event.params?.values || params?.values;
-        console.log("SETTING VALUE 2", values);
         Object.keys(context.inputs).forEach((key) => {
           if (!context.inputSockets[key]) {
             delete context.inputs[key];
           }
         });
-        console.log("SETTING VALUE 3", context.inputs);
         Object.keys(values).forEach((key) => {
           if (!context.inputSockets[key]) {
             delete values[key];
           }
         });
-        console.log("SETTING VALUE 4", values);
 
-        console.log("SETTING VALUE 5", {
-          ...context.inputs,
-          ...values,
-        });
         return {
           ...context.inputs,
           ...values,
@@ -566,6 +569,13 @@ export abstract class BaseNode<
     this.machine = this.machine.provide(implementations);
     this.machineImplements = this.machine.implementations;
   }
+
+  public stateEvents: Subject<{
+    executionId: string | undefined;
+    nodeExecutionId: string | undefined;
+    state: SnapshotFrom<Machine>;
+    readonly: boolean;
+  }> = new Subject();
 
   constructor(
     public readonly ID: NodeTypes,
@@ -598,32 +608,6 @@ export abstract class BaseNode<
     this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
     this.executionNodeId = this.nodeData?.executionNodeId;
 
-    // if (this.nodeData.state) {
-    //   // EXECUTION STATE
-    //   const actorInput = {
-    //     snapshot: this.nodeData.state,
-    //   };
-    //   this.actor = this.setupActor(actorInput);
-    // } else if (this.nodeData.context && this.nodeData.context !== {}) {
-    //   // CONTEXT STATE
-    //   this.actor = this.setupActor({
-    //     snapshot: this.nodeData.context!,
-    //   });
-    // } else {
-    //   this.actor = this.setupActor({
-    //     // NEW NODE
-    //     input: this.nodeData.context,
-    //   });
-    // }
-
-    // this.snap = this.actor.getSnapshot();
-    // this.inputSockets = this.snapshot.context?.inputSockets || {};
-    // this.outputSockets = this.snapshot.context?.outputSockets || {};
-    // // this.output = this.snapshot.context?.outputs || {};
-
-    // this.updateInputs(this.inputSockets);
-    // this.updateOutputs(this.outputSockets);
-
     makeObservable(this, {
       inputs: observable,
 
@@ -653,13 +637,20 @@ export abstract class BaseNode<
       };
       this.actor = this.setupActor(actorInput);
     } else if (
+      this.actors.has(this.contextId)
+      // this.nodeData.context &&
+      // has(this.nodeData.context, "context") &&
+      // has(this.nodeData.context, "value")
+    ) {
+      // CONTEXT STATE
+      this.actor = this.actors.get(this.contextId)!;
+    } else if (
       this.nodeData.context &&
       has(this.nodeData.context, "context") &&
       has(this.nodeData.context, "value")
     ) {
-      // CONTEXT STATE
       this.actor = this.setupActor({
-        snapshot: this.nodeData.context!,
+        snapshot: this.nodeData.context,
       });
     } else {
       this.actor = this.setupActor({
@@ -700,8 +691,120 @@ export abstract class BaseNode<
         await this.updateOutputs(sockets);
       },
     );
+    this.setupEventHandling();
     this.actor.start();
     this.isReady = true;
+  }
+
+  setupEventHandling() {
+    this.stateEvents
+      .pipe(
+        // Group by executionNodeId
+        groupBy((event) => event.nodeExecutionId),
+        // Handle each group separately
+        mergeMap((group) =>
+          group.pipe(
+            debounceTime(1000), // Adjust time as needed
+            // You can add more operators here as needed
+          ),
+        ),
+        mergeMap(async (event) => {
+          await match(event)
+            .with(
+              {
+                nodeExecutionId: P.string,
+                executionId: P.nullish,
+              },
+              async (event) => {
+                let executionId = this.executionId;
+                if (!executionId) {
+                  console.log("#".repeat(40), "CREATING EXECUTION");
+                  executionId = await this.di.createExecution(this.id);
+                }
+                const saved = await this.di.api.setState({
+                  id: event.nodeExecutionId,
+                  contextId: this.contextId,
+                  projectId: this.projectId,
+                  state: JSON.stringify(event.state),
+                  type: this.ID,
+                  workflowExecutionId: executionId,
+                  workflowId: this.workflowId,
+                  workflowNodeId: this.id,
+                  workflowVersionId: this.workflowVersionId,
+                });
+                console.log({ saved });
+              },
+            )
+            .with(
+              {
+                nodeExecutionId: P.nullish,
+                executionId: P.string,
+              },
+              async (event) => {
+                const nodeExecutionId = this.di.createId("state");
+                this.setExecutionNodeId(nodeExecutionId);
+                const saved = await this.di.api.setState({
+                  id: nodeExecutionId,
+                  contextId: this.contextId,
+                  projectId: this.projectId,
+                  state: JSON.stringify(event.state),
+                  type: this.ID,
+                  workflowExecutionId: event.executionId,
+                  workflowId: this.workflowId,
+                  workflowNodeId: this.id,
+                  workflowVersionId: this.workflowVersionId,
+                });
+                console.log({ saved });
+              },
+            )
+            .with(
+              {
+                nodeExecutionId: P.string,
+                executionId: P.string,
+              },
+              async (event) => {
+                const saved = await this.di.api.setState({
+                  id: event.nodeExecutionId,
+                  contextId: this.contextId,
+                  projectId: this.projectId,
+                  state: JSON.stringify(event.state),
+                  type: this.ID,
+                  workflowExecutionId: event.executionId,
+                  workflowId: this.workflowId,
+                  workflowNodeId: this.id,
+                  workflowVersionId: this.workflowVersionId,
+                });
+                console.log({ saved });
+              },
+            )
+            .with(
+              {
+                executionId: P.nullish,
+                nodeExecutionId: P.nullish,
+                readonly: false,
+              },
+              async (event) => {
+                await this.di.api.setContext({
+                  contextId: this.contextId,
+                  context: JSON.stringify(event.state),
+                });
+              },
+            )
+            .run();
+        }),
+        catchError((error) => {
+          // Handle or log the error
+          return of(error); // or use a more suitable error handling strategy
+        }),
+      )
+      .subscribe({
+        next: async (event) => {
+          console.log("RXJS EVENT", event);
+        },
+        error: (error) => {
+          console.log("RXJS ERROR", error);
+        },
+      });
   }
 
   public setupActor(
@@ -713,17 +816,12 @@ export abstract class BaseNode<
           input: InputFrom<Machine> | ContextFrom<Machine> | undefined;
         },
   ) {
-    const saveContextDebounced = debounce(
-      async ({ context }: { context: ContextFrom<Machine> }) => {
-        // this.di.logger.log(this.identifier, "SAVING CONTEXT STATE");
-        this.di.api.setContext({
-          contextId: this.contextId,
-          context: JSON.stringify(context),
-        });
-      },
-      400,
-    );
-
+    // if (this.unsubscribe) {
+    //   console.log(
+    //     "ACTOR: SETTING UP NEXT ACTOR AND UNSUBSCRIBING FROM PREVIOUS",
+    //   );
+    //   this.unsubscribe();
+    // }
     const self = this;
 
     console.log("setupActor", options);
@@ -753,6 +851,12 @@ export abstract class BaseNode<
         // this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state: any) => {
+        this.stateEvents.next({
+          executionId: this.executionId,
+          nodeExecutionId: this.executionNodeId,
+          state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
+          readonly: self.readonly,
+        });
         this.state = state.value as any;
         console.log("next", state.value, state.context);
         this.setSnap(state);
@@ -770,38 +874,33 @@ export abstract class BaseNode<
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         }
 
-        const persistedState = actor.getPersistedSnapshot();
-        this.saveState({ state: persistedState as any });
-        if (!self.readonly) {
-          saveContextDebounced({ context: persistedState as any });
-        }
+        // const persistedState = actor.getPersistedSnapshot();
+        // this.saveState({ state: persistedState as any });
+        // if (!self.readonly) {
+        //   saveContextDebounced({ context: persistedState as any });
+        // }
         prev = state as any;
       },
     });
 
-    this.unsubscribe = listener.unsubscribe;
+    this.actors.set(actor.id, actor);
+    this.actorListeners.set(actor.id, listener);
 
     return actor;
   }
 
   public async reset() {
-    // TODO: implement this
-
-    this.unsubscribe();
-    // const nodeContext = await this.di.api.trpc.craft.node.getContext.query({
-    //   contextId: this.contextId,
-    // });
-
-    // this.actor = this.setupActor({
-    //   snapshot: nodeContext.state as ContextFrom<Machine>,
-    // });
-    // this.updateInputs(nodeContext.state.context.inputSockets);
-    // this.updateOutputs(nodeContext.state.context.outputSockets);
+    this.actorListeners.forEach((listener) => {
+      listener.unsubscribe();
+      this.actorListeners.delete(listener.id);
+    });
+    this.actors.forEach((actor) => {
+      actor.stop();
+      this.actors.delete(actor.id);
+    });
 
     this.setup();
     this.di.area?.update("node", this.id);
-
-    // this.actor.start();
   }
 
   async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
@@ -1004,7 +1103,6 @@ export abstract class BaseNode<
   }
 
   async saveState({ state }: { state: SnapshotFrom<Machine> }) {
-
     if (this.executionNodeId && !this.executionId) {
       this.di.createExecution(this.id);
     }

@@ -521,7 +521,6 @@ export const Node = observer((props: Props<Schemes>) => {
                       </Tabs>
                     </Drag.NoDrag>
                   )}
-
                   <NodeIdBadge id={props.data.id} />
                 </CardFooter>
               </div>

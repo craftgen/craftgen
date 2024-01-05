@@ -204,6 +204,9 @@ importers:
       rete-structures:
         specifier: ^2.0.0
         version: 2.0.0(rete@2.0.2)
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
       squirrelly:
         specifier: ^9.0.0
         version: 9.0.0

@@ -834,7 +834,9 @@ export class Editor<
         headless: false,
       });
       this.setExecutionId(id);
+      return id;
     }
+    return this.executionId;
   }
 
   public async runSync(params: { inputId: string; event?: string }) {

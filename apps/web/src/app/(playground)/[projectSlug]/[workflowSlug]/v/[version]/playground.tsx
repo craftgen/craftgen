@@ -22,7 +22,7 @@ import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import JsonView from "react18-json-view";
 import { match, P } from "ts-pattern";
-import { AnyActor } from "xstate";
+import { AnyActor, AnyActorRef } from "xstate";
 import { useStore } from "zustand";
 
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -361,6 +361,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
               <DynamicInputsForm inputs={node.inputs} />
+              <Runs actor={node.actor} />
             </ScrollArea>
           </div>
         </TabsContent>
@@ -387,6 +388,50 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
     </div>
   );
 });
+
+const Runs = ({ actor }: { actor: AnyActorRef }) => {
+  const childrens = useSelector(actor, (state) => state.children);
+  const runs = useMemo(() => {
+    return Object.values(childrens).map((child) => child as AnyActorRef);
+  }, [childrens]);
+
+  console.log(runs);
+  return (
+    <div className="flex flex-col space-y-2">
+      {runs.map((run) => {
+        return <Run key={run.id} run={run} />;
+      })}
+    </div>
+  );
+};
+
+const Run = ({ run }: { run: AnyActorRef }) => {
+  const state = useSelector(run, (state) => state);
+  console.log(state);
+  return (
+    <div className="flex flex-row space-x-2">
+      <div className="flex flex-col space-y-1">
+        <Label>Run Id</Label>
+        <div className="flex flex-row space-x-1">
+          <Badge>{run.id}</Badge>
+          <Badge>{state.value}</Badge>
+        </div>
+      </div>
+      <div>
+        <Label>Input</Label>
+        <div className="flex flex-row space-x-1">
+          <JsonView src={state.context.inputs} />
+        </div>
+      </div>
+      <div>
+        <Label>Output</Label>
+        <div className="flex flex-row space-x-1">
+          <JsonView src={state.context.outputs} />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const renderFieldValueBaseOnSocketType = (
   socket: Socket,

@@ -289,11 +289,13 @@ const OpenAICompleteChatMachine = createMachine({
     },
     running: {
       initial: "in_progress",
-      entry: enqueueActions(({ enqueue }) => {
-        enqueue({
-          type: "setExecutionNodeId",
-        });
-      }),
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, check }) => {
+            enqueue("setValue");
+          }),
+        },
+      },
       states: {
         in_progress: {
           on: {
@@ -301,11 +303,6 @@ const OpenAICompleteChatMachine = createMachine({
               target: "requires_action",
               actions: enqueueActions(({ enqueue, check, event }) => {
                 console.log("TOOL_REQUEST", event);
-              }),
-            },
-            SET_VALUE: {
-              actions: enqueueActions(({ enqueue, check }) => {
-                enqueue("setValue");
               }),
             },
             COMPLETE: {
@@ -397,7 +394,7 @@ const OpenAICompleteChatMachine = createMachine({
         },
         completed: {
           after: {
-            10: "#openai-complete-chat.idle",
+            1000: "#openai-complete-chat.idle",
           },
           entry: enqueueActions(({ enqueue }) => {
             enqueue({
@@ -537,11 +534,39 @@ const completeChatActor = fromPromise(
           llm: {
             provider: "openai",
           },
-          tools: P.array(),
-          toolCalls: P.any,
+          tools: P.when((t) => Object.keys(t).length > 0),
+          toolCalls: P.when((t) => Object.keys(t).length === 0),
         },
         async ({ llm, tools, toolCalls }) => {
-          console.log("here", llm, tools, toolCalls);
+          console.log("REQUESTING tool call from the API.");
+          const model = openai.ChatTextGenerator({
+            ...llm,
+            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+          });
+
+          return await generateToolCalls(model, tools, [
+            ...(input.system
+              ? [
+                  {
+                    role: "system",
+                    content: input.system,
+                  },
+                ]
+              : []),
+            ...input.messages,
+          ]);
+        },
+      )
+      .with(
+        {
+          llm: {
+            provider: "openai",
+          },
+          tools: P.when((t) => Object.keys(t).length > 0),
+          toolCalls: P.when((t) => Object.keys(t).length > 0),
+        },
+        async ({ llm, tools, toolCalls }) => {
+          console.log("PASSING THE TOOL CALL RESULTS TO API.");
           const model = openai.ChatTextGenerator({
             ...llm,
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
@@ -564,19 +589,6 @@ const completeChatActor = fromPromise(
               );
             });
           }
-
-          console.log("MESSAGES", [
-            ...(input.system
-              ? [
-                  {
-                    role: "system",
-                    content: input.system,
-                  },
-                ]
-              : []),
-            ...input.messages,
-            ...toolCallResponses,
-          ]);
 
           return await generateToolCalls(model, tools, [
             ...(input.system

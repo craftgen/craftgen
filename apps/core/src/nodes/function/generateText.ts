@@ -228,9 +228,7 @@ export type GenerateTextNode = ParsedNode<
 >;
 
 type GenerateTextInput = {
-  llm: 
-  | OpenAIModelConfig 
-  | OllamaModelConfig;
+  llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   user: string;
 };

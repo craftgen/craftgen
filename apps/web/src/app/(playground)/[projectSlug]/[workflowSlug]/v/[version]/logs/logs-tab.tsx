@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
@@ -129,7 +130,15 @@ const ExecutionNodeItem: React.FC<{
   return (
     <li key={nodeData.id} className="my-2 rounded border p-2">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold">{nodeData.type}</h2>
+        <div className="flex space-x-1 ">
+          <h2 className="font-bold">{nodeData.type}</h2>
+          <Separator orientation="vertical" />
+          <span className="text-muted-foreground">{nodeData.id}</span>
+          <Separator orientation="vertical" />
+          <span className="text-muted-foreground">
+            {JSON.stringify(nodeData?.state?.value)}
+          </span>
+        </div>
         <div>
           <Badge
             className={cn(
