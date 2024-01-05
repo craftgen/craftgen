@@ -361,6 +361,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
               <DynamicInputsForm inputs={node.inputs} />
+
               <Runs actor={node.actor} />
             </ScrollArea>
           </div>
@@ -390,17 +391,33 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
 });
 
 const Runs = ({ actor }: { actor: AnyActorRef }) => {
+  const state = useSelector(actor, (state) => state);
   const childrens = useSelector(actor, (state) => state.children);
   const runs = useMemo(() => {
-    return Object.values(childrens).map((child) => child as AnyActorRef);
+    return Object.values(childrens)
+      .filter((child) => child.id.startsWith("call"))
+      .map((child) => child as AnyActorRef);
   }, [childrens]);
 
   console.log(runs);
   return (
-    <div className="flex flex-col space-y-2">
-      {runs.map((run) => {
-        return <Run key={run.id} run={run} />;
-      })}
+    <div>
+      <Button
+        variant={"outline"}
+        disabled={!state.can({ type: "RESET" })}
+        onClick={() =>
+          actor.send({
+            type: "RESET",
+          })
+        }
+      >
+        Reset
+      </Button>
+      <div className="flex flex-col space-y-2">
+        {runs.map((run) => {
+          return <Run key={run.id} run={run} />;
+        })}
+      </div>
     </div>
   );
 };
@@ -409,24 +426,30 @@ const Run = ({ run }: { run: AnyActorRef }) => {
   const state = useSelector(run, (state) => state);
   console.log(state);
   return (
-    <div className="flex flex-row space-x-2">
-      <div className="flex flex-col space-y-1">
-        <Label>Run Id</Label>
+    <div className="flex flex-col space-y-2">
+      <div className="flex flex-row items-center justify-between ">
+        <div className="flex  items-center space-x-2">
+          <Label>Run Id</Label>
+          <Badge variant={"outline"}>{run.id}</Badge>
+        </div>
         <div className="flex flex-row space-x-1">
-          <Badge>{run.id}</Badge>
-          <Badge>{state.value}</Badge>
+          <Badge className={cn(state.status === "done" && "bg-green-400")}>
+            {state.value}
+          </Badge>
         </div>
       </div>
-      <div>
-        <Label>Input</Label>
-        <div className="flex flex-row space-x-1">
-          <JsonView src={state.context.inputs} />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-muted/30 border-1 rounded p-2">
+          <Label>Input</Label>
+          <div className="p-2">
+            <JsonView src={state.context.inputs} />
+          </div>
         </div>
-      </div>
-      <div>
-        <Label>Output</Label>
-        <div className="flex flex-row space-x-1">
-          <JsonView src={state.context.outputs} />
+        <div className="bg-muted/30 border-1 rounded p-2">
+          <Label>Output</Label>
+          <div className="p-2">
+            <JsonView src={state.context.outputs} />
+          </div>
         </div>
       </div>
     </div>

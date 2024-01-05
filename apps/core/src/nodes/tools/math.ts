@@ -211,6 +211,7 @@ export const MathNodeMachine = createMachine(
           outputs: {
             result: null,
           },
+          runs: {},
         },
         input,
       );
@@ -218,10 +219,7 @@ export const MathNodeMachine = createMachine(
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        parent?: {
-          id: string; // Call ID.
-          ref: AnyActorRef;
-        };
+        runs: Record<string, AnyActorRef>;
       };
       actions: None;
       actors: {
@@ -256,6 +254,23 @@ export const MathNodeMachine = createMachine(
               });
             }),
           },
+          RESET: {
+            guard: ({ context }) => {
+              return context.runs && Object.keys(context.runs).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, context, self }) => {
+              Object.values(context.runs).map((run) => {
+                enqueue.stopChild(run);
+              });
+              enqueue.assign({
+                runs: {},
+                outputs: ({ context }) => ({
+                  ...context.outputs,
+                  result: null,
+                }),
+              });
+            }),
+          },
           RUN: {
             // target: "running",
             actions: enqueueActions(
@@ -273,26 +288,37 @@ export const MathNodeMachine = createMachine(
                   });
                 }
                 if (check(({ event }) => !isNil(event.params))) {
-                  enqueue.spawnChild("Run", {
-                    id: event.params?.executionNodeId,
-                    input: {
-                      inputs: {
-                        expression: event.params?.values?.expression,
-                      },
-                      sender: event.params?.sender,
-                    },
-                    syncSnapshot: true,
+                  enqueue.assign({
+                    runs: ({ context, spawn }) => ({
+                      ...context.runs,
+                      [event.params?.executionNodeId!]: spawn("Run", {
+                        id: event.params?.executionNodeId,
+                        input: {
+                          inputs: {
+                            expression: event.params?.values?.expression,
+                          },
+                          sender: event.params?.sender,
+                        },
+                        syncSnapshot: true,
+                      }),
+                    }),
                   });
                 } else {
-                  enqueue.spawnChild("Run", {
-                    id: `call-${createId()}`,
-                    input: {
-                      inputs: {
-                        expression: context?.inputs.expression,
-                      },
-                      sender: self,
-                    },
-                    syncSnapshot: true,
+                  const runId = `call-${createId()}`;
+                  enqueue.assign({
+                    runs: ({ context, spawn }) => ({
+                      ...context.runs,
+                      [runId]: spawn("Run", {
+                        id: runId,
+                        input: {
+                          inputs: {
+                            expression: context?.inputs.expression,
+                          },
+                          sender: self,
+                        },
+                        syncSnapshot: true,
+                      }),
+                    }),
                   });
                 }
               },
@@ -306,18 +332,6 @@ export const MathNodeMachine = createMachine(
           },
         },
       },
-      complete: {
-        on: {
-          SET_VALUE: {
-            actions: ["setValue"],
-            target: "idle",
-          },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
-        },
-      },
-      error: {},
     },
   },
   {
