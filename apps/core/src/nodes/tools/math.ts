@@ -129,32 +129,10 @@ const RunMathMachine = setup({
         input: ({ context }) => ({
           expression: context.inputs.expression,
         }),
-        onError: {
-          target: "complete",
-          actions: enqueueActions(
-            ({ enqueue, check, context, event, self }) => {
-              console.log("==> onError ", context, event);
-              enqueue.sendTo(
-                ({ context }) => context.sender,
-                ({ context }) => ({
-                  type: "TOOL_RESULT",
-                  params: {
-                    id: self.id,
-                    res: {
-                      result: event.error,
-                      ok: false,
-                    },
-                  },
-                }),
-              );
-            },
-          ),
-        },
         onDone: {
           target: "complete",
           actions: enqueueActions(
             ({ enqueue, check, self, event, context }) => {
-              console.log("==> onDone ", context, event);
               enqueue.assign({
                 outputs: ({ event }) => ({
                   result: event.output,
@@ -168,6 +146,26 @@ const RunMathMachine = setup({
                   params: {
                     id: self.id,
                     res: context.outputs,
+                  },
+                }),
+              );
+            },
+          ),
+        },
+        onError: {
+          target: "complete",
+          actions: enqueueActions(
+            ({ enqueue, check, context, event, self }) => {
+              enqueue.sendTo(
+                ({ context }) => context.sender,
+                ({ context }) => ({
+                  type: "TOOL_RESULT",
+                  params: {
+                    id: self.id,
+                    res: {
+                      result: event.error,
+                      ok: false,
+                    },
                   },
                 }),
               );
@@ -272,7 +270,6 @@ export const MathNodeMachine = createMachine(
             }),
           },
           RUN: {
-            // target: "running",
             actions: enqueueActions(
               ({ enqueue, check, event, self, context }) => {
                 if (

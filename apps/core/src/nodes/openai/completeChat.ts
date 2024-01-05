@@ -210,6 +210,7 @@ const OpenAICompleteChatMachine = createMachine({
           tools: {},
         },
         toolCalls: {},
+        runs: {},
         outputs: {
           onDone: undefined,
           result: "",
@@ -227,9 +228,11 @@ const OpenAICompleteChatMachine = createMachine({
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
       toolCalls: Record<string, ToolCallInstance<string, any, any>>;
+      runs: Record<string, AnyActorRef>;
     };
     context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
       toolCalls: Record<string, ToolCallInstance<string, any, any>>;
+      runs: Record<string, AnyActorRef>;
     };
     actions:
       | {
