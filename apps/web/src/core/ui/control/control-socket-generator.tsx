@@ -210,7 +210,7 @@ export function SocketGeneratorControlComponent(props: {
                             <FormLabel>Name</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="seocraft"
+                                placeholder="craftgen"
                                 {...field}
                                 autoComplete="false"
                               />
@@ -348,7 +348,7 @@ const FieldItem: React.FC<{
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="seocraft" {...field} autoComplete="false" />
+                <Input placeholder="craftgen" {...field} autoComplete="false" />
               </FormControl>
               <FormDescription>
                 This is your public display name.

@@ -162,7 +162,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="seocraft" disabled {...field} />
+                <Input placeholder="craftgen" disabled {...field} />
               </FormControl>
               <FormDescription>This is your public slug name.</FormDescription>
               <FormMessage />

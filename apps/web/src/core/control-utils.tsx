@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 export const renderField = (type: string, field: ControllerRenderProps) => {
   switch (type) {
     case "string":
-      return <Input defaultValue={""} placeholder="seocraft" {...field} />;
+      return <Input defaultValue={""} placeholder="craftgen" {...field} />;
     case "number":
       return (
         <Input
@@ -31,7 +31,7 @@ export const renderFieldBaseOnSocketType = (
 ) => {
   switch (type) {
     case "String":
-      return <Input placeholder="seocraft" {...field} />;
+      return <Input placeholder="craftgen" {...field} />;
     case "Number":
       return (
         <Input
@@ -55,7 +55,7 @@ export const renderControlBaseOnSocketType = (
   switch (type) {
     case "String":
     // return new Contro
-    //   return <Input placeholder="seocraft" {...field} />;
+    //   return <Input placeholder="craftgen" {...field} />;
     // case "Number":
     //   return (
     //     <Input
