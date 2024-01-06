@@ -33,6 +33,7 @@ import type { NodeProps } from "@seocraft/core/src/types";
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -442,13 +443,13 @@ const Run = ({ run }: { run: AnyActorRef }) => {
         <div className="bg-muted/30 border-1 rounded p-2">
           <Label>Input</Label>
           <div className="p-2">
-            <JsonView src={state.context.inputs} />
+            <JSONView src={state.context.inputs} />
           </div>
         </div>
         <div className="bg-muted/30 border-1 rounded p-2">
           <Label>Output</Label>
           <div className="p-2">
-            <JsonView src={state.context.outputs} />
+            <JSONView src={state.context.outputs} />
           </div>
         </div>
       </div>

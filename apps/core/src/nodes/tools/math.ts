@@ -83,7 +83,7 @@ const RunMathMachine = setup({
       inputs: {
         expression: string;
       };
-      sender: ActorRefFrom<typeof MathNodeMachine>;
+      // sender: ActorRefFrom<typeof MathNodeMachine>;
     };
     context: {
       inputs: {
@@ -92,7 +92,7 @@ const RunMathMachine = setup({
       outputs: {
         result?: any;
       };
-      sender?: ActorRefFrom<typeof MathNodeMachine>;
+      // sender?: ActorRefFrom<typeof MathNodeMachine>;
     };
   },
   actors: {
