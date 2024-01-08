@@ -1568,12 +1568,16 @@ export abstract class BaseNode<
             (s) => s.type !== "trigger" && s["x-showSocket"],
           ),
         );
+        const humanReadableFunctionName = `${slugify(
+          `${this.id.replace("node_", "")}_${this.label}`,
+          "_",
+        )}-${key}`;
         const tool = {
-          name: `${slugify(this.label, "_")}-${key}`,
+          name: humanReadableFunctionName,
           description: this.description,
           parameters,
         };
-        tools[`${this.id}/${key}`] = tool;
+        tools[humanReadableFunctionName] = tool;
       }
       return tools;
     }

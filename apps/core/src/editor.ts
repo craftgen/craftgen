@@ -1,4 +1,4 @@
-import { createId } from "@paralleldrive/cuid2";
+import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
 import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
@@ -243,6 +243,10 @@ export class Editor<
   }
 
   public createId(prefix: "node" | "conn" | "context" | "state") {
+    const createId = init({
+      length: 10,
+      fingerprint: this.workflowId,
+    });
     return `${prefix}_${createId()}`;
   }
 
@@ -560,7 +564,7 @@ export class Editor<
       options: {
         "elk.spacing.nodeNode": 100,
         "spacing.nodeNodeBetweenLayers": 100,
-      } as any
+      } as any,
     });
   }
 

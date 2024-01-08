@@ -78,8 +78,13 @@ export const types = [
   "thread",
 ] as const;
 
-export type Tool = {
-  name: string;
+export type EVENT_TYPE = string;
+export type NODE_LABEL = string;
+export type NODE_ID = string;
+export type TOOL_NAME = `${NODE_LABEL}-${EVENT_TYPE}`;
+
+export type Tool<NAME extends TOOL_NAME = string> = {
+  name: NAME;
   description: string;
   parameters: JSONSchemaDefinition;
 };
@@ -93,7 +98,7 @@ export type SocketTypeMap = {
   array: any[]; // Replace 'any' with a more specific type if needed
   object: object; // Replace 'object' with a more specific type if needed
   date: Date; // Assuming you want to map "date" to JavaScript Date object
-  tool: Record<string, Tool>;
+  tool: Record<`${NODE_ID}/${EVENT_TYPE}`, Tool<TOOL_NAME>>;
   // trigger: (params: any[]) => void | undefined;
   trigger: undefined;
   thread: Message[];
