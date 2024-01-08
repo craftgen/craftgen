@@ -15,7 +15,7 @@ w-screen h-screen overflow-visible pointer-events-none absolute z-0
 `;
 
 const Path = tw.path<{ styles?: (props: any) => any }>`
-fill-none stroke-[5px] pointer-events-auto stroke-primary  
+fill-none stroke-[5px] pointer-events-auto stroke-primary dark:stroke-primary/60  
 `;
 
 export function CustomConnection(props: { data: Connection; di: Editor }) {
@@ -45,7 +45,7 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
           d={path}
           strokeDasharray={props.data.inSync ? "0" : "5,5"}
           className={cn(
-            sourceConfig && `stroke-${sourceConfig.connection}-400`,
+            sourceConfig && `stroke-${sourceConfig.connection}-400 dark:stroke-${sourceConfig.connection}-400/60`,
           )}
         />
       )}

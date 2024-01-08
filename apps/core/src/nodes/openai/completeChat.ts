@@ -735,6 +735,21 @@ const completeChatMachine = setup({
         result: string | ChatMessage;
       };
     },
+    events: {} as
+      | {
+          type: "TOOL_REQUEST";
+          params: ToolCall<string, any>[];
+        }
+      | {
+          type: "TOOL_RESULT";
+          params: {
+            id: string;
+            res: ToolCallResult<string, any, any>;
+          };
+        }
+      | {
+          type: "COMPLETE";
+        },
   },
   actors: {
     completeChat: completeChatActor,
@@ -794,7 +809,7 @@ const completeChatMachine = setup({
             match(event.output)
               .with(
                 {
-                  toolCalls: P.not(P.nullish),
+                  toolCalls: P.when((t) => t && t.length > 0),
                 },
                 (res) => {
                   enqueue.raise({
@@ -820,7 +835,54 @@ const completeChatMachine = setup({
       },
     },
     requires_action: {
-      entry: enqueueActions(({ enqueue, event, context }) => {}),
+      entry: enqueueActions(({ enqueue, event, context }) => {
+        assertEvent(event, "TOOL_REQUEST");
+        const toolCalls = event.params.reduce(
+          (acc, toolCall) => {
+            acc[toolCall.id] = {
+              tool: toolCall.name,
+              args: toolCall.args,
+              result: null,
+              ok: null,
+              toolCall,
+            };
+            return acc;
+          },
+          {} as Record<string, ToolCallInstance<string, any, any>>,
+        );
+        enqueue.assign({
+          inputs: ({ context }) => {
+            return {
+              ...context.inputs,
+              toolCalls,
+            };
+          },
+        });
+        for (const toolCall of event.params) {
+          const { name, args } = toolCall;
+          const nodeId = Object.keys(
+            context.inputSockets.tools["x-connection"],
+          )[0];
+          console.log("NODE ID", nodeId);
+          const eventType = name.split("-")[1];
+          enqueue({
+            type: "triggerNode",
+            params: {
+              nodeId,
+              event: {
+                type: eventType,
+                params: {
+                  executionNodeId: toolCall.id,
+                  values: {
+                    ...args,
+                  },
+                },
+              },
+            },
+          });
+        }
+        console.log("REQUIRES ACTION", event);
+      }),
       always: [
         {
           guard: (
@@ -869,22 +931,6 @@ export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
   static icon = "message-square-text";
 
   static section = "Functions";
-
-  get apiModel() {
-    if (!this.di.variables.has("OPENAI_API_KEY")) {
-      throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
-    }
-    const api = new OpenAIApiConfiguration({
-      apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
-      throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
-      retry: retryWithExponentialBackoff({
-        maxTries: 2,
-        initialDelayInMs: 1000,
-        backoffFactor: 2,
-      }),
-    });
-    return api;
-  }
 
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
     super("CompleteChat", di, data, OpenAICompleteChatMachine, {});
