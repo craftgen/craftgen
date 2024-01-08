@@ -1,6 +1,5 @@
 import { CurveFactory } from "d3-shape";
-import { md5 } from "hash-wasm";
-import { get } from "lodash-es";
+import { get, omit } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
@@ -10,7 +9,7 @@ import {
   JSONSocket,
 } from "../controls/socket-generator";
 import { Editor } from "../editor";
-import { BaseNode } from "../nodes/base";
+import { BaseMachine, BaseNode } from "../nodes/base";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
@@ -50,8 +49,8 @@ export class Connection<
   sourceValue?: any = undefined;
   targetValue?: any = undefined;
 
-  sourceNode: BaseNode<any, any, any, any>;
-  targetNode: BaseNode<any, any, any, any>;
+  sourceNode: BaseNode<BaseMachine, any, any, any>;
+  targetNode: BaseNode<BaseMachine, any, any, any>;
   destroy: () => Promise<void>;
 
   get inSync() {
@@ -71,16 +70,14 @@ export class Connection<
       )) {
         const hashTarget = JSON.stringify(this.targetValue[key]);
         const hashSource = JSON.stringify(value);
-        // console.log({
-        //   hashTarget,
-        //   hashSource,
-        // });
+
         if (hashTarget !== hashSource) {
           return false;
         }
       }
       return true;
     }
+
     return this.sourceValue === this.targetValue;
   }
   get sourceDefintion(): JSONSocket {
@@ -247,6 +244,24 @@ export class Connection<
           },
         },
       });
+
+      if (this.targetDefintion.type === "tool") {
+        const keys = Object.keys(this.targetValue).filter((key) =>
+          key.startsWith(this.source),
+        );
+        const value = omit({ ...this.targetValue }, keys);
+
+        this.targetNode.actor.send({
+          type: "SET_VALUE",
+          params: {
+            values: {
+              [this.targetInput]: {
+                ...value,
+              },
+            },
+          },
+        });
+      }
 
       if (this.isActorRef) {
         console.log("@@@@", "RESTORING THE REFERENCE", {

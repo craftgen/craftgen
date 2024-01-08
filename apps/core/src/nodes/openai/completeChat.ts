@@ -937,7 +937,15 @@ export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
     this.extendMachine({
       actors: {
         completeChat: completeChatMachine,
-        Thread: ThreadMachine.provide({ actions: this.baseActions }),
+        Thread: ThreadMachine.provide({
+          ...(this.baseImplentations as any),
+        }),
+        Ollama: OllamaModelMachine.provide({
+          ...(this.baseImplentations as any),
+        }),
+        OpenAI: OpenaiModelMachine.provide({
+          ...(this.baseImplentations as any),
+        }),
       },
       actions: {
         updateOutputMessages: assign({
@@ -946,20 +954,6 @@ export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
               ...context.outputs,
               messages: context.inputs.thread,
             };
-          },
-        }),
-      },
-    });
-    this.extendMachine({
-      actors: {
-        Ollama: OllamaModelMachine.provide({
-          actions: {
-            ...this.baseActions,
-          },
-        }),
-        OpenAI: OpenaiModelMachine.provide({
-          actions: {
-            ...this.baseActions,
           },
         }),
       },

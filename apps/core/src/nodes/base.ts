@@ -72,8 +72,8 @@ export type BaseInputType<
 };
 
 export type BaseContextType<
-  I extends Record<string, JSONSocket> = {},
-  O extends Record<string, JSONSocket> = {},
+  I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
+  O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
 > = {
   inputs: MappedType<I>;
   outputs: MappedType<O>;
@@ -235,7 +235,7 @@ export type BaseMachineTypes<
   actors: SpecialMerged<BaseActorTypes, T["actors"]>;
 };
 
-type BaseMachine = StateMachine<
+export type BaseMachine = StateMachine<
   BaseContextType,
   BaseEventTypes,
   any,
@@ -348,7 +348,7 @@ export abstract class BaseNode<
   actors: Map<string, Actor<Machine>> = new Map();
   actorListeners: Map<string, Subscription> = new Map();
 
-  public baseGuards = {
+  public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
     hasConnection: (
       { context }: GuardArgs<ContextFrom<BaseMachine>, any>,
       params: HasConnectionGuardParams,
@@ -384,7 +384,7 @@ export abstract class BaseNode<
     },
   };
 
-  public baseActions = {
+  public baseActions: MachineImplementationsFrom<BaseMachine>["actions"] = {
     removeError: assign({
       error: () => null,
     }),
@@ -603,7 +603,7 @@ export abstract class BaseNode<
     }),
   };
 
-  public baseImplentations = {
+  public baseImplentations: MachineImplementationsFrom<Machine> = {
     guards: this.baseGuards,
     actions: this.baseActions,
   };
