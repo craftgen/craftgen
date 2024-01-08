@@ -2,7 +2,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
 import { ChatMessage } from "modelfusion";
 import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
-import { Chat } from "openai/resources/index.mjs";
 import { SetOptional } from "type-fest";
 import {
   assign,
@@ -224,15 +223,12 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.run]: {
-            guard: ({ context }) => {
-              if (
-                context.outputSockets.onRun["x-connection"] &&
-                Object.entries(context.outputSockets.onRun["x-connection"])
-                  .length > 0
-              ) {
-                return true;
-              }
-              return false;
+            guard: {
+              type: "hasConnection",
+              params: {
+                port: "output",
+                key: "onRun",
+              },
             },
             actions: {
               type: "triggerSuccessors",
@@ -243,15 +239,12 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.addAndRunMessage]: {
-            guard: ({ context }) => {
-              if (
-                context.outputSockets.onRun["x-connection"] &&
-                Object.entries(context.outputSockets.onRun["x-connection"])
-                  .length > 0
-              ) {
-                return true;
-              }
-              return false;
+            guard: {
+              type: "hasConnection",
+              params: {
+                port: "output",
+                key: "onRun",
+              },
             },
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
@@ -290,13 +283,13 @@ export const ThreadMachine = createMachine(
           },
         });
         const connections = context.outputSockets.messages["x-connection"];
-        for (const [target, inputKey] of Object.entries(connections || {})) {
+        for (const [target, conn] of Object.entries(connections || {})) {
           enqueue({
             type: "syncConnection",
             params: {
               nodeId: target,
               outputKey: "messages",
-              inputKey,
+              inputKey: conn.key,
             },
           });
         }

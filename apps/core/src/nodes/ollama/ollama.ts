@@ -578,13 +578,13 @@ export const OllamaModelMachine = createMachine(
           },
         });
         const connections = context.outputSockets.config["x-connection"];
-        for (const [target, inputKey] of Object.entries(connections || {})) {
+        for (const [target, conn] of Object.entries(connections || {})) {
           enqueue({
             type: "syncConnection",
             params: {
               nodeId: target,
               outputKey: "config",
-              inputKey,
+              inputKey: conn.key,
             },
           });
         }

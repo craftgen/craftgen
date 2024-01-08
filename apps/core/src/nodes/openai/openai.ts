@@ -202,18 +202,6 @@ export const OpenaiModelMachine = createMachine(
         actions: "updateOutput",
       },
     },
-    // always: {
-    //   guard: "connectionsDeSync",
-    //   actions: assign({
-    //     outputSockets: ({ context }) => ({
-    //       ...context.outputSockets,
-    //       config: {
-    //         ...context.outputSockets.config,
-    //         "x-connection": {},
-    //       },
-    //     }),
-    //   }),
-    // },
     states: {
       idle: {
         entry: ["updateOutput"],
@@ -234,25 +222,6 @@ export const OpenaiModelMachine = createMachine(
             }),
             reenter: true,
           },
-          // "*": {
-          //   guard: "connectionsDeSync",
-          //   actions: enqueueActions(({ enqueue, context }) => {
-          //     console.log("HEREHEERE")
-          //     const connections = context.outputSockets.config["x-connection"];
-          //     for (const [target, inputKey] of Object.entries(
-          //       connections || {},
-          //     )) {
-          //       enqueue({
-          //         type: "syncConnection",
-          //         params: {
-          //           nodeId: target,
-          //           outputKey: "config",
-          //           inputKey,
-          //         },
-          //       });
-          //     }
-          //   }),
-          // },
         },
       },
     },
@@ -299,13 +268,13 @@ export const OpenaiModelMachine = createMachine(
           },
         });
         const connections = context.outputSockets.config["x-connection"];
-        for (const [target, inputKey] of Object.entries(connections || {})) {
+        for (const [target, conn] of Object.entries(connections || {})) {
           enqueue({
             type: "syncConnection",
             params: {
               nodeId: target,
               outputKey: "config",
-              inputKey,
+              inputKey: conn.key,
             },
           });
         }

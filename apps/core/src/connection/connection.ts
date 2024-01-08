@@ -4,7 +4,11 @@ import { get } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ConnectionBase, getUID, NodeBase } from "rete";
 
-import { ActorConfig, JSONSocket } from "../controls/socket-generator";
+import {
+  ActorConfig,
+  ConnectionConfigRecord,
+  JSONSocket,
+} from "../controls/socket-generator";
 import { Editor } from "../editor";
 import { BaseNode } from "../nodes/base";
 
@@ -161,8 +165,11 @@ export class Connection<
         socket: {
           "x-connection": {
             ...this.targetDefintion?.["x-connection"],
-            [this.sourceNode.id]: this.sourceOutput,
-          },
+            [this.sourceNode.id]: {
+              actorRef: this.sourceNode.actor.ref,
+              key: this.sourceOutput,
+            },
+          } as ConnectionConfigRecord,
         },
       },
     });
@@ -175,8 +182,11 @@ export class Connection<
         socket: {
           "x-connection": {
             ...this.sourceDefintion?.["x-connection"],
-            [this.targetNode.id]: this.targetInput,
-          },
+            [this.targetNode.id]: {
+              actorRef: this.targetNode.actor.ref,
+              key: this.targetInput,
+            },
+          } as ConnectionConfigRecord,
         },
       },
     });
@@ -385,10 +395,6 @@ export class Connection<
     if (config) {
       console.log(config);
       for (const [key, value] of Object.entries(config.connections)) {
-        console.log({
-          key,
-          value,
-        });
         this.sourceNode.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -397,8 +403,11 @@ export class Connection<
             socket: {
               "x-connection": {
                 ...this.sourceDefintion?.["x-connection"],
-                [this.targetNode.id]: value,
-              },
+                [this.targetNode.id]: {
+                  actorRef: this.targetNode.actor.ref,
+                  key: value,
+                },
+              } as ConnectionConfigRecord,
             },
           },
         });

@@ -41,6 +41,28 @@ export const actorConfigRecordSchema = z
 
 export type ActorConfig = z.infer<typeof actorConfigSchema>;
 
+export const connectionSchema = z.object({
+  key: z
+    .string()
+    .describe(
+      'The "x-key" of the socket relative to side its either inputKey or outputKey',
+    ),
+  actorRef: z
+    .custom<AnyActorRef>()
+    .describe("The actor reference from the Other side of the connection."),
+});
+
+export type ConnectionConfig = z.infer<typeof connectionSchema>;
+
+export const connectionConfigRecordSchema = z
+  .record(z.string().describe("nodeId"), connectionSchema)
+  .default({})
+  .optional();
+
+export type ConnectionConfigRecord = z.infer<
+  typeof connectionConfigRecordSchema
+>;
+
 export const socketSchema = z
   .object({
     name: z.string().min(1),
@@ -79,8 +101,7 @@ export const socketSchema = z
     "x-actor-type": z.custom<NodeTypes>().optional(),
     "x-actor-ref-type": z.custom<NodeTypes>().optional(),
     "x-actor-config": actorConfigRecordSchema,
-
-    "x-connection": z.record(z.string(), z.string()).default({}).optional(),
+    "x-connection": connectionConfigRecordSchema,
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),
     "x-language": z.string().optional(),
   })

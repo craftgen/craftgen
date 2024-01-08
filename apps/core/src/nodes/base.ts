@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
+import { get, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { ClassicPreset } from "rete";
 import { merge, of, Subject } from "rxjs";
@@ -31,9 +31,13 @@ import {
   type MachineImplementationsFrom,
   type SnapshotFrom,
 } from "xstate";
+import { GuardArgs } from "xstate/guards";
 
 import { BaseControl } from "../controls/base";
-import { JSONSocket } from "../controls/socket-generator";
+import {
+  ConnectionConfigRecord,
+  JSONSocket,
+} from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
 import {
@@ -188,8 +192,18 @@ export type BaseActionTypes =
 
 export type BaseActorTypes = ProvidedActor;
 
+/**
+ * key: the name of the socket
+ * port: the side of the socket
+ */
+export type HasConnectionGuardParams = {
+  key: string;
+  port: "input" | "output";
+};
+
 export type BaseGuardTypes = {
-  type: "connectionsDeSync";
+  type: "hasConnection";
+  params: HasConnectionGuardParams;
 };
 
 export type None = "None";
@@ -335,10 +349,38 @@ export abstract class BaseNode<
   actorListeners: Map<string, Subscription> = new Map();
 
   public baseGuards = {
-    connectionsDeSync: ({ context }) => {
-      console.log("connectionsDeSync", context.inputSockets);
-      Object.entries(context.inputSockets);
-      return true;
+    hasConnection: (
+      { context }: GuardArgs<ContextFrom<BaseMachine>, any>,
+      params: HasConnectionGuardParams,
+    ) => {
+      return match(params)
+        .with(
+          {
+            port: "input",
+          },
+          () => {
+            const connections = get(
+              context.inputSockets,
+              [params.key, "x-connection"],
+              {},
+            );
+            return Object.values(connections).length > 0;
+          },
+        )
+        .with(
+          {
+            port: "output",
+          },
+          () => {
+            const connections = get(
+              context.outputSockets,
+              [params.key, "x-connection"],
+              {},
+            );
+            return Object.values(connections).length > 0;
+          },
+        )
+        .exhaustive();
     },
   };
 
@@ -419,8 +461,11 @@ export abstract class BaseNode<
                 socket: {
                   "x-connection": {
                     ...socket["x-connection"],
-                    [this.id]: value,
-                  },
+                    [this.id]: {
+                      key: value,
+                      actorRef: this.actor.ref,
+                    },
+                  } as ConnectionConfigRecord,
                 },
               },
             });
@@ -592,9 +637,10 @@ export abstract class BaseNode<
     this.id = nodeData.id;
     this.description = nodeData.description;
     this.machineImplements = {
+      ...this.baseImplentations,
       ...(machineImplements as any),
       actions: {
-        ...this.baseActions,
+        ...this.baseImplentations.actions,
         ...((machineImplements?.actions as any) || {}),
       },
     };
@@ -1266,11 +1312,11 @@ export abstract class BaseNode<
   async triggerSuccessors(outputSocket: JSONSocket) {
     console.log("TRIGGERING", outputSocket);
     const connections = outputSocket["x-connection"] || {};
-    for (const [nodeId, inputKey] of Object.entries(connections)) {
+    for (const [nodeId, conn] of Object.entries(connections)) {
       const targetNode = this.di.editor.getNode(nodeId);
-      const socket = targetNode.snap.context.inputSockets[inputKey];
+      const socket = targetNode.snap.context.inputSockets[conn.key];
       console.log("TRIGGERING", targetNode.id, socket["x-event"]);
-
+      // TODO: we might able to send events directly in here.
       await this.di.runSync({
         inputId: targetNode.id,
         event: socket["x-event"],
