@@ -25,7 +25,7 @@ const outputSockets = {
   }),
   schema: generateSocket({
     name: "schema" as const,
-    type: "tool" as const,
+    type: "object" as const,
     description: "Schema",
     required: true,
     isMultiple: false,
@@ -65,7 +65,7 @@ const composeObjectMachine = createMachine({
     context: {
       name: string;
       description: string;
-      schema: object;
+      schema: JSONSchemaDefinition;
     };
     actors: None;
     guards: None;
@@ -162,7 +162,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
           outputs: ({ context }) => ({
             ...context.outputs,
             object: context.inputs,
-            // schema: createJsonSchema(context.inputSockets),
           }),
         }),
         updateConfig: assign({
@@ -198,7 +197,7 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
                   schema: {
                     name: slugify(event.name, "_"),
                     description: event.description,
-                    schema: schema,
+                    parameters: schema,
                   },
                 }),
               )
@@ -206,9 +205,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
         }),
       },
     });
-
-    // this.addOutput("object", new Output(objectSocket, "Object"));
-    // this.addOutput("schema", new Output(toolSocket, "Schema"));
 
     this.setup();
     const state = this.actor.getSnapshot();

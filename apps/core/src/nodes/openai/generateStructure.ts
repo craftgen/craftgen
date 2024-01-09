@@ -62,7 +62,7 @@ const inputSockets = {
   }),
   schema: generateSocket({
     name: "schema" as const,
-    type: "tool" as const,
+    type: "object" as const,
     description: "Schema",
     required: true,
     isMultiple: false,
@@ -287,30 +287,20 @@ const generateStructureActor = fromPromise(
         ],
         ([config]) => {
           const model = ollama
-            .CompletionTextGenerator({
+            .ChatTextGenerator({
               ...config,
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
               format: "json",
-              raw: true, // prevent Ollama from adding its own prompts
             })
-            .withTextPrompt()
-            .withPromptTemplate(ChatMLPrompt.instruction())
-            .asStructureGenerationModel(
-              jsonStructurePrompt((instruction: string, schema) => ({
-                system:
-                  input.system +
-                  "JSON schema: \n" +
-                  JSON.stringify(schema.getJsonSchema()) +
-                  "\n\n" +
-                  "Respond only using JSON that matches the above schema.",
-                instruction,
-              })),
-            );
+            .asStructureGenerationModel(jsonStructurePrompt.instruction());
           return () =>
             generateStructure(
               model,
-              new UncheckedSchema(input.schema.schema),
-              input.user,
+              new UncheckedSchema(input.schema.parameters),
+              {
+                system: input.system,
+                instruction: input?.user || "",
+              },
             );
         },
       )
@@ -328,23 +318,15 @@ const generateStructureActor = fromPromise(
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
               responseFormat: { type: "json_object" }, // force JSON output
             })
-            .asStructureGenerationModel(
-              // Instruct the model to generate a JSON object that matches the given schema.
-              jsonStructurePrompt((instruction: string, schema) => [
-                openai.ChatMessage.system(
-                  "JSON schema: \n" +
-                    JSON.stringify(schema.getJsonSchema()) +
-                    "\n\n" +
-                    "Respond only using JSON that matches the above schema.",
-                ),
-                openai.ChatMessage.user(instruction),
-              ]),
-            );
+            .asStructureGenerationModel(jsonStructurePrompt.instruction());
           return () =>
             generateStructure(
               model,
-              new UncheckedSchema(input.schema.schema),
-              input.user,
+              new UncheckedSchema(input.schema.parameters),
+              {
+                system: input.system,
+                instruction: input?.user || "",
+              },
             );
         },
       )
@@ -364,21 +346,30 @@ const generateStructureActor = fromPromise(
             .asFunctionCallStructureGenerationModel({
               fnName: input.schema.name,
               fnDescription: input.schema.description,
-            });
+            })
+            .withInstructionPrompt();
           return () =>
-            generateStructure(model, new UncheckedSchema(input.schema.schema), [
-              ...(input.system
-                ? [
-                    {
-                      role: "system" as const,
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...(input.user
-                ? [{ role: "user" as const, content: input.user }]
-                : []),
-            ]);
+            generateStructure(
+              model,
+              new UncheckedSchema(input.schema.parameters),
+              {
+                system: input.system,
+                instruction: input?.user || "",
+              },
+              // [
+              //   ...(input.system
+              //     ? [
+              //         {
+              //           role: "system" as const,
+              //           content: input.system,
+              //         },
+              //       ]
+              //     : []),
+              //   ...(input.user
+              //     ? [{ role: "user" as const, content: input.user }]
+              //     : []),
+              // ],
+            );
         },
       )
       .run();

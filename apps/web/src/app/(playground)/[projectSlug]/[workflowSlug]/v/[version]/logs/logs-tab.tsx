@@ -150,9 +150,11 @@ export const ExecutionActorData: React.FC<{
     if (!actorData?.children) {
       return [];
     }
-    return Object.entries(actorData?.children).map(([callId, child]) => {
-      return { id: callId, ...child };
-    });
+    return Object.entries(actorData?.children)
+      .filter(([actorId]) => actorId.startsWith("call"))
+      .map(([callId, child]) => {
+        return { id: callId, ...child };
+      });
   }, [actorData?.children]);
   return (
     <div>

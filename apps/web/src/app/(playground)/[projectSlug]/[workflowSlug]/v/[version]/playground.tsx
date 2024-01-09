@@ -400,7 +400,6 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
       .map((child) => child as AnyActorRef);
   }, [childrens]);
 
-  console.log(runs);
   return (
     <div>
       <Button
