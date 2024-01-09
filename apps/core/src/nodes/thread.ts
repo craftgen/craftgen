@@ -189,9 +189,6 @@ export const ThreadMachine = createMachine(
           },
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
-              console.log("addMessage INSIDE", context, event);
-              enqueue(log("addMessage"));
-
               enqueue({
                 type: "addMessage",
                 params: {

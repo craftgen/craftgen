@@ -1,17 +1,13 @@
 import { createId } from "@paralleldrive/cuid2";
-import { get, isNil, merge } from "lodash-es";
+import { get, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
-  chat,
   ChatMessage,
   generateText,
   generateToolCalls,
   ollama,
   openai,
-  OpenAIApiConfiguration,
   OpenAIChatMessage,
-  retryWithExponentialBackoff,
-  throttleMaxConcurrency,
   ToolCall,
   ToolCallError,
   ToolCallResult,
@@ -32,7 +28,6 @@ import {
 
 import { generateSocket } from "../../controls/socket-generator";
 import { Message } from "../../controls/thread.control";
-import { EVENT_TYPE, NODE_LABEL, Tool } from "../../sockets";
 import { DiContainer } from "../../types";
 import {
   BaseContextType,
@@ -737,38 +732,6 @@ const completeChatMachine = setup({
               },
             }),
           );
-
-          // tool.actorRef.send({
-          //   type: eventType,
-          //   params: {
-          //     executionNodeId: toolCall.id,
-          //     values: {
-          //       ...args,
-          //     },
-          //   },
-          // });
-
-          // const nodeId = Object.keys(
-          //   context.inputSockets.tools["x-connection"],
-          // )[0];
-          // console.log("NODE ID", nodeId);
-          // const eventType = name.split("-")[1];
-
-          // enqueue({
-          //   type: "triggerNode",
-          //   params: {
-          //     nodeId,
-          //     event: {
-          //       type: eventType,
-          //       params: {
-          //         executionNodeId: toolCall.id,
-          //         values: {
-          //           ...args,
-          //         },
-          //       },
-          //     },
-          //   },
-          // });
         }
         console.log("REQUIRES ACTION", event);
       }),
