@@ -4,7 +4,6 @@ import * as mathjs from "mathjs";
 import dedent from "ts-dedent";
 import { SetOptional } from "type-fest";
 import {
-  ActorRefFrom,
   AnyActorRef,
   assertEvent,
   createMachine,
@@ -83,7 +82,7 @@ const RunMathMachine = setup({
       inputs: {
         expression: string;
       };
-      // sender: ActorRefFrom<typeof MathNodeMachine>;
+      senders: AnyActorRef[];
     };
     context: {
       inputs: {
@@ -92,7 +91,7 @@ const RunMathMachine = setup({
       outputs: {
         result?: any;
       };
-      // sender?: ActorRefFrom<typeof MathNodeMachine>;
+      senders?: AnyActorRef[];
     };
   },
   actors: {
@@ -139,16 +138,15 @@ const RunMathMachine = setup({
                   ok: true,
                 }),
               });
-              enqueue.sendTo(
-                ({ context }) => context.sender,
-                ({ context }) => ({
+              for (const sender of context.senders!) {
+                enqueue.sendTo(sender, ({ context }) => ({
                   type: "TOOL_RESULT",
                   params: {
                     id: self.id,
                     res: context.outputs,
                   },
-                }),
-              );
+                }));
+              }
             },
           ),
         },
@@ -156,9 +154,8 @@ const RunMathMachine = setup({
           target: "complete",
           actions: enqueueActions(
             ({ enqueue, check, context, event, self }) => {
-              enqueue.sendTo(
-                ({ context }) => context.sender,
-                ({ context }) => ({
+              for (const sender of context.senders!) {
+                enqueue.sendTo(sender, {
                   type: "TOOL_RESULT",
                   params: {
                     id: self.id,
@@ -167,8 +164,8 @@ const RunMathMachine = setup({
                       ok: false,
                     },
                   },
-                }),
-              );
+                });
+              }
             },
           ),
         },
@@ -270,56 +267,54 @@ export const MathNodeMachine = createMachine(
             }),
           },
           RUN: {
-            actions: enqueueActions(
-              ({ enqueue, check, event, self, context }) => {
-                if (
-                  check(({ event }) => {
-                    return !isNil(event.params?.values);
-                  })
-                ) {
-                  enqueue({
-                    type: "setValue",
-                    params: {
-                      values: event.params?.values!,
-                    },
-                  });
-                }
-                if (check(({ event }) => !isNil(event.params))) {
-                  enqueue.assign({
-                    runs: ({ context, spawn }) => ({
-                      ...context.runs,
-                      [event.params?.executionNodeId!]: spawn("Run", {
-                        id: event.params?.executionNodeId,
-                        input: {
-                          inputs: {
-                            expression: event.params?.values?.expression,
-                          },
-                          sender: event.params?.sender,
+            actions: enqueueActions(({ enqueue, check, event, context }) => {
+              if (
+                check(({ event }) => {
+                  return !isNil(event.params?.values);
+                })
+              ) {
+                enqueue({
+                  type: "setValue",
+                  params: {
+                    values: event.params?.values!,
+                  },
+                });
+              }
+              if (check(({ event }) => !isNil(event.params))) {
+                enqueue.assign({
+                  runs: ({ context, spawn, self }) => ({
+                    ...context.runs,
+                    [event.params?.executionNodeId!]: spawn("Run", {
+                      id: event.params?.executionNodeId,
+                      input: {
+                        inputs: {
+                          expression: event.params?.values?.expression,
                         },
-                        syncSnapshot: true,
-                      }),
+                        senders: [self, event.params?.sender],
+                      },
+                      syncSnapshot: true,
                     }),
-                  });
-                } else {
-                  const runId = `call-${createId()}`;
-                  enqueue.assign({
-                    runs: ({ context, spawn }) => ({
-                      ...context.runs,
-                      [runId]: spawn("Run", {
-                        id: runId,
-                        input: {
-                          inputs: {
-                            expression: context?.inputs.expression,
-                          },
-                          sender: self,
+                  }),
+                });
+              } else {
+                const runId = `call-${createId()}`;
+                enqueue.assign({
+                  runs: ({ context, spawn, self }) => ({
+                    ...context.runs,
+                    [runId]: spawn("Run", {
+                      id: runId,
+                      input: {
+                        inputs: {
+                          expression: context?.inputs.expression,
                         },
-                        syncSnapshot: true,
-                      }),
+                        senders: [self],
+                      },
+                      syncSnapshot: true,
                     }),
-                  });
-                }
-              },
-            ),
+                  }),
+                });
+              }
+            }),
           },
           SET_VALUE: {
             actions: ["setValue"],

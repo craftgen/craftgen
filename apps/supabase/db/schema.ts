@@ -156,10 +156,38 @@ export const shapeOfContext = z.object({
   outputSockets: z.record(z.string(), z.any()),
 });
 
-export const shapeOfState = z.object({
+const state = z.object({
+  id: z.string(),
   state: z.string(),
+  value: z.union([z.string(), z.record(z.string().or(z.record(z.string())))]),
   status: z.enum(["active", "error", "done"]),
   context: shapeOfContext,
+});
+
+type State = z.infer<typeof state> & {
+  children?: Record<
+    string,
+    {
+      snapshot: State;
+      src: string;
+      syncSnapshot: boolean;
+    }
+  >;
+};
+
+export const shapeOfState: z.ZodType<State> = state.extend({
+  children: z
+    .lazy(() =>
+      z.record(
+        z.string(),
+        z.object({
+          snapshot: shapeOfState,
+          src: z.string(),
+          syncSnapshot: z.boolean(),
+        }),
+      ),
+    )
+    .optional(),
 });
 
 /**

@@ -248,7 +248,8 @@ export class Connection<
 
       if (this.targetDefintion.type === "tool") {
         const keys = Object.keys(this.targetValue).filter((key) =>
-          key.startsWith(this.source),
+          // we omit `node_` for the tool names. here we are putting back to make it work.
+          `node_${key}`.startsWith(`${this.source}`),
         );
         const value = omit({ ...this.targetValue }, keys);
 

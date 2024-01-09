@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
@@ -110,7 +110,7 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
         </div>
       </AccordionTrigger>
       <AccordionContent>
-        <div className="border p-2">
+        <div className="">
           <ul className="ml space-y-2">
             {execution.executionData.map((nodeData) => (
               <ExecutionNodeItem key={nodeData.id} nodeData={nodeData} />
@@ -127,48 +127,95 @@ type NodeState = Execution["executionData"][number];
 const ExecutionNodeItem: React.FC<{
   nodeData: NodeState;
 }> = ({ nodeData }) => {
+  console.log("@@", nodeData);
   return (
-    <li key={nodeData.id} className="my-2 rounded border p-2">
+    <li key={nodeData.id} className="my-2 p-2 border rounded">
+      {nodeData?.state && (
+        <ExecutionActorData
+          id={nodeData.id}
+          actorData={nodeData?.state}
+          type={nodeData.type}
+        />
+      )}
+    </li>
+  );
+};
+
+export const ExecutionActorData: React.FC<{
+  id: string;
+  type: string;
+  actorData: NonNullable<Execution["executionData"][number]["state"]>;
+}> = ({ id, actorData, type }) => {
+  const runs = useMemo(() => {
+    if (!actorData?.children) {
+      return [];
+    }
+    return Object.entries(actorData?.children).map(([callId, child]) => {
+      return { id: callId, ...child };
+    });
+  }, [actorData?.children]);
+  return (
+    <div>
       <div className="flex items-center justify-between">
-        <div className="flex space-x-1 ">
-          <h2 className="font-bold">{nodeData.type}</h2>
+        <div className="flex space-x-1 py-1">
+          <h2 className="font-bold">{type}</h2>
           <Separator orientation="vertical" />
-          <span className="text-muted-foreground">{nodeData.id}</span>
+          <span className="text-muted-foreground">{id}</span>
           <Separator orientation="vertical" />
           <span className="text-muted-foreground">
-            {JSON.stringify(nodeData?.state?.value)}
+            {JSON.stringify(actorData?.value)}
           </span>
         </div>
         <div>
           <Badge
             className={cn(
               "ml-2",
-              nodeData?.state?.status === "done" && "bg-green-400",
+              actorData.status === "done" && "bg-green-400",
             )}
           >
-            {nodeData?.state?.status}
+            {actorData.status}
           </Badge>
         </div>
       </div>
-      <div className="grid grid-cols-2">
-        <div>
-          <LogsTable record={nodeData?.state?.context?.inputs || {}} />
-          {nodeData?.state?.context?.settings && (
-            <LogsTable record={nodeData?.state?.context?.settings || {}} />
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded border p-2">
+          <h5 className="font-bold">Inputs</h5>
+          <LogsTable record={actorData?.context?.inputs || {}} />
+          {actorData?.context?.settings && (
+            <LogsTable record={actorData?.context?.settings || {}} />
           )}
         </div>
-        <div>
-          <LogsTable record={nodeData?.state?.context?.outputs || {}} />
+        <div className="rounded border p-2">
+          <h5 className="font-bold">Outputs</h5>
+          <LogsTable record={actorData?.context?.outputs || {}} />
         </div>
+        {runs.length > 0 && (
+          <div className="col-span-2 w-full">
+            <Separator />
+            <div className="pt-2">
+              <h3>Runs</h3>
+              <ul className="ml space-y-2 rounded border p-2">
+                {runs.map((run) => (
+                  <ExecutionActorData
+                    key={run.id}
+                    id={run.id}
+                    actorData={run.snapshot}
+                    type={run.src}
+                  />
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
-    </li>
+    </div>
   );
 };
 
 const LogsTable: React.FC<{ record: Record<string, any> }> = ({ record }) => {
   return (
     <div className="grid gap-2">
-      <JSONView data={record} />
+      <JSONView src={record} />
     </div>
   );
 };
