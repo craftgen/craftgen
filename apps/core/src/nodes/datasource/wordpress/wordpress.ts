@@ -1,15 +1,17 @@
 // TODO:
 // @ts-nocheck
 
-import { SetOptional } from "type-fest";
-import { assign, createMachine, StateFrom } from "xstate";
+import type { SetOptional } from "type-fest";
+import type { StateFrom } from "xstate";
+import { assign, createMachine } from "xstate";
 
 import { InputControl } from "../../../controls/input.control";
 import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
 import { objectSocket, triggerSocket } from "../../../sockets";
-import { DiContainer } from "../../../types";
-import { BaseNode, type ParsedNode } from "../../base";
+import type { DiContainer } from "../../../types";
+import { BaseNode  } from "../../base";
+import type {ParsedNode} from "../../base";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -140,20 +142,20 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
 
   async syncUI(state: StateFrom<typeof WordpressMachine>) {
     if (state.context.settings.action === "addPost") {
-      if (!this.inputs["add_post"]) {
+      if (!this.inputs.add_post) {
         this.addInput("add_post", new Input(objectSocket, "post"));
       }
     } else {
-      if (this.inputs["add_post"]) {
+      if (this.inputs.add_post) {
         this.removeInput("add_post");
       }
     }
     if (state.context.settings.action === "readPost") {
-      if (!this.outputs["read_post"]) {
+      if (!this.outputs.read_post) {
         this.addOutput("read_post", new Output(objectSocket, "post"));
       }
     } else {
-      if (this.outputs["read_post"]) {
+      if (this.outputs.read_post) {
         this.removeOutput("read_post");
       }
     }

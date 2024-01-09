@@ -1,9 +1,10 @@
-import { Root } from "rete";
-import { Schemes } from "../../types";
-import { Scope } from "rete";
-import { Area2D } from "rete-area-plugin";
-import { ReteStoreInstance } from "../../store";
 import { debounce } from "lodash-es";
+import type { Root} from "rete";
+import { Scope } from "rete";
+import type { Area2D } from "rete-area-plugin";
+
+import type { ReteStoreInstance } from "../../store";
+import type { Schemes } from "../../types";
 
 export class InspectorPlugin extends Scope<
   never,
@@ -31,7 +32,7 @@ export class InspectorPlugin extends Scope<
       if (context.type === "pointerdown") {
         if (
           (context.data?.event.target as HTMLElement).classList.contains(
-            "background"
+            "background",
           ) &&
           this.selectedNodeId
         ) {

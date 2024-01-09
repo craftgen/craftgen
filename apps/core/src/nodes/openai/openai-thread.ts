@@ -3,27 +3,29 @@ import { isNull, merge } from "lodash-es";
 import "openai/shims/web";
 
 import { OpenAI } from "openai";
-import {
+import type {
   MessageCreateParams,
   ThreadMessage,
 } from "openai/resources/beta/threads/messages/messages.mjs";
-import { Thread } from "openai/resources/beta/threads/threads.mjs";
+import type { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
-import { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise, PromiseActorLogic } from "xstate";
+import type { SetOptional } from "type-fest";
+import type { PromiseActorLogic } from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 
 import { OpenAIThreadControl } from "../../controls/openai-thread.control";
 import { generateSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { triggerSocket } from "../../sockets";
-import { DiContainer } from "../../types";
-import {
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
 
 const inputSockets = {
@@ -384,7 +386,7 @@ export class OpenAIThread extends BaseNode<typeof OpenAIThreadMachine> {
     }
     if (this.di.variables.has("OPENAI_API_KEY")) {
       this._openai = new OpenAI({
-        apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
+        apiKey: this.di.variables.get("OPENAI_API_KEY")!,
         dangerouslyAllowBrowser: true,
       });
     }

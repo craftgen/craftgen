@@ -1,13 +1,13 @@
-import { CreateTRPCProxyClient } from "@trpc/client";
-import { type GetSchemes } from "rete";
+import type { CreateTRPCProxyClient } from "@trpc/client";
+import type {GetSchemes} from "rete";
 import type { Constructor } from "type-fest";
-import { AnyStateMachine } from "xstate";
+import type { AnyStateMachine } from "xstate";
 import * as z from "zod";
 
 import type { AppRouter } from "@seocraft/api";
 
-import { Editor } from ".";
-import { Connection } from "./connection/connection";
+import type { Editor } from ".";
+import type { Connection } from "./connection/connection";
 import {
   ComposeObject,
   GoogleSheet,
@@ -28,7 +28,7 @@ import {
   Webflow,
   Wordpress,
 } from "./nodes";
-import { BaseNode } from "./nodes/base";
+import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { GenerateText } from "./nodes/function/generateText";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
@@ -52,7 +52,7 @@ interface NodeTypeStatic {
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
   NodeTypeStatic;
 
-export type Node = {
+export interface Node {
   type: string;
   id: string;
   contextId: string;
@@ -70,7 +70,7 @@ export type Node = {
   label: string;
   description?: string;
   color?: string;
-};
+}
 
 export const nodes = {
   Start: Start,
@@ -126,8 +126,8 @@ export type NodeProps = BaseNode<AnyStateMachine, any, any, any>;
 export type ConnProps = Connection<NodeProps, NodeProps>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;
 
-export type Position = { x: number; y: number };
-export type Rect = { left: number; top: number; right: number; bottom: number };
+export interface Position { x: number; y: number }
+export interface Rect { left: number; top: number; right: number; bottom: number }
 
 export const setExecutionStateParamSchema = z.object({
   id: z.string(),

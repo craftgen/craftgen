@@ -1,25 +1,27 @@
 import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
-import { ChatMessage } from "modelfusion";
-import { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
-import { SetOptional } from "type-fest";
+import type { ChatMessage } from "modelfusion";
+import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
+import type { SetOptional } from "type-fest";
+import type {
+  PromiseActorLogic} from "xstate";
 import {
   assign,
   createMachine,
   enqueueActions,
-  log,
-  PromiseActorLogic,
+  log
 } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-import { DiContainer } from "../types";
-import {
+import type { DiContainer } from "../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "./base";
+import {
+  BaseNode
 } from "./base";
 
 export enum ThreadActions {

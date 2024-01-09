@@ -1,13 +1,13 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type InputControlOptions = {
+interface InputControlOptions {
   change: (value: string) => void;
   readonly?: boolean;
-};
+}
 
 export class InputControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "text";

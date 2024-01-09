@@ -1,15 +1,17 @@
 // TODO:
 // @ts-nocheck
 
-import { SetOptional } from "type-fest";
-import { assign, createMachine, StateFrom } from "xstate";
+import type { SetOptional } from "type-fest";
+import type { StateFrom } from "xstate";
+import { assign, createMachine } from "xstate";
 
 import { InputControl } from "../../../controls/input.control";
 import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
 import { objectSocket, triggerSocket } from "../../../sockets";
-import { DiContainer } from "../../../types";
-import { BaseNode, type ParsedNode } from "../../base";
+import type { DiContainer } from "../../../types";
+import { BaseNode  } from "../../base";
+import type {ParsedNode} from "../../base";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -140,20 +142,20 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
 
   async syncUI(state: StateFrom<typeof ShopifyMachine>) {
     if (state.context.settings.action === "addRow") {
-      if (!this.inputs["add_row"]) {
+      if (!this.inputs.add_row) {
         this.addInput("add_row", new Input(objectSocket, "row"));
       }
     } else {
-      if (this.inputs["add_row"]) {
+      if (this.inputs.add_row) {
         this.removeInput("add_row");
       }
     }
     if (state.context.settings.action === "readRow") {
-      if (!this.outputs["read_row"]) {
+      if (!this.outputs.read_row) {
         this.addOutput("read_row", new Output(objectSocket, "row"));
       }
     } else {
-      if (this.outputs["read_row"]) {
+      if (this.outputs.read_row) {
         this.removeOutput("read_row");
       }
     }

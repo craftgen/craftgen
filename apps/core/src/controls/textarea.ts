@@ -1,12 +1,12 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type TextareControlOptions = {
+interface TextareControlOptions {
   readonly?: boolean;
   change: (value: string) => void;
-};
+}
 
 export class TextareControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "textarea";

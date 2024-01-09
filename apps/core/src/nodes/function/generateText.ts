@@ -1,29 +1,33 @@
 import { merge } from "lodash-es";
+import type {
+  OllamaChatModelSettings,
+  OpenAIChatSettings} from "modelfusion";
 import {
   BaseUrlApiConfiguration,
   generateText,
   ollama,
-  OllamaChatModelSettings,
-  openai,
-  OpenAIChatSettings,
+  openai
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { DiContainer } from "../../types";
-import {
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
-import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
-import { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
+import type { OllamaModelConfig} from "../ollama/ollama";
+import { OllamaModelMachine } from "../ollama/ollama";
+import type { OpenAIModelConfig} from "../openai/openai";
+import { OpenaiModelMachine } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -227,11 +231,11 @@ export type GenerateTextNode = ParsedNode<
   typeof GenerateTextMachine
 >;
 
-type GenerateTextInput = {
+interface GenerateTextInput {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   user: string;
-};
+}
 
 const generateTextActor = fromPromise(
   async ({ input }: { input: GenerateTextInput }) => {

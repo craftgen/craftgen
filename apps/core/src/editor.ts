@@ -3,14 +3,15 @@ import Ajv from "ajv";
 import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
-import { GetSchemes, NodeEditor, NodeId } from "rete";
+import type { GetSchemes, NodeId } from "rete";
+import { NodeEditor } from "rete";
 import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
-import { SetOptional } from "type-fest";
-import {
+import type { SetOptional } from "type-fest";
+import type {
   AnyActor,
   AnyStateMachine,
   ContextFrom,
@@ -21,9 +22,9 @@ import {
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
-import { Input, Output } from "./input-output";
-import { InputNode } from "./nodes";
-import { BaseNode, ParsedNode } from "./nodes/base";
+import type { Input, Output } from "./input-output";
+import type { InputNode } from "./nodes";
+import type { BaseNode, ParsedNode } from "./nodes/base";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type {
@@ -31,14 +32,12 @@ import type {
   ReactArea2D,
   ReactPlugin,
 } from "./plugins/reactPlugin";
-import { Socket } from "./sockets";
-import { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
+import type { Socket } from "./sockets";
+import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
-type NodeRegistry = {
-  [key: string]: NodeClass;
-};
+type NodeRegistry = Record<string, NodeClass>;
 
 export type NodeWithState<
   T extends NodeRegistry,
@@ -57,16 +56,16 @@ type ConvertToNodeWithState<
   [K in keyof P]: K extends "type" ? keyof T : P[K];
 };
 
-export type EditorHandlers = {
+export interface EditorHandlers {
   incompatibleConnection?: (data: { source: Socket; target: Socket }) => void;
-};
+}
 
-export type EditorProps<
+export interface EditorProps<
   NodeProps extends BaseNode<any, any, any>,
   ConnProps extends Connection<NodeProps, NodeProps>,
   Scheme extends GetSchemes<NodeProps, ConnProps>,
   Registry extends NodeRegistry,
-> = {
+> {
   config: {
     nodes: Registry;
     api: WorkflowAPI;
@@ -85,7 +84,7 @@ export type EditorProps<
     nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
     edges: SetOptional<ConnProps, "id">[];
   };
-};
+}
 
 export class Editor<
   NodeProps extends BaseNode<any, any, any, any> = BaseNode<any, any, any, any>,
@@ -119,7 +118,7 @@ export class Editor<
   public cursorPosition: Position = { x: 0, y: 0 };
   public selectedNodeId: NodeId | null = null;
 
-  public nodeMeta: Map<
+  public nodeMeta = new Map<
     keyof Registry,
     {
       nodeType: keyof Registry;
@@ -129,9 +128,9 @@ export class Editor<
       class: NodeClass;
       section?: string;
     }
-  > = new Map();
+  >();
 
-  public variables: Map<string, string> = new Map();
+  public variables = new Map<string, string>();
 
   public content = {
     nodes: [] as NodeWithState<Registry>[],

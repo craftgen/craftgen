@@ -241,6 +241,12 @@ importers:
         specifier: ^4.3.9
         version: 4.4.5(@types/react@18.2.15)(react@18.2.0)
     devDependencies:
+      '@acme/eslint-config':
+        specifier: ^0.2.0
+        version: link:../../tooling/eslint
+      '@acme/prettier-config':
+        specifier: ^0.1.0
+        version: link:../../tooling/prettier
       '@types/jest':
         specifier: ^29.5.6
         version: 29.5.7
@@ -250,9 +256,15 @@ importers:
       bun-types:
         specifier: ^1.0.6
         version: 1.0.7
+      eslint:
+        specifier: ^8.52.0
+        version: 8.52.0
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.9.0)
+      prettier:
+        specifier: ^3.0.3
+        version: 3.0.3
 
   apps/desktop:
     dependencies:

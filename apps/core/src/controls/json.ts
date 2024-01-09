@@ -1,12 +1,12 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-export type JsonControlOptions = {
+export interface JsonControlOptions {
   change: (v: any) => void;
-};
+}
 
 export class JsonControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "json";

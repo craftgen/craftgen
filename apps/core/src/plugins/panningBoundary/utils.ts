@@ -14,7 +14,7 @@ export function watchPointerMove() {
     },
     destroy() {
       window.removeEventListener("pointermove", pointermove);
-    }
+    },
   };
 }
 
@@ -38,6 +38,6 @@ export function animate(handle: () => void | Promise<void>) {
 
   return {
     start,
-    stop
+    stop,
   };
 }

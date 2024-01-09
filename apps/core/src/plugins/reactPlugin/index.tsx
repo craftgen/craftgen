@@ -1,11 +1,13 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
-import { BaseSchemes, CanAssignSignal, Scope } from "rete";
+import type { BaseSchemes, CanAssignSignal} from "rete";
+import { Scope } from "rete";
 
-import { RenderPreset } from "./presets/types";
-import { getRenderer, Renderer } from "./renderer";
-import { Position, RenderSignal } from "./types";
-import { Actions } from "./useRegistry";
+import type { RenderPreset } from "./presets/types";
+import type { Renderer } from "./renderer";
+import { getRenderer } from "./renderer";
+import type { Position, RenderSignal } from "./types";
+import type { Actions } from "./useRegistry";
 import { Root } from "./utils";
 
 export * as Presets from "./presets";
@@ -45,11 +47,11 @@ type Requires<Schemes extends BaseSchemes> =
 /**
  * Plugin props
  */
-export type Props = {
+export interface Props {
   /** root factory for React.js 18+ */
   createRoot?: (container: Element | DocumentFragment) => any;
   createPortal?: Actions<HTMLElement, React.ReactNode>;
-};
+}
 
 /**
  * React plugin. Renders nodes, connections and other elements using React.

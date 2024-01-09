@@ -1,10 +1,12 @@
-import { DiContainer } from "../types";
-import { BaseNode, type ParsedNode } from "./base";
-import { assign, createMachine, fromPromise } from "xstate";
-import { anySocket, triggerSocket } from "../sockets";
-import { Input, Output } from "../input-output";
 import { merge } from "lodash-es";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
+import { assign, createMachine, fromPromise } from "xstate";
+
+import { Input, Output } from "../input-output";
+import { anySocket, triggerSocket } from "../sockets";
+import type { DiContainer } from "../types";
+import { BaseNode  } from "./base";
+import type {ParsedNode} from "./base";
 
 const LogNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBsD2UB0BLCywGIAlAVQDkBtABgF1FQAHVWLAFy1QDs6QAPRARgDMlDAFZKEygBZBsgEz9pggDQgAnogCcADjHb5Adn0TtmgGwGAvpdVpMAJwCuHDlg5R8ETmGwcAbqgA1j52GE4ublAIbgEAxgCGbJxU1CncjMxJXEi8iFKU-BiUolIGlGaiZfxyUnKqGgj8BlIYmqKC1fxmpaIWzda26GHOru74YPb2qPYY9MiJAGbTALYYoeGjUTGoCVkpaTkZrOzZoHwI+YXFpeWVBTV16ojahVKa70YFBqLaZl0DIFCsVQyzmYBYBB4sBYiR88QWEPsAApFBIAJT4IEgsEQg4MJjHTjcc75TQYORyCraKTabTNTT8fj1RByIwYbSUd6UUxyEqM0Siaw2EAcVAQODcOzpAlZYmIAC0ZmZCEVRUk6o1lCswtCODw0syJzlF0eDSEIn4MjkggMZUpHNKAPWI0iBsJp1yCAeGEU-EqbwFUikZi1yu0ojEoh0trklEEmgKxSdQ2BoLwELdspy53aIgs-ATcgTxTMNuVsbkYnNUnE-H0NX4ycwEym9kzRuziFzGHzheLvTLT0acYwpQqlu6WsEJUFQqAA */
@@ -16,7 +18,7 @@ const LogNodeMachine = createMachine({
         outputs: {},
         error: null,
       },
-      input
+      input,
     ),
   types: {} as {
     input: {

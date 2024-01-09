@@ -1,16 +1,15 @@
-import { ConnectionId } from 'rete'
+import type { ConnectionId } from "rete";
 
-import { Position, RenderSignal } from '../../types'
+import type { Position, RenderSignal } from "../../types";
 
-export type Pin = {
-  id: string
-  position: Position
-  selected?: boolean
+export interface Pin {
+  id: string;
+  position: Position;
+  selected?: boolean;
 }
-export type PinData = {
-  id: ConnectionId
-  pins: Pin[]
+export interface PinData {
+  id: ConnectionId;
+  pins: Pin[];
 }
 
-export type PinsRender =
-  | RenderSignal<'reroute-pins', { data: PinData }>
+export type PinsRender = RenderSignal<"reroute-pins", { data: PinData }>;

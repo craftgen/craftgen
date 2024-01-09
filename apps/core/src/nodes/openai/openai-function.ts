@@ -1,43 +1,51 @@
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 import { merge, omit } from "lodash-es";
+import type {
+  OpenAIChatMessage,
+  OpenAIChatModelType} from "modelfusion";
 import {
   ChatPrompt,
   generateText,
   OPENAI_CHAT_MODELS,
   OpenAIApiConfiguration,
-  OpenAIChatMessage,
   OpenAIChatModel,
-  OpenAIChatModelType,
   retryWithExponentialBackoff,
-  throttleMaxConcurrency,
-  type OpenAIChatSettings,
+  throttleMaxConcurrency
+  
 } from "modelfusion";
-import { SetOptional, Simplify } from "type-fest";
+import type {OpenAIChatSettings} from "modelfusion";
+import type { SetOptional} from "type-fest";
+import { Simplify } from "type-fest";
+import type {
+  PromiseActorLogic} from "xstate";
 import {
   assign,
   createMachine,
-  fromPromise,
-  PromiseActorLogic,
-  type StateFrom,
+  fromPromise
+  
 } from "xstate";
+import type {StateFrom} from "xstate";
 
 import { SelectControl } from "../../controls/select";
 import { SliderControl } from "../../controls/slider";
-import { JSONSocket } from "../../controls/socket-generator";
+import type { JSONSocket } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
+import type {
+  MappedType} from "../../sockets";
 import {
   JSONSocketPrimitiveTypeKeys,
-  MappedType,
   SocketTypeMap,
   triggerSocket,
 } from "../../sockets";
 import type { DiContainer } from "../../types";
-import {
+import type {
   BaseMachineTypes,
-  BaseNode,
-  ChangeActionEventType,
-  type ParsedNode,
+  ChangeActionEventType} from "../base";
+import {
+  BaseNode
+  
 } from "../base";
+import type {ParsedNode} from "../base";
 
 type OPENAI_CHAT_MODELS_KEY = OpenAIChatModelType;
 
@@ -206,10 +214,10 @@ const Actions: {
   },
 };
 
-type SpecificActionType<T extends OpenAIFunctionCallActions> = {
+interface SpecificActionType<T extends OpenAIFunctionCallActions> {
   type: T;
   inputs?: (typeof Actions)[T]["action"]["inputs"];
-};
+}
 
 const inputSockets = [
   {
@@ -512,7 +520,7 @@ export class OpenAIFunctionCall extends BaseNode<
       throw new Error("MISSING_API_KEY_ERROR: OPENAI_API_KEY");
     }
     const api = new OpenAIApiConfiguration({
-      apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
+      apiKey: this.di.variables.get("OPENAI_API_KEY")!,
       throttle: throttleMaxConcurrency({ maxConcurrentCalls: 1 }),
       retry: retryWithExponentialBackoff({
         maxTries: 2,

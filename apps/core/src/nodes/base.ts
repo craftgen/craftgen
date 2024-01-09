@@ -11,44 +11,46 @@ import {
   mergeMap,
 } from "rxjs/operators";
 import { match, P } from "ts-pattern";
-import { MergeDeep } from "type-fest";
-import {
+import type { MergeDeep } from "type-fest";
+import type {
   ActionArgs,
   Actor,
   AnyActorLogic,
   AnyActorRef,
   AnyStateMachine,
-  assign,
-  createActor,
-  enqueueActions,
   InputFrom,
   ProvidedActor,
   Snapshot,
   StateMachine,
-  Subscription,
-  waitFor,
-  type ContextFrom,
-  type MachineImplementationsFrom,
-  type SnapshotFrom,
-} from "xstate";
-import { GuardArgs } from "xstate/guards";
-
-import { BaseControl } from "../controls/base";
+  Subscription} from "xstate";
 import {
+  assign,
+  createActor,
+  enqueueActions,
+  waitFor
+  
+  
+  
+} from "xstate";
+import type {ContextFrom, MachineImplementationsFrom, SnapshotFrom} from "xstate";
+import type { GuardArgs } from "xstate/guards";
+
+import type { BaseControl } from "../controls/base";
+import type {
   ConnectionConfigRecord,
   JSONSocket,
 } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
-import {
-  getControlBySocket,
-  getSocketByJsonSchemaType,
+import type {
   MappedType,
   Socket,
-  Tool,
+  Tool} from "../sockets";
+import {
+  getControlBySocket,
+  getSocketByJsonSchemaType
 } from "../sockets";
-import { type DiContainer } from "../types";
-import type { Node, NodeTypes } from "../types";
+import type {DiContainer, Node, NodeTypes} from "../types";
 import { createJsonSchema } from "../utils";
 
 export type ParsedNode<
@@ -61,20 +63,20 @@ export type ParsedNode<
   state?: SnapshotFrom<Machine>;
 };
 
-export type BaseInputType<
+export interface BaseInputType<
   I extends Record<string, any> = {},
   O extends Record<string, any> = {},
-> = {
+> {
   inputs?: Partial<MappedType<I>>;
   inputSockets?: I;
   outputs?: MappedType<O>;
   outputSockets?: O;
-};
+}
 
-export type BaseContextType<
+export interface BaseContextType<
   I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
   O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
-> = {
+> {
   inputs: MappedType<I>;
   outputs: MappedType<O>;
   outputSockets: O;
@@ -83,9 +85,9 @@ export type BaseContextType<
     name: string;
     message: string;
   } | null;
-};
+}
 
-export type ChangeActionEventType<T> = {
+export interface ChangeActionEventType<T> {
   type: "CHANGE_ACTION";
   value: T;
   outputSockets: Record<string, JSONSocket>;
@@ -93,7 +95,7 @@ export type ChangeActionEventType<T> = {
   action: {
     type: T;
   };
-};
+}
 
 export type BaseEventTypes =
   | {
@@ -196,21 +198,21 @@ export type BaseActorTypes = ProvidedActor;
  * key: the name of the socket
  * port: the side of the socket
  */
-export type HasConnectionGuardParams = {
+export interface HasConnectionGuardParams {
   key: string;
   port: "input" | "output";
-};
+}
 
-export type BaseGuardTypes = {
+export interface BaseGuardTypes {
   type: "hasConnection";
   params: HasConnectionGuardParams;
-};
+}
 
 export type None = "None";
 
 type SpecialMerged<T, U> = U extends None ? T : T | U;
 
-export type BaseMachineTypes<
+export interface BaseMachineTypes<
   T extends {
     input?: any;
     context: any;
@@ -226,14 +228,14 @@ export type BaseMachineTypes<
     actors?: ProvidedActor;
     guards?: any;
   },
-> = {
+> {
   input: MergeDeep<BaseInputType, T["input"]>;
   context: MergeDeep<BaseContextType, T["context"]>;
   guards: SpecialMerged<BaseGuardTypes, T["guards"]>;
   events: SpecialMerged<BaseEventTypes, T["events"]>;
   actions: SpecialMerged<BaseActionTypes, T["actions"]>;
   actors: SpecialMerged<BaseActorTypes, T["actors"]>;
-};
+}
 
 export type BaseMachine = StateMachine<
   BaseContextType,
@@ -302,7 +304,7 @@ export abstract class BaseNode<
 
   public parent?: string;
 
-  public isReady: boolean = false;
+  public isReady = false;
   public machine: Machine;
   // executionNode: Node["nodeExectutions"][number] | undefined;
 
@@ -345,8 +347,8 @@ export abstract class BaseNode<
   public executionNodeId?: string;
   // public unsubscribe: () => void | undefined;
 
-  actors: Map<string, Actor<Machine>> = new Map();
-  actorListeners: Map<string, Subscription> = new Map();
+  actors = new Map<string, Actor<Machine>>();
+  actorListeners = new Map<string, Subscription>();
 
   public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
     hasConnection: (
@@ -550,7 +552,7 @@ export abstract class BaseNode<
       if (!params?.port) {
         throw new Error("Missing params");
       }
-      const port = action.context.outputSockets[params?.port!];
+      const port = action.context.outputSockets[params?.port];
       await this.triggerSuccessors(port);
     },
     updateSocket: assign({
@@ -615,12 +617,12 @@ export abstract class BaseNode<
     this.machineImplements = this.machine.implementations;
   }
 
-  public stateEvents: Subject<{
+  public stateEvents = new Subject<{
     executionId: string | undefined;
     nodeExecutionId: string | undefined;
     state: SnapshotFrom<Machine>;
     readonly: boolean;
-  }> = new Subject();
+  }>();
 
   constructor(
     public readonly ID: NodeTypes,
@@ -891,7 +893,7 @@ export abstract class BaseNode<
       ...options,
     });
     console.log("@@", actor, this.machine, options);
-    let prev = actor.getSnapshot() as any;
+    let prev = actor.getSnapshot() ;
     const listener = actor.subscribe({
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito main");
@@ -903,7 +905,7 @@ export abstract class BaseNode<
           state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
           readonly: self.readonly,
         });
-        this.state = state.value as any;
+        this.state = state.value ;
         console.log("next", state.value, state.context);
         this.setSnap(state);
 
@@ -925,7 +927,7 @@ export abstract class BaseNode<
         // if (!self.readonly) {
         //   saveContextDebounced({ context: persistedState as any });
         // }
-        prev = state as any;
+        prev = state ;
       },
     });
 
@@ -970,7 +972,7 @@ export abstract class BaseNode<
       }
       this.removeOutput(item);
     }
-    let index = 0;
+    const index = 0;
     for (const [key, item] of Object.entries(rawTemplate)) {
       if (this.hasOutput(key)) {
         const output = this.outputs[key];
@@ -1486,9 +1488,7 @@ export abstract class BaseNode<
       //   await node.compute(inputs);
       // }
 
-      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as {
-        [x: string]: string;
-      };
+      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as Record<string, string>;
       console.log("GETTING INPUTS", { inputs, inputttt: this.inputs });
 
       // asign values from context to inputs if input is not connected

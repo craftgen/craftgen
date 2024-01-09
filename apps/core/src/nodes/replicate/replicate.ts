@@ -1,19 +1,23 @@
 import { isNil, merge } from "lodash-es";
 import { match, P } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
+import type {
+  PromiseActorLogic} from "xstate";
 import {
   assign,
   createMachine,
   enqueueActions,
-  fromPromise,
-  PromiseActorLogic,
+  fromPromise
 } from "xstate";
 
-import { RouterInputs, RouterOutputs } from "@seocraft/api";
+import type { RouterInputs, RouterOutputs } from "@seocraft/api";
 
-import { generateSocket, JSONSocket } from "../../controls/socket-generator";
-import { type DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
+import type { JSONSocket } from "../../controls/socket-generator";
+import { generateSocket } from "../../controls/socket-generator";
+import type {DiContainer} from "../../types";
+import type { BaseMachineTypes, None} from "../base";
+import { BaseNode  } from "../base";
+import type {ParsedNode} from "../base";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -129,7 +133,7 @@ const replicateMachine = createMachine({
           actions: [
             assign({
               outputSockets: ({ event }) => {
-                const Output = (event.output.openapi_schema as any).components
+                const Output = (event.output.openapi_schema ).components
                   .schemas.Output;
                 return match(Output).otherwise(() => {
                   return {
@@ -182,7 +186,7 @@ const replicateMachine = createMachine({
                       name: value.title ?? key,
                       type: value.type
                         ? value.type
-                        : value["allOf"][0]["enum"]
+                        : value.allOf[0].enum
                         ? value.allOf[0].type
                         : "unknown",
                       isMultiple: false,

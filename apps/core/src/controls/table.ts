@@ -1,14 +1,17 @@
 // import type { ColumnDef } from "@tanstack/react-table";
 import { BaseControl } from "./base";
 
-export type ColumnDef<T> = {
+export interface ColumnDef<T> {
   id: string;
   Header: string;
-};
+}
 export class TableControl<T> extends BaseControl {
   __type = "table";
 
-  constructor(public columns: ColumnDef<T>[], public data: T[]) {
+  constructor(
+    public columns: ColumnDef<T>[],
+    public data: T[],
+  ) {
     super(200);
   }
 }

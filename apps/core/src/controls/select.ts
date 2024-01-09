@@ -1,14 +1,14 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-export type SelectControlOptions<U extends string> = {
+export interface SelectControlOptions<U extends string> {
   change: (value: U) => void;
   disabled?: boolean;
   placeholder: string;
   values: { key: U; value: string }[];
-};
+}
 
 export class SelectControl<
   T extends AnyActor = AnyActor,

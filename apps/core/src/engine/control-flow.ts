@@ -1,15 +1,15 @@
-import { NodeEditor, NodeId } from "rete";
+import type { NodeEditor, NodeId } from "rete";
 
-import { ClassicScheme } from "./types";
+import type { ClassicScheme } from "./types";
 
 /**
  * ControlFlowNodeSetup is a set of functions that define how to execute a node.
  */
-export type ControlFlowNodeSetup<
+export interface ControlFlowNodeSetup<
   T extends ClassicScheme["Node"],
   I extends (keyof T["inputs"])[] = string[],
   O extends (keyof T["outputs"])[] = string[],
-> = {
+> {
   /** Specifies the inputs which are part of the control flow */
   inputs: () => I;
   /** Specifies the outputs which are part of the control flow */
@@ -20,7 +20,7 @@ export type ControlFlowNodeSetup<
     forward: (output: O[number], execId?: string) => any,
     execId?: string,
   ): any;
-};
+}
 
 /**
  * ControlFlow is a class that allows to execute nodes in a graph using Control flow approach.

@@ -1,17 +1,18 @@
 import { NodeEditor } from "rete";
-import { AreaPlugin } from "rete-area-plugin";
+import type { AreaPlugin } from "rete-area-plugin";
+import type { Selector } from "rete-area-plugin/_types/extensions";
+
+import type { AreaExtra } from "../../editor";
+import type { Schemes } from "../../types";
 import { getFrameWeight } from "./frame";
 import { animate, watchPointerMove } from "./utils";
-import { Selector } from "rete-area-plugin/_types/extensions";
-import { Schemes } from "../../types";
-import { AreaExtra } from "../../editor";
 
-type Props = {
+interface Props {
   area: AreaPlugin<Schemes, AreaExtra<Schemes>>;
   selector: Selector<any>;
   intensity?: number;
   padding?: number;
-};
+}
 
 export function setupPanningBoundary(props: Props) {
   const selector = props.selector;
@@ -26,7 +27,7 @@ export function setupPanningBoundary(props: Props) {
       clientX,
       clientY,
       area.container.getBoundingClientRect(),
-      padding
+      padding,
     );
     const velocity = {
       x: (weights.left - weights.right) * intensity,

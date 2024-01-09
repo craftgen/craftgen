@@ -1,10 +1,10 @@
 import { expect, test } from "bun:test";
 
-type SliderConfig = {
+interface SliderConfig {
   minimum: number;
   maximum: number;
   default?: number;
-};
+}
 
 test("slider step", () => {
   function calculateStep(config: SliderConfig): number {

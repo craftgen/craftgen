@@ -1,14 +1,14 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type NumberControlOptions = {
+interface NumberControlOptions {
   max?: number;
   min?: number;
   step?: number;
   change: (value: number) => void;
-};
+}
 
 export class NumberControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "number";

@@ -3,10 +3,10 @@ import { OpenAIApiConfiguration } from "modelfusion";
 
 import { BaseControl } from "./base";
 
-type OpenAIApiConfigurationControlOptions = {
+interface OpenAIApiConfigurationControlOptions {
   readonly?: boolean;
   change: (value: OpenAIApiConfiguration) => void;
-};
+}
 
 export class OpenAIApiConfigurationControl extends BaseControl {
   __type = "openai-api-configuration";

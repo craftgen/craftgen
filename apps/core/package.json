@@ -6,7 +6,9 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
-    "test": "echo 'test'"
+    "test": "echo 'test'",
+    "format": "prettier --check \"**/*.{js,cjs,mjs,ts,tsx,md,json}\"",
+    "lint": "eslint --fix . "
   },
   "keywords": [],
   "author": "",
@@ -69,9 +71,14 @@
     "zustand": "^4.3.9"
   },
   "devDependencies": {
+    "@acme/eslint-config": "^0.2.0",
+    "@acme/prettier-config": "^0.1.0",
     "@types/jest": "^29.5.6",
     "@types/web": "^0.0.117",
     "bun-types": "^1.0.6",
-    "jest": "^29.7.0"
-  }
+    "eslint": "^8.52.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.3"
+  },
+  "prettier": "@acme/prettier-config"
 }

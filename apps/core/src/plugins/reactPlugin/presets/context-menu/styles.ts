@@ -1,6 +1,11 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
-import { $contextColor, $contextColorDark, $contextColorLight, $contextMenuRound } from './vars'
+import {
+  $contextColor,
+  $contextColorDark,
+  $contextColorLight,
+  $contextMenuRound,
+} from "./vars";
 
 export const CommonStyle = styled.div`
   color: #fff;
@@ -21,4 +26,4 @@ export const CommonStyle = styled.div`
   &:hover {
     background-color: ${$contextColorLight};
   }
-`
+`;

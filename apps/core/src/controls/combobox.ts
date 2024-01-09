@@ -1,16 +1,16 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-export type ComboboxControlOptions<U extends string> = {
+export interface ComboboxControlOptions<U extends string> {
   placeholder?: string;
   dataKey?: string;
   change: (value: U) => void;
   dataFetch?: () => Promise<U[]>;
   dataTransform?: (data: U[]) => { key: string; value: string }[];
   values: { key: U; value: string }[];
-};
+}
 
 export class ComboboxControl<
   Data,

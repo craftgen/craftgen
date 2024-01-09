@@ -10,22 +10,25 @@ import {
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { Tool } from "../../sockets";
-import { DiContainer } from "../../types";
-import {
+import type { Tool } from "../../sockets";
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
-import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
-import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
+import type { OllamaModelConfig} from "../ollama/ollama";
+import { OllamaModelMachine } from "../ollama/ollama";
+import type { OpenAIModelConfig} from "./openai";
+import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -265,13 +268,13 @@ export type OpenAIGenerateStructureNode = ParsedNode<
   typeof OpenAIGenerateStructureMachine
 >;
 
-type GenerateStructureInput = {
+interface GenerateStructureInput {
   llm: OpenAIModelConfig | OllamaModelConfig;
   method: "json" | "functionCall";
   system?: string;
   user?: string;
   schema: Tool;
-};
+}
 
 const generateStructureActor = fromPromise(
   async ({ input }: { input: GenerateStructureInput }) => {

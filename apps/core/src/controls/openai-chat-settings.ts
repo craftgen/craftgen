@@ -1,12 +1,12 @@
-import { OpenAIChatSettings } from "modelfusion";
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { OpenAIChatSettings } from "modelfusion";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 
-type OpenAIChatSettingsControlOptions = {
+interface OpenAIChatSettingsControlOptions {
   readonly?: boolean;
   change: (value: OpenAIChatSettings) => void;
-};
+}
 
 export class OpenAIChatSettingsControl<
   T extends AnyActor = AnyActor,

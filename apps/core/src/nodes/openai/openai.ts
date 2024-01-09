@@ -1,25 +1,28 @@
 import { merge } from "lodash-es";
+import type {
+  BaseUrlApiConfigurationOptions,
+  OpenAIChatSettings} from "modelfusion";
 import {
   ApiConfiguration,
   BaseUrlApiConfiguration,
-  BaseUrlApiConfigurationOptions,
   OPENAI_CHAT_MODELS,
-  OpenAIApiConfiguration,
-  OpenAIChatSettings,
+  OpenAIApiConfiguration
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { Constructor, SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
+import { Constructor } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { DiContainer } from "../../types";
-import {
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
 
 const inputSockets = {

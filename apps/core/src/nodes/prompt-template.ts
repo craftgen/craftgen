@@ -1,12 +1,14 @@
 import { get, isString, merge, set } from "lodash-es";
 import * as Sqrl from "squirrelly";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-import { MappedType } from "../sockets";
+import type { MappedType } from "../sockets";
 import type { DiContainer } from "../types";
-import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "./base";
+import type { BaseMachineTypes, None} from "./base";
+import { BaseNode  } from "./base";
+import type {ParsedNode} from "./base";
 
 const inputSockets = {
   "x-template": generateSocket({

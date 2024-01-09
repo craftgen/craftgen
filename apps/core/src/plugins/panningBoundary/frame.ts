@@ -6,7 +6,7 @@ export function getFrameWeight(
   x: number,
   y: number,
   frame: DOMRect,
-  padding: number
+  padding: number,
 ) {
   const top = getWeight(y - frame.top, padding);
   const bottom = getWeight(frame.bottom - y, padding);
@@ -17,6 +17,6 @@ export function getFrameWeight(
     top,
     bottom,
     left,
-    right
+    right,
   };
 }

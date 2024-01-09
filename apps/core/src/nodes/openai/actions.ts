@@ -7,9 +7,10 @@ import {
   OpenAIChatMessage,
   OpenAIChatModel,
   retryWithExponentialBackoff,
-  throttleMaxConcurrency,
-  type OpenAIChatSettings,
+  throttleMaxConcurrency
+  
 } from "modelfusion";
+import type {OpenAIChatSettings} from "modelfusion";
 
 import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
 

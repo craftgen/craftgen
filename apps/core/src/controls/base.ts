@@ -1,7 +1,7 @@
 import { ClassicPreset } from "rete";
-import { AnyActor, AnyActorRef } from "xstate";
+import type { AnyActor, AnyActorRef } from "xstate";
 
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
 export class BaseControl extends ClassicPreset.Control {
   constructor(

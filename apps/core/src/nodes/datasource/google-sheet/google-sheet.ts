@@ -2,24 +2,26 @@
 // @ts-nocheck
 
 import { match, P } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import {
   assign,
   createMachine,
-  fromPromise,
-  type ContextFrom,
-  type StateFrom,
+  fromPromise
+  
+  
 } from "xstate";
+import type {ContextFrom, StateFrom} from "xstate";
 
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
 import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
-import { type DiContainer } from "../../../types";
-import { BaseNode, ParsedNode } from "../../base";
+import type {DiContainer} from "../../../types";
+import type { ParsedNode } from "../../base";
+import { BaseNode } from "../../base";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 
-export type CallbackDoc = {
+export interface CallbackDoc {
   downloadUrl?: string;
   uploadState?: string;
   description: string;
@@ -37,9 +39,9 @@ export type CallbackDoc = {
   sizeBytes: number;
   type: string;
   url: string;
-};
+}
 
-export type GoogleSheetSettings = {
+export interface GoogleSheetSettings {
   spreadsheet: CallbackDoc | undefined;
   sheet:
     | {
@@ -49,7 +51,7 @@ export type GoogleSheetSettings = {
       }
     | undefined;
   action: GoogleSheetActionTypes;
-};
+}
 
 const GoogleSheetMachine = createMachine({
   id: "google-sheet",

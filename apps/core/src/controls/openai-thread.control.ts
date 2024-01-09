@@ -1,9 +1,9 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-export type OpenAIThreadControlOptions = {};
+export interface OpenAIThreadControlOptions {}
 
 export class OpenAIThreadControl<
   T extends AnyActor = AnyActor,

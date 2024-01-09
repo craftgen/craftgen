@@ -1,5 +1,11 @@
 import { createId } from "@paralleldrive/cuid2";
 import { get, merge } from "lodash-es";
+import type {
+  OpenAIChatMessage,
+  ToolCall,
+  ToolCallError,
+  ToolCallResult,
+  ToolDefinition} from "modelfusion";
 import {
   BaseUrlApiConfiguration,
   ChatMessage,
@@ -7,17 +13,13 @@ import {
   generateToolCalls,
   ollama,
   openai,
-  OpenAIChatMessage,
-  ToolCall,
-  ToolCallError,
-  ToolCallResult,
-  ToolDefinition,
   UncheckedSchema,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
+import type {
+  AnyActorRef} from "xstate";
 import {
-  AnyActorRef,
   assertEvent,
   assign,
   createMachine,
@@ -27,19 +29,22 @@ import {
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { Message } from "../../controls/thread.control";
-import { DiContainer } from "../../types";
-import {
+import type { Message } from "../../controls/thread.control";
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
-import { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
+import type { OllamaModelConfig} from "../ollama/ollama";
+import { OllamaModelMachine } from "../ollama/ollama";
 import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import { OpenAIModelConfig, OpenaiModelMachine } from "./openai";
+import type { OpenAIModelConfig} from "./openai";
+import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -380,13 +385,13 @@ export type OpenAICompleteChatData = ParsedNode<
   typeof OpenAICompleteChatMachine
 >;
 
-type CompleteChatInput = {
+interface CompleteChatInput {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   messages: Omit<Message, "id">[];
   tools: ToolDefinition<string, any>[];
   toolCalls: Record<string, ToolCallInstance<string, any, any>>;
-};
+}
 
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {

@@ -1,24 +1,26 @@
 import ky from "ky";
 import { merge } from "lodash-es";
+import type {
+  BaseUrlApiConfigurationOptions,
+  OllamaChatModelSettings} from "modelfusion";
 import {
   ApiConfiguration,
-  BaseUrlApiConfigurationOptions,
-  ollama,
-  OllamaChatModelSettings,
+  ollama
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { DiContainer } from "../../types";
-import {
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
 
 const OllamaApi = ky.create({

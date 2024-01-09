@@ -1,7 +1,8 @@
-import { test, expect } from "bun:test";
-import { OpenAIFunctionCall, PromptTemplate, Start, TextNode } from "../nodes";
-import { Editor } from "../editor";
+import { expect, test } from "bun:test";
 import { waitFor } from "xstate";
+
+import { Editor } from "../editor";
+import { OpenAIFunctionCall, PromptTemplate, Start, TextNode } from "../nodes";
 import { mockAPI, nodeAreaDefaults } from "./shared";
 
 test("Node registry", async () => {
@@ -109,7 +110,7 @@ test("Throw if the edges are not valid", async () => {
             },
           ],
         },
-      })
+      }),
   ).toThrow();
 });
 
@@ -280,6 +281,6 @@ test("Test execution", async () => {
   expect(textState?.value).toBe("complete");
   expect(textState?.context?.outputs?.value).toBe("Random");
   expect(promptState?.context?.outputs?.value).toBe(
-    "What is your name? Random"
+    "What is your name? Random",
   );
 });

@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { Position } from "../types";
+import type { Position } from "../types";
 import { copyEvent, findReactRoot } from "./utils";
 
 type Translate = (dx: number, dy: number) => void;
-type StartEvent = { pageX: number; pageY: number };
+interface StartEvent { pageX: number; pageY: number }
 
 export function useDrag(
   translate: Translate,

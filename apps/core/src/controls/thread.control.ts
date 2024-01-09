@@ -1,12 +1,12 @@
-import { OpenAIChatMessage } from "modelfusion";
-import { ThreadMessage } from "openai/resources/beta/threads/messages/messages.mjs";
-import { Actor, ActorRefFrom, AnyActor, SnapshotFrom } from "xstate";
+import type { OpenAIChatMessage } from "modelfusion";
+import type { ThreadMessage } from "openai/resources/beta/threads/messages/messages.mjs";
+import type { Actor, ActorRefFrom, AnyActor, SnapshotFrom } from "xstate";
 
-import { ThreadMachine } from "../nodes/thread";
+import type { ThreadMachine } from "../nodes/thread";
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-export type ThreadControlOptions = {};
+export interface ThreadControlOptions {}
 export type MessageContent =
   | OpenAIChatMessage["content"]
   | ThreadMessage["content"];

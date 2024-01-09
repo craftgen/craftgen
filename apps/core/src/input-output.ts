@@ -1,9 +1,9 @@
 import { ClassicPreset } from "rete";
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
-import { BaseControl } from "./controls/base";
-import { JSONSocket } from "./controls/socket-generator";
-import { Socket } from "./sockets";
+import type { BaseControl } from "./controls/base";
+import type { JSONSocket } from "./controls/socket-generator";
+import type { Socket } from "./sockets";
 
 export class Input<
   T extends AnyActor = AnyActor,

@@ -1,15 +1,17 @@
 import { merge } from "lodash-es";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
+import type {
+  JSONSocket} from "../../controls/socket-generator";
 import {
-  JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { Input, Output } from "../../input-output";
 import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
-import { DiContainer } from "../../types";
-import { BaseMachineTypes, BaseNode, None, ParsedNode } from "../base";
+import type { DiContainer } from "../../types";
+import type { BaseMachineTypes, None, ParsedNode } from "../base";
+import { BaseNode } from "../base";
 
 const OutputNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */

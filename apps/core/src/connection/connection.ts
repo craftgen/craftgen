@@ -1,16 +1,17 @@
 import { createId, init } from "@paralleldrive/cuid2";
-import { CurveFactory } from "d3-shape";
+import type { CurveFactory } from "d3-shape";
 import { get, omit } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
-import { ConnectionBase, getUID, NodeBase } from "rete";
+import type { ConnectionBase, NodeBase } from "rete";
+import { getUID } from "rete";
 
-import {
+import type {
   ActorConfig,
   ConnectionConfigRecord,
   JSONSocket,
 } from "../controls/socket-generator";
-import { Editor } from "../editor";
-import { BaseMachine, BaseNode } from "../nodes/base";
+import type { Editor } from "../editor";
+import type { BaseMachine, BaseNode } from "../nodes/base";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
@@ -115,8 +116,7 @@ export class Connection<
     this.targetNode = this.editor.editor.getNode(target.id);
 
     if (
-      this.sourceNode.snap.context.outputs &&
-      this.sourceNode.snap.context.outputs[sourceOutput]
+      this.sourceNode.snap.context.outputs?.[sourceOutput]
     ) {
       this.sourceValue = this.sourceNode.snap.context.outputs[sourceOutput];
     }

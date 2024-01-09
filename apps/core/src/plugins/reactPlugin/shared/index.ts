@@ -1,1 +1,1 @@
-export * as Drag from './drag'
+export * as Drag from "./drag";

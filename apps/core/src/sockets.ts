@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { ToolDefinition } from "modelfusion";
-import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { JSONSchema } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
@@ -18,10 +19,12 @@ import { NumberControl } from "./controls/number";
 import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
-import { JSONSocket } from "./controls/socket-generator";
+import type { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
-import { Message, ThreadControl } from "./controls/thread.control";
-import { NodeTypes, nodeTypes } from "./types";
+import type { Message} from "./controls/thread.control";
+import { ThreadControl } from "./controls/thread.control";
+import type { NodeTypes} from "./types";
+import { nodeTypes } from "./types";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -57,7 +60,7 @@ export type SocketType =
   | "audioSocket"
   | "imageSocket"
   | "embeddingSocket"
-  | "taskSocket"
+   
   | "documentSocket"
   | "databaseIdSocket"
   | "dateSocket"
@@ -83,13 +86,13 @@ export type NODE_LABEL = string;
 export type NODE_ID = string;
 export type TOOL_NAME = `${NODE_LABEL}-${EVENT_TYPE}`;
 
-export type Tool<NAME extends TOOL_NAME = string> = {
+export interface Tool<NAME extends TOOL_NAME = string> {
   name: NAME;
   description: string;
   parameters: JSONSchemaDefinition;
-};
+}
 
-export type SocketTypeMap = {
+export interface SocketTypeMap {
   string: string;
   number: number;
   integer: number;
@@ -102,7 +105,7 @@ export type SocketTypeMap = {
   // trigger: (params: any[]) => void | undefined;
   trigger: undefined;
   thread: Message[];
-};
+}
 
 export type JSONSocketPrimitiveTypeKeys = (typeof types)[number];
 
@@ -110,11 +113,11 @@ export type MappedType<T extends Record<string, JSONSocket>> = {
   [K in keyof T]: SocketTypeMap[T[K]["type"]] | null;
 };
 
-type SocketConfig = {
+interface SocketConfig {
   badge: string;
   color: string;
   connection: string;
-};
+}
 
 export const socketConfig: Record<SocketNameType, SocketConfig> = {
   trigger: { badge: "bg-red-600", color: "bg-red-400", connection: "red" },
@@ -177,7 +180,7 @@ export const socketConfig: Record<SocketNameType, SocketConfig> = {
 
 export const useSocketConfig = (name: SocketNameType) => {
   const getConfig = useCallback((name: SocketNameType) => {
-    return socketConfig[name] || socketConfig["any"];
+    return socketConfig[name] || socketConfig.any;
   }, []);
   return getConfig(name);
 };

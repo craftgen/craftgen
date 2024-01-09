@@ -1,15 +1,17 @@
 // TODO:
 // @ts-nocheck
 
-import { SetOptional } from "type-fest";
-import { assign, createMachine, StateFrom } from "xstate";
+import type { SetOptional } from "type-fest";
+import type { StateFrom } from "xstate";
+import { assign, createMachine } from "xstate";
 
 import { InputControl } from "../../../controls/input.control";
 import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
 import { objectSocket, triggerSocket } from "../../../sockets";
-import { DiContainer } from "../../../types";
-import { BaseNode, ParsedNode } from "../../base";
+import type { DiContainer } from "../../../types";
+import type { ParsedNode } from "../../base";
+import { BaseNode } from "../../base";
 
 const PostgresMachine = createMachine({
   id: "postgres",
@@ -139,20 +141,20 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
 
   async syncUI(state: StateFrom<typeof PostgresMachine>) {
     if (state.context.settings.action === "addRow") {
-      if (!this.inputs["add_row"]) {
+      if (!this.inputs.add_row) {
         this.addInput("add_row", new Input(objectSocket, "row"));
       }
     } else {
-      if (this.inputs["add_row"]) {
+      if (this.inputs.add_row) {
         this.removeInput("add_row");
       }
     }
     if (state.context.settings.action === "readRow") {
-      if (!this.outputs["read_row"]) {
+      if (!this.outputs.read_row) {
         this.addOutput("read_row", new Output(objectSocket, "row"));
       }
     } else {
-      if (this.outputs["read_row"]) {
+      if (this.outputs.read_row) {
         this.removeOutput("read_row");
       }
     }

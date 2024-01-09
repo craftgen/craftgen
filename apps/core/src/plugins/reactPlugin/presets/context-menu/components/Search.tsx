@@ -1,7 +1,7 @@
-import * as React from 'react'
-import styled from 'styled-components'
+import * as React from "react";
+import styled from "styled-components";
 
-import { ComponentType } from '../types'
+import type { ComponentType } from "../types";
 
 export const SearchInput = styled.input`
   color: white;
@@ -13,17 +13,21 @@ export const SearchInput = styled.input`
   width: 100%;
   box-sizing: border-box;
   background: transparent;
-`
+`;
 
-export function Search(props: { value: string, onChange(value: string): void, component?: ComponentType }) {
-  const Component = props.component || SearchInput
+export function Search(props: {
+  value: string;
+  onChange(value: string): void;
+  component?: ComponentType;
+}) {
+  const Component = props.component || SearchInput;
 
   return (
     <Component
       value={props.value}
-      onInput={e => props.onChange((e.target as HTMLInputElement).value)}
-      onPointerDown={e => e.stopPropagation()}
+      onInput={(e) => props.onChange((e.target as HTMLInputElement).value)}
+      onPointerDown={(e) => e.stopPropagation()}
       data-testid="context-menu-search-input"
     />
-  )
+  );
 }

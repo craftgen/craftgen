@@ -3,24 +3,26 @@ import dedent from "ts-dedent";
 
 import "openai/shims/web";
 
-import { OPENAI_CHAT_MODELS, OpenAIChatModelType } from "modelfusion";
+import type { OpenAIChatModelType } from "modelfusion";
+import { OPENAI_CHAT_MODELS } from "modelfusion";
 import { OpenAI } from "openai";
-import {
+import type {
   Assistant,
   AssistantUpdateParams,
 } from "openai/resources/beta/assistants/assistants.mjs";
-import {
+import type {
   Run,
   RunCreateParams,
   RunSubmitToolOutputsParams,
 } from "openai/resources/beta/threads/runs/runs.mjs";
 import { match } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
+import type {
+  PromiseActorLogic} from "xstate";
 import {
   assign,
   createMachine,
   fromPromise,
-  PromiseActorLogic,
   raise,
 } from "xstate";
 
@@ -31,14 +33,15 @@ import { generateSocket } from "../../controls/socket-generator";
 import { TextareControl } from "../../controls/textarea";
 import { Input, Output } from "../../input-output";
 import { objectSocket, triggerSocket } from "../../sockets";
-import { DiContainer } from "../../types";
-import {
+import type { DiContainer } from "../../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "../base";
+import {
+  BaseNode
 } from "../base";
 
 const inputSockets = {
@@ -285,7 +288,7 @@ export const OpenAIAssistantMachine = createMachine({
       invoke: {
         src: "retrieveAssistant",
         input: ({ context }) => ({
-          assistantId: context.settings.assistant?.id!,
+          assistantId: context.settings.assistant?.id,
         }),
         onDone: {
           target: "idle",
@@ -327,7 +330,7 @@ export const OpenAIAssistantMachine = createMachine({
             src: "updateAssistant",
             input: ({ context }) => {
               return {
-                assistantId: context.settings.assistant.id!,
+                assistantId: context.settings.assistant.id,
                 params: {
                   ...omit(omitBy(context.settings.assistant, isNil), [
                     "id",
@@ -362,7 +365,7 @@ export const OpenAIAssistantMachine = createMachine({
             input: ({ context }) => ({
               threadId: context.inputs.threadId,
               body: {
-                assistant_id: context.settings.assistant.id!,
+                assistant_id: context.settings.assistant.id,
               },
             }),
             onDone: {
@@ -518,7 +521,7 @@ export class OpenAIAssistant extends BaseNode<typeof OpenAIAssistantMachine> {
     }
     if (this.di.variables.has("OPENAI_API_KEY")) {
       this._openai = new OpenAI({
-        apiKey: this.di.variables.get("OPENAI_API_KEY") as string,
+        apiKey: this.di.variables.get("OPENAI_API_KEY")!,
         dangerouslyAllowBrowser: true,
       });
     }

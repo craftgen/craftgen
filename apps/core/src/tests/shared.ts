@@ -1,5 +1,6 @@
 import { mock } from "bun:test";
-import { WorkflowAPI } from "../types";
+
+import type { WorkflowAPI } from "../types";
 
 export const mockAPI: WorkflowAPI = {
   setContext: mock(async (params: any) => {}),

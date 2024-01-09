@@ -1,4 +1,4 @@
-import { NodeTypes } from "./types";
+import type { NodeTypes } from "./types";
 
 export const nodesMeta: Record<
   NodeTypes,

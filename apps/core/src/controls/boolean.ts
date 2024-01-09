@@ -1,12 +1,12 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type BooleanControlOptions = {
+interface BooleanControlOptions {
   change: (value: boolean) => void;
   readonly?: boolean;
-};
+}
 
 export class BooleanControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "boolean";

@@ -1,11 +1,11 @@
 import * as ReactDOM from "react-dom";
 
-import { Actions } from "./useRegistry";
+import type { Actions } from "./useRegistry";
 
-export type Renderer = {
+export interface Renderer {
   mount: ReactDOM.Renderer;
   unmount: (container: HTMLElement) => void;
-};
+}
 
 type CreateRoot = (container: Element | DocumentFragment) => any;
 
@@ -25,7 +25,7 @@ export function getRenderer(props?: {
     const span = document.createElement("span");
 
     container.appendChild(span);
-    return wrappers.set(container, span).get(container) as HTMLElement;
+    return wrappers.set(container, span).get(container)!;
   }
   function removeWrapper(container: HTMLElement) {
     const wrapper = wrappers.get(container);

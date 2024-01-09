@@ -1,8 +1,10 @@
-import { DataflowEngine, DataflowEngineScheme } from "rete-engine";
+import type { DataflowEngineScheme } from "rete-engine";
+import { DataflowEngine } from "rete-engine";
 
+import type {
+  ControlFlowEngineScheme} from "./control-flow-engine";
 import {
-  ControlFlowEngine,
-  ControlFlowEngineScheme,
+  ControlFlowEngine
 } from "./control-flow-engine";
 
 export { ControlFlowEngine, DataflowEngine };

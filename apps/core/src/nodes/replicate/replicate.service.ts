@@ -29,7 +29,7 @@ export class ReplicateService {
     return await this.replicate.models.versions.get(
       params.owner,
       params.model_name,
-      params.version_id
+      params.version_id,
     );
   }
 }

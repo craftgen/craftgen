@@ -1,18 +1,21 @@
 import { merge } from "lodash-es";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match, P } from "ts-pattern";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
+import type {
+  JSONSocket} from "../../controls/socket-generator";
 import {
   generateSocket,
-  JSONSocket,
   SocketGeneratorControl,
 } from "../../controls/socket-generator";
 import { slugify } from "../../lib/string";
-import { DiContainer } from "../../types";
+import type { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
-import { BaseMachineTypes, BaseNode, None, type ParsedNode } from "../base";
+import type { BaseMachineTypes, None} from "../base";
+import { BaseNode  } from "../base";
+import type {ParsedNode} from "../base";
 
 const outputSockets = {
   object: generateSocket({

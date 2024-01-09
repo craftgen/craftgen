@@ -1,11 +1,11 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type DateControlOptions = {
+interface DateControlOptions {
   change: (value: string | null) => void;
-};
+}
 
 export class DateControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "date";

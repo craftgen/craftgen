@@ -1,8 +1,8 @@
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
-import { NodeEditor, NodeId } from "rete";
+import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import type { NodeEditor, NodeId } from "rete";
 
-import { JSONSocket } from "./controls/socket-generator";
-import { Schemes } from "./types";
+import type { JSONSocket } from "./controls/socket-generator";
+import type { Schemes } from "./types";
 
 export function getInputNodes(editor: NodeEditor<Schemes>) {
   return editor.getNodes().filter((node) => node.ID === "InputNode");

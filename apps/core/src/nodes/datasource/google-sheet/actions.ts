@@ -1,15 +1,15 @@
 "use server";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import { Auth } from "googleapis";
+import type { Auth } from "googleapis";
 
-import { type GoogleSheetMachineSettingsContext } from "./google-sheet";
+import type {GoogleSheetMachineSettingsContext} from "./google-sheet";
 
-type GoogleSheetServiceSettings = {
+interface GoogleSheetServiceSettings {
   spreadsheetId: string;
   sheetId?: number;
   auth: Auth.OAuth2Client;
-};
+}
 
 class GoogleSpreadSheetService {
   private doc: GoogleSpreadsheet;
@@ -23,7 +23,7 @@ class GoogleSpreadSheetService {
     if (!this.settings.sheetId) {
       throw new Error("SheetId is not set");
     }
-    const sheet = this.doc.sheetsById[this.settings.sheetId]
+    const sheet = this.doc.sheetsById[this.settings.sheetId];
     if (!sheet) {
       throw new Error(`Sheet with id ${this.settings.sheetId} not found`);
     }

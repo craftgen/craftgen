@@ -1,4 +1,5 @@
 import * as z from "zod";
+
 /**
  * This function converts a JSON schema into a Zod schema.
  *
@@ -145,7 +146,7 @@ export const turnJSONSchemaToZodSchema = (schema: any) => {
 
   // Handle optional fields
   Object.keys(zodSchema).forEach((key) => {
-    if (!schema.required || !schema.required.includes(key)) {
+    if (!schema.required?.includes(key)) {
       zodSchema[key] = zodSchema[key].optional();
     }
   });

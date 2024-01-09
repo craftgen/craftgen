@@ -1,10 +1,11 @@
 import { merge } from "lodash-es";
-import { SetOptional } from "type-fest";
+import type { SetOptional } from "type-fest";
 import { createMachine } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-import { DiContainer } from "../types";
-import { BaseMachineTypes, BaseNode, None, ParsedNode } from "./base";
+import type { DiContainer } from "../types";
+import type { BaseMachineTypes, None, ParsedNode } from "./base";
+import { BaseNode } from "./base";
 
 const StartNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
@@ -68,7 +69,7 @@ const StartNodeMachine = createMachine({
     },
   },
   output: () => {
-    timestamp: Date.now();
+    Date.now();
   },
 });
 

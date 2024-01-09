@@ -1,10 +1,10 @@
-import { AnyActor, AnyStateMachine, SnapshotFrom } from "xstate";
+import type { AnyActor, AnyStateMachine, SnapshotFrom } from "xstate";
 
-import { ParsedNode } from "../nodes/base";
+import type { ParsedNode } from "../nodes/base";
 import { BaseControl } from "./base";
-import { JSONSocket } from "./socket-generator";
+import type { JSONSocket } from "./socket-generator";
 
-type NodeControlOptions = {};
+interface NodeControlOptions {}
 
 export class NodeControl<T extends AnyActor = AnyActor> extends BaseControl {
   __type = "node";

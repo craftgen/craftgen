@@ -1,13 +1,14 @@
-import { JSONSchema } from "openai/lib/jsonschema.mjs";
-import { MergeDeep } from "type-fest";
-import { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
+import type { JSONSchema } from "openai/lib/jsonschema.mjs";
+import type { MergeDeep } from "type-fest";
+import type { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
-import { JSONSocketPrimitiveTypeKeys, SocketNameType, types } from "../sockets";
-import { NodeTypes } from "../types";
+import type { JSONSocketPrimitiveTypeKeys, SocketNameType} from "../sockets";
+import { types } from "../sockets";
+import type { NodeTypes } from "../types";
 import { BaseControl } from "./base";
 
-export type SocketGeneratorControlOptions = {
+export interface SocketGeneratorControlOptions {
   connectionType: "input" | "output";
   name: string;
   ignored: string[];
@@ -17,7 +18,7 @@ export type SocketGeneratorControlOptions = {
     description: string;
   };
   onChange: (data: SocketGeneratorControlData) => void;
-};
+}
 
 export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
@@ -136,7 +137,7 @@ export const generateSocket = <
   const res = {
     ...socket,
     ...valid,
-    type: socket["type"] as TypeOfSocket,
+    type: socket.type as TypeOfSocket,
     "x-key": socket["x-key"] as T,
   };
   return res;
