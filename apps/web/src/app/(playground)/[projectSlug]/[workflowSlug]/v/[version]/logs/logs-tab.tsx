@@ -129,7 +129,7 @@ const ExecutionNodeItem: React.FC<{
 }> = ({ nodeData }) => {
   console.log("@@", nodeData);
   return (
-    <li key={nodeData.id} className="my-2 p-2 border rounded">
+    <li key={nodeData.id} className="my-2 rounded border p-2">
       {nodeData?.state && (
         <ExecutionActorData
           id={nodeData.id}
