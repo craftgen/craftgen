@@ -370,7 +370,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
         <TabsContent value="outputs" className="h-full">
           <ScrollArea>
             {outputs.map((output) => (
-              <div key={output.key} className="">
+              <div key={output.key}>
                 <Label className="capitalize">{output.key}</Label>
                 {renderFieldValueBaseOnSocketType(output.socket, output.value)}
               </div>
@@ -401,7 +401,7 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
   }, [childrens]);
 
   return (
-    <div>
+    <div className="">
       <Button
         variant={"outline"}
         disabled={!state.can({ type: "RESET" })}
@@ -439,7 +439,7 @@ const Run = ({ run }: { run: AnyActorRef }) => {
           {state.value === "error" && state.can({ type: "RETRY" }) && (
             <Button
               variant={"outline"}
-              size={'sm'}
+              size={"sm"}
               onClick={() =>
                 run.send({
                   type: "RETRY",
@@ -477,7 +477,7 @@ export const renderFieldValueBaseOnSocketType = (
     .with(
       [
         {
-          name: "String",
+          name: "string",
         },
         P.string.minLength(100),
       ],
@@ -492,7 +492,7 @@ export const renderFieldValueBaseOnSocketType = (
     .with(
       [
         {
-          name: "Array",
+          name: "array",
           definition: {
             type: "array",
             items: {
@@ -515,14 +515,14 @@ export const renderFieldValueBaseOnSocketType = (
     .with(
       [
         {
-          name: "String",
+          name: "string",
         },
         P.string.maxLength(100),
       ],
       ([socket, renderedValue]) => {
         return (
           <div className={"space-y-1"}>
-            <Input value={renderedValue} readOnly />
+            <Textarea value={renderedValue} readOnly />
           </div>
         );
       },

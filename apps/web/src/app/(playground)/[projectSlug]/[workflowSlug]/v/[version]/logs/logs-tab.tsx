@@ -180,21 +180,21 @@ export const ExecutionActorData: React.FC<{
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded border p-2">
+        <div className="bg-muted/50 rounded border p-2">
           <h5 className="font-bold">Inputs</h5>
           <LogsTable record={actorData?.context?.inputs || {}} />
           {actorData?.context?.settings && (
             <LogsTable record={actorData?.context?.settings || {}} />
           )}
         </div>
-        <div className="rounded border p-2">
+        <div className="bg-muted/50 rounded border p-2">
           <h5 className="font-bold">Outputs</h5>
           <LogsTable record={actorData?.context?.outputs || {}} />
         </div>
         {runs.length > 0 && (
           <div className="col-span-2 w-full">
             <Separator />
-            <div className="pt-2">
+            <div className="bg-muted/30 pt-2">
               <h3>Runs</h3>
               <ul className="ml space-y-2 rounded border p-2">
                 {runs.map((run) => (
