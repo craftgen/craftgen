@@ -1,7 +1,9 @@
 import { createId } from "@paralleldrive/cuid2";
-import { get, merge } from "lodash-es";
+import { get, isNil, merge } from "lodash-es";
 import type {
+  OllamaChatMessage,
   OpenAIChatMessage,
+  text,
   ToolCall,
   ToolCallError,
   ToolCallResult,
@@ -207,6 +209,34 @@ export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
     }
 );
 
+const standardizeMessage = (message: OutputFrom<typeof completeChatActor>) =>
+  match(message)
+    .with(
+      {
+        value: {
+          text: P.string,
+        },
+      },
+      (m) => {
+        return ChatMessage.assistant({
+          text: m.value.text,
+          toolResults: null,
+        });
+      },
+    )
+    .with(
+      {
+        text: P.string,
+      },
+      (m) => {
+        return ChatMessage.assistant({
+          text: m.text,
+          toolResults: null,
+        });
+      },
+    )
+    .run();
+
 const OpenAICompleteChatMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2JaYCMD0wBYlADgcBmLwBoQAJ6ILg4ArIyhDuahXnYuAEw2FqYAvin+aJi4hCTkVDQE9Ews7ABKHAByympIIJrauvqGJgjx5qYRSl0OSuZeoaZeLqb+QQih8V6M5kqh7kn27jOmoWkZ6Nj4RKQU1HQMzKxgnLyColIAEgCSADI8InxSAhKlYtWG9Tp6BrUt5vGMLpA4HAhyjRBeeJKRjxBKeJRDdymdwhNYgTKbHI7fL7YpHNhieQiABqfBuHCE71qn0aP1ALQcUOmvRs7ncoVC-yS83BrVhVlZSnipjaNn+jPMaIx2W2eT2hQOACcAK4YDA4DBQZgYESoRXIKCKuCwNgQfRgbUAN2QAGsLdKtrldgUiowVWqNVqNbr9YbjQgNdaCAxvtUqRotF8mr9gvEAaEXKz2UMYimXLzEwCESjzGK2gjJlKNjKnTiFUx3erNdqfQajbATWBFfrFYxyAwAGbIRXERgOrFyl1K1VVr06vV1-2B5DB2lh1QfSO05qIHqTRjOdpeVwOGwTNm87fuKyeNnbkLzdpFrKO7Hy12Vz01id+htsZ4SG4iUpCACKFLERQF2pJdvhXBAbBCRhIOcGxNyGcwXHcXkbC8Y9HATBwlkiRklBsa9MVlZ1cTdEcn29F96xNQkBBJMkKXDOpQOjelghcSwbHiKJOPiJZcy8MFAghGwbGmVCklCPd2KSFwXAIks7yHCsyOrCjfSotgpAkABZLgbnkSlgIjBowJjCCoJg2x4PYpDeTaSwE1QpDzHFXNEnk29BxIx9qyI-IIDYIxYEoBgLSwDtqEVAAKHoAEo2H7Pz72HD1fNLagIEYmlTNYhBnCmRlPBEiw+KSXlCo3CZYlMJQkIcJDZg8gdiPLUjUq1I0AEdlRwesRCwAhaXfCRP2-IQxA4G4gJqYyozpYxEHcflYTg2FYVsLxzF5BNoTg+YsMgjkYlSdJ0WLTyWofFSOrAbrergfrBu+NgsuY+a-jaE8VnFSJeiw7aRUBRw4z6ETzEZeI0lOjBkAgOBDES9KlMXEyWIWhA8BsXlMcBEE8aUeqmqSpTDgoFG5vApx0KhTlHEKoZ-qE8YwmmEUoVQzl5nc07EcU7zrvJ5czNiXb9tsOMhkTWJypEqxczguYnB6DlJR587mrLK72ufdTjUFnL0bcY9WTg8XJlk8TtoGRgBKw5EwZZOS1ZvDXkuU7XiYgfW0ZaJapkhJDUPcWJnBcUI7ITGFrE5doRWcp31hd4n+e1rqer6gahdmrP0aWgFt3BzahjQ4Pw6ZyDoSRSE2VsP6liJpGSOJ733tjGXRPYlEeNZCHg4bvnWqbFsW-AzleQsSwuLjLD2REpYHChlIgA */
   id: "openai-complete-chat",
@@ -307,11 +337,28 @@ const OpenAICompleteChatMachine = createMachine({
                   type: ThreadMachineEvents.addMessage,
                   params: {
                     id: event.params.id,
-                    ...ChatMessage.assistant(event.params.result.value),
+                    ...standardizeMessage(event.params.result),
                   },
                 }),
               );
             }
+          }),
+        },
+        RESET: {
+          guard: ({ context }) => {
+            return context.runs && Object.keys(context.runs).length > 0;
+          },
+          actions: enqueueActions(({ enqueue, context, self }) => {
+            Object.values(context.runs).map((run) => {
+              enqueue.stopChild(run);
+            });
+            enqueue.assign({
+              runs: {},
+              outputs: ({ context }) => ({
+                ...context.outputs,
+                result: null,
+              }),
+            });
           }),
         },
         RUN: {
@@ -400,6 +447,32 @@ interface CompleteChatInput {
   toolCalls: Record<string, ToolCallInstance<string, any, any>>;
 }
 
+const simplyfyMessages = (messages: CompleteChatInput["messages"]) =>
+  messages.map((message) =>
+    match(message)
+      .with({ content: P.string }, (m) => {
+        return {
+          ...m,
+          content: m.content,
+        };
+      })
+      .with(
+        {
+          content: P.array({
+            type: "text",
+            text: P.string,
+          }),
+        },
+        (m) => {
+          return {
+            ...m,
+            content: m.content.map((c) => c.text).join(" "),
+          };
+        },
+      )
+      .run(),
+  );
+
 // And then use it:
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {
@@ -412,7 +485,9 @@ const completeChatActor = fromPromise(
           },
         },
         async ({ llm }) => {
-          const model = ollama.ChatTextGenerator(llm);
+          const model = ollama.ChatTextGenerator({
+            ...llm,
+          });
           const res = await generateText(
             model,
             [
@@ -424,7 +499,8 @@ const completeChatActor = fromPromise(
                     },
                   ]
                 : []),
-              ...input.messages,
+
+              ...(simplyfyMessages(input.messages) as OllamaChatMessage[]),
             ],
             {
               fullResponse: true,
@@ -704,19 +780,11 @@ const completeChatMachine = setup({
                   });
                 },
               )
-              .with(
-                {
-                  value: {
-                    text: P.string,
-                  },
-                },
-                (res) => {
-                  enqueue.raise({
-                    type: "COMPLETE",
-                  });
-                },
-              )
-              .run();
+              .otherwise((res) => {
+                enqueue.raise({
+                  type: "COMPLETE",
+                });
+              });
           }),
         },
         onError: {
@@ -793,7 +861,10 @@ const completeChatMachine = setup({
         {
           guard: (
             { context }, // WHEN ALL TOOL CALLS HAVE BEEN COMPLETED, WE CAN CONTINUE.
-          ) => Object.values(context.inputs.toolCalls).every((t) => t.result),
+          ) =>
+            Object.values(context.inputs.toolCalls).every(
+              (t) => !isNil(t.result),
+            ),
           target: "in_progress",
         },
       ],

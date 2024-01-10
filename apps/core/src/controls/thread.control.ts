@@ -8,6 +8,7 @@ import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
 
 export interface ThreadControlOptions {}
+
 export type MessageContent =
   | OpenAIChatMessage["content"]
   | ThreadMessage["content"];

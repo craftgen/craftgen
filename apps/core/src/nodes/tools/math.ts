@@ -3,8 +3,7 @@ import { isNil, merge } from "lodash-es";
 import * as mathjs from "mathjs";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import type {
-  AnyActorRef} from "xstate";
+import type { AnyActorRef } from "xstate";
 import {
   assertEvent,
   createMachine,
@@ -20,10 +19,9 @@ import type {
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "../base";
-import {
-  BaseNode
+  ParsedNode,
 } from "../base";
+import { BaseNode } from "../base";
 
 const inputSockets = {
   RUN: generateSocket({
