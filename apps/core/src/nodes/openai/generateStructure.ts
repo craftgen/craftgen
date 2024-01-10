@@ -1,7 +1,6 @@
 import { merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
-  ChatMLPrompt,
   generateStructure,
   jsonStructurePrompt,
   ollama,
@@ -21,13 +20,12 @@ import type {
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "../base";
-import {
-  BaseNode
+  ParsedNode,
 } from "../base";
-import type { OllamaModelConfig} from "../ollama/ollama";
+import { BaseNode } from "../base";
+import type { OllamaModelConfig } from "../ollama/ollama";
 import { OllamaModelMachine } from "../ollama/ollama";
-import type { OpenAIModelConfig} from "./openai";
+import type { OpenAIModelConfig } from "./openai";
 import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
@@ -359,19 +357,6 @@ const generateStructureActor = fromPromise(
                 system: input.system,
                 instruction: input?.user || "",
               },
-              // [
-              //   ...(input.system
-              //     ? [
-              //         {
-              //           role: "system" as const,
-              //           content: input.system,
-              //         },
-              //       ]
-              //     : []),
-              //   ...(input.user
-              //     ? [{ role: "user" as const, content: input.user }]
-              //     : []),
-              // ],
             );
         },
       )

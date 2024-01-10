@@ -5,7 +5,8 @@ import type {
   ToolCall,
   ToolCallError,
   ToolCallResult,
-  ToolDefinition} from "modelfusion";
+  ToolDefinition,
+} from "modelfusion";
 import {
   BaseUrlApiConfiguration,
   ChatMessage,
@@ -17,14 +18,14 @@ import {
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
-import type {
-  AnyActorRef} from "xstate";
+import type { AnyActorRef } from "xstate";
 import {
   assertEvent,
   assign,
   createMachine,
   enqueueActions,
   fromPromise,
+  OutputFrom,
   setup,
 } from "xstate";
 
@@ -36,14 +37,13 @@ import type {
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "../base";
-import {
-  BaseNode
+  ParsedNode,
 } from "../base";
-import type { OllamaModelConfig} from "../ollama/ollama";
+import { BaseNode } from "../base";
+import type { OllamaModelConfig } from "../ollama/ollama";
 import { OllamaModelMachine } from "../ollama/ollama";
 import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import type { OpenAIModelConfig} from "./openai";
+import type { OpenAIModelConfig } from "./openai";
 import { OpenaiModelMachine } from "./openai";
 
 const inputSockets = {
@@ -278,6 +278,10 @@ const OpenAICompleteChatMachine = createMachine({
         }
       | {
           type: "COMPLETE";
+          params: {
+            id: string;
+            result: OutputFrom<typeof completeChatActor>;
+          };
         };
 
     guards: None;
@@ -301,7 +305,10 @@ const OpenAICompleteChatMachine = createMachine({
                 ({ context }) => context.inputSockets.messages["x-actor-ref"],
                 ({ context, event }) => ({
                   type: ThreadMachineEvents.addMessage,
-                  params: ChatMessage.assistant(event.params.result),
+                  params: {
+                    id: event.params.id,
+                    ...ChatMessage.assistant(event.params.result.value),
+                  },
                 }),
               );
             }
@@ -393,6 +400,7 @@ interface CompleteChatInput {
   toolCalls: Record<string, ToolCallInstance<string, any, any>>;
 }
 
+// And then use it:
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
@@ -405,18 +413,24 @@ const completeChatActor = fromPromise(
         },
         async ({ llm }) => {
           const model = ollama.ChatTextGenerator(llm);
-          const res = await generateText(model, [
-            ...(input.system
-              ? [
-                  {
-                    role: "system",
-                    content: input.system,
-                  },
-                ]
-              : []),
-            ...input.messages,
-          ]);
-          return { text: res };
+          const res = await generateText(
+            model,
+            [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...input.messages,
+            ],
+            {
+              fullResponse: true,
+            },
+          );
+          return res;
         },
       )
       .with(
@@ -434,17 +448,25 @@ const completeChatActor = fromPromise(
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
 
-          return await generateToolCalls(model, tools, [
-            ...(input.system
-              ? [
-                  {
-                    role: "system",
-                    content: input.system,
-                  },
-                ]
-              : []),
-            ...input.messages,
-          ]);
+          const res = await generateToolCalls(
+            model,
+            tools,
+            [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...input.messages,
+            ],
+            {
+              fullResponse: true,
+            },
+          );
+          return res;
         },
       )
       .with(
@@ -480,18 +502,26 @@ const completeChatActor = fromPromise(
             });
           }
 
-          return await generateToolCalls(model, tools, [
-            ...(input.system
-              ? [
-                  {
-                    role: "system",
-                    content: input.system,
-                  },
-                ]
-              : []),
-            ...input.messages,
-            ...toolCallResponses,
-          ]);
+          const res = await generateToolCalls(
+            model,
+            tools,
+            [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...input.messages,
+              ...toolCallResponses,
+            ],
+            {
+              fullResponse: true,
+            },
+          );
+          return res;
         },
       )
       .with(
@@ -505,24 +535,30 @@ const completeChatActor = fromPromise(
             ...llm,
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
-          const res = await generateText(model, [
-            ...(input.system
-              ? [
-                  {
-                    role: "system",
-                    content: input.system,
-                  },
-                ]
-              : []),
-            ...(input.messages as any),
-          ]);
+          const res = await generateText(
+            model,
+            [
+              ...(input.system
+                ? [
+                    {
+                      role: "system",
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...(input.messages as any),
+            ],
+            {
+              fullResponse: true,
+            },
+          );
 
-          return {
-            text: res,
-          };
+          return res;
         },
       )
       .run();
+
+    console.log("RESULT", result);
     return result;
   },
 );
@@ -541,6 +577,7 @@ function extractGroupsFromToolName(inputString: string) {
     throw new Error("Pattern not found in the string");
   }
 }
+
 const completeChatMachine = setup({
   types: {
     input: {} as {
@@ -656,18 +693,22 @@ const completeChatMachine = setup({
             match(event.output)
               .with(
                 {
-                  toolCalls: P.when((t) => t && t.length > 0),
+                  value: {
+                    toolCalls: P.when((t) => t && t.length > 0),
+                  },
                 },
                 (res) => {
                   enqueue.raise({
                     type: "TOOL_REQUEST",
-                    params: res.toolCalls,
+                    params: res.value.toolCalls,
                   });
                 },
               )
               .with(
                 {
-                  text: P.string,
+                  value: {
+                    text: P.string,
+                  },
                 },
                 (res) => {
                   enqueue.raise({
@@ -678,7 +719,15 @@ const completeChatMachine = setup({
               .run();
           }),
         },
-        onError: {},
+        onError: {
+          target: "error",
+          actions: enqueueActions(({ enqueue, event }) => {
+            console.log("ERROR", event);
+            enqueue.raise({
+              type: "COMPLETE",
+            });
+          }),
+        },
       },
     },
     requires_action: {
@@ -774,6 +823,19 @@ const completeChatMachine = setup({
     complete: {
       type: "final",
       output: ({ context }) => context.outputs,
+    },
+    error: {
+      on: {
+        RETRY: {
+          target: "in_progress",
+        },
+      },
+      output: ({ context }) => {
+        return {
+          ...context.outputs,
+          error: true,
+        };
+      },
     },
   },
   output: ({ context }) => context.outputs,

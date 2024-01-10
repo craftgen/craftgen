@@ -3,14 +3,8 @@ import { merge } from "lodash-es";
 import type { ChatMessage } from "modelfusion";
 import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import type { SetOptional } from "type-fest";
-import type {
-  PromiseActorLogic} from "xstate";
-import {
-  assign,
-  createMachine,
-  enqueueActions,
-  log
-} from "xstate";
+import type { PromiseActorLogic } from "xstate";
+import { assign, createMachine, enqueueActions, log } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -19,10 +13,9 @@ import type {
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "./base";
-import {
-  BaseNode
+  ParsedNode,
 } from "./base";
+import { BaseNode } from "./base";
 
 export enum ThreadActions {
   addMessage = "addMessage",
@@ -90,11 +83,11 @@ export enum ThreadMachineEvents {
 export type ThreadMachineEvent =
   | {
       type: ThreadMachineEvents.addMessage;
-      params: ChatMessage;
+      params: ChatMessage & { id?: string }; // Id is refers to callId if it's coming from llm.
     }
   | {
       type: ThreadMachineEvents.addAndRunMessage;
-      params: ChatMessage;
+      params: ChatMessage & { id?: string }; // Id is refers to callId if it's coming from llm.
     }
   | {
       type: ThreadMachineEvents.clearThread;
@@ -295,7 +288,7 @@ export const ThreadMachine = createMachine(
       }),
       addMessage: assign({
         inputs: ({ context, event }, params) => {
-          const id = `message_${createId()}`;
+          const id = params?.id || `message_${createId()}`;
           return {
             ...context.inputs,
             messages: [

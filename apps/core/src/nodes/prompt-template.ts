@@ -6,9 +6,8 @@ import { assign, createMachine, fromPromise } from "xstate";
 import { generateSocket } from "../controls/socket-generator";
 import type { MappedType } from "../sockets";
 import type { DiContainer } from "../types";
-import type { BaseMachineTypes, None} from "./base";
-import { BaseNode  } from "./base";
-import type {ParsedNode} from "./base";
+import type { BaseMachineTypes, None, ParsedNode } from "./base";
+import { BaseNode } from "./base";
 
 const inputSockets = {
   "x-template": generateSocket({

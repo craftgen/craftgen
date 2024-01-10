@@ -436,6 +436,19 @@ const Run = ({ run }: { run: AnyActorRef }) => {
           <Badge className={cn(state.status === "done" && "bg-green-400")}>
             {state.value}
           </Badge>
+          {state.value === "error" && state.can({ type: "RETRY" }) && (
+            <Button
+              variant={"outline"}
+              size={'sm'}
+              onClick={() =>
+                run.send({
+                  type: "RETRY",
+                })
+              }
+            >
+              Retry
+            </Button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">

@@ -7,7 +7,7 @@ import { MessageContent } from "@seocraft/core/src/controls/thread.control";
 export const TextContent: React.FC<{ content: string }> = React.memo(
   ({ content }) => {
     return (
-      <div className="prose">
+      <div className="prose dark:prose-invert ">
         <Markdown>{content}</Markdown>
       </div>
     );
