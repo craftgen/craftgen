@@ -12,6 +12,7 @@ export interface ThreadControlOptions {}
 export type MessageContent =
   | OpenAIChatMessage["content"]
   | ThreadMessage["content"];
+
 export type MessageRole = OpenAIChatMessage["role"] | ThreadMessage["role"];
 export interface Message {
   id: string;
