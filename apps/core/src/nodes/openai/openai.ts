@@ -1,28 +1,22 @@
 import { merge } from "lodash-es";
-import type {
-  BaseUrlApiConfigurationOptions,
-  OpenAIChatSettings} from "modelfusion";
 import {
-  ApiConfiguration,
-  BaseUrlApiConfiguration,
   OPENAI_CHAT_MODELS,
-  OpenAIApiConfiguration
+  type BaseUrlPartsApiConfigurationOptions,
+  type OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import type { SetOptional } from "type-fest";
-import { Constructor } from "type-fest";
+import { Constructor, type SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode} from "../base";
 import {
-  BaseNode
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
 
 const inputSockets = {
@@ -149,7 +143,7 @@ const outputSockets = {
 
 export type OpenAIModelConfig = OpenAIChatSettings & {
   provider: "openai";
-  apiConfiguration: BaseUrlApiConfigurationOptions;
+  apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
 export const OpenaiModelMachine = createMachine(
@@ -199,14 +193,14 @@ export const OpenaiModelMachine = createMachine(
       actors: None;
       guards: None;
     }>,
-    initial: "idle",
+    initial: "complete",
     after: {
       100: {
         actions: "updateOutput",
       },
     },
     states: {
-      idle: {
+      complete: {
         entry: ["updateOutput"],
         on: {
           UPDATE_OUTPUTS: {

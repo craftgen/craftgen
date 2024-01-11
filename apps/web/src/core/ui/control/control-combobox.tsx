@@ -21,22 +21,11 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-const frameworks = [
-  {
-    value: "123",
-    label: "React",
-  },
-];
-
 export function ComboboxControlComponent(props: {
   data: ComboboxControl<any, any>;
 }) {
-  console.log("@#@#@", {
-    data: props.data,
-  });
   const value = useSelector(props.data.actor, props.data.selector);
   const [open, setOpen] = useState(false);
-  console.log(value);
   return (
     <div className="space-y-1">
       <Label htmlFor={props.data.id}>

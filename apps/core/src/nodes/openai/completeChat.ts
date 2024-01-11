@@ -1,14 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
 import { get, isNil, merge } from "lodash-es";
-import type {
-  OllamaChatMessage,
-  OpenAIChatMessage,
-  text,
-  ToolCall,
-  ToolCallError,
-  ToolCallResult,
-  ToolDefinition,
-} from "modelfusion";
 import {
   BaseUrlApiConfiguration,
   ChatMessage,
@@ -17,10 +8,16 @@ import {
   ollama,
   openai,
   UncheckedSchema,
+  type OllamaChatMessage,
+  type OpenAIChatMessage,
+  type text,
+  type ToolCall,
+  type ToolCallError,
+  type ToolCallResult,
+  type ToolDefinition,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
-import type { AnyActorRef } from "xstate";
 import {
   assertEvent,
   assign,
@@ -29,24 +26,23 @@ import {
   fromPromise,
   OutputFrom,
   setup,
+  type AnyActorRef,
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
-import { BaseNode } from "../base";
-import type { OllamaModelConfig } from "../ollama/ollama";
-import { OllamaModelMachine } from "../ollama/ollama";
+import { OllamaModelMachine, type OllamaModelConfig } from "../ollama/ollama";
 import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import type { OpenAIModelConfig } from "./openai";
-import { OpenaiModelMachine } from "./openai";
+import { OpenaiModelMachine, type OpenAIModelConfig } from "./openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -344,6 +340,7 @@ const OpenAICompleteChatMachine = createMachine({
             }
           }),
         },
+
         RESET: {
           guard: ({ context }) => {
             return context.runs && Object.keys(context.runs).length > 0;
@@ -361,6 +358,7 @@ const OpenAICompleteChatMachine = createMachine({
             });
           }),
         },
+
         RUN: {
           guard: ({ context }) => {
             return (context.inputs.messages || []).length > 0;

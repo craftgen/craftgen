@@ -12,27 +12,25 @@ import {
 } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import type {
-  ActionArgs,
-  Actor,
-  AnyActorLogic,
-  AnyActorRef,
-  AnyStateMachine,
-  InputFrom,
-  ProvidedActor,
-  Snapshot,
-  StateMachine,
-  Subscription} from "xstate";
 import {
   assign,
   createActor,
   enqueueActions,
-  waitFor
-  
-  
-  
+  waitFor,
+  type ActionArgs,
+  type Actor,
+  type AnyActorLogic,
+  type AnyActorRef,
+  type AnyStateMachine,
+  type ContextFrom,
+  type InputFrom,
+  type MachineImplementationsFrom,
+  type ProvidedActor,
+  type Snapshot,
+  type SnapshotFrom,
+  type StateMachine,
+  type Subscription,
 } from "xstate";
-import type {ContextFrom, MachineImplementationsFrom, SnapshotFrom} from "xstate";
 import type { GuardArgs } from "xstate/guards";
 
 import type { BaseControl } from "../controls/base";
@@ -42,16 +40,16 @@ import type {
 } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
-import type {
-  MappedType,
-  Socket,
-  Tool} from "../sockets";
 import {
   getControlBySocket,
-  getSocketByJsonSchemaType
+  getSocketByJsonSchemaType,
+  type MappedType,
+  type Socket,
+  type Tool,
 } from "../sockets";
-import type {DiContainer, Node, NodeTypes} from "../types";
+import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
+import { ToolCallError } from "modelfusion";
 
 export type ParsedNode<
   NodeType extends string,
@@ -110,6 +108,16 @@ export type BaseEventTypes =
         executionNodeId?: string;
         sender?: AnyActorRef;
         values?: Record<string, any>;
+      };
+    }
+  | {
+      type: "RESULT";
+      params?: {
+        id: string // Call id
+        res: {
+          ok: boolean;
+          result: any | ToolCallError;
+        }
       };
     }
   | {
@@ -420,7 +428,7 @@ export abstract class BaseNode<
           enqueue.assign({
             inputSockets: ({ context, spawn }) => {
               const actor = spawn(value["x-actor-type"], {
-                id: `child_${createId()}`,
+                id: `${value["x-actor-type"]}_${createId()}`,
                 syncSnapshot: true,
               });
 
@@ -893,7 +901,7 @@ export abstract class BaseNode<
       ...options,
     });
     console.log("@@", actor, this.machine, options);
-    let prev = actor.getSnapshot() ;
+    let prev = actor.getSnapshot();
     const listener = actor.subscribe({
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito main");
@@ -905,7 +913,7 @@ export abstract class BaseNode<
           state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
           readonly: self.readonly,
         });
-        this.state = state.value ;
+        this.state = state.value;
         console.log("next", state.value, state.context);
         this.setSnap(state);
 
@@ -927,7 +935,7 @@ export abstract class BaseNode<
         // if (!self.readonly) {
         //   saveContextDebounced({ context: persistedState as any });
         // }
-        prev = state ;
+        prev = state;
       },
     });
 
@@ -1488,7 +1496,10 @@ export abstract class BaseNode<
       //   await node.compute(inputs);
       // }
 
-      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as Record<string, string>;
+      const inputs = (await this.di?.dataFlow?.fetchInputs(this.id)) as Record<
+        string,
+        string
+      >;
       console.log("GETTING INPUTS", { inputs, inputttt: this.inputs });
 
       // asign values from context to inputs if input is not connected

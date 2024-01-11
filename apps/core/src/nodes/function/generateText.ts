@@ -1,33 +1,38 @@
+import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
-import type {
-  OllamaChatModelSettings,
-  OpenAIChatSettings} from "modelfusion";
 import {
   BaseUrlApiConfiguration,
   generateText,
   ollama,
-  openai
+  openai,
+  ToolCall,
+  ToolCallError,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import { createMachine, enqueueActions, fromPromise } from "xstate";
+import {
+  and,
+  AnyActorRef,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  OutputFrom,
+  setup,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode} from "../base";
 import {
-  BaseNode
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
-import type { OllamaModelConfig} from "../ollama/ollama";
-import { OllamaModelMachine } from "../ollama/ollama";
-import type { OpenAIModelConfig} from "../openai/openai";
-import { OpenaiModelMachine } from "../openai/openai";
+import { OllamaModelMachine, type OllamaModelConfig } from "../ollama/ollama";
+import { OpenaiModelMachine, type OpenAIModelConfig } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -39,6 +44,27 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "RUN",
     "x-event": "RUN",
+  }),
+  instruction: generateSocket({
+    name: "instruction" as const,
+    type: "string" as const,
+    description: "Instruction for LLM to generate text",
+    required: true,
+    isMultiple: false,
+    "x-controller": "textarea",
+    "x-key": "instruction",
+    "x-showSocket": true,
+  }),
+  system: generateSocket({
+    name: "system" as const,
+    type: "string" as const,
+    description: "System Message",
+    required: false,
+    isMultiple: false,
+    "x-controller": "textarea",
+    title: "System Message",
+    "x-showSocket": true,
+    "x-key": "system",
   }),
   llm: generateSocket({
     "x-key": "llm",
@@ -77,27 +103,6 @@ const inputSockets = {
     "x-showSocket": true,
     isMultiple: false,
   }),
-  system: generateSocket({
-    name: "system" as const,
-    type: "string" as const,
-    description: "System Message",
-    required: false,
-    isMultiple: false,
-    "x-controller": "textarea",
-    title: "System Message",
-    "x-showSocket": true,
-    "x-key": "system",
-  }),
-  user: generateSocket({
-    name: "user" as const,
-    type: "string" as const,
-    description: "User Prompt",
-    required: true,
-    isMultiple: false,
-    "x-controller": "textarea",
-    "x-key": "user",
-    "x-showSocket": true,
-  }),
 };
 
 const outputSockets = {
@@ -130,7 +135,7 @@ const GenerateTextMachine = createMachine({
         inputs: {
           RUN: undefined,
           system: "",
-          user: "",
+          instruction: "",
           llm: null,
         },
         outputs: {
@@ -148,7 +153,9 @@ const GenerateTextMachine = createMachine({
   }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+      runs: Record<string, AnyActorRef>;
+    };
     actions: None;
     events: {
       type: "UPDATE_CHILD_ACTORS";
@@ -156,7 +163,7 @@ const GenerateTextMachine = createMachine({
     guards: None;
     actors: {
       src: "generateText";
-      logic: typeof generateTextActor;
+      logic: typeof generateTextCall;
     };
   }>,
   initial: "idle",
@@ -172,31 +179,32 @@ const GenerateTextMachine = createMachine({
             enqueue("setupInternalActorConnections");
           }),
         },
-        RUN: {
-          target: "running",
-        },
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
-      },
-    },
-    running: {
-      invoke: {
-        src: "generateText",
-        input: ({ context }): GenerateTextInput => {
-          return {
-            llm: context.inputs.llm! as
-              | (OllamaChatModelSettings & { provider: "ollama" })
-              | (OpenAIChatSettings & { provider: "openai" }),
-            system: context.inputs.system!,
-            user: context.inputs.user!,
-          };
-        },
-        onDone: {
-          target: "#openai-generate-text.idle",
-          actions: enqueueActions(({ enqueue }) => {
+
+        RESET: {
+          guard: ({ context }) => {
+            return context.runs && Object.keys(context.runs).length > 0;
+          },
+          actions: enqueueActions(({ enqueue, context, self }) => {
+            Object.values(context.runs).map((run) => {
+              enqueue.stopChild(run);
+            });
             enqueue.assign({
-              outputs: ({ event }) => event.output,
+              runs: {},
+              outputs: ({ context }) => ({
+                ...context.outputs,
+                result: null,
+              }),
+            });
+          }),
+        },
+
+        RESULT: {
+          actions: enqueueActions(({ enqueue, check, self, event }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => ({
+                ...context.outputs,
+                result: event.params?.res,
+              }),
             });
             enqueue({
               type: "triggerSuccessors",
@@ -206,21 +214,225 @@ const GenerateTextMachine = createMachine({
             });
           }),
         },
-        onError: {
-          target: "#openai-generate-text.error",
-          actions: ["setError"],
+
+        RUN: {
+          // target: "running",
+          guard: and([
+            ({ context }) => context.inputs.instruction !== "",
+            ({ context }) => context.inputs.llm !== null,
+          ]),
+          actions: enqueueActions(({ enqueue }) => {
+            const runId = `call-${createId()}`;
+            enqueue.assign({
+              runs: ({ context, spawn, self }) => {
+                const run = spawn("generateText", {
+                  id: runId,
+                  input: {
+                    inputs: {
+                      llm: context.inputs.llm! as
+                        | OpenAIModelConfig
+                        | OllamaModelConfig,
+                      system: context.inputs.system!,
+                      instruction: context.inputs.instruction!,
+                    },
+                    senders: [self],
+                  },
+                  syncSnapshot: true,
+                });
+                return {
+                  ...context.runs,
+                  [runId]: run,
+                };
+              },
+            });
+          }),
+        },
+        SET_VALUE: {
+          actions: ["setValue"],
         },
       },
     },
     complete: {},
     error: {
       on: {
-        RUN: {
-          target: "running",
-        },
         SET_VALUE: {
           actions: ["setValue"],
         },
+      },
+    },
+  },
+});
+
+interface GenerateTextInput {
+  llm: OpenAIModelConfig | OllamaModelConfig;
+  system?: string;
+  instruction: string;
+}
+const generateTextActor = fromPromise(
+  async ({ input }: { input: GenerateTextInput }) => {
+    console.log("INPUT", input);
+    const result = match(input)
+      .with(
+        {
+          llm: {
+            provider: "ollama",
+          },
+        },
+        async ({ llm }) => {
+          const model = ollama
+            .CompletionTextGenerator({
+              ...llm,
+            })
+            .withInstructionPrompt();
+          const res = await generateText(
+            model,
+            {
+              system: input.system,
+              instruction: input.instruction,
+            },
+            {
+              fullResponse: true,
+            },
+          );
+          return res;
+        },
+      )
+      .with(
+        {
+          llm: {
+            provider: "openai",
+          },
+        },
+        ({ llm }) => {
+          const model = openai
+            .ChatTextGenerator({
+              ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+            })
+            .withInstructionPrompt();
+          const res = generateText(
+            model,
+            {
+              system: input.system,
+              instruction: input.instruction,
+            },
+            {
+              fullResponse: true,
+            },
+          );
+          return res;
+        },
+      )
+      .run();
+    return result;
+  },
+);
+
+const generateTextCall = setup({
+  types: {
+    input: {} as {
+      inputs: GenerateTextInput;
+      senders: AnyActorRef[];
+    },
+    context: {} as {
+      inputs: GenerateTextInput;
+      outputs: null | {
+        ok: boolean;
+        result: OutputFrom<typeof generateTextActor> | ToolCallError;
+      };
+      senders: AnyActorRef[];
+    },
+    output: {} as {
+      result: OutputFrom<typeof generateTextActor>;
+      ok: boolean;
+    },
+  },
+  actors: {
+    run: generateTextActor,
+  },
+}).createMachine({
+  initial: "in_progress",
+  context: ({ input }) => {
+    return merge(
+      {
+        inputs: {},
+        outputs: null,
+      },
+      input,
+    );
+  },
+  states: {
+    in_progress: {
+      invoke: {
+        src: "run",
+        input: ({ context }) => {
+          return context.inputs;
+        },
+        onDone: {
+          target: "complete",
+          actions: enqueueActions(({ enqueue, context }) => {
+            enqueue.assign({
+              outputs: ({ event }) => ({
+                result: event.output,
+                ok: true,
+              }),
+            });
+            for (const sender of context.senders) {
+              enqueue.sendTo(sender, ({ context, self }) => ({
+                type: "RESULT",
+                params: {
+                  id: self.id,
+                  res: context.outputs,
+                },
+              }));
+            }
+          }),
+        },
+        onError: {
+          target: "error",
+          actions: enqueueActions(({ enqueue, context, self, event }) => {
+            console.log("ERROR", event);
+            enqueue.assign({
+              outputs: ({ event }) => ({
+                result: new ToolCallError({
+                  toolCall: {
+                    id: self.id,
+                    name: "GenerateText",
+                    args: context.inputs,
+                  },
+                  cause: event.error,
+                  message: (event.error as Error).message,
+                }),
+                ok: false,
+              }),
+            });
+            for (const sender of context.senders) {
+              enqueue.sendTo(sender, {
+                type: "RESULT",
+                params: {
+                  id: self.id,
+                  res: context.outputs,
+                },
+              });
+            }
+          }),
+        },
+      },
+    },
+    complete: {
+      type: "final",
+      output: ({ context }) => context.outputs,
+    },
+    error: {
+      on: {
+        RETRY: {
+          target: "in_progress",
+        },
+      },
+      output: ({ context }) => {
+        return {
+          ...context.outputs,
+        };
       },
     },
   },
@@ -230,60 +442,6 @@ export type GenerateTextNode = ParsedNode<
   "GenerateText",
   typeof GenerateTextMachine
 >;
-
-interface GenerateTextInput {
-  llm: OpenAIModelConfig | OllamaModelConfig;
-  system: string;
-  user: string;
-}
-
-const generateTextActor = fromPromise(
-  async ({ input }: { input: GenerateTextInput }) => {
-    console.log("INPUT", input);
-    const model = match(input.llm)
-      .with(
-        {
-          provider: "ollama",
-        },
-        (config) => {
-          return ollama.ChatTextGenerator(config);
-        },
-      )
-      .with(
-        {
-          provider: "openai",
-        },
-        (config) => {
-          return openai.ChatTextGenerator({
-            ...config,
-            api: new BaseUrlApiConfiguration(config.apiConfiguration),
-          });
-        },
-      )
-      .exhaustive();
-    try {
-      const text = await generateText(model, [
-        {
-          role: "system",
-          content: input.system,
-        },
-        {
-          role: "user",
-          content: input.user,
-        },
-      ]);
-      console.log("TEXT", text);
-      return {
-        result: text,
-      };
-    } catch (err) {
-      console.log("EEEEEE", err);
-      return {
-        result: "EEEEEE",
-      };
-    }
-  },
-);
 
 export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
   static nodeType = "GenerateText";
@@ -305,7 +463,7 @@ export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
   constructor(di: DiContainer, data: GenerateTextNode) {
     super("GenerateText", di, data, GenerateTextMachine, {
       actors: {
-        generateText: generateTextActor,
+        generateText: generateTextCall,
       },
     });
     this.extendMachine({

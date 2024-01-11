@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
 import { groupBy, omit } from "lodash-es";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
 
@@ -13,7 +14,6 @@ import {
 } from "@seocraft/core/src/sockets";
 
 import { ControlWrapper } from "@/app/(playground)/[projectSlug]/[workflowSlug]/v/[version]/playground";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const NodeControlComponent = observer((props: { data: NodeControl }) => {
@@ -65,17 +65,37 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     (state) =>
       state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
   );
+  const selectedActorState = useSelector<AnyActor, any>(
+    selectedActor,
+    (state) => state,
+  );
 
   return (
     <div>
       <LayoutGroup>
         {actorSelector}
-        {
+        <div
+          className={cn(
+            "bg-muted/10 flex flex-col rounded border p-2",
+            selectedActorState.matches("complete") && "border-green-400/30",
+            selectedActorState.matches("action_required") &&
+              "border-yellow-400/30",
+          )}
+        >
+          <div className="flex items-center justify-end">
+            {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
+            {selectedActorState.matches("complete") && (
+              <CheckCircle size={14} className="text-green-400" />
+            )}
+            {selectedActorState.matches("action_required") && (
+              <AlertCircle size={14} className="text-yellow-400" />
+            )}
+          </div>
           <InputsList
             actor={selectedActor}
             showAdvanced={item["x-showControl"]}
           />
-        }
+        </div>
       </LayoutGroup>
     </div>
   );
@@ -87,8 +107,6 @@ const InputsList = observer(
       props.actor,
       (state) => state,
     );
-    // const [showAdvanced, setShowAdvanced] = useState(false);
-    // const showAdvanced = ["x-showControl"];
     const { true: advanceInputs, false: basicInputs } = useMemo(() => {
       return (
         groupBy(
@@ -112,18 +130,6 @@ const InputsList = observer(
           );
         })}
 
-        {/* {advanceInputs?.length > 0 && (
-        <div
-          className={cn("flex w-full items-center justify-center divide-x-2")}
-        >
-          <Button
-            variant={showAdvanced ? "outline" : "ghost"}
-            onClick={() => setShowAdvanced(!showAdvanced)}
-          >
-            {showAdvanced ? "Hide" : "Show"} Advance Settings
-          </Button>
-        </div>
-      )} */}
         {props.showAdvanced && (
           <motion.div layout>
             {advanceInputs?.map((item) => {

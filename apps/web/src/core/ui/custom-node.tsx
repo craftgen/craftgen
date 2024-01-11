@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import {
+  AlertCircle,
   CheckCircle,
   CheckSquare,
   Cog,
@@ -18,8 +19,11 @@ import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
 import { Key } from "ts-key-enum";
 import { useStore } from "zustand";
 
-import type { RenderEmit } from "@seocraft/core/src/plugins/reactPlugin";
-import { Drag, Presets } from "@seocraft/core/src/plugins/reactPlugin";
+import {
+  Drag,
+  Presets,
+  type RenderEmit,
+} from "@seocraft/core/src/plugins/reactPlugin";
 import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
@@ -320,6 +324,7 @@ export const Node = observer((props: Props<Schemes>) => {
                 state.matches("loading") &&
                   "animate-pulse border-2 border-blue-300",
                 state.matches("running") && "border-yellow-300",
+                state.matches("action_required") && "border-yellow-300/40",
                 state.matches("error") && "border-2 border-red-600",
               )}
             >
@@ -396,6 +401,9 @@ export const Node = observer((props: Props<Schemes>) => {
                           size={14}
                           className="animate-spin text-green-400"
                         />
+                      )}
+                      {state.matches("action_required") && (
+                        <AlertCircle size={14} className="text-yellow-400" />
                       )}
                       {state.matches("idle") && <Play size={14} />}
                       {state.matches("complete") && (

@@ -6,6 +6,7 @@ import {
   AlignLeft,
   AlignRight,
   Baseline,
+  Bird,
   Bold,
   Bot,
   BoxSelect,
@@ -78,8 +79,9 @@ import {
   Underline,
   WrapText,
   X,
+  type LucideIcon,
+  type LucideProps,
 } from "lucide-react";
-import type { LucideIcon, LucideProps } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -317,6 +319,7 @@ export const Icons = {
   borderNone,
   borderRight,
   borderTop,
+  bird: Bird,
   "box-select": BoxSelect,
   braces: Braces,
   brackets: Brackets,

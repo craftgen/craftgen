@@ -362,8 +362,8 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
                 <ControlWrapper key={key} control={control} label={key} />
               ))}
               <DynamicInputsForm inputs={node.inputs} />
-
-              <Runs actor={node.actor} />
+              <Separator />
+              {state.context.runs && <Runs actor={node.actor} />}
             </ScrollArea>
           </div>
         </TabsContent>
@@ -393,7 +393,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
 
 const Runs = ({ actor }: { actor: AnyActorRef }) => {
   const state = useSelector(actor, (state) => state);
-  const childrens = useSelector(actor, (state) => state.children);
+  const childrens = useSelector(actor, (state) => state.context.runs);
   const runs = useMemo(() => {
     return Object.values(childrens)
       .filter((child) => child.id.startsWith("call"))
@@ -401,19 +401,31 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
   }, [childrens]);
 
   return (
-    <div className="">
-      <Button
-        variant={"outline"}
-        disabled={!state.can({ type: "RESET" })}
-        onClick={() =>
-          actor.send({
-            type: "RESET",
-          })
-        }
-      >
-        Reset
-      </Button>
+    <div className="mt-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold">Runs</h3>
+        <Button
+          variant={"outline"}
+          disabled={!state.can({ type: "RESET" })}
+          onClick={() =>
+            actor.send({
+              type: "RESET",
+            })
+          }
+        >
+          Reset
+        </Button>
+      </div>
+
       <div className="flex flex-col space-y-2">
+        {runs.length === 0 && (
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <Icons.bird className="h-12 w-12" />
+            <span className="text-muted-foreground">
+              No runs available, when it happens it will show up here.
+            </span>
+          </div>
+        )}
         {runs.map((run) => {
           return <Run key={run.id} run={run} />;
         })}
@@ -426,7 +438,7 @@ const Run = ({ run }: { run: AnyActorRef }) => {
   const state = useSelector(run, (state) => state);
   console.log(state);
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="bg-muted/20 flex flex-col space-y-2 rounded border p-2">
       <div className="flex flex-row items-center justify-between ">
         <div className="flex  items-center space-x-2">
           <Label>Run Id</Label>

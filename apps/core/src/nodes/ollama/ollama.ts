@@ -1,11 +1,8 @@
 import ky from "ky";
 import { merge } from "lodash-es";
-import type {
-  BaseUrlApiConfigurationOptions,
-  OllamaChatModelSettings} from "modelfusion";
 import {
-  ApiConfiguration,
-  ollama
+  type BaseUrlPartsApiConfigurationOptions,
+  type OllamaChatModelSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
@@ -13,14 +10,13 @@ import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode} from "../base";
 import {
-  BaseNode
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
 
 const OllamaApi = ky.create({
@@ -441,7 +437,7 @@ export const OllamaModelMachine = createMachine(
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        model?: ShowResponse;
+        model?: ShowResponse & { name: string };
       };
       actions: {
         type: "updateOutput";
@@ -456,9 +452,9 @@ export const OllamaModelMachine = createMachine(
       };
       guards: None;
     }>,
-    initial: "idle",
+    initial: "action_required",
     states: {
-      idle: {
+      action_required: {
         entry: ["updateOutput"],
         on: {
           UPDATE_OUTPUTS: {
@@ -475,12 +471,9 @@ export const OllamaModelMachine = createMachine(
         always: [
           {
             guard: ({ context }) =>
-              context.inputs.model !== undefined && context.model === undefined,
+              context.inputs.model !== "" &&
+              context.model?.name !== context.inputs.model,
             target: "loading",
-          },
-          {
-            guard: ({ context }) => context.model !== undefined,
-            target: "complete",
           },
         ],
         invoke: {
@@ -518,7 +511,12 @@ export const OllamaModelMachine = createMachine(
           onDone: {
             target: "#ollama-model.complete",
             actions: assign({
-              model: ({ event }) => event.output,
+              model: ({ event, context }) => {
+                return {
+                  ...event.output,
+                  name: context.inputs.model,
+                };
+              },
               inputs: ({ context, event }) => {
                 return {
                   ...context.inputs,
@@ -530,15 +528,36 @@ export const OllamaModelMachine = createMachine(
           },
           onError: {
             actions: ["setError"],
-            target: "idle",
+            target: "action_required",
           },
         },
-        after: {
-          1000: "idle",
-        },
+        // after: {
+        //   1000: "idle",
+        // },
       },
       complete: {
-        entry: ["updateOutput"],
+        entry: enqueueActions(({ enqueue, context }) => {
+          enqueue("updateOutput");
+          enqueue.assign({
+            outputs: ({ context, self }) => {
+              return {
+                ...context.outputs,
+                config: {
+                  ...(context.outputs.config as object),
+                },
+              };
+            },
+          });
+        }),
+        always: [
+          {
+            guard: ({ context }) =>
+              context.inputs.model === "" ||
+              context.model === undefined ||
+              context.model.name !== context.inputs.model,
+            target: "action_required",
+          },
+        ],
         on: {
           UPDATE_OUTPUTS: {
             actions: "updateOutput",
@@ -548,7 +567,7 @@ export const OllamaModelMachine = createMachine(
           },
           SET_VALUE: {
             actions: ["setValue", "updateOutput"],
-            target: "idle",
+            // target: "action_required",
           },
         },
       },
@@ -564,14 +583,13 @@ export const OllamaModelMachine = createMachine(
         console.log("updateOutput", context);
         enqueue.assign({
           outputs: ({ context }) => {
-            // const api = ollama.Api({});
-            // console.log("api", api);
             const api = {
               baseUrl: "http://127.0.0.1:11434",
-            } as BaseUrlApiConfigurationOptions;
+            } as BaseUrlPartsApiConfigurationOptions;
             return {
               ...context.outputs,
               config: {
+                ...(context.outputs.config as object),
                 provider: "ollama",
                 apiConfiguration: api,
                 ...context.inputs,
