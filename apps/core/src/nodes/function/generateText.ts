@@ -5,7 +5,6 @@ import {
   generateText,
   ollama,
   openai,
-  ToolCall,
   ToolCallError,
 } from "modelfusion";
 import dedent from "ts-dedent";
