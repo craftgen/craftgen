@@ -10,7 +10,6 @@ import {
   UncheckedSchema,
   type OllamaChatMessage,
   type OpenAIChatMessage,
-  type text,
   type ToolCall,
   type ToolCallError,
   type ToolCallResult,
@@ -175,10 +174,19 @@ const outputSockets = {
     "x-key": "messages",
     "x-showSocket": true,
   }),
-  result: generateSocket({
-    name: "result" as const,
+  text: generateSocket({
+    name: "text" as const,
     type: "string" as const,
     description: "Result of the generation",
+    required: true,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "text",
+  }),
+  result: generateSocket({
+    name: "result" as const,
+    type: "object" as const,
+    description: "Result of the generation (JSON)",
     required: true,
     isMultiple: true,
     "x-showSocket": true,
@@ -263,7 +271,7 @@ const OpenAICompleteChatMachine = createMachine({
         runs: {},
         outputs: {
           onDone: undefined,
-          result: "",
+          result: {},
           messages: [],
         },
         inputSockets: {
@@ -303,13 +311,15 @@ const OpenAICompleteChatMachine = createMachine({
           };
         }
       | {
-          type: "COMPLETE";
+          type: "RESULT";
           params: {
             id: string;
-            result: OutputFrom<typeof completeChatActor>;
+            res: {
+              result: OutputFrom<typeof completeChatActor>;
+              ok: boolean;
+            };
           };
         };
-
     guards: None;
     actors: {
       src: "completeChat";
@@ -323,9 +333,23 @@ const OpenAICompleteChatMachine = createMachine({
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
         },
-        COMPLETE: {
+        RESULT: {
           actions: enqueueActions(({ enqueue, event, check }) => {
-            console.log("COMPLETE", event);
+            console.log("RESULT @@", event);
+            enqueue.assign({
+              outputs: ({ context, event }) => ({
+                ...context.outputs,
+                result: event.params?.res,
+                messages: [
+                  ...(context.inputs.messages as any[]),
+                  {
+                    id: event.params.id,
+                    ...standardizeMessage(event.params.res.result),
+                  },
+                ],
+                text: event.params?.res.result.text,
+              }),
+            });
             if (check(({ context }) => !!context.inputs.append)) {
               enqueue.sendTo(
                 ({ context }) => context.inputSockets.messages["x-actor-ref"],
@@ -333,14 +357,19 @@ const OpenAICompleteChatMachine = createMachine({
                   type: ThreadMachineEvents.addMessage,
                   params: {
                     id: event.params.id,
-                    ...standardizeMessage(event.params.result),
+                    ...standardizeMessage(event.params.res.result),
                   },
                 }),
               );
             }
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
           }),
         },
-
         RESET: {
           guard: ({ context }) => {
             return context.runs && Object.keys(context.runs).length > 0;
@@ -372,7 +401,7 @@ const OpenAICompleteChatMachine = createMachine({
                   [runId]: spawn("completeChat", {
                     id: runId,
                     input: {
-                      sender: self,
+                      senders: [self],
                       inputs: {
                         llm: context.inputs.llm! as
                           | OpenAIModelConfig
@@ -667,10 +696,10 @@ const completeChatMachine = setup({
           }
         >;
       };
-      sender: AnyActorRef;
+      senders: AnyActorRef[];
     },
     context: {} as {
-      sender: AnyActorRef;
+      senders: AnyActorRef[];
       inputs: {
         llm: OpenAIModelConfig | OllamaModelConfig;
         system: string;
@@ -729,17 +758,16 @@ const completeChatMachine = setup({
         },
         COMPLETE: {
           target: "complete",
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue.sendTo(
-              ({ context }) => context.sender,
-              ({ context, self }) => ({
-                type: "COMPLETE",
+          actions: enqueueActions(({ enqueue, context }) => {
+            for (const sender of context.senders) {
+              enqueue.sendTo(sender, ({ context, self }) => ({
+                type: "RESULT",
                 params: {
                   id: self.id,
-                  result: context.outputs,
+                  res: context.outputs,
                 },
-              }),
-            );
+              }));
+            }
           }),
         },
       },
@@ -760,7 +788,8 @@ const completeChatMachine = setup({
               outputs: ({ context, event }) => {
                 return {
                   ...context.outputs,
-                  ...event.output,
+                  result: event.output,
+                  ok: true,
                 };
               },
             });
@@ -844,7 +873,7 @@ const completeChatMachine = setup({
             ({ self }) => ({
               type: eventType,
               params: {
-                sender: self,
+                senders: [self],
                 executionNodeId: toolCall.id,
                 values: {
                   ...args,

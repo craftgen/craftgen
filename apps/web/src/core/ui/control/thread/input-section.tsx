@@ -28,10 +28,11 @@ export const InputSection: React.FC<{
   };
 
   return (
-    <div className="rounded border p-2">
+    <div className="rounded border p-2 bg-background">
       <Textarea
-        className="border-none"
+        className="border-none bg-muted"
         value={value}
+
         onChange={(e) => setValue(e.target.value)}
       />
       <div className="flex items-center justify-start space-x-2 pt-2 focus-visible:ring-0">

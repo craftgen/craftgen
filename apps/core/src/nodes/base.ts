@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { get, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
 import { merge, of, Subject } from "rxjs";
 import {
@@ -49,7 +50,6 @@ import {
 } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
-import { ToolCallError } from "modelfusion";
 
 export type ParsedNode<
   NodeType extends string,
@@ -112,12 +112,12 @@ export type BaseEventTypes =
     }
   | {
       type: "RESULT";
-      params?: {
-        id: string // Call id
+      params: {
+        id: string; // Call id
         res: {
           ok: boolean;
           result: any | ToolCallError;
-        }
+        };
       };
     }
   | {
