@@ -528,7 +528,7 @@ export class GenerateStructure extends BaseNode<
   static nodeType = "OpenAIGenerateStructure";
   static label = "Generate Structure";
   static description = "Use LLMs to create a structed data";
-  static icon = "openAI";
+  static icon = "FileJson";
 
   static section = "Functions";
 
