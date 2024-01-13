@@ -269,14 +269,3 @@ export interface WorkflowAPI {
 }
 
 export type DiContainer = Editor;
-
-// export type DiContainer = {
-//   headless: boolean;
-//   logger: any; // TODO: fix types
-//   graph: Structures<NodeProps, ConnProps>;
-//   editor: NodeEditor<Schemes>;
-//   engine: ControlFlowEngine<Schemes>;
-//   dataFlow: DataflowEngine<Schemes>;
-//   modules: Modules;
-//   api: WorkflowAPI;
-// };
