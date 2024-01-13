@@ -41,7 +41,7 @@ import {
 } from "../base";
 import { OllamaModelMachine, type OllamaModelConfig } from "../ollama/ollama";
 import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import { OpenaiModelMachine, type OpenAIModelConfig } from "./openai";
+import { OpenaiModelMachine, type OpenAIModelConfig } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({

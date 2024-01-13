@@ -3,7 +3,6 @@ export { Log } from "./log";
 export { TextNode } from "./primitives/text";
 export { Number } from "./primitives/number";
 export { PromptTemplate } from "./prompt-template";
-export { OpenAIFunctionCall } from "./openai/openai-function";
 
 export { ComposeObject } from "./object/composeObject";
 

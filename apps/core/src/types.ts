@@ -17,7 +17,6 @@ import {
   Number,
   Ollama,
   OpenAI,
-  OpenAIFunctionCall,
   OutputNode,
   Postgres,
   PromptTemplate,
@@ -33,8 +32,8 @@ import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { GenerateText } from "./nodes/function/generateText";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
-import { CompleteChat } from "./nodes/openai/completeChat";
-import { GenerateStructure } from "./nodes/openai/generateStructure";
+import { CompleteChat } from "./nodes/function/completeChat";
+import { GenerateStructure } from "./nodes/function/generateStructure";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
@@ -92,7 +91,6 @@ export const nodes = {
 
   ApiConfiguration: ApiConfiguration,
 
-  OpenAIFunctionCall: OpenAIFunctionCall,
   GenerateText: GenerateText,
   GenerateStructure: GenerateStructure,
   CompleteChat: CompleteChat,
