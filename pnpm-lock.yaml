@@ -32,9 +32,6 @@ importers:
 
   apps/api:
     dependencies:
-      '@seocraft/core':
-        specifier: ^0.1.0
-        version: link:../core
       '@seocraft/supabase':
         specifier: ^0.1.0
         version: link:../supabase
@@ -357,9 +354,6 @@ importers:
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
-      '@seocraft/core':
-        specifier: ^0.1.0
-        version: link:../core
       '@types/pg':
         specifier: ^8.10.2
         version: 8.10.7
