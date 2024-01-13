@@ -3,8 +3,7 @@ import type { ClassicPreset } from "rete";
 import { match } from "ts-pattern";
 
 import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
-import type { Socket, Sockets } from "@seocraft/core/src/sockets";
-import { socketConfig, useSocketConfig } from "@seocraft/core/src/sockets";
+import { useSocketConfig, type Socket } from "@seocraft/core/src/sockets";
 import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,8 +12,8 @@ import { cn } from "@/lib/utils";
 export function CustomSocket<T extends Socket>(props: {
   data: {
     socket: T;
-    input?: ClassicPreset.Input<Sockets>;
-    output?: ClassicPreset.Output<Sockets>;
+    input?: ClassicPreset.Input<Socket>;
+    output?: ClassicPreset.Output<Socket>;
   };
   meta: Omit<ExtractPayload<Schemes, "socket">, "payload">;
 }) {
@@ -47,7 +46,7 @@ export function CustomSocket<T extends Socket>(props: {
     <div title={props.data.socket.name}>
       <Badge
         className={cn(
-          "text-primary-foreground z-10",
+          "text-primary-foreground border-primary-foreground/50  z-10 font-mono",
           config?.badge,
           props.meta.side === "input" && "-ml-1 rounded-l-none",
           props.meta.side === "output" && "-mr-1 rounded-r-none",
