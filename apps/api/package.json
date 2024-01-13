@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@seocraft/core": "^0.1.0",
     "@seocraft/supabase": "^0.1.0",
     "@seocraft/utils": "^0.1.0",
     "@supabase/supabase-js": "^2.38.1",

@@ -26,11 +26,6 @@ begin
   insert into public.project_members (id, project_id, user_id, member_role)
   values (gen_random_uuid(), new_project_id, new.id, 'owner');
 
-	-- Insert into project_variable table
-  insert into public.project_variable (id, project_id, key, is_system)
-  values (gen_random_uuid(), new_project_id, 'OPENAI_API_KEY', true),
-         (gen_random_uuid(), new_project_id, 'REPLICATE_API_KEY', true);
-
   return new;
 end;
 $$ language plpgsql security definer;

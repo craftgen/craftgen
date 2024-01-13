@@ -300,9 +300,9 @@ begin
   values (gen_random_uuid(), new_project_id, new.id, 'owner');
 
 	-- Insert into project_variable table
-  insert into public.project_variable (id, project_id, key, is_system)
-  values (gen_random_uuid(), new_project_id, 'OPENAI_API_KEY', true),
-         (gen_random_uuid(), new_project_id, 'REPLICATE_API_KEY', true);
+  -- insert into public.project_variable (id, project_id, key, is_system)
+  -- values (gen_random_uuid(), new_project_id, 'OPENAI_API_KEY', true),
+  --        (gen_random_uuid(), new_project_id, 'REPLICATE_API_KEY', true);
 
   return new;
 end;

@@ -8,7 +8,7 @@ import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { LayoutGroup, motion } from "framer-motion";
-import { debounce, get, groupBy } from "lodash-es";
+import { debounce, groupBy } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,

@@ -60,6 +60,7 @@ export interface Database {
           {
             foreignKeyName: "context_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -115,36 +116,42 @@ export interface Database {
           {
             foreignKeyName: "node_execution_data_context_id_context_id_fk"
             columns: ["context_id"]
+            isOneToOne: false
             referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "node_execution_data_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "node_execution_data_workflow_execution_id_workflow_execution_id"
             columns: ["workflow_execution_id"]
+            isOneToOne: false
             referencedRelation: "workflow_execution"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "node_execution_data_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
+            isOneToOne: false
             referencedRelation: "workflow"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "node_execution_data_workflow_node_id_workflow_node_id_fk"
             columns: ["workflow_node_id"]
+            isOneToOne: false
             referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "node_execution_data_workflow_version_id_workflow_version_id_fk"
             columns: ["workflow_version_id"]
+            isOneToOne: false
             referencedRelation: "workflow_version"
             referencedColumns: ["id"]
           }
@@ -197,6 +204,7 @@ export interface Database {
           {
             foreignKeyName: "project_api_key_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -225,12 +233,14 @@ export interface Database {
           {
             foreignKeyName: "project_members_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_user_id_user_id_fk"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           }
@@ -238,30 +248,40 @@ export interface Database {
       }
       project_variable: {
         Row: {
+          default: boolean
           id: string
           is_system: boolean
           key: string
           project_id: string
+          provider: string | null
+          refresh_token: string | null
           value: string | null
         }
         Insert: {
+          default?: boolean
           id: string
           is_system?: boolean
           key: string
           project_id: string
+          provider?: string | null
+          refresh_token?: string | null
           value?: string | null
         }
         Update: {
+          default?: boolean
           id?: string
           is_system?: boolean
           key?: string
           project_id?: string
+          provider?: string | null
+          refresh_token?: string | null
           value?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "project_variable_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -371,6 +391,7 @@ export interface Database {
           {
             foreignKeyName: "workflow_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -405,24 +426,28 @@ export interface Database {
           {
             foreignKeyName: "workflow_edge_source_workflow_node_id_fk"
             columns: ["source"]
+            isOneToOne: false
             referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_edge_target_workflow_node_id_fk"
             columns: ["target"]
+            isOneToOne: false
             referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_edge_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
+            isOneToOne: false
             referencedRelation: "workflow"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_edge_workflow_version_id_workflow_version_id_fk"
             columns: ["workflow_version_id"]
+            isOneToOne: false
             referencedRelation: "workflow_version"
             referencedColumns: ["id"]
           }
@@ -469,24 +494,28 @@ export interface Database {
           {
             foreignKeyName: "workflow_execution_entry_node_id_workflow_node_id_fk"
             columns: ["entry_node_id"]
+            isOneToOne: false
             referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_execution_exit_node_id_workflow_node_id_fk"
             columns: ["exit_node_id"]
+            isOneToOne: false
             referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_execution_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
+            isOneToOne: false
             referencedRelation: "workflow"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_execution_workflow_version_id_workflow_version_id_fk"
             columns: ["workflow_version_id"]
+            isOneToOne: false
             referencedRelation: "workflow_version"
             referencedColumns: ["id"]
           }
@@ -518,18 +547,21 @@ export interface Database {
           {
             foreignKeyName: "workflow_execution_step_source_node_id_node_execution_data_id_f"
             columns: ["source_node_id"]
+            isOneToOne: false
             referencedRelation: "node_execution_data"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_execution_step_target_node_id_node_execution_data_id_f"
             columns: ["target_node_id"]
+            isOneToOne: false
             referencedRelation: "node_execution_data"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_execution_step_workflow_execution_id_workflow_executio"
             columns: ["workflow_execution_id"]
+            isOneToOne: false
             referencedRelation: "workflow_execution"
             referencedColumns: ["id"]
           }
@@ -582,24 +614,28 @@ export interface Database {
           {
             foreignKeyName: "workflow_node_context_id_context_id_fk"
             columns: ["context_id"]
+            isOneToOne: false
             referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_node_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_node_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
+            isOneToOne: false
             referencedRelation: "workflow"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_node_workflow_version_id_workflow_version_id_fk"
             columns: ["workflow_version_id"]
+            isOneToOne: false
             referencedRelation: "workflow_version"
             referencedColumns: ["id"]
           }
@@ -637,12 +673,14 @@ export interface Database {
           {
             foreignKeyName: "workflow_version_project_id_project_id_fk"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workflow_version_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
+            isOneToOne: false
             referencedRelation: "workflow"
             referencedColumns: ["id"]
           }
@@ -673,6 +711,7 @@ export interface Database {
           id: string
           name: string
           owner: string | null
+          owner_id: string | null
           public: boolean | null
           updated_at: string | null
         }
@@ -684,6 +723,7 @@ export interface Database {
           id: string
           name: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
@@ -695,17 +735,11 @@ export interface Database {
           id?: string
           name?: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "buckets_owner_fkey"
-            columns: ["owner"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       migrations: {
         Row: {
@@ -737,6 +771,7 @@ export interface Database {
           metadata: Json | null
           name: string | null
           owner: string | null
+          owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
           version: string | null
@@ -749,6 +784,7 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
           version?: string | null
@@ -761,6 +797,7 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
           version?: string | null
@@ -769,6 +806,7 @@ export interface Database {
           {
             foreignKeyName: "objects_bucketId_fkey"
             columns: ["bucket_id"]
+            isOneToOne: false
             referencedRelation: "buckets"
             referencedColumns: ["id"]
           }
@@ -842,4 +880,84 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+      Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never
 

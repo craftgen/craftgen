@@ -22,6 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
+    "@seocraft/core": "^0.1.0",
     "@types/pg": "^8.10.2",
     "drizzle-orm": "^0.28.6",
     "drizzle-zod": "^0.5.1",

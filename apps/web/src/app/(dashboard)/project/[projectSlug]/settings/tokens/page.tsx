@@ -1,6 +1,6 @@
-import { Table } from "@/components/ui/table";
+import { api } from "@/trpc/server";
 
-import { getProject, getProjectTokens } from "../../actions";
+import { getProject } from "../../actions";
 import { TokenList } from "./token-item";
 
 const TokensPage = async ({
@@ -11,7 +11,7 @@ const TokensPage = async ({
   };
 }) => {
   const project = await getProject(params.projectSlug);
-  const tokens = await getProjectTokens({ project_id: project?.id! });
+  const tokens = await api.credentials.list.query({ projectId: project?.id! });
   return (
     <div>
       <TokenList tokens={tokens} />

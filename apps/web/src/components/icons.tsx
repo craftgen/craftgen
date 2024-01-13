@@ -460,6 +460,18 @@ export const Icons = {
   "message-square-text": MessageSquareText,
 } as const;
 
+export const Icon = ({
+  name,
+  ...props
+}: LucideProps & { name: keyof typeof Icons }) => {
+  const Icon = Icons[name];
+  if (!Icon) {
+    console.warn(`Icon ${name} not found`);
+    return null;
+  }
+  return <Icon {...props} />;
+};
+
 export const iconVariants = cva("", {
   variants: {
     variant: {

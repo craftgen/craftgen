@@ -1,5 +1,5 @@
 import type { CreateTRPCProxyClient } from "@trpc/client";
-import type {GetSchemes} from "rete";
+import type { GetSchemes } from "rete";
 import type { Constructor } from "type-fest";
 import type { AnyStateMachine } from "xstate";
 import * as z from "zod";
@@ -28,6 +28,7 @@ import {
   Webflow,
   Wordpress,
 } from "./nodes";
+import { ApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { GenerateText } from "./nodes/function/generateText";
@@ -89,6 +90,8 @@ export const nodes = {
   Ollama: Ollama,
   OpenAI: OpenAI,
 
+  ApiConfiguration: ApiConfiguration,
+
   OpenAIFunctionCall: OpenAIFunctionCall,
   GenerateText: GenerateText,
   GenerateStructure: GenerateStructure,
@@ -126,8 +129,16 @@ export type NodeProps = BaseNode<AnyStateMachine, any, any, any>;
 export type ConnProps = Connection<NodeProps, NodeProps>;
 export type Schemes = GetSchemes<NodeProps, ConnProps>;
 
-export interface Position { x: number; y: number }
-export interface Rect { left: number; top: number; right: number; bottom: number }
+export interface Position {
+  x: number;
+  y: number;
+}
+export interface Rect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
 
 export const setExecutionStateParamSchema = z.object({
   id: z.string(),

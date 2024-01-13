@@ -66,7 +66,6 @@ import JsonView from "react18-json-view";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
@@ -317,8 +316,7 @@ export const Node = observer((props: Props<Schemes>) => {
                 height: size.height,
               }}
               className={cn(
-                "",
-                "@container group",
+                "@container group rounded-lg",
                 selected && " border-primary",
                 "glass flex flex-1 flex-col",
                 state.matches("loading") &&
@@ -458,7 +456,8 @@ export const Node = observer((props: Props<Schemes>) => {
                   >
                     {inputs.map(
                       ([key, input]) =>
-                        input?.control && (
+                        input?.control &&
+                        input?.definition["x-showSocket"] && (
                           <div className="flex flex-col space-y-1" key={key}>
                             {/* <Label
                               htmlFor={input.control.id}
@@ -524,7 +523,7 @@ export const Node = observer((props: Props<Schemes>) => {
                             )}
                         </TabsContent>
                         <TabsContent value="JSON">
-                          <JSONView data={props.data.snap.context.outputs} />
+                          <JSONView src={props.data.snap.context.outputs} />
                         </TabsContent>
                       </Tabs>
                     </Drag.NoDrag>

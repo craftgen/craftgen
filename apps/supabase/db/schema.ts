@@ -15,6 +15,8 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 
+import { ProviderType } from "@seocraft/core/src/provider/config";
+
 export const createIdWithPrefix = (prefix: string) => () =>
   `${prefix}_${createId()}`;
 
@@ -72,8 +74,12 @@ export const variable = pgTable(
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
     key: text("key").notNull(),
+    refreshToken: text("refresh_token"),
     value: text("value"),
+    provider: text("provider").$type<ProviderType>(),
     system: boolean("is_system").notNull().default(false),
+    // Add the default boolean field
+    default: boolean("default").default(false).notNull(),
   },
   (t) => ({
     key: unique().on(t.project_id, t.key),

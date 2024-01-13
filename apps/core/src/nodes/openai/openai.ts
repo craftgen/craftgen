@@ -5,7 +5,7 @@ import {
   type OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { Constructor, type SetOptional } from "type-fest";
+import { type SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
@@ -162,9 +162,7 @@ export const OpenaiModelMachine = createMachine(
       return merge<typeof input, any>(
         {
           inputs: {
-            temperature: 0.7,
-            model: "gpt-3.5-turbo-1106",
-            maxCompletionTokens: 1000,
+            ...defaultInputs,
           },
           outputs: {},
           inputSockets: {
@@ -253,7 +251,7 @@ export const OpenaiModelMachine = createMachine(
                 Authorization:
                   "Bearer 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",
               },
-            } as BaseUrlApiConfigurationOptions;
+            } as BaseUrlPartsApiConfigurationOptions;
             return {
               ...context.outputs,
               config: {

@@ -35,11 +35,13 @@ export const createNewProject = async (
       {
         project_id: newProject.id,
         key: "OPENAI_API_KEY",
+        provider: "OPENAI",
         system: true,
       },
       {
         project_id: newProject.id,
         key: "REPLICATE_API_KEY",
+        provider: "REPLICATE",
         system: true,
       },
     ]);

@@ -56,45 +56,7 @@ export const deleteProject = async (params: { id: string }) => {
   });
 };
 
-export const getProjectTokens = async (params: { project_id: string }) => {
-  return await db.query.variable.findMany({
-    where: (token, { eq }) => eq(token.project_id, params.project_id),
-  });
-};
 
-export const insertProjectTokens = async (params: {
-  project_id: string;
-  tokens: {
-    key: string;
-    value: string;
-  }[];
-}) => {
-  return await db
-    .insert(variable)
-    .values(
-      params.tokens.map((token) => ({
-        ...token,
-        project_id: params.project_id,
-      })),
-    )
-    .returning();
-};
-
-export const updateProjectToken = async (params: {
-  id: string;
-  key: string;
-  value: string;
-}) => {
-  return await db
-    .update(variable)
-    .set(params)
-    .where(eq(variable.id, params.id))
-    .returning();
-};
-
-export const deleteProjectToken = async (params: { id: string }) => {
-  return await db.delete(variable).where(eq(variable.id, params.id));
-};
 
 export const checkSlugAvailable = async (params: {
   slug: string;
