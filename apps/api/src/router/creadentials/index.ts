@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { eq, ProviderType, sql, variable } from "@seocraft/supabase/db";
+import { and, eq, ProviderType, sql, variable } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 

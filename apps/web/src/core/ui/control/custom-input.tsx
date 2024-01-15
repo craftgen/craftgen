@@ -1,3 +1,5 @@
+import { javascript } from "@codemirror/lang-javascript";
+import CodeMirror from "@uiw/react-codemirror";
 import { useSelector } from "@xstate/react";
 
 import type { InputControl } from "@seocraft/core/src/controls/input.control";
@@ -14,6 +16,21 @@ export function CustomInput(props: { data: InputControl }) {
       <Label htmlFor={props.data.id}>
         {props.data?.definition?.title || props.data?.definition?.name}
       </Label>
+      <div>
+        <small className="text-muted-foreground">cred.</small>
+      </div>
+      <CodeMirror
+        value={value}
+        height="200px"
+        extensions={[
+          javascript({
+            jsx: false,
+          }),
+        ]}
+        onChange={(val, viewUpdate) => {
+          props.data.setValue(val);
+        }}
+      />
       <Input
         id={props.data.id}
         disabled={props.data.options.readonly}

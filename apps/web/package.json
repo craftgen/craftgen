@@ -22,7 +22,9 @@
     "root": true
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "6.2.1",
     "@hookform/resolvers": "^3.3.0",
+    "@lezer/common": "^1.2.0",
     "@liveblocks/client": "^1.1.6",
     "@liveblocks/zustand": "^1.1.6",
     "@monaco-editor/react": "^4.5.1",
@@ -109,6 +111,8 @@
     "@udecode/plate-selection": "^23.7.0",
     "@udecode/plate-table": "^23.7.0",
     "@udecode/slate": "^22.0.2",
+    "@uiw/codemirror-extensions-basic-setup": "^4.21.21",
+    "@uiw/react-codemirror": "4.21.21",
     "@xstate/react": "4.0.0-beta.11",
     "ajv": "^8.12.0",
     "ajv-errors": "^3.0.0",

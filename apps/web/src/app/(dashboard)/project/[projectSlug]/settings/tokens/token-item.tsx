@@ -424,12 +424,16 @@ export const TokenItem: React.FC<{
       <div className="grid grid-cols-6 p-3">
         <div className="col-span-2 flex items-center">
           <Icon name={provider?.icon as any} className="mr-2 h-6 w-6" />
-          <span className="p-1 font-mono">{token.key}</span>
-          {token.default && (
-            <Badge variant={"outline"} className="bg-green-400/20" >
-              <span className="font-mono text-xs">Default</span>
-            </Badge>
-          )}
+          <div className="flex flex-col">
+            <span className="p-1 font-mono font-bold">{token.key}</span>
+            {token.default && (
+              <Badge variant={"outline"} className="bg-green-400/20">
+                <span className="text-muted-foreground font-mono text-xs">
+                  Default
+                </span>
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="col-span-3 flex items-center justify-between">
           {/* <Badge variant={"outline"}>{provider?.name}</Badge> */}
