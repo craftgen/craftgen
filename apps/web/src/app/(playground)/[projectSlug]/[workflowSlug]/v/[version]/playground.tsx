@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { redirect, useParams } from "next/navigation";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/react-separator";
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
+import { render } from "react-dom";
 import JsonView from "react18-json-view";
 import { match, P } from "ts-pattern";
 import { AnyActor, AnyActorRef } from "xstate";
@@ -32,7 +34,8 @@ import type { NodeProps } from "@seocraft/core/src/types";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
-import { Icons } from "@/components/icons";
+import { TokenList } from "@/app/(dashboard)/project/[projectSlug]/settings/tokens/token-item";
+import { Icon, Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +62,9 @@ import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
 
 const defaultLayout: FlexLayout.IJsonModel = {
-  global: {},
+  global: {
+    enableRotateBorderIcons: false,
+  },
   borders: [
     {
       type: "border",
@@ -70,6 +75,28 @@ const defaultLayout: FlexLayout.IJsonModel = {
           name: "Logs",
           component: "logs",
           enableClose: false,
+        },
+      ],
+    },
+    {
+      type: "border",
+      location: "left",
+      barSize: 40,
+      enableDrop: false,
+      children: [
+        {
+          type: "tab",
+          name: "Explorer",
+          component: "explorer",
+          enableClose: false,
+          enableDrag: false,
+        },
+        {
+          type: "tab",
+          name: "Credentials",
+          component: "credentials",
+          enableClose: false,
+          enableDrag: false,
         },
       ],
     },
@@ -183,29 +210,50 @@ export const Playground: React.FC<{
   const factory = (layoutNode: FlexLayout.TabNode) => {
     const component = layoutNode.getComponent();
     const config = layoutNode.getConfig();
-    if (component === "button") {
-      return <button>{layoutNode.getName()}</button>;
-    }
-    if (component === "inspector") {
-      return <InspectorWindow />;
-    }
-    if (component === "rete") {
-      return <Composer workflow={workflow} store={store} />;
-    }
-    if (component === "inspectorNode") {
-      const node = di?.editor.getNode(config.nodeId);
-      if (!node) return null;
-      return <InspectorNode node={node} />;
-    }
-    if (component === "inputWindow") {
-      return <InputWindow />;
-    }
-    if (component === "logs") {
-      if (workflow.readonly) {
-        return <LoginToContinue />;
-      }
-      return <LogsTab workflow={workflow} />;
-    }
+    return match(component)
+      .with("credentials", () => {
+        return <TokenList />;
+      })
+      .with("explorer", () => {
+        return (
+          <div>
+            <h2>Workflows</h2>
+            <ul>
+              <li>
+                <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
+                  {workflow.name}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
+                  {workflow.name}
+                </Link>
+              </li>
+            </ul>
+          </div>
+        );
+      })
+      .with("inspector", () => {
+        return <InspectorWindow />;
+      })
+      .with("rete", () => {
+        return <Composer workflow={workflow} store={store} />;
+      })
+      .with("inspectorNode", () => {
+        const node = di?.editor.getNode(config.nodeId);
+        if (!node) return null;
+        return <InspectorNode node={node} />;
+      })
+      .with("inputWindow", () => {
+        return <InputWindow />;
+      })
+      .with("logs", () => {
+        if (workflow.readonly) {
+          return <LoginToContinue />;
+        }
+        return <LogsTab workflow={workflow} />;
+      })
+      .run();
   };
 
   return (
@@ -225,6 +273,11 @@ export const Playground: React.FC<{
               ) : (
                 <RestoreVersionButton />
               )}
+              <Link href={`/${workflow.projectSlug}/settings`}>
+                <Button variant={"outline"} size={"icon"}>
+                  <Icon name="settings" />
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1">
@@ -239,6 +292,18 @@ export const Playground: React.FC<{
                     renderValues.leading = (
                       <LayoutDashboard className="h-4 w-4" />
                     );
+                  })
+                  .with("explorer", () => {
+                    renderValues.content = (
+                      <Icons.folder className="h-6 w-6 rotate-90" />
+                    );
+                    renderValues.name = "Explorer";
+                  })
+                  .with("credentials", () => {
+                    renderValues.content = (
+                      <Icons.key className="h-6 w-6 rotate-90" />
+                    );
+                    renderValues.name = "Credentials";
                   })
                   .with("inspector", () => {
                     renderValues.leading = (

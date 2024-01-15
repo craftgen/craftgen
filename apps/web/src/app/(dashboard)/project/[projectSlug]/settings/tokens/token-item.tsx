@@ -69,7 +69,7 @@ const formSchema = z.object({
 });
 
 export const TokenList: React.FC<{
-  tokens: RouterOutputs["credentials"]["list"];
+  tokens?: RouterOutputs["credentials"]["list"];
 }> = ({ tokens }) => {
   const { data: project } = useProject();
   const { data: tokensData } = api.credentials.list.useQuery(
@@ -79,7 +79,7 @@ export const TokenList: React.FC<{
     },
   );
   return (
-    <div className="space-y-4">
+    <div className="@container space-y-4 p-2">
       {tokensData && (
         <>
           <TokenListNew tokens={tokensData} />
@@ -425,6 +425,11 @@ export const TokenItem: React.FC<{
         <div className="col-span-2 flex items-center">
           <Icon name={provider?.icon as any} className="mr-2 h-6 w-6" />
           <span className="p-1 font-mono">{token.key}</span>
+          {token.default && (
+            <Badge variant={"outline"} className="bg-green-400/20" >
+              <span className="font-mono text-xs">Default</span>
+            </Badge>
+          )}
         </div>
         <div className="col-span-3 flex items-center justify-between">
           {/* <Badge variant={"outline"}>{provider?.name}</Badge> */}
@@ -437,11 +442,6 @@ export const TokenItem: React.FC<{
           )}
         </div>
         <div className="col-span-1 flex items-center justify-end">
-          {token.default && (
-            <Badge variant={"outline"} className="bg-green-400/40">
-              <span className="font-mono text-xs">Default</span>
-            </Badge>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -534,7 +534,7 @@ const ToggleView: React.FC<{ value: string }> = ({ value }) => {
   const [show, setShow] = useState(false);
   const toggleView = () => setShow((prev) => !prev);
   return (
-    <div className="bg-muted/50 flex flex-row items-center space-x-2 rounded border">
+    <div className="bg-muted/50  @sm:flex hidden flex-row items-center space-x-2 rounded border">
       <Input
         type={show ? "text" : "password"}
         className={cn(" border-none bg-transparent shadow-none")}

@@ -1,7 +1,4 @@
-/* @import "react-grid-layout/css/styles.css";
-@import "react-resizable/css/styles.css"; */
-
-@import "flexlayout-react/style/dark.css";
+@import "flexlayout-react/style/underline.css";
 .flexlayout__layout {
   --color-text: hsl(var(--foreground));
   --color-background: hsl(var(--background));
@@ -52,6 +49,30 @@
   --color-edge-marker: gray;
 }
 
+.flexlayout__border_inner_tab_container_left
+  .flexlayout__border_button--selected {
+  border-bottom: 0;
+  border-top: var(--underline_height) solid var(--color-underline);
+}
+
+.flexlayout__border_inner_tab_container_left
+  .flexlayout__border_button--unselected {
+  border-bottom: 0;
+  border-top: var(--underline_height) solid transparent;
+}
+
+.flexlayout__border_inner_tab_container_left
+  .flexlayout__border_button--unselected:hover {
+  border-bottom: 0;
+  border-top: var(--underline_height) solid var(--color-underline-hover);
+}
+
+.flexlayout__border_tab_divider {
+  border: 0;
+  margin: 1px 0;
+}
+
+/* RETE BACKGROUND */
 .fill-area {
   display: table;
   z-index: -1;
@@ -71,7 +92,7 @@
 }
 
 .background {
-  opacity: .3;
+  opacity: 0.3;
   background-color: hsl(var(--muted));
   background-image: radial-gradient(
     hsl(var(--muted-foreground)) 1px,

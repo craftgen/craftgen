@@ -92,7 +92,6 @@ export const Composer: React.FC<{
   const { mutateAsync: createExecution } =
     api.craft.execution.create.useMutation({});
   const getModule = utils.craft.module.getById.fetch;
-  const getAPIKey = utils.craft.variables.getValue.fetch;
   useEffect(() => {
     rete?.setContent({
       nodes: latestWorkflow.nodes as any,
@@ -110,7 +109,6 @@ export const Composer: React.FC<{
     updateNodeMetadata,
     createExecution,
     getModule,
-    getAPIKey,
     trpc: utils.client,
   };
   const [map, componentRegistry] = useRegistry<HTMLElement, ReactElement>();

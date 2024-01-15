@@ -27,6 +27,7 @@ import {
   FileCode,
   FileJson,
   Film,
+  Folder,
   GripVertical,
   Hash,
   Heading1,
@@ -38,6 +39,7 @@ import {
   Image,
   Indent,
   Italic,
+  Key,
   Keyboard,
   Link2,
   Link2Off,
@@ -348,6 +350,7 @@ export const Icons = {
   externalLink: ExternalLink,
   embed: Film,
   FileJson: FileJson,
+  folder: Folder,
   h1: Heading1,
   h2: Heading2,
   h3: Heading3,
@@ -385,6 +388,7 @@ export const Icons = {
   unlink: Link2Off,
   viewing: Eye,
   mails: Mails,
+  key: Key,
 
   // www
   gitHub: (props: LucideProps) => (

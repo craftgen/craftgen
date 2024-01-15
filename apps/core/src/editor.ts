@@ -3,8 +3,7 @@ import Ajv from "ajv";
 import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
-import type { GetSchemes, NodeId } from "rete";
-import { NodeEditor } from "rete";
+import { NodeEditor, type GetSchemes, type NodeId } from "rete";
 import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
@@ -337,11 +336,15 @@ export class Editor<
   }
 
   public async setupEnv() {
-    const openai = await this.api.getAPIKey({
-      key: "OPENAI_API_KEY",
+    const creds = this.api.trpc.credentials.list.query({
       projectId: this.projectId,
     });
-    this.variables.set("OPENAI_API_KEY", openai);
+    console.log("CREDS", creds);
+    // const openai = await this.api.getAPIKey({
+    //   key: "OPENAI_API_KEY",
+    //   projectId: this.projectId,
+    // });
+    // this.variables.set("OPENAI_API_KEY", openai);
   }
 
   public async setup() {

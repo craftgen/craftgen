@@ -106,6 +106,14 @@ export const ApiConfigurationMachine = createMachine({
     actors: None;
     guards: None;
   }>,
+  on: {
+    SET_VALUE: {
+      actions: "setValue",
+    },
+    UPDATE_SOCKET: {
+      actions: "updateSocket",
+    },
+  },
 });
 
 export type ApiConfigurationNode = ParsedNode<

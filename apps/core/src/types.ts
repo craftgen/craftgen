@@ -30,10 +30,10 @@ import {
 import { ApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
-import { GenerateText } from "./nodes/function/generateText";
-import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { CompleteChat } from "./nodes/function/completeChat";
 import { GenerateStructure } from "./nodes/function/generateStructure";
+import { GenerateText } from "./nodes/function/generateText";
+import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { Thread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
@@ -244,7 +244,6 @@ export interface WorkflowAPI {
     params: z.infer<typeof setExecutionStateParamSchema>,
   ) => Promise<{ id: string }>;
   setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
-  getAPIKey: (params: z.infer<typeof getAPIKeyParamSchema>) => Promise<string>;
   createExecution: (
     params: z.infer<typeof createExecutionParamSchema>,
   ) => Promise<CreateExecutionResult>;

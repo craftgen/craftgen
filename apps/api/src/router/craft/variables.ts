@@ -8,6 +8,7 @@ export const craftVariablesRouter = createTRPCRouter({
       z.object({
         projectId: z.string(),
         key: z.string(),
+        provider: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {

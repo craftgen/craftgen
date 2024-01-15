@@ -698,8 +698,8 @@ importers:
         specifier: ^0.1.13
         version: 0.1.13
       flexlayout-react:
-        specifier: ^0.7.9
-        version: 0.7.13(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^0.7.15
+        version: 0.7.15(react-dom@18.2.0)(react@18.2.0)
       framer-motion:
         specifier: ^10.16.0
         version: 10.16.4(react-dom@18.2.0)(react@18.2.0)
@@ -11478,8 +11478,8 @@ packages:
   /flatted@3.2.9:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
 
-  /flexlayout-react@0.7.13(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-j55pV2hk6Y9bL7h3NtRNwov5Hn12v6UnnaORIl/IVkzOnFnfW1Dz6Z4Rpv5HRKQPYnDWeMcZDS5jJodcSqJo9w==}
+  /flexlayout-react@0.7.15(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ydTMdEoQO5BniylxVkSxa59rEY0+96lqqRII+QK+yq6028eHywPuxZawt4g45y5pMb9ptP4N9HPAQXAFsxwowQ==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0

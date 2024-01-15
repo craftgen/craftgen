@@ -122,7 +122,7 @@
     "date-fns": "^2.30.0",
     "elkjs": "^0.8.2",
     "encoding": "^0.1.13",
-    "flexlayout-react": "^0.7.9",
+    "flexlayout-react": "^0.7.15",
     "framer-motion": "^10.16.0",
     "geist": "^1.0.0",
     "google-spreadsheet": "^4.0.3",
