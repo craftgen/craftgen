@@ -423,7 +423,10 @@ export const TokenItem: React.FC<{
     <div className="indeterminate:border-t-none w-full border first:rounded-t last:rounded-b ">
       <div className="grid grid-cols-6 p-3">
         <div className="col-span-2 flex items-center">
-          <Icon name={provider?.icon as any} className="mr-2 h-6 w-6" />
+          <Icon
+            name={provider?.icon as any}
+            className="mr-2 h-6 w-6 min-w-[2rem]"
+          />
           <div className="flex flex-col">
             <span className="p-1 font-mono font-bold">{token.key}</span>
             {token.default && (
@@ -538,10 +541,10 @@ const ToggleView: React.FC<{ value: string }> = ({ value }) => {
   const [show, setShow] = useState(false);
   const toggleView = () => setShow((prev) => !prev);
   return (
-    <div className="bg-muted/50  @sm:flex hidden flex-row items-center space-x-2 rounded border">
+    <div className="bg-muted/50  @md:flex hidden flex-row items-center space-x-2 rounded border">
       <Input
         type={show ? "text" : "password"}
-        className={cn(" border-none bg-transparent shadow-none")}
+        className={cn(" w-auto border-none bg-transparent shadow-none")}
         value={value}
         readOnly
       />

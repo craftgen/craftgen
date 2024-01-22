@@ -280,7 +280,7 @@ export const Playground: React.FC<{
               </Link>
             </div>
           </div>
-          <div className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1">
+          <motion.div className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1 " layout>
             <FlexLayout.Layout
               model={layout}
               factory={factory}
@@ -332,7 +332,7 @@ export const Playground: React.FC<{
               }}
               realtimeResize
             />
-          </div>
+          </motion.div>
         </div>
       </TooltipProvider>
     </CraftContext.Provider>

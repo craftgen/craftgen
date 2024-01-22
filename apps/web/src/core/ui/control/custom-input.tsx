@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { javascript } from "@codemirror/lang-javascript";
+
 import {
   Decoration,
   DecorationSet,
@@ -9,6 +10,8 @@ import {
   ViewUpdate,
 } from "@codemirror/view";
 import CodeMirror, { WidgetType } from "@uiw/react-codemirror";
+import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
+
 import { useSelector } from "@xstate/react";
 import { useTheme } from "next-themes";
 
@@ -18,6 +21,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { api } from "@/trpc/react";
+import { Icons } from "@/components/icons";
 
 class PlaceholderWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -91,52 +109,72 @@ export function CustomInput(props: { data: InputControl }) {
     }
     return val;
   }, []);
-
+  const { data: creds } = api.credentials.list.useQuery({
+    projectId: "9ad65390-e82b-42b2-9cae-a62dce62011e",
+  });
+  const [open, setOpen] = useState(false);
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>
-        {props.data?.definition?.title || props.data?.definition?.name}
-      </Label>
-      {/* <div>
-        <small className="text-muted-foreground">cred.</small>
-        {["secret1", "secret2"].map((secret) => (
-          <Button
-            onClick={() =>
-              props.data.setValue(`${value}(await getSecret("${secret}"))`)
-            }
-          >
-            AddSecret
-          </Button>
-        ))}
-      </div> */}
-      <Input
+      <div className="flex w-full items-center justify-between">
+        <Label htmlFor={props.data.id}>
+          {props.data?.definition?.title || props.data?.definition?.name}
+        </Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="justify-start">
+              <Icons.key className="mr-2 h-4 w-4" />
+              Secret
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0" side="right" align="start">
+            <Command>
+              <CommandInput placeholder="Search Secret" />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {creds?.map((cred) => (
+                    <CommandItem
+                      key={cred.key}
+                      value={cred.key}
+                      onSelect={(value) => {
+                        console.log(value);
+                        props.data.setValue(`(await getSecret("${value}"))`);
+                        setOpen(false);
+                      }}
+                    >
+                      {cred.key}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <CodeMirror
         id={props.data.id}
-        disabled={props.data.options.readonly}
+        readOnly={props.data.options.readonly}
         value={value}
-        className="w-full max-w-md"
-        onChange={(e) => {
-          props.data.setValue(e.target.value);
-        }}
-      />
-      {/* <CodeMirror
-        value={value}
-        theme={theme === "dark" ? "dark" : "light"}
+        theme={theme === "dark" ? githubDark : githubLight}
         extensions={[
           javascript({
             jsx: false,
           }),
           placeholders,
         ]}
-        className="p-1"
+        className="bg-muted/30 w-full rounded-lg p-2 outline-none"
+        width="100%"
+        height="100%"
         basicSetup={{
           lineNumbers: false,
           autocompletion: true,
+          foldGutter: false,
         }}
         onChange={(val, viewUpdate) => {
           console.log(parseValue(val));
           props.data.setValue(val);
         }}
-      /> */}
+      />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
         {props.data?.definition?.description}
       </p>
