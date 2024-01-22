@@ -9,6 +9,7 @@ import { SWRSelectControl } from "../../../controls/swr-select";
 import type { DiContainer } from "../../../types";
 import type { BaseMachineTypes, ParsedNode } from "../../base";
 import { BaseNode } from "../../base";
+import { generateSocket } from "../../../controls/socket-generator";
 
 export const GoogleSearchConsoleMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5SzAQwE4GMAWBaTA9gHawEA2YAdAJYQUDEASgKoByA2gAwC6ioADgVjUALtWJ8QAD0QBGABwAmSgHYVAZgAsmxQFZ1G3bNmaANCACecpZU0bZnTos3yVANjUBfT+ZQYc+MSkFDR0YPQAygCiACoA+gBqAIIAMsxRXLxIIILCYhLZMgg65lYI8rKURgCc1W7ymrLqDtUm3r5oWHiEJORU6ACuRETURFCUEGAiYOgAtqNgSZj5RPSZkrmi4kSSRS7KtbUNrfLV8uqKpYiKBpSKN5ynio+KKkry7SB+XYG9IYPDUbjACOAxmFnoEGIVFGADcCABrKjfAI9YL9IYjMaUUHghBwgiYVArTLrbKbFa7RBvTiUThvBzyU6PTjqK4IWTVXSUNxuZrVOwqTS6XRclSfFHdIJ9SgArEgsHoCEzdAEdCUfhkYkAMzVs0okt+6NlmKBOMVFnxRHhRJJPDJAiEWwKoCKNLpDMezPkrPZilOlGMfMUblqbk4uiF4s+RAIk3g2UNaL6GydlMKiFwbnZuG51RUh0LRejHX8Ur+MLCqby2ypCBUtL5HkU1ScXPUnC57IUBw0jxF6mqzzOHx8X06qOl-1NY2rzp2GYQemqPJcmmaKmMFTcsm7smU92a6g7BmcunkbglE-LxrlZsm0zmCyW6cdNZd0kQHZUq4aG63sg7n66huHcDynJonDGPm1RXmWRoyne2K4kqc6vp+CCRvIdLyKKnayPorKct2tSqDcDgmLorIinBPzJiEhCzJqUxgGhtaLkO3Ksq2ug6K2obCn6sg-ny+ZCoOFwFo8tGThWlAqmqbEfkUnF0oOEZ8ZwAm6H6TKBoBzTOAWjRDt43hAA */
@@ -23,24 +24,44 @@ export const GoogleSearchConsoleMachine = createMachine({
         },
         inputs: {},
         inputSockets: {
-          startDate: {
+          startDate: generateSocket({
             title: "Start Date",
             name: "startDate",
             type: "date",
+            'x-key': 'startDate',
             description: "Start Date",
             required: true,
             isMultiple: false,
-          },
-          endDate: {
+          }),
+          endDate: generateSocket({
             name: "endDate",
+            "x-key": "endDate",
             type: "date",
             description: "End Date",
             required: true,
             isMultiple: false,
-          },
+          }),
         },
-        outputs: {},
-        outputSockets: {},
+        outputs: {
+        },
+        outputSockets: {
+          GoogleSearchConsole: generateSocket({
+            name: "result",
+            type: "GoogleSearchConsole",
+            description: "Result",
+            required: true,
+            "x-showSocket": true,
+            "x-key": "GoogleSearchConsole",
+          }),
+          result: generateSocket({
+            name: "result",
+            type: "object",
+            description: "Result",
+            required: true,
+            "x-showSocket": true,
+            "x-key": "result",
+          })
+        },
         error: null,
       },
       input,
@@ -161,30 +182,31 @@ export class GoogleSearchConsole extends BaseNode<
         ),
       },
     });
+    this.setup();
 
-    this.addControl(
-      "site",
-      new SWRSelectControl(
-        () => this.snap.context.inputs.siteUrl,
-        "select site",
-        "trpc.google.searchConsole.sites",
-        () => this.di.api.trpc.google.searchConsole.sites.query(),
-        (vals) =>
-          vals.map((v) => ({
-            key: v.siteUrl || v.url,
-            value: v.url,
-          })),
-        (val) => {
-          this.actor.send({
-            type: "SET_VALUE",
-            params: {
-              values: {
-                siteUrl: val,
-              },
-            },
-          });
-        },
-      ),
-    );
+    // this.addControl(
+    //   "site",
+    //   new SWRSelectControl(
+    //     () => this.snap.context.inputs.siteUrl,
+    //     "select site",
+    //     "trpc.google.searchConsole.sites",
+    //     () => this.di.api.trpc.google.searchConsole.sites.query(),
+    //     (vals) =>
+    //       vals.map((v) => ({
+    //         key: v.siteUrl || v.url,
+    //         value: v.url,
+    //       })),
+    //     (val) => {
+    //       this.actor.send({
+    //         type: "SET_VALUE",
+    //         params: {
+    //           values: {
+    //             siteUrl: val,
+    //           },
+    //         },
+    //       });
+    //     },
+    //   ),
+    // );
   }
 }

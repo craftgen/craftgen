@@ -106,6 +106,7 @@ const PromptTemplateNodeMachine = createMachine({
                     required: true,
                     "x-key": item,
                     "x-showSocket": true,
+                    "x-isAdvanced": false
                   });
                 })
                 .reduce((prev: any, curr: any) => {

@@ -12,6 +12,7 @@ import { objectSocket, triggerSocket } from "../../../sockets";
 import type { DiContainer } from "../../../types";
 import { BaseNode  } from "../../base";
 import type {ParsedNode} from "../../base";
+import { generateSocket } from "../../../controls/socket-generator";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -19,8 +20,51 @@ const ShopifyMachine = createMachine({
     settings: {
       spreadsheetId: "",
       sheetId: "332471859",
-      action: "addRow",
+      action: "getSalesTotal",
     },
+    inputs: {
+
+    },
+    outputs: {
+
+    },
+    inputSockets: {
+      endDate: generateSocket({
+        name: "endDate",
+        "x-key": "endDate",
+        type: "date",
+        description: "End Date",
+        required: true,
+        isMultiple: false,
+      }),
+      startDate: generateSocket({
+        title: "Start Date",
+        name: "startDate",
+        type: "date",
+        "x-key": "startDate",
+        description: "Start Date",
+        required: true,
+        isMultiple: false,
+      })
+    },
+    outputSockets: {
+      result: generateSocket({
+        name: "result",
+        type: "object",
+        description: "Result",
+        required: true,
+        "x-showSocket": true,
+        "x-key": "result",
+      }),
+      Shopify: generateSocket({
+        name: "result",
+        type: "Shopify",
+        description: "Result",
+        required: true,
+        "x-showSocket": true,
+        "x-key": "Shopify",
+      }),
+    }
   },
   initial: "idle",
   types: {} as {
@@ -73,7 +117,7 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     };
   }
 
-  public action: "addRow" | "readRow" = "addRow";
+  public action: "addRow" | "readRow" = "getSalesTotal";
   constructor(di: DiContainer, data: ShopifyData) {
     super("Shopify", di, data, ShopifyMachine, {
       actions: {
@@ -87,79 +131,80 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
         },
       },
     });
-    const state = this.actor.getSnapshot();
-    this.action = state.context.settings.action;
-    this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
+    this.setup();
+    // const state = this.actor.getSnapshot();
+    // this.action = state.context.settings.action;
+    // this.addInput("trigger", new Input(triggerSocket, "trigger"));
+    // this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
-    this.addControl(
-      "action",
-      new SelectControl("addRow", {
-        placeholder: "Select an action",
-        values: [
-          {
-            key: "addRow",
-            value: "Add Row",
-          },
-          {
-            key: "readRow",
-            value: "Read Row",
-          },
-        ],
-        change: (v) => {
-          console.log("change", v);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              action: v,
-            },
-          });
-        },
-      }),
-    );
+    // this.addControl(
+    //   "action",
+    //   new SelectControl("addRow", {
+    //     placeholder: "Select an action",
+    //     values: [
+    //       {
+    //         key: "addRow",
+    //         value: "Add Row",
+    //       },
+    //       {
+    //         key: "readRow",
+    //         value: "Read Row",
+    //       },
+    //     ],
+    //     change: (v) => {
+    //       console.log("change", v);
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           action: v,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
 
     // this.addControl('spreedsheetID', )
-    this.addControl(
-      "spreedsheetID",
-      new InputControl(() => this.snap.context.settings.spreadsheetId, {
-        change: (v) => {
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              spreadsheetId: v,
-            },
-          });
-        },
-      }),
-    );
+    // this.addControl(
+    //   "spreedsheetID",
+    //   new InputControl(() => this.snap.context.settings.spreadsheetId, {
+    //     change: (v) => {
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           spreadsheetId: v,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
 
-    this.actor.subscribe((state) => {
-      this.action = state.context.settings.action;
-      this.syncUI(state);
-    });
-    this.syncUI(state);
+    // this.actor.subscribe((state) => {
+    //   this.action = state.context.settings.action;
+    //   this.syncUI(state);
+    // });
+    // this.syncUI(state);
   }
 
-  async syncUI(state: StateFrom<typeof ShopifyMachine>) {
-    if (state.context.settings.action === "addRow") {
-      if (!this.inputs.add_row) {
-        this.addInput("add_row", new Input(objectSocket, "row"));
-      }
-    } else {
-      if (this.inputs.add_row) {
-        this.removeInput("add_row");
-      }
-    }
-    if (state.context.settings.action === "readRow") {
-      if (!this.outputs.read_row) {
-        this.addOutput("read_row", new Output(objectSocket, "row"));
-      }
-    } else {
-      if (this.outputs.read_row) {
-        this.removeOutput("read_row");
-      }
-    }
+  // async syncUI(state: StateFrom<typeof ShopifyMachine>) {
+  //   if (state.context.settings.action === "addRow") {
+  //     if (!this.inputs.add_row) {
+  //       this.addInput("add_row", new Input(objectSocket, "row"));
+  //     }
+  //   } else {
+  //     if (this.inputs.add_row) {
+  //       this.removeInput("add_row");
+  //     }
+  //   }
+  //   if (state.context.settings.action === "readRow") {
+  //     if (!this.outputs.read_row) {
+  //       this.addOutput("read_row", new Output(objectSocket, "row"));
+  //     }
+  //   } else {
+  //     if (this.outputs.read_row) {
+  //       this.removeOutput("read_row");
+  //     }
+  //   }
 
-    console.log("syncUI", state);
-  }
+  //   console.log("syncUI", state);
+  // }
 }

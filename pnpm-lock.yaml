@@ -406,6 +406,9 @@ importers:
       '@codemirror/lang-javascript':
         specifier: 6.2.1
         version: 6.2.1
+      '@codemirror/view':
+        specifier: ^6.23.0
+        version: 6.23.0
       '@hookform/resolvers':
         specifier: ^3.3.0
         version: 3.3.2(react-hook-form@7.47.0)

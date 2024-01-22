@@ -616,7 +616,7 @@ export const DynamicInputsForm: React.FC<{
   const { true: advanceInputs, false: basicInputs } = useMemo(() => {
     return (
       groupBy(Object.values(inputs), (input) => {
-        return input.definition["x-isAdvanced"];
+        return input.definition["x-isAdvanced"] || false;
       }) || { true: [], false: [] }
     );
   }, [inputs]);

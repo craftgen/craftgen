@@ -192,8 +192,10 @@ const replicateMachine = createMachine({
                       isMultiple: false,
                       required,
                       "x-key": key,
-                      "x-controller": isEnum && "select",
-                      "x-showSocket": isNil(value.default) && required,
+                      // "x-controller": isEnum && "select",
+                      // "x-showSocket": isNil(value.default) && required,
+                      "x-controller": true,
+                      "x-showSocket": true 
                     };
                   })
                   .sort((a, b) => a["x-order"] - b["x-order"])
