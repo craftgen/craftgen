@@ -10,17 +10,17 @@ export const ResultItem = React.forwardRef<
   return (
     <div
       className={cn(
-        "aria-selected:bg-accent aria-selected:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        // "flex flex-row justify-between p-2",
-        active &&
-          "bg-muted-foreground/20 border-l border-l-black bg-opacity-20",
+        " aria-selected:bg-accent aria-selected:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        active && "bg-muted-foreground/10  rounded-2xl bg-opacity-20",
       )}
       ref={ref}
     >
       <div className="flex items-center gap-2">
-        <div className="flex min-w-[3rem] items-start justify-center p-1">
-          {action.icon && action.icon}
-        </div>
+        {action.icon && (
+          <div className="flex min-w-[2rem] items-start justify-center">
+            {action.icon}
+          </div>
+        )}
         <div className="flex flex-col">
           <span className="text-foreground">{action.name}</span>
           <span className="text-muted-foreground text-sm">

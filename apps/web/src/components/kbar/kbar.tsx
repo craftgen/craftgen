@@ -33,10 +33,12 @@ export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
     <KBarProvider actions={actions}>
       <KBarPortal>
         <KBarPositioner className="min-w-xl bg-foreground/20 fixed inset-0 z-30 box-border flex w-full items-start  justify-center py-4 pb-4 pt-[14vh]">
-          <KBarAnimator className="bg-background z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded shadow-lg">
-            <KBarSearch className="bg-muted w-full px-4 py-4 " />
-            <Separator />
-            <RenderResults />
+          <KBarAnimator className="bg-background/95 z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded-xl shadow-lg border">
+            <KBarSearch className="w-full  px-4 py-3 outline-none bg-background " />
+            <Separator className="w-full" />
+            <div className="mt-2 p-2">
+              <RenderResults />
+            </div>
           </KBarAnimator>
         </KBarPositioner>
       </KBarPortal>
