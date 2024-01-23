@@ -212,7 +212,21 @@ export const Playground: React.FC<{
     const config = layoutNode.getConfig();
     return match(component)
       .with("credentials", () => {
-        return <TokenList />;
+        return (
+          <motion.div
+            animate={{
+              opacity: 1,
+            }}
+            initial={{
+              opacity: 0,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+          >
+            <TokenList />
+          </motion.div>
+        );
       })
       .with("explorer", () => {
         return (
@@ -280,7 +294,10 @@ export const Playground: React.FC<{
               </Link>
             </div>
           </div>
-          <motion.div className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1 " layout>
+          <motion.div
+            className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1 "
+            layout
+          >
             <FlexLayout.Layout
               model={layout}
               factory={factory}

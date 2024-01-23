@@ -18,8 +18,35 @@ import {
   type None,
   type ParsedNode,
 } from "../base";
+import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const inputSockets = {
+  api: generateSocket({
+    "x-key": "api",
+    name: "api" as const,
+    title: "API",
+    type: "ApiConfiguration",
+    description: dedent`
+    Api configuration
+    `,
+    required: true,
+    default: {
+      apiUrl: "https://api.openai.com/v1",
+    },
+    isMultiple: false,
+    "x-showSocket": true,
+    "x-actor-type": "ApiConfiguration",
+    "x-actor-config": {
+      ApiConfiguration: {
+        connections: {
+          config: "api",
+        },
+        internal: {
+          config: "api",
+        },
+      },
+    },
+  }),
   model: generateSocket({
     "x-key": "model",
     name: "model" as const,
@@ -299,6 +326,11 @@ export class OpenAI extends BaseNode<typeof OpenaiModelMachine> {
 
   constructor(di: DiContainer, data: OpenaiModelNode) {
     super("OpenAI", di, data, OpenaiModelMachine, {});
+    this.extendMachine({
+      actors: {
+        ApiConfiguration: ApiConfigurationMachine,
+      },
+    });
     this.setup();
   }
 }

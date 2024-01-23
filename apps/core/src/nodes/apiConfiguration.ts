@@ -78,7 +78,11 @@ export const ApiConfigurationMachine = createMachine({
         inputs: {
           ...defaultInputs,
         },
-        outputs: {},
+        outputs: {
+          config: {
+            apiUrl: "loco",
+          },
+        },
         inputSockets: {
           ...inputSockets,
         },

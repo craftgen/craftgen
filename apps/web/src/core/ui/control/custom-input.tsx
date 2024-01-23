@@ -18,7 +18,6 @@ import { useTheme } from "next-themes";
 import type { InputControl } from "@seocraft/core/src/controls/input.control";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
@@ -121,7 +120,7 @@ export function CustomInput(props: { data: InputControl }) {
         </Label>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" size="sm">
               <Icons.key className="mr-2 h-4 w-4" />
               Secret
             </Button>
