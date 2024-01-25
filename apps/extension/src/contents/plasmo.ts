@@ -4,9 +4,9 @@ import { relayMessage } from "@plasmohq/messaging"
 
 export const config: PlasmoCSConfig = {
   matches: [
-    "https://www.seocraft.ai/*",
+    "https://www.craftgen.ai/*",
     "http://localhost:3000/*",
-    "https://seocraft.ai/*"
+    "https://craftgen.ai/*"
   ]
 }
 
