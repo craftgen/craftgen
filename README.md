@@ -10,4 +10,5 @@ Effortlessly create custom AI agents and workflows with Craftgen.ai, a no-code p
 
 - [x] Release the code
 - [x] make auth work.
-- [ ] fix the posthog integration.
+- [x] fix the posthog integration.
+- [ ] Vercel analytics.

@@ -73,12 +73,12 @@ export default function Home() {
               </a>
             </div>
             <h1 className="text-foreground mt-10 text-4xl font-bold tracking-tight sm:text-6xl">
-              Accessible AI workflows for everyone
+              Anyone can build AI workflows that perform at scale with CraftGen
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-8">
-              Integrating AI into every workflow with our open-source, no-code
-              platform, powered by the actor model for dynamic, graph-based
-              solutions.
+              Build useful AI workflows without code. CraftGen is a simple, open
+              source platform that’s packed with pre-built modules that can
+              automate your work.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
               <a
