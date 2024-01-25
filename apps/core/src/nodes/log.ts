@@ -3,7 +3,6 @@ import type { SetOptional } from "type-fest";
 import { assign, createMachine, fromPromise } from "xstate";
 
 import { Input, Output } from "../input-output";
-import { anySocket, triggerSocket } from "../sockets";
 import type { DiContainer } from "../types";
 import { BaseNode  } from "./base";
 import type {ParsedNode} from "./base";
@@ -104,9 +103,9 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
       },
     });
 
-    this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    this.addOutput("trigger", new Output(triggerSocket, "Exec"));
-    this.addInput("data", new Input(anySocket, "Data"));
-    this.addOutput("data", new Output(anySocket, "Data"));
+    // this.addInput("trigger", new Input(triggerSocket, "Exec", true));
+    // this.addOutput("trigger", new Output(triggerSocket, "Exec"));
+    // this.addInput("data", new Input(anySocket, "Data"));
+    // this.addOutput("data", new Output(anySocket, "Data"));
   }
 }

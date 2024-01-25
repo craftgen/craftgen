@@ -15,7 +15,7 @@ import type {ContextFrom, StateFrom} from "xstate";
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { SelectControl } from "../../../controls/select";
 import { Input, Output } from "../../../input-output";
-import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
+// import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
 import type {DiContainer} from "../../../types";
 import type { ParsedNode } from "../../base";
 import { BaseNode } from "../../base";
