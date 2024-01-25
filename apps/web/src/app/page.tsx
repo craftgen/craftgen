@@ -128,7 +128,7 @@ export default function Home() {
               className="font-semibold text-blue-600"
             >
               <span className="absolute inset-0" aria-hidden="true" />
-              Soonish
+              Soon
               <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
