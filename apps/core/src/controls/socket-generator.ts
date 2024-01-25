@@ -3,7 +3,7 @@ import type { MergeDeep } from "type-fest";
 import type { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
-import type { JSONSocketPrimitiveTypeKeys, SocketNameType} from "../sockets";
+import type { JSONSocketPrimitiveTypeKeys, SocketNameType } from "../sockets";
 import { types } from "../sockets";
 import type { NodeTypes } from "../types";
 import { BaseControl } from "./base";
@@ -71,6 +71,7 @@ export const socketSchema = z
     description: z.string().optional(),
     required: z.boolean().default(false).optional(),
     isMultiple: z.boolean().default(false).optional(),
+    format: z.string().optional(),
     default: z
       .union([
         z.string().array(),
@@ -94,7 +95,6 @@ export const socketSchema = z
     "x-showSocket": z.boolean().default(true),
     "x-showController": z.boolean().default(true),
     "x-isAdvanced": z.boolean().default(false),
-
     "x-key": z.string(),
     "x-event": z.string().optional(),
     "x-actor": z.custom<AnyActor>().optional(),

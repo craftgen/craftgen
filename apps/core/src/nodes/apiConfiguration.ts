@@ -30,6 +30,7 @@ const inputSockets = {
     type: "string" as const,
     description: "The API key for the API",
     required: true,
+    format: "secret",
   }),
   headers: generateSocket({
     "x-key": "headers",

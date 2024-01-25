@@ -35,20 +35,24 @@ import {
 } from "@/components/ui/command";
 import { api } from "@/trpc/react";
 import { Icons } from "@/components/icons";
+import { P, match } from "ts-pattern";
+import { Key } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-class PlaceholderWidget extends WidgetType {
+class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
     super();
   }
 
-  eq(other: PlaceholderWidget) {
+  eq(other: SecretWidget) {
     return other.value == this.value;
   }
 
   toDOM() {
     let wrap = document.createElement("span");
     wrap.setAttribute("aria-hidden", "true");
-    wrap.className = "p-1 rounded bg-primary text-primary-foreground";
+    wrap.className =
+      "py-1 px-2 rounded bg-primary border-foreground/50 shadow text-primary-foreground font-mono text";
     wrap.innerText = this.value;
     return wrap;
   }
@@ -58,32 +62,29 @@ class PlaceholderWidget extends WidgetType {
   }
 }
 
-const placeholderMatcher = new MatchDecorator({
+const secretMatcher = new MatchDecorator({
   regexp: /\(?await\s+getSecret\("(.+?)"\)\)?/g,
   decoration: (match) =>
     Decoration.replace({
-      widget: new PlaceholderWidget(match[1]),
+      widget: new SecretWidget(match[1]),
     }),
 });
 
-const placeholders = ViewPlugin.fromClass(
+const secret = ViewPlugin.fromClass(
   class {
-    placeholders: DecorationSet;
+    secrets: DecorationSet;
     constructor(view: EditorView) {
-      this.placeholders = placeholderMatcher.createDeco(view);
+      this.secrets = secretMatcher.createDeco(view);
     }
     update(update: ViewUpdate) {
-      this.placeholders = placeholderMatcher.updateDeco(
-        update,
-        this.placeholders,
-      );
+      this.secrets = secretMatcher.updateDeco(update, this.secrets);
     }
   },
   {
-    decorations: (instance) => instance.placeholders,
+    decorations: (instance) => instance.secrets,
     provide: (plugin) =>
       EditorView.atomicRanges.of((view) => {
-        return view.plugin(plugin)?.placeholders || Decoration.none;
+        return view.plugin(plugin)?.secrets || Decoration.none;
       }),
   },
 );
@@ -108,6 +109,59 @@ export function CustomInput(props: { data: InputControl }) {
     }
     return val;
   }, []);
+
+  const handledChange = (val: string) => {
+    console.log("##", val);
+    const res = parseValue(val);
+    match(res)
+      .with(
+        {
+          expression: P.string,
+        },
+        () => {
+          props.data.actor.send({
+            type: "UPDATE_SOCKET",
+            params: {
+              name: props.data.definition["x-key"],
+              side: "input",
+              socket: {
+                format: "expression",
+              },
+            },
+          });
+        },
+      )
+      .with(
+        {
+          secretKey: P.string,
+        },
+        () => {
+          props.data.actor.send({
+            type: "UPDATE_SOCKET",
+            params: {
+              name: props.data.definition["x-key"],
+              side: "input",
+              socket: {
+                format: "secret",
+              },
+            },
+          });
+        },
+      )
+      .otherwise(() => {
+        props.data.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: props.data.definition["x-key"],
+            side: "input",
+            socket: {
+              format: undefined,
+            },
+          },
+        });
+      });
+    props.data.setValue(val);
+  };
   const { data: creds } = api.credentials.list.useQuery({
     projectId: "9ad65390-e82b-42b2-9cae-a62dce62011e",
   });
@@ -133,15 +187,22 @@ export function CustomInput(props: { data: InputControl }) {
                 <CommandGroup>
                   {creds?.map((cred) => (
                     <CommandItem
-                      key={cred.key}
+                      key={cred.id}
                       value={cred.key}
                       onSelect={(value) => {
                         console.log(value);
-                        props.data.setValue(`(await getSecret("${value}"))`);
+                        handledChange(`(await getSecret("${value}"))`);
                         setOpen(false);
                       }}
                     >
-                      {cred.key}
+                      <div className="flex w-full items-center justify-between">
+                        {cred.key}
+                        {cred.default && (
+                          <Badge className="ml-2 bg-green-400/80">
+                            Default
+                          </Badge>
+                        )}
+                      </div>
                     </CommandItem>
                   ))}
                 </CommandGroup>
@@ -159,7 +220,7 @@ export function CustomInput(props: { data: InputControl }) {
           javascript({
             jsx: false,
           }),
-          placeholders,
+          secret,
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
         width="100%"
@@ -170,8 +231,7 @@ export function CustomInput(props: { data: InputControl }) {
           foldGutter: false,
         }}
         onChange={(val, viewUpdate) => {
-          console.log(parseValue(val));
-          props.data.setValue(val);
+          handledChange(val);
         }}
       />
       <p className={cn("text-muted-foreground text-[0.8rem]")}>
