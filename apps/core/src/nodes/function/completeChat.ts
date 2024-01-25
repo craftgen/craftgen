@@ -7,41 +7,47 @@ import {
   generateToolCalls,
   ollama,
   openai,
-  UncheckedSchema,
-  type OllamaChatMessage,
-  type OpenAIChatMessage,
-  type ToolCall,
-  type ToolCallError,
-  type ToolCallResult,
-  type ToolDefinition,
+  UncheckedSchema
+  
+  
+  
+  
+  
+  
 } from "modelfusion";
+import type {OllamaChatMessage, OpenAIChatMessage, ToolCall, ToolCallError, ToolCallResult, ToolDefinition} from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
+import type {
+  OutputFrom} from "xstate";
 import {
   assertEvent,
   assign,
   createMachine,
   enqueueActions,
   fromPromise,
-  OutputFrom,
-  setup,
-  type AnyActorRef,
+  setup
+  
 } from "xstate";
+import type {AnyActorRef} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
 import {
-  BaseNode,
-  type BaseContextType,
-  type BaseInputType,
-  type BaseMachineTypes,
-  type None,
-  type ParsedNode,
+  BaseNode
+  
+  
+  
+  
+  
 } from "../base";
-import { OllamaModelMachine, type OllamaModelConfig } from "../ollama/ollama";
+import type {BaseContextType, BaseInputType, BaseMachineTypes, None, ParsedNode} from "../base";
+import { OllamaModelMachine  } from "../ollama/ollama";
+import type {OllamaModelConfig} from "../ollama/ollama";
 import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import { OpenaiModelMachine, type OpenAIModelConfig } from "../openai/openai";
+import { OpenaiModelMachine  } from "../openai/openai";
+import type {OpenAIModelConfig} from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -341,7 +347,7 @@ const OpenAICompleteChatMachine = createMachine({
                 ...context.outputs,
                 result: event.params?.res,
                 messages: [
-                  ...(context.inputs.messages as any[]),
+                  ...(context.inputs.messages!),
                   {
                     id: event.params.id,
                     ...standardizeMessage(event.params.res.result),

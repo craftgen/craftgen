@@ -10,28 +10,32 @@ import {
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
+import type {
+  AnyActorRef,
+  OutputFrom} from "xstate";
 import {
   and,
-  AnyActorRef,
   createMachine,
   enqueueActions,
   fromPromise,
-  OutputFrom,
   setup,
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import {
-  BaseNode,
-  type BaseContextType,
-  type BaseInputType,
-  type BaseMachineTypes,
-  type None,
-  type ParsedNode,
+  BaseNode
+  
+  
+  
+  
+  
 } from "../base";
-import { OllamaModelMachine, type OllamaModelConfig } from "../ollama/ollama";
-import { OpenaiModelMachine, type OpenAIModelConfig } from "../openai/openai";
+import type {BaseContextType, BaseInputType, BaseMachineTypes, None, ParsedNode} from "../base";
+import { OllamaModelMachine  } from "../ollama/ollama";
+import type {OllamaModelConfig} from "../ollama/ollama";
+import { OpenaiModelMachine  } from "../openai/openai";
+import type {OpenAIModelConfig} from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({

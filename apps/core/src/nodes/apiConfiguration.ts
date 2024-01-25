@@ -3,14 +3,15 @@ import dedent from "ts-dedent";
 import { createMachine } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-import { DiContainer } from "../types";
-import {
+import type { DiContainer } from "../types";
+import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
-  BaseNode,
   None,
-  ParsedNode,
+  ParsedNode} from "./base";
+import {
+  BaseNode
 } from "./base";
 
 const inputSockets = {

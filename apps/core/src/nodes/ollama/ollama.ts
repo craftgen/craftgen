@@ -1,9 +1,6 @@
 import ky from "ky";
 import { merge } from "lodash-es";
-import {
-  type BaseUrlPartsApiConfigurationOptions,
-  type OllamaChatModelSettings,
-} from "modelfusion";
+import type {BaseUrlPartsApiConfigurationOptions, OllamaChatModelSettings} from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
@@ -11,13 +8,14 @@ import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import {
-  BaseNode,
-  type BaseContextType,
-  type BaseInputType,
-  type BaseMachineTypes,
-  type None,
-  type ParsedNode,
+  BaseNode
+  
+  
+  
+  
+  
 } from "../base";
+import type {BaseContextType, BaseInputType, BaseMachineTypes, None, ParsedNode} from "../base";
 
 const OllamaApi = ky.create({
   prefixUrl: "http://127.0.0.1:11434/api",
