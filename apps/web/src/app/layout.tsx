@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter, Noto_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import { GeistMono, GeistSans } from "geist/font";
+import { Analytics } from "@vercel/analytics/react";
 
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -28,7 +29,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en">
       <body
@@ -36,7 +36,10 @@ export default async function RootLayout({
       >
         <TRPCReactProvider headers={headers()}>
           <Providers>
-            <KBar>{children}</KBar>
+            <KBar>
+              {children}
+              <Analytics />
+            </KBar>
           </Providers>
         </TRPCReactProvider>
       </body>
