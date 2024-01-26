@@ -19,13 +19,16 @@ const PlaygroundPage = async (props: {
   };
 }) => {
   const cookieStore = cookies();
+  console.log("🚀 ~ cookieStore:", cookieStore);
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
+  console.log("🚀 ~ supabase:", supabase);
   const workflow = await api.craft.module.get.query({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
     executionId: props.searchParams.execution,
     version: Number(props.params.version),
   });
+  console.log("🚀 ~ workflow:", workflow);
 
   if (!workflow) return <div>Not found</div>;
   if (!workflow.execution && props.searchParams.execution) {
@@ -36,7 +39,20 @@ const PlaygroundPage = async (props: {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return <Playground workflow={workflow} session={session} />;
+  console.log("🚀 ~ session:", session);
+  return (
+    <div>
+      {JSON.stringify(
+        {
+          workflow,
+          session,
+        },
+        null,
+        2,
+      )}
+    </div>
+  );
+  // return <Playground workflow={workflow} session={session} />;
 };
 
 export default PlaygroundPage;
