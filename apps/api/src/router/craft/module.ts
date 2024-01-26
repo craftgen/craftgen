@@ -145,7 +145,6 @@ export const craftModuleRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      console.log("🚀 ~ .query ~ input:", input);
       return await ctx.db.transaction(async (tx) => {
         const project = await tx.query.project.findFirst({
           where: (project, { eq }) => eq(project.slug, input.projectSlug),
@@ -153,14 +152,12 @@ export const craftModuleRouter = createTRPCRouter({
             id: true,
           },
         });
-        console.log("🚀 ~ returnawaitctx.db.transaction ~ project:", project);
         if (!project) {
           throw new Error("Project not found");
         }
         const userId = ctx.session?.user?.id;
         let readonly = true;
         if (userId) {
-          console.log("🚀 ~ returnawaitctx.db.transaction ~ userId:", userId);
           const [isMember] = await tx
             .select()
             .from(schema.projectMembers)
@@ -238,7 +235,6 @@ export const craftModuleRouter = createTRPCRouter({
             },
           },
         });
-        console.log("🚀 ~ returnawaitctx.db.transaction ~ workflow:", workflow);
         if (!workflow) {
           throw new Error("Playground not found");
         }
@@ -266,7 +262,6 @@ export const craftModuleRouter = createTRPCRouter({
           label: node.label,
           color: node.color,
         }));
-        console.log("🚀 ~ contentNodes ~ contentNodes:", contentNodes);
         const contentEdges = version.edges.map((edge) => ({
           sourceOutput: edge.sourceOutput,
           source: edge.source,
@@ -275,7 +270,6 @@ export const craftModuleRouter = createTRPCRouter({
           workflowId: edge.workflowId,
           workflowVersionId: edge.workflowVersionId,
         }));
-        console.log("🚀 ~ contentEdges ~ contentEdges:", contentEdges);
 
         const res = {
           ...workflow,
@@ -286,7 +280,6 @@ export const craftModuleRouter = createTRPCRouter({
           execution: workflow?.versions[0]?.executions[0],
           readonly,
         };
-        console.log("🚀 ~ returnawaitctx.db.transaction ~ res:", res);
         return res;
       });
     }),
