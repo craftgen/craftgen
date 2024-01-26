@@ -54,6 +54,7 @@ export const createTRPCContext = async (opts: {
   req?: Request;
   auth: Session | null;
   supabaseService?: SupabaseClient;
+  headers: Headers
 }) => {
   const session = opts.auth;
 

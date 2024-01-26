@@ -15,6 +15,7 @@ const PlaygroundLayout = async (props: {
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.playgroundSlug,
   });
+  console.log("@@@", workflow);
   if (!workflow) return notFound();
 
   return (
