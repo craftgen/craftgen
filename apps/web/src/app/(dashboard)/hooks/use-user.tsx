@@ -1,16 +1,11 @@
 "use client";
 
-import useSWR from "swr";
-
-import type { ResultOf } from "@/lib/type";
-
-import { getUser } from "../actions";
+import { api } from "@/trpc/react";
+import { RouterOutputs } from "@/trpc/shared";
 
 export const useUser = (params?: {
-  fallbackData?: ResultOf<typeof getUser>;
+  fallbackData?: RouterOutputs["auth"]["getSession"];
 }) => {
-  const res = useSWR("/api/auth/user", getUser, {
-    ...(params?.fallbackData && { fallbackData: params?.fallbackData }),
-  });
+  const res = api.auth.getSession.useQuery();
   return res;
 };
