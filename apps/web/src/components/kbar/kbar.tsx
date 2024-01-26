@@ -13,6 +13,7 @@ import { RenderResults } from "./render-results";
 import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { useRouter } from "next/navigation";
 import { KBarProviderWrapper } from "./provider";
+import { isNil } from "lodash-es";
 
 export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
@@ -29,13 +30,25 @@ export const KBarCore = () => {
 
   useRegisterActions(
     [
-      {
-        id: "profile",
-        name: "Profile",
-        shortcut: ["@"],
-        keywords: "profile",
-        perform: () => router.push(`/${user?.username}`),
-      },
+      ...(!isNil(user)
+        ? [
+            {
+              id: "profile",
+              name: "Profile",
+              shortcut: ["@"],
+              keywords: "profile",
+              perform: () => router.push(`/${user?.username}`),
+            },
+          ]
+        : [
+            {
+              id: "login",
+              name: "Login",
+              shortcut: ["@"],
+              keywords: "login",
+              perform: () => router.push(`/login`),
+            },
+          ]),
     ],
     [user],
   );

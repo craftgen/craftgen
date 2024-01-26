@@ -3,6 +3,13 @@ import { KBarProvider } from "kbar";
 
 const actions = [
   {
+    id: "home",
+    name: "Home",
+    shortcut: ["h"],
+    keywords: "home",
+    perform: () => (window.location.pathname = "/"),
+  },
+  {
     id: "explore",
     name: "Explore",
     shortcut: ["e"],
