@@ -74,8 +74,8 @@ url = ""
 
 [auth.external.google]
 enabled = true
-client_id = "619535389805-mfft6289t4uhhdgdf0s4f062m1dgnqvc.apps.googleusercontent.com"
-secret = "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"
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 
 [analytics]

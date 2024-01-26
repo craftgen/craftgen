@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "supabase start",
+    "start": "pnpm with-env supabase start",
+    "stop": "pnpm with-env supabase stop",
     "generate": "pnpm run drizzle:generate ",
     "drizzle:generate": "drizzle-kit generate:pg",
     "drop": "drizzle-kit drop",
