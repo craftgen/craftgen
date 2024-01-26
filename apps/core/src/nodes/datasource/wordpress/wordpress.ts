@@ -2,16 +2,11 @@
 // @ts-nocheck
 
 import type { SetOptional } from "type-fest";
-import type { StateFrom } from "xstate";
 import { assign, createMachine } from "xstate";
 
-import { InputControl } from "../../../controls/input.control";
-import { SelectControl } from "../../../controls/select";
-import { Input, Output } from "../../../input-output";
-import { objectSocket, triggerSocket } from "../../../sockets";
 import type { DiContainer } from "../../../types";
-import { BaseNode  } from "../../base";
-import type {ParsedNode} from "../../base";
+import { BaseNode } from "../../base";
+import type { ParsedNode } from "../../base";
 
 const WordpressMachine = createMachine({
   id: "wordpress",
@@ -87,79 +82,78 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
         },
       },
     });
+    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-    this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
-    this.addControl(
-      "action",
-      new SelectControl("addPost", {
-        placeholder: "Select an action",
-        values: [
-          {
-            key: "addPost",
-            value: "Add Post",
-          },
-          {
-            key: "readPost",
-            value: "Read Post",
-          },
-        ],
-        change: (v) => {
-          console.log("change", v);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              action: v,
-            },
-          });
-        },
-      }),
-    );
+    //   this.addControl(
+    //     "action",
+    //     new SelectControl("addPost", {
+    //       placeholder: "Select an action",
+    //       values: [
+    //         {
+    //           key: "addPost",
+    //           value: "Add Post",
+    //         },
+    //         {
+    //           key: "readPost",
+    //           value: "Read Post",
+    //         },
+    //       ],
+    //       change: (v) => {
+    //         console.log("change", v);
+    //         this.actor.send({
+    //           type: "CONFIG_CHANGE",
+    //           settings: {
+    //             action: v,
+    //           },
+    //         });
+    //       },
+    //     }),
+    //   );
 
-    // this.addControl('wordpressID', )
-    this.addControl(
-      "wordpressID",
-      new InputControl(() => this.snap.context.settings.wordpressId, {
-        change: (v) => {
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              wordpressId: v,
-            },
-          });
-        },
-      }),
-    );
+    //   // this.addControl('wordpressID', )
+    //   this.addControl(
+    //     "wordpressID",
+    //     new InputControl(() => this.snap.context.settings.wordpressId, {
+    //       change: (v) => {
+    //         this.actor.send({
+    //           type: "CONFIG_CHANGE",
+    //           settings: {
+    //             wordpressId: v,
+    //           },
+    //         });
+    //       },
+    //     }),
+    //   );
 
-    this.actor.subscribe((state) => {
-      this.action = state.context.settings.action;
-      this.syncUI(state);
-    });
-    this.syncUI(state);
+    //   this.actor.subscribe((state) => {
+    //     this.action = state.context.settings.action;
+    //     this.syncUI(state);
+    //   });
+    //   this.syncUI(state);
   }
 
-  async syncUI(state: StateFrom<typeof WordpressMachine>) {
-    if (state.context.settings.action === "addPost") {
-      if (!this.inputs.add_post) {
-        this.addInput("add_post", new Input(objectSocket, "post"));
-      }
-    } else {
-      if (this.inputs.add_post) {
-        this.removeInput("add_post");
-      }
-    }
-    if (state.context.settings.action === "readPost") {
-      if (!this.outputs.read_post) {
-        this.addOutput("read_post", new Output(objectSocket, "post"));
-      }
-    } else {
-      if (this.outputs.read_post) {
-        this.removeOutput("read_post");
-      }
-    }
+  // async syncUI(state: StateFrom<typeof WordpressMachine>) {
+  //   if (state.context.settings.action === "addPost") {
+  //     if (!this.inputs.add_post) {
+  //       this.addInput("add_post", new Input(objectSocket, "post"));
+  //     }
+  //   } else {
+  //     if (this.inputs.add_post) {
+  //       this.removeInput("add_post");
+  //     }
+  //   }
+  //   if (state.context.settings.action === "readPost") {
+  //     if (!this.outputs.read_post) {
+  //       this.addOutput("read_post", new Output(objectSocket, "post"));
+  //     }
+  //   } else {
+  //     if (this.outputs.read_post) {
+  //       this.removeOutput("read_post");
+  //     }
+  //   }
 
-    console.log("syncUI", state);
-  }
+  //   console.log("syncUI", state);
+  // }
 }

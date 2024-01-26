@@ -3,7 +3,6 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import type { Database } from "@seocraft/supabase/db/database.types";
 
-import { Toaster } from "@/components/ui/toaster";
 
 import { persistGoogleToken } from "./actions";
 import { Navbar } from "./navbar";
@@ -29,8 +28,6 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <main className="flex flex-col">
       <Navbar session={session!} />
       <div className="relative mt-12 flex-1">{children}</div>
-      {/* <CommandMenu /> */}
-      <Toaster />
     </main>
   );
 };

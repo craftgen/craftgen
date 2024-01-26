@@ -13,20 +13,16 @@ import type { SetOptional } from "type-fest";
 import type { PromiseActorLogic } from "xstate";
 import { assign, createMachine, fromPromise } from "xstate";
 
-import { OpenAIThreadControl } from "../../controls/openai-thread.control";
 import { generateSocket } from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
 import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "../base";
-import {
-  BaseNode
+  ParsedNode,
 } from "../base";
+import { BaseNode } from "../base";
 
 const inputSockets = {
   threadId: generateSocket({

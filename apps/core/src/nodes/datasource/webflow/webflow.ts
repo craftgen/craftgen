@@ -2,16 +2,11 @@
 // @ts-nocheck
 
 import type { SetOptional } from "type-fest";
-import type { StateFrom } from "xstate";
 import { assign, createMachine } from "xstate";
 
-import { InputControl } from "../../../controls/input.control";
-import { SelectControl } from "../../../controls/select";
-import { Input, Output } from "../../../input-output";
-import { objectSocket, triggerSocket } from "../../../sockets";
 import type { DiContainer } from "../../../types";
-import { BaseNode  } from "../../base";
-import type {ParsedNode} from "../../base";
+import { BaseNode } from "../../base";
+import type { ParsedNode } from "../../base";
 
 const WebflowMachine = createMachine({
   id: "webflow",
@@ -87,79 +82,78 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
         },
       },
     });
+    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-    this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
-    this.addControl(
-      "action",
-      new SelectControl("addRow", {
-        placeholder: "Select an action",
-        values: [
-          {
-            key: "addRow",
-            value: "Add Row",
-          },
-          {
-            key: "readRow",
-            value: "Read Row",
-          },
-        ],
-        change: (v) => {
-          console.log("change", v);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              action: v,
-            },
-          });
-        },
-      }),
-    );
+    // this.addControl(
+    //   "action",
+    //   new SelectControl("addRow", {
+    //     placeholder: "Select an action",
+    //     values: [
+    //       {
+    //         key: "addRow",
+    //         value: "Add Row",
+    //       },
+    //       {
+    //         key: "readRow",
+    //         value: "Read Row",
+    //       },
+    //     ],
+    //     change: (v) => {
+    //       console.log("change", v);
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           action: v,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
 
-    // this.addControl('webflowID', )
-    this.addControl(
-      "webflowID",
-      new InputControl(() => this.snap.context.settings.webflowId, {
-        change: (v) => {
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              webflowId: v,
-            },
-          });
-        },
-      }),
-    );
+    // // this.addControl('webflowID', )
+    // this.addControl(
+    //   "webflowID",
+    //   new InputControl(() => this.snap.context.settings.webflowId, {
+    //     change: (v) => {
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           webflowId: v,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
 
-    this.actor.subscribe((state) => {
-      this.action = state.context.settings.action;
-      this.syncUI(state);
-    });
-    this.syncUI(state);
+    // this.actor.subscribe((state) => {
+    //   this.action = state.context.settings.action;
+    //   this.syncUI(state);
+    // });
+    // this.syncUI(state);
   }
 
-  async syncUI(state: StateFrom<typeof WebflowMachine>) {
-    if (state.context.settings.action === "addRow") {
-      if (!this.inputs.add_row) {
-        this.addInput("add_row", new Input(objectSocket, "row"));
-      }
-    } else {
-      if (this.inputs.add_row) {
-        this.removeInput("add_row");
-      }
-    }
-    if (state.context.settings.action === "readRow") {
-      if (!this.outputs.read_row) {
-        this.addOutput("read_row", new Output(objectSocket, "row"));
-      }
-    } else {
-      if (this.outputs.read_row) {
-        this.removeOutput("read_row");
-      }
-    }
+  // async syncUI(state: StateFrom<typeof WebflowMachine>) {
+  //   if (state.context.settings.action === "addRow") {
+  //     if (!this.inputs.add_row) {
+  //       this.addInput("add_row", new Input(objectSocket, "row"));
+  //     }
+  //   } else {
+  //     if (this.inputs.add_row) {
+  //       this.removeInput("add_row");
+  //     }
+  //   }
+  //   if (state.context.settings.action === "readRow") {
+  //     if (!this.outputs.read_row) {
+  //       this.addOutput("read_row", new Output(objectSocket, "row"));
+  //     }
+  //   } else {
+  //     if (this.outputs.read_row) {
+  //       this.removeOutput("read_row");
+  //     }
+  //   }
 
-    console.log("syncUI", state);
-  }
+  //   console.log("syncUI", state);
+  // }
 }

@@ -5,10 +5,6 @@ import type { SetOptional } from "type-fest";
 import type { StateFrom } from "xstate";
 import { assign, createMachine } from "xstate";
 
-import { InputControl } from "../../../controls/input.control";
-import { SelectControl } from "../../../controls/select";
-import { Input, Output } from "../../../input-output";
-import { objectSocket, triggerSocket } from "../../../sockets";
 import type { DiContainer } from "../../../types";
 import { BaseNode  } from "../../base";
 import type {ParsedNode} from "../../base";
@@ -134,8 +130,6 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
     this.setup();
     // const state = this.actor.getSnapshot();
     // this.action = state.context.settings.action;
-    // this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    // this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
     // this.addControl(
     //   "action",

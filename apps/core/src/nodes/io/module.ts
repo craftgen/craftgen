@@ -1,18 +1,15 @@
 import { merge } from "lodash-es";
 import { action, makeObservable, observable, reaction } from "mobx";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise  } from "xstate";
-import type {StateFrom} from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
 
 import { SelectControl } from "../../controls/select";
 import type { JSONSocket } from "../../controls/socket-generator";
 import type { Editor } from "../../editor";
-import { Input, Output } from "../../input-output";
-import { objectSocket, triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
-import type { BaseMachineTypes} from "../base";
-import { BaseNode  } from "../base";
-import type {ParsedNode} from "../base";
+import type { BaseMachineTypes } from "../base";
+import { BaseNode } from "../base";
+import type { ParsedNode } from "../base";
 
 const ModuleNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFkD2ECuAbMA5dYAdAJYQ4DEAygKIAqA+sgPIAiAqgDLUDaADALqJQAB1SxiAF2KoAdkJAAPRAFoAbIQCsAZg0BGDaoBMGgDQgAnokO8A7IQAshgJyr7qgBy8n7pxvf2AXwCzNEwcfAgiAGNZGTAoiUgqOkZWTh4BeVFxKVl5JQR9XUJed2stXWMzS0KtdRteCuMgkPRsPAJCGJk4hKSaBgBhJlwAMQBJAHE+QSQQbMlpOTmC-XtCVVdeI1MLRHteQmbgkFD2iOjY+MSIcgAlNlwZrLFFvJWrJycN9xtdmsM9g0hH0Rl0TnsZUcunc7iCJxkBHgczO4QILxyS3yKl0WncJR0oKqewQynsdmOrTCHUiJDIYAxb2WoAKyich0aegMxIBWkO7KMXj53l8vxapzaaNp3V6N0ZuWZikQulcJScWj+1SseJB3PBkMBhhhcJOqJpRAAThgesQZFB5ViPgh7OCfpqSYYtN8ifqoUbYfCAkA */
@@ -165,15 +162,13 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
         }),
       },
     });
+    this.setup();
     makeObservable(this, {
       module: observable.ref,
       setModule: action,
     });
 
     const state = this.actor.getSnapshot();
-    this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    this.addOutput("trigger", new Output(triggerSocket, "trigger"));
-    this.addOutput("tool", new Output(objectSocket, "tool"));
 
     this.setModule(state.context.moduleId);
 
@@ -206,7 +201,7 @@ export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
 
           this.addControl(
             "Input",
-            new SelectControl(() => this.snap.context.inputId, {
+            new SelectControl(this.actor, (snap) => snap.context.inputId!, {
               placeholder: "Select Input",
               values: this.module.inputs.map((n) => ({
                 key: n.id,

@@ -1,8 +1,10 @@
 import { z } from "zod";
 
-import { and, eq, ProviderType, sql, variable } from "@seocraft/supabase/db";
+import { eq, sql, variable } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
+
+type ProviderType = "OPENAI" | "REPLICATE" | "OTHER";
 
 export const credentialsRouter = createTRPCRouter({
   list: protectedProcedure
@@ -23,6 +25,23 @@ export const credentialsRouter = createTRPCRouter({
       return credentials;
     }),
 
+  hasKeyForProvider: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        provider: z.custom<ProviderType>(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const credentials = await ctx.db.query.variable.findFirst({
+        where: (token, { eq, and }) =>
+          and(
+            eq(token.project_id, input.projectId),
+            eq(token.provider, input.provider),
+          ),
+      });
+      return !!credentials;
+    }),
   delete: protectedProcedure
     .input(
       z.object({

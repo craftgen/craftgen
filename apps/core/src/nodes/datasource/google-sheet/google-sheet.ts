@@ -3,20 +3,12 @@
 
 import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import {
-  assign,
-  createMachine,
-  fromPromise
-  
-  
-} from "xstate";
-import type {ContextFrom, StateFrom} from "xstate";
+import { assign, createMachine, fromPromise } from "xstate";
+import type { ContextFrom, StateFrom } from "xstate";
 
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { SelectControl } from "../../../controls/select";
-import { Input, Output } from "../../../input-output";
-// import { numberSocket, stringSocket, triggerSocket } from "../../../sockets";
-import type {DiContainer} from "../../../types";
+import type { DiContainer } from "../../../types";
 import type { ParsedNode } from "../../base";
 import { BaseNode } from "../../base";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
@@ -231,18 +223,11 @@ const GoogleSheetActionTypes = {
     type: "readRow",
     label: "Read Row",
     description: "Read a row from the Google Sheet",
-    inputs: {
-      rowIndex: numberSocket,
-    },
   },
   readRows: {
     type: "readRows",
     label: "Read Rows",
     description: "Read rows from the Google Sheet, with limit and offset",
-    inputs: {
-      limit: numberSocket,
-      offset: numberSocket,
-    },
   },
 } as const;
 
@@ -337,147 +322,142 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         }),
       },
     });
+    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
 
-    this.addControl(
-      "action",
-      new SelectControl(() => this.snap.context.settings.action, {
-        placeholder: "Select an action",
-        values: [
-          ...Object.values(GoogleSheetActionTypes).map((action) => ({
-            key: action.type,
-            value: action.label,
-          })),
-        ],
-        change: (v) => {
-          console.log("change", v);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              action: v,
-            },
-          });
-        },
-      }),
-    );
+    // this.addControl(
+    //   "action",
+    //   new SelectControl(() => this.snap.context.settings.action, {
+    //     placeholder: "Select an action",
+    //     values: [
+    //       ...Object.values(GoogleSheetActionTypes).map((action) => ({
+    //         key: action.type,
+    //         value: action.label,
+    //       })),
+    //     ],
+    //     change: (v) => {
+    //       console.log("change", v);
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           action: v,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
 
-    this.addControl(
-      "spreadsheet",
-      new GoogleDriveControl(state.context.settings.spreadsheet, {
-        multiselect: false,
-        viewId: "SPREADSHEETS",
-        onSelect: (file) => {
-          if (file === undefined) {
-            this.actor.send({
-              type: "CONFIG_CHANGE",
-              settings: {
-                spreadsheet: undefined,
-                sheet: undefined,
-              },
-            });
-          }
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            settings: {
-              spreadsheet: file,
-            },
-          });
-        },
-      }),
-    );
-
-    this.actor.subscribe((state) => {
-      this.action = state.context.settings.action;
-      this.syncUI(state);
-    });
-    this.syncUI(state);
+    // this.addControl(
+    //   "spreadsheet",
+    //   new GoogleDriveControl(state.context.settings.spreadsheet, {
+    //     multiselect: false,
+    //     viewId: "SPREADSHEETS",
+    //     onSelect: (file) => {
+    //       if (file === undefined) {
+    //         this.actor.send({
+    //           type: "CONFIG_CHANGE",
+    //           settings: {
+    //             spreadsheet: undefined,
+    //             sheet: undefined,
+    //           },
+    //         });
+    //       }
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         settings: {
+    //           spreadsheet: file,
+    //         },
+    //       });
+    //     },
+    //   }),
+    // );
   }
 
-  async syncUI(state: StateFrom<typeof GoogleSheetMachine>) {
-    if (state.matches("idle")) {
-      if (this.hasInput("trigger")) this.removeInput("trigger");
-      if (this.hasOutput("trigger")) this.removeOutput("trigger");
-      await this.setInputs({});
-      await this.setOutputs({});
-    }
-    if (state.matches("ready")) {
-      if (!this.hasInput("trigger"))
-        this.addInput("trigger", new Input(triggerSocket, "trigger"));
+  // async syncUI(state: StateFrom<typeof GoogleSheetMachine>) {
+  //   if (state.matches("idle")) {
+  //     if (this.hasInput("trigger")) this.removeInput("trigger");
+  //     if (this.hasOutput("trigger")) this.removeOutput("trigger");
+  //     await this.setInputs({});
+  //     await this.setOutputs({});
+  //   }
+  //   if (state.matches("ready")) {
+  //     if (!this.hasInput("trigger"))
+  //       this.addInput("trigger", new Input(triggerSocket, "trigger"));
 
-      if (!this.hasOutput("trigger"))
-        this.addOutput("trigger", new Output(triggerSocket, "trigger"));
+  //     if (!this.hasOutput("trigger"))
+  //       this.addOutput("trigger", new Output(triggerSocket, "trigger"));
 
-      const action = state.context.settings.action;
-      const headers = state.context.settings.sheet?.headers || [];
+  //     const action = state.context.settings.action;
+  //     const headers = state.context.settings.sheet?.headers || [];
 
-      // this section handles the inputs and outputs.
-      await match(action)
-        .with("addRow", async () => {
-          await this.setInputs(
-            headers.reduce((prev, curr) => {
-              return {
-                ...prev,
-                [curr]: stringSocket,
-              };
-            }, {}),
-          );
-          await this.setOutputs({});
-        })
-        .with("readRow", async () => {
-          await this.setInputs({ rowIndex: numberSocket });
-          await this.setOutputs(
-            headers.reduce((prev, curr) => {
-              return {
-                ...prev,
-                [curr]: stringSocket,
-              };
-            }, {}),
-          );
-        })
-        .with("readRows", async () => {
-          await this.setInputs({ limit: numberSocket, offset: numberSocket });
-          await this.setOutputs(
-            headers.reduce((prev, curr) => {
-              return {
-                ...prev,
-                [curr]: stringSocket,
-              };
-            }, {}),
-          );
-        })
-        .exhaustive();
-    }
-    if (state.context.settings.spreadsheet) {
-      if (!this.hasControl("sheet")) {
-        const sheets = await getSheets(state.context.settings);
-        console.log(sheets);
-        this.addControl(
-          "sheet",
-          new SelectControl(String(state.context.settings.sheet?.id), {
-            placeholder: "Select a sheet",
-            values: sheets.map((sheet) => ({
-              key: String(sheet.id),
-              value: sheet.title,
-            })),
-            change: (v) => {
-              console.log("change", v);
-              this.actor.send({
-                type: "CONFIG_CHANGE",
-                settings: {
-                  sheet: {
-                    id: Number(v),
-                    name: sheets.find((sheet) => sheet.id === Number(v))?.title,
-                  },
-                },
-              });
-            },
-          }),
-        );
-      }
-    } else {
-      if (this.hasControl("sheet")) this.removeControl("sheet");
-    }
-    console.log("syncUI", state);
-  }
+  //     // this section handles the inputs and outputs.
+  //     await match(action)
+  //       .with("addRow", async () => {
+  //         await this.setInputs(
+  //           headers.reduce((prev, curr) => {
+  //             return {
+  //               ...prev,
+  //               [curr]: stringSocket,
+  //             };
+  //           }, {}),
+  //         );
+  //         await this.setOutputs({});
+  //       })
+  //       .with("readRow", async () => {
+  //         await this.setInputs({ rowIndex: numberSocket });
+  //         await this.setOutputs(
+  //           headers.reduce((prev, curr) => {
+  //             return {
+  //               ...prev,
+  //               [curr]: stringSocket,
+  //             };
+  //           }, {}),
+  //         );
+  //       })
+  //       .with("readRows", async () => {
+  //         await this.setInputs({ limit: numberSocket, offset: numberSocket });
+  //         await this.setOutputs(
+  //           headers.reduce((prev, curr) => {
+  //             return {
+  //               ...prev,
+  //               [curr]: stringSocket,
+  //             };
+  //           }, {}),
+  //         );
+  //       })
+  //       .exhaustive();
+  //   }
+  //   if (state.context.settings.spreadsheet) {
+  //     if (!this.hasControl("sheet")) {
+  //       const sheets = await getSheets(state.context.settings);
+  //       console.log(sheets);
+  //       this.addControl(
+  //         "sheet",
+  //         new SelectControl(String(state.context.settings.sheet?.id), {
+  //           placeholder: "Select a sheet",
+  //           values: sheets.map((sheet) => ({
+  //             key: String(sheet.id),
+  //             value: sheet.title,
+  //           })),
+  //           change: (v) => {
+  //             console.log("change", v);
+  //             this.actor.send({
+  //               type: "CONFIG_CHANGE",
+  //               settings: {
+  //                 sheet: {
+  //                   id: Number(v),
+  //                   name: sheets.find((sheet) => sheet.id === Number(v))?.title,
+  //                 },
+  //               },
+  //             });
+  //           },
+  //         }),
+  //       );
+  //     }
+  //   } else {
+  //     if (this.hasControl("sheet")) this.removeControl("sheet");
+  //   }
+  //   console.log("syncUI", state);
+  // }
 }

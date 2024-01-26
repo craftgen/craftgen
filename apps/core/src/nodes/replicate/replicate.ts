@@ -1,23 +1,17 @@
-import { isNil, merge } from "lodash-es";
-import { match, P } from "ts-pattern";
+import { merge } from "lodash-es";
+import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type {
-  PromiseActorLogic} from "xstate";
-import {
-  assign,
-  createMachine,
-  enqueueActions,
-  fromPromise
-} from "xstate";
+import type { PromiseActorLogic } from "xstate";
+import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
 
 import type { RouterInputs, RouterOutputs } from "@seocraft/api";
 
 import type { JSONSocket } from "../../controls/socket-generator";
 import { generateSocket } from "../../controls/socket-generator";
-import type {DiContainer} from "../../types";
-import type { BaseMachineTypes, None} from "../base";
-import { BaseNode  } from "../base";
-import type {ParsedNode} from "../base";
+import type { DiContainer } from "../../types";
+import type { BaseMachineTypes, None } from "../base";
+import { BaseNode } from "../base";
+import type { ParsedNode } from "../base";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -133,8 +127,8 @@ const replicateMachine = createMachine({
           actions: [
             assign({
               outputSockets: ({ event }) => {
-                const Output = (event.output.openapi_schema ).components
-                  .schemas.Output;
+                const Output =
+                  event.output.openapi_schema.components.schemas.Output;
                 return match(Output).otherwise(() => {
                   return {
                     onDone: outputSockets.onDone,
@@ -195,7 +189,7 @@ const replicateMachine = createMachine({
                       // "x-controller": isEnum && "select",
                       // "x-showSocket": isNil(value.default) && required,
                       "x-controller": true,
-                      "x-showSocket": true 
+                      "x-showSocket": true,
                     };
                   })
                   .sort((a, b) => a["x-order"] - b["x-order"])
@@ -460,11 +454,8 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
       },
     });
 
-    // this.updateLabel();
     this.setup();
-
-    // this.addInput("trigger", new Input(triggerSocket, "Exec", true));
-    // this.addOutput("trigger", new Output(triggerSocket, "Exec"));
+    this.updateLabel();
   }
 
   private updateLabel() {

@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
-import { render } from "react-dom";
 import JsonView from "react18-json-view";
 import { match, P } from "ts-pattern";
 import { AnyActor, AnyActorRef } from "xstate";
@@ -50,7 +49,7 @@ import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
-import { useRegisterPlaygroundActions } from "@/core/useRegisterPlaygroundActions";
+import { useRegisterPlaygroundActions } from "@/core/actions";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/shared";
 
@@ -81,11 +80,13 @@ const defaultLayout: FlexLayout.IJsonModel = {
     {
       type: "border",
       location: "left",
+
       barSize: 40,
       enableDrop: false,
       children: [
         {
           type: "tab",
+          id: "explorer",
           name: "Explorer",
           component: "explorer",
           enableClose: false,
@@ -93,6 +94,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
         },
         {
           type: "tab",
+          id: "credentials",
           name: "Credentials",
           component: "credentials",
           enableClose: false,
@@ -175,7 +177,7 @@ export const Playground: React.FC<{
 
   const { layout, di, setTheme } = useStore(store.current);
 
-  useRegisterPlaygroundActions({ di });
+  useRegisterPlaygroundActions({ di, layout });
   // useRegisterModuleSearchActions({ di });
   useEffect(() => {
     setTheme(theme || "light");

@@ -13,26 +13,22 @@ import {
 } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import {
-  assign,
-  createActor,
-  enqueueActions,
-  waitFor
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+import { assign, createActor, enqueueActions, waitFor } from "xstate";
+import type {
+  ActionArgs,
+  Actor,
+  AnyActorLogic,
+  AnyActorRef,
+  AnyStateMachine,
+  ContextFrom,
+  InputFrom,
+  MachineImplementationsFrom,
+  ProvidedActor,
+  Snapshot,
+  SnapshotFrom,
+  StateMachine,
+  Subscription,
 } from "xstate";
-import type {ActionArgs, Actor, AnyActorLogic, AnyActorRef, AnyStateMachine, ContextFrom, InputFrom, MachineImplementationsFrom, ProvidedActor, Snapshot, SnapshotFrom, StateMachine, Subscription} from "xstate";
 import type { GuardArgs } from "xstate/guards";
 
 import type { BaseControl } from "../controls/base";
@@ -42,14 +38,8 @@ import type {
 } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
-import {
-  getControlBySocket,
-  getSocketByJsonSchemaType
-  
-  
-  
-} from "../sockets";
-import type {MappedType, Socket, Tool} from "../sockets";
+import { getControlBySocket, getSocketByJsonSchemaType } from "../sockets";
+import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
 
@@ -1508,7 +1498,7 @@ export abstract class BaseNode<
       const state = this.pactor.getSnapshot();
       Object.entries(this.inputs)
         .filter(([key, input]) => {
-          return !(input.socket instanceof TriggerSocket);
+          return !(input.socket.name === "trigger");
         })
         .map(([key, input]) => {
           return key;

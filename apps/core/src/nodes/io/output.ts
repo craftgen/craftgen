@@ -2,13 +2,8 @@ import { merge } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
-import type {
-  JSONSocket} from "../../controls/socket-generator";
-import {
-  SocketGeneratorControl,
-} from "../../controls/socket-generator";
-import { Input, Output } from "../../input-output";
-import { getSocketByJsonSchemaType, triggerSocket } from "../../sockets";
+import type { JSONSocket } from "../../controls/socket-generator";
+import { SocketGeneratorControl } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None, ParsedNode } from "../base";
 import { BaseNode } from "../base";
@@ -100,72 +95,76 @@ export class OutputNode extends BaseNode<typeof OutputNodeMachine> {
 
   constructor(di: DiContainer, data: OutputNodeData) {
     super("OutputNode", di, data, OutputNodeMachine, {});
+    this.setup();
     const state = this.actor.getSnapshot();
-    this.addInput("trigger", new Input(triggerSocket, "trigger"));
-    const inputGenerator = new SocketGeneratorControl({
-      connectionType: "input",
-      name: "Input Sockets",
-      ignored: ["trigger"],
-      tooltip: "Add Input sockets",
-      initial: {
-        name: state.context.name,
-        description: state.context.description,
-        sockets: Object.values(state.context.inputSockets),
+    const inputGenerator = new SocketGeneratorControl(
+      this.actor,
+      (s) => s.context.inputSockets,
+      {
+        connectionType: "input",
+        name: "Input Sockets",
+        ignored: ["trigger"],
+        tooltip: "Add Input sockets",
+        initial: {
+          name: state.context.name,
+          description: state.context.description,
+          sockets: Object.values(state.context.inputSockets),
+        },
+        onChange: ({ sockets, name, description }) => {
+          const inputSockets = sockets.reduce(
+            (acc, socket) => {
+              acc[socket.name] = socket;
+              return acc;
+            },
+            {} as Record<string, JSONSocket>,
+          );
+          this.actor.send({
+            type: "CHANGE",
+            name,
+            description: description || "",
+            inputSockets,
+          });
+        },
       },
-      onChange: ({ sockets, name, description }) => {
-        const inputSockets = sockets.reduce(
-          (acc, socket) => {
-            acc[socket.name] = socket;
-            return acc;
-          },
-          {} as Record<string, JSONSocket>,
-        );
-        this.actor.send({
-          type: "CHANGE",
-          name,
-          description: description || "",
-          inputSockets,
-        });
-      },
-    });
+    );
     this.addControl("outputGenerator", inputGenerator);
     this.updateInputs(this.actor.getSnapshot().context.inputSockets);
   }
 
-  async updateOutputs(rawTemplate: JSONSocket[]) {
-    for (const item of Object.keys(this.outputs)) {
-      if (item === "trigger") continue; // don't remove the trigger socket
-      if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
-      const connections = this.di.editor
-        .getConnections()
-        .filter((c) => c.source === this.id && c.sourceOutput === item);
-      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      if (connections.length >= 1) {
-        for (const c of connections) {
-          await this.di.editor.removeConnection(c.id);
-          this.di.editor.addConnection({
-            ...c,
-            source: this.id,
-            sourceOutput: item,
-          });
-        }
-      }
-      this.removeOutput(item);
-    }
+  // async updateOutputs(rawTemplate: JSONSocket[]) {
+  //   for (const item of Object.keys(this.outputs)) {
+  //     if (item === "trigger") continue; // don't remove the trigger socket
+  //     if (rawTemplate.find((i: JSONSocket) => i.name === item)) continue;
+  //     const connections = this.di.editor
+  //       .getConnections()
+  //       .filter((c) => c.source === this.id && c.sourceOutput === item);
+  //     // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
+  //     if (connections.length >= 1) {
+  //       for (const c of connections) {
+  //         await this.di.editor.removeConnection(c.id);
+  //         this.di.editor.addConnection({
+  //           ...c,
+  //           source: this.id,
+  //           sourceOutput: item,
+  //         });
+  //       }
+  //     }
+  //     this.removeOutput(item);
+  //   }
 
-    for (const [index, item] of rawTemplate.entries()) {
-      if (this.hasOutput(item.name)) {
-        const output = this.outputs[item.name];
-        if (output) {
-          output.socket = getSocketByJsonSchemaType(item)! as any;
-        }
-        continue;
-      }
+  //   for (const [index, item] of rawTemplate.entries()) {
+  //     if (this.hasOutput(item.name)) {
+  //       const output = this.outputs[item.name];
+  //       if (output) {
+  //         output.socket = getSocketByJsonSchemaType(item)! as any;
+  //       }
+  //       continue;
+  //     }
 
-      const socket = getSocketByJsonSchemaType(item)!;
-      const output = new Output(socket, item.name, false, false) as any;
-      output.index = index + 1;
-      this.addOutput(item.name, output);
-    }
-  }
+  //     const socket = getSocketByJsonSchemaType(item)!;
+  //     const output = new Output(socket, item.name, false, false) as any;
+  //     output.index = index + 1;
+  //     this.addOutput(item.name, output);
+  //   }
+  // }
 }

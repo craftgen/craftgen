@@ -125,6 +125,10 @@ export const TokenListNew: React.FC<{
       tokens: data?.tokens!,
     });
     await utils.credentials.list.invalidate({ projectId: project?.id! });
+
+    await utils.credentials.hasKeyForProvider.invalidate({
+      projectId: project?.id!,
+    });
     form.reset();
   };
 

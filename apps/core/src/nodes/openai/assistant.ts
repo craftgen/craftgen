@@ -1,4 +1,4 @@
-import { isArray, isNil, merge, mergeWith, omit, omitBy } from "lodash-es";
+import { isNil, merge, omit, omitBy } from "lodash-es";
 import dedent from "ts-dedent";
 
 import "openai/shims/web";
@@ -17,32 +17,19 @@ import type {
 } from "openai/resources/beta/threads/runs/runs.mjs";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type {
-  PromiseActorLogic} from "xstate";
-import {
-  assign,
-  createMachine,
-  fromPromise,
-  raise,
-} from "xstate";
+import type { PromiseActorLogic } from "xstate";
+import { assign, createMachine, fromPromise, raise } from "xstate";
 
-import { ButtonControl } from "../../controls/button";
-import { InputControl } from "../../controls/input.control";
-import { SelectControl } from "../../controls/select";
 import { generateSocket } from "../../controls/socket-generator";
-import { TextareControl } from "../../controls/textarea";
-import { Input, Output } from "../../input-output";
-import { objectSocket, triggerSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
 import type {
   BaseContextType,
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "../base";
-import {
-  BaseNode
+  ParsedNode,
 } from "../base";
+import { BaseNode } from "../base";
 
 const inputSockets = {
   threadId: generateSocket({
