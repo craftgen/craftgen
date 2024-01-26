@@ -22,7 +22,14 @@ const PlaygroundPage = async (props: {
   console.log("🚀 ~ cookieStore:", cookieStore);
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
   console.log("🚀 ~ supabase:", supabase);
+
   try {
+    console.log("🚀 ~ projectSlug:", {
+      projectSlug: props.params.projectSlug,
+      workflowSlug: props.params.workflowSlug,
+      executionId: props.searchParams.execution,
+      version: Number(props.params.version),
+    });
     const workflow = await api.craft.module.get.query({
       projectSlug: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,

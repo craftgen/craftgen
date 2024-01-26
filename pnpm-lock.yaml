@@ -889,6 +889,9 @@ importers:
       squirrelly:
         specifier: ^9.0.0
         version: 9.0.0
+      superjson:
+        specifier: 1.13.1
+        version: 1.13.1
       swr:
         specifier: ^2.2.0
         version: 2.2.4(react@18.2.0)
