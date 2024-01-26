@@ -90,6 +90,11 @@ export default function Home() {
               <a
                 href="#"
                 className="text-foreground text-sm font-semibold leading-6"
+                onClick={() => {
+                  alert(
+                    "Hey there, almost there. We are working hard to get this ready.",
+                  );
+                }}
               >
                 Live demo <span aria-hidden="true">→</span>
               </a>

@@ -5,6 +5,7 @@ import { Inter, Noto_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import { GeistMono, GeistSans } from "geist/font";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 
 import { TRPCReactProvider } from "@/trpc/react";
@@ -40,6 +41,7 @@ export default async function RootLayout({
             <KBar>
               {children}
               <Analytics />
+              <SpeedInsights />
               <Toaster />
             </KBar>
           </Providers>

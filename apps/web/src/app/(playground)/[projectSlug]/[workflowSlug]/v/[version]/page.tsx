@@ -22,36 +22,50 @@ const PlaygroundPage = async (props: {
   console.log("🚀 ~ cookieStore:", cookieStore);
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
   console.log("🚀 ~ supabase:", supabase);
-  const workflow = await api.craft.module.get.query({
-    projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.workflowSlug,
-    executionId: props.searchParams.execution,
-    version: Number(props.params.version),
-  });
-  console.log("🚀 ~ workflow:", workflow);
+  try {
+    const workflow = await api.craft.module.get.query({
+      projectSlug: props.params.projectSlug,
+      workflowSlug: props.params.workflowSlug,
+      executionId: props.searchParams.execution,
+      version: Number(props.params.version),
+    });
+    console.log("🚀 ~ workflow:", workflow);
 
-  if (!workflow) return <div>Not found</div>;
-  if (!workflow.execution && props.searchParams.execution) {
-    redirect(
-      `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`,
+    if (!workflow) return <div>Not found</div>;
+    if (!workflow.execution && props.searchParams.execution) {
+      redirect(
+        `/${props.params.projectSlug}/${props.params.workflowSlug}/v/${props.params.version}`,
+      );
+    }
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return (
+      <div>
+        {JSON.stringify(
+          {
+            workflow,
+            session,
+          },
+          null,
+          2,
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.log("🚀 ~ error:", error);
+    return (
+      <div>
+        {JSON.stringify(
+          {
+            error,
+          },
+          null,
+          2,
+        )}
+      </div>
     );
   }
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  console.log("🚀 ~ session:", session);
-  return (
-    <div>
-      {JSON.stringify(
-        {
-          workflow,
-          session,
-        },
-        null,
-        2,
-      )}
-    </div>
-  );
   // return <Playground workflow={workflow} session={session} />;
 };
 
