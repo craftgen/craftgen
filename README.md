@@ -29,8 +29,7 @@ Craftgen.ai is more than just a tool; it's a movement towards democratizing AI t
 - [x] Authentication System Integration
 - [x] Posthog Integration Enhancement
 - [x] Upcoming: Integration with Vercel Analytics
-- [ ] Finalize credentions.
-
+- [ ] Finalize credential managment.
 
 ## Join the Revolution - Contribute Today!
 
