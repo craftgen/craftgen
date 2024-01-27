@@ -54,7 +54,6 @@ export function CustomSocket<T extends Socket>(props: {
         data-testid="input-title"
         variant={"outline"}
       >
-        {/* {props.data.socket.name !== "Trigger" ? data?.label : "⌀"} */}
         {data?.label}
       </Badge>
     </div>

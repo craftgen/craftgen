@@ -1,30 +1,28 @@
 import { merge } from "lodash-es";
-import {
-  OPENAI_CHAT_MODELS
-  
-  
+import { OPENAI_CHAT_MODELS } from "modelfusion";
+import type {
+  BaseUrlPartsApiConfigurationOptions,
+  OpenAIChatSettings,
 } from "modelfusion";
-import type {BaseUrlPartsApiConfigurationOptions, OpenAIChatSettings} from "modelfusion";
 import dedent from "ts-dedent";
-import type {SetOptional} from "type-fest";
+import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import {
-  BaseNode
-  
-  
-  
-  
-  
+import { BaseNode } from "../base";
+import type {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  None,
+  ParsedNode,
 } from "../base";
-import type {BaseContextType, BaseInputType, BaseMachineTypes, None, ParsedNode} from "../base";
 import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const inputSockets = {
-  api: generateSocket({
-    "x-key": "api",
+  apiConfiguration: generateSocket({
+    "x-key": "apiConfiguration",
     name: "api" as const,
     title: "API",
     type: "ApiConfiguration",
@@ -33,10 +31,10 @@ const inputSockets = {
     `,
     required: true,
     default: {
-      apiUrl: "https://api.openai.com/v1",
+      baseUrl: "https://api.openai.com/v1",
     },
     isMultiple: false,
-    "x-showSocket": true,
+    "x-showSocket": false,
     "x-actor-type": "ApiConfiguration",
     "x-actor-config": {
       ApiConfiguration: {
@@ -178,6 +176,10 @@ export type OpenAIModelConfig = OpenAIChatSettings & {
 export const OpenaiModelMachine = createMachine(
   {
     id: "openai-model",
+    entry: enqueueActions(({ enqueue, context }) => {
+      enqueue("spawnInputActors");
+      enqueue("setupInternalActorConnections");
+    }),
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
@@ -330,7 +332,9 @@ export class OpenAI extends BaseNode<typeof OpenaiModelMachine> {
     super("OpenAI", di, data, OpenaiModelMachine, {});
     this.extendMachine({
       actors: {
-        ApiConfiguration: ApiConfigurationMachine,
+        ApiConfiguration: ApiConfigurationMachine.provide({
+          ...(this.baseImplentations as any),
+        }),
       },
     });
     this.setup();

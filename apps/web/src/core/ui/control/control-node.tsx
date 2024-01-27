@@ -28,6 +28,9 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     if (item["x-connection"] && Object.keys(item["x-connection"]).length > 0) {
       return null;
     }
+    if (item["x-compatible"]?.length === 1) {
+      return null;
+    }
     const controller = getControlBySocket({
       socket: getSocketByJsonSchemaType(item),
       actor: props.data.actor,

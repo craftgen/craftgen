@@ -429,6 +429,11 @@ export abstract class BaseNode<
             inputSockets: ({ context, spawn }) => {
               const actor = spawn(value["x-actor-type"], {
                 id: `${value["x-actor-type"]}_${createId()}`,
+                input: {
+                  inputs: {
+                    ...value.default,
+                  },
+                },
                 syncSnapshot: true,
               });
 

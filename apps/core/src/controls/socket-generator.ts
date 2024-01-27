@@ -137,6 +137,7 @@ export const generateSocket = <
   const res = {
     ...socket,
     ...valid,
+    default: socket.default, // #TODO figure out why zod.parse eats the Object defaults.
     type: socket.type as TypeOfSocket,
     "x-key": socket["x-key"] as T,
   };

@@ -91,7 +91,7 @@ const secret = ViewPlugin.fromClass(
 
 export function CustomInput(props: { data: InputControl }) {
   const value = useSelector(props.data?.actor, props.data.selector);
-  const { theme } = useTheme();
+  const { systemTheme } = useTheme();
   const parseValue = useCallback((val: string) => {
     const secret = /^\(?await getSecret\("([^"]+)"\)\)?$/;
     const expression = /^ctx\["root"\](?:\["[^"]+"\])+$/;
@@ -215,7 +215,7 @@ export function CustomInput(props: { data: InputControl }) {
         id={props.data.id}
         readOnly={props.data.options.readonly}
         value={value}
-        theme={theme === "dark" ? githubDark : githubLight}
+        theme={systemTheme === "dark" ? githubDark : githubLight}
         extensions={[
           javascript({
             jsx: false,

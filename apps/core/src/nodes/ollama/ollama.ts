@@ -19,6 +19,7 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
+import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -27,8 +28,7 @@ const isNetworkError = (error: any) => {
 };
 
 const OllamaApi = ky.create({
-  // prefixUrl: "http://127.0.0.1:11434/api",
-  prefixUrl: "http://ollama.ai/api",
+  prefixUrl: "http://127.0.0.1:11434/api",
   hooks: {
     beforeRequest: [
       (request) => {
@@ -146,6 +146,31 @@ const listModels = fromPromise(
 );
 
 const inputSockets = {
+  apiConfiguration: generateSocket({
+    "x-key": "apiConfiguration",
+    name: "api" as const,
+    title: "API",
+    type: "ApiConfiguration",
+    description: dedent`
+    Api configuration for Ollama
+    `,
+    required: true,
+    "x-actor-type": "ApiConfiguration",
+    default: {
+      baseUrl: "http://127.0.0.1:11434/api",
+    },
+    isMultiple: false,
+    "x-actor-config": {
+      ApiConfiguration: {
+        connections: {
+          config: "api",
+        },
+        internal: {
+          config: "api",
+        },
+      },
+    },
+  }),
   model: generateSocket({
     name: "model" as const,
     "x-key": "model",
@@ -445,7 +470,12 @@ const outputSockets = {
 
 export const OllamaModelMachine = createMachine(
   {
+    /** @xstate-layout N4IgpgJg5mDOIC5QHsA2qCGBbDBaLyEYqAdBgMYAuAlsgHYD6ATmAI4Cu1LEAxBPWBLU6AN2QBrQWkw58hYmSq1GLDl0gJhY8hhr0A2gAYAukeOJQAB2SxqeuhZAAPRAA4ATAE4SANh-uAdgAWAGYA9yCARh8gnwAaEABPN3dXEk8Av0jIz1yggFYfAIBfYoTpbDwCIlIKe2Y2Tm4eMCYmZCYSS0xKADMOrBIK2WqFOuUGtW5NUWQdezMzR2tbe0cXBHzPfJIgiNjMkMNcyICE5IRXXJJDfMCCz0Noq9dS8vRKuRrFetUmyB4AFUAAoAEQAggAVACiDAA8oDIcDEQBlJZIEArOzKdZuaIkdy3ALZIrHQxBc6IAIhEIkAJPVzhfIhaLMkplEDDKryWpKeiTf68EEQmEMFFwgDCAGloZD0VYbNj6LjLu5IrtwjFotkAvktpSED5siRXJF3PkCltGUFDK8OVyvmM+SpGupeCjZQwAGrggAygOh8sxirWGI2rhCPl2nlcPlNPhC7kJPk8BqCV3S7kTkVjPnyHgCnjenI+Ix5PwmfzdPCDWNDoA2eaCBJphhiV0i2dcBtNJETXmiQXpusM5OLDtGpFQyAwEGEUD4AiEs0kQ1L3O+09n85m2l0ykWJmWIZxYcQWYCNzuhmpndcps85oN23cdM8MT1sT2WaC4-XjqnGc5zoBdWnaTpul0fomEGCdyy3YCoF3OZ9wMExaxPZUzwQC8r0JW8QnvHInySRAcm8dMjmpYlr11dw-xkDcFDAjogTBKFYQRJFUQw1ZTwbRAQmuQjUlHfxGSuPM0wTG5jjNU5PCEs0GM+ScSBYpg2JFWFxWlWVeKVBxsJtZsYgyI5CnfKJ4lIhAQiiEhsgyTx0x8Y5cjHe1-zUjSeA9SFvT9AMDPrZxEC2HY9iCA4E3c0400Iul3DzPMrX8TsQhUstvl8gAlWVcoATRC-iws2bZdn2IpYpOM5bMKQxfEifNH2ZZr7PorzGIAkhyGQLBujASgwC0jj4URZFITRI8MTrUqNiE7wRNcMTUgCSSezzEg9UJPJY3W7IsqY0g+oG1AhpG4Uxt0mU5RmhU+KwgSEBM3wgnM24Uy1fIDWCWk-ECJlmVjDwjp607BuGvzPR9f1A3u4NHqM56om8Ip8gCektlHVqDXSulqWiwpdr1TKutU8sIfOqGSqesqIsq6LqqOWrn08dVEyNIjFMCLxSg5Oh5HgDE4JqY8kZVXAbIuXAdlyeWFcVsn3m6tS+qYWAGA08XDJVXUCUxvJbUs4l3ANTsoyHG9yQZI1AjBtTxn5KtuB10Lw1tAlTj2PIbUxilbMfKNzVHC0B0MIS7RVinNyA+c3fmxA9nNlz0jc1II0x1w7hjB3y212bMORsqClfPNIgjqK-FCaXwpk1JCLto0aMiPPvipi6E7pjYokvRTjlNSMImOH7A62jw40I7YClcPZ+eKIA */
     id: "ollama-model",
+    entry: enqueueActions(({ enqueue, context }) => {
+      enqueue("spawnInputActors");
+      enqueue("setupInternalActorConnections");
+    }),
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
@@ -657,15 +687,11 @@ export const OllamaModelMachine = createMachine(
         console.log("updateOutput", context);
         enqueue.assign({
           outputs: ({ context }) => {
-            const api = {
-              baseUrl: "http://127.0.0.1:11434",
-            } as BaseUrlPartsApiConfigurationOptions;
             return {
               ...context.outputs,
               config: {
                 ...(context.outputs.config as object),
                 provider: "ollama",
-                apiConfiguration: api,
                 ...context.inputs,
               } as OllamaModelConfig,
             };
@@ -689,7 +715,7 @@ export const OllamaModelMachine = createMachine(
 
 export type OllamaModelConfig = OllamaChatModelSettings & {
   provider: "ollama";
-  apiConfiguration: BaseUrlApiConfigurationOptions;
+  apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
 export type OllamaModelNode = ParsedNode<"Ollama", typeof OllamaModelMachine>;
@@ -711,6 +737,13 @@ export class Ollama extends BaseNode<typeof OllamaModelMachine> {
 
   constructor(di: DiContainer, data: OllamaModelNode) {
     super("Ollama", di, data, OllamaModelMachine, {});
+    this.extendMachine({
+      actors: {
+        ApiConfiguration: ApiConfigurationMachine.provide({
+          ...(this.baseImplentations as any),
+        }),
+      },
+    });
     this.setup();
   }
 }

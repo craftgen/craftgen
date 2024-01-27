@@ -1,6 +1,6 @@
-import { merge } from "lodash-es";
+import { has, merge } from "lodash-es";
 import dedent from "ts-dedent";
-import { createMachine } from "xstate";
+import { createMachine, assign, enqueueActions } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -9,10 +9,9 @@ import type {
   BaseInputType,
   BaseMachineTypes,
   None,
-  ParsedNode} from "./base";
-import {
-  BaseNode
+  ParsedNode,
 } from "./base";
+import { BaseNode } from "./base";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -44,10 +43,23 @@ const inputSockets = {
       "Content-Type": "application/json",
     },
     required: true,
+    "x-isAdvanced": true,
   }),
 };
 
 const outputSockets = {
+  ApiConfiguration: generateSocket({
+    "x-key": "ApiConfiguration",
+    name: "api" as const,
+    title: "Api Configuration",
+    type: "ApiConfiguration" as const,
+    description: dedent`
+    Api configuration
+    `,
+    required: true,
+    isMultiple: false,
+    "x-showSocket": true,
+  }),
   config: generateSocket({
     "x-key": "config",
     name: "config" as const,
@@ -62,65 +74,104 @@ const outputSockets = {
   }),
 };
 
-export const ApiConfigurationMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
-  id: "api-configuration",
-  context: ({ input }) => {
-    const defaultInputs: (typeof input)["inputs"] = {};
-    for (const [key, socket] of Object.entries(inputSockets)) {
-      const inputKey = key as keyof typeof inputSockets;
-      if (socket.default) {
-        defaultInputs[inputKey] = socket.default as any;
-      } else {
-        defaultInputs[inputKey] = undefined;
+export const ApiConfigurationMachine = createMachine(
+  {
+    /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
+    id: "api-configuration",
+    entry: "updateOutput",
+    context: ({ input }) => {
+      const defaultInputs: (typeof input)["inputs"] = {};
+      for (const [key, socket] of Object.entries(inputSockets)) {
+        const inputKey = key as keyof typeof inputSockets;
+        if (socket.default) {
+          defaultInputs[inputKey] = socket.default as any;
+        } else {
+          defaultInputs[inputKey] = undefined;
+        }
       }
-    }
-    return merge<typeof input, any>(
-      {
-        inputs: {
-          ...defaultInputs,
-        },
-        outputs: {
-          config: {
-            apiUrl: "loco",
+      return merge<typeof input, any>(
+        {
+          inputs: {
+            ...defaultInputs,
+          },
+          outputs: {
+            config: {
+              ...defaultInputs,
+            },
+          },
+          inputSockets: {
+            ...inputSockets,
+          },
+          outputSockets: {
+            ...outputSockets,
           },
         },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    );
-  },
+        input,
+      );
+    },
 
-  types: {} as BaseMachineTypes<{
-    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
-    actions:
-      | {
-          type: "updateOutput";
-        }
-      | {
-          type: "adjustMaxCompletionTokens";
-        };
-    events: {
-      type: "UPDATE_OUTPUTS";
-    };
-    actors: None;
-    guards: None;
-  }>,
-  on: {
-    SET_VALUE: {
-      actions: "setValue",
-    },
-    UPDATE_SOCKET: {
-      actions: "updateSocket",
+    types: {} as BaseMachineTypes<{
+      input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+      actions:
+        | {
+            type: "updateOutput";
+          }
+        | {
+            type: "adjustMaxCompletionTokens";
+          };
+      events: {
+        type: "UPDATE_OUTPUTS";
+      };
+      actors: None;
+      guards: None;
+    }>,
+    on: {
+      SET_VALUE: {
+        actions: enqueueActions(({ enqueue, event, check }) => {
+          enqueue("setValue");
+          enqueue("updateOutput");
+
+          if (check(({ event }) => has(event.params.values, "APIKey"))) {
+            enqueue.assign({
+              inputs: ({ context, event }) => {
+                const headers = { ...context.inputs.headers } as any;
+                if (event.params.values["APIKey"] === "") {
+                  delete headers.Authorization;
+                } else {
+                  headers.Authorization = `Bearer ${event.params.values["APIKey"]}`;
+                }
+
+                return {
+                  ...context.inputs,
+                  headers: {
+                    ...headers,
+                  },
+                };
+              },
+            });
+          }
+        }),
+      },
+      UPDATE_SOCKET: {
+        actions: "updateSocket",
+      },
     },
   },
-});
+  {
+    actions: {
+      updateOutput: assign({
+        outputs: ({ context }) => {
+          return {
+            config: {
+              ...context.inputs,
+            },
+          };
+        },
+      }),
+    },
+  },
+);
 
 export type ApiConfigurationNode = ParsedNode<
   "ApiConfiguration",
