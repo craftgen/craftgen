@@ -92,7 +92,7 @@ export default function Home() {
                 className="text-foreground text-sm font-semibold leading-6"
                 onClick={() => {
                   alert(
-                    "Hey there, almost there. We are working hard to get this ready.",
+                    "Hey there, almost there. We are working hard to get this ready. Star us on GitHub, and be instantly notified for new releases! ",
                   );
                 }}
               >

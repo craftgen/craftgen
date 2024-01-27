@@ -13,7 +13,13 @@ import {
 } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { assign, createActor, enqueueActions, waitFor } from "xstate";
+import {
+  assertEvent,
+  assign,
+  createActor,
+  enqueueActions,
+  waitFor,
+} from "xstate";
 import type {
   ActionArgs,
   Actor,
@@ -183,6 +189,7 @@ export type BaseActionTypes =
       params?: {
         name: string;
         message: string;
+        stack?: unknown | Error;
       };
     }
   | {
@@ -391,12 +398,13 @@ export abstract class BaseNode<
       error: () => null,
     }),
     setError: assign({
-      error: ({ event }) => {
+      error: ({ event }, params) => {
         console.error("setError", event);
         return {
-          name: event.params?.name || "Error",
-          message: event.params?.message || "Something went wrong",
-          err: event.data,
+          name: params?.name || event?.params?.name || "Error",
+          message:
+            params?.message || event?.params?.message || "Something went wrong",
+          err: params?.stack || event.error,
         };
       },
     }),

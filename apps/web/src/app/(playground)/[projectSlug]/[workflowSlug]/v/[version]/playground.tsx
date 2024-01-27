@@ -59,6 +59,7 @@ import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
 import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
+import Markdown from "react-markdown";
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {
@@ -452,10 +453,14 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
       </Tabs>
       {state.matches("error") && (
         <div className="px-4 py-4">
-          <Alert variant={"destructive"} className="">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>{state.context.error?.name}</AlertTitle>
-            <AlertDescription>{state.context.error?.message}</AlertDescription>
+          <Alert variant={"destructive"} className="bg-muted/80 shadow">
+            <ExclamationTriangleIcon className="h-6 w-6" />
+            <AlertTitle className="text-lg font-bold">
+              {state.context.error?.name}
+            </AlertTitle>
+            <AlertDescription className="prose">
+              <Markdown>{state.context.error?.message}</Markdown>
+            </AlertDescription>
           </Alert>
         </div>
       )}

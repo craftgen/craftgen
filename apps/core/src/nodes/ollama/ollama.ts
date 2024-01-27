@@ -19,6 +19,12 @@ import type {
   ParsedNode,
 } from "../base";
 
+const isNetworkError = (error: any) => {
+  if (error.message.includes("TypeError: Failed to fetch")) {
+    return true;
+  }
+};
+
 const OllamaApi = ky.create({
   prefixUrl: "http://127.0.0.1:11434/api",
   hooks: {
@@ -27,6 +33,19 @@ const OllamaApi = ky.create({
         request.headers.set("Content-Type", "application/json");
       },
     ],
+    beforeRetry: [
+      async ({ error }) => {
+        if (!isNetworkError(error)) {
+          throw new Error("Ollama not running");
+        }
+      },
+    ],
+  },
+  retry: {
+    limit: 10, // Number of retry attempts
+    backoffLimit: 1000, // Time between the retry attempts
+    methods: ["get"], // Methods to retry
+    statusCodes: [0], // Include network errors (status code 0)
   },
 });
 
@@ -69,9 +88,19 @@ declare interface ShowResponse {
 }
 
 const getModels = fromPromise(
-  async (): Promise<{ models: ModelResponse[] }> => {
-    const models = await OllamaApi.get("tags");
-    return models.json();
+  async (): Promise<{ models: ModelResponse[] } | undefined> => {
+    const respose = await OllamaApi.get("tags");
+    console.log("@MODELS", respose);
+
+    if (!respose.ok) {
+      if (respose.status === 404) {
+        throw new Error("Ollama not running");
+      }
+      if (respose.status === 403) {
+        throw new Error("Ollama CORS not set");
+      }
+    }
+    return respose.json();
   },
 );
 
@@ -502,8 +531,22 @@ export const OllamaModelMachine = createMachine(
             }),
           },
           onError: {
+            target: "error",
             actions: enqueueActions(({ enqueue, event }) => {
-              enqueue("setError");
+              console.log("error", event.error);
+              enqueue({
+                type: "setError",
+                params: {
+                  name: "Set CORS for Ollama",
+                  message: dedent`
+                  Run this command in your terminal and restart Ollama
+                  \`\`\`
+                  launchctl setenv OLLAMA_ORIGINS 'https://craftgen.ai'
+                  \`\`\`
+                  `,
+                  stack: event.error,
+                },
+              });
             }),
           },
         },
@@ -540,6 +583,23 @@ export const OllamaModelMachine = createMachine(
         // after: {
         //   1000: "idle",
         // },
+      },
+      error: {
+        on: {
+          UPDATE_OUTPUTS: {
+            actions: "updateOutput",
+          },
+          UPDATE_SOCKET: {
+            actions: ["updateSocket", "updateOutput"],
+          },
+          SET_VALUE: {
+            actions: ["setValue", "updateOutput"],
+            target: "action_required",
+          },
+          RETRY: {
+            target: "#ollama-model.action_required",
+          },
+        },
       },
       complete: {
         entry: enqueueActions(({ enqueue, context }) => {
