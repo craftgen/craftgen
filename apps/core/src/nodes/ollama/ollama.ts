@@ -18,6 +18,7 @@ import type {
   None,
   ParsedNode,
 } from "../base";
+import { OllamaNetworkError } from "./OllamaNetworkError";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -26,7 +27,8 @@ const isNetworkError = (error: any) => {
 };
 
 const OllamaApi = ky.create({
-  prefixUrl: "http://127.0.0.1:11434/api",
+  // prefixUrl: "http://127.0.0.1:11434/api",
+  prefixUrl: "http://ollama.ai/api",
   hooks: {
     beforeRequest: [
       (request) => {
@@ -35,8 +37,9 @@ const OllamaApi = ky.create({
     ],
     beforeRetry: [
       async ({ error }) => {
+        console.log("RETYRY", error);
         if (!isNetworkError(error)) {
-          throw new Error("Ollama not running");
+          throw new OllamaNetworkError(error.message);
         }
       },
     ],
@@ -89,18 +92,23 @@ declare interface ShowResponse {
 
 const getModels = fromPromise(
   async (): Promise<{ models: ModelResponse[] } | undefined> => {
-    const respose = await OllamaApi.get("tags");
-    console.log("@MODELS", respose);
+    try {
+      const respose = await OllamaApi.get("tags");
+      console.log("@MODELS", respose);
 
-    if (!respose.ok) {
-      if (respose.status === 404) {
-        throw new Error("Ollama not running");
+      if (!respose.ok) {
+        if (respose.status === 404) {
+          throw new Error("Ollama not running");
+        }
+        if (respose.status === 403) {
+          throw new Error("Ollama CORS not set");
+        }
       }
-      if (respose.status === 403) {
-        throw new Error("Ollama CORS not set");
-      }
+      return respose.json();
+    } catch (err) {
+      console.log("@ERROR", err);
+      throw err;
     }
-    return respose.json();
   },
 );
 
