@@ -150,18 +150,18 @@ const inputSockets = {
     "x-key": "apiConfiguration",
     name: "api" as const,
     title: "API",
-    type: "ApiConfiguration",
+    type: "NodeApiConfiguration",
     description: dedent`
     Api configuration for Ollama
     `,
     required: true,
-    "x-actor-type": "ApiConfiguration",
+    "x-actor-type": "NodeApiConfiguration",
     default: {
       baseUrl: "http://127.0.0.1:11434/api",
     },
     isMultiple: false,
     "x-actor-config": {
-      ApiConfiguration: {
+      NodeApiConfiguration: {
         connections: {
           config: "api",
         },
@@ -458,7 +458,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "Ollama",
+    type: "NodeOllama",
     description: dedent`
     Ollama config
     `,
@@ -718,9 +718,12 @@ export type OllamaModelConfig = OllamaChatModelSettings & {
   apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
-export type OllamaModelNode = ParsedNode<"Ollama", typeof OllamaModelMachine>;
+export type OllamaModelNode = ParsedNode<
+  "NodeOllama",
+  typeof OllamaModelMachine
+>;
 
-export class Ollama extends BaseNode<typeof OllamaModelMachine> {
+export class NodeOllama extends BaseNode<typeof OllamaModelMachine> {
   static nodeType = "Ollama";
   static label = "Ollama";
   static description = "Local Ollama model";
@@ -731,19 +734,16 @@ export class Ollama extends BaseNode<typeof OllamaModelMachine> {
   static parse = (params: SetOptional<OllamaModelNode, "type">) => {
     return {
       ...params,
-      type: "Ollama",
+      type: "NodeOllama",
     };
   };
 
+  static machines = {
+    NodeOllama: OllamaModelMachine,
+  };
+
   constructor(di: DiContainer, data: OllamaModelNode) {
-    super("Ollama", di, data, OllamaModelMachine, {});
-    this.extendMachine({
-      actors: {
-        ApiConfiguration: ApiConfigurationMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-      },
-    });
+    super("NodeOllama", di, data, OllamaModelMachine, {});
     this.setup();
   }
 }

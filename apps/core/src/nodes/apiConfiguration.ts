@@ -174,11 +174,13 @@ export const ApiConfigurationMachine = createMachine(
 );
 
 export type ApiConfigurationNode = ParsedNode<
-  "ApiConfiguration",
+  "NodeApiConfiguration",
   typeof ApiConfigurationMachine
 >;
 
-export class ApiConfiguration extends BaseNode<typeof ApiConfigurationMachine> {
+export class NodeApiConfiguration extends BaseNode<
+  typeof ApiConfigurationMachine
+> {
   static title = "API Configuration";
   static label = "API Configuration";
   static description = dedent`
@@ -187,8 +189,13 @@ export class ApiConfiguration extends BaseNode<typeof ApiConfigurationMachine> {
   `;
 
   static icon = "settings";
+
+  static machines = {
+    NodeApiConfiguration: ApiConfigurationMachine,
+  };
+
   constructor(di: DiContainer, data: ApiConfigurationNode) {
-    super("ApiConfiguration", di, data, ApiConfigurationMachine, {});
+    super("NodeApiConfiguration", di, data, ApiConfigurationMachine, {});
     this.setup();
   }
 }

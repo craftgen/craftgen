@@ -27,15 +27,15 @@ import {
   Webflow,
   Wordpress,
 } from "./nodes";
-import { ApiConfiguration } from "./nodes/apiConfiguration";
+import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
-import { CompleteChat } from "./nodes/function/completeChat";
+import { NodeCompleteChat } from "./nodes/function/completeChat";
 import { GenerateStructure } from "./nodes/function/generateStructure";
 import { GenerateText } from "./nodes/function/generateText";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
-import { Thread } from "./nodes/thread";
+import { NodeThread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
 import { MathNode } from "./nodes/tools/math";
@@ -47,6 +47,7 @@ interface NodeTypeStatic {
   description: string;
   icon: string;
   section?: string;
+  machines: Record<string, AnyStateMachine>;
 }
 
 export type NodeClass = Constructor<BaseNode<AnyStateMachine, any, any, any>> &
@@ -74,44 +75,44 @@ export interface Node {
 
 export const nodes = {
   Start: Start,
-  Log: Log,
-  TextNode: TextNode,
-  Number: Number,
-  PromptTemplate: PromptTemplate,
-  Thread: Thread,
+  NodeLog: Log,
+  NodeText: TextNode,
+  NodeNumber: Number,
+  NodePromptTemplate: PromptTemplate,
+  NodeThread: NodeThread,
 
   // Tools
-  IteratorNode: IteratorNode,
-  BranchNode: BranchNode,
-  MathNode: MathNode,
+  NodeIterator: IteratorNode,
+  NodeBranch: BranchNode,
+  NodeMath: MathNode,
 
   // Models
-  Ollama: Ollama,
-  OpenAI: OpenAI,
+  NodeOllama: Ollama,
+  NodeOpenAI: OpenAI,
 
-  ApiConfiguration: ApiConfiguration,
+  NodeApiConfiguration: NodeApiConfiguration,
 
-  GenerateText: GenerateText,
-  GenerateStructure: GenerateStructure,
-  CompleteChat: CompleteChat,
-  OpenAIThread: OpenAIThread,
-  OpenAIAssistant: OpenAIAssistant,
+  NodeGenerateText: GenerateText,
+  NodeGenerateStructure: GenerateStructure,
+  NodeCompleteChat: NodeCompleteChat,
+  // OpenAIThread: OpenAIThread,
+  // OpenAIAssistant: OpenAIAssistant,
 
-  ComposeObject: ComposeObject,
+  // ComposeObject: ComposeObject,
 
-  InputNode,
-  OutputNode,
-  ModuleNode,
+  // InputNode,
+  // OutputNode,
+  // ModuleNode,
 
-  Replicate: Replicate,
+  // Replicate: Replicate,
 
-  // DataSources
-  GoogleSheet: GoogleSheet,
-  GoogleSearchConsole: GoogleSearchConsole,
-  Shopify: Shopify,
-  Webflow: Webflow,
-  Wordpress: Wordpress,
-  Postgres: Postgres,
+  // // DataSources
+  // GoogleSheet: GoogleSheet,
+  // GoogleSearchConsole: GoogleSearchConsole,
+  // Shopify: Shopify,
+  // Webflow: Webflow,
+  // Wordpress: Wordpress,
+  // Postgres: Postgres,
 } as const;
 
 type ValueOf<T> = T[keyof T];

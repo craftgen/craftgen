@@ -106,7 +106,7 @@ const PromptTemplateNodeMachine = createMachine({
                     required: true,
                     "x-key": item,
                     "x-showSocket": true,
-                    "x-isAdvanced": false
+                    "x-isAdvanced": false,
                   });
                 })
                 .reduce((prev: any, curr: any) => {
@@ -206,6 +206,10 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
       type: "PromptTemplate",
     };
   }
+
+  static machines = {
+    NodePromptTemplate: PromptTemplateNodeMachine,
+  };
 
   constructor(di: DiContainer, data: PromptTemplateNode) {
     super("PromptTemplate", di, data, PromptTemplateNodeMachine, {

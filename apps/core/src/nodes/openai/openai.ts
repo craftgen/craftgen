@@ -25,7 +25,7 @@ const inputSockets = {
     "x-key": "apiConfiguration",
     name: "api" as const,
     title: "API",
-    type: "ApiConfiguration",
+    type: "NodeApiConfiguration",
     description: dedent`
     Api configuration
     `,
@@ -35,9 +35,9 @@ const inputSockets = {
     },
     isMultiple: false,
     "x-showSocket": false,
-    "x-actor-type": "ApiConfiguration",
+    "x-actor-type": "NodeApiConfiguration",
     "x-actor-config": {
-      ApiConfiguration: {
+      NodeApiConfiguration: {
         connections: {
           config: "api",
         },
@@ -309,9 +309,12 @@ export const OpenaiModelMachine = createMachine(
   },
 );
 
-export type OpenaiModelNode = ParsedNode<"OpenAI", typeof OpenaiModelMachine>;
+export type OpenaiModelNode = ParsedNode<
+  "NodeOpenAI",
+  typeof OpenaiModelMachine
+>;
 
-export class OpenAI extends BaseNode<typeof OpenaiModelMachine> {
+export class NodeOpenAI extends BaseNode<typeof OpenaiModelMachine> {
   static nodeType = "OpenAI";
   static label = "OpenAI";
   static description = "OpenAI model configuration";
@@ -324,12 +327,16 @@ export class OpenAI extends BaseNode<typeof OpenaiModelMachine> {
   ): OpenaiModelNode => {
     return {
       ...params,
-      type: "OpenAI",
+      type: "NodeOpenAI",
     };
   };
 
+  static machines = {
+    NodeOpenAI: OpenaiModelMachine,
+  };
+
   constructor(di: DiContainer, data: OpenaiModelNode) {
-    super("OpenAI", di, data, OpenaiModelMachine, {});
+    super("NodeOpenAI", di, data, OpenaiModelMachine, {});
     this.extendMachine({
       actors: {
         ApiConfiguration: ApiConfigurationMachine.provide({

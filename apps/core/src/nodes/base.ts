@@ -3,23 +3,11 @@ import { get, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
-import { merge, of, Subject } from "rxjs";
-import {
-  catchError,
-  debounceTime,
-  filter,
-  groupBy,
-  mergeMap,
-} from "rxjs/operators";
+import { of, Subject } from "rxjs";
+import { catchError, debounceTime, groupBy, mergeMap } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import {
-  assertEvent,
-  assign,
-  createActor,
-  enqueueActions,
-  waitFor,
-} from "xstate";
+import { assign, createActor, enqueueActions, waitFor } from "xstate";
 import type {
   ActionArgs,
   Actor,
@@ -420,7 +408,6 @@ export abstract class BaseNode<
       for (const [key, value] of Object.entries<JSONSocket>(
         context.inputSockets,
       )) {
-        console.log("spawnInputActors", key, value);
         if (
           (value["x-actor-type"] && isNil(value["x-actor"])) ||
           value["x-actor-type"] !== value["x-actor-ref-type"]
@@ -637,6 +624,24 @@ export abstract class BaseNode<
     readonly: boolean;
   }>();
 
+  public getMachineActor = (name: string) => {
+    return this.di.machines[name].provide({
+      ...(this.baseImplentations as any),
+      actors: {
+        // ...Object.keys(this.di.machines).reduce(
+        //   (acc, k) => {
+        //     if (acc[k]) {
+        //       throw new Error(`Actor ${k} already exists`);
+        //     }
+        //     acc[k] = this.getMachineActor(k);
+        //     return acc;
+        //   },
+        //   {} as Record<string, AnyStateMachine>,
+        // ),
+      },
+    });
+  };
+
   constructor(
     public readonly ID: NodeTypes,
     public di: DiContainer,
@@ -657,6 +662,18 @@ export abstract class BaseNode<
       actions: {
         ...this.baseImplentations.actions,
         ...((machineImplements?.actions as any) || {}),
+      },
+      actors: {
+        ...Object.keys(this.di.machines).reduce(
+          (acc, k) => {
+            if (acc[k]) {
+              throw new Error(`Actor ${k} already exists`);
+            }
+            acc[k] = this.getMachineActor(k);
+            return acc;
+          },
+          {} as Record<string, AnyStateMachine>,
+        ),
       },
     };
 

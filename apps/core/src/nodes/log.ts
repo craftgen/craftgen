@@ -92,6 +92,10 @@ export class Log extends BaseNode<typeof LogNodeMachine> {
     };
   }
 
+  static machines = {
+    NodeLog: LogNodeMachine,
+  };
+
   constructor(di: DiContainer, data: LogData) {
     super("Log", di, data, LogNodeMachine, {
       actors: {

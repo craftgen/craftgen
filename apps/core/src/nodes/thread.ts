@@ -157,7 +157,7 @@ export const ThreadMachine = createMachine(
           }
         | {
             src: "createThread";
-            logic: PromiseActorLogic<Thread, void>;
+            logic: PromiseActorLogic<NodeThread, void>;
           }
         | {
             src: "getThread";
@@ -307,7 +307,7 @@ export const ThreadMachine = createMachine(
 
 export type ThreadNode = ParsedNode<"Thread", typeof ThreadMachine>;
 
-export class Thread extends BaseNode<typeof ThreadMachine> {
+export class NodeThread extends BaseNode<typeof ThreadMachine> {
   static nodeType = "Thread";
   static label = "Thread";
   static description: "Message Thread";
@@ -319,8 +319,13 @@ export class Thread extends BaseNode<typeof ThreadMachine> {
       type: "Thread",
     };
   }
+
+  static machines = {
+    NodeThread: ThreadMachine,
+  };
+
   constructor(di: DiContainer, data: ThreadNode) {
-    super("Thread", di, data, ThreadMachine, {});
+    super("NodeThread", di, data, ThreadMachine, {});
     this.setup();
   }
 }

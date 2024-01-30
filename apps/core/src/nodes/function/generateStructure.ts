@@ -535,23 +535,27 @@ export class GenerateStructure extends BaseNode<
       type: "GenerateStructure",
     };
   }
+  static machines = {
+    NodeGenerateStructure: OpenAIGenerateStructureMachine,
+    "NodeGenerateStructure.run": generateStructureCall,
+  };
 
   constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
     super("GenerateStructure", di, data, OpenAIGenerateStructureMachine, {
-      actors: {
-        generateStructure: generateStructureCall,
-      },
+      // actors: {
+      //   generateStructure: generateStructureCall,
+      // },
     });
-    this.extendMachine({
-      actors: {
-        Ollama: OllamaModelMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-        OpenAI: OpenaiModelMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-      },
-    });
+    // this.extendMachine({
+    //   actors: {
+    //     Ollama: OllamaModelMachine.provide({
+    //       ...(this.baseImplentations as any),
+    //     }),
+    //     OpenAI: OpenaiModelMachine.provide({
+    //       ...(this.baseImplentations as any),
+    //     }),
+    //   },
+    // });
 
     this.setup();
   }

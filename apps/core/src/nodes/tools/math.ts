@@ -353,6 +353,10 @@ export class MathNode extends BaseNode<typeof MathNodeMachine> {
     };
   }
 
+  static machines = {
+    NodeMath: MathNodeMachine,
+  };
+
   constructor(di: DiContainer, data: MathNodeData) {
     super("MathNode", di, data, MathNodeMachine, {});
     this.description = data.description || MathNode.description;

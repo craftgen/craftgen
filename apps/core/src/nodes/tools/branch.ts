@@ -119,6 +119,10 @@ export class BranchNode extends BaseNode<typeof BranchNodeMachine> {
 
   static section = "Tools";
 
+  static machines = {
+    NodeBranch: BranchNodeMachine,
+  };
+
   static parse(params: SetOptional<BranchNodeData, "type">): BranchNodeData {
     return {
       ...params,

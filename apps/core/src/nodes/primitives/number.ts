@@ -4,9 +4,9 @@ import { assign, createMachine } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None} from "../base";
-import { BaseNode  } from "../base";
-import type {ParsedNode} from "../base";
+import type { BaseMachineTypes, None } from "../base";
+import { BaseNode } from "../base";
+import type { ParsedNode } from "../base";
 
 const inputSockets = {
   value: generateSocket({
@@ -129,6 +129,11 @@ export class Number extends BaseNode<typeof NumberMachine> {
       type: "Number",
     };
   }
+
+  static machines = {
+    NodeNumber: NumberMachine,
+  };
+
   constructor(di: DiContainer, data: NumberData) {
     super("Number", di, data, NumberMachine, {});
     this.setup();

@@ -3,8 +3,8 @@ import Ajv from "ajv";
 import { debounce } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
-import { NodeEditor   } from "rete";
-import type {GetSchemes, NodeId} from "rete";
+import { NodeEditor } from "rete";
+import type { GetSchemes, NodeId } from "rete";
 import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
@@ -38,6 +38,7 @@ import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
 type NodeRegistry = Record<string, NodeClass>;
+type MachineRegistry = Record<string, AnyStateMachine>;
 
 export type NodeWithState<
   T extends NodeRegistry,
@@ -80,7 +81,6 @@ export interface EditorProps<
     on?: EditorHandlers;
   };
   content?: {
-    // nodes: NodeWithState<Registry>[];
     nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
     edges: SetOptional<ConnProps, "id">[];
   };
@@ -147,6 +147,8 @@ export class Editor<
   public selectedInputId: string | null = null;
   public readonly: boolean;
   public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;
+  public registry: NodeRegistry = {} as NodeRegistry;
+  public machines: MachineRegistry = {} as MachineRegistry;
 
   get selectedInput(): InputNode | null {
     if (this.inputs.length === 1) {
@@ -202,6 +204,19 @@ export class Editor<
     this.projectId = props.config.meta.projectId;
     this.executionId = props.config.meta?.executionId;
     this.readonly = props.config.readonly || false;
+    this.registry = props.config.nodes;
+    this.machines = Object.entries(props.config.nodes).reduce(
+      (acc, [key, value]) => {
+        Object.entries(value.machines).forEach(([machineId, value]) => {
+          if (acc[machineId as string]) {
+            throw new Error(`Machine with id ${machineId} already exists`);
+          }
+          acc[machineId as string] = value;
+        });
+        return acc;
+      },
+      {} as MachineRegistry,
+    );
 
     makeObservable(this, {
       cursorPosition: observable,

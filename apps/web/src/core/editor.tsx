@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { createRoot } from "react-dom/client";
 
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";

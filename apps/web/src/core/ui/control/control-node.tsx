@@ -73,32 +73,41 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     (state) => state,
   );
 
+  console.log({
+    selectedActor,
+    selectedActorState,
+  });
+
   return (
     <div>
       <LayoutGroup>
         {actorSelector}
-        <div
-          className={cn(
-            "bg-muted/10 flex flex-col rounded border p-2",
-            selectedActorState.matches("complete") && "border-green-400/30",
-            selectedActorState.matches("action_required") &&
-              "border-yellow-400/30",
-          )}
-        >
-          <div className="flex items-center justify-end">
-            {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
-            {selectedActorState.matches("complete") && (
-              <CheckCircle size={14} className="text-green-400" />
+        {selectedActorState && (
+          <div
+            className={cn(
+              "bg-muted/10 flex flex-col rounded border p-2",
+              selectedActorState?.matches("complete") && "border-green-400/30",
+              selectedActorState?.matches("action_required") &&
+                "border-yellow-400/30",
             )}
-            {selectedActorState.matches("action_required") && (
-              <AlertCircle size={14} className="text-yellow-400" />
+          >
+            <div className="flex items-center justify-end">
+              {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
+              {selectedActorState?.matches("complete") && (
+                <CheckCircle size={14} className="text-green-400" />
+              )}
+              {selectedActorState?.matches("action_required") && (
+                <AlertCircle size={14} className="text-yellow-400" />
+              )}
+            </div>
+            {selectedActor && (
+              <InputsList
+                actor={selectedActor}
+                showAdvanced={item["x-showControl"]}
+              />
             )}
           </div>
-          <InputsList
-            actor={selectedActor}
-            showAdvanced={item["x-showControl"]}
-          />
-        </div>
+        )}
       </LayoutGroup>
     </div>
   );

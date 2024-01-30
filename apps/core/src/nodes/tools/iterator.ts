@@ -265,6 +265,10 @@ export class IteratorNode extends BaseNode<typeof IteratorNodeMachine> {
     };
   }
 
+  static machines = {
+    NodeIterator: IteratorNodeMachine,
+  };
+
   constructor(di: DiContainer, data: IteratorNodeData) {
     super("IteratorNode", di, data, IteratorNodeMachine, {
       actions: {

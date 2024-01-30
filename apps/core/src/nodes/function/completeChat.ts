@@ -7,47 +7,43 @@ import {
   generateToolCalls,
   ollama,
   openai,
-  UncheckedSchema
-  
-  
-  
-  
-  
-  
+  UncheckedSchema,
 } from "modelfusion";
-import type {OllamaChatMessage, OpenAIChatMessage, ToolCall, ToolCallError, ToolCallResult, ToolDefinition} from "modelfusion";
+import type {
+  OllamaChatMessage,
+  OpenAIChatMessage,
+  ToolCall,
+  ToolCallError,
+  ToolCallResult,
+  ToolDefinition,
+} from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
-import type {
-  OutputFrom} from "xstate";
+import type { OutputFrom } from "xstate";
 import {
   assertEvent,
   assign,
   createMachine,
   enqueueActions,
   fromPromise,
-  setup
-  
+  setup,
 } from "xstate";
-import type {AnyActorRef} from "xstate";
+import type { AnyActorRef } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import {
-  BaseNode
-  
-  
-  
-  
-  
+import { BaseNode } from "../base";
+import type {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  None,
+  ParsedNode,
 } from "../base";
-import type {BaseContextType, BaseInputType, BaseMachineTypes, None, ParsedNode} from "../base";
-import { OllamaModelMachine  } from "../ollama/ollama";
-import type {OllamaModelConfig} from "../ollama/ollama";
-import { ThreadMachine, ThreadMachineEvents } from "../thread";
-import { OpenaiModelMachine  } from "../openai/openai";
-import type {OpenAIModelConfig} from "../openai/openai";
+import type { OllamaModelConfig } from "../ollama/ollama";
+import { ThreadMachineEvents } from "../thread";
+import type { OpenAIModelConfig } from "../openai/openai";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -96,9 +92,9 @@ const inputSockets = {
       },
     ],
     "x-controller": "select",
-    "x-actor-type": "Thread",
+    "x-actor-type": "NodeThread",
     "x-actor-config": {
-      Thread: {
+      NodeThread: {
         connections: {
           messages: "messages",
         },
@@ -121,14 +117,14 @@ const inputSockets = {
     `,
     allOf: [
       {
-        enum: ["Ollama", "OpenAI"],
+        enum: ["NodeOllama", "NodeOpenAI"],
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    "x-actor-type": "OpenAI",
+    "x-actor-type": "NodeOpenAI",
     "x-actor-config": {
-      Ollama: {
+      NodeOllama: {
         connections: {
           config: "llm",
         },
@@ -136,7 +132,7 @@ const inputSockets = {
           config: "llm",
         },
       },
-      OpenAI: {
+      NodeOpenAI: {
         connections: {
           config: "llm",
         },
@@ -347,7 +343,7 @@ const OpenAICompleteChatMachine = createMachine({
                 ...context.outputs,
                 result: event.params?.res,
                 messages: [
-                  ...(context.inputs.messages!),
+                  ...context.inputs.messages!,
                   {
                     id: event.params.id,
                     ...standardizeMessage(event.params.res.result),
@@ -468,7 +464,7 @@ const OpenAICompleteChatMachine = createMachine({
 });
 
 export type OpenAICompleteChatData = ParsedNode<
-  "CompleteChat",
+  "NodeCompleteChat",
   typeof OpenAICompleteChatMachine
 >;
 
@@ -945,7 +941,9 @@ const completeChatMachine = setup({
   output: ({ context }) => context.outputs,
 });
 
-export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
+export class NodeCompleteChat extends BaseNode<
+  typeof OpenAICompleteChatMachine
+> {
   static nodeType = "CompleteChat";
   static label = "Complete Chat";
   static description = dedent`
@@ -955,20 +953,25 @@ export class CompleteChat extends BaseNode<typeof OpenAICompleteChatMachine> {
 
   static section = "Functions";
 
+  static machines = {
+    NodeCompleteChat: OpenAICompleteChatMachine,
+    "NodeCompleteChat.run": completeChatMachine,
+  };
+
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
-    super("CompleteChat", di, data, OpenAICompleteChatMachine, {});
+    super("NodeCompleteChat", di, data, OpenAICompleteChatMachine, {});
     this.extendMachine({
       actors: {
-        completeChat: completeChatMachine,
-        Thread: ThreadMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-        Ollama: OllamaModelMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-        OpenAI: OpenaiModelMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
+        // completeChat: completeChatMachine,
+        // Thread: ThreadMachine.provide({
+        //   ...(this.baseImplentations as any),
+        // }),
+        // Ollama: OllamaModelMachine.provide({
+        //   ...(this.baseImplentations as any),
+        // }),
+        // OpenAI: OpenaiModelMachine.provide({
+        //   ...(this.baseImplentations as any),
+        // }),
       },
       actions: {
         updateOutputMessages: assign({
