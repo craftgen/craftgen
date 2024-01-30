@@ -412,24 +412,38 @@ export abstract class BaseNode<
           (value["x-actor-type"] && isNil(value["x-actor"])) ||
           value["x-actor-type"] !== value["x-actor-ref-type"]
         ) {
+          const actorId = this.di.createId("node");
+          this.di.actor.send({
+            type: "SPAWN",
+            params: {
+              id: actorId,
+              machineId: value["x-actor-type"]!,
+              systemId: actorId,
+              input: {
+                inputs: {
+                  ...(value.default as any),
+                },
+              } as any,
+            },
+          });
           enqueue.assign({
             inputSockets: ({ context, spawn }) => {
-              const actor = spawn(value["x-actor-type"], {
-                id: `${value["x-actor-type"]}_${createId()}`,
-                input: {
-                  inputs: {
-                    ...value.default,
-                  },
-                },
-                syncSnapshot: true,
-              });
+              // const actor = spawn(value["x-actor-type"], {
+              //   id: `${value["x-actor-type"]}_${createId()}`,
+              //   input: {
+              //     inputs: {
+              //       ...value.default,
+              //     },
+              //   },
+              //   syncSnapshot: true,
+              // });
 
               return {
                 ...context.inputSockets,
                 [key]: {
                   ...context.inputSockets[key],
-                  "x-actor": actor,
-                  "x-actor-ref": actor,
+                  "x-actor": this.di.actor.system.get(actorId),
+                  "x-actor-ref": this.di.actor.system.get(actorId).ref,
                   "x-actor-ref-type": value["x-actor-type"],
                 } as Partial<JSONSocket>,
               };

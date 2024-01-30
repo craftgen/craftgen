@@ -11,12 +11,17 @@ import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type {
-  AnyActor,
-  AnyStateMachine,
-  ContextFrom,
-  InputFrom,
-  SnapshotFrom,
+import {
+  setup,
+  type AnyActor,
+  type AnyStateMachine,
+  type ContextFrom,
+  type InputFrom,
+  type SnapshotFrom,
+  enqueueActions,
+  createActor,
+  ActorLogicFrom,
+  Actor,
 } from "xstate";
 
 import { useMagneticConnection } from "./connection";
@@ -85,6 +90,44 @@ export interface EditorProps<
     edges: SetOptional<ConnProps, "id">[];
   };
 }
+
+const EditorMachine = setup({
+  types: {
+    context: {} as {
+      actors: Record<string, AnyActor>;
+    },
+    events: {} as {
+      type: "SPAWN";
+      params: {
+        id: string;
+        systemId: string;
+        machineId: string;
+        input: any;
+      };
+    },
+  },
+}).createMachine({
+  context: {
+    actors: {},
+  },
+  initial: "idle",
+  states: {
+    idle: {
+      on: {
+        SPAWN: {
+          actions: enqueueActions(({ enqueue, event, context, check }) => {
+            enqueue.spawnChild(event.params.machineId, {
+              input: event.params.input,
+              id: event.params.id,
+              syncSnapshot: true,
+              systemId: event.params.systemId,
+            });
+          }),
+        },
+      },
+    },
+  },
+});
 
 export class Editor<
   NodeProps extends BaseNode<any, any, any, any> = BaseNode<any, any, any, any>,
@@ -198,6 +241,9 @@ export class Editor<
 
   public handlers: EditorHandlers;
 
+  public machine: typeof EditorMachine;
+  public actor: Actor<typeof EditorMachine>;
+
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
@@ -217,6 +263,32 @@ export class Editor<
       },
       {} as MachineRegistry,
     );
+
+    this.machine = EditorMachine.provide({
+      actors: {
+        ...this.machines,
+      },
+    });
+    function withLogging(actorLogic: any) {
+      const enhancedLogic = {
+        ...actorLogic,
+        transition: (state, event, actorCtx) => {
+          console.log("🕷️ State:", state, "Event:", event);
+          // Transition state only contains the pre transition state.
+          // event getting persisted snapshot will endup with the pre transition state.
+          // better persist state in actor subscribe.next listener.
+
+          return actorLogic.transition(state, event, actorCtx);
+        },
+      };
+
+      return enhancedLogic;
+    }
+    this.actor = createActor(withLogging(this.machine));
+    this.actor.subscribe((event) => {
+      console.log("EditorMachine event", event);
+    });
+    this.actor.start();
 
     makeObservable(this, {
       cursorPosition: observable,
@@ -272,6 +344,17 @@ export class Editor<
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
     const nodeClass = nodeMeta.class;
+    console.log("CREATING NODE");
+    this.actor.send({
+      type: "SPAWN",
+      params: {
+        id: node.id,
+        machineId: node.type as string,
+        input: node.state,
+        systemId: node.id,
+      },
+    });
+    console.log("EDITOR STATE", this.actor.getPersistedSnapshot());
 
     return new nodeClass(this, node);
   }
@@ -312,6 +395,7 @@ export class Editor<
       contextId: this.createId("context"),
       context,
     });
+
     await this.editor.addNode(newNode);
     await this?.area?.translate(newNode.id, {
       x: this.cursorPosition.x,
