@@ -39,10 +39,10 @@ const inputSockets = {
     "x-actor-config": {
       NodeApiConfiguration: {
         connections: {
-          config: "api",
+          config: "apiConfiguration",
         },
         internal: {
-          config: "api",
+          config: "apiConfiguration",
         },
       },
     },
@@ -177,8 +177,8 @@ export const OpenaiModelMachine = createMachine(
   {
     id: "openai-model",
     entry: enqueueActions(({ enqueue, context }) => {
+      enqueue("assignParent");
       enqueue("spawnInputActors");
-      enqueue("setupInternalActorConnections");
     }),
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
@@ -205,6 +205,13 @@ export const OpenaiModelMachine = createMachine(
         },
         input,
       );
+    },
+    on: {
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;

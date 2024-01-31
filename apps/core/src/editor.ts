@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { debounce } from "lodash-es";
+import { debounce, get, isNil, set } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -13,6 +13,7 @@ import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import {
   setup,
+  assign,
   type AnyActor,
   type AnyStateMachine,
   type ContextFrom,
@@ -20,16 +21,19 @@ import {
   type SnapshotFrom,
   enqueueActions,
   createActor,
-  ActorLogicFrom,
   Actor,
+  MachineImplementationsFrom,
+  ActionArgs,
+  assertEvent,
 } from "xstate";
+import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
 import type { InputNode } from "./nodes";
-import type { BaseNode, ParsedNode } from "./nodes/base";
+import type { BaseMachine, BaseNode, ParsedNode } from "./nodes/base";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type {
@@ -39,6 +43,11 @@ import type {
 } from "./plugins/reactPlugin";
 import type { Socket } from "./sockets";
 import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
+import {
+  ConnectionConfigRecord,
+  JSONSocket,
+} from "./controls/socket-generator";
+import { GuardArgs } from "xstate/guards";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -91,20 +100,32 @@ export interface EditorProps<
   };
 }
 
+const { inspect } = createBrowserInspector();
+
 const EditorMachine = setup({
   types: {
     context: {} as {
       actors: Record<string, AnyActor>;
     },
-    events: {} as {
-      type: "SPAWN";
-      params: {
-        id: string;
-        systemId: string;
-        machineId: string;
-        input: any;
-      };
-    },
+    events: {} as
+      | {
+          type: "SPAWN";
+          params: {
+            parentId?: string;
+            id: string;
+            systemId: string;
+            machineId: string;
+            input: Record<string, any> & {
+              parent?: string;
+            };
+          };
+        }
+      | {
+          type: "DESTROY";
+          params: {
+            id: string;
+          };
+        },
   },
 }).createMachine({
   context: {
@@ -114,15 +135,62 @@ const EditorMachine = setup({
   states: {
     idle: {
       on: {
-        SPAWN: {
-          actions: enqueueActions(({ enqueue, event, context, check }) => {
-            enqueue.spawnChild(event.params.machineId, {
-              input: event.params.input,
-              id: event.params.id,
-              syncSnapshot: true,
-              systemId: event.params.systemId,
-            });
+        DESTROY: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.stopChild(({ system, event }) =>
+              system.get(event.params.id),
+            );
           }),
+        },
+        SPAWN: {
+          actions: enqueueActions(
+            ({ enqueue, event, context, check, system }) => {
+              enqueue.spawnChild(event.params.machineId, {
+                input: event.params.input,
+                id: event.params.id,
+                syncSnapshot: true,
+                systemId: event.params.systemId,
+              });
+              // if (check(({ event }) => !isNil(event.params.parentId))) {
+              //   enqueue.sendTo(
+              //     system.get(event.params.parentId!),
+              //     ({ self }) => ({
+              //       type: "UPDATE_SOCKET",
+              //       params: {
+              //         name: event.params.id,
+              //         side: "input",
+              //         socket: {},
+              //       },
+              //     }),
+              //   );
+              // }
+
+              // enqueue.assign({
+              //   inputSockets: ({ context, system }) => {
+              //     // const actor = spawn(value["x-actor-type"], {
+              //     //   id: `${value["x-actor-type"]}_${createId()}`,
+              //     //   input: {
+              //     //     inputs: {
+              //     //       ...value.default,
+              //     //     },
+              //     //   },
+              //     //   syncSnapshot: true,
+              //     // });
+              //     console.log("SPAWNED", system.get(actorId));
+
+              //     return {
+              //       ...context.inputSockets,
+              //       [key]: {
+              //         ...context.inputSockets[key],
+              //         "x-actor": system.get(actorId),
+              //         "x-actor-ref": system.get(actorId).ref,
+              //         "x-actor-ref-type": value["x-actor-type"],
+              //       } as Partial<JSONSocket>,
+              //     };
+              //   },
+              // });
+            },
+          ),
         },
       },
     },
@@ -244,6 +312,340 @@ export class Editor<
   public machine: typeof EditorMachine;
   public actor: Actor<typeof EditorMachine>;
 
+  public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
+    hasConnection: (
+      { context }: GuardArgs<ContextFrom<BaseMachine>, any>,
+      params: HasConnectionGuardParams,
+    ) => {
+      return match(params)
+        .with(
+          {
+            port: "input",
+          },
+          () => {
+            const connections = get(
+              context.inputSockets,
+              [params.key, "x-connection"],
+              {},
+            );
+            return Object.values(connections).length > 0;
+          },
+        )
+        .with(
+          {
+            port: "output",
+          },
+          () => {
+            const connections = get(
+              context.outputSockets,
+              [params.key, "x-connection"],
+              {},
+            );
+            return Object.values(connections).length > 0;
+          },
+        )
+        .exhaustive();
+    },
+  };
+
+  public baseActions: MachineImplementationsFrom<BaseMachine>["actions"] = {
+    removeError: assign({
+      error: () => null,
+    }),
+    setError: assign({
+      error: ({ event }, params) => {
+        console.error("setError", event);
+        return {
+          name: params?.name || event?.params?.name || "Error",
+          message:
+            params?.message || event?.params?.message || "Something went wrong",
+          err: params?.stack || event.error,
+        };
+      },
+    }),
+    changeAction: assign({
+      inputSockets: ({ event }) => event.inputSockets,
+      outputSockets: ({ event }) => event.outputSockets,
+      action: ({ event, context }) => ({
+        ...context.action,
+        type: event.value,
+      }),
+    }),
+    assignParent: enqueueActions(({ enqueue, event, context, check }) => {
+      console.log("#".repeat(20), "ASSIGNING PARENT");
+      if (check(({ context }) => !isNil(context.parent))) {
+        console.log("SENDING TO PARENT", context.parent?.id);
+        enqueue.sendTo(
+          ({ context, system }) => system.get(context.parent?.id!),
+          ({ context, self }) => ({
+            type: "ASSIGN_CHILD",
+            params: {
+              actor: self,
+              port: context.parent?.port!,
+            },
+          }),
+        );
+      }
+    }),
+    assignChild: enqueueActions(({ enqueue, event, context, check }) => {
+      console.log("ASSIGNING", event);
+      assertEvent(event, "ASSIGN_CHILD");
+      enqueue.assign({
+        inputSockets: ({ context, system, event }) => {
+          assertEvent(event, "ASSIGN_CHILD");
+          const port = event.params.port;
+          const socket = context.inputSockets[port];
+
+          return {
+            ...context.inputSockets,
+            [port]: {
+              ...socket,
+              "x-actor": event.params.actor,
+              "x-actor-ref": event.params.actor,
+              "x-actor-ref-type": event.params.actor.src,
+            } as Partial<JSONSocket>,
+          };
+        },
+      });
+
+      const socket = context.inputSockets[event.params.port] as JSONSocket;
+      const conf = get(socket, [
+        "x-actor-config",
+        event.params.actor.src as string,
+      ]);
+      if (!conf) {
+        console.error("Missing config for", event.params.actor.src);
+      }
+
+      for (const [key, value] of Object.entries(conf?.internal)) {
+        console.log(
+          "#@".repeat(29),
+          "ASSIGNING INTERNAL ACTOR RELATION",
+          key,
+          value,
+        );
+        enqueue.sendTo(event.params.actor, ({ context, self }) => {
+          return {
+            type: "UPDATE_SOCKET",
+            params: {
+              name: key,
+              side: "output",
+              socket: {
+                "x-connection": {
+                  ...socket["x-connection"],
+                  [self.id]: {
+                    key: value,
+                    actorRef: self,
+                  },
+                } as ConnectionConfigRecord,
+              },
+            },
+          };
+        });
+      }
+    }),
+    spawnInputActors: enqueueActions(({ enqueue, context }) => {
+      for (const [key, value] of Object.entries<JSONSocket>(
+        context.inputSockets,
+      )) {
+        if (
+          (value["x-actor-type"] && isNil(value["x-actor"])) ||
+          value["x-actor-type"] !== value["x-actor-ref-type"]
+        ) {
+          const actorId = this.createId("node");
+          enqueue.sendTo(this.actor.ref, ({ self }) => ({
+            type: "SPAWN",
+            params: {
+              parent: self.id,
+              id: actorId,
+              machineId: value["x-actor-type"]!,
+              systemId: actorId,
+              input: {
+                inputs: {
+                  ...(value.default as any),
+                },
+                parent: {
+                  id: self.id,
+                  port: key,
+                },
+              } as any,
+            },
+          }));
+        }
+      }
+    }),
+    // setupInternalActorConnections: async (
+    //   action: ActionArgs<ContextFrom<BaseMachine>, any, any>,
+    // ) => {
+    //   const { context } = action;
+    //   const { inputSockets } = context;
+    //   // throw new Error("Not Implemented yet.");
+    //   return;
+    //   for (const socket of Object.values<JSONSocket>(inputSockets)) {
+    //     if (socket["x-actor-config"]) {
+    //       const conf = socket["x-actor-config"][socket["x-actor-type"]!];
+    //       if (!conf) {
+    //         console.error("Missing config for", socket["x-actor-type"]);
+    //         continue;
+    //       }
+    //       for (const [key, value] of Object.entries(conf?.internal)) {
+    //         console.log("$@$@", {
+    //           key,
+    //           value,
+    //         });
+    //         socket["x-actor"]?.send({
+    //           type: "UPDATE_SOCKET",
+    //           params: {
+    //             name: key,
+    //             side: "output",
+    //             socket: {
+    //               "x-connection": {
+    //                 ...socket["x-connection"],
+    //                 [this.id]: {
+    //                   key: value,
+    //                   actorRef: this.actor.ref,
+    //                 },
+    //               } as ConnectionConfigRecord,
+    //             },
+    //           },
+    //         });
+    //       }
+    //     }
+    //   }
+    // },
+
+    syncConnection: async (
+      action: ActionArgs<any, any, any>,
+      params?: {
+        nodeId: string;
+        outputKey: string;
+        inputKey: string;
+      },
+    ) => {
+      if (!params) {
+        throw new Error("Missing params");
+      }
+      const targetNode = this.editor.getNode(params?.nodeId);
+      console.group("syncConnection");
+      console.log("NODES", this.editor.getNodes());
+      console.log("targetNode", targetNode);
+      console.groupEnd();
+      if (targetNode) {
+        targetNode.actor.send({
+          type: "SET_VALUE",
+          params: {
+            values: {
+              [params.inputKey]: action.context.outputs[params.outputKey],
+            },
+          },
+        });
+      }
+    },
+    triggerNode: async (
+      action: ActionArgs<any, any, any>,
+      params: {
+        nodeId: string;
+        event: {
+          type: string;
+          params: {
+            executionNodeId?: string;
+            values?: Record<string, any>;
+            sender?: AnyActorRef;
+          };
+        };
+      },
+    ) => {
+      throw new Error("Not Implemented yet.");
+      // if (!params) {
+      //   throw new Error("Missing params");
+      // }
+      // const targetNode = this.editor.getNode(params?.nodeId);
+      // if (!targetNode) {
+      //   throw new Error("Missing targetNode");
+      // }
+
+      // params.event.params.sender = this.pactor.ref;
+      // targetNode.actor.send(params.event);
+    },
+    setExecutionNodeId: async (
+      action: ActionArgs<any, any, any>,
+      params?: {
+        executionNodeId?: string;
+      },
+    ) => {
+      throw new Error("Not Implemented yet.");
+      if (params?.executionNodeId) {
+        this.setExecutionNodeId(params?.executionNodeId);
+      } else {
+        this.setExecutionNodeId(this.di.createId("state"));
+      }
+      this.setup();
+    },
+    triggerSuccessors: async (
+      action: ActionArgs<any, any, any>,
+      params?: {
+        port: string;
+      },
+    ) => {
+      throw new Error("Not Implemented yet.");
+      // console.log("triggerSuccessors", action, params);
+      // if (!params?.port) {
+      //   throw new Error("Missing params");
+      // }
+      // const port = action.context.outputSockets[params?.port];
+
+      // await this.triggerSuccessors(port);
+    },
+    updateSocket: assign({
+      inputSockets: ({ context, event }) => {
+        if (event.params.side === "input") {
+          console.log("updateSocket", event);
+          return {
+            ...context.inputSockets,
+            [event.params.name]: {
+              ...context.inputSockets[event.params.name],
+              ...event.params.socket,
+            },
+          };
+        }
+        return context.inputSockets;
+      },
+      outputSockets: ({ context, event }) => {
+        if (event.params.side === "output") {
+          console.log("updateSocket", event);
+          return {
+            ...context.outputSockets,
+            [event.params.name]: {
+              ...context.outputSockets[event.params.name],
+              ...event.params.socket,
+            },
+          };
+        }
+        return context.outputSockets;
+      },
+    }),
+    setValue: assign({
+      inputs: ({ context, event }, params: { values: Record<string, any> }) => {
+        const values = event.params?.values || params?.values;
+        Object.keys(context.inputs).forEach((key) => {
+          if (!context.inputSockets[key]) {
+            delete context.inputs[key];
+          }
+        });
+        Object.keys(values).forEach((key) => {
+          if (!context.inputSockets[key]) {
+            delete values[key];
+          }
+        });
+
+        return {
+          ...context.inputs,
+          ...values,
+        };
+      },
+    }),
+  };
+
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
@@ -265,8 +667,29 @@ export class Editor<
     );
 
     this.machine = EditorMachine.provide({
+      // actions: {
+      //   ...this.baseActions,
+      // },
       actors: {
-        ...this.machines,
+        ...Object.keys(this.machines).reduce(
+          (acc, k) => {
+            if (acc[k]) {
+              throw new Error(`Actor ${k} already exists`);
+            }
+            const machine = this.machines[k];
+
+            acc[k] = machine.provide({
+              actions: {
+                ...this.baseActions,
+              },
+              guards: {
+                ...this.baseGuards,
+              },
+            });
+            return acc;
+          },
+          {} as Record<string, AnyStateMachine>,
+        ),
       },
     });
     function withLogging(actorLogic: any) {
@@ -284,7 +707,9 @@ export class Editor<
 
       return enhancedLogic;
     }
-    this.actor = createActor(withLogging(this.machine));
+    this.actor = createActor(withLogging(this.machine), {
+      // inspect,
+    });
     this.actor.subscribe((event) => {
       console.log("EditorMachine event", event);
     });
@@ -856,6 +1281,12 @@ export class Editor<
           if (data.id === this.selectedNodeId) {
             this.setSelectedNodeId(null);
           }
+          this.actor.send({
+            type: "DESTROY",
+            params: {
+              id: data.id,
+            },
+          });
           await queue.add(() =>
             this.api.deleteNode({
               workflowId: this.workflowId,

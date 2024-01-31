@@ -105,6 +105,9 @@ importers:
       '@seocraft/utils':
         specifier: ^0.1.0
         version: link:../../packages/utils
+      '@statelyai/inspect':
+        specifier: ^0.2.2
+        version: 0.2.2(ws@8.14.2)(xstate@5.4.1)
       '@trpc/client':
         specifier: ^10.43.0
         version: 10.43.0(@trpc/server@10.43.0)
@@ -6068,6 +6071,18 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
     dev: true
+
+  /@statelyai/inspect@0.2.2(ws@8.14.2)(xstate@5.4.1):
+    resolution: {integrity: sha512-aub6rwTbcWDec4b/V4AZV+QxPon8jXhL4TFRJtHZd2MfH8qeg4Usg26tEJrRiGwD9+Tk9VKlIRBYG6huoTlDbQ==}
+    peerDependencies:
+      xstate: ^5.5.1
+    dependencies:
+      isomorphic-ws: 5.0.0(ws@8.14.2)
+      safe-stable-stringify: 2.4.3
+      xstate: 5.4.1
+    transitivePeerDependencies:
+      - ws
+    dev: false
 
   /@stitches/core@1.2.8:
     resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
@@ -13120,6 +13135,14 @@ packages:
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  /isomorphic-ws@5.0.0(ws@8.14.2):
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+    dependencies:
+      ws: 8.14.2
+    dev: false
+
   /istanbul-lib-coverage@3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
@@ -17432,6 +17455,11 @@ packages:
       call-bind: 1.0.5
       get-intrinsic: 1.2.2
       is-regex: 1.1.4
+
+  /safe-stable-stringify@2.4.3:
+    resolution: {integrity: sha512-e2bDA2WJT0wxseVd4lsDP4+3ONX6HpMXQa1ZhFQ7SU+GjvORCmShbCMltrtIDfkYhVHrOcPtj+KhmDBdPdZD1g==}
+    engines: {node: '>=10'}
+    dev: false
 
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}

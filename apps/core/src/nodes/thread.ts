@@ -102,6 +102,10 @@ export type ThreadMachineEvent =
 export const ThreadMachine = createMachine(
   {
     id: "thread",
+    entry: enqueueActions(({ enqueue, context }) => {
+      enqueue("assignParent");
+      enqueue("spawnInputActors");
+    }),
     context: ({ input }) =>
       merge<typeof input, any>(
         {

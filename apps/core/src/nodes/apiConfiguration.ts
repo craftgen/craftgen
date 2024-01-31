@@ -1,4 +1,4 @@
-import { has, merge } from "lodash-es";
+import { has, isNil, merge } from "lodash-es";
 import dedent from "ts-dedent";
 import { createMachine, assign, enqueueActions } from "xstate";
 
@@ -78,7 +78,6 @@ export const ApiConfigurationMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
     id: "api-configuration",
-    entry: "updateOutput",
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
@@ -109,6 +108,22 @@ export const ApiConfigurationMachine = createMachine(
         input,
       );
     },
+    entry: enqueueActions(({ enqueue, check }) => {
+      enqueue("assignParent");
+      // if (check(({ context }) => !isNil(context.parent))) {
+      //   enqueue.sendTo(
+      //     ({ context, system }) => system.get(context.parent?.id!),
+      //     ({ context, self }) => ({
+      //       type: "ASSIGN_CHILD",
+      //       params: {
+      //         actor: self,
+      //         port: context.parent?.port!,
+      //       },
+      //     }),
+      //   );
+      // }
+      enqueue("updateOutput");
+    }),
 
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
@@ -127,6 +142,16 @@ export const ApiConfigurationMachine = createMachine(
       guards: None;
     }>,
     on: {
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
+      "*": {
+        actions: enqueueActions(({ enqueue }) => {
+          // enqueue("updateOutput");
+        }),
+      },
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
@@ -160,14 +185,27 @@ export const ApiConfigurationMachine = createMachine(
   },
   {
     actions: {
-      updateOutput: assign({
-        outputs: ({ context }) => {
-          return {
-            config: {
-              ...context.inputs,
+      updateOutput: enqueueActions(({ enqueue, context }) => {
+        enqueue.assign({
+          outputs: ({ context }) => {
+            return {
+              config: {
+                ...context.inputs,
+              },
+            };
+          },
+        });
+        const connections = context.outputSockets.config["x-connection"];
+        for (const [target, conn] of Object.entries(connections || {})) {
+          enqueue({
+            type: "syncConnection",
+            params: {
+              nodeId: target,
+              outputKey: "config",
+              inputKey: conn.key,
             },
-          };
-        },
+          });
+        }
       }),
     },
   },

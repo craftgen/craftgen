@@ -87,7 +87,7 @@ const inputSockets = {
     type: "array",
     allOf: [
       {
-        enum: ["Thread"],
+        enum: ["NodeThread"],
         type: "string" as const,
       },
     ],
@@ -248,7 +248,6 @@ const OpenAICompleteChatMachine = createMachine({
   id: "openai-complete-chat",
   entry: enqueueActions(({ enqueue, context }) => {
     enqueue("spawnInputActors");
-    enqueue("setupInternalActorConnections");
   }),
   context: ({ input }) => {
     const defaultInputs: (typeof input)["inputs"] = {};
@@ -285,6 +284,14 @@ const OpenAICompleteChatMachine = createMachine({
       },
       input,
     );
+  },
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        console.log("#".repeat(20), "assign child");
+        enqueue("assignChild");
+      }),
+    },
   },
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
@@ -751,6 +758,7 @@ const completeChatMachine = setup({
       input,
     );
   },
+
   initial: "in_progress",
   states: {
     in_progress: {

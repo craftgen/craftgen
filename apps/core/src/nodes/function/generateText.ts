@@ -23,9 +23,7 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import { OllamaModelMachine } from "../ollama/ollama";
 import type { OllamaModelConfig } from "../ollama/ollama";
-import { OpenaiModelMachine } from "../openai/openai";
 import type { OpenAIModelConfig } from "../openai/openai";
 
 const inputSockets = {
@@ -70,14 +68,14 @@ const inputSockets = {
     `,
     allOf: [
       {
-        enum: ["Ollama", "OpenAI"],
+        enum: ["NodeOllama", "NodeOpenAI"],
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    "x-actor-type": "Ollama",
+    "x-actor-type": "NodeOllama",
     "x-actor-config": {
-      Ollama: {
+      NodeOllama: {
         connections: {
           config: "llm",
         },
@@ -85,7 +83,7 @@ const inputSockets = {
           config: "llm",
         },
       },
-      OpenAI: {
+      NodeOpenAI: {
         connections: {
           config: "llm",
         },
@@ -143,7 +141,6 @@ const GenerateTextMachine = createMachine({
     ),
   entry: enqueueActions(({ enqueue }) => {
     enqueue("spawnInputActors");
-    enqueue("setupInternalActorConnections");
   }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
@@ -161,6 +158,13 @@ const GenerateTextMachine = createMachine({
     };
   }>,
   initial: "idle",
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
+    },
+  },
   states: {
     idle: {
       on: {
@@ -429,11 +433,11 @@ const generateTextCall = setup({
 });
 
 export type GenerateTextNode = ParsedNode<
-  "GenerateText",
+  "NodeGenerateText",
   typeof GenerateTextMachine
 >;
 
-export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
+export class NodeGenerateText extends BaseNode<typeof GenerateTextMachine> {
   static nodeType = "GenerateText";
   static label = "Generate Text";
   static description = "Use LLMs to generate text base on a prompt";
@@ -446,7 +450,7 @@ export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
   ): GenerateTextNode {
     return {
       ...params,
-      type: "GenerateText",
+      type: "NodeGenerateText",
     };
   }
 
@@ -456,7 +460,7 @@ export class GenerateText extends BaseNode<typeof GenerateTextMachine> {
   };
 
   constructor(di: DiContainer, data: GenerateTextNode) {
-    super("GenerateText", di, data, GenerateTextMachine, {
+    super("NodeGenerateText", di, data, GenerateTextMachine, {
       // actors: {
       //   generateText: generateTextCall,
       // },
