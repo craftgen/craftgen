@@ -119,148 +119,6 @@ const outputSockets = {
   }),
 };
 
-const GenerateTextMachine = createMachine({
-  id: "openai-generate-text",
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        inputs: {
-          RUN: undefined,
-          system: "",
-          instruction: "",
-          llm: null,
-        },
-        outputs: {
-          onDone: undefined,
-          result: "",
-        },
-        inputSockets,
-        outputSockets,
-      },
-      input,
-    ),
-  entry: enqueueActions(({ enqueue }) => {
-    enqueue("spawnInputActors");
-  }),
-  types: {} as BaseMachineTypes<{
-    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-      runs: Record<string, AnyActorRef>;
-    };
-    actions: None;
-    events: {
-      type: "UPDATE_CHILD_ACTORS";
-    };
-    guards: None;
-    actors: {
-      src: "generateText";
-      logic: typeof generateTextCall;
-    };
-  }>,
-  initial: "idle",
-  on: {
-    ASSIGN_CHILD: {
-      actions: enqueueActions(({ enqueue }) => {
-        enqueue("assignChild");
-      }),
-    },
-  },
-  states: {
-    idle: {
-      on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
-        UPDATE_CHILD_ACTORS: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("spawnInputActors");
-            enqueue("setupInternalActorConnections");
-          }),
-        },
-
-        RESET: {
-          guard: ({ context }) => {
-            return context.runs && Object.keys(context.runs).length > 0;
-          },
-          actions: enqueueActions(({ enqueue, context, self }) => {
-            Object.values(context.runs).map((run) => {
-              enqueue.stopChild(run);
-            });
-            enqueue.assign({
-              runs: {},
-              outputs: ({ context }) => ({
-                ...context.outputs,
-                result: null,
-              }),
-            });
-          }),
-        },
-
-        RESULT: {
-          actions: enqueueActions(({ enqueue, check, self, event }) => {
-            enqueue.assign({
-              outputs: ({ context, event }) => ({
-                ...context.outputs,
-                result: event.params?.res,
-              }),
-            });
-            enqueue({
-              type: "triggerSuccessors",
-              params: {
-                port: "onDone",
-              },
-            });
-          }),
-        },
-
-        RUN: {
-          // target: "running",
-          guard: and([
-            ({ context }) => context.inputs.instruction !== "",
-            ({ context }) => context.inputs.llm !== null,
-          ]),
-          actions: enqueueActions(({ enqueue }) => {
-            const runId = `call-${createId()}`;
-            enqueue.assign({
-              runs: ({ context, spawn, self }) => {
-                const run = spawn("generateText", {
-                  id: runId,
-                  input: {
-                    inputs: {
-                      llm: context.inputs.llm! as
-                        | OpenAIModelConfig
-                        | OllamaModelConfig,
-                      system: context.inputs.system!,
-                      instruction: context.inputs.instruction!,
-                    },
-                    senders: [self],
-                  },
-                  syncSnapshot: true,
-                });
-                return {
-                  ...context.runs,
-                  [runId]: run,
-                };
-              },
-            });
-          }),
-        },
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
-      },
-    },
-    complete: {},
-    error: {
-      on: {
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
-      },
-    },
-  },
-});
-
 interface GenerateTextInput {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system?: string;
@@ -432,6 +290,156 @@ const generateTextCall = setup({
   },
 });
 
+const GenerateTextMachine = createMachine(
+  {
+    id: "node-generate-text",
+    entry: enqueueActions(({ enqueue }) => {
+      enqueue("assignParent");
+      enqueue("spawnInputActors");
+    }),
+    context: ({ input }) =>
+      merge<typeof input, any>(
+        {
+          inputs: {
+            RUN: undefined,
+            system: "",
+            instruction: "",
+            llm: null,
+          },
+          outputs: {
+            onDone: undefined,
+            result: "",
+          },
+          inputSockets,
+          outputSockets,
+        },
+        input,
+      ),
+    types: {} as BaseMachineTypes<{
+      input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        runs: Record<string, AnyActorRef>;
+      };
+      actions: None;
+      events: {
+        type: "UPDATE_CHILD_ACTORS";
+      };
+      guards: None;
+      actors: {
+        src: "generateText";
+        logic: typeof generateTextCall;
+      };
+    }>,
+    initial: "idle",
+    on: {
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
+    },
+    states: {
+      idle: {
+        on: {
+          UPDATE_SOCKET: {
+            actions: ["updateSocket"],
+          },
+          UPDATE_CHILD_ACTORS: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("spawnInputActors");
+              enqueue("setupInternalActorConnections");
+            }),
+          },
+
+          RESET: {
+            guard: ({ context }) => {
+              return context.runs && Object.keys(context.runs).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, context, self }) => {
+              Object.values(context.runs).map((run) => {
+                enqueue.stopChild(run);
+              });
+              enqueue.assign({
+                runs: {},
+                outputs: ({ context }) => ({
+                  ...context.outputs,
+                  result: null,
+                }),
+              });
+            }),
+          },
+
+          RESULT: {
+            actions: enqueueActions(({ enqueue, check, self, event }) => {
+              enqueue.assign({
+                outputs: ({ context, event }) => ({
+                  ...context.outputs,
+                  result: event.params?.res,
+                }),
+              });
+              enqueue({
+                type: "triggerSuccessors",
+                params: {
+                  port: "onDone",
+                },
+              });
+            }),
+          },
+
+          RUN: {
+            // target: "running",
+            guard: and([
+              ({ context }) => context.inputs.instruction !== "",
+              ({ context }) => context.inputs.llm !== null,
+            ]),
+            actions: enqueueActions(({ enqueue }) => {
+              const runId = `call-${createId()}`;
+              enqueue.assign({
+                runs: ({ context, spawn, self }) => {
+                  const run = spawn("generateText", {
+                    id: runId,
+                    input: {
+                      inputs: {
+                        llm: context.inputs.llm! as
+                          | OpenAIModelConfig
+                          | OllamaModelConfig,
+                        system: context.inputs.system!,
+                        instruction: context.inputs.instruction!,
+                      },
+                      senders: [self],
+                    },
+                    syncSnapshot: true,
+                  });
+                  return {
+                    ...context.runs,
+                    [runId]: run,
+                  };
+                },
+              });
+            }),
+          },
+          SET_VALUE: {
+            actions: ["setValue"],
+          },
+        },
+      },
+      complete: {},
+      error: {
+        on: {
+          SET_VALUE: {
+            actions: ["setValue"],
+          },
+        },
+      },
+    },
+  },
+  {
+    actors: {
+      generateText: generateTextCall,
+    },
+  },
+);
+
 export type GenerateTextNode = ParsedNode<
   "NodeGenerateText",
   typeof GenerateTextMachine
@@ -455,30 +463,12 @@ export class NodeGenerateText extends BaseNode<typeof GenerateTextMachine> {
   }
 
   static machines = {
-    GenerateText: GenerateTextMachine,
+    NodeGenerateText: GenerateTextMachine,
     ["NodeGenerateText.run"]: generateTextCall,
   };
 
   constructor(di: DiContainer, data: GenerateTextNode) {
-    super("NodeGenerateText", di, data, GenerateTextMachine, {
-      // actors: {
-      //   generateText: generateTextCall,
-      // },
-    });
-    // this.extendMachine({
-    //   actors: {
-    //     Ollama: OllamaModelMachine.provide({
-    //       actions: {
-    //         ...this.baseActions,
-    //       },
-    //     }),
-    //     OpenAI: OpenaiModelMachine.provide({
-    //       actions: {
-    //         ...this.baseActions,
-    //       },
-    //     }),
-    //   },
-    // });
+    super("NodeGenerateText", di, data, GenerateTextMachine, {});
     this.setup();
   }
 }

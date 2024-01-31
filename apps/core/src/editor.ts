@@ -26,14 +26,19 @@ import {
   ActionArgs,
   assertEvent,
 } from "xstate";
-import { createBrowserInspector } from "@statelyai/inspect";
+// import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
 import type { InputNode } from "./nodes";
-import type { BaseMachine, BaseNode, ParsedNode } from "./nodes/base";
+import type {
+  BaseMachine,
+  BaseNode,
+  HasConnectionGuardParams,
+  ParsedNode,
+} from "./nodes/base";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type {
@@ -100,7 +105,7 @@ export interface EditorProps<
   };
 }
 
-const { inspect } = createBrowserInspector();
+// const { inspect } = createBrowserInspector();
 
 const EditorMachine = setup({
   types: {
@@ -151,44 +156,6 @@ const EditorMachine = setup({
                 syncSnapshot: true,
                 systemId: event.params.systemId,
               });
-              // if (check(({ event }) => !isNil(event.params.parentId))) {
-              //   enqueue.sendTo(
-              //     system.get(event.params.parentId!),
-              //     ({ self }) => ({
-              //       type: "UPDATE_SOCKET",
-              //       params: {
-              //         name: event.params.id,
-              //         side: "input",
-              //         socket: {},
-              //       },
-              //     }),
-              //   );
-              // }
-
-              // enqueue.assign({
-              //   inputSockets: ({ context, system }) => {
-              //     // const actor = spawn(value["x-actor-type"], {
-              //     //   id: `${value["x-actor-type"]}_${createId()}`,
-              //     //   input: {
-              //     //     inputs: {
-              //     //       ...value.default,
-              //     //     },
-              //     //   },
-              //     //   syncSnapshot: true,
-              //     // });
-              //     console.log("SPAWNED", system.get(actorId));
-
-              //     return {
-              //       ...context.inputSockets,
-              //       [key]: {
-              //         ...context.inputSockets[key],
-              //         "x-actor": system.get(actorId),
-              //         "x-actor-ref": system.get(actorId).ref,
-              //         "x-actor-ref-type": value["x-actor-type"],
-              //       } as Partial<JSONSocket>,
-              //     };
-              //   },
-              // });
             },
           ),
         },
@@ -474,45 +441,6 @@ export class Editor<
         }
       }
     }),
-    // setupInternalActorConnections: async (
-    //   action: ActionArgs<ContextFrom<BaseMachine>, any, any>,
-    // ) => {
-    //   const { context } = action;
-    //   const { inputSockets } = context;
-    //   // throw new Error("Not Implemented yet.");
-    //   return;
-    //   for (const socket of Object.values<JSONSocket>(inputSockets)) {
-    //     if (socket["x-actor-config"]) {
-    //       const conf = socket["x-actor-config"][socket["x-actor-type"]!];
-    //       if (!conf) {
-    //         console.error("Missing config for", socket["x-actor-type"]);
-    //         continue;
-    //       }
-    //       for (const [key, value] of Object.entries(conf?.internal)) {
-    //         console.log("$@$@", {
-    //           key,
-    //           value,
-    //         });
-    //         socket["x-actor"]?.send({
-    //           type: "UPDATE_SOCKET",
-    //           params: {
-    //             name: key,
-    //             side: "output",
-    //             socket: {
-    //               "x-connection": {
-    //                 ...socket["x-connection"],
-    //                 [this.id]: {
-    //                   key: value,
-    //                   actorRef: this.actor.ref,
-    //                 },
-    //               } as ConnectionConfigRecord,
-    //             },
-    //           },
-    //         });
-    //       }
-    //     }
-    //   }
-    // },
 
     syncConnection: async (
       action: ActionArgs<any, any, any>,
@@ -587,14 +515,25 @@ export class Editor<
         port: string;
       },
     ) => {
-      throw new Error("Not Implemented yet.");
-      // console.log("triggerSuccessors", action, params);
-      // if (!params?.port) {
-      //   throw new Error("Missing params");
-      // }
-      // const port = action.context.outputSockets[params?.port];
+      // throw new Error("Not Implemented yet.");
+      console.log("triggerSuccessors", action, params);
+      if (!params?.port) {
+        throw new Error("Missing params");
+      }
+      const port = action.context.outputSockets[params?.port];
 
       // await this.triggerSuccessors(port);
+      const connections = port["x-connection"] || {};
+      for (const [nodeId, conn] of Object.entries(connections)) {
+        const targetNode = this.editor.getNode(nodeId);
+        const socket = targetNode.snap.context.inputSockets[conn.key];
+        console.log("TRIGGERING", targetNode.id, socket["x-event"]);
+        // TODO: we might able to send events directly in here.
+        await this.runSync({
+          inputId: targetNode.id,
+          event: socket["x-event"],
+        });
+      }
     },
     updateSocket: assign({
       inputSockets: ({ context, event }) => {
@@ -713,7 +652,7 @@ export class Editor<
     this.actor.subscribe((event) => {
       console.log("EditorMachine event", event);
     });
-    this.actor.start();
+    // this.actor.start();
 
     makeObservable(this, {
       cursorPosition: observable,
@@ -769,7 +708,7 @@ export class Editor<
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
     const nodeClass = nodeMeta.class;
-    console.log("CREATING NODE");
+    console.log("CREATING NODE", node.state, node.context);
     this.actor.send({
       type: "SPAWN",
       params: {
@@ -878,6 +817,7 @@ export class Editor<
 
     await this.setupEnv();
     await this.import(this.content);
+    this.actor.start();
 
     this.handleNodeEvents();
 
