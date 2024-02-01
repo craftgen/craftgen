@@ -64,7 +64,7 @@ export type NodeWithState<
   K extends keyof T = keyof T,
 > = Node & {
   type: keyof T;
-  context: ContextFrom<InstanceType<T[K]>["machine"]>;
+  context: SnapshotFrom<InstanceType<T[K]>["machine"]>;
   state?: SnapshotFrom<InstanceType<T[K]>["machine"]>;
 };
 
@@ -170,6 +170,22 @@ const EditorMachine = setup({
     },
   },
 });
+
+function withLogging(actorLogic: any) {
+  const enhancedLogic = {
+    ...actorLogic,
+    transition: (state, event, actorCtx) => {
+      console.log("🕷️ State:", state, "Event:", event);
+      // Transition state only contains the pre transition state.
+      // event getting persisted snapshot will endup with the pre transition state.
+      // better persist state in actor subscribe.next listener.
+
+      return actorLogic.transition(state, event, actorCtx);
+    },
+  };
+
+  return enhancedLogic;
+}
 
 export class Editor<
   NodeProps extends BaseNode<any, any, any, any> = BaseNode<any, any, any, any>,
@@ -631,27 +647,6 @@ export class Editor<
         ),
       },
     });
-    function withLogging(actorLogic: any) {
-      const enhancedLogic = {
-        ...actorLogic,
-        transition: (state, event, actorCtx) => {
-          console.log("🕷️ State:", state, "Event:", event);
-          // Transition state only contains the pre transition state.
-          // event getting persisted snapshot will endup with the pre transition state.
-          // better persist state in actor subscribe.next listener.
-
-          return actorLogic.transition(state, event, actorCtx);
-        },
-      };
-
-      return enhancedLogic;
-    }
-    this.actor = createActor(withLogging(this.machine), {
-      inspect,
-    });
-    this.actor.subscribe((event) => {
-      console.log("EditorMachine event", event);
-    });
     // this.actor.start();
 
     makeObservable(this, {
@@ -816,6 +811,28 @@ export class Editor<
     this.editor.use(this.dataFlow);
 
     await this.setupEnv();
+    const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
+    this.content.nodes.forEach((n) => {
+      children[n.id] = n.context;
+    });
+    this.actor = createActor(withLogging(this.machine), {
+      inspect,
+      snapshot: {
+        value: "idle",
+        status: "active",
+        children,
+        context: {
+          actors: {},
+        },
+        error: undefined,
+        output: undefined,
+      } as SnapshotFrom<typeof EditorMachine>,
+    });
+    this.actor.subscribe((event) => {
+      console.log("EditorMachine event", event);
+      const persist = this.actor.getPersistedSnapshot();
+      console.log("EditorMachine state", persist);
+    });
     this.actor.start();
     await this.import(this.content);
 

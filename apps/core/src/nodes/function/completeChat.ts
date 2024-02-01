@@ -243,237 +243,9 @@ const standardizeMessage = (message: OutputFrom<typeof completeChatActor>) =>
     )
     .run();
 
-const OpenAICompleteChatMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2JaYCMD0wBYlADgcBmLwBoQAJ6ILg4ArIyhDuahXnYuAEw2FqYAvin+aJi4hCTkVDQE9Ews7ABKHAByympIIJrauvqGJgjx5qYRSl0OSuZeoaZeLqb+QQih8V6M5kqh7kn27jOmoWkZ6Nj4RKQU1HQMzKxgnLyColIAEgCSADI8InxSAhKlYtWG9Tp6BrUt5vGMLpA4HAhyjRBeeJKRjxBKeJRDdymdwhNYgTKbHI7fL7YpHNhieQiABqfBuHCE71qn0aP1ALQcUOmvRs7ncoVC-yS83BrVhVlZSnipjaNn+jPMaIx2W2eT2hQOACcAK4YDA4DBQZgYESoRXIKCKuCwNgQfRgbUAN2QAGsLdKtrldgUiowVWqNVqNbr9YbjQgNdaCAxvtUqRotF8mr9gvEAaEXKz2UMYimXLzEwCESjzGK2gjJlKNjKnTiFUx3erNdqfQajbATWBFfrFYxyAwAGbIRXERgOrFyl1K1VVr06vV1-2B5DB2lh1QfSO05qIHqTRjOdpeVwOGwTNm87fuKyeNnbkLzdpFrKO7Hy12Vz01id+htsZ4SG4iUpCACKFLERQF2pJdvhXBAbBCRhIOcGxNyGcwXHcXkbC8Y9HATBwlkiRklBsa9MVlZ1cTdEcn29F96xNQkBBJMkKXDOpQOjelghcSwbHiKJOPiJZcy8MFAghGwbGmVCklCPd2KSFwXAIks7yHCsyOrCjfSotgpAkABZLgbnkSlgIjBowJjCCoJg2x4PYpDeTaSwE1QpDzHFXNEnk29BxIx9qyI-IIDYIxYEoBgLSwDtqEVAAKHoAEo2H7Pz72HD1fNLagIEYmlTNYhBnCmRlPBEiw+KSXlCo3CZYlMJQkIcJDZg8gdiPLUjUq1I0AEdlRwesRCwAhaXfCRP2-IQxA4G4gJqYyozpYxEHcflYTg2FYVsLxzF5BNoTg+YsMgjkYlSdJ0WLTyWofFSOrAbrergfrBu+NgsuY+a-jaE8VnFSJeiw7aRUBRw4z6ETzEZeI0lOjBkAgOBDES9KlMXEyWIWhA8BsXlMcBEE8aUeqmqSpTDgoFG5vApx0KhTlHEKoZ-qE8YwmmEUoVQzl5nc07EcU7zrvJ5czNiXb9tsOMhkTWJypEqxczguYnB6DlJR587mrLK72ufdTjUFnL0bcY9WTg8XJlk8TtoGRgBKw5EwZZOS1ZvDXkuU7XiYgfW0ZaJapkhJDUPcWJnBcUI7ITGFrE5doRWcp31hd4n+e1rqer6gahdmrP0aWgFt3BzahjQ4Pw6ZyDoSRSE2VsP6liJpGSOJ733tjGXRPYlEeNZCHg4bvnWqbFsW-AzleQsSwuLjLD2REpYHChlIgA */
-  id: "openai-complete-chat",
-  entry: enqueueActions(({ enqueue }) => {
-    enqueue("assignParent");
-    enqueue("spawnInputActors");
-  }),
-  context: ({ input }) => {
-    const defaultInputs: (typeof input)["inputs"] = {};
-    for (const [key, socket] of Object.entries(inputSockets)) {
-      if (socket.default) {
-        defaultInputs[key as any] = socket.default;
-      } else {
-        defaultInputs[key as any] = undefined;
-      }
-    }
-
-    return merge<typeof input, any>(
-      {
-        inputs: {
-          RUN: undefined,
-          system: "",
-          messages: [],
-          llm: null,
-          tools: {},
-          ...defaultInputs,
-        },
-        runs: {},
-        outputs: {
-          onDone: undefined,
-          result: {},
-          messages: [],
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    );
-  },
-  on: {
-    ASSIGN_CHILD: {
-      actions: enqueueActions(({ enqueue }) => {
-        console.log("#".repeat(20), "assign child");
-        enqueue("assignChild");
-      }),
-    },
-  },
-  types: {} as BaseMachineTypes<{
-    input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-      runs: Record<string, AnyActorRef>;
-    };
-    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-      runs: Record<string, AnyActorRef>;
-    };
-    actions:
-      | {
-          type: "adjustMaxCompletionTokens";
-        }
-      | {
-          type: "updateOutputMessages";
-        };
-    events:
-      | {
-          type: "TOOL_REQUEST";
-          params: ToolCall<string, any>[];
-        }
-      | {
-          type: "TOOL_RESULT";
-          params: {
-            id: string;
-            res: ToolCallResult<string, any, any>;
-          };
-        }
-      | {
-          type: "RESULT";
-          params: {
-            id: string;
-            res: {
-              result: OutputFrom<typeof completeChatActor>;
-              ok: boolean;
-            };
-          };
-        };
-    guards: None;
-    actors: {
-      src: "completeChat";
-      logic: typeof completeChatMachine;
-    };
-  }>,
-  initial: "idle",
-  states: {
-    idle: {
-      on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
-        RESULT: {
-          actions: enqueueActions(({ enqueue, event, check }) => {
-            console.log("RESULT @@", event);
-            enqueue.assign({
-              outputs: ({ context, event }) => ({
-                ...context.outputs,
-                result: event.params?.res,
-                messages: [
-                  ...context.inputs.messages!,
-                  {
-                    id: event.params.id,
-                    ...standardizeMessage(event.params.res.result),
-                  },
-                ],
-                text: event.params?.res.result.text,
-              }),
-            });
-            if (check(({ context }) => !!context.inputs.append)) {
-              enqueue.sendTo(
-                ({ context }) => context.inputSockets.messages["x-actor-ref"],
-                ({ context, event }) => ({
-                  type: ThreadMachineEvents.addMessage,
-                  params: {
-                    id: event.params.id,
-                    ...standardizeMessage(event.params.res.result),
-                  },
-                }),
-              );
-            }
-            enqueue({
-              type: "triggerSuccessors",
-              params: {
-                port: "onDone",
-              },
-            });
-          }),
-        },
-        RESET: {
-          guard: ({ context }) => {
-            return context.runs && Object.keys(context.runs).length > 0;
-          },
-          actions: enqueueActions(({ enqueue, context, self }) => {
-            Object.values(context.runs).map((run) => {
-              enqueue.stopChild(run);
-            });
-            enqueue.assign({
-              runs: {},
-              outputs: ({ context }) => ({
-                ...context.outputs,
-                result: null,
-              }),
-            });
-          }),
-        },
-
-        RUN: {
-          guard: ({ context }) => {
-            return (context.inputs.messages || []).length > 0;
-          },
-          actions: enqueueActions(({ enqueue, check, event }) => {
-            enqueue.assign({
-              runs: ({ context, spawn, self }) => {
-                const runId = `call-${createId()}`;
-                return {
-                  ...context.runs,
-                  [runId]: spawn("completeChat", {
-                    id: runId,
-                    input: {
-                      senders: [self],
-                      inputs: {
-                        llm: context.inputs.llm! as
-                          | OpenAIModelConfig
-                          | OllamaModelConfig,
-                        system: context.inputs.system!,
-                        messages: context.inputs.messages?.map(
-                          ({ id, ...rest }) => {
-                            return rest;
-                          },
-                        ) as OpenAIChatMessage[],
-                        tools: Object.entries(context.inputs.tools)
-                          .map(([key, t]) => {
-                            const { nodeID } = extractGroupsFromToolName(key);
-                            const actorRef = get(context.inputSockets.tools, [
-                              "x-connection",
-                              nodeID,
-                              "actorRef",
-                            ]) as AnyActorRef;
-                            console.log("ACTOR REF", actorRef);
-                            return {
-                              key,
-                              actorRef,
-                              def: {
-                                name: t.name,
-                                description: t.description,
-                                parameters: new UncheckedSchema(t.parameters),
-                              },
-                            };
-                          })
-                          .reduce((acc, { key, ...rest }) => {
-                            acc[key] = rest;
-                            return acc;
-                          }, {}),
-                      },
-                    },
-                  }),
-                };
-              },
-            });
-          }),
-        },
-        UPDATE_CHILD_ACTORS: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("spawnInputActors");
-            enqueue("setupInternalActorConnections");
-          }),
-        },
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("setValue");
-          }),
-        },
-      },
-    },
-    complete: {},
-    error: {},
-  },
-});
-
 export type OpenAICompleteChatData = ParsedNode<
   "NodeCompleteChat",
-  typeof OpenAICompleteChatMachine
+  typeof CompleteChatMachine
 >;
 
 interface CompleteChatInput {
@@ -691,7 +463,7 @@ function extractGroupsFromToolName(inputString: string) {
   }
 }
 
-const completeChatMachine = setup({
+const completeChatMachineRun = setup({
   types: {
     input: {} as {
       inputs: {
@@ -950,9 +722,242 @@ const completeChatMachine = setup({
   output: ({ context }) => context.outputs,
 });
 
-export class NodeCompleteChat extends BaseNode<
-  typeof OpenAICompleteChatMachine
-> {
+const CompleteChatMachine = createMachine(
+  {
+    /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2JaYCMD0wBYlADgcBmLwBoQAJ6ILg4ArIyhDuahXnYuAEw2FqYAvin+aJi4hCTkVDQE9Ews7ABKHAByympIIJrauvqGJgjx5qYRSl0OSuZeoaZeLqb+QQih8V6M5kqh7kn27jOmoWkZ6Nj4RKQU1HQMzKxgnLyColIAEgCSADI8InxSAhKlYtWG9Tp6BrUt5vGMLpA4HAhyjRBeeJKRjxBKeJRDdymdwhNYgTKbHI7fL7YpHNhieQiABqfBuHCE71qn0aP1ALQcUOmvRs7ncoVC-yS83BrVhVlZSnipjaNn+jPMaIx2W2eT2hQOACcAK4YDA4DBQZgYESoRXIKCKuCwNgQfRgbUAN2QAGsLdKtrldgUiowVWqNVqNbr9YbjQgNdaCAxvtUqRotF8mr9gvEAaEXKz2UMYimXLzEwCESjzGK2gjJlKNjKnTiFUx3erNdqfQajbATWBFfrFYxyAwAGbIRXERgOrFyl1K1VVr06vV1-2B5DB2lh1QfSO05qIHqTRjOdpeVwOGwTNm87fuKyeNnbkLzdpFrKO7Hy12Vz01id+htsZ4SG4iUpCACKFLERQF2pJdvhXBAbBCRhIOcGxNyGcwXHcXkbC8Y9HATBwlkiRklBsa9MVlZ1cTdEcn29F96xNQkBBJMkKXDOpQOjelghcSwbHiKJOPiJZcy8MFAghGwbGmVCklCPd2KSFwXAIks7yHCsyOrCjfSotgpAkABZLgbnkSlgIjBowJjCCoJg2x4PYpDeTaSwE1QpDzHFXNEnk29BxIx9qyI-IIDYIxYEoBgLSwDtqEVAAKHoAEo2H7Pz72HD1fNLagIEYmlTNYhBnCmRlPBEiw+KSXlCo3CZYlMJQkIcJDZg8gdiPLUjUq1I0AEdlRwesRCwAhaXfCRP2-IQxA4G4gJqYyozpYxEHcflYTg2FYVsLxzF5BNoTg+YsMgjkYlSdJ0WLTyWofFSOrAbrergfrBu+NgsuY+a-jaE8VnFSJeiw7aRUBRw4z6ETzEZeI0lOjBkAgOBDES9KlMXEyWIWhA8BsXlMcBEE8aUeqmqSpTDgoFG5vApx0KhTlHEKoZ-qE8YwmmEUoVQzl5nc07EcU7zrvJ5czNiXb9tsOMhkTWJypEqxczguYnB6DlJR587mrLK72ufdTjUFnL0bcY9WTg8XJlk8TtoGRgBKw5EwZZOS1ZvDXkuU7XiYgfW0ZaJapkhJDUPcWJnBcUI7ITGFrE5doRWcp31hd4n+e1rqer6gahdmrP0aWgFt3BzahjQ4Pw6ZyDoSRSE2VsP6liJpGSOJ733tjGXRPYlEeNZCHg4bvnWqbFsW-AzleQsSwuLjLD2REpYHChlIgA */
+    id: "complete-chat",
+    entry: enqueueActions(({ enqueue }) => {
+      enqueue("assignParent");
+      enqueue("spawnInputActors");
+    }),
+    context: ({ input }) => {
+      const defaultInputs: (typeof input)["inputs"] = {};
+      for (const [key, socket] of Object.entries(inputSockets)) {
+        if (socket.default) {
+          defaultInputs[key as any] = socket.default;
+        } else {
+          defaultInputs[key as any] = undefined;
+        }
+      }
+
+      return merge<typeof input, any>(
+        {
+          inputs: {
+            RUN: undefined,
+            system: "",
+            messages: [],
+            llm: null,
+            tools: {},
+            ...defaultInputs,
+          },
+          runs: {},
+          outputs: {
+            onDone: undefined,
+            result: {},
+            messages: [],
+          },
+          inputSockets: {
+            ...inputSockets,
+          },
+          outputSockets: {
+            ...outputSockets,
+          },
+        },
+        input,
+      );
+    },
+    on: {
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          console.log("#".repeat(20), "assign child");
+          enqueue("assignChild");
+        }),
+      },
+    },
+    types: {} as BaseMachineTypes<{
+      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
+        runs: Record<string, AnyActorRef>;
+      };
+      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+        runs: Record<string, AnyActorRef>;
+      };
+      actions:
+        | {
+            type: "adjustMaxCompletionTokens";
+          }
+        | {
+            type: "updateOutputMessages";
+          };
+      events:
+        | {
+            type: "TOOL_REQUEST";
+            params: ToolCall<string, any>[];
+          }
+        | {
+            type: "TOOL_RESULT";
+            params: {
+              id: string;
+              res: ToolCallResult<string, any, any>;
+            };
+          }
+        | {
+            type: "RESULT";
+            params: {
+              id: string;
+              res: {
+                result: OutputFrom<typeof completeChatActor>;
+                ok: boolean;
+              };
+            };
+          };
+      guards: None;
+      actors: {
+        src: "completeChat";
+        logic: typeof completeChatMachineRun;
+      };
+    }>,
+    initial: "idle",
+    states: {
+      idle: {
+        on: {
+          UPDATE_SOCKET: {
+            actions: ["updateSocket"],
+          },
+          RESULT: {
+            actions: enqueueActions(({ enqueue, event, check }) => {
+              console.log("RESULT @@", event);
+              enqueue.assign({
+                outputs: ({ context, event }) => ({
+                  ...context.outputs,
+                  result: event.params?.res,
+                  messages: [
+                    ...context.inputs.messages!,
+                    {
+                      id: event.params.id,
+                      ...standardizeMessage(event.params.res.result),
+                    },
+                  ],
+                  text: event.params?.res.result.text,
+                }),
+              });
+              if (check(({ context }) => !!context.inputs.append)) {
+                enqueue.sendTo(
+                  ({ context }) => context.inputSockets.messages["x-actor-ref"],
+                  ({ context, event }) => ({
+                    type: ThreadMachineEvents.addMessage,
+                    params: {
+                      id: event.params.id,
+                      ...standardizeMessage(event.params.res.result),
+                    },
+                  }),
+                );
+              }
+              enqueue({
+                type: "triggerSuccessors",
+                params: {
+                  port: "onDone",
+                },
+              });
+            }),
+          },
+          RESET: {
+            guard: ({ context }) => {
+              return context.runs && Object.keys(context.runs).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, context, self }) => {
+              Object.values(context.runs).map((run) => {
+                enqueue.stopChild(run);
+              });
+              enqueue.assign({
+                runs: {},
+                outputs: ({ context }) => ({
+                  ...context.outputs,
+                  result: null,
+                }),
+              });
+            }),
+          },
+
+          RUN: {
+            guard: ({ context }) => {
+              return (context.inputs.messages || []).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, check, event }) => {
+              enqueue.assign({
+                runs: ({ context, spawn, self }) => {
+                  const runId = `call-${createId()}`;
+                  return {
+                    ...context.runs,
+                    [runId]: spawn("completeChat", {
+                      id: runId,
+                      input: {
+                        senders: [self],
+                        inputs: {
+                          llm: context.inputs.llm! as
+                            | OpenAIModelConfig
+                            | OllamaModelConfig,
+                          system: context.inputs.system!,
+                          messages: context.inputs.messages?.map(
+                            ({ id, ...rest }) => {
+                              return rest;
+                            },
+                          ) as OpenAIChatMessage[],
+                          tools: Object.entries(context.inputs.tools)
+                            .map(([key, t]) => {
+                              const { nodeID } = extractGroupsFromToolName(key);
+                              const actorRef = get(context.inputSockets.tools, [
+                                "x-connection",
+                                nodeID,
+                                "actorRef",
+                              ]) as AnyActorRef;
+                              console.log("ACTOR REF", actorRef);
+                              return {
+                                key,
+                                actorRef,
+                                def: {
+                                  name: t.name,
+                                  description: t.description,
+                                  parameters: new UncheckedSchema(t.parameters),
+                                },
+                              };
+                            })
+                            .reduce((acc, { key, ...rest }) => {
+                              acc[key] = rest;
+                              return acc;
+                            }, {}),
+                        },
+                      },
+                    }),
+                  };
+                },
+              });
+            }),
+          },
+          UPDATE_CHILD_ACTORS: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("spawnInputActors");
+              enqueue("setupInternalActorConnections");
+            }),
+          },
+          SET_VALUE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("setValue");
+            }),
+          },
+        },
+      },
+      complete: {},
+      error: {},
+    },
+  },
+  {
+    actors: {
+      completeChat: completeChatMachineRun,
+    },
+  },
+);
+
+export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
   static nodeType = "CompleteChat";
   static label = "Complete Chat";
   static description = dedent`
@@ -963,12 +968,12 @@ export class NodeCompleteChat extends BaseNode<
   static section = "Functions";
 
   static machines = {
-    NodeCompleteChat: OpenAICompleteChatMachine,
-    "NodeCompleteChat.run": completeChatMachine,
+    NodeCompleteChat: CompleteChatMachine,
+    "NodeCompleteChat.run": completeChatMachineRun,
   };
 
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
-    super("NodeCompleteChat", di, data, OpenAICompleteChatMachine, {});
+    super("NodeCompleteChat", di, data, CompleteChatMachine, {});
     this.extendMachine({
       actors: {
         // completeChat: completeChatMachine,

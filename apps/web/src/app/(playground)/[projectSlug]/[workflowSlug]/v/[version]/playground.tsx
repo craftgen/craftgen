@@ -478,7 +478,7 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
   }, [childrens]);
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="mt-4 space-y-4 p-4">
       <div className="flex items-center justify-between">
         <h3 className="font-bold">Runs</h3>
         <Button
