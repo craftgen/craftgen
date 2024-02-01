@@ -26,7 +26,7 @@ import {
   ActionArgs,
   assertEvent,
 } from "xstate";
-// import { createBrowserInspector } from "@statelyai/inspect";
+import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -105,7 +105,7 @@ export interface EditorProps<
   };
 }
 
-// const { inspect } = createBrowserInspector();
+const { inspect } = createBrowserInspector();
 
 const EditorMachine = setup({
   types: {
@@ -133,6 +133,10 @@ const EditorMachine = setup({
         },
   },
 }).createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QFEIEsAuB7ATgOjQgBswBiAEWQGUAVAJQHkBNAbQAYBdRUABy1kxosAO24gAHogDMAJgCMeKQE4A7AA4ZbJVJUqZUgDQgAntI2K5UtXIBsAViUAWHTLt2Avu6OpMuAsTIqAAUAQQB1ADl2LiQQPgEMIVFYyQQAWjktCztMqTYZG1dHG0MTREsZPHtnORU7Rzs2OUcWzy8QYSwIODEfbBwxeMERMVSMuxVs3PzC+pKjUwQFNialGzla-WKlGUdPb3R+-xJB-mHk0FS5NUm1KXurNQdZGRkFxEc2KSqlO1lHPROZwFNruIA */
+  id: "Editor",
+  description:
+    "Editor machine responsible of spawning and destroying node actors.",
   context: {
     actors: {},
   },
@@ -141,6 +145,7 @@ const EditorMachine = setup({
     idle: {
       on: {
         DESTROY: {
+          description: "Destroy a node actor",
           actions: enqueueActions(({ enqueue }) => {
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
@@ -148,6 +153,8 @@ const EditorMachine = setup({
           }),
         },
         SPAWN: {
+          description:
+            "Spawn a node actor and inline actors. (a.k.a nested actors)",
           actions: enqueueActions(
             ({ enqueue, event, context, check, system }) => {
               enqueue.spawnChild(event.params.machineId, {
@@ -355,7 +362,6 @@ export class Editor<
       }
     }),
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
-      console.log("ASSIGNING", event);
       assertEvent(event, "ASSIGN_CHILD");
       enqueue.assign({
         inputSockets: ({ context, system, event }) => {
@@ -385,12 +391,6 @@ export class Editor<
       }
 
       for (const [key, value] of Object.entries(conf?.internal)) {
-        console.log(
-          "#@".repeat(29),
-          "ASSIGNING INTERNAL ACTOR RELATION",
-          key,
-          value,
-        );
         enqueue.sendTo(event.params.actor, ({ context, self }) => {
           return {
             type: "UPDATE_SOCKET",
@@ -647,7 +647,7 @@ export class Editor<
       return enhancedLogic;
     }
     this.actor = createActor(withLogging(this.machine), {
-      // inspect,
+      inspect,
     });
     this.actor.subscribe((event) => {
       console.log("EditorMachine event", event);
@@ -816,8 +816,8 @@ export class Editor<
     this.editor.use(this.dataFlow);
 
     await this.setupEnv();
-    await this.import(this.content);
     this.actor.start();
+    await this.import(this.content);
 
     this.handleNodeEvents();
 
