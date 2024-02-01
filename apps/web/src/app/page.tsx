@@ -139,6 +139,64 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="relative space-y-8 text-4xl">
+          <div
+            className="absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
+            aria-hidden="true"
+          >
+            <div
+              className="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"
+              style={{
+                clipPath:
+                  "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
+              }}
+            />
+          </div>
+          <p className="">
+            Craftgen.ai is an innovative AI platform designed for both technical
+            and non-technical users. It's built on a foundation of graph
+            architecture for scalability and the Actor Model for efficient
+            concurrent operations, tailored to both technical and non-technical
+            users. A key aspect of Craftgen.ai is its modular AI approach,
+            allowing users to assemble and customize AI components like building
+            blocks to fit their specific needs.
+          </p>
+
+          <p>
+            The platform's robustness is enhanced by its event-driven
+            architecture, ensuring reliable data processing and featuring
+            browser web technologies for universal access. Craftgen.ai excels in
+            dynamic tool and workflow generation, with strong offline
+            capabilities for secure environments and plans for desktop
+            application integration.
+          </p>
+          <p>
+            A unique and valuable feature of Craftgen.ai is its marketplace,
+            where users can access a variety of pre-built AI solutions. This
+            marketplace accelerates the deployment of AI tools but also fosters
+            a community of sharing and innovation. Users can contribute to and
+            leverage this repository of solutions, enhancing the platform's
+            versatility and practicality.
+          </p>
+          <p>
+            Craftgen.ai uses JSON schema for industry-standard alignment,
+            enabling seamless integration with any API following the OpenAPI
+            spec. This allows for a broad range of applications, from automating
+            data analysis to streamlining content management.
+          </p>
+
+          <p>
+            The platform is designed to bridge the gap between advanced AI
+            technology and practical usability. It's a flexible, secure, and
+            intuitive platform that empowers users, from developers seeking to
+            create custom AI solutions to businesses looking to automate routine
+            tasks. Craftgen.ai's goal is to make AI technology an integral,
+            seamless part of everyday problem-solving and innovation, providing
+            a platform where modular AI and a thriving marketplace converge to
+            meet the diverse needs of its users.
+          </p>
+        </div>
+
         <div className="mt-8">
           Join our community on{" "}
           <a
