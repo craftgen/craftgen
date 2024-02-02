@@ -975,18 +975,6 @@ export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
     super("NodeCompleteChat", di, data, CompleteChatMachine, {});
     this.extendMachine({
-      actors: {
-        // completeChat: completeChatMachine,
-        // Thread: ThreadMachine.provide({
-        //   ...(this.baseImplentations as any),
-        // }),
-        // Ollama: OllamaModelMachine.provide({
-        //   ...(this.baseImplentations as any),
-        // }),
-        // OpenAI: OpenaiModelMachine.provide({
-        //   ...(this.baseImplentations as any),
-        // }),
-      },
       actions: {
         updateOutputMessages: assign({
           outputs: ({ context }) => {

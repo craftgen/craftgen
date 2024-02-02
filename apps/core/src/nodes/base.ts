@@ -918,47 +918,18 @@ export abstract class BaseNode<
       });
   }
   public setupActor(actor: Actor<Machine>) {
-    // if (this.unsubscribe) {
-    //   console.log(
-    //     "ACTOR: SETTING UP NEXT ACTOR AND UNSUBSCRIBING FROM PREVIOUS",
-    //   );
-    //   this.unsubscribe();
-    // }
-    const self = this;
-
-    // console.log("setupActor", options);
-    // function withLogging(actorLogic: any) {
-    //   const enhancedLogic = {
-    //     ...actorLogic,
-    //     transition: (state, event, actorCtx) => {
-    //       console.log("State:", state, "Event:", event);
-    //       // Transition state only contains the pre transition state.
-    //       // event getting persisted snapshot will endup with the pre transition state.
-    //       // better persist state in actor subscribe.next listener.
-
-    //       return actorLogic.transition(state, event, actorCtx);
-    //     },
-    //   };
-
-    //   return enhancedLogic;
-    // }
-    // const actor = createActor(withLogging(this.machine), {
-    //   id: this.executionNodeId || this.contextId,
-    //   ...options,
-    // });
-    console.log("@@", actor);
     let prev = actor.getSnapshot();
     const listener = actor.subscribe({
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state: any) => {
-        this.stateEvents.next({
-          executionId: this.executionId,
-          nodeExecutionId: this.executionNodeId,
-          state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
-          readonly: self.readonly,
-        });
+        // this.stateEvents.next({
+        //   executionId: this.executionId,
+        //   nodeExecutionId: this.executionNodeId,
+        //   state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
+        //   readonly: self.readonly,
+        // });
         this.state = state.value;
         console.log("next", state.value, state.context);
         this.setSnap(state);
@@ -990,88 +961,6 @@ export abstract class BaseNode<
 
     return actor;
   }
-
-  // public setupActor(
-  //   options:
-  //     | {
-  //         snapshot: SnapshotFrom<Machine>;
-  //       }
-  //     | {
-  //         input: InputFrom<Machine> | ContextFrom<Machine> | undefined;
-  //       },
-  // ) {
-  //   // if (this.unsubscribe) {
-  //   //   console.log(
-  //   //     "ACTOR: SETTING UP NEXT ACTOR AND UNSUBSCRIBING FROM PREVIOUS",
-  //   //   );
-  //   //   this.unsubscribe();
-  //   // }
-  //   const self = this;
-
-  //   console.log("setupActor", options);
-  //   function withLogging(actorLogic: any) {
-  //     const enhancedLogic = {
-  //       ...actorLogic,
-  //       transition: (state, event, actorCtx) => {
-  //         console.log("State:", state, "Event:", event);
-  //         // Transition state only contains the pre transition state.
-  //         // event getting persisted snapshot will endup with the pre transition state.
-  //         // better persist state in actor subscribe.next listener.
-
-  //         return actorLogic.transition(state, event, actorCtx);
-  //       },
-  //     };
-
-  //     return enhancedLogic;
-  //   }
-  //   const actor = createActor(withLogging(this.machine), {
-  //     id: this.executionNodeId || this.contextId,
-  //     ...options,
-  //   });
-  //   console.log("@@", actor, this.machine, options);
-  //   let prev = actor.getSnapshot();
-  //   const listener = actor.subscribe({
-  //     complete: async () => {
-  //       // this.di.logger.log(this.identifier, "finito main");
-  //     },
-  //     next: async (state: any) => {
-  //       this.stateEvents.next({
-  //         executionId: this.executionId,
-  //         nodeExecutionId: this.executionNodeId,
-  //         state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
-  //         readonly: self.readonly,
-  //       });
-  //       this.state = state.value;
-  //       console.log("next", state.value, state.context);
-  //       this.setSnap(state);
-
-  //       if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
-  //         this.setInputSockets(state.context?.inputSockets || {});
-  //       }
-  //       if (
-  //         !isEqual(prev.context?.outputSockets, state.context.outputSockets)
-  //       ) {
-  //         this.setOutputSockets(state.context?.outputSockets || {});
-  //       }
-
-  //       if (!isEqual(prev.context.outputs, state.context.outputs)) {
-  //         this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-  //       }
-
-  //       // const persistedState = actor.getPersistedSnapshot();
-  //       // this.saveState({ state: persistedState as any });
-  //       // if (!self.readonly) {
-  //       //   saveContextDebounced({ context: persistedState as any });
-  //       // }
-  //       prev = state;
-  //     },
-  //   });
-
-  //   this.actors.set(actor.id, actor);
-  //   this.actorListeners.set(actor.id, listener);
-
-  //   return actor;
-  // }
 
   public async reset() {
     this.actorListeners.forEach((listener) => {

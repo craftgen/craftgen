@@ -9,7 +9,7 @@ import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import {
   setup,
@@ -53,6 +53,7 @@ import {
   JSONSocket,
 } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
+import { Subject, catchError, debounceTime, groupBy, mergeMap, of } from "rxjs";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -230,6 +231,13 @@ export class Editor<
       section?: string;
     }
   >();
+
+  public stateEvents = new Subject<{
+    executionId: string | undefined;
+    nodeExecutionId: string | undefined;
+    state: SnapshotFrom<AnyStateMachine>;
+    readonly: boolean;
+  }>();
 
   public variables = new Map<string, string>();
 
@@ -815,6 +823,7 @@ export class Editor<
     this.content.nodes.forEach((n) => {
       children[n.id] = n.context;
     });
+
     this.actor = createActor(withLogging(this.machine), {
       inspect,
       snapshot: {
@@ -826,19 +835,149 @@ export class Editor<
         },
         error: undefined,
         output: undefined,
-      } as SnapshotFrom<typeof EditorMachine>,
+      } as any,
     });
-    this.actor.subscribe((event) => {
-      console.log("EditorMachine event", event);
-      const persist = this.actor.getPersistedSnapshot();
-      console.log("EditorMachine state", persist);
+
+    this.actor.subscribe({
+      next: (state) => {
+        console.log("EDITOR STATE", state);
+        this.stateEvents.next({
+          executionId: this.executionId,
+          nodeExecutionId: undefined,
+          // executionId: this.executionId,
+          // nodeExecutionId: this.executionNodeId,
+          state:
+            this.actor.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
+          readonly: false,
+        });
+      },
+      error: (error) => {
+        console.error("EDITOR ERROR", error);
+      },
+      complete: () => {
+        console.log("EDITOR COMPLETE");
+      },
     });
+    this.setupEventHandling();
     this.actor.start();
     await this.import(this.content);
 
     this.handleNodeEvents();
 
     await this.setUI();
+  }
+
+  setupEventHandling() {
+    this.stateEvents
+      .pipe(
+        // Group by executionNodeId
+        groupBy((event) => event.nodeExecutionId),
+        // Handle each group separately
+        mergeMap((group) =>
+          group.pipe(
+            debounceTime(1000), // Adjust time as needed
+            // You can add more operators here as needed
+          ),
+        ),
+        mergeMap(async (event) => {
+          console.log("EVENT", event);
+
+          // await match(event)
+          //   .with(
+          //     {
+          //       nodeExecutionId: P.string,
+          //       executionId: P.nullish,
+          //     },
+          //     async (event) => {
+          //       let executionId = this.executionId;
+          //       if (!executionId) {
+          //         console.log("#".repeat(40), "CREATING EXECUTION");
+          //         executionId = await this.di.createExecution(this.id);
+          //       }
+          //       const saved = await this.di.api.setState({
+          //         id: event.nodeExecutionId,
+          //         contextId: this.contextId,
+          //         projectId: this.projectId,
+          //         state: JSON.stringify(event.state),
+          //         type: this.ID,
+          //         workflowExecutionId: executionId,
+          //         workflowId: this.workflowId,
+          //         workflowNodeId: this.id,
+          //         workflowVersionId: this.workflowVersionId,
+          //       });
+          //       console.log({ saved });
+          //     },
+          //   )
+          //   .with(
+          //     {
+          //       nodeExecutionId: P.nullish,
+          //       executionId: P.string,
+          //     },
+          //     async (event) => {
+          //       const nodeExecutionId = this.di.createId("state");
+          //       this.setExecutionNodeId(nodeExecutionId);
+          //       const saved = await this.di.api.setState({
+          //         id: nodeExecutionId,
+          //         contextId: this.contextId,
+          //         projectId: this.projectId,
+          //         state: JSON.stringify(event.state),
+          //         type: this.ID,
+          //         workflowExecutionId: event.executionId,
+          //         workflowId: this.workflowId,
+          //         workflowNodeId: this.id,
+          //         workflowVersionId: this.workflowVersionId,
+          //       });
+          //       console.log({ saved });
+          //     },
+          //   )
+          //   .with(
+          //     {
+          //       nodeExecutionId: P.string,
+          //       executionId: P.string,
+          //     },
+          //     async (event) => {
+          //       const saved = await this.di.api.setState({
+          //         id: event.nodeExecutionId,
+          //         contextId: this.contextId,
+          //         projectId: this.projectId,
+          //         state: JSON.stringify(event.state),
+          //         type: this.ID,
+          //         workflowExecutionId: event.executionId,
+          //         workflowId: this.workflowId,
+          //         workflowNodeId: this.id,
+          //         workflowVersionId: this.workflowVersionId,
+          //       });
+          //       console.log({ saved });
+          //     },
+          //   )
+          //   .with(
+          //     {
+          //       executionId: P.nullish,
+          //       nodeExecutionId: P.nullish,
+          //       readonly: false,
+          //     },
+          //     async (event) => {
+          //       await this.di.api.setContext({
+          //         contextId: this.contextId,
+          //         context: JSON.stringify(event.state),
+          //       });
+          //     },
+          //   )
+          //   .run();
+        }),
+        catchError((error) => {
+          // Handle or log the error
+          return of(error); // or use a more suitable error handling strategy
+        }),
+      )
+      .subscribe({
+        next: async (event) => {
+          console.log("RXJS EVENT", event);
+        },
+        error: (error) => {
+          console.log("RXJS ERROR", error);
+        },
+      });
   }
 
   public async mount(params: {
