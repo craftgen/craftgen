@@ -73,7 +73,7 @@ export default function Home() {
               </a>
             </div>
             <h1 className="text-foreground mt-10 text-4xl font-bold tracking-tight sm:text-6xl">
-              Anyone can build AI workflows that perform at scale with CraftGen
+              Automate your job with AI.
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-8">
               Build useful AI workflows without code. CraftGen is a simple, open
@@ -139,9 +139,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative space-y-8 text-4xl">
+        <div className="relative space-y-8 overflow-hidden  p-4 text-xl sm:text-4xl">
           <div
-            className="absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
+            className=" absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)] "
             aria-hidden="true"
           >
             <div
@@ -152,6 +152,7 @@ export default function Home() {
               }}
             />
           </div>
+          <h4 className="font-black">What is it about?</h4>
           <p className="">
             Craftgen.ai is an innovative AI platform designed for both technical
             and non-technical users. It's built on a foundation of graph
