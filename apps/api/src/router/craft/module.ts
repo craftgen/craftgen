@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isNil } from "lodash-es";
 
 import { and, eq, schema, sql } from "@seocraft/supabase/db";
 
@@ -31,6 +32,25 @@ export const craftModuleRouter = createTRPCRouter({
         throw new Error("Workflow not found 3");
       }
 
+      const userId = ctx.session?.user?.id;
+      let readonly = true;
+      if (userId) {
+        const [isMember] = await ctx.db
+          .select()
+          .from(schema.projectMembers)
+          .where(
+            and(
+              eq(schema.projectMembers.projectId, workflow.project.id),
+              eq(schema.projectMembers.userId, userId),
+            ),
+          )
+          .limit(1);
+
+        if (isMember) {
+          readonly = false;
+        }
+      }
+
       if (!workflow.public && ctx.session.user) {
         // check if user is a member of the project
         const [isMember] = await ctx.db
@@ -49,7 +69,7 @@ export const craftModuleRouter = createTRPCRouter({
       }
 
       let version;
-      if (input.version) {
+      if (!isNil(input.version)) {
         version = await ctx.db.query.workflowVersion.findFirst({
           where: (workflowVersion, { eq, and }) =>
             and(
@@ -73,6 +93,7 @@ export const craftModuleRouter = createTRPCRouter({
       return {
         ...workflow,
         version,
+        readonly,
       };
     }),
 
@@ -92,11 +113,11 @@ export const craftModuleRouter = createTRPCRouter({
           edges: true,
           nodes: {
             with: {
-              context: {
-                columns: {
-                  state: true,
-                },
-              },
+              // context: {
+              //   columns: {
+              //     state: true,
+              //   },
+              // },
             },
           },
         },
@@ -111,7 +132,6 @@ export const craftModuleRouter = createTRPCRouter({
         workflowId: node.workflowId,
         workflowVersionId: node.workflowVersionId,
         contextId: node.contextId,
-        context: node.context.state,
         state: undefined,
         nodeExecutionId: undefined,
         position: node.position,
@@ -198,6 +218,7 @@ export const craftModuleRouter = createTRPCRouter({
                   limit: 1,
                 },
                 edges: true,
+                contexts: true,
                 nodes: {
                   with: {
                     nodeExectutions: {
@@ -228,7 +249,7 @@ export const craftModuleRouter = createTRPCRouter({
                         slug: true,
                       },
                     },
-                    context: true,
+                    // context: true,
                   },
                 },
               },
@@ -253,7 +274,6 @@ export const craftModuleRouter = createTRPCRouter({
           workflowId: node.workflowId,
           workflowVersionId: node.workflowVersionId,
           contextId: node.contextId,
-          context: node.context.state,
           state: node.nodeExectutions.map((ne) => ne.state)[0],
           nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
           position: node.position,
@@ -276,6 +296,7 @@ export const craftModuleRouter = createTRPCRouter({
           currentVersion: workflow.versions.length > 0 ? version.version : 0,
           nodes: contentNodes,
           edges: contentEdges,
+          contexts: version.contexts,
           version,
           execution: workflow?.versions[0]?.executions[0],
           readonly,

@@ -184,7 +184,6 @@ const OpenAIGenerateStructureMachine = createMachine({
   },
   entry: enqueueActions(({ enqueue }) => {
     enqueue("spawnInputActors");
-    enqueue("setupInternalActorConnections");
   }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
@@ -275,7 +274,6 @@ const OpenAIGenerateStructureMachine = createMachine({
         UPDATE_CHILD_ACTORS: {
           actions: enqueueActions(({ enqueue }) => {
             enqueue("spawnInputActors");
-            enqueue("setupInternalActorConnections");
           }),
         },
         SET_VALUE: {

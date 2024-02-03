@@ -69,7 +69,7 @@
     "type-fest": "^4.5.0",
     "usehooks-ts": "^2.9.1",
     "uuid": "^9.0.0",
-    "xstate": "5.4.1",
+    "xstate": "5.6.0",
     "zod": "3.21.4",
     "zustand": "^4.3.9"
   },

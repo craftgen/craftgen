@@ -37,95 +37,55 @@ export type ComponentRegistry = Map<
 >;
 
 export const Composer: React.FC<{
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflowMeta: RouterOutputs["craft"]["module"]["meta"];
   store: any;
-}> = observer(({ workflow, store }) => {
-  const di = useCraftStore((state) => state.di);
-  const utils = api.useUtils();
-  const { data: latestWorkflow, refetch } = api.craft.module.get.useQuery(
+}> = observer(({ workflowMeta, store }) => {
+  const { data: latestWorkflow, isLoading } = api.craft.module.get.useQuery(
     {
-      projectSlug: workflow.project.slug,
-      version: workflow.version.version,
-      workflowSlug: workflow.slug,
-      executionId: workflow?.execution?.id,
+      projectSlug: workflowMeta.project.slug,
+      version: workflowMeta.version?.version!,
+      workflowSlug: workflowMeta.slug,
+      // executionId: workflow?.execution?.id,
     },
     {
-      initialData: workflow,
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
     },
   );
-  const { mutateAsync: upsertNode } = api.craft.node.upsert.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: deleteNode } = api.craft.node.delete.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: saveEdge } = api.craft.edge.create.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: deleteEdge } = api.craft.edge.delete.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: setContext } = api.craft.node.setContext.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: setState } = api.craft.execution.setState.useMutation({
-    onSuccess() {
-      refetch();
-    },
-  });
-  const { mutateAsync: updateNodeMetadata } =
-    api.craft.node.updateMetadata.useMutation({
-      onSuccess() {
-        refetch();
-      },
-    });
-  const { mutateAsync: createExecution } =
-    api.craft.execution.create.useMutation({});
-  const getModule = utils.craft.module.getById.fetch;
-  useEffect(() => {
-    rete?.setContent({
-      nodes: latestWorkflow.nodes as any,
-      edges: latestWorkflow.edges as any,
-    });
-  }, [latestWorkflow]);
 
+  if (isLoading) return <div> Loading </div>;
+  console.log({ latestWorkflow });
+  // return (
+  //   <div>
+  //     <pre>{JSON.stringify(latestWorkflow, null, 2)}</pre>
+  //   </div>
+  // );
+  return <ComposerUI workflow={latestWorkflow} store={store} />;
+});
+
+const ComposerUI = (props: {
+  workflow: RouterOutputs["craft"]["module"]["get"];
+  store: any;
+}) => {
+  const utils = api.useUtils();
   const workflowAPI: Partial<WorkflowAPI> = {
-    upsertNode,
-    deleteNode,
-    saveEdge,
-    deleteEdge,
-    setContext,
-    setState,
-    updateNodeMetadata,
-    createExecution,
-    getModule,
     trpc: utils.client,
   };
   const [map, componentRegistry] = useRegistry<HTMLElement, ReactElement>();
-
   const createEditor = useMemo(() => {
     return createEditorFunc({
-      workflow: latestWorkflow,
-      store: store.current,
+      workflow: props.workflow,
+      store: props.store.current,
       api: workflowAPI,
       componentRegistry,
     });
-  }, [workflow, store.current]);
+  }, [props.workflow, props.store.current]);
   const [ref, rete] = useRete(createEditor);
   useEffect(() => {
     (window as any).Editor = rete;
   }, [rete]);
 
+  const di = useCraftStore((state) => state.di);
   const handleReset = () => {
     di?.reset();
   };
@@ -153,7 +113,7 @@ export const Composer: React.FC<{
   return (
     <div className="h-full w-full">
       <div className="absolute right-1 top-1 z-50 flex ">
-        {workflow.readonly && workflow.version.publishedAt && (
+        {props.workflow.readonly && props.workflow.version?.publishedAt && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -239,4 +199,4 @@ export const Composer: React.FC<{
       </ContextMenuProvider>
     </div>
   );
-});
+};

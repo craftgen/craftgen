@@ -97,10 +97,17 @@ export const socketSchema = z
     "x-isAdvanced": z.boolean().default(false),
     "x-key": z.string(),
     "x-event": z.string().optional(),
+
+    // belongs to parent.
     "x-actor": z.custom<AnyActor>().optional(),
-    "x-actor-ref": z.custom<AnyActorRef>().optional(),
+    "x-actor-id": z.string().optional(),
     "x-actor-type": z.custom<NodeTypes>().optional(),
+
+    // can be used to connect to other nodes actor.
+    "x-actor-ref": z.custom<AnyActorRef>().optional(),
+    "x-actor-ref-id": z.string().optional(),
     "x-actor-ref-type": z.custom<NodeTypes>().optional(),
+
     "x-actor-config": actorConfigRecordSchema,
     "x-connection": connectionConfigRecordSchema,
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),

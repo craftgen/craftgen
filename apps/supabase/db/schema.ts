@@ -140,6 +140,7 @@ export const workflowVersionRelations = relations(
     }),
     edges: many(workflowEdge),
     nodes: many(workflowNode),
+    contexts: many(context),
     previousVersion: one(workflowVersion, {
       fields: [workflowVersion.previousVersionId],
       references: [workflowVersion.id],
@@ -202,10 +203,50 @@ export const context = pgTable("context", {
   project_id: text("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
+  workflow_id: text("workflow_id")
+    .notNull()
+    .references(() => workflow.id, {
+      onDelete: "cascade",
+    }),
+  workflow_version_id: text("workflow_version_id")
+    .notNull()
+    .references(() => workflowVersion.id, { onDelete: "cascade" }),
   previousContextId: text("previous_context_id"),
   type: text("type").notNull(),
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
 });
+
+export const contextRelation = pgTable(
+  "context_relation",
+  {
+    source: text("source")
+      .notNull()
+      .references(() => context.id, { onDelete: "cascade" }),
+    type: text("type").$type<"parent">().notNull(),
+    target: text("target")
+      .notNull()
+      .references(() => context.id, { onDelete: "cascade" }),
+  },
+  (t) => {
+    return {
+      pk: primaryKey(t.source, t.target, t.type),
+    };
+  },
+);
+
+export const contextRelationRelations = relations(
+  contextRelation,
+  ({ one }) => ({
+    source: one(context, {
+      fields: [contextRelation.source],
+      references: [context.id],
+    }),
+    target: one(context, {
+      fields: [contextRelation.target],
+      references: [context.id],
+    }),
+  }),
+);
 
 export const workflowEdge = pgTable(
   "workflow_edge",
@@ -444,6 +485,7 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
   versions: many(workflowVersion),
   edges: many(workflowEdge),
   nodes: many(workflowNode),
+  contexts: many(context),
   executions: many(workflowExecution),
 }));
 
@@ -451,6 +493,7 @@ export const workflowNodeRelations = relations(
   workflowNode,
   ({ one, many }) => ({
     context: one(context, {
+      // the parent Actor for controls the node itself.
       fields: [workflowNode.contextId],
       references: [context.id],
     }),
@@ -475,11 +518,19 @@ export const contextRelations = relations(context, ({ one, many }) => ({
     fields: [context.project_id],
     references: [project.id],
   }),
+  relations: many(contextRelation),
   previousContext: one(context, {
     fields: [context.previousContextId],
     references: [context.id],
   }),
-  workflows: many(workflowNode),
+  workflowVersions: one(workflowVersion, {
+    fields: [context.workflow_version_id],
+    references: [workflowVersion.id],
+  }),
+  workflows: one(workflow, {
+    fields: [context.workflow_id],
+    references: [workflow.id],
+  }),
 }));
 
 export const projectRelations = relations(project, ({ many, one }) => ({

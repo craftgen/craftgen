@@ -1,5 +1,5 @@
 import { z } from "zod";
-
+import { get } from "lodash-es";
 import { and, eq, or, schema } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
@@ -14,7 +14,7 @@ export const craftNodeRouter = createTRPCRouter({
         data: z.object({
           id: z.string(),
           contextId: z.string(),
-          context: z.string().transform((val) => JSON.parse(val)),
+          // context: z.string().transform((val) => JSON.parse(val)),
           type: z.string(),
           width: z.number(),
           height: z.number(),
@@ -30,24 +30,24 @@ export const craftNodeRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       console.log("saveNode", input);
       await ctx.db.transaction(async (tx) => {
-        const [contextOfTheNode] = await tx
-          .select()
-          .from(schema.context)
-          .where(eq(schema.context.id, input.data.contextId))
-          .limit(1);
-        /// This is happens when user deletes the node and then tries to undo it.
-        if (!contextOfTheNode) {
-          // reincarnate the context
-          const [contextUnit] = await tx
-            .insert(schema.context)
-            .values({
-              id: input.data.contextId,
-              project_id: input.projectId,
-              type: input.data.type,
-              state: {} as any,
-            })
-            .returning();
-        }
+        // const [contextOfTheNode] = await tx
+        //   .select()
+        //   .from(schema.context)
+        //   .where(eq(schema.context.id, input.data.contextId))
+        //   .limit(1);
+        // /// This is happens when user deletes the node and then tries to undo it.
+        // if (!contextOfTheNode) {
+        //   // reincarnate the context
+        //   const [contextUnit] = await tx
+        //     .insert(schema.context)
+        //     .values({
+        //       id: input.data.contextId,
+        //       project_id: input.projectId,
+        //       type: input.data.type,
+        //       state: {} as any,
+        //     })
+        //     .returning();
+        // }
         await tx
           .insert(schema.workflowNode)
           .values({
@@ -66,7 +66,6 @@ export const craftNodeRouter = createTRPCRouter({
           .onConflictDoUpdate({
             target: schema.workflowNode.id,
             set: {
-              contextId: input.data.contextId,
               type: input.data.type,
               width: input.data.width,
               height: input.data.height,
@@ -155,9 +154,9 @@ export const craftNodeRouter = createTRPCRouter({
         if (!node) {
           throw new Error("Node not found");
         }
-        await tx
-          .delete(schema.context)
-          .where(eq(schema.context.id, node.contextId)); // TODO: soft delete
+        // await tx
+        //   .delete(schema.context)
+        //   .where(eq(schema.context.id, node.contextId)); // TODO: soft delete
       });
     }),
   getContext: protectedProcedure
@@ -178,14 +177,57 @@ export const craftNodeRouter = createTRPCRouter({
     .input(
       z.object({
         contextId: z.string(),
+        projectId: z.string(),
+        workflowId: z.string(),
+        workflowVersionId: z.string(),
+
         context: z.string().transform((val) => JSON.parse(val)),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(schema.context)
-        .set({ state: input.context as any })
-        .where(eq(schema.context.id, input.contextId));
+      return await ctx.db.transaction(async (tx) => {
+        const newContext = await tx
+          .insert(schema.context)
+          .values({
+            id: input.contextId,
+            project_id: input.projectId,
+            type: input.context.src,
+            state: input.context as any,
+            workflow_id: input.workflowId,
+            workflow_version_id: input.workflowVersionId,
+          })
+          .onConflictDoUpdate({
+            target: schema.context.id,
+            set: {
+              state: input.context as any,
+            },
+          })
+          .returning();
+
+        const parentId = get(input.context, "snapshot.context.parent.id");
+        if (parentId) {
+          const parent = await tx.query.context.findFirst({
+            where: (context, { eq }) => eq(context.id, parentId),
+            columns: {
+              id: true,
+            },
+          });
+          if (parent) {
+            await tx
+              .insert(schema.contextRelation)
+              .values({
+                source: parent.id,
+                target: input.contextId,
+                type: "parent",
+              })
+              .onConflictDoNothing();
+          } else {
+            console.log("parent not found", parentId);
+          }
+        }
+
+        return newContext;
+      });
     }),
   updateMetadata: protectedProcedure
     .input(

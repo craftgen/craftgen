@@ -39,6 +39,7 @@ export async function createEditor(params: {
   store: ReteStoreInstance;
   componentRegistry: Actions<HTMLElement, ReactNode>;
 }) {
+  console.log("BEFORE", params.workflow);
   const di = new Editor({
     config: {
       nodes,
@@ -64,46 +65,18 @@ export async function createEditor(params: {
         executionId: params.workflow?.execution?.id,
       },
       api: {
-        async checkAPIKeyExist(params) {
-          return true;
-        },
-        async triggerWorkflowExecutionStep(params) {},
         trpc: params.api.trpc!,
-        getAPIKey: params.api.getAPIKey!,
-        createExecution: params.api.createExecution!,
-        updateNodeMetadata: params.api.updateNodeMetadata!,
-        upsertNode: params.api.upsertNode!,
-        deleteNode: params.api.deleteNode!,
-        saveEdge: params.api.saveEdge!,
-        deleteEdge: params.api.deleteEdge!,
-        setState: params.api.setState!,
-        setContext: params.api.setContext!,
-        getModule: params.api.getModule!,
-        async getModulesMeta(params) {
-          return [
-            {
-              name: "test",
-              version: "1.0.0",
-              description: "test",
-              id: "test",
-            },
-          ];
-        },
       },
     },
     content: {
       nodes: params.workflow.nodes,
       edges: params.workflow.edges,
+      contexts: params.workflow.contexts,
     },
   });
 
   const render = new ReactPlugin<Schemes, AreaExtra<Schemes>>({
     createPortal: params.componentRegistry,
-    // createPortal,
-    // createRoot: (container) =>
-    //   createRoot(container, {
-    //     identifierPrefix: "rete-",
-    //   }),
   });
   render.addPreset(
     Presets.classic.setup({

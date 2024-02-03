@@ -398,243 +398,243 @@ export abstract class BaseNode<
     },
   };
 
-  public baseActions: MachineImplementationsFrom<BaseMachine>["actions"] = {
-    removeError: assign({
-      error: () => null,
-    }),
-    setError: assign({
-      error: ({ event }, params) => {
-        console.error("setError", event);
-        return {
-          name: params?.name || event?.params?.name || "Error",
-          message:
-            params?.message || event?.params?.message || "Something went wrong",
-          err: params?.stack || event.error,
-        };
-      },
-    }),
-    changeAction: assign({
-      inputSockets: ({ event }) => event.inputSockets,
-      outputSockets: ({ event }) => event.outputSockets,
-      action: ({ event, context }) => ({
-        ...context.action,
-        type: event.value,
-      }),
-    }),
-    spawnInputActors: enqueueActions(({ enqueue, context }) => {
-      for (const [key, value] of Object.entries<JSONSocket>(
-        context.inputSockets,
-      )) {
-        if (
-          (value["x-actor-type"] && isNil(value["x-actor"])) ||
-          value["x-actor-type"] !== value["x-actor-ref-type"]
-        ) {
-          const actorId = this.di.createId("node");
-          this.di.actor.send({
-            type: "SPAWN",
-            params: {
-              id: actorId,
-              machineId: value["x-actor-type"]!,
-              systemId: actorId,
-              input: {
-                inputs: {
-                  ...(value.default as any),
-                },
-              } as any,
-            },
-          });
-          enqueue.assign({
-            inputSockets: ({ context, spawn }) => {
-              // const actor = spawn(value["x-actor-type"], {
-              //   id: `${value["x-actor-type"]}_${createId()}`,
-              //   input: {
-              //     inputs: {
-              //       ...value.default,
-              //     },
-              //   },
-              //   syncSnapshot: true,
-              // });
+  // public baseActions: MachineImplementationsFrom<BaseMachine>["actions"] = {
+  //   removeError: assign({
+  //     error: () => null,
+  //   }),
+  //   setError: assign({
+  //     error: ({ event }, params) => {
+  //       console.error("setError", event);
+  //       return {
+  //         name: params?.name || event?.params?.name || "Error",
+  //         message:
+  //           params?.message || event?.params?.message || "Something went wrong",
+  //         err: params?.stack || event.error,
+  //       };
+  //     },
+  //   }),
+  //   changeAction: assign({
+  //     inputSockets: ({ event }) => event.inputSockets,
+  //     outputSockets: ({ event }) => event.outputSockets,
+  //     action: ({ event, context }) => ({
+  //       ...context.action,
+  //       type: event.value,
+  //     }),
+  //   }),
+  //   spawnInputActors: enqueueActions(({ enqueue, context }) => {
+  //     for (const [key, value] of Object.entries<JSONSocket>(
+  //       context.inputSockets,
+  //     )) {
+  //       if (
+  //         (value["x-actor-type"] && isNil(value["x-actor"])) ||
+  //         value["x-actor-type"] !== value["x-actor-ref-type"]
+  //       ) {
+  //         const actorId = this.di.createId("node");
+  //         this.di.actor.send({
+  //           type: "SPAWN",
+  //           params: {
+  //             id: actorId,
+  //             machineId: value["x-actor-type"]!,
+  //             systemId: actorId,
+  //             input: {
+  //               inputs: {
+  //                 ...(value.default as any),
+  //               },
+  //             } as any,
+  //           },
+  //         });
+  //         enqueue.assign({
+  //           inputSockets: ({ context, spawn }) => {
+  //             // const actor = spawn(value["x-actor-type"], {
+  //             //   id: `${value["x-actor-type"]}_${createId()}`,
+  //             //   input: {
+  //             //     inputs: {
+  //             //       ...value.default,
+  //             //     },
+  //             //   },
+  //             //   syncSnapshot: true,
+  //             // });
 
-              return {
-                ...context.inputSockets,
-                [key]: {
-                  ...context.inputSockets[key],
-                  "x-actor": this.di.actor.system.get(actorId),
-                  "x-actor-ref": this.di.actor.system.get(actorId).ref,
-                  "x-actor-ref-type": value["x-actor-type"],
-                } as Partial<JSONSocket>,
-              };
-            },
-          });
-        }
-      }
-    }),
-    setupInternalActorConnections: async (
-      action: ActionArgs<ContextFrom<BaseMachine>, any, any>,
-    ) => {
-      const { context } = action;
-      const { inputSockets } = context;
-      for (const socket of Object.values<JSONSocket>(inputSockets)) {
-        if (socket["x-actor-config"]) {
-          const conf = socket["x-actor-config"][socket["x-actor-type"]!];
-          if (!conf) {
-            console.error("Missing config for", socket["x-actor-type"]);
-            continue;
-          }
-          for (const [key, value] of Object.entries(conf?.internal)) {
-            console.log("$@$@", {
-              key,
-              value,
-            });
-            socket["x-actor"]?.send({
-              type: "UPDATE_SOCKET",
-              params: {
-                name: key,
-                side: "output",
-                socket: {
-                  "x-connection": {
-                    ...socket["x-connection"],
-                    [this.id]: {
-                      key: value,
-                      actorRef: this.actor.ref,
-                    },
-                  } as ConnectionConfigRecord,
-                },
-              },
-            });
-          }
-        }
-      }
-    },
+  //             return {
+  //               ...context.inputSockets,
+  //               [key]: {
+  //                 ...context.inputSockets[key],
+  //                 "x-actor": this.di.actor.system.get(actorId),
+  //                 "x-actor-ref": this.di.actor.system.get(actorId).ref,
+  //                 "x-actor-ref-type": value["x-actor-type"],
+  //               } as Partial<JSONSocket>,
+  //             };
+  //           },
+  //         });
+  //       }
+  //     }
+  //   }),
+  //   setupInternalActorConnections: async (
+  //     action: ActionArgs<ContextFrom<BaseMachine>, any, any>,
+  //   ) => {
+  //     const { context } = action;
+  //     const { inputSockets } = context;
+  //     for (const socket of Object.values<JSONSocket>(inputSockets)) {
+  //       if (socket["x-actor-config"]) {
+  //         const conf = socket["x-actor-config"][socket["x-actor-type"]!];
+  //         if (!conf) {
+  //           console.error("Missing config for", socket["x-actor-type"]);
+  //           continue;
+  //         }
+  //         for (const [key, value] of Object.entries(conf?.internal)) {
+  //           console.log("$@$@", {
+  //             key,
+  //             value,
+  //           });
+  //           socket["x-actor"]?.send({
+  //             type: "UPDATE_SOCKET",
+  //             params: {
+  //               name: key,
+  //               side: "output",
+  //               socket: {
+  //                 "x-connection": {
+  //                   ...socket["x-connection"],
+  //                   [this.id]: {
+  //                     key: value,
+  //                     actorRef: this.actor.ref,
+  //                   },
+  //                 } as ConnectionConfigRecord,
+  //               },
+  //             },
+  //           });
+  //         }
+  //       }
+  //     }
+  //   },
 
-    syncConnection: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        nodeId: string;
-        outputKey: string;
-        inputKey: string;
-      },
-    ) => {
-      if (!params) {
-        throw new Error("Missing params");
-      }
-      const targetNode = this.di.editor.getNode(params?.nodeId);
-      console.group("syncConnection");
-      console.log("NODES", this.di.editor.getNodes());
-      console.log("syncConnection", this.identifier, params);
-      console.log("targetNode", targetNode);
-      console.groupEnd();
-      if (targetNode) {
-        targetNode.actor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [params.inputKey]: action.context.outputs[params.outputKey],
-            },
-          },
-        });
-      }
-    },
-    triggerNode: async (
-      action: ActionArgs<any, any, any>,
-      params: {
-        nodeId: string;
-        event: {
-          type: string;
-          params: {
-            executionNodeId?: string;
-            values?: Record<string, any>;
-            sender?: AnyActorRef;
-          };
-        };
-      },
-    ) => {
-      if (!params) {
-        throw new Error("Missing params");
-      }
-      const targetNode = this.di.editor.getNode(params?.nodeId);
-      if (!targetNode) {
-        throw new Error("Missing targetNode");
-      }
+  //   syncConnection: async (
+  //     action: ActionArgs<any, any, any>,
+  //     params?: {
+  //       nodeId: string;
+  //       outputKey: string;
+  //       inputKey: string;
+  //     },
+  //   ) => {
+  //     if (!params) {
+  //       throw new Error("Missing params");
+  //     }
+  //     const targetNode = this.di.editor.getNode(params?.nodeId);
+  //     console.group("syncConnection");
+  //     console.log("NODES", this.di.editor.getNodes());
+  //     console.log("syncConnection", this.identifier, params);
+  //     console.log("targetNode", targetNode);
+  //     console.groupEnd();
+  //     if (targetNode) {
+  //       targetNode.actor.send({
+  //         type: "SET_VALUE",
+  //         params: {
+  //           values: {
+  //             [params.inputKey]: action.context.outputs[params.outputKey],
+  //           },
+  //         },
+  //       });
+  //     }
+  //   },
+  //   triggerNode: async (
+  //     action: ActionArgs<any, any, any>,
+  //     params: {
+  //       nodeId: string;
+  //       event: {
+  //         type: string;
+  //         params: {
+  //           executionNodeId?: string;
+  //           values?: Record<string, any>;
+  //           sender?: AnyActorRef;
+  //         };
+  //       };
+  //     },
+  //   ) => {
+  //     if (!params) {
+  //       throw new Error("Missing params");
+  //     }
+  //     const targetNode = this.di.editor.getNode(params?.nodeId);
+  //     if (!targetNode) {
+  //       throw new Error("Missing targetNode");
+  //     }
 
-      params.event.params.sender = this.pactor.ref;
-      targetNode.actor.send(params.event);
-    },
-    setExecutionNodeId: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        executionNodeId?: string;
-      },
-    ) => {
-      if (params?.executionNodeId) {
-        this.setExecutionNodeId(params?.executionNodeId);
-      } else {
-        this.setExecutionNodeId(this.di.createId("state"));
-      }
-      this.setup();
-    },
-    triggerSuccessors: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        port: string;
-      },
-    ) => {
-      console.log("triggerSuccessors", action, params);
-      if (!params?.port) {
-        throw new Error("Missing params");
-      }
-      const port = action.context.outputSockets[params?.port];
-      await this.triggerSuccessors(port);
-    },
-    updateSocket: assign({
-      inputSockets: ({ context, event }) => {
-        if (event.params.side === "input") {
-          console.log("updateSocket", event);
-          return {
-            ...context.inputSockets,
-            [event.params.name]: {
-              ...context.inputSockets[event.params.name],
-              ...event.params.socket,
-            },
-          };
-        }
-        return context.inputSockets;
-      },
-      outputSockets: ({ context, event }) => {
-        if (event.params.side === "output") {
-          console.log("updateSocket", event);
-          return {
-            ...context.outputSockets,
-            [event.params.name]: {
-              ...context.outputSockets[event.params.name],
-              ...event.params.socket,
-            },
-          };
-        }
-        return context.outputSockets;
-      },
-    }),
-    setValue: assign({
-      inputs: ({ context, event }, params: { values: Record<string, any> }) => {
-        const values = event.params?.values || params?.values;
-        Object.keys(context.inputs).forEach((key) => {
-          if (!context.inputSockets[key]) {
-            delete context.inputs[key];
-          }
-        });
-        Object.keys(values).forEach((key) => {
-          if (!context.inputSockets[key]) {
-            delete values[key];
-          }
-        });
+  //     params.event.params.sender = this.pactor.ref;
+  //     targetNode.actor.send(params.event);
+  //   },
+  //   setExecutionNodeId: async (
+  //     action: ActionArgs<any, any, any>,
+  //     params?: {
+  //       executionNodeId?: string;
+  //     },
+  //   ) => {
+  //     if (params?.executionNodeId) {
+  //       this.setExecutionNodeId(params?.executionNodeId);
+  //     } else {
+  //       this.setExecutionNodeId(this.di.createId("state"));
+  //     }
+  //     this.setup();
+  //   },
+  //   triggerSuccessors: async (
+  //     action: ActionArgs<any, any, any>,
+  //     params?: {
+  //       port: string;
+  //     },
+  //   ) => {
+  //     console.log("triggerSuccessors", action, params);
+  //     if (!params?.port) {
+  //       throw new Error("Missing params");
+  //     }
+  //     const port = action.context.outputSockets[params?.port];
+  //     await this.triggerSuccessors(port);
+  //   },
+  //   updateSocket: assign({
+  //     inputSockets: ({ context, event }) => {
+  //       if (event.params.side === "input") {
+  //         console.log("updateSocket", event);
+  //         return {
+  //           ...context.inputSockets,
+  //           [event.params.name]: {
+  //             ...context.inputSockets[event.params.name],
+  //             ...event.params.socket,
+  //           },
+  //         };
+  //       }
+  //       return context.inputSockets;
+  //     },
+  //     outputSockets: ({ context, event }) => {
+  //       if (event.params.side === "output") {
+  //         console.log("updateSocket", event);
+  //         return {
+  //           ...context.outputSockets,
+  //           [event.params.name]: {
+  //             ...context.outputSockets[event.params.name],
+  //             ...event.params.socket,
+  //           },
+  //         };
+  //       }
+  //       return context.outputSockets;
+  //     },
+  //   }),
+  //   setValue: assign({
+  //     inputs: ({ context, event }, params: { values: Record<string, any> }) => {
+  //       const values = event.params?.values || params?.values;
+  //       Object.keys(context.inputs).forEach((key) => {
+  //         if (!context.inputSockets[key]) {
+  //           delete context.inputs[key];
+  //         }
+  //       });
+  //       Object.keys(values).forEach((key) => {
+  //         if (!context.inputSockets[key]) {
+  //           delete values[key];
+  //         }
+  //       });
 
-        return {
-          ...context.inputs,
-          ...values,
-        };
-      },
-    }),
-  };
+  //       return {
+  //         ...context.inputs,
+  //         ...values,
+  //       };
+  //     },
+  //   }),
+  // };
 
   public baseImplentations: MachineImplementationsFrom<Machine> = {
     guards: this.baseGuards,
@@ -739,7 +739,7 @@ export abstract class BaseNode<
   }
 
   public setup() {
-    this.actor = this.setupActor(this.di.actor.system.get(this.id));
+    this.actor = this.setupActor(this.di.actor.system.get(this.contextId));
     // if (this.nodeData.state) {
     //   // EXECUTION STATE
     //   const actorInput = {

@@ -84,11 +84,11 @@ export const craftVersionRouter = createTRPCRouter({
             with: {
               nodes: {
                 with: {
-                  context: {
-                    with: {
-                      previousContext: true,
-                    },
-                  },
+                  // context: {
+                  //   with: {
+                  //     previousContext: true,
+                  //   },
+                  // },
                 },
               },
               edges: true,

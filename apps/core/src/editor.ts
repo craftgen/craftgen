@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { debounce, get, isNil, set } from "lodash-es";
+import { cloneDeep, debounce, get, isNil } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -25,8 +25,9 @@ import {
   MachineImplementationsFrom,
   ActionArgs,
   assertEvent,
+  AnyActorRef,
 } from "xstate";
-import { createBrowserInspector } from "@statelyai/inspect";
+// import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -53,7 +54,18 @@ import {
   JSONSocket,
 } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
-import { Subject, catchError, debounceTime, groupBy, mergeMap, of } from "rxjs";
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  from,
+  groupBy,
+  map,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -103,15 +115,19 @@ export interface EditorProps<
   content?: {
     nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
     edges: SetOptional<ConnProps, "id">[];
+    contexts: SnapshotFrom<AnyStateMachine>[];
   };
 }
 
-const { inspect } = createBrowserInspector();
+// const { inspect } = createBrowserInspector();
 
 const EditorMachine = setup({
   types: {
     context: {} as {
-      actors: Record<string, AnyActor>;
+      actors: Record<string, AnyActorRef>;
+    },
+    input: {} as {
+      actors: Record<string, AnyActorRef>;
     },
     events: {} as
       | {
@@ -138,9 +154,12 @@ const EditorMachine = setup({
   id: "Editor",
   description:
     "Editor machine responsible of spawning and destroying node actors.",
-  context: {
-    actors: {},
+  context: ({ input }) => {
+    return {
+      ...input,
+    };
   },
+
   initial: "idle",
   states: {
     idle: {
@@ -151,6 +170,13 @@ const EditorMachine = setup({
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );
+            enqueue.assign({
+              actors: ({ context, event }) => {
+                const actors = { ...context.actors };
+                delete actors[event.params.id];
+                return actors;
+              },
+            });
           }),
         },
         SPAWN: {
@@ -158,11 +184,20 @@ const EditorMachine = setup({
             "Spawn a node actor and inline actors. (a.k.a nested actors)",
           actions: enqueueActions(
             ({ enqueue, event, context, check, system }) => {
-              enqueue.spawnChild(event.params.machineId, {
-                input: event.params.input,
-                id: event.params.id,
-                syncSnapshot: true,
-                systemId: event.params.systemId,
+              console.log("REQUEST FOR SPAWN", event);
+              enqueue.assign({
+                actors: ({ spawn, context }) => {
+                  const actor = spawn(event.params.machineId, {
+                    input: event.params.input,
+                    id: event.params.id,
+                    syncSnapshot: true,
+                    systemId: event.params.systemId,
+                  });
+                  return {
+                    ...context.actors,
+                    [event.params.id]: actor,
+                  };
+                },
               });
             },
           ),
@@ -242,11 +277,13 @@ export class Editor<
   public variables = new Map<string, string>();
 
   public content = {
+    contexts: [] as SnapshotFrom<AnyStateMachine>[],
     nodes: [] as NodeWithState<Registry>[],
     edges: [] as SetOptional<ConnProps, "id">[],
   };
 
   public setContent(content: {
+    contexts: SnapshotFrom<AnyStateMachine>[];
     nodes: NodeWithState<Registry>[];
     edges: SetOptional<ConnProps, "id">[];
   }) {
@@ -308,7 +345,7 @@ export class Editor<
   public handlers: EditorHandlers;
 
   public machine: typeof EditorMachine;
-  public actor: Actor<typeof EditorMachine>;
+  public actor: Actor<typeof EditorMachine> | undefined;
 
   public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
     hasConnection: (
@@ -398,7 +435,9 @@ export class Editor<
             [port]: {
               ...socket,
               "x-actor": event.params.actor,
+              "x-actor-id": event.params.actor.id,
               "x-actor-ref": event.params.actor,
+              "x-actor-ref-id": event.params.actor.id,
               "x-actor-ref-type": event.params.actor.src,
             } as Partial<JSONSocket>,
           };
@@ -435,33 +474,73 @@ export class Editor<
         });
       }
     }),
-    spawnInputActors: enqueueActions(({ enqueue, context }) => {
+    spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
+      console.log("SPAWN INPUT ACTORS");
       for (const [key, value] of Object.entries<JSONSocket>(
         context.inputSockets,
       )) {
-        if (
-          (value["x-actor-type"] && isNil(value["x-actor"])) ||
-          value["x-actor-type"] !== value["x-actor-ref-type"]
-        ) {
-          const actorId = this.createId("node");
-          enqueue.sendTo(this.actor.ref, ({ self }) => ({
-            type: "SPAWN",
-            params: {
-              parent: self.id,
-              id: actorId,
-              machineId: value["x-actor-type"]!,
-              systemId: actorId,
-              input: {
-                inputs: {
-                  ...(value.default as any),
+        if (value["x-actor-type"]) {
+          // has a child actor.
+
+          if (isNil(value["x-actor"]) || isNil(value["x-actor-ref"])) {
+            // actor not spawned yet.
+            if (value["x-actor-ref-id"] || value["x-actor-id"]) {
+              console.log("SPAWN Assigning actor");
+              // actor id exists but not the actor. link it.
+              const actorRef = system.get(value["x-actor-ref-id"]!);
+              if (!actorRef) {
+                console.error("ACTOR NOT FOUND", value["x-actor-ref-id"]);
+              }
+              enqueue.assign({
+                inputSockets: ({ context }) => {
+                  return {
+                    ...context.inputSockets,
+                    [key]: {
+                      ...context.inputSockets[key],
+                      "x-actor-ref": actorRef,
+                    },
+                  };
                 },
-                parent: {
-                  id: self.id,
-                  port: key,
+              });
+              console.log("SPAWN Assigning actor");
+              // actor id exists but not the actor. link it.
+              const actor = system.get(value["x-actor-id"]!);
+              if (!actor) {
+                console.error("ACTOR NOT FOUND", value["x-actor-id"]);
+              }
+              enqueue.assign({
+                inputSockets: ({ context }) => {
+                  return {
+                    ...context.inputSockets,
+                    [key]: {
+                      ...context.inputSockets[key],
+                      "x-actor": actor,
+                    },
+                  };
                 },
-              } as any,
-            },
-          }));
+              });
+            } else {
+              const actorId = this.createId("context");
+              enqueue.sendTo(this.actor.ref, ({ self }) => ({
+                type: "SPAWN",
+                params: {
+                  parent: self.id,
+                  id: actorId,
+                  machineId: value["x-actor-type"]!,
+                  systemId: actorId,
+                  input: {
+                    inputs: {
+                      ...(value.default as any),
+                    },
+                    parent: {
+                      id: self.id,
+                      port: key,
+                    },
+                  } as any,
+                },
+              }));
+            }
+          }
         }
       }
     }),
@@ -685,9 +764,11 @@ export class Editor<
     });
 
     this.api = props.config.api;
+    console.log("DATA IN ======>", props.content);
     this.content = {
       nodes: (props.content?.nodes as NodeWithState<Registry>[]) || [],
       edges: props.content?.edges || [],
+      contexts: props.content?.contexts || [],
     };
     this.validateNodes(this.content);
 
@@ -703,7 +784,7 @@ export class Editor<
     return `${prefix}_${createId()}`;
   }
 
-  public createNodeInstance(
+  public async createNodeInstance(
     node: ConvertToNodeWithState<Registry, ParsedNode<any, any>>,
   ) {
     const nodeMeta = this.nodeMeta.get(node.type);
@@ -711,16 +792,25 @@ export class Editor<
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
     const nodeClass = nodeMeta.class;
-    console.log("CREATING NODE", node.state, node.context);
-    this.actor.send({
-      type: "SPAWN",
-      params: {
-        id: node.id,
-        machineId: node.type as string,
-        input: node.state,
-        systemId: node.id,
-      },
-    });
+    const nodeActor = this.actor.system.get(node.contextId);
+    if (!nodeActor) {
+      console.log(
+        "ACTOR NOT FOUND | SPAWNING",
+        node.id,
+        node.contextId,
+        node.type,
+        node.state,
+      );
+      this.actor.send({
+        type: "SPAWN",
+        params: {
+          id: node.contextId,
+          machineId: node.type as string,
+          input: node.state,
+          systemId: node.contextId, // context
+        },
+      });
+    }
     console.log("EDITOR STATE", this.actor.getPersistedSnapshot());
 
     return new nodeClass(this, node);
@@ -755,7 +845,7 @@ export class Editor<
         throw new Error("Can not add self module");
       }
     }
-    const newNode = this.createNodeInstance({
+    const newNode = await this.createNodeInstance({
       type: node,
       label: meta?.label ?? nodeMeta?.label,
       id: this.createId("node"),
@@ -772,7 +862,9 @@ export class Editor<
   }
 
   public async createEditor(workflowVersionId: string) {
-    const workflow = await this.api.getModule({ versionId: workflowVersionId });
+    const workflow = await this.api.trpc.craft.module.getById.query({
+      versionId: workflowVersionId,
+    });
     const di = new Editor({
       config: {
         api: this.api,
@@ -814,29 +906,77 @@ export class Editor<
     // this.variables.set("OPENAI_API_KEY", openai);
   }
 
+  public async nuke() {
+    const snap = this.actor?.getPersistedSnapshot();
+    console.log(snap);
+    this.actor?.stop();
+
+    this.actor = undefined;
+
+    this.actor = createActor(this.machine, {
+      snapshot: cloneDeep(snap),
+    });
+
+    for (const [key, value] of Object.entries(snap.context.actors)) {
+      const actor = this.actor.system.get(key);
+      actor.send({
+        type: "UPDATE_CHILD_ACTORS",
+      });
+    }
+
+    this.actor.start();
+  }
+
   public async setup() {
     this.editor.use(this.engine);
     this.editor.use(this.dataFlow);
 
+    console.log("IN SETUP 1", this.content);
     await this.setupEnv();
     const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
-    this.content.nodes.forEach((n) => {
-      children[n.id] = n.context;
+    this.content.contexts.forEach((n: any) => {
+      children[n.id] = n.state;
     });
 
-    this.actor = createActor(withLogging(this.machine), {
-      inspect,
-      snapshot: {
-        value: "idle",
-        status: "active",
-        children,
-        context: {
-          actors: {},
-        },
-        error: undefined,
-        output: undefined,
-      } as any,
+    console.log("IN SETUP 2", this.content, children);
+
+    const snapshot = {
+      value: "idle",
+      status: "active",
+      children,
+      context: {
+        actors: {},
+      },
+      error: undefined,
+      output: undefined,
+    } as any;
+
+    function withPersistance(actorLogic: any) {
+      const enhancedLogic = {
+        ...actorLogic,
+        // transition: (state, event, actorCtx) => {
+        //   if (event.type.startsWith("xstate.snapshot")) {
+        //     self.stateEvents.next({
+        //       executionId: self.executionId,
+        //       nodeExecutionId: undefined,
+        //       state: event.snapshot,
+        //       readonly: false,
+        //     });
+        //   }
+        //   return actorLogic.transition(state, event, actorCtx);
+        // },
+      };
+
+      return enhancedLogic;
+    }
+
+    this.actor = createActor(withLogging(withPersistance(this.machine)), {
+      // inspect,
+      snapshot: cloneDeep(snapshot),
     });
+
+    console.log("IN SETUP 3", this.content, snapshot, this.actor);
+    // return;
 
     this.actor.subscribe({
       next: (state) => {
@@ -844,10 +984,8 @@ export class Editor<
         this.stateEvents.next({
           executionId: this.executionId,
           nodeExecutionId: undefined,
-          // executionId: this.executionId,
-          // nodeExecutionId: this.executionNodeId,
           state:
-            this.actor.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
+            this.actor?.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
           readonly: false,
         });
       },
@@ -859,8 +997,15 @@ export class Editor<
       },
     });
     this.setupEventHandling();
-    this.actor.start();
     await this.import(this.content);
+
+    this.actor.start();
+    for (const [key, value] of Object.entries(children)) {
+      const actor = this.actor.system.get(key);
+      actor.send({
+        type: "UPDATE_CHILD_ACTORS",
+      });
+    }
 
     this.handleNodeEvents();
 
@@ -871,16 +1016,50 @@ export class Editor<
     this.stateEvents
       .pipe(
         // Group by executionNodeId
-        groupBy((event) => event.nodeExecutionId),
-        // Handle each group separately
-        mergeMap((group) =>
-          group.pipe(
-            debounceTime(1000), // Adjust time as needed
-            // You can add more operators here as needed
+        tap((event) => console.log("$@$@", event)),
+        map((event) => Object.values(event.state.children)),
+
+        switchMap((children) =>
+          from(children).pipe(
+            groupBy((child: SnapshotFrom<AnyActor>) => child.systemId),
+            mergeMap((group) =>
+              group.pipe(
+                debounceTime(1000), // Adjust time as needed
+                map(async (child) => {
+                  console.log("CHILD", child.systemId, child.src, child);
+                  return await this.api.trpc.craft.node.setContext.mutate({
+                    contextId: child.systemId,
+                    workflowId: this.workflowId,
+                    workflowVersionId: this.workflowVersionId,
+                    projectId: this.projectId,
+                    context: JSON.stringify(child),
+                  });
+                }),
+              ),
+            ),
           ),
         ),
+        // groupBy((event) => event.),
+        // // Handle each group separately
+        // mergeMap((group) =>
+        //   group.pipe(
+        //     debounceTime(1000), // Adjust time as needed
+        //     // You can add more operators here as needed
+        //     map((event) => Object.entries(event.state.children)), // Map each entry of the children object
+        //   ),
+        // ),
+        // tap((event) => console.log("$@$@", event)),
         mergeMap(async (event) => {
           console.log("EVENT", event);
+          // this.api.trpc.craft.node.setContext.mutate({
+          //   versionId: this.workflowVersionId,
+          //   context: JSON.stringify(event.state),
+          // });
+          // })
+          // await this.api.setContext({
+          //   contextId: this.contextId,
+          //   context: JSON.stringify(event.state),
+          // });
 
           // await match(event)
           //   .with(
@@ -1212,8 +1391,8 @@ export class Editor<
   }) {
     for (const n of nodes) {
       if (this.editor.getNode(n.id)) continue;
-      const node = this.createNodeInstance(n);
-      // console.log({ node });
+      const node = await this.createNodeInstance(n);
+      console.log({ node });
       await this.editor.addNode(node);
     }
 
@@ -1354,7 +1533,7 @@ export class Editor<
           console.log("nodecreated", { data });
           const size = data.size;
           await queue.add(() =>
-            this.api.upsertNode({
+            this.api.trpc.craft.node.upsert.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
               projectId: this.projectId,
@@ -1364,7 +1543,7 @@ export class Editor<
                 color: "default",
                 label: data.label,
                 contextId: data.contextId,
-                context: JSON.stringify(data.actor.getSnapshot().context),
+                // context: JSON.stringify(data.actor.getSnapshot().context),
                 position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
                 ...size,
               },
@@ -1384,7 +1563,7 @@ export class Editor<
             },
           });
           await queue.add(() =>
-            this.api.deleteNode({
+            this.api.trpc.craft.node.delete.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
               data: {
@@ -1397,7 +1576,7 @@ export class Editor<
         .with({ type: "connectioncreated" }, async ({ data }) => {
           console.log("connectioncreated", { data });
           await queue.add(() =>
-            this.api.saveEdge({
+            this.api.trpc.craft.edge.create.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
               data: JSON.parse(JSON.stringify(data.toJSON())),
@@ -1417,7 +1596,7 @@ export class Editor<
           console.log("connectionremoved", { data });
           await data.destroy();
           await queue.add(() =>
-            this.api.deleteEdge({
+            this.api.trpc.craft.edge.delete.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
               data: JSON.parse(JSON.stringify(data.toJSON())),
@@ -1457,7 +1636,7 @@ export class Editor<
   public async createExecution(entryNodeId?: string) {
     if (!this.executionId) {
       const input = entryNodeId || this.rootNodes[0]?.id;
-      const { id } = await this.api.createExecution({
+      const { id } = await this.api.trpc.craft.execution.create.mutate({
         workflowId: this.workflowId,
         workflowVersionId: this.workflowVersionId,
         input: {
@@ -1528,7 +1707,10 @@ export class Editor<
   }
 
   private handleAreaEvents() {
-    const updateMeta = debounce(this.api.updateNodeMetadata, 500);
+    const updateMeta = debounce(
+      this.api.trpc.craft.node.updateMetadata.mutate,
+      500,
+    );
     const positionUpdate = debounce((position: Position) => {
       this.setCursorPosition(position);
     }, 10);

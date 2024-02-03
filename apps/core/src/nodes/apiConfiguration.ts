@@ -147,9 +147,9 @@ export const ApiConfigurationMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      "*": {
+      UPDATE_CHILD_ACTORS: {
         actions: enqueueActions(({ enqueue }) => {
-          // enqueue("updateOutput");
+          enqueue("spawnInputActors");
         }),
       },
       SET_VALUE: {

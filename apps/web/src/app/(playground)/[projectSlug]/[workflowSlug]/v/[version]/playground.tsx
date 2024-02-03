@@ -143,7 +143,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["craft"]["module"]["meta"];
   session: Session | null;
 }> = observer(({ workflow, session }) => {
   const params = useParams();
@@ -155,12 +155,12 @@ export const Playground: React.FC<{
         (workflow.layout as FlexLayout.IJsonModel) || defaultLayout,
       ),
       theme,
-      readonly: workflow.readonly,
+      readonly: false,
       projectId: workflow.project.id,
       projectSlug: params.projectSlug as string,
       workflowId: workflow.id,
       workflowSlug: params.playgroundSlug as string,
-      workflowVersionId: workflow.version.id,
+      workflowVersionId: workflow.version?.id,
     }),
   );
 
@@ -172,7 +172,6 @@ export const Playground: React.FC<{
     setTheme(theme || "light");
   }, [theme]);
 
-  // TODO: WHAT THE HACK IS THIS
   useEffect(() => {
     if (workflow.readonly) return;
     const layoutListener = store.current.subscribe(
@@ -242,7 +241,7 @@ export const Playground: React.FC<{
         return <InspectorWindow />;
       })
       .with("rete", () => {
-        return <Composer workflow={workflow} store={store} />;
+        return <Composer workflowMeta={workflow} store={store} />;
       })
       .with("inspectorNode", () => {
         const node = di?.editor.getNode(config.nodeId);
@@ -256,7 +255,7 @@ export const Playground: React.FC<{
         if (workflow.readonly) {
           return <LoginToContinue />;
         }
-        return <LogsTab workflow={workflow} />;
+        // return <LogsTab workflow={workflow} />;
       })
       .run();
   };
@@ -269,15 +268,15 @@ export const Playground: React.FC<{
             <MenubarDemo />
             <div className="flex items-center space-x-2">
               {session && <UserNav session={session} />}
-              <VersionHistory workflow={workflow} />
-              {!workflow.version.publishedAt ? (
+              {/* <VersionHistory workflow={workflow} /> */}
+              {/* {!workflow.version.publishedAt ? (
                 <CreateReleaseButton
                   playgroundId={workflow.id}
                   version={workflow.currentVersion}
                 />
               ) : (
                 <RestoreVersionButton />
-              )}
+              )} */}
               <Link href={`/${workflow.projectSlug}/settings`}>
                 <Button variant={"outline"} size={"icon"}>
                   <Icon name="settings" />

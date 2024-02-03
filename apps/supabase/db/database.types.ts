@@ -1,3 +1,7 @@
+
+> @seocraft/supabase@0.1.0 with-env /Users/necmttn/Projects/craftgen/apps/supabase
+> dotenv -e ../.env -- "supabase" "gen" "types" "typescript" "--local"
+
 export type Json =
   | string
   | number
@@ -41,6 +45,8 @@ export interface Database {
           project_id: string
           state: Json | null
           type: string
+          workflow_id: string
+          workflow_version_id: string
         }
         Insert: {
           id: string
@@ -48,6 +54,8 @@ export interface Database {
           project_id: string
           state?: Json | null
           type: string
+          workflow_id: string
+          workflow_version_id: string
         }
         Update: {
           id?: string
@@ -55,6 +63,8 @@ export interface Database {
           project_id?: string
           state?: Json | null
           type?: string
+          workflow_id?: string
+          workflow_version_id?: string
         }
         Relationships: [
           {
@@ -62,6 +72,53 @@ export interface Database {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "context_workflow_id_workflow_id_fk"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "context_workflow_version_id_workflow_version_id_fk"
+            columns: ["workflow_version_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_version"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      context_relation: {
+        Row: {
+          source: string
+          target: string
+          type: string
+        }
+        Insert: {
+          source: string
+          target: string
+          type: string
+        }
+        Update: {
+          source?: string
+          target?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "context_relation_source_context_id_fk"
+            columns: ["source"]
+            isOneToOne: false
+            referencedRelation: "context"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "context_relation_target_context_id_fk"
+            columns: ["target"]
+            isOneToOne: false
+            referencedRelation: "context"
             referencedColumns: ["id"]
           }
         ]

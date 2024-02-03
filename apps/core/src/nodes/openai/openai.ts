@@ -212,6 +212,11 @@ export const OpenaiModelMachine = createMachine(
           enqueue("assignChild");
         }),
       },
+      UPDATE_CHILD_ACTORS: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("spawnInputActors");
+        }),
+      },
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;

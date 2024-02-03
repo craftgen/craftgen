@@ -11,7 +11,7 @@
     "drop": "drizzle-kit drop",
     "introspect": "drizzle-kit introspect:pg",
     "introspect:prod": "pnpm with-env:prod drizzle-kit introspect:pg",
-    "supa:generate": "supabase gen types typescript --local > db/database.types.ts",
+    "supa:generate": "pnpm with-env supabase gen types typescript --local > db/database.types.ts",
     "studio": "drizzle-kit studio",
     "migrate": "pnpm with-env tsx ./db/migration.ts && pnpm run supa:generate",
     "migrate:prod": "pnpm with-env:prod tsx ./db/migration.ts && pnpm run supa:generate",

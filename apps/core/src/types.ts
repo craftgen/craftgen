@@ -241,30 +241,6 @@ export interface CreateExecutionResult {
 }
 
 export interface WorkflowAPI {
-  setState: (
-    params: z.infer<typeof setExecutionStateParamSchema>,
-  ) => Promise<{ id: string }>;
-  setContext: (params: z.infer<typeof setContextParamSchema>) => Promise<void>;
-  createExecution: (
-    params: z.infer<typeof createExecutionParamSchema>,
-  ) => Promise<CreateExecutionResult>;
-  checkAPIKeyExist: (
-    params: z.infer<typeof checkAPIKeyExistParamSchema>,
-  ) => Promise<boolean>;
-  triggerWorkflowExecutionStep: (
-    params: z.infer<typeof triggerWorkflowExecutionStepParamSchema>,
-  ) => Promise<void>;
-  updateNodeMetadata: (
-    params: z.infer<typeof updateNodeMetadataParamSchema>,
-  ) => Promise<void>;
-  upsertNode: (params: z.infer<typeof upsertNodeParamSchema>) => Promise<void>;
-  deleteNode: (params: z.infer<typeof deleteNodeParamSchema>) => Promise<void>;
-  saveEdge: (params: z.infer<typeof saveEdgeParamSchema>) => Promise<void>;
-  deleteEdge: (params: z.infer<typeof deleteEdgeParamSchema>) => Promise<void>;
-  getModule: (params: z.infer<typeof getModuleParamSchema>) => Promise<any>;
-  getModulesMeta: (params: {
-    query: string;
-  }) => Promise<{ name: string; id: string }[]>;
   trpc: CreateTRPCProxyClient<AppRouter>;
 }
 

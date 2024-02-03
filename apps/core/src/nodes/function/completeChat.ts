@@ -773,6 +773,11 @@ const CompleteChatMachine = createMachine(
           enqueue("assignChild");
         }),
       },
+      UPDATE_CHILD_ACTORS: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("spawnInputActors");
+        }),
+      },
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
@@ -931,12 +936,6 @@ const CompleteChatMachine = createMachine(
                   };
                 },
               });
-            }),
-          },
-          UPDATE_CHILD_ACTORS: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("spawnInputActors");
-              enqueue("setupInternalActorConnections");
             }),
           },
           SET_VALUE: {
