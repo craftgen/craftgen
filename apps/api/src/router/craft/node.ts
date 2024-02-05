@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { get } from "lodash-es";
-import { and, eq, or, schema } from "@seocraft/supabase/db";
+import {
+  and,
+  contextRelation,
+  eq,
+  inArray,
+  or,
+  schema,
+} from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -154,9 +161,29 @@ export const craftNodeRouter = createTRPCRouter({
         if (!node) {
           throw new Error("Node not found");
         }
-        // await tx
-        //   .delete(schema.context)
-        //   .where(eq(schema.context.id, node.contextId)); // TODO: soft delete
+
+        const contextsToDelete: string[] = [node.contextId];
+        async function deleteRecursive(targetContextId: string) {
+          let contextRelations = await tx
+            .select()
+            .from(schema.contextRelation)
+            .where(
+              and(
+                eq(schema.contextRelation.source, targetContextId),
+                eq(schema.contextRelation.type, "parent"),
+              ),
+            );
+
+          contextsToDelete.push(...contextRelations.map((c) => c.target));
+
+          for (const contextRelation of contextRelations) {
+            await deleteRecursive(contextRelation.target);
+          }
+        }
+        await deleteRecursive(node.contextId);
+        await tx
+          .delete(schema.context)
+          .where(inArray(schema.context.id, contextsToDelete));
       });
     }),
   getContext: protectedProcedure

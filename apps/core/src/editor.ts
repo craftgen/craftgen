@@ -166,7 +166,33 @@ const EditorMachine = setup({
       on: {
         DESTROY: {
           description: "Destroy a node actor",
-          actions: enqueueActions(({ enqueue }) => {
+          actions: enqueueActions(({ enqueue, system, event }) => {
+            const actor: AnyActor = system.get(event.params.id);
+            if (!actor) {
+              throw new Error(`Actor with id ${event.params.id} not found`);
+            }
+            const childs = actor.getSnapshot().context.inputSockets as Record<
+              string,
+              JSONSocket
+            >;
+
+            Object.entries(childs)
+              .filter(([key, value]) => {
+                return value["x-actor-id"];
+              })
+              .map(([key, value]) => value["x-actor-id"]!)
+              .forEach((childActorId: string) => {
+                const childActor = system.get(childActorId);
+
+                if (childActor) {
+                  enqueue.raise({
+                    type: "DESTROY",
+                    params: {
+                      id: childActorId,
+                    },
+                  });
+                }
+              });
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );
@@ -1556,10 +1582,10 @@ export class Editor<
           if (data.id === this.selectedNodeId) {
             this.setSelectedNodeId(null);
           }
-          this.actor.send({
+          this.actor?.send({
             type: "DESTROY",
             params: {
-              id: data.id,
+              id: data.contextId,
             },
           });
           await queue.add(() =>
