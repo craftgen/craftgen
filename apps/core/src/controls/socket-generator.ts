@@ -24,6 +24,11 @@ export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
 export const actorConfigSchema = z.object({
+  actorId: z.string().optional(),
+  actor: z
+    .custom<AnyActorRef>()
+    .describe("The spawned actor reference.")
+    .optional(),
   connections: z
     .record(z.string().describe("source"), z.string().describe("target"))
     .default({}),
@@ -99,8 +104,9 @@ export const socketSchema = z
     "x-event": z.string().optional(),
 
     // belongs to parent.
-    "x-actor": z.custom<AnyActor>().optional(),
-    "x-actor-id": z.string().optional(),
+    // "x-actor": z.custom<AnyActor>().optional(),
+    // "x-actor-id": z.string().optional(),
+
     "x-actor-type": z.custom<NodeTypes>().optional(),
 
     // can be used to connect to other nodes actor.

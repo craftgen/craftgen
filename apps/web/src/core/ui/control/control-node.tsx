@@ -20,7 +20,8 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   const state = useSelector(props.data.actor, (state) => state);
   const item = useSelector<AnyActor, JSONSocket>(
     props.data.actor,
-    (state) => state.context.inputSockets[props.data.definition["x-key"]],
+    (state) =>
+      state.context.inputSockets[props.data.definition["x-key"]] as JSONSocket,
   );
 
   const actorSelector = useMemo(() => {

@@ -776,6 +776,7 @@ const CompleteChatMachine = createMachine(
       UPDATE_CHILD_ACTORS: {
         actions: enqueueActions(({ enqueue }) => {
           enqueue("spawnInputActors");
+          enqueue("setupInternalActorConnections");
         }),
       },
     },

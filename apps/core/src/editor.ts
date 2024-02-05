@@ -50,6 +50,7 @@ import type {
 import type { Socket } from "./sockets";
 import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 import {
+  ActorConfig,
   ConnectionConfigRecord,
   JSONSocket,
 } from "./controls/socket-generator";
@@ -171,11 +172,12 @@ const EditorMachine = setup({
             if (!actor) {
               throw new Error(`Actor with id ${event.params.id} not found`);
             }
+
+            // If actor has child actors, destroy them as well.
             const childs = actor.getSnapshot().context.inputSockets as Record<
               string,
               JSONSocket
             >;
-
             Object.entries(childs)
               .filter(([key, value]) => {
                 return value["x-actor-id"];
@@ -193,6 +195,7 @@ const EditorMachine = setup({
                   });
                 }
               });
+
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );
@@ -455,16 +458,27 @@ export class Editor<
           assertEvent(event, "ASSIGN_CHILD");
           const port = event.params.port;
           const socket = context.inputSockets[port];
+          const actorType = event.params.actor.src as string;
+          console.log("ASSIGN_CHILD", event);
 
           return {
             ...context.inputSockets,
             [port]: {
               ...socket,
-              "x-actor": event.params.actor,
-              "x-actor-id": event.params.actor.id,
+              // "x-actor": event.params.actor,
+              // "x-actor-id": event.params.actor.id,
+              "x-actor-type": actorType,
               "x-actor-ref": event.params.actor,
               "x-actor-ref-id": event.params.actor.id,
-              "x-actor-ref-type": event.params.actor.src,
+              "x-actor-ref-type": actorType,
+              "x-actor-config": {
+                ...socket["x-actor-config"],
+                [actorType]: {
+                  ...socket["x-actor-config"][actorType],
+                  actor: event.params.actor,
+                  actorId: event.params.actor.id,
+                },
+              },
             } as Partial<JSONSocket>,
           };
         },
@@ -501,53 +515,100 @@ export class Editor<
       }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
-      console.log("SPAWN INPUT ACTORS");
+      console.group("SPAWN INPUT ACTORS");
       for (const [key, value] of Object.entries<JSONSocket>(
         context.inputSockets,
       )) {
-        if (value["x-actor-type"]) {
-          // has a child actor.
+        if (isNil(value["x-actor-type"])) {
+          // skip if no actor type.
+          continue;
+        }
 
-          if (isNil(value["x-actor"]) || isNil(value["x-actor-ref"])) {
-            // actor not spawned yet.
-            if (value["x-actor-ref-id"] || value["x-actor-id"]) {
-              console.log("SPAWN Assigning actor");
-              // actor id exists but not the actor. link it.
-              const actorRef = system.get(value["x-actor-ref-id"]!);
-              if (!actorRef) {
-                console.error("ACTOR NOT FOUND", value["x-actor-ref-id"]);
-              }
+        if (isNil(value["x-actor-ref"])) {
+          // actor not spawned yet.
+          console.log("ACTOR NOT ASSIGNED YET");
+
+          if (
+            value["x-actor-ref-id"] &&
+            value["x-actor-ref-type"] === value["x-actor-type"]
+          ) {
+            console.log("ACTOR REF ID EXISTS and matching");
+            // actor id exists but not the actor. link it.
+            const actorRef = system.get(value["x-actor-ref-id"]!);
+            if (!actorRef) {
+              console.error("ACTOR NOT FOUND", value["x-actor-ref-id"]);
+            }
+            enqueue.assign({
+              inputSockets: ({ context }) => {
+                return {
+                  ...context.inputSockets,
+                  [key]: {
+                    ...context.inputSockets[key],
+                    "x-actor-ref": actorRef,
+                  },
+                };
+              },
+            });
+          } else {
+            console.log("SPAWNING ACTOR", value["x-actor-type"]);
+            const actorId = this.createId("context");
+            enqueue.sendTo(this.actor?.ref, ({ self }) => ({
+              type: "SPAWN",
+              params: {
+                parent: self.id,
+                id: actorId,
+                machineId: value["x-actor-type"]!,
+                systemId: actorId,
+                input: {
+                  inputs: {
+                    ...(value.default as any),
+                  },
+                  parent: {
+                    id: self.id,
+                    port: key,
+                  },
+                } as any,
+              },
+            }));
+          }
+        } else {
+          console.log("THERES ALREADY ACTOR");
+          if (value["x-actor-type"] !== value["x-actor-ref-type"]) {
+            // actor type changed;
+            console.log("ACTOR TYPE CHANGED", {
+              before: value["x-actor-ref-type"],
+              after: value["x-actor-type"],
+            });
+
+            const actorConf = get(value, [
+              "x-actor-config",
+              value["x-actor-type"],
+            ]) as ActorConfig;
+            console.log("ACTOR CONF", actorConf);
+            if (!actorConf) {
+              throw new Error("Missing actor conf");
+            }
+
+            if (actorConf.actor) {
+              console.log("EXISTING ACTOR REF", actorConf.actor);
+              // actor already spawned;
               enqueue.assign({
                 inputSockets: ({ context }) => {
                   return {
                     ...context.inputSockets,
                     [key]: {
                       ...context.inputSockets[key],
-                      "x-actor-ref": actorRef,
-                    },
-                  };
-                },
-              });
-              console.log("SPAWN Assigning actor");
-              // actor id exists but not the actor. link it.
-              const actor = system.get(value["x-actor-id"]!);
-              if (!actor) {
-                console.error("ACTOR NOT FOUND", value["x-actor-id"]);
-              }
-              enqueue.assign({
-                inputSockets: ({ context }) => {
-                  return {
-                    ...context.inputSockets,
-                    [key]: {
-                      ...context.inputSockets[key],
-                      "x-actor": actor,
+                      "x-actor-ref": actorConf.actor,
+                      "x-actor-ref-id": actorConf.actor?.id,
+                      "x-actor-ref-type": actorConf.actor?.src,
                     },
                   };
                 },
               });
             } else {
+              console.log("ACTOR DIDN'T SPAWNED YET");
               const actorId = this.createId("context");
-              enqueue.sendTo(this.actor.ref, ({ self }) => ({
+              enqueue.sendTo(this.actor?.ref, ({ self }) => ({
                 type: "SPAWN",
                 params: {
                   parent: self.id,
@@ -569,6 +630,7 @@ export class Editor<
           }
         }
       }
+      console.groupEnd();
     }),
 
     syncConnection: async (
@@ -932,39 +994,15 @@ export class Editor<
     // this.variables.set("OPENAI_API_KEY", openai);
   }
 
-  public async nuke() {
-    const snap = this.actor?.getPersistedSnapshot();
-    console.log(snap);
-    this.actor?.stop();
-
-    this.actor = undefined;
-
-    this.actor = createActor(this.machine, {
-      snapshot: cloneDeep(snap),
-    });
-
-    for (const [key, value] of Object.entries(snap.context.actors)) {
-      const actor = this.actor.system.get(key);
-      actor.send({
-        type: "UPDATE_CHILD_ACTORS",
-      });
-    }
-
-    this.actor.start();
-  }
-
   public async setup() {
     this.editor.use(this.engine);
     this.editor.use(this.dataFlow);
 
-    console.log("IN SETUP 1", this.content);
     await this.setupEnv();
     const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
     this.content.contexts.forEach((n: any) => {
       children[n.id] = n.state;
     });
-
-    console.log("IN SETUP 2", this.content, children);
 
     const snapshot = {
       value: "idle",
