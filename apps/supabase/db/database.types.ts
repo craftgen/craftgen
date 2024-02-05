@@ -41,6 +41,7 @@ export interface Database {
       context: {
         Row: {
           id: string
+          parent_id: string | null
           previous_context_id: string | null
           project_id: string
           state: Json | null
@@ -50,6 +51,7 @@ export interface Database {
         }
         Insert: {
           id: string
+          parent_id?: string | null
           previous_context_id?: string | null
           project_id: string
           state?: Json | null
@@ -59,6 +61,7 @@ export interface Database {
         }
         Update: {
           id?: string
+          parent_id?: string | null
           previous_context_id?: string | null
           project_id?: string
           state?: Json | null
@@ -67,6 +70,13 @@ export interface Database {
           workflow_version_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "context_parent_id_context_id_fk"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "context"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "context_project_id_project_id_fk"
             columns: ["project_id"]
@@ -86,39 +96,6 @@ export interface Database {
             columns: ["workflow_version_id"]
             isOneToOne: false
             referencedRelation: "workflow_version"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      context_relation: {
-        Row: {
-          source: string
-          target: string
-          type: string
-        }
-        Insert: {
-          source: string
-          target: string
-          type: string
-        }
-        Update: {
-          source?: string
-          target?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "context_relation_source_context_id_fk"
-            columns: ["source"]
-            isOneToOne: false
-            referencedRelation: "context"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "context_relation_target_context_id_fk"
-            columns: ["target"]
-            isOneToOne: false
-            referencedRelation: "context"
             referencedColumns: ["id"]
           }
         ]

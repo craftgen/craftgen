@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import {
+  AnyPgColumn,
   boolean,
   integer,
   json,
@@ -211,42 +212,45 @@ export const context = pgTable("context", {
   workflow_version_id: text("workflow_version_id")
     .notNull()
     .references(() => workflowVersion.id, { onDelete: "cascade" }),
+  parent_id: text("parent_id").references((): AnyPgColumn => context.id, {
+    onDelete: "cascade",
+  }),
   previousContextId: text("previous_context_id"),
   type: text("type").notNull(),
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
 });
 
-export const contextRelation = pgTable(
-  "context_relation",
-  {
-    source: text("source")
-      .notNull()
-      .references(() => context.id, { onDelete: "cascade" }),
-    type: text("type").$type<"parent">().notNull(),
-    target: text("target")
-      .notNull()
-      .references(() => context.id, { onDelete: "cascade" }),
-  },
-  (t) => {
-    return {
-      pk: primaryKey(t.source, t.target, t.type),
-    };
-  },
-);
+// export const contextRelation = pgTable(
+//   "context_relation",
+//   {
+//     source: text("source")
+//       .notNull()
+//       .references(() => context.id, { onDelete: "cascade" }),
+//     type: text("type").$type<"parent">().notNull(),
+//     target: text("target")
+//       .notNull()
+//       .references(() => context.id, { onDelete: "cascade" }),
+//   },
+//   (t) => {
+//     return {
+//       pk: primaryKey(t.source, t.target, t.type),
+//     };
+//   },
+// );
 
-export const contextRelationRelations = relations(
-  contextRelation,
-  ({ one }) => ({
-    source: one(context, {
-      fields: [contextRelation.source],
-      references: [context.id],
-    }),
-    target: one(context, {
-      fields: [contextRelation.target],
-      references: [context.id],
-    }),
-  }),
-);
+// export const contextRelationRelations = relations(
+//   contextRelation,
+//   ({ one }) => ({
+//     source: one(context, {
+//       fields: [contextRelation.source],
+//       references: [context.id],
+//     }),
+//     target: one(context, {
+//       fields: [contextRelation.target],
+//       references: [context.id],
+//     }),
+//   }),
+// );
 
 export const workflowEdge = pgTable(
   "workflow_edge",
@@ -518,7 +522,6 @@ export const contextRelations = relations(context, ({ one, many }) => ({
     fields: [context.project_id],
     references: [project.id],
   }),
-  relations: many(contextRelation),
   previousContext: one(context, {
     fields: [context.previousContextId],
     references: [context.id],

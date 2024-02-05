@@ -110,21 +110,8 @@ export const ApiConfigurationMachine = createMachine(
     },
     entry: enqueueActions(({ enqueue, check }) => {
       enqueue("assignParent");
-      // if (check(({ context }) => !isNil(context.parent))) {
-      //   enqueue.sendTo(
-      //     ({ context, system }) => system.get(context.parent?.id!),
-      //     ({ context, self }) => ({
-      //       type: "ASSIGN_CHILD",
-      //       params: {
-      //         actor: self,
-      //         port: context.parent?.port!,
-      //       },
-      //     }),
-      //   );
-      // }
       enqueue("updateOutput");
     }),
-
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets>;

@@ -58,6 +58,7 @@ import { GuardArgs } from "xstate/guards";
 import {
   Subject,
   catchError,
+  concatMap,
   debounceTime,
   from,
   groupBy,
@@ -180,20 +181,20 @@ const EditorMachine = setup({
             >;
             Object.entries(childs)
               .filter(([key, value]) => {
-                return value["x-actor-id"];
+                return value["x-actor-type"];
               })
-              .map(([key, value]) => value["x-actor-id"]!)
-              .forEach((childActorId: string) => {
-                const childActor = system.get(childActorId);
-
-                if (childActor) {
-                  enqueue.raise({
-                    type: "DESTROY",
-                    params: {
-                      id: childActorId,
-                    },
-                  });
-                }
+              .map(([key, value]) => value["x-actor-config"]!)
+              .forEach((config: Record<string, ActorConfig>) => {
+                Object.entries(config).forEach(([key, value]) => {
+                  if (value.actor) {
+                    enqueue.raise({
+                      type: "DESTROY",
+                      params: {
+                        id: value.actor.id,
+                      },
+                    });
+                  }
+                });
               });
 
             enqueue.stopChild(({ system, event }) =>
@@ -240,7 +241,8 @@ function withLogging(actorLogic: any) {
   const enhancedLogic = {
     ...actorLogic,
     transition: (state, event, actorCtx) => {
-      console.log("🕷️ State:", state, "Event:", event);
+      // console.log("🕷️ State:", state, "Event:", event);
+
       // Transition state only contains the pre transition state.
       // event getting persisted snapshot will endup with the pre transition state.
       // better persist state in actor subscribe.next listener.
@@ -297,9 +299,14 @@ export class Editor<
   >();
 
   public stateEvents = new Subject<{
-    executionId: string | undefined;
-    nodeExecutionId: string | undefined;
-    state: SnapshotFrom<AnyStateMachine>;
+    // executionId: string | undefined;
+    // nodeExecutionId: string | undefined;
+    state: {
+      snapshot: SnapshotFrom<AnyStateMachine>;
+      syncSnapshot: boolean;
+      src: string;
+      systemId: string;
+    };
     readonly: boolean;
   }>();
 
@@ -899,7 +906,6 @@ export class Editor<
         },
       });
     }
-    console.log("EDITOR STATE", this.actor.getPersistedSnapshot());
 
     return new nodeClass(this, node);
   }
@@ -1036,6 +1042,37 @@ export class Editor<
 
     this.actor = createActor(withLogging(withPersistance(this.machine)), {
       // inspect,
+      inspect: (inspectionEvent) => {
+        if (inspectionEvent.type === "@xstate.event") {
+          const event = inspectionEvent.event;
+
+          // Only listen for events sent to the root actor
+          if (inspectionEvent.actorRef !== this.actor) {
+            return;
+          }
+
+          console.group("🕷️ State: inspector", event);
+          if (event.type.startsWith("xstate.snapshot")) {
+            const contextId = event.type.split("xstate.snapshot.")[1];
+            console.log(contextId);
+            const c = this.actor.getPersistedSnapshot();
+            const actor = this.actor.system.get(contextId);
+
+            const snapshot = {
+              src: actor?.src,
+              syncSnapshot: actor._syncSnapshot,
+              snapshot: event.snapshot.toJSON(),
+              systemId: contextId,
+            } as SnapshotFrom<AnyActor>;
+
+            this.stateEvents.next({
+              state: snapshot,
+              readonly: false,
+            });
+          }
+          console.groupEnd();
+        }
+      },
       snapshot: cloneDeep(snapshot),
     });
 
@@ -1045,13 +1082,13 @@ export class Editor<
     this.actor.subscribe({
       next: (state) => {
         console.log("EDITOR STATE", state);
-        this.stateEvents.next({
-          executionId: this.executionId,
-          nodeExecutionId: undefined,
-          state:
-            this.actor?.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
-          readonly: false,
-        });
+        // this.stateEvents.next({
+        //   executionId: this.executionId,
+        //   nodeExecutionId: undefined,
+        //   state:
+        //     this.actor?.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
+        //   readonly: false,
+        // });
       },
       error: (error) => {
         console.error("EDITOR ERROR", error);
@@ -1080,29 +1117,58 @@ export class Editor<
     this.stateEvents
       .pipe(
         // Group by executionNodeId
-        tap((event) => console.log("$@$@", event)),
-        map((event) => Object.values(event.state.children)),
+        concatMap((event) => {
+          return this.api.trpc.craft.node.setContext.mutate({
+            contextId: event.state.systemId,
+            workflowId: this.workflowId,
+            workflowVersionId: this.workflowVersionId,
+            projectId: this.projectId,
+            context: JSON.stringify(event.state),
+          });
+        }),
 
-        switchMap((children) =>
-          from(children).pipe(
-            groupBy((child: SnapshotFrom<AnyActor>) => child.systemId),
-            mergeMap((group) =>
-              group.pipe(
-                debounceTime(1000), // Adjust time as needed
-                map(async (child) => {
-                  console.log("CHILD", child.systemId, child.src, child);
-                  return await this.api.trpc.craft.node.setContext.mutate({
-                    contextId: child.systemId,
-                    workflowId: this.workflowId,
-                    workflowVersionId: this.workflowVersionId,
-                    projectId: this.projectId,
-                    context: JSON.stringify(child),
-                  });
-                }),
-              ),
-            ),
-          ),
-        ),
+        // groupBy((event) => event.state.systemId),
+        // // Handle each group separately
+        // mergeMap((group) =>
+        //   group.pipe(
+        //     // debounceTime(500), // Adjust time as needed
+        //     concatMap((event) => {
+        //       console.log("$@$@", event);
+        //       return this.api.trpc.craft.node.setContext.mutate({
+        //         contextId: event.state.systemId,
+        //         workflowId: this.workflowId,
+        //         workflowVersionId: this.workflowVersionId,
+        //         projectId: this.projectId,
+        //         context: JSON.stringify(event.state),
+        //       });
+        //     }),
+        //   ),
+        // ),
+
+        // tap((event) => console.log("$@$@", event)),
+
+        // map((event) => Object.values(event.state)),
+
+        // switchMap((children) =>
+        //   from(children).pipe(
+        //     groupBy((child: SnapshotFrom<AnyActor>) => child.systemId),
+        //     mergeMap((group) =>
+        //       group.pipe(
+        //         debounceTime(1000), // Adjust time as needed
+        //         map(async (child) => {
+        //           console.log("CHILD", child.systemId, child.src, child);
+        //           return await this.api.trpc.craft.node.setContext.mutate({
+        //             contextId: child.systemId,
+        //             workflowId: this.workflowId,
+        //             workflowVersionId: this.workflowVersionId,
+        //             projectId: this.projectId,
+        //             context: JSON.stringify(child),
+        //           });
+        //         }),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         // groupBy((event) => event.),
         // // Handle each group separately
         // mergeMap((group) =>
@@ -1596,7 +1662,15 @@ export class Editor<
         .with({ type: "nodecreated" }, async ({ data }) => {
           console.log("nodecreated", { data });
           const size = data.size;
-          await queue.add(() =>
+          await queue.add(() => {
+            const actor = data.actor;
+            const snap = {
+              src: actor.src,
+              syncSnapshot: actor._syncSnapshot,
+              systemId: actor.id,
+              snapshot: actor.getSnapshot().toJSON(),
+            };
+
             this.api.trpc.craft.node.upsert.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
@@ -1607,12 +1681,12 @@ export class Editor<
                 color: "default",
                 label: data.label,
                 contextId: data.contextId,
-                // context: JSON.stringify(data.actor.getSnapshot().context),
+                context: JSON.stringify(snap),
                 position: { x: 0, y: 0 }, // When node is created it's position is 0,0 and it's moved later on.
                 ...size,
               },
-            }),
-          );
+            });
+          });
           return context;
         })
         .with({ type: "noderemove" }, async ({ data }) => {

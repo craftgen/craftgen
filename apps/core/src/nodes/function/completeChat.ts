@@ -769,7 +769,6 @@ const CompleteChatMachine = createMachine(
     on: {
       ASSIGN_CHILD: {
         actions: enqueueActions(({ enqueue }) => {
-          console.log("#".repeat(20), "assign child");
           enqueue("assignChild");
         }),
       },

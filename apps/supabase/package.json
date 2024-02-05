@@ -35,7 +35,7 @@
     "@supabase/supabase-js": "^2.38.1",
     "@types/node": "^20.4.10",
     "dotenv-cli": "^7.2.1",
-    "drizzle-kit": "^0.19.13",
+    "drizzle-kit": "^0.20.14",
     "tsx": "^3.12.7",
     "typescript": "^5.2.2"
   }

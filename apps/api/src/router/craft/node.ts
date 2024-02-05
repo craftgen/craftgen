@@ -1,13 +1,6 @@
 import { z } from "zod";
 import { get } from "lodash-es";
-import {
-  and,
-  contextRelation,
-  eq,
-  inArray,
-  or,
-  schema,
-} from "@seocraft/supabase/db";
+import { and, eq, inArray, or, schema } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -21,7 +14,7 @@ export const craftNodeRouter = createTRPCRouter({
         data: z.object({
           id: z.string(),
           contextId: z.string(),
-          // context: z.string().transform((val) => JSON.parse(val)),
+          context: z.string().transform((val) => JSON.parse(val)),
           type: z.string(),
           width: z.number(),
           height: z.number(),
@@ -37,24 +30,28 @@ export const craftNodeRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       console.log("saveNode", input);
       await ctx.db.transaction(async (tx) => {
-        // const [contextOfTheNode] = await tx
-        //   .select()
-        //   .from(schema.context)
-        //   .where(eq(schema.context.id, input.data.contextId))
-        //   .limit(1);
+        const [contextOfTheNode] = await tx
+          .select()
+          .from(schema.context)
+          .where(eq(schema.context.id, input.data.contextId))
+          .limit(1);
         // /// This is happens when user deletes the node and then tries to undo it.
-        // if (!contextOfTheNode) {
-        //   // reincarnate the context
-        //   const [contextUnit] = await tx
-        //     .insert(schema.context)
-        //     .values({
-        //       id: input.data.contextId,
-        //       project_id: input.projectId,
-        //       type: input.data.type,
-        //       state: {} as any,
-        //     })
-        //     .returning();
-        // }
+        if (!contextOfTheNode) {
+          // reincarnate the context
+          const [contextUnit] = await tx
+            .insert(schema.context)
+            .values({
+              id: input.data.contextId,
+              project_id: input.projectId,
+              type: input.data.type,
+              workflow_id: input.workflowId,
+              workflow_version_id: input.workflowVersionId,
+              state: input.data.context as any,
+            })
+            .onConflictDoNothing()
+            .returning();
+        }
+
         await tx
           .insert(schema.workflowNode)
           .values({
@@ -162,28 +159,34 @@ export const craftNodeRouter = createTRPCRouter({
           throw new Error("Node not found");
         }
 
-        const contextsToDelete: string[] = [node.contextId];
-        async function deleteRecursive(targetContextId: string) {
-          let contextRelations = await tx
-            .select()
-            .from(schema.contextRelation)
-            .where(
-              and(
-                eq(schema.contextRelation.source, targetContextId),
-                eq(schema.contextRelation.type, "parent"),
-              ),
-            );
-
-          contextsToDelete.push(...contextRelations.map((c) => c.target));
-
-          for (const contextRelation of contextRelations) {
-            await deleteRecursive(contextRelation.target);
-          }
-        }
-        await deleteRecursive(node.contextId);
         await tx
           .delete(schema.context)
-          .where(inArray(schema.context.id, contextsToDelete));
+          .where(and(eq(schema.context.id, node.contextId)));
+        // const contextsToDelete: string[] = [node.contextId];
+        // console.log("DELETE CONTEXT", contextsToDelete);
+        // async function deleteRecursive(targetContextId: string) {
+        //   let contextRelations = await tx
+        //     .select()
+        //     .from(schema.contextRelation)
+        //     .where(
+        //       and(
+        //         eq(schema.contextRelation.source, targetContextId),
+        //         eq(schema.contextRelation.type, "parent"),
+        //       ),
+        //     );
+
+        //   contextsToDelete.push(...contextRelations.map((c) => c.target));
+        //   console.log("DELETE CONTEXT", contextsToDelete);
+
+        //   for (const contextRelation of contextRelations) {
+        //     await deleteRecursive(contextRelation.target);
+        //   }
+        // }
+        // await deleteRecursive(node.contextId);
+        // console.log("DELETING", contextsToDelete);
+        // await tx
+        //   .delete(schema.context)
+        //   .where(inArray(schema.context.id, contextsToDelete));
       });
     }),
   getContext: protectedProcedure
@@ -207,7 +210,6 @@ export const craftNodeRouter = createTRPCRouter({
         projectId: z.string(),
         workflowId: z.string(),
         workflowVersionId: z.string(),
-
         context: z.string().transform((val) => JSON.parse(val)),
       }),
     )
@@ -222,6 +224,7 @@ export const craftNodeRouter = createTRPCRouter({
             state: input.context as any,
             workflow_id: input.workflowId,
             workflow_version_id: input.workflowVersionId,
+            parent_id: get(input.context, "snapshot.context.parent.id"),
           })
           .onConflictDoUpdate({
             target: schema.context.id,
@@ -231,27 +234,23 @@ export const craftNodeRouter = createTRPCRouter({
           })
           .returning();
 
-        const parentId = get(input.context, "snapshot.context.parent.id");
-        if (parentId) {
-          const parent = await tx.query.context.findFirst({
-            where: (context, { eq }) => eq(context.id, parentId),
-            columns: {
-              id: true,
-            },
-          });
-          if (parent) {
-            await tx
-              .insert(schema.contextRelation)
-              .values({
-                source: parent.id,
-                target: input.contextId,
-                type: "parent",
-              })
-              .onConflictDoNothing();
-          } else {
-            console.log("parent not found", parentId);
-          }
-        }
+        // const parentId = get(input.context, "snapshot.context.parent.id");
+        // if (parentId) {
+        // const parent = await tx.query.context.findFirst({
+        //   where: (context, { eq }) => eq(context.id, parentId),
+        //   columns: {
+        //     id: true,
+        //   },
+        // // });
+        // await tx
+        //   .insert(schema.contextRelation)
+        //   .values({
+        //     source: parentId,
+        //     target: input.contextId,
+        //     type: "parent",
+        //   })
+        //   .onConflictDoNothing();
+        // }
 
         return newContext;
       });
