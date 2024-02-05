@@ -3,9 +3,9 @@ const { withContentlayer } = require("next-contentlayer");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  // swcMinify: true,
   eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+  // typescript: { ignoreBuildErrors: true },
   poweredByHeader: false,
   experimental: {
     serverComponentsExternalPackages: ["pg-native"],

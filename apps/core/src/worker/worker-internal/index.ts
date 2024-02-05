@@ -1,5 +1,7 @@
 import { WorkerMessenger } from "../messenger";
-import Worker from "worker-loader!./entry";
+
+// @ts-ignore
+import Worker from "worker-loader!./entry.worker";
 
 export function start() {
   let worker = new Worker();

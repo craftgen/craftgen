@@ -46,24 +46,17 @@ const outputSockets = {
 };
 
 type JavascriptCodeInterpreterInput = {
-  worker: WorkerMessenger;
+  // worker: WorkerMessenger;
   code: string;
 };
 
 const executeJavascriptCode = fromPromise(
   async ({ input }: { input: JavascriptCodeInterpreterInput }) => {
-    try {
-      console.log("WORKER", input.worker, input.code);
-      const result = await input.worker.postoffice.sendScript(input.code, []);
-      console.log("WORKER RUNNED", result);
-      return result;
-    } catch (err) {
-      console.error("WORKER ERROR", err);
-    }
+    const worker = start();
+    const result = await worker.postoffice.sendScript(input.code, []);
+    return result;
   },
 );
-
-const worker = start();
 
 export const JavascriptCodeInterpreterMachine = createMachine(
   {
@@ -139,10 +132,13 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       run: {
         invoke: {
           src: "executeJavascriptCode",
-          input: ({ context }) => ({
-            worker: worker,
-            code: context.inputs.code,
-          }),
+          input: ({ context }) => {
+            // const worker = start();
+            return {
+              // worker: worker,
+              code: context.inputs.code,
+            };
+          },
           onDone: {
             target: "idle",
             actions: enqueueActions(({ enqueue, event }) => {
