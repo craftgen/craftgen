@@ -21,4 +21,5 @@ export { Wordpress } from "./datasource/wordpress/wordpress";
 export { Webflow } from "./datasource/webflow/webflow";
 export { Postgres } from "./datasource/postgres/postgres";
 
+export { NodeJavascriptCodeInterpreter } from "./interpreter/js";
 // export { GoogleAnalytics } from "./datasource/google-analytics/google-analytics";

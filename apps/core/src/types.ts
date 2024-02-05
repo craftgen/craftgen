@@ -26,6 +26,7 @@ import {
   TextNode,
   Webflow,
   Wordpress,
+  NodeJavascriptCodeInterpreter
 } from "./nodes";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
@@ -95,6 +96,9 @@ export const nodes = {
   NodeGenerateText: NodeGenerateText,
   NodeGenerateStructure: GenerateStructure,
   NodeCompleteChat: NodeCompleteChat,
+
+  NodeJavascriptCodeInterpreter: NodeJavascriptCodeInterpreter,
+
   // OpenAIThread: OpenAIThread,
   // OpenAIAssistant: OpenAIAssistant,
 

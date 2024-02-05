@@ -1448,18 +1448,19 @@ export class Editor<
       intensity: 3,
     });
 
-    const { CustomArrange, ArrangePresets } = await import(
-      "./plugins/arrage/custom-arrange"
-    );
-    this.arrange = new CustomArrange<Scheme>();
-    this.arrange.addPreset(
-      ArrangePresets.classic.setup({
-        spacing: 40,
-        top: 100,
-        bottom: 100,
-      }),
-    );
-    this.area.use(this.arrange);
+    // TODO
+    // const { CustomArrange, ArrangePresets } = await import(
+    //   "./plugins/arrage/custom-arrange"
+    // );
+    // this.arrange = new CustomArrange<Scheme>();
+    // this.arrange.addPreset(
+    //   ArrangePresets.classic.setup({
+    //     spacing: 40,
+    //     top: 100,
+    //     bottom: 100,
+    //   }),
+    // );
+    // this.area.use(this.arrange);
 
     // const { ScopesPlugin, Presets: ScopesPresets } = await import(
     //   "rete-scopes-plugin"

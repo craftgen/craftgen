@@ -9,7 +9,7 @@ const nextConfig = {
   poweredByHeader: false,
   experimental: {
     serverComponentsExternalPackages: ["pg-native"],
-    webpackBuildWorker: true,
+    // webpackBuildWorker: true,
   },
   transpilePackages: ["@seocraft/core", "@seocraft/api", "@seocraft/supabase"],
   images: {

@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { api } from "@/trpc/server";
+import React from "react";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -31,7 +32,11 @@ const PlaygroundPage = async (props: {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return <Playground workflow={workflow} session={session} />;
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Playground workflow={workflow} session={session} />;
+    </React.Suspense>
+  );
 };
 
 export default PlaygroundPage;
