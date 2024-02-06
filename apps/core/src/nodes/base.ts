@@ -755,34 +755,6 @@ export abstract class BaseNode<
 
   public setup() {
     this.actor = this.setupActor(this.di.actor.system.get(this.contextId));
-    // if (this.nodeData.state) {
-    //   // EXECUTION STATE
-    //   const actorInput = {
-    //     snapshot: this.nodeData.state,
-    //   };
-    //   this.actor = this.setupActor(actorInput);
-    // } else if (
-    //   this.actors.has(this.contextId)
-    //   // this.nodeData.context &&
-    //   // has(this.nodeData.context, "context") &&
-    //   // has(this.nodeData.context, "value")
-    // ) {
-    //   // CONTEXT STATE
-    //   this.actor = this.actors.get(this.contextId)!;
-    // } else if (
-    //   this.nodeData.context &&
-    //   has(this.nodeData.context, "context") &&
-    //   has(this.nodeData.context, "value")
-    // ) {
-    //   this.actor = this.setupActor({
-    //     snapshot: this.nodeData.context,
-    //   });
-    // } else {
-    //   this.actor = this.setupActor({
-    //     // NEW NODE
-    //     input: this.nodeData.context,
-    //   });
-    // }
     this.setSnap(this.actor.getSnapshot() as any);
 
     console.log("setup", {
@@ -803,7 +775,6 @@ export abstract class BaseNode<
         }
       },
     );
-
     const inputSocketHandlers = reaction(
       () => this.inputSockets,
       async (sockets) => {

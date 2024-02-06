@@ -9,7 +9,7 @@ import type { AppRouter } from "@seocraft/api";
 import type { Editor } from ".";
 import type { Connection } from "./connection/connection";
 import {
-  ComposeObject,
+  NodeComposeObject,
   GoogleSheet,
   InputNode,
   Log,
@@ -26,7 +26,7 @@ import {
   TextNode,
   Webflow,
   Wordpress,
-  NodeJavascriptCodeInterpreter
+  NodeJavascriptCodeInterpreter,
 } from "./nodes";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
@@ -102,7 +102,7 @@ export const nodes = {
   // OpenAIThread: OpenAIThread,
   // OpenAIAssistant: OpenAIAssistant,
 
-  // ComposeObject: ComposeObject,
+  NodeComposeObject: NodeComposeObject,
 
   // InputNode,
   // OutputNode,

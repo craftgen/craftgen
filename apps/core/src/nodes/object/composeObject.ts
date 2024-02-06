@@ -4,8 +4,7 @@ import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
-import type {
-  JSONSocket} from "../../controls/socket-generator";
+import type { JSONSocket } from "../../controls/socket-generator";
 import {
   generateSocket,
   SocketGeneratorControl,
@@ -13,9 +12,9 @@ import {
 import { slugify } from "../../lib/string";
 import type { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
-import type { BaseMachineTypes, None} from "../base";
-import { BaseNode  } from "../base";
-import type {ParsedNode} from "../base";
+import type { BaseMachineTypes, None } from "../base";
+import { BaseNode } from "../base";
+import type { ParsedNode } from "../base";
 
 const outputSockets = {
   object: generateSocket({
@@ -139,11 +138,11 @@ const composeObjectMachine = createMachine({
 });
 
 export type ComposeObjectData = ParsedNode<
-  "ComposeObject",
+  "NodeComposeObject",
   typeof composeObjectMachine
 >;
 
-export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
+export class NodeComposeObject extends BaseNode<typeof composeObjectMachine> {
   static nodeType = "ComposeObject" as const;
   static label = "Compose Object";
   static description = "Compose an object";
@@ -154,12 +153,16 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
   ): ComposeObjectData {
     return {
       ...params,
-      type: "ComposeObject",
+      type: "NodeComposeObject",
     };
   }
 
+  static machines = {
+    NodeComposeObject: composeObjectMachine,
+  };
+
   constructor(di: DiContainer, data: ComposeObjectData) {
-    super("ComposeObject", di, data, composeObjectMachine, {
+    super("NodeComposeObject", di, data, composeObjectMachine, {
       actions: {
         updateOutputObject: assign({
           outputs: ({ context }) => ({
@@ -238,6 +241,6 @@ export class ComposeObject extends BaseNode<typeof composeObjectMachine> {
     );
 
     this.addControl("inputGenerator", inputGenerator);
-    this.setLabel(this.snap.context.name || ComposeObject.label);
+    this.setLabel(this.snap.context.name || NodeComposeObject.label);
   }
 }

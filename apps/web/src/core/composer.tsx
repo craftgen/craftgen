@@ -27,6 +27,7 @@ import type { RouterOutputs } from "@/trpc/shared";
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
+import { useRegisterPlaygroundActions } from "./actions";
 
 export type ComponentRegistry = Map<
   HTMLElement,
@@ -86,9 +87,12 @@ const ComposerUI = (props: {
   }, [rete]);
 
   const di = useCraftStore((state) => state.di);
+  const layout = useCraftStore((state) => state.layout);
   const handleReset = () => {
     di?.reset();
   };
+
+  useRegisterPlaygroundActions({ di, layout });
 
   const portals = useMemo(() => {
     return Array.from(map.entries()).reduce(
