@@ -171,7 +171,9 @@ const EditorMachine = setup({
           actions: enqueueActions(({ enqueue, system, event }) => {
             const actor: AnyActor = system.get(event.params.id);
             if (!actor) {
-              throw new Error(`Actor with id ${event.params.id} not found`);
+              console.log("CAN NOT FIND THE ACTOR", event.params.id);
+              return;
+              // throw new Error(`Actor with id ${event.params.id} not found`);
             }
 
             // If actor has child actors, destroy them as well.
@@ -196,7 +198,6 @@ const EditorMachine = setup({
                   }
                 });
               });
-
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );

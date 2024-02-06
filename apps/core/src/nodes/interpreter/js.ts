@@ -28,6 +28,7 @@ const inputSockets = {
     type: "string" as const,
     default: "async () => {\n  return 42\n}",
     description: "the code",
+    "x-showSocket": false,
     required: true,
   }),
   run: generateSocket({
@@ -194,6 +195,9 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       SET_VALUE: {
         actions: ["setValue"],
       },
+      UPDATE_SOCKET: {
+        actions: ["updateSocket"],
+      },
       ASSIGN_CHILD: {
         actions: enqueueActions(({ enqueue }) => {
           enqueue("assignChild");
@@ -241,9 +245,14 @@ export const JavascriptCodeInterpreterMachine = createMachine(
             guard: ({ context }) => {
               return context.runs && Object.keys(context.runs).length > 0;
             },
-            actions: enqueueActions(({ enqueue, context, self }) => {
-              Object.values(context.runs).map((run) => {
-                enqueue.stopChild(run);
+            actions: enqueueActions(({ enqueue, context, system }) => {
+              Object.entries(context.runs).forEach(([runId, run]) => {
+                enqueue.sendTo(system.get("editor"), {
+                  type: "DESTROY",
+                  params: {
+                    id: runId,
+                  },
+                });
               });
               enqueue.assign({
                 runs: {},

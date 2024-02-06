@@ -34,7 +34,7 @@ const PlaygroundPage = async (props: {
 
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
-      <Playground workflow={workflow} session={session} />;
+      <Playground workflow={workflow} session={session} />
     </React.Suspense>
   );
 };
