@@ -1,5 +1,4 @@
-import { createId } from "@paralleldrive/cuid2";
-import { get, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
+import { get, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
@@ -7,9 +6,8 @@ import { of, Subject } from "rxjs";
 import { catchError, debounceTime, groupBy, mergeMap } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { assign, createActor, enqueueActions, waitFor } from "xstate";
+import { waitFor } from "xstate";
 import type {
-  ActionArgs,
   Actor,
   AnyActorLogic,
   AnyActorRef,
@@ -51,6 +49,9 @@ export interface BaseInputType<
   I extends Record<string, any> = {},
   O extends Record<string, any> = {},
 > {
+  name: string;
+  description: string;
+
   inputs?: Partial<MappedType<I>>;
   inputSockets?: I;
   outputs?: MappedType<O>;
@@ -61,13 +62,18 @@ export interface BaseContextType<
   I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
   O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
 > {
+  name: string;
+  description: string;
+
   inputs: MappedType<I>;
   outputs: MappedType<O>;
+
   outputSockets: O;
   inputSockets: I;
+
   parent?: {
     id: string; // System Id
-    port: string; // Input port
+    port?: string; // Input port // CHILD ACTORS only
   };
   error: {
     name: string;
@@ -653,7 +659,7 @@ export abstract class BaseNode<
 
   public baseImplentations: MachineImplementationsFrom<Machine> = {
     guards: this.baseGuards,
-    actions: this.baseActions,
+    // actions: this.baseActions,
   };
 
   public machineImplements: MachineImplementationsFrom<Machine>;
