@@ -6,12 +6,19 @@ import {
   BaseNode,
   None,
 } from "../base";
-import { createMachine, enqueueActions, fromPromise } from "xstate";
+import {
+  AnyActorRef,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+} from "xstate";
 import { DiContainer } from "../../types";
 import { merge } from "lodash-es";
 import { generateSocket } from "../../controls/socket-generator";
 import { WorkerMessenger } from "../../worker/messenger";
 import { start } from "../../worker/main";
+import { createId } from "@paralleldrive/cuid2";
 
 const inputSockets = {
   code: generateSocket({
@@ -58,6 +65,76 @@ const executeJavascriptCode = fromPromise(
   },
 );
 
+export const executeJavascriptCodeMachine = setup({
+  types: {
+    input: {} as {
+      code: string;
+    },
+    context: {} as {
+      inputs: {
+        code: string;
+      };
+      outputs: {
+        result: any | null;
+      };
+    },
+  },
+  actors: {
+    executeJavascriptCode,
+  },
+}).createMachine({
+  id: "executeJavascriptCode",
+  context: ({ input }) => ({
+    inputs: {
+      code: input.code,
+    },
+    outputs: {
+      result: null,
+    },
+  }),
+  initial: "run",
+  states: {
+    run: {
+      invoke: {
+        src: "executeJavascriptCode",
+        input: ({ context }) => ({
+          code: context.inputs.code,
+        }),
+        onDone: {
+          target: "done",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => {
+                return {
+                  ...context.outputs,
+                  result: event.output,
+                  ok: true,
+                };
+              },
+            });
+          }),
+        },
+        onError: {
+          target: "error",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => {
+                return {
+                  ...context.outputs,
+                  result: event.error,
+                  ok: false,
+                };
+              },
+            });
+          }),
+        },
+      },
+    },
+    done: {},
+    error: {},
+  },
+});
+
 export const JavascriptCodeInterpreterMachine = createMachine(
   {
     id: "javascript-code-interpreter",
@@ -71,8 +148,6 @@ export const JavascriptCodeInterpreterMachine = createMachine(
           defaultInputs[inputKey] = undefined;
         }
       }
-      // const worker = start();
-      // console.log("@".repeat(200), worker);
       return merge<typeof input, any>(
         {
           inputs: {
@@ -91,21 +166,11 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         input,
       );
     },
-    // always: {
-    //   guard: ({ context }) => isNil(context.worker),
-    //   actions: enqueueActions(({ enqueue }) => {
-    //     console.log("WORKER", start);
-    //     enqueue.assign({
-    //       worker: start(),
-    //     });
-    //   }),
-    // },
     types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-        worker?: WorkerMessenger;
-      };
+      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {};
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
         worker?: WorkerMessenger;
+        runs: Record<string, AnyActorRef>;
       };
       actions: None;
       events: None;
@@ -113,47 +178,47 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       guards: None;
     }>,
     initial: "idle",
+    on: {
+      SET_VALUE: {
+        actions: ["setValue"],
+      },
+    },
     states: {
       idle: {
         on: {
           RUN: {
-            target: "run",
-            // actions: enqueueActions(({ enqueue, context }) => {
-            //   enqueue.spawnChild("executeJavascriptCode", {
-            //     input: {
-            //       worker: worker,
-            //       code: context.inputs.code,
-            //     },
-            //   });
-            // }),
-          },
-        },
-      },
-      run: {
-        invoke: {
-          src: "executeJavascriptCode",
-          input: ({ context }) => {
-            // const worker = start();
-            return {
-              // worker: worker,
-              code: context.inputs.code,
-            };
-          },
-          onDone: {
-            target: "idle",
-            actions: enqueueActions(({ enqueue, event }) => {
-              console.log("RESSS", event);
+            actions: enqueueActions(({ enqueue, context }) => {
               enqueue.assign({
-                outputs: {
-                  result: event.output,
+                runs: ({ context, spawn }) => {
+                  const runId = `call-${createId()}`;
+                  return {
+                    ...context.runs,
+                    [runId]: spawn("executeJavascriptCode", {
+                      id: runId,
+                      input: {
+                        code: context.inputs.code,
+                      },
+                    }),
+                  };
                 },
               });
             }),
           },
-          onError: {
-            target: "idle",
-            actions: enqueueActions(({ enqueue, event }) => {
-              console.error(event);
+          RESET: {
+            guard: ({ context }) => {
+              return context.runs && Object.keys(context.runs).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, context, self }) => {
+              Object.values(context.runs).map((run) => {
+                enqueue.stopChild(run);
+              });
+              enqueue.assign({
+                runs: {},
+                outputs: ({ context }) => ({
+                  ...context.outputs,
+                  result: null,
+                }),
+              });
             }),
           },
         },
@@ -162,7 +227,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
   },
   {
     actors: {
-      executeJavascriptCode,
+      executeJavascriptCode: executeJavascriptCodeMachine,
     },
   },
 );
@@ -179,6 +244,7 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
 
   static machines = {
     NodeJavascriptCodeInterpreter: JavascriptCodeInterpreterMachine,
+    "NodeJavascriptCodeInterpreter.run": executeJavascriptCodeMachine,
   };
 
   constructor(di: DiContainer, data: any) {

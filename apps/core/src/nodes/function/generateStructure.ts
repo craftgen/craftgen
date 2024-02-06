@@ -511,11 +511,11 @@ const generateStructureCall = setup({
 });
 
 export type OpenAIGenerateStructureNode = ParsedNode<
-  "GenerateStructure",
+  "NodeGenerateStructure",
   typeof OpenAIGenerateStructureMachine
 >;
 
-export class GenerateStructure extends BaseNode<
+export class NodeGenerateStructure extends BaseNode<
   typeof OpenAIGenerateStructureMachine
 > {
   static nodeType = "OpenAIGenerateStructure";
@@ -530,7 +530,7 @@ export class GenerateStructure extends BaseNode<
   ): OpenAIGenerateStructureNode {
     return {
       ...params,
-      type: "GenerateStructure",
+      type: "NodeGenerateStructure",
     };
   }
   static machines = {
@@ -539,7 +539,7 @@ export class GenerateStructure extends BaseNode<
   };
 
   constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
-    super("GenerateStructure", di, data, OpenAIGenerateStructureMachine, {
+    super("NodeGenerateStructure", di, data, OpenAIGenerateStructureMachine, {
       // actors: {
       //   generateStructure: generateStructureCall,
       // },

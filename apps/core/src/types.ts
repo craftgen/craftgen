@@ -32,7 +32,7 @@ import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { NodeCompleteChat } from "./nodes/function/completeChat";
-import { GenerateStructure } from "./nodes/function/generateStructure";
+import { NodeGenerateStructure } from "./nodes/function/generateStructure";
 import { NodeGenerateText } from "./nodes/function/generateText";
 import { OpenAIAssistant } from "./nodes/openai/assistant";
 import { OpenAIThread } from "./nodes/openai/openai-thread";
@@ -94,7 +94,7 @@ export const nodes = {
   NodeApiConfiguration: NodeApiConfiguration,
 
   NodeGenerateText: NodeGenerateText,
-  NodeGenerateStructure: GenerateStructure,
+  NodeGenerateStructure: NodeGenerateStructure,
   NodeCompleteChat: NodeCompleteChat,
 
   NodeJavascriptCodeInterpreter: NodeJavascriptCodeInterpreter,
