@@ -64,12 +64,14 @@ const outputSockets = {
 
 type JavascriptCodeInterpreterInput = {
   code: string;
+  [key: string]: any;
 };
 
 const executeJavascriptCode = fromPromise(
   async ({ input }: { input: JavascriptCodeInterpreterInput }) => {
     const worker = start();
-    const result = await worker.postoffice.sendScript(input.code, []);
+    const { code, ...args } = input;
+    const result = await worker.postoffice.sendScript(code, args);
     return result;
   },
 );
@@ -79,6 +81,7 @@ export const executeJavascriptCodeMachine = setup({
     input: {} as {
       inputs: {
         code: string;
+        [key: string]: any;
       };
       parent: {
         id: string;
@@ -87,6 +90,7 @@ export const executeJavascriptCodeMachine = setup({
     context: {} as {
       inputs: {
         code: string;
+        [key: string]: any;
       };
       outputs: {
         result: any | null;
@@ -118,7 +122,7 @@ export const executeJavascriptCodeMachine = setup({
       invoke: {
         src: "executeJavascriptCode",
         input: ({ context }) => ({
-          code: context.inputs.code,
+          ...context.inputs,
         }),
         onDone: {
           target: "done",
@@ -262,7 +266,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
                   systemId: runId,
                   input: {
                     inputs: {
-                      code: context.inputs.code,
+                      ...context.inputs,
                     },
                     parent: {
                       id: self.id,
