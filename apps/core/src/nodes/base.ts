@@ -130,6 +130,12 @@ export type BaseEventTypes =
         actor: AnyActorRef;
         port: string;
       };
+    }
+  | {
+      type: "ASSIGN_RUN";
+      params: {
+        actor: AnyActorRef;
+      };
     };
 
 export type BaseActionTypes =
@@ -199,6 +205,15 @@ export type BaseActionTypes =
     }
   | {
       type: "spawnInputActors";
+    }
+  | {
+      type: "spawnRun";
+      params: {
+        id: string;
+        machineId: string;
+        input: any;
+        systemId: string;
+      };
     }
   | {
       type: "setupInternalActorConnections";

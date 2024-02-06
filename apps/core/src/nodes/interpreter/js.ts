@@ -53,7 +53,6 @@ const outputSockets = {
 };
 
 type JavascriptCodeInterpreterInput = {
-  // worker: WorkerMessenger;
   code: string;
 };
 
@@ -68,7 +67,12 @@ const executeJavascriptCode = fromPromise(
 export const executeJavascriptCodeMachine = setup({
   types: {
     input: {} as {
-      code: string;
+      inputs: {
+        code: string;
+      };
+      parent: {
+        id: string;
+      };
     },
     context: {} as {
       inputs: {
@@ -84,15 +88,21 @@ export const executeJavascriptCodeMachine = setup({
   },
 }).createMachine({
   id: "executeJavascriptCode",
-  context: ({ input }) => ({
-    inputs: {
-      code: input.code,
-    },
-    outputs: {
-      result: null,
-    },
-  }),
+  context: ({ input }) => {
+    return merge(
+      {
+        inputs: {},
+        outputs: {
+          result: null,
+        },
+      },
+      input,
+    );
+  },
   initial: "run",
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("assignParent");
+  }),
   states: {
     run: {
       invoke: {
@@ -130,7 +140,9 @@ export const executeJavascriptCodeMachine = setup({
         },
       },
     },
-    done: {},
+    done: {
+      type: "final",
+    },
     error: {},
   },
 });
@@ -182,26 +194,47 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       SET_VALUE: {
         actions: ["setValue"],
       },
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
+      ASSIGN_RUN: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue.assign({
+            runs: ({ context, event }) => {
+              return {
+                ...context.runs,
+                [event.params.actor.id]: event.params.actor,
+              };
+            },
+          });
+        }),
+      },
     },
     states: {
       idle: {
         on: {
           RUN: {
-            actions: enqueueActions(({ enqueue, context }) => {
-              enqueue.assign({
-                runs: ({ context, spawn }) => {
-                  const runId = `call-${createId()}`;
-                  return {
-                    ...context.runs,
-                    [runId]: spawn("executeJavascriptCode", {
-                      id: runId,
-                      input: {
-                        code: context.inputs.code,
-                      },
-                    }),
-                  };
+            actions: enqueueActions(({ enqueue, context, system }) => {
+              const runId = `call-${createId()}`;
+              enqueue.sendTo(system.get("editor"), ({ self }) => ({
+                type: "SPAWN",
+                params: {
+                  parent: self.id,
+                  id: runId,
+                  machineId: "NodeJavascriptCodeInterpreter.run",
+                  systemId: runId,
+                  input: {
+                    inputs: {
+                      code: context.inputs.code,
+                    },
+                    parent: {
+                      id: self.id,
+                    },
+                  } as any,
                 },
-              });
+              }));
             }),
           },
           RESET: {

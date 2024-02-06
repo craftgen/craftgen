@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { LayoutGroup, motion } from "framer-motion";
-import { debounce, groupBy } from "lodash-es";
+import { debounce, groupBy, isNil } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,
@@ -472,6 +472,7 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
   const childrens = useSelector(actor, (state) => state.context.runs);
   const runs = useMemo(() => {
     return Object.values(childrens)
+      .filter((child) => !isNil(child))
       .filter((child) => child.id.startsWith("call"))
       .map((child) => child as AnyActorRef);
   }, [childrens]);
