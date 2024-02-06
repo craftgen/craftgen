@@ -35,107 +35,155 @@ const outputSockets = {
   }),
 };
 
-const composeObjectMachine = createMachine({
-  id: "composeObject",
-  initial: "idle",
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        name: "new_object",
-        description: "object description",
-        inputs: {},
-        outputs: {
-          schema: {
-            name: "new_object",
-            description: "object description",
+const composeObjectMachine = createMachine(
+  {
+    id: "composeObject",
+    initial: "idle",
+    context: ({ input }) =>
+      merge<typeof input, any>(
+        {
+          name: "new_object",
+          description: "object description",
+          inputs: {},
+          outputs: {
+            schema: {
+              name: "new_object",
+              description: "object description",
 
-            schema: createJsonSchema({}),
+              schema: createJsonSchema({}),
+            },
+          },
+          inputSockets: {},
+          outputSockets: {
+            ...outputSockets,
           },
         },
-        inputSockets: {},
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    ),
-  types: {} as BaseMachineTypes<{
-    input: {
-      name: string;
-      description?: string;
-    };
-    context: {
-      name: string;
-      description: string;
-      schema: JSONSchemaDefinition;
-    };
-    actors: None;
-    guards: None;
-    actions:
-      | {
-          type: "updateConfig";
-          params?: {
-            name: string;
-            description: string;
-            inputSockets: JSONSocket[];
-            schema: object;
+        input,
+      ),
+    types: {} as BaseMachineTypes<{
+      input: {
+        name: string;
+        description?: string;
+      };
+      context: {
+        name: string;
+        description: string;
+        schema: JSONSchemaDefinition;
+      };
+      actors: None;
+      guards: None;
+      actions:
+        | {
+            type: "updateConfig";
+            params?: {
+              name: string;
+              description: string;
+              inputSockets: JSONSocket[];
+              schema: object;
+            };
+          }
+        | {
+            type: "updateOutputObject";
           };
-        }
-      | {
-          type: "updateOutputObject";
-        };
-    events: {
-      type: "CONFIG_CHANGE";
-      name: string;
-      description: string;
-      inputSockets: JSONSocket[];
-      schema: JSONSchemaDefinition;
-    };
-  }>,
-  states: {
-    idle: {
-      // entry: ["updateAncestors"],
-      on: {
-        UPDATE_SOCKET: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("updateSocket");
-          }),
-        },
-        CONFIG_CHANGE: {
-          target: "editing",
-        },
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("setValue");
-            enqueue("updateOutputObject");
-          }),
+      events: {
+        type: "CONFIG_CHANGE";
+        name: string;
+        description: string;
+        inputSockets: JSONSocket[];
+        schema: JSONSchemaDefinition;
+      };
+    }>,
+    states: {
+      idle: {
+        // entry: ["updateAncestors"],
+        on: {
+          UPDATE_SOCKET: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("updateSocket");
+            }),
+          },
+          CONFIG_CHANGE: {
+            target: "editing",
+          },
+          SET_VALUE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("setValue");
+              enqueue("updateOutputObject");
+            }),
+          },
         },
       },
-    },
-    editing: {
-      entry: ["updateConfig"],
-      on: {
-        CONFIG_CHANGE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("updateConfig");
-            enqueue("updateOutputObject");
-          }),
-          target: "editing",
-          reenter: true,
+      editing: {
+        entry: ["updateConfig"],
+        on: {
+          CONFIG_CHANGE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("updateConfig");
+              enqueue("updateOutputObject");
+            }),
+            target: "editing",
+            reenter: true,
+          },
+          SET_VALUE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("setValue");
+              enqueue("updateOutputObject");
+            }),
+          },
         },
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("setValue");
-            enqueue("updateOutputObject");
-          }),
+        after: {
+          100: "idle",
         },
-      },
-      after: {
-        100: "idle",
       },
     },
   },
-});
+  {
+    actions: {
+      updateOutputObject: assign({
+        outputs: ({ context }) => ({
+          ...context.outputs,
+          object: context.inputs,
+        }),
+      }),
+      updateConfig: assign({
+        inputSockets: ({ event }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => inputSockets)
+            .run(),
+        name: ({ event }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
+            .run(),
+        description: ({ event }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
+            .run(),
+        schema: ({ event }: any) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
+            .run(),
+        outputs: ({ context, event }) =>
+          match(event)
+            .with(
+              {
+                type: "CONFIG_CHANGE",
+                name: P.string,
+                description: P.string,
+              },
+              ({ schema }) => ({
+                object: context.inputs,
+                schema: {
+                  name: slugify(event.name, "_"),
+                  description: event.description,
+                  parameters: schema,
+                },
+              }),
+            )
+            .run(),
+      }),
+    },
+  },
+);
 
 export type ComposeObjectData = ParsedNode<
   "NodeComposeObject",
@@ -163,53 +211,7 @@ export class NodeComposeObject extends BaseNode<typeof composeObjectMachine> {
 
   constructor(di: DiContainer, data: ComposeObjectData) {
     super("NodeComposeObject", di, data, composeObjectMachine, {
-      actions: {
-        updateOutputObject: assign({
-          outputs: ({ context }) => ({
-            ...context.outputs,
-            object: context.inputs,
-          }),
-        }),
-        updateConfig: assign({
-          inputSockets: ({ event }) =>
-            match(event)
-              .with(
-                { type: "CONFIG_CHANGE" },
-                ({ inputSockets }) => inputSockets,
-              )
-              .run(),
-          name: ({ event }) =>
-            match(event)
-              .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
-              .run(),
-          description: ({ event }) =>
-            match(event)
-              .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
-              .run(),
-          schema: ({ event }: any) =>
-            match(event)
-              .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
-              .run(),
-          outputs: ({ context, event }) =>
-            match(event)
-              .with(
-                {
-                  type: "CONFIG_CHANGE",
-                  name: P.string,
-                  description: P.string,
-                },
-                ({ schema }) => ({
-                  object: context.inputs,
-                  schema: {
-                    name: slugify(event.name, "_"),
-                    description: event.description,
-                    parameters: schema,
-                  },
-                }),
-              )
-              .run(),
-        }),
-      },
+      actions: {},
     });
 
     this.setup();
