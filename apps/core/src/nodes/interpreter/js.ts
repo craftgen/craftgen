@@ -50,6 +50,30 @@ const inputSockets = {
     description: "Run the Javascript code",
     required: true,
   }),
+  libraries: generateSocket({
+    "x-key": "libraries",
+    name: "libraries" as const,
+    title: "Libraries",
+    type: "string",
+    description: "Libraries to include in the Javascript code",
+    "x-controller": "combobox",
+    default: [
+      "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
+    ],
+    allOf: [
+      {
+        enum: [
+          "lodash",
+          "moment",
+          "axios",
+          "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
+        ],
+        type: "string",
+      },
+    ],
+    "x-showSocket": false,
+    required: false,
+  }),
 };
 const outputSockets = {
   result: generateSocket({
@@ -64,13 +88,19 @@ const outputSockets = {
 
 type JavascriptCodeInterpreterInput = {
   code: string;
-  [key: string]: any;
+  libraries: string[];
+  args: {
+    [key: string]: any;
+  };
 };
 
 const executeJavascriptCode = fromPromise(
   async ({ input }: { input: JavascriptCodeInterpreterInput }) => {
     const worker = start();
-    const { code, ...args } = input;
+    const { code, args, libraries } = input;
+    for (const lib of libraries) {
+      await worker.postoffice.installLibrary(lib);
+    }
     const result = await worker.postoffice.sendScript(code, args);
     return result;
   },
@@ -122,7 +152,9 @@ export const executeJavascriptCodeMachine = setup({
       invoke: {
         src: "executeJavascriptCode",
         input: ({ context }) => ({
-          ...context.inputs,
+          args: context.inputs,
+          code: context.inputs.code,
+          libraries: context.inputs.libraries,
         }),
         onDone: {
           target: "done",
@@ -266,7 +298,11 @@ export const JavascriptCodeInterpreterMachine = createMachine(
                   systemId: runId,
                   input: {
                     inputs: {
-                      ...context.inputs,
+                      code: context.inputs.code,
+                      libraries: context.inputs.libraries,
+                      args: {
+                        ...context.inputs,
+                      },
                     },
                     parent: {
                       id: self.id,
@@ -312,6 +348,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
           match(event)
             .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => ({
               ...inputSockets,
+              libraries: context.inputSockets.libraries,
               code: context.inputSockets.code,
               run: context.inputSockets.run,
             }))
@@ -378,7 +415,7 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
     const state = this.actor.getSnapshot();
     const inputGenerator = new SocketGeneratorControl(
       this.actor,
-      (s) => omit(s.context.inputSockets, ["code", "run"]),
+      (s) => omit(s.context.inputSockets, ["code", "run", "libraries"]),
       {
         connectionType: "input",
         name: "Input Sockets",
