@@ -300,6 +300,8 @@ const GenerateTextMachine = createMachine(
     context: ({ input }) =>
       merge<typeof input, any>(
         {
+          name: "Generate Text",
+          description: "Generate text based on a prompt using LLMs",
           inputs: {
             RUN: undefined,
             system: "",
@@ -337,6 +339,11 @@ const GenerateTextMachine = createMachine(
           enqueue("assignChild");
         }),
       },
+      UPDATE_CHILD_ACTORS: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("spawnInputActors");
+        }),
+      },
     },
     states: {
       idle: {
@@ -344,12 +351,6 @@ const GenerateTextMachine = createMachine(
           UPDATE_SOCKET: {
             actions: ["updateSocket"],
           },
-          UPDATE_CHILD_ACTORS: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("spawnInputActors");
-            }),
-          },
-
           RESET: {
             guard: ({ context }) => {
               return context.runs && Object.keys(context.runs).length > 0;
@@ -386,7 +387,6 @@ const GenerateTextMachine = createMachine(
           },
 
           RUN: {
-            // target: "running",
             guard: and([
               ({ context }) => context.inputs.instruction !== "",
               ({ context }) => context.inputs.llm !== null,

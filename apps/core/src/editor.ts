@@ -26,6 +26,7 @@ import {
   ActionArgs,
   assertEvent,
   AnyActorRef,
+  sendTo,
 } from "xstate";
 // import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -514,6 +515,7 @@ export class Editor<
         console.error("Missing config for", event.params.actor.src);
       }
 
+      console.log("####", conf);
       for (const [key, value] of Object.entries(conf?.internal)) {
         enqueue.sendTo(event.params.actor, ({ context, self }) => {
           return {
@@ -694,21 +696,17 @@ export class Editor<
       if (!params) {
         throw new Error("Missing params");
       }
-      const targetNode = this.editor.getNode(params?.nodeId);
+      console.log("SYNC CONNECTION", action, params);
+      // const targetNode = this.editor.getNode(params?.nodeId);
       console.group("syncConnection");
-      console.log("NODES", this.editor.getNodes());
-      console.log("targetNode", targetNode);
-      console.groupEnd();
-      if (targetNode) {
-        targetNode.actor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [params.inputKey]: action.context.outputs[params.outputKey],
-            },
+      sendTo(({ system }) => system.get(params.nodeId), {
+        type: "SET_VALUE",
+        params: {
+          values: {
+            [params.inputKey]: action.context.outputs[params.outputKey],
           },
-        });
-      }
+        },
+      });
     },
     triggerNode: async (
       action: ActionArgs<any, any, any>,

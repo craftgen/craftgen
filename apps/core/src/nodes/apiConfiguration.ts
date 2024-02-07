@@ -1,6 +1,12 @@
-import { has, isNil, merge } from "lodash-es";
+import { has, merge, isEqual } from "lodash-es";
 import dedent from "ts-dedent";
-import { createMachine, assign, enqueueActions } from "xstate";
+import {
+  createMachine,
+  assign,
+  enqueueActions,
+  fromObservable,
+  SnapshotFrom,
+} from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -12,6 +18,16 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode } from "./base";
+import {
+  from,
+  tap,
+  map,
+  distinctUntilChanged,
+  switchMap,
+  combineLatest,
+  BehaviorSubject,
+  of,
+} from "rxjs";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -72,6 +88,26 @@ const outputSockets = {
     isMultiple: false,
     "x-showSocket": true,
   }),
+  baseUrl: generateSocket({
+    "x-key": "baseUrl",
+    name: "baseUrl" as const,
+    title: "Base URL",
+    type: "string" as const,
+    description: "The base URL for the API",
+    required: true,
+    "x-showSocket": false,
+  }),
+  headers: generateSocket({
+    "x-key": "headers",
+    name: "headers" as const,
+    title: "Headers",
+    type: "object" as const,
+    description: "The headers for the API",
+    "x-controller": "json",
+    required: true,
+    "x-isAdvanced": true,
+    "x-showSocket": false,
+  }),
 };
 
 export const ApiConfigurationMachine = createMachine(
@@ -90,6 +126,8 @@ export const ApiConfigurationMachine = createMachine(
       }
       return merge<typeof input, any>(
         {
+          name: "API Configuration",
+          description: "API Configuration",
           inputs: {
             ...defaultInputs,
           },
@@ -108,7 +146,13 @@ export const ApiConfigurationMachine = createMachine(
         input,
       );
     },
-    entry: enqueueActions(({ enqueue, check }) => {
+    entry: enqueueActions(({ enqueue, self }) => {
+      enqueue.spawnChild("socketWatcher", {
+        input: {
+          self,
+        },
+        syncSnapshot: false,
+      });
       enqueue("assignParent");
       enqueue("updateOutput");
     }),
@@ -176,6 +220,8 @@ export const ApiConfigurationMachine = createMachine(
         enqueue.assign({
           outputs: ({ context }) => {
             return {
+              baseUrl: context.inputs.baseUrl,
+              headers: context.inputs.headers,
               config: {
                 ...context.inputs,
               },
@@ -183,16 +229,66 @@ export const ApiConfigurationMachine = createMachine(
           },
         });
         const connections = context.outputSockets.config["x-connection"];
+
         for (const [target, conn] of Object.entries(connections || {})) {
-          enqueue({
-            type: "syncConnection",
-            params: {
-              nodeId: target,
-              outputKey: "config",
-              inputKey: conn.key,
-            },
-          });
+          enqueue.sendTo(
+            ({ system }) => system.get(target),
+            ({ context }) => ({
+              type: "SET_VALUE",
+              params: {
+                values: {
+                  [conn.key]: context.outputs["config"],
+                },
+              },
+            }),
+          );
+          // enqueue({
+          //   type: "syncConnection",
+          //   params: {
+          //     nodeId: target,
+          //     outputKey: "config",
+          //     inputKey: conn.key,
+          //   },
+          // });
         }
+      }),
+    },
+    actors: {
+      socketWatcher: fromObservable(({ input }) => {
+        const previousOutputs = new Map();
+
+        return from(input.self as any).pipe(
+          // Listen to snapshot events
+          switchMap((state) => {
+            const currentOutputs = state.context.outputs;
+            const outputKeys = Object.keys(currentOutputs);
+
+            // Iterate over each key to detect changes
+            outputKeys.forEach((key) => {
+              const currentValue = currentOutputs[key];
+              const previousValue = previousOutputs.get(key);
+
+              if (!previousValue) {
+                // TODO:
+              }
+              // If the value has changed, or if it's a new key
+              if (!isEqual(currentValue, previousValue)) {
+                // Update the map with the current value for future comparisons
+                previousOutputs.set(key, currentValue);
+
+                // Send a key-specific change event
+                console.log("###", key, currentValue);
+              }
+            });
+
+            // This just ensures the switchMap has something to emit, actual value here is not used
+            return of(currentOutputs);
+          }),
+          // Optionally, act on the changes here or directly within the forEach loop above
+          tap(() => {
+            // This is a placeholder for any additional logic you might want to execute after sending events
+          }),
+        );
       }),
     },
   },
