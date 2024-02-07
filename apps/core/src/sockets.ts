@@ -23,6 +23,7 @@ import type { Message } from "./controls/thread.control";
 import { ThreadControl } from "./controls/thread.control";
 import type { NodeTypes } from "./types";
 import { nodeTypes } from "./types";
+import { JsCdnController } from "./controls/js-cdn";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -521,6 +522,26 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           selector,
           {
             change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "array",
+        },
+        {
+          "x-controller": "js-cdn",
+        },
+      ],
+      () => {
+        return new JsCdnController(
+          actor,
+          selector,
+          {
+            onChange,
           },
           definition,
         );

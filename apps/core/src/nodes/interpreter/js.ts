@@ -54,9 +54,9 @@ const inputSockets = {
     "x-key": "libraries",
     name: "libraries" as const,
     title: "Libraries",
-    type: "string",
+    type: "array",
     description: "Libraries to include in the Javascript code",
-    "x-controller": "combobox",
+    "x-controller": "js-cdn",
     default: [
       "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
     ],

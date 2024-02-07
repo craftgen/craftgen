@@ -50,6 +50,8 @@ import { CustomInput } from "./ui/control/custom-input";
 import { CustomTextarea } from "./ui/control/custom-textarea";
 import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai-thread";
 import { ThreadControlComponent } from "./ui/control/thread/control-thread";
+import { JsCdnController } from "@seocraft/core/src/controls/js-cdn";
+import { JsCdnControlComponent } from "./ui/control/control-js-cdn";
 
 export const getControlWithDefinition = (definition: any) => {};
 
@@ -75,6 +77,7 @@ export const getControl = (
     .with(P.instanceOf(SliderControl), () => SliderControlComponent)
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => ComboboxControlComponent)
+    .with(P.instanceOf(JsCdnController), () => JsCdnControlComponent)
     .with(P.instanceOf(OpenAIThreadControl), () => OpenAIThreadControlComponent)
     .with(
       P.instanceOf(OpenAIApiConfigurationControl),
