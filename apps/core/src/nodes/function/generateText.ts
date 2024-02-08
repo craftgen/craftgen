@@ -324,7 +324,7 @@ const GenerateTextMachine = createMachine(
       };
       actions: None;
       events: {
-        type: "UPDATE_CHILD_ACTORS";
+        type: "INITIALIZE";
       };
       guards: None;
       actors: {
@@ -339,9 +339,9 @@ const GenerateTextMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
+      INITIALIZE: {
         actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
+          enqueue("initialize");
         }),
       },
     },

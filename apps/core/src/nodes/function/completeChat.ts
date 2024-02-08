@@ -772,9 +772,9 @@ const CompleteChatMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
+      INITIALIZE: {
         actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
+          enqueue("initialize");
         }),
       },
     },

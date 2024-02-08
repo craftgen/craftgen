@@ -6,6 +6,7 @@ import {
   enqueueActions,
   fromObservable,
   SnapshotFrom,
+  AnyActor,
 } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
@@ -147,13 +148,7 @@ export const ApiConfigurationMachine = createMachine(
       );
     },
     entry: enqueueActions(({ enqueue, self }) => {
-      enqueue.spawnChild("socketWatcher", {
-        input: {
-          self,
-        },
-        syncSnapshot: false,
-      });
-      enqueue("assignParent");
+      enqueue("initialize");
       enqueue("updateOutput");
     }),
     types: {} as BaseMachineTypes<{
@@ -178,10 +173,8 @@ export const ApiConfigurationMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
-        }),
+      INITIALIZE: {
+        actions: "initialize",
       },
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
@@ -228,67 +221,29 @@ export const ApiConfigurationMachine = createMachine(
             };
           },
         });
-        const connections = context.outputSockets.config["x-connection"];
+        // const connections = context.outputSockets.config["x-connection"];
 
-        for (const [target, conn] of Object.entries(connections || {})) {
-          enqueue.sendTo(
-            ({ system }) => system.get(target),
-            ({ context }) => ({
-              type: "SET_VALUE",
-              params: {
-                values: {
-                  [conn.key]: context.outputs["config"],
-                },
-              },
-            }),
-          );
-          // enqueue({
-          //   type: "syncConnection",
-          //   params: {
-          //     nodeId: target,
-          //     outputKey: "config",
-          //     inputKey: conn.key,
-          //   },
-          // });
-        }
-      }),
-    },
-    actors: {
-      socketWatcher: fromObservable(({ input }) => {
-        const previousOutputs = new Map();
-
-        return from(input.self as any).pipe(
-          // Listen to snapshot events
-          switchMap((state) => {
-            const currentOutputs = state.context.outputs;
-            const outputKeys = Object.keys(currentOutputs);
-
-            // Iterate over each key to detect changes
-            outputKeys.forEach((key) => {
-              const currentValue = currentOutputs[key];
-              const previousValue = previousOutputs.get(key);
-
-              if (!previousValue) {
-                // TODO:
-              }
-              // If the value has changed, or if it's a new key
-              if (!isEqual(currentValue, previousValue)) {
-                // Update the map with the current value for future comparisons
-                previousOutputs.set(key, currentValue);
-
-                // Send a key-specific change event
-                console.log("###", key, currentValue);
-              }
-            });
-
-            // This just ensures the switchMap has something to emit, actual value here is not used
-            return of(currentOutputs);
-          }),
-          // Optionally, act on the changes here or directly within the forEach loop above
-          tap(() => {
-            // This is a placeholder for any additional logic you might want to execute after sending events
-          }),
-        );
+        // for (const [target, conn] of Object.entries(connections || {})) {
+        //   enqueue.sendTo(
+        //     ({ system }) => system.get(target),
+        //     ({ context }) => ({
+        //       type: "SET_VALUE",
+        //       params: {
+        //         values: {
+        //           [conn.key]: context.outputs["config"],
+        //         },
+        //       },
+        //     }),
+        //   );
+        //   // enqueue({
+        //   //   type: "syncConnection",
+        //   //   params: {
+        //   //     nodeId: target,
+        //   //     outputKey: "config",
+        //   //     inputKey: conn.key,
+        //   //   },
+        //   // });
+        // }
       }),
     },
   },

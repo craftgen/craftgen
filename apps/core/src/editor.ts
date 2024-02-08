@@ -69,6 +69,7 @@ import {
   switchMap,
   tap,
 } from "rxjs";
+import { socketWatcher } from "./socket-watcher";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -445,7 +446,7 @@ export class Editor<
       }),
     }),
     assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
-      console.log("#".repeat(20), "ASSIGNING PARENT");
+      console.log("#".repeat(20), "ASSIGNING PARENT", context);
       if (check(({ context }) => !isNil(context.parent))) {
         console.log("SENDING TO PARENT", context.parent?.id);
 
@@ -565,6 +566,19 @@ export class Editor<
       //     },
       //   };
       // });
+    }),
+    initialize: enqueueActions(({ enqueue, check, system, self }) => {
+      enqueue("assignParent");
+      enqueue("spawnInputActors");
+      if (check(() => !system.get(`${self.id}-socketWatcher`))) {
+        enqueue.spawnChild("socketWatcher", {
+          id: `${self.id}-socketWatcher`,
+          input: {
+            self,
+          },
+          syncSnapshot: false,
+        });
+      }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
       console.group("SPAWN INPUT ACTORS");
@@ -849,6 +863,7 @@ export class Editor<
       //   ...this.baseActions,
       // },
       actors: {
+        socketWatcher,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -857,6 +872,9 @@ export class Editor<
             const machine = this.machines[k];
 
             acc[k] = machine.provide({
+              actors: {
+                socketWatcher,
+              },
               actions: {
                 ...this.baseActions,
               },
@@ -1146,7 +1164,7 @@ export class Editor<
     for (const [key, value] of Object.entries(children)) {
       const actor = this.actor.system.get(key);
       actor.send({
-        type: "UPDATE_CHILD_ACTORS",
+        type: "INITIALIZE",
       });
     }
 

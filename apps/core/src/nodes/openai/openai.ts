@@ -177,8 +177,7 @@ export const OpenaiModelMachine = createMachine(
   {
     id: "openai-model",
     entry: enqueueActions(({ enqueue, context }) => {
-      enqueue("assignParent");
-      enqueue("spawnInputActors");
+      enqueue("initialize");
     }),
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
@@ -192,6 +191,8 @@ export const OpenaiModelMachine = createMachine(
       }
       return merge<typeof input, any>(
         {
+          name: "OpenAI Model",
+          description: "OpenAI Model",
           inputs: {
             ...defaultInputs,
           },
@@ -212,9 +213,9 @@ export const OpenaiModelMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
+      INITIALIZE: {
         actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
+          enqueue("initialize");
         }),
       },
     },

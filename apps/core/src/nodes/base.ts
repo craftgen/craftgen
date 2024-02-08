@@ -128,7 +128,7 @@ export type BaseEventTypes =
       };
     }
   | {
-      type: "UPDATE_CHILD_ACTORS";
+      type: "INITIALIZE";
     }
   | {
       type: "ASSIGN_CHILD";
@@ -205,6 +205,9 @@ export type BaseActionTypes =
     }
   | {
       type: "assignChild";
+    }
+  | {
+      type: "initialize";
     }
   | {
       type: "assignParent";
