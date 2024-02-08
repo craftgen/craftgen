@@ -28,7 +28,7 @@ import {
   AnyActorRef,
   sendTo,
 } from "xstate";
-// import { createBrowserInspector } from "@statelyai/inspect";
+import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -122,8 +122,6 @@ export interface EditorProps<
     contexts: SnapshotFrom<AnyStateMachine>[];
   };
 }
-
-// const { inspect } = createBrowserInspector();
 
 const EditorMachine = setup({
   types: {
@@ -1100,9 +1098,12 @@ export class Editor<
     }
 
     this.actor = createActor(withLogging(withPersistance(this.machine)), {
-      // inspect,
       systemId: "editor",
       inspect: (inspectionEvent) => {
+        if (false) {
+          const { inspect } = createBrowserInspector();
+          inspect.next(inspectionEvent);
+        }
         if (inspectionEvent.type === "@xstate.event") {
           const event = inspectionEvent.event;
 
