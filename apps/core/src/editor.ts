@@ -444,7 +444,7 @@ export class Editor<
       }),
     }),
     assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
-      console.log("#".repeat(20), "ASSIGNING PARENT", context);
+      console.log("#".repeat(20), "ASSIGNING PARENT", self.src);
       if (check(({ context }) => !isNil(context.parent))) {
         console.log("SENDING TO PARENT", context.parent?.id);
 
@@ -696,30 +696,6 @@ export class Editor<
       }
       console.groupEnd();
     }),
-
-    syncConnection: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        nodeId: string;
-        outputKey: string;
-        inputKey: string;
-      },
-    ) => {
-      if (!params) {
-        throw new Error("Missing params");
-      }
-      console.log("SYNC CONNECTION", action, params);
-      // const targetNode = this.editor.getNode(params?.nodeId);
-      console.group("syncConnection");
-      sendTo(({ system }) => system.get(params.nodeId), {
-        type: "SET_VALUE",
-        params: {
-          values: {
-            [params.inputKey]: action.context.outputs[params.outputKey],
-          },
-        },
-      });
-    },
     triggerNode: async (
       action: ActionArgs<any, any, any>,
       params: {

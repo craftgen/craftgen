@@ -221,29 +221,6 @@ export const ApiConfigurationMachine = createMachine(
             };
           },
         });
-        // const connections = context.outputSockets.config["x-connection"];
-
-        // for (const [target, conn] of Object.entries(connections || {})) {
-        //   enqueue.sendTo(
-        //     ({ system }) => system.get(target),
-        //     ({ context }) => ({
-        //       type: "SET_VALUE",
-        //       params: {
-        //         values: {
-        //           [conn.key]: context.outputs["config"],
-        //         },
-        //       },
-        //     }),
-        //   );
-        //   // enqueue({
-        //   //   type: "syncConnection",
-        //   //   params: {
-        //   //     nodeId: target,
-        //   //     outputKey: "config",
-        //   //     inputKey: conn.key,
-        //   //   },
-        //   // });
-        // }
       }),
     },
   },
