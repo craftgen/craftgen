@@ -271,9 +271,9 @@ const OpenAIGenerateStructureMachine = createMachine({
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
         },
-        UPDATE_CHILD_ACTORS: {
+        INITIALIZE: {
           actions: enqueueActions(({ enqueue }) => {
-            enqueue("spawnInputActors");
+            enqueue("initialize");
           }),
         },
         SET_VALUE: {

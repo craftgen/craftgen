@@ -52,7 +52,7 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
           },
         });
         props.data.actor.send({
-          type: "UPDATE_CHILD_ACTORS",
+          type: "INITIALIZE",
         });
       },
       definition: omit(item, ["x-actor-ref"]),

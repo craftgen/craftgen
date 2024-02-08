@@ -278,17 +278,6 @@ export const ThreadMachine = createMachine(
             };
           },
         });
-        const connections = context.outputSockets.messages["x-connection"];
-        for (const [target, conn] of Object.entries(connections || {})) {
-          enqueue({
-            type: "syncConnection",
-            params: {
-              nodeId: target,
-              outputKey: "messages",
-              inputKey: conn.key,
-            },
-          });
-        }
       }),
       addMessage: assign({
         inputs: ({ context, event }, params) => {

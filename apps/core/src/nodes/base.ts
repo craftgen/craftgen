@@ -128,7 +128,7 @@ export type BaseEventTypes =
       };
     }
   | {
-      type: "UPDATE_CHILD_ACTORS";
+      type: "INITIALIZE";
     }
   | {
       type: "ASSIGN_CHILD";
@@ -188,14 +188,6 @@ export type BaseActionTypes =
       };
     }
   | {
-      type: "syncConnection";
-      params?: {
-        nodeId: string;
-        outputKey: string;
-        inputKey: string;
-      };
-    }
-  | {
       type: "setError";
       params?: {
         name: string;
@@ -205,6 +197,9 @@ export type BaseActionTypes =
     }
   | {
       type: "assignChild";
+    }
+  | {
+      type: "initialize";
     }
   | {
       type: "assignParent";
@@ -528,34 +523,6 @@ export abstract class BaseNode<
   //     }
   //   },
 
-  //   syncConnection: async (
-  //     action: ActionArgs<any, any, any>,
-  //     params?: {
-  //       nodeId: string;
-  //       outputKey: string;
-  //       inputKey: string;
-  //     },
-  //   ) => {
-  //     if (!params) {
-  //       throw new Error("Missing params");
-  //     }
-  //     const targetNode = this.di.editor.getNode(params?.nodeId);
-  //     console.group("syncConnection");
-  //     console.log("NODES", this.di.editor.getNodes());
-  //     console.log("syncConnection", this.identifier, params);
-  //     console.log("targetNode", targetNode);
-  //     console.groupEnd();
-  //     if (targetNode) {
-  //       targetNode.actor.send({
-  //         type: "SET_VALUE",
-  //         params: {
-  //           values: {
-  //             [params.inputKey]: action.context.outputs[params.outputKey],
-  //           },
-  //         },
-  //       });
-  //     }
-  //   },
   //   triggerNode: async (
   //     action: ActionArgs<any, any, any>,
   //     params: {

@@ -115,9 +115,7 @@ export class Connection<
     this.sourceNode = this.editor.editor.getNode(source.id);
     this.targetNode = this.editor.editor.getNode(target.id);
 
-    if (
-      this.sourceNode.snap.context.outputs?.[sourceOutput]
-    ) {
+    if (this.sourceNode.snap.context.outputs?.[sourceOutput]) {
       this.sourceValue = this.sourceNode.snap.context.outputs[sourceOutput];
     }
 
