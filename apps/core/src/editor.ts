@@ -759,10 +759,30 @@ export class Editor<
 
         const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
 
+        const values = Object.entries(action.context.outputSockets)
+          .filter(([key, value]) => {
+            return value["x-connection"]?.[nodeId];
+          })
+          .filter(([key, value]) => {
+            return key !== params.port;
+          })
+          .map(([key, value]) => {
+            const targetkey = value["x-connection"]?.[nodeId].key;
+            const sourceValue = action.context.outputs[key];
+            return {
+              [targetkey]: sourceValue,
+            };
+          })
+          .reduce((acc, value) => {
+            return { ...acc, ...value };
+          }, {});
+
+        console.log("LINKED VALUES", values);
+
         targetNode.send({
           type: socket["x-event"],
           params: {
-            values: action.context.outputs,
+            values,
           },
         });
       }
