@@ -46,7 +46,7 @@ import { SliderControlComponenet as SliderControlComponent } from "./ui/control/
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
 import { SWRSelectControlComponent } from "./ui/control/control-swr-select";
 import { TableControlComponent } from "./ui/control/control-table";
-import { CustomInput } from "./ui/control/custom-input";
+import { CustomInput } from "./ui/control/custom-input-cm5";
 import { CustomTextarea } from "./ui/control/custom-textarea";
 import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai-thread";
 import { ThreadControlComponent } from "./ui/control/thread/control-thread";

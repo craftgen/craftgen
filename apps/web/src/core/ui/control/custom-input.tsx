@@ -110,7 +110,6 @@ export function CustomInput(props: { data: InputControl }) {
     return val;
   }, []);
 
-  const handledChange = (val: string) => {
     console.log("##", val);
     const res = parseValue(val);
     match(res)
