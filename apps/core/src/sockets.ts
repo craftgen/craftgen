@@ -1,7 +1,5 @@
 import { useCallback } from "react";
-import { ToolDefinition } from "modelfusion";
 import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
-import { JSONSchema } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 import type { AnyActor, SnapshotFrom } from "xstate";
@@ -21,10 +19,11 @@ import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
 import type { JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
-import type { Message} from "./controls/thread.control";
+import type { Message } from "./controls/thread.control";
 import { ThreadControl } from "./controls/thread.control";
-import type { NodeTypes} from "./types";
+import type { NodeTypes } from "./types";
 import { nodeTypes } from "./types";
+import { JsCdnController } from "./controls/js-cdn";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -60,7 +59,6 @@ export type SocketType =
   | "audioSocket"
   | "imageSocket"
   | "embeddingSocket"
-   
   | "documentSocket"
   | "databaseIdSocket"
   | "dateSocket"
@@ -220,9 +218,6 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
   return match([socket, definition])
     .with(
       [
-        // {
-        //   name: "",
-        // },
         P.any,
         {
           "x-actor-ref": P.any,
@@ -527,6 +522,26 @@ export const getControlBySocket = <T extends AnyActor = AnyActor>({
           selector,
           {
             change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "array",
+        },
+        {
+          "x-controller": "js-cdn",
+        },
+      ],
+      () => {
+        return new JsCdnController(
+          actor,
+          selector,
+          {
+            onChange,
           },
           definition,
         );

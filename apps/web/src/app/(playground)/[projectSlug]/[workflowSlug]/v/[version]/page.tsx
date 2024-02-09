@@ -32,11 +32,7 @@ const PlaygroundPage = async (props: {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      <Playground workflow={workflow} session={session} />;
-    </React.Suspense>
-  );
+  return <Playground workflow={workflow} session={session} />;
 };
 
 export default PlaygroundPage;

@@ -6,12 +6,28 @@ import {
   BaseNode,
   None,
 } from "../base";
-import { createMachine, enqueueActions, fromPromise } from "xstate";
+import { match, P } from "ts-pattern";
+import {
+  AnyActorRef,
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+} from "xstate";
 import { DiContainer } from "../../types";
-import { merge } from "lodash-es";
-import { generateSocket } from "../../controls/socket-generator";
+import { merge, omit } from "lodash-es";
+import {
+  JSONSocket,
+  SocketGeneratorControl,
+  generateSocket,
+} from "../../controls/socket-generator";
 import { WorkerMessenger } from "../../worker/messenger";
 import { start } from "../../worker/main";
+import { createId } from "@paralleldrive/cuid2";
+import { createJsonSchema } from "../../utils";
+import { slugify } from "../../lib/string";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 const inputSockets = {
   code: generateSocket({
@@ -21,6 +37,7 @@ const inputSockets = {
     type: "string" as const,
     default: "async () => {\n  return 42\n}",
     description: "the code",
+    "x-showSocket": false,
     required: true,
   }),
   run: generateSocket({
@@ -32,6 +49,30 @@ const inputSockets = {
     "x-event": "RUN",
     description: "Run the Javascript code",
     required: true,
+  }),
+  libraries: generateSocket({
+    "x-key": "libraries",
+    name: "libraries" as const,
+    title: "Libraries",
+    type: "array",
+    description: "Libraries to include in the Javascript code",
+    "x-controller": "js-cdn",
+    default: [
+      "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
+    ],
+    allOf: [
+      {
+        enum: [
+          "lodash",
+          "moment",
+          "axios",
+          "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
+        ],
+        type: "string",
+      },
+    ],
+    "x-showSocket": false,
+    required: false,
   }),
 };
 const outputSockets = {
@@ -46,17 +87,111 @@ const outputSockets = {
 };
 
 type JavascriptCodeInterpreterInput = {
-  // worker: WorkerMessenger;
   code: string;
+  libraries: string[];
+  args: {
+    [key: string]: any;
+  };
 };
 
 const executeJavascriptCode = fromPromise(
   async ({ input }: { input: JavascriptCodeInterpreterInput }) => {
     const worker = start();
-    const result = await worker.postoffice.sendScript(input.code, []);
+    const { code, args, libraries } = input;
+    for (const lib of libraries) {
+      await worker.postoffice.installLibrary(lib);
+    }
+    const result = await worker.postoffice.sendScript(code, args);
     return result;
   },
 );
+
+export const executeJavascriptCodeMachine = setup({
+  types: {
+    input: {} as {
+      inputs: {
+        code: string;
+        [key: string]: any;
+      };
+      parent: {
+        id: string;
+      };
+    },
+    context: {} as {
+      inputs: {
+        code: string;
+        [key: string]: any;
+      };
+      outputs: {
+        result: any | null;
+      };
+    },
+  },
+  actors: {
+    executeJavascriptCode,
+  },
+}).createMachine({
+  id: "executeJavascriptCode",
+  context: ({ input }) => {
+    return merge(
+      {
+        inputs: {},
+        outputs: {
+          result: null,
+        },
+      },
+      input,
+    );
+  },
+  initial: "run",
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("assignParent");
+  }),
+  states: {
+    run: {
+      invoke: {
+        src: "executeJavascriptCode",
+        input: ({ context }) => ({
+          args: context.inputs,
+          code: context.inputs.code,
+          libraries: context.inputs.libraries,
+        }),
+        onDone: {
+          target: "done",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => {
+                return {
+                  ...context.outputs,
+                  result: event.output,
+                  ok: true,
+                };
+              },
+            });
+          }),
+        },
+        onError: {
+          target: "error",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => {
+                return {
+                  ...context.outputs,
+                  result: event.error,
+                  ok: false,
+                };
+              },
+            });
+          }),
+        },
+      },
+    },
+    done: {
+      type: "final",
+    },
+    error: {},
+  },
+});
 
 export const JavascriptCodeInterpreterMachine = createMachine(
   {
@@ -71,10 +206,10 @@ export const JavascriptCodeInterpreterMachine = createMachine(
           defaultInputs[inputKey] = undefined;
         }
       }
-      // const worker = start();
-      // console.log("@".repeat(200), worker);
       return merge<typeof input, any>(
         {
+          name: "Javascript",
+          description: "Javascript code interpreter",
           inputs: {
             ...defaultInputs,
           },
@@ -91,69 +226,112 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         input,
       );
     },
-    // always: {
-    //   guard: ({ context }) => isNil(context.worker),
-    //   actions: enqueueActions(({ enqueue }) => {
-    //     console.log("WORKER", start);
-    //     enqueue.assign({
-    //       worker: start(),
-    //     });
-    //   }),
-    // },
     types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-        worker?: WorkerMessenger;
-      };
+      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {};
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
         worker?: WorkerMessenger;
+        runs: Record<string, AnyActorRef>;
       };
-      actions: None;
-      events: None;
+      actions: {
+        type: "updateConfig";
+        params?: {
+          name: string;
+          description: string;
+          inputSockets: JSONSocket[];
+          schema: object;
+        };
+      };
+      events: {
+        type: "CONFIG_CHANGE";
+        name: string;
+        description: string;
+        inputSockets: JSONSocket[];
+        schema: JSONSchemaDefinition;
+      };
       actors: None;
       guards: None;
     }>,
     initial: "idle",
+    on: {
+      SET_VALUE: {
+        actions: ["setValue"],
+      },
+      UPDATE_SOCKET: {
+        actions: ["updateSocket"],
+      },
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
+      CONFIG_CHANGE: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("updateConfig");
+        }),
+      },
+      ASSIGN_RUN: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue.assign({
+            runs: ({ context, event }) => {
+              return {
+                ...context.runs,
+                [event.params.actor.id]: event.params.actor,
+              };
+            },
+          });
+        }),
+      },
+    },
+
     states: {
       idle: {
         on: {
           RUN: {
-            target: "run",
-            // actions: enqueueActions(({ enqueue, context }) => {
-            //   enqueue.spawnChild("executeJavascriptCode", {
-            //     input: {
-            //       worker: worker,
-            //       code: context.inputs.code,
-            //     },
-            //   });
-            // }),
-          },
-        },
-      },
-      run: {
-        invoke: {
-          src: "executeJavascriptCode",
-          input: ({ context }) => {
-            // const worker = start();
-            return {
-              // worker: worker,
-              code: context.inputs.code,
-            };
-          },
-          onDone: {
-            target: "idle",
-            actions: enqueueActions(({ enqueue, event }) => {
-              console.log("RESSS", event);
-              enqueue.assign({
-                outputs: {
-                  result: event.output,
+            actions: enqueueActions(({ enqueue, context, system }) => {
+              const runId = `call-${createId()}`;
+              enqueue.sendTo(system.get("editor"), ({ self }) => ({
+                type: "SPAWN",
+                params: {
+                  parent: self.id,
+                  id: runId,
+                  machineId: "NodeJavascriptCodeInterpreter.run",
+                  systemId: runId,
+                  input: {
+                    inputs: {
+                      code: context.inputs.code,
+                      libraries: context.inputs.libraries,
+                      args: {
+                        ...context.inputs,
+                      },
+                    },
+                    parent: {
+                      id: self.id,
+                    },
+                  } as any,
                 },
-              });
+              }));
             }),
           },
-          onError: {
-            target: "idle",
-            actions: enqueueActions(({ enqueue, event }) => {
-              console.error(event);
+          RESET: {
+            guard: ({ context }) => {
+              return context.runs && Object.keys(context.runs).length > 0;
+            },
+            actions: enqueueActions(({ enqueue, context, system }) => {
+              Object.entries(context.runs).forEach(([runId, run]) => {
+                enqueue.sendTo(system.get("editor"), {
+                  type: "DESTROY",
+                  params: {
+                    id: runId,
+                  },
+                });
+              });
+              enqueue.assign({
+                runs: {},
+                outputs: ({ context }) => ({
+                  ...context.outputs,
+                  result: null,
+                }),
+              });
             }),
           },
         },
@@ -162,7 +340,50 @@ export const JavascriptCodeInterpreterMachine = createMachine(
   },
   {
     actors: {
-      executeJavascriptCode,
+      executeJavascriptCode: executeJavascriptCodeMachine,
+    },
+    actions: {
+      updateConfig: assign({
+        inputSockets: ({ event, context }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => ({
+              ...inputSockets,
+              libraries: context.inputSockets.libraries,
+              code: context.inputSockets.code,
+              run: context.inputSockets.run,
+            }))
+            .run(),
+        name: ({ event }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
+            .run(),
+        description: ({ event }) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
+            .run(),
+        schema: ({ event }: any) =>
+          match(event)
+            .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
+            .run(),
+        outputs: ({ context, event }) =>
+          match(event)
+            .with(
+              {
+                type: "CONFIG_CHANGE",
+                name: P.string,
+                description: P.string,
+              },
+              ({ schema }) => ({
+                object: context.inputs,
+                schema: {
+                  name: slugify(event.name, "_"),
+                  description: event.description,
+                  parameters: schema,
+                },
+              }),
+            )
+            .run(),
+      }),
     },
   },
 );
@@ -179,6 +400,7 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
 
   static machines = {
     NodeJavascriptCodeInterpreter: JavascriptCodeInterpreterMachine,
+    "NodeJavascriptCodeInterpreter.run": executeJavascriptCodeMachine,
   };
 
   constructor(di: DiContainer, data: any) {
@@ -190,5 +412,35 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
       {},
     );
     this.setup();
+    const state = this.actor.getSnapshot();
+    const inputGenerator = new SocketGeneratorControl(
+      this.actor,
+      (s) => omit(s.context.inputSockets, ["code", "run", "libraries"]),
+      {
+        connectionType: "input",
+        name: "Input Sockets",
+        ignored: ["trigger"],
+        tooltip: "Add input sockets",
+        initial: {
+          name: state.context.name,
+          description: state.context.description,
+        },
+        onChange: ({ sockets, name, description }) => {
+          const schema = createJsonSchema(sockets);
+          this.setLabel(name);
+          this.actor.send({
+            type: "CONFIG_CHANGE",
+            name,
+            description: description || "",
+            inputSockets: sockets,
+            schema,
+          });
+        },
+      },
+    );
+    this.setLabel(
+      this.snap.context.name || NodeJavascriptCodeInterpreter.label,
+    );
+    this.addControl("inputGenerator", inputGenerator);
   }
 }

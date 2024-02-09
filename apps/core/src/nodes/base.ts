@@ -1,5 +1,4 @@
-import { createId } from "@paralleldrive/cuid2";
-import { get, has, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
+import { get, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
@@ -7,9 +6,8 @@ import { of, Subject } from "rxjs";
 import { catchError, debounceTime, groupBy, mergeMap } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { assign, createActor, enqueueActions, waitFor } from "xstate";
+import { waitFor } from "xstate";
 import type {
-  ActionArgs,
   Actor,
   AnyActorLogic,
   AnyActorRef,
@@ -51,6 +49,9 @@ export interface BaseInputType<
   I extends Record<string, any> = {},
   O extends Record<string, any> = {},
 > {
+  name: string;
+  description: string;
+
   inputs?: Partial<MappedType<I>>;
   inputSockets?: I;
   outputs?: MappedType<O>;
@@ -61,13 +62,18 @@ export interface BaseContextType<
   I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
   O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
 > {
+  name: string;
+  description: string;
+
   inputs: MappedType<I>;
   outputs: MappedType<O>;
+
   outputSockets: O;
   inputSockets: I;
+
   parent?: {
     id: string; // System Id
-    port: string; // Input port
+    port?: string; // Input port // CHILD ACTORS only
   };
   error: {
     name: string;
@@ -129,6 +135,12 @@ export type BaseEventTypes =
       params: {
         actor: AnyActorRef;
         port: string;
+      };
+    }
+  | {
+      type: "ASSIGN_RUN";
+      params: {
+        actor: AnyActorRef;
       };
     };
 
@@ -199,6 +211,15 @@ export type BaseActionTypes =
     }
   | {
       type: "spawnInputActors";
+    }
+  | {
+      type: "spawnRun";
+      params: {
+        id: string;
+        machineId: string;
+        input: any;
+        systemId: string;
+      };
     }
   | {
       type: "setupInternalActorConnections";
@@ -638,7 +659,7 @@ export abstract class BaseNode<
 
   public baseImplentations: MachineImplementationsFrom<Machine> = {
     guards: this.baseGuards,
-    actions: this.baseActions,
+    // actions: this.baseActions,
   };
 
   public machineImplements: MachineImplementationsFrom<Machine>;
@@ -740,34 +761,6 @@ export abstract class BaseNode<
 
   public setup() {
     this.actor = this.setupActor(this.di.actor.system.get(this.contextId));
-    // if (this.nodeData.state) {
-    //   // EXECUTION STATE
-    //   const actorInput = {
-    //     snapshot: this.nodeData.state,
-    //   };
-    //   this.actor = this.setupActor(actorInput);
-    // } else if (
-    //   this.actors.has(this.contextId)
-    //   // this.nodeData.context &&
-    //   // has(this.nodeData.context, "context") &&
-    //   // has(this.nodeData.context, "value")
-    // ) {
-    //   // CONTEXT STATE
-    //   this.actor = this.actors.get(this.contextId)!;
-    // } else if (
-    //   this.nodeData.context &&
-    //   has(this.nodeData.context, "context") &&
-    //   has(this.nodeData.context, "value")
-    // ) {
-    //   this.actor = this.setupActor({
-    //     snapshot: this.nodeData.context,
-    //   });
-    // } else {
-    //   this.actor = this.setupActor({
-    //     // NEW NODE
-    //     input: this.nodeData.context,
-    //   });
-    // }
     this.setSnap(this.actor.getSnapshot() as any);
 
     console.log("setup", {
@@ -788,7 +781,6 @@ export abstract class BaseNode<
         }
       },
     );
-
     const inputSocketHandlers = reaction(
       () => this.inputSockets,
       async (sockets) => {

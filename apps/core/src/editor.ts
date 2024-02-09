@@ -171,7 +171,9 @@ const EditorMachine = setup({
           actions: enqueueActions(({ enqueue, system, event }) => {
             const actor: AnyActor = system.get(event.params.id);
             if (!actor) {
-              throw new Error(`Actor with id ${event.params.id} not found`);
+              console.log("CAN NOT FIND THE ACTOR", event.params.id);
+              return;
+              // throw new Error(`Actor with id ${event.params.id} not found`);
             }
 
             // If actor has child actors, destroy them as well.
@@ -196,7 +198,6 @@ const EditorMachine = setup({
                   }
                 });
               });
-
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );
@@ -442,20 +443,33 @@ export class Editor<
         type: event.value,
       }),
     }),
-    assignParent: enqueueActions(({ enqueue, event, context, check }) => {
+    assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
       console.log("#".repeat(20), "ASSIGNING PARENT");
       if (check(({ context }) => !isNil(context.parent))) {
         console.log("SENDING TO PARENT", context.parent?.id);
-        enqueue.sendTo(
-          ({ context, system }) => system.get(context.parent?.id!),
-          ({ context, self }) => ({
-            type: "ASSIGN_CHILD",
-            params: {
-              actor: self,
-              port: context.parent?.port!,
-            },
-          }),
-        );
+
+        if (self.id.startsWith("call")) {
+          enqueue.sendTo(
+            ({ context, system }) => system.get(context.parent?.id!),
+            ({ self }) => ({
+              type: "ASSIGN_RUN",
+              params: {
+                actor: self,
+              },
+            }),
+          );
+        } else {
+          enqueue.sendTo(
+            ({ context, system }) => system.get(context.parent?.id!),
+            ({ context, self }) => ({
+              type: "ASSIGN_CHILD",
+              params: {
+                actor: self,
+                port: context.parent?.port!,
+              },
+            }),
+          );
+        }
       }
     }),
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
@@ -520,6 +534,35 @@ export class Editor<
           };
         });
       }
+    }),
+    spawnRun: enqueueActions(({ enqueue }) => {
+      enqueue.assign(({ context }, params) => {
+        console.log("LOGOOG", params);
+        return {
+          ...context,
+        };
+      });
+      // enqueue.sendTo(this.actor?.ref!, ({ context,  }, params) => {
+      //   console.log("SPAWN RUN", context, params);
+      //   return {
+      //     type: "SPAWN",
+      //     params: {
+      //       parent: self.id,
+      //       id: this.createId("context"),
+      //       machineId: "run",
+      //       systemId: this.createId("context"),
+      //       input: {
+      //         inputs: {
+      //           ...context.inputs,
+      //         },
+      //         parent: {
+      //           id: self.id,
+      //           port: "run",
+      //         },
+      //       },
+      //     },
+      //   };
+      // });
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
       console.group("SPAWN INPUT ACTORS");
@@ -1042,6 +1085,7 @@ export class Editor<
 
     this.actor = createActor(withLogging(withPersistance(this.machine)), {
       // inspect,
+      systemId: "editor",
       inspect: (inspectionEvent) => {
         if (inspectionEvent.type === "@xstate.event") {
           const event = inspectionEvent.event;
@@ -1448,19 +1492,18 @@ export class Editor<
       intensity: 3,
     });
 
-    // TODO
-    // const { CustomArrange, ArrangePresets } = await import(
-    //   "./plugins/arrage/custom-arrange"
-    // );
-    // this.arrange = new CustomArrange<Scheme>();
-    // this.arrange.addPreset(
-    //   ArrangePresets.classic.setup({
-    //     spacing: 40,
-    //     top: 100,
-    //     bottom: 100,
-    //   }),
-    // );
-    // this.area.use(this.arrange);
+    const { CustomArrange, ArrangePresets } = await import(
+      "./plugins/arrage/custom-arrange"
+    );
+    this.arrange = new CustomArrange<Scheme>();
+    this.arrange.addPreset(
+      ArrangePresets.classic.setup({
+        spacing: 40,
+        top: 100,
+        bottom: 100,
+      }),
+    );
+    this.area.use(this.arrange);
 
     // const { ScopesPlugin, Presets: ScopesPresets } = await import(
     //   "rete-scopes-plugin"

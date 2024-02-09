@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import type { Session } from "@supabase/supabase-js";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import { LayoutGroup, motion } from "framer-motion";
-import { debounce, groupBy } from "lodash-es";
+import { debounce, groupBy, isNil } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,
@@ -45,11 +45,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Composer } from "@/core/composer";
+// import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
-import { useRegisterPlaygroundActions } from "@/core/actions";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/shared";
 
@@ -60,6 +59,11 @@ import { VersionHistory } from "./components/version-history";
 import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
 import Markdown from "react-markdown";
+
+import dynamic from "next/dynamic";
+const Composer = dynamic(() =>
+  import("@/core/composer").then((mod) => mod.Composer),
+);
 
 const defaultLayout: FlexLayout.IJsonModel = {
   global: {
@@ -166,8 +170,6 @@ export const Playground: React.FC<{
 
   const { layout, di, setTheme } = useStore(store.current);
 
-  useRegisterPlaygroundActions({ di, layout });
-  // useRegisterModuleSearchActions({ di });
   useEffect(() => {
     setTheme(theme || "light");
   }, [theme]);
@@ -472,6 +474,7 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
   const childrens = useSelector(actor, (state) => state.context.runs);
   const runs = useMemo(() => {
     return Object.values(childrens)
+      .filter((child) => !isNil(child))
       .filter((child) => child.id.startsWith("call"))
       .map((child) => child as AnyActorRef);
   }, [childrens]);
