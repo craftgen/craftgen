@@ -751,14 +751,19 @@ export class Editor<
 
       // await this.triggerSuccessors(port);
       const connections = port["x-connection"] || {};
+
+      console.log("CONNECTIONS", connections, params, port);
       for (const [nodeId, conn] of Object.entries(connections)) {
-        const targetNode = this.editor.getNode(nodeId);
-        const socket = targetNode.snap.context.inputSockets[conn.key];
-        console.log("TRIGGERING", targetNode.id, socket["x-event"]);
-        // TODO: we might able to send events directly in here.
-        await this.runSync({
-          inputId: targetNode.id,
-          event: socket["x-event"],
+        const targetNode = action.system.get(nodeId);
+        console.log("TARGET NODE", targetNode);
+
+        const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
+
+        targetNode.send({
+          type: socket["x-event"],
+          params: {
+            values: action.context.outputs,
+          },
         });
       }
     },

@@ -103,12 +103,13 @@ export const ThreadMachine = createMachine(
   {
     id: "thread",
     entry: enqueueActions(({ enqueue, context }) => {
-      enqueue("assignParent");
-      enqueue("spawnInputActors");
+      enqueue("initialize");
     }),
     context: ({ input }) =>
       merge<typeof input, any>(
         {
+          name: "Thread",
+          description: "Thread of messages",
           inputs: {
             messages: [],
           },
@@ -177,6 +178,9 @@ export const ThreadMachine = createMachine(
     on: {
       [ThreadMachineEvents.updateOutputs]: {
         actions: ["updateOutput"],
+      },
+      INITIALIZE: {
+        actions: ["initialize"],
       },
     },
     states: {

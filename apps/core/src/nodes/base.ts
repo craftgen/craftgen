@@ -561,19 +561,6 @@ export abstract class BaseNode<
   //     }
   //     this.setup();
   //   },
-  //   triggerSuccessors: async (
-  //     action: ActionArgs<any, any, any>,
-  //     params?: {
-  //       port: string;
-  //     },
-  //   ) => {
-  //     console.log("triggerSuccessors", action, params);
-  //     if (!params?.port) {
-  //       throw new Error("Missing params");
-  //     }
-  //     const port = action.context.outputSockets[params?.port];
-  //     await this.triggerSuccessors(port);
-  //   },
   //   updateSocket: assign({
   //     inputSockets: ({ context, event }) => {
   //       if (event.params.side === "input") {

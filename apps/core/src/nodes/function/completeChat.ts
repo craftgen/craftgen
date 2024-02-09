@@ -883,8 +883,11 @@ const CompleteChatMachine = createMachine(
           },
 
           RUN: {
-            guard: ({ context }) => {
-              return (context.inputs.messages || []).length > 0;
+            guard: ({ context, event }) => {
+              return (
+                (context.inputs.messages || []).length > 0 ||
+                event.params?.values
+              );
             },
             actions: enqueueActions(({ enqueue, check, event }) => {
               enqueue.assign({
