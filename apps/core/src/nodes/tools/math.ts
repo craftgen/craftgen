@@ -67,7 +67,7 @@ const outputSockets = {
   }),
   Math: generateSocket({
     name: "Math",
-    type: "MathNode",
+    type: "NodeMath",
     description: "Math",
     required: false,
     isMultiple: true,
@@ -179,9 +179,9 @@ const RunMathMachine = setup({
   output: ({ context }) => context.outputs,
 });
 
-export const MathNodeMachine = createMachine(
+export const NodeMathMachine = createMachine(
   {
-    id: "MathNode",
+    id: "NodeMath",
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
@@ -333,10 +333,10 @@ export const MathNodeMachine = createMachine(
   },
 );
 
-export type MathNodeData = ParsedNode<"MathNode", typeof MathNodeMachine>;
+export type NodeMathData = ParsedNode<"NodeMath", typeof NodeMathMachine>;
 
-export class MathNode extends BaseNode<typeof MathNodeMachine> {
-  static nodeType = "MathNode" as const;
+export class NodeMath extends BaseNode<typeof NodeMathMachine> {
+  static nodeType = "NodeMath" as const;
   static label = "Math";
   static description = dedent`
     A tool for evaluating mathematical expressions. Example expressions:
@@ -346,20 +346,20 @@ export class MathNode extends BaseNode<typeof MathNodeMachine> {
 
   static section = "Tools";
 
-  static parse(params: SetOptional<MathNodeData, "type">): MathNodeData {
+  static parse(params: SetOptional<NodeMathData, "type">): NodeMathData {
     return {
       ...params,
-      type: "MathNode",
+      type: "NodeMath",
     };
   }
 
   static machines = {
-    NodeMath: MathNodeMachine,
+    NodeMath: NodeMathMachine,
   };
 
-  constructor(di: DiContainer, data: MathNodeData) {
-    super("MathNode", di, data, MathNodeMachine, {});
-    this.description = data.description || MathNode.description;
+  constructor(di: DiContainer, data: NodeMathData) {
+    super("NodeMath", di, data, NodeMathMachine, {});
+    this.description = data.description || NodeMath.description;
     this.setup();
   }
 }
