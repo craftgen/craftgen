@@ -724,11 +724,10 @@ const completeChatMachineRun = setup({
 
 const CompleteChatMachine = createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QHsAOYB2BDAlgWgGNkBbVAGzABcxCALLSgOhwgoGIBVABQBEBBACoBRAPoBlAPIBhANJCBAbQAMAXUShUyWDko5kGdSAAeiAJwB2RqdMA2JaYCMD0wBYlADgcBmLwBoQAJ6ILg4ArIyhDuahXnYuAEw2FqYAvin+aJi4hCTkVDQE9Ews7ABKHAByympIIJrauvqGJgjx5qYRSl0OSuZeoaZeLqb+QQih8V6M5kqh7kn27jOmoWkZ6Nj4RKQU1HQMzKxgnLyColIAEgCSADI8InxSAhKlYtWG9Tp6BrUt5vGMLpA4HAhyjRBeeJKRjxBKeJRDdymdwhNYgTKbHI7fL7YpHNhieQiABqfBuHCE71qn0aP1ALQcUOmvRs7ncoVC-yS83BrVhVlZSnipjaNn+jPMaIx2W2eT2hQOACcAK4YDA4DBQZgYESoRXIKCKuCwNgQfRgbUAN2QAGsLdKtrldgUiowVWqNVqNbr9YbjQgNdaCAxvtUqRotF8mr9gvEAaEXKz2UMYimXLzEwCESjzGK2gjJlKNjKnTiFUx3erNdqfQajbATWBFfrFYxyAwAGbIRXERgOrFyl1K1VVr06vV1-2B5DB2lh1QfSO05qIHqTRjOdpeVwOGwTNm87fuKyeNnbkLzdpFrKO7Hy12Vz01id+htsZ4SG4iUpCACKFLERQF2pJdvhXBAbBCRhIOcGxNyGcwXHcXkbC8Y9HATBwlkiRklBsa9MVlZ1cTdEcn29F96xNQkBBJMkKXDOpQOjelghcSwbHiKJOPiJZcy8MFAghGwbGmVCklCPd2KSFwXAIks7yHCsyOrCjfSotgpAkABZLgbnkSlgIjBowJjCCoJg2x4PYpDeTaSwE1QpDzHFXNEnk29BxIx9qyI-IIDYIxYEoBgLSwDtqEVAAKHoAEo2H7Pz72HD1fNLagIEYmlTNYhBnCmRlPBEiw+KSXlCo3CZYlMJQkIcJDZg8gdiPLUjUq1I0AEdlRwesRCwAhaXfCRP2-IQxA4G4gJqYyozpYxEHcflYTg2FYVsLxzF5BNoTg+YsMgjkYlSdJ0WLTyWofFSOrAbrergfrBu+NgsuY+a-jaE8VnFSJeiw7aRUBRw4z6ETzEZeI0lOjBkAgOBDES9KlMXEyWIWhA8BsXlMcBEE8aUeqmqSpTDgoFG5vApx0KhTlHEKoZ-qE8YwmmEUoVQzl5nc07EcU7zrvJ5czNiXb9tsOMhkTWJypEqxczguYnB6DlJR587mrLK72ufdTjUFnL0bcY9WTg8XJlk8TtoGRgBKw5EwZZOS1ZvDXkuU7XiYgfW0ZaJapkhJDUPcWJnBcUI7ITGFrE5doRWcp31hd4n+e1rqer6gahdmrP0aWgFt3BzahjQ4Pw6ZyDoSRSE2VsP6liJpGSOJ733tjGXRPYlEeNZCHg4bvnWqbFsW-AzleQsSwuLjLD2REpYHChlIgA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgGzAFzAFpkALAQzwGIBBAZVoEkBxAOQH0BhACQYBkARANoAGALqJQmVLACWeGagB2EkAA9EAFgCsATgB0AJgCMANgAcAZjM6tw4UYDsFgDQgAnpoNa9wk16NmRsI6QRomGgC+Ea5oWLgExORUDCwMACoM1LwMAFoAoiLiSCBSsvJKKuoIFgb62g4OwoFaGtq6Lu6IRgYWhgYGdhoOGsIjJjoWUTEYOPhEpBSUtHlpbABqWQCqBWIqpXIKysVV43oORka6TY0WLS2uHgjdUyCxswkLeHoyELiUmwAFfjUNJ5Ni0ADyHAA0itCntpAcKsdNA4HogHCZerVhBYTAEtAMzGYTC83vF5klvr8wJQAEp5WibXhpeHFfblI6gKpmAxnHQaAwOWyCwnmDqPEzmHyXPwWIbWLRaMkzCmJCjUv4M5as3bsxGcyqIFp6bStWo6JwaeUhdEILQOPnDJpmLRBLS8y4quJzdVfH5azYsNmSA2HI0IPx6GpmByBMwaIyJrQ1O1DBymqVJkxOAzmOOTF6KVAQOAqcm+z4IsrhlEIQhGO0GBN6XmCy4XAV2Mze96UjUBsDVpFctSIS16HQGVq8sxNFOOnR2km9LQmN12fqE-qF6Y+j5UisEYeGutx-n58JzuwXAx2qd84QtcwjOO2LG9tWfPRgABOv9QX8T1rblx28G8LF8ElhEaHRfDTAJJ0xNdmwcLsrEiKIIiAA */
     id: "complete-chat",
     entry: enqueueActions(({ enqueue }) => {
-      enqueue("assignParent");
-      enqueue("spawnInputActors");
+      enqueue("initialize");
     }),
     context: ({ input }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
@@ -772,9 +771,14 @@ const CompleteChatMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
+      INITIALIZE: {
         actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
+          enqueue("initialize");
+        }),
+      },
+      SET_VALUE: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("setValue");
         }),
       },
     },
@@ -883,10 +887,21 @@ const CompleteChatMachine = createMachine(
           },
 
           RUN: {
-            guard: ({ context }) => {
-              return (context.inputs.messages || []).length > 0;
+            guard: ({ context, event }) => {
+              return (
+                (context.inputs.messages || []).length > 0 ||
+                !isNil(event.params?.values)
+              );
             },
             actions: enqueueActions(({ enqueue, check, event }) => {
+              if (check(({ event }) => !isNil(event.params?.values))) {
+                enqueue({
+                  type: "setValue",
+                  params: {
+                    values: event.params?.values!,
+                  },
+                });
+              }
               enqueue.assign({
                 runs: ({ context, spawn, self }) => {
                   const runId = `call-${createId()}`;
@@ -935,11 +950,6 @@ const CompleteChatMachine = createMachine(
                   };
                 },
               });
-            }),
-          },
-          SET_VALUE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("setValue");
             }),
           },
         },

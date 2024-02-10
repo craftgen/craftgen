@@ -103,12 +103,13 @@ export const ThreadMachine = createMachine(
   {
     id: "thread",
     entry: enqueueActions(({ enqueue, context }) => {
-      enqueue("assignParent");
-      enqueue("spawnInputActors");
+      enqueue("initialize");
     }),
     context: ({ input }) =>
       merge<typeof input, any>(
         {
+          name: "Thread",
+          description: "Thread of messages",
           inputs: {
             messages: [],
           },
@@ -177,6 +178,9 @@ export const ThreadMachine = createMachine(
     on: {
       [ThreadMachineEvents.updateOutputs]: {
         actions: ["updateOutput"],
+      },
+      INITIALIZE: {
+        actions: ["initialize"],
       },
     },
     states: {
@@ -278,17 +282,6 @@ export const ThreadMachine = createMachine(
             };
           },
         });
-        const connections = context.outputSockets.messages["x-connection"];
-        for (const [target, conn] of Object.entries(connections || {})) {
-          enqueue({
-            type: "syncConnection",
-            params: {
-              nodeId: target,
-              outputKey: "messages",
-              inputKey: conn.key,
-            },
-          });
-        }
       }),
       addMessage: assign({
         inputs: ({ context, event }, params) => {

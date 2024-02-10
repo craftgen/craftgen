@@ -39,7 +39,7 @@ import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { NodeThread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
-import { MathNode } from "./nodes/tools/math";
+import { NodeMath } from "./nodes/tools/math";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -85,7 +85,7 @@ export const nodes = {
   // Tools
   NodeIterator: IteratorNode,
   NodeBranch: BranchNode,
-  NodeMath: MathNode,
+  NodeMath: NodeMath,
 
   // Models
   NodeOllama: Ollama,

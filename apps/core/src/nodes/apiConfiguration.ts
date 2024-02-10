@@ -1,6 +1,13 @@
-import { has, isNil, merge } from "lodash-es";
+import { has, merge, isEqual } from "lodash-es";
 import dedent from "ts-dedent";
-import { createMachine, assign, enqueueActions } from "xstate";
+import {
+  createMachine,
+  assign,
+  enqueueActions,
+  fromObservable,
+  SnapshotFrom,
+  AnyActor,
+} from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -12,6 +19,16 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode } from "./base";
+import {
+  from,
+  tap,
+  map,
+  distinctUntilChanged,
+  switchMap,
+  combineLatest,
+  BehaviorSubject,
+  of,
+} from "rxjs";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -72,6 +89,26 @@ const outputSockets = {
     isMultiple: false,
     "x-showSocket": true,
   }),
+  baseUrl: generateSocket({
+    "x-key": "baseUrl",
+    name: "baseUrl" as const,
+    title: "Base URL",
+    type: "string" as const,
+    description: "The base URL for the API",
+    required: true,
+    "x-showSocket": false,
+  }),
+  headers: generateSocket({
+    "x-key": "headers",
+    name: "headers" as const,
+    title: "Headers",
+    type: "object" as const,
+    description: "The headers for the API",
+    "x-controller": "json",
+    required: true,
+    "x-isAdvanced": true,
+    "x-showSocket": false,
+  }),
 };
 
 export const ApiConfigurationMachine = createMachine(
@@ -90,6 +127,8 @@ export const ApiConfigurationMachine = createMachine(
       }
       return merge<typeof input, any>(
         {
+          name: "API Configuration",
+          description: "API Configuration",
           inputs: {
             ...defaultInputs,
           },
@@ -108,8 +147,8 @@ export const ApiConfigurationMachine = createMachine(
         input,
       );
     },
-    entry: enqueueActions(({ enqueue, check }) => {
-      enqueue("assignParent");
+    entry: enqueueActions(({ enqueue, self }) => {
+      enqueue("initialize");
       enqueue("updateOutput");
     }),
     types: {} as BaseMachineTypes<{
@@ -134,10 +173,8 @@ export const ApiConfigurationMachine = createMachine(
           enqueue("assignChild");
         }),
       },
-      UPDATE_CHILD_ACTORS: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("spawnInputActors");
-        }),
+      INITIALIZE: {
+        actions: "initialize",
       },
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
@@ -176,23 +213,14 @@ export const ApiConfigurationMachine = createMachine(
         enqueue.assign({
           outputs: ({ context }) => {
             return {
+              baseUrl: context.inputs.baseUrl,
+              headers: context.inputs.headers,
               config: {
                 ...context.inputs,
               },
             };
           },
         });
-        const connections = context.outputSockets.config["x-connection"];
-        for (const [target, conn] of Object.entries(connections || {})) {
-          enqueue({
-            type: "syncConnection",
-            params: {
-              nodeId: target,
-              outputKey: "config",
-              inputKey: conn.key,
-            },
-          });
-        }
       }),
     },
   },

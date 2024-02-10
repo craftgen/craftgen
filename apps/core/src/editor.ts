@@ -26,8 +26,9 @@ import {
   ActionArgs,
   assertEvent,
   AnyActorRef,
+  sendTo,
 } from "xstate";
-// import { createBrowserInspector } from "@statelyai/inspect";
+import { createBrowserInspector } from "@statelyai/inspect";
 
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
@@ -68,6 +69,7 @@ import {
   switchMap,
   tap,
 } from "rxjs";
+import { socketWatcher } from "./socket-watcher";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -120,8 +122,6 @@ export interface EditorProps<
     contexts: SnapshotFrom<AnyStateMachine>[];
   };
 }
-
-// const { inspect } = createBrowserInspector();
 
 const EditorMachine = setup({
   types: {
@@ -444,7 +444,7 @@ export class Editor<
       }),
     }),
     assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
-      console.log("#".repeat(20), "ASSIGNING PARENT");
+      console.log("#".repeat(20), "ASSIGNING PARENT", self.src);
       if (check(({ context }) => !isNil(context.parent))) {
         console.log("SENDING TO PARENT", context.parent?.id);
 
@@ -514,6 +514,7 @@ export class Editor<
         console.error("Missing config for", event.params.actor.src);
       }
 
+      console.log("####", conf);
       for (const [key, value] of Object.entries(conf?.internal)) {
         enqueue.sendTo(event.params.actor, ({ context, self }) => {
           return {
@@ -563,6 +564,19 @@ export class Editor<
       //     },
       //   };
       // });
+    }),
+    initialize: enqueueActions(({ enqueue, check, system, self }) => {
+      enqueue("assignParent");
+      enqueue("spawnInputActors");
+      if (check(() => !system.get(`${self.id}-socketWatcher`))) {
+        enqueue.spawnChild("socketWatcher", {
+          id: `${self.id}-socketWatcher`,
+          input: {
+            self,
+          },
+          syncSnapshot: false,
+        });
+      }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
       console.group("SPAWN INPUT ACTORS");
@@ -682,34 +696,6 @@ export class Editor<
       }
       console.groupEnd();
     }),
-
-    syncConnection: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        nodeId: string;
-        outputKey: string;
-        inputKey: string;
-      },
-    ) => {
-      if (!params) {
-        throw new Error("Missing params");
-      }
-      const targetNode = this.editor.getNode(params?.nodeId);
-      console.group("syncConnection");
-      console.log("NODES", this.editor.getNodes());
-      console.log("targetNode", targetNode);
-      console.groupEnd();
-      if (targetNode) {
-        targetNode.actor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [params.inputKey]: action.context.outputs[params.outputKey],
-            },
-          },
-        });
-      }
-    },
     triggerNode: async (
       action: ActionArgs<any, any, any>,
       params: {
@@ -765,14 +751,39 @@ export class Editor<
 
       // await this.triggerSuccessors(port);
       const connections = port["x-connection"] || {};
+
+      console.log("CONNECTIONS", connections, params, port);
       for (const [nodeId, conn] of Object.entries(connections)) {
-        const targetNode = this.editor.getNode(nodeId);
-        const socket = targetNode.snap.context.inputSockets[conn.key];
-        console.log("TRIGGERING", targetNode.id, socket["x-event"]);
-        // TODO: we might able to send events directly in here.
-        await this.runSync({
-          inputId: targetNode.id,
-          event: socket["x-event"],
+        const targetNode = action.system.get(nodeId);
+        console.log("TARGET NODE", targetNode);
+
+        const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
+
+        const values = Object.entries(action.context.outputSockets)
+          .filter(([key, value]) => {
+            return value["x-connection"]?.[nodeId];
+          })
+          .filter(([key, value]) => {
+            return key !== params.port;
+          })
+          .map(([key, value]) => {
+            const targetkey = value["x-connection"]?.[nodeId].key;
+            const sourceValue = action.context.outputs[key];
+            return {
+              [targetkey]: sourceValue,
+            };
+          })
+          .reduce((acc, value) => {
+            return { ...acc, ...value };
+          }, {});
+
+        console.log("LINKED VALUES", values);
+
+        targetNode.send({
+          type: socket["x-event"],
+          params: {
+            values,
+          },
         });
       }
     },
@@ -851,6 +862,7 @@ export class Editor<
       //   ...this.baseActions,
       // },
       actors: {
+        socketWatcher,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -859,6 +871,9 @@ export class Editor<
             const machine = this.machines[k];
 
             acc[k] = machine.provide({
+              actors: {
+                socketWatcher,
+              },
               actions: {
                 ...this.baseActions,
               },
@@ -1084,9 +1099,12 @@ export class Editor<
     }
 
     this.actor = createActor(withLogging(withPersistance(this.machine)), {
-      // inspect,
       systemId: "editor",
       inspect: (inspectionEvent) => {
+        if (false) {
+          const { inspect } = createBrowserInspector();
+          inspect.next(inspectionEvent);
+        }
         if (inspectionEvent.type === "@xstate.event") {
           const event = inspectionEvent.event;
 
@@ -1148,7 +1166,7 @@ export class Editor<
     for (const [key, value] of Object.entries(children)) {
       const actor = this.actor.system.get(key);
       actor.send({
-        type: "UPDATE_CHILD_ACTORS",
+        type: "INITIALIZE",
       });
     }
 

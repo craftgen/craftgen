@@ -24,6 +24,7 @@
     "@paralleldrive/cuid2": "^2.2.2",
     "@seocraft/api": "^0.1.0",
     "@seocraft/utils": "^0.1.0",
+    "@statelyai/agent": "^0.0.4",
     "@statelyai/inspect": "^0.2.2",
     "@trpc/client": "^10.43.0",
     "@types/d3-shape": "^3.1.3",
