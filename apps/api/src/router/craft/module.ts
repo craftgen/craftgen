@@ -221,19 +221,19 @@ export const craftModuleRouter = createTRPCRouter({
                 contexts: true,
                 nodes: {
                   with: {
-                    nodeExectutions: {
-                      where: (nodeExecutionData, { eq }) =>
-                        input.executionId
-                          ? eq(
-                              nodeExecutionData.workflowExecutionId,
-                              input.executionId,
-                            )
-                          : sql`false`,
-                      limit: 1,
-                      orderBy: (nodeExecutionData, { desc }) => [
-                        desc(nodeExecutionData.createdAt),
-                      ],
-                    },
+                    // nodeExectutions: {
+                    //   where: (nodeExecutionData, { eq }) =>
+                    //     input.executionId
+                    //       ? eq(
+                    //           nodeExecutionData.workflowExecutionId,
+                    //           input.executionId,
+                    //         )
+                    //       : sql`false`,
+                    //   limit: 1,
+                    //   orderBy: (nodeExecutionData, { desc }) => [
+                    //     desc(nodeExecutionData.createdAt),
+                    //   ],
+                    // },
                     workflowVersion: {
                       columns: {
                         version: true,
@@ -274,8 +274,9 @@ export const craftModuleRouter = createTRPCRouter({
           workflowId: node.workflowId,
           workflowVersionId: node.workflowVersionId,
           contextId: node.contextId,
-          state: node.nodeExectutions.map((ne) => ne.state)[0],
-          nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
+          
+          // state: node.nodeExectutions.map((ne) => ne.state)[0],
+          // nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
           position: node.position,
           width: node.width,
           height: node.height,

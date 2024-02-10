@@ -418,10 +418,6 @@ export const nodeExecutionData = pgTable("node_execution_data", {
   projectId: text("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
-  workflowNodeId: text("workflow_node_id")
-    .notNull()
-    .references(() => workflowNode.id),
-
   type: text("type").notNull(),
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -444,10 +440,6 @@ export const nodeExecutionDataRelations = relations(
     workflowVersion: one(workflowVersion, {
       fields: [nodeExecutionData.workflowVersionId],
       references: [workflowVersion.id],
-    }),
-    workflowNode: one(workflowNode, {
-      fields: [nodeExecutionData.workflowNodeId],
-      references: [workflowNode.id],
     }),
     workflowExecution: one(workflowExecution, {
       fields: [nodeExecutionData.workflowExecutionId],
@@ -501,7 +493,6 @@ export const workflowNodeRelations = relations(
       fields: [workflowNode.contextId],
       references: [context.id],
     }),
-    nodeExectutions: many(nodeExecutionData),
     workflow: one(workflow, {
       fields: [workflowNode.workflowId],
       references: [workflow.id],

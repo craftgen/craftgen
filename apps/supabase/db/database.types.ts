@@ -1,5 +1,5 @@
 
-> @seocraft/supabase@0.1.0 with-env /Users/osman/Code/Panikka/craftgen/apps/supabase
+> @seocraft/supabase@0.1.0 with-env /Users/necmttn/Projects/craftgen/apps/supabase
 > dotenv -e ../.env -- "supabase" "gen" "types" "typescript" "--local"
 
 export type Json =
@@ -113,7 +113,6 @@ export interface Database {
           updated_at: string
           workflow_execution_id: string
           workflow_id: string
-          workflow_node_id: string
           workflow_version_id: string
         }
         Insert: {
@@ -128,7 +127,6 @@ export interface Database {
           updated_at?: string
           workflow_execution_id: string
           workflow_id: string
-          workflow_node_id: string
           workflow_version_id: string
         }
         Update: {
@@ -143,7 +141,6 @@ export interface Database {
           updated_at?: string
           workflow_execution_id?: string
           workflow_id?: string
-          workflow_node_id?: string
           workflow_version_id?: string
         }
         Relationships: [
@@ -173,13 +170,6 @@ export interface Database {
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "workflow"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "node_execution_data_workflow_node_id_workflow_node_id_fk"
-            columns: ["workflow_node_id"]
-            isOneToOne: false
-            referencedRelation: "workflow_node"
             referencedColumns: ["id"]
           },
           {

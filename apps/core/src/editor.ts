@@ -58,16 +58,14 @@ import {
 import { GuardArgs } from "xstate/guards";
 import {
   Subject,
+  bufferTime,
   catchError,
   concatMap,
-  debounceTime,
+  filter,
+  distinct,
   from,
-  groupBy,
-  map,
   mergeMap,
   of,
-  switchMap,
-  tap,
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 
@@ -161,9 +159,9 @@ const EditorMachine = setup({
       ...input,
     };
   },
-
   initial: "idle",
   states: {
+    error: {},
     idle: {
       on: {
         DESTROY: {
@@ -215,7 +213,6 @@ const EditorMachine = setup({
             "Spawn a node actor and inline actors. (a.k.a nested actors)",
           actions: enqueueActions(
             ({ enqueue, event, context, check, system }) => {
-              console.log("REQUEST FOR SPAWN", event);
               enqueue.assign({
                 actors: ({ spawn, context }) => {
                   const actor = spawn(event.params.machineId, {
@@ -300,8 +297,8 @@ export class Editor<
   >();
 
   public stateEvents = new Subject<{
-    // executionId: string | undefined;
-    // nodeExecutionId: string | undefined;
+    executionId: string | undefined;
+    timestamp: number;
     state: {
       snapshot: SnapshotFrom<AnyStateMachine>;
       syncSnapshot: boolean;
@@ -318,6 +315,8 @@ export class Editor<
     nodes: [] as NodeWithState<Registry>[],
     edges: [] as SetOptional<ConnProps, "id">[],
   };
+
+  public inspector: ReturnType<typeof createBrowserInspector> | undefined;
 
   public setContent(content: {
     contexts: SnapshotFrom<AnyStateMachine>[];
@@ -444,10 +443,7 @@ export class Editor<
       }),
     }),
     assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
-      console.log("#".repeat(20), "ASSIGNING PARENT", self.src);
       if (check(({ context }) => !isNil(context.parent))) {
-        console.log("SENDING TO PARENT", context.parent?.id);
-
         if (self.id.startsWith("call")) {
           enqueue.sendTo(
             ({ context, system }) => system.get(context.parent?.id!),
@@ -480,7 +476,6 @@ export class Editor<
           const port = event.params.port;
           const socket = context.inputSockets[port];
           const actorType = event.params.actor.src as string;
-          console.log("ASSIGN_CHILD", event);
 
           return {
             ...context.inputSockets,
@@ -514,7 +509,6 @@ export class Editor<
         console.error("Missing config for", event.params.actor.src);
       }
 
-      console.log("####", conf);
       for (const [key, value] of Object.entries(conf?.internal)) {
         enqueue.sendTo(event.params.actor, ({ context, self }) => {
           return {
@@ -579,7 +573,6 @@ export class Editor<
       }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
-      console.group("SPAWN INPUT ACTORS");
       for (const [key, value] of Object.entries<JSONSocket>(
         context.inputSockets,
       )) {
@@ -590,7 +583,6 @@ export class Editor<
 
         if (isNil(value["x-actor-ref"])) {
           // actor not spawned yet.
-          console.log("ACTOR NOT ASSIGNED YET");
 
           if (
             value["x-actor-ref-id"] &&
@@ -614,7 +606,6 @@ export class Editor<
               },
             });
           } else {
-            console.log("SPAWNING ACTOR", value["x-actor-type"]);
             const actorId = this.createId("context");
             enqueue.sendTo(this.actor?.ref, ({ self }) => ({
               type: "SPAWN",
@@ -636,7 +627,6 @@ export class Editor<
             }));
           }
         } else {
-          console.log("THERES ALREADY ACTOR");
           if (value["x-actor-type"] !== value["x-actor-ref-type"]) {
             // actor type changed;
             console.log("ACTOR TYPE CHANGED", {
@@ -738,24 +728,19 @@ export class Editor<
     },
     triggerSuccessors: async (
       action: ActionArgs<any, any, any>,
-      params?: {
+      params: {
         port: string;
       },
     ) => {
-      // throw new Error("Not Implemented yet.");
-      console.log("triggerSuccessors", action, params);
       if (!params?.port) {
         throw new Error("Missing params");
       }
       const port = action.context.outputSockets[params?.port];
 
-      // await this.triggerSuccessors(port);
       const connections = port["x-connection"] || {};
 
-      console.log("CONNECTIONS", connections, params, port);
       for (const [nodeId, conn] of Object.entries(connections)) {
         const targetNode = action.system.get(nodeId);
-        console.log("TARGET NODE", targetNode);
 
         const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
 
@@ -777,8 +762,6 @@ export class Editor<
             return { ...acc, ...value };
           }, {});
 
-        console.log("LINKED VALUES", values);
-
         targetNode.send({
           type: socket["x-event"],
           params: {
@@ -790,7 +773,6 @@ export class Editor<
     updateSocket: assign({
       inputSockets: ({ context, event }) => {
         if (event.params.side === "input") {
-          console.log("updateSocket", event);
           return {
             ...context.inputSockets,
             [event.params.name]: {
@@ -803,7 +785,6 @@ export class Editor<
       },
       outputSockets: ({ context, event }) => {
         if (event.params.side === "output") {
-          console.log("updateSocket", event);
           return {
             ...context.outputSockets,
             [event.params.name]: {
@@ -1098,26 +1079,48 @@ export class Editor<
       return enhancedLogic;
     }
 
+    this.inspector = createBrowserInspector({ autoStart: false });
+
     this.actor = createActor(withLogging(withPersistance(this.machine)), {
       systemId: "editor",
       inspect: (inspectionEvent) => {
-        if (false) {
-          const { inspect } = createBrowserInspector();
-          inspect.next(inspectionEvent);
+        if (this.inspector) {
+          this.inspector?.inspect?.next(inspectionEvent);
+        }
+        if (inspectionEvent.type === "@xstate.snapshot") {
+          // skip editor snapshots
+          if (inspectionEvent.actorRef === this.actor) {
+            return;
+          }
+
+          if (inspectionEvent.event.type.startsWith("xstate.done.actor")) {
+            const actor = inspectionEvent.actorRef;
+            const snapshot = {
+              src: actor?.src,
+              syncSnapshot: true,
+              snapshot: actor.getPersistedSnapshot(),
+              systemId: actor.id,
+            } as SnapshotFrom<AnyActor>;
+
+            this.stateEvents.next({
+              executionId: this.executionId,
+              state: snapshot,
+              readonly: false,
+              timestamp: +new Date(),
+            });
+          }
         }
         if (inspectionEvent.type === "@xstate.event") {
           const event = inspectionEvent.event;
 
           // Only listen for events sent to the root actor
           if (inspectionEvent.actorRef !== this.actor) {
+            // console.log("EVENT did not SENT FOR", inspectionEvent);
             return;
           }
 
-          console.group("🕷️ State: inspector", event);
           if (event.type.startsWith("xstate.snapshot")) {
             const contextId = event.type.split("xstate.snapshot.")[1];
-            console.log(contextId);
-            const c = this.actor.getPersistedSnapshot();
             const actor = this.actor.system.get(contextId);
 
             const snapshot = {
@@ -1128,11 +1131,12 @@ export class Editor<
             } as SnapshotFrom<AnyActor>;
 
             this.stateEvents.next({
+              executionId: this.executionId,
               state: snapshot,
               readonly: false,
+              timestamp: +new Date(),
             });
           }
-          console.groupEnd();
         }
       },
       snapshot: cloneDeep(snapshot),
@@ -1143,14 +1147,7 @@ export class Editor<
 
     this.actor.subscribe({
       next: (state) => {
-        console.log("EDITOR STATE", state);
-        // this.stateEvents.next({
-        //   executionId: this.executionId,
-        //   nodeExecutionId: undefined,
-        //   state:
-        //     this.actor?.getPersistedSnapshot() as SnapshotFrom<AnyStateMachine>,
-        //   readonly: false,
-        // });
+        // console.log("EDITOR STATE", state);
       },
       error: (error) => {
         console.error("EDITOR ERROR", error);
@@ -1163,11 +1160,23 @@ export class Editor<
     await this.import(this.content);
 
     this.actor.start();
+
     for (const [key, value] of Object.entries(children)) {
       const actor = this.actor.system.get(key);
-      actor.send({
-        type: "INITIALIZE",
-      });
+      if (!actor) {
+        // ACTOR HAS REACHED THE FINAL STATE.
+        // console.error("ACTOR NOT FOUND", key, value);
+        continue;
+      }
+      if (
+        actor.getSnapshot().can({
+          type: "INITIALIZE",
+        })
+      ) {
+        actor.send({
+          type: "INITIALIZE",
+        });
+      }
     }
 
     this.handleNodeEvents();
@@ -1179,162 +1188,34 @@ export class Editor<
     this.stateEvents
       .pipe(
         // Group by executionNodeId
-        concatMap((event) => {
-          return this.api.trpc.craft.node.setContext.mutate({
-            contextId: event.state.systemId,
-            workflowId: this.workflowId,
-            workflowVersionId: this.workflowVersionId,
-            projectId: this.projectId,
-            context: JSON.stringify(event.state),
-          });
-        }),
-
-        // groupBy((event) => event.state.systemId),
-        // // Handle each group separately
-        // mergeMap((group) =>
-        //   group.pipe(
-        //     // debounceTime(500), // Adjust time as needed
-        //     concatMap((event) => {
-        //       console.log("$@$@", event);
-        //       return this.api.trpc.craft.node.setContext.mutate({
-        //         contextId: event.state.systemId,
-        //         workflowId: this.workflowId,
-        //         workflowVersionId: this.workflowVersionId,
-        //         projectId: this.projectId,
-        //         context: JSON.stringify(event.state),
-        //       });
-        //     }),
-        //   ),
-        // ),
-
-        // tap((event) => console.log("$@$@", event)),
-
-        // map((event) => Object.values(event.state)),
-
-        // switchMap((children) =>
-        //   from(children).pipe(
-        //     groupBy((child: SnapshotFrom<AnyActor>) => child.systemId),
-        //     mergeMap((group) =>
-        //       group.pipe(
-        //         debounceTime(1000), // Adjust time as needed
-        //         map(async (child) => {
-        //           console.log("CHILD", child.systemId, child.src, child);
-        //           return await this.api.trpc.craft.node.setContext.mutate({
-        //             contextId: child.systemId,
-        //             workflowId: this.workflowId,
-        //             workflowVersionId: this.workflowVersionId,
-        //             projectId: this.projectId,
-        //             context: JSON.stringify(child),
-        //           });
-        //         }),
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        // groupBy((event) => event.),
-        // // Handle each group separately
-        // mergeMap((group) =>
-        //   group.pipe(
-        //     debounceTime(1000), // Adjust time as needed
-        //     // You can add more operators here as needed
-        //     map((event) => Object.entries(event.state.children)), // Map each entry of the children object
-        //   ),
-        // ),
-        // tap((event) => console.log("$@$@", event)),
-        mergeMap(async (event) => {
-          console.log("EVENT", event);
-          // this.api.trpc.craft.node.setContext.mutate({
-          //   versionId: this.workflowVersionId,
-          //   context: JSON.stringify(event.state),
-          // });
-          // })
-          // await this.api.setContext({
-          //   contextId: this.contextId,
-          //   context: JSON.stringify(event.state),
-          // });
-
-          // await match(event)
-          //   .with(
-          //     {
-          //       nodeExecutionId: P.string,
-          //       executionId: P.nullish,
-          //     },
-          //     async (event) => {
-          //       let executionId = this.executionId;
-          //       if (!executionId) {
-          //         console.log("#".repeat(40), "CREATING EXECUTION");
-          //         executionId = await this.di.createExecution(this.id);
-          //       }
-          //       const saved = await this.di.api.setState({
-          //         id: event.nodeExecutionId,
-          //         contextId: this.contextId,
-          //         projectId: this.projectId,
-          //         state: JSON.stringify(event.state),
-          //         type: this.ID,
-          //         workflowExecutionId: executionId,
-          //         workflowId: this.workflowId,
-          //         workflowNodeId: this.id,
-          //         workflowVersionId: this.workflowVersionId,
-          //       });
-          //       console.log({ saved });
-          //     },
-          //   )
-          //   .with(
-          //     {
-          //       nodeExecutionId: P.nullish,
-          //       executionId: P.string,
-          //     },
-          //     async (event) => {
-          //       const nodeExecutionId = this.di.createId("state");
-          //       this.setExecutionNodeId(nodeExecutionId);
-          //       const saved = await this.di.api.setState({
-          //         id: nodeExecutionId,
-          //         contextId: this.contextId,
-          //         projectId: this.projectId,
-          //         state: JSON.stringify(event.state),
-          //         type: this.ID,
-          //         workflowExecutionId: event.executionId,
-          //         workflowId: this.workflowId,
-          //         workflowNodeId: this.id,
-          //         workflowVersionId: this.workflowVersionId,
-          //       });
-          //       console.log({ saved });
-          //     },
-          //   )
-          //   .with(
-          //     {
-          //       nodeExecutionId: P.string,
-          //       executionId: P.string,
-          //     },
-          //     async (event) => {
-          //       const saved = await this.di.api.setState({
-          //         id: event.nodeExecutionId,
-          //         contextId: this.contextId,
-          //         projectId: this.projectId,
-          //         state: JSON.stringify(event.state),
-          //         type: this.ID,
-          //         workflowExecutionId: event.executionId,
-          //         workflowId: this.workflowId,
-          //         workflowNodeId: this.id,
-          //         workflowVersionId: this.workflowVersionId,
-          //       });
-          //       console.log({ saved });
-          //     },
-          //   )
-          //   .with(
-          //     {
-          //       executionId: P.nullish,
-          //       nodeExecutionId: P.nullish,
-          //       readonly: false,
-          //     },
-          //     async (event) => {
-          //       await this.di.api.setContext({
-          //         contextId: this.contextId,
-          //         context: JSON.stringify(event.state),
-          //       });
-          //     },
-          //   )
-          //   .run();
+        bufferTime(500),
+        filter((events) => events.length > 0),
+        concatMap((events) => {
+          // Reduce events to an object with unique systemIds, keeping the latest event for each systemId
+          const latestEventsBySystemId = events.reduce(
+            (acc, event) => {
+              // Assume event.state has a timestamp or similar to determine "latest"
+              // If not, you may need to adjust this logic to suit how you determine the latest event
+              const currentEvent = acc[event.state.systemId];
+              if (!currentEvent || currentEvent.timestamp < event.timestamp) {
+                acc[event.state.systemId] = event;
+              }
+              return acc;
+            },
+            {} as Record<string, (typeof events)[number]>,
+          );
+          console.log("LATEST EVENTS", latestEventsBySystemId);
+          return this.api.trpc.craft.node.setContext.mutate(
+            Object.values(latestEventsBySystemId).map((event) => {
+              return {
+                contextId: event.state.systemId,
+                workflowId: this.workflowId,
+                workflowVersionId: this.workflowVersionId,
+                projectId: this.projectId,
+                context: JSON.stringify(event.state),
+              };
+            }),
+          );
         }),
         catchError((error) => {
           // Handle or log the error
@@ -1343,7 +1224,7 @@ export class Editor<
       )
       .subscribe({
         next: async (event) => {
-          console.log("RXJS EVENT", event);
+          // console.log("RXJS EVENT", event);
         },
         error: (error) => {
           console.log("RXJS ERROR", error);

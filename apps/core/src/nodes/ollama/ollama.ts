@@ -19,7 +19,6 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
-import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {

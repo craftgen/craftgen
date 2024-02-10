@@ -140,16 +140,14 @@ const generateTextActor = fromPromise(
               ...llm,
             })
             .withInstructionPrompt();
-          const res = await generateText(
+          const res = await generateText({
             model,
-            {
+            prompt: {
               system: input.system,
               instruction: input.instruction,
             },
-            {
-              fullResponse: true,
-            },
-          );
+            fullResponse: true,
+          });
           return res;
         },
       )
@@ -166,16 +164,14 @@ const generateTextActor = fromPromise(
               api: new BaseUrlApiConfiguration(llm.apiConfiguration),
             })
             .withInstructionPrompt();
-          const res = generateText(
+          const res = generateText({
             model,
-            {
+            prompt: {
               system: input.system,
               instruction: input.instruction,
             },
-            {
-              fullResponse: true,
-            },
-          );
+            fullResponse: true,
+          });
           return res;
         },
       )

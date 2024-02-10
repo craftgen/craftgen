@@ -74,11 +74,6 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
     (state) => state,
   );
 
-  console.log({
-    selectedActor,
-    selectedActorState,
-  });
-
   return (
     <div>
       <LayoutGroup>

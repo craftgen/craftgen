@@ -107,6 +107,18 @@ export type BaseEventTypes =
       };
     }
   | {
+      type: "SPAWN";
+      params: {
+        parentId?: string;
+        id: string;
+        systemId: string;
+        machineId: string;
+        input: Record<string, any> & {
+          parent?: string;
+        };
+      };
+    }
+  | {
       type: "RESULT";
       params: {
         id: string; // Call id
@@ -870,14 +882,7 @@ export abstract class BaseNode<
         // this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state: any) => {
-        // this.stateEvents.next({
-        //   executionId: this.executionId,
-        //   nodeExecutionId: this.executionNodeId,
-        //   state: actor.getPersistedSnapshot() as SnapshotFrom<Machine>,
-        //   readonly: self.readonly,
-        // });
         this.state = state.value;
-        console.log("next", state.value, state.context);
         this.setSnap(state);
 
         if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
@@ -893,11 +898,6 @@ export abstract class BaseNode<
           this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
         }
 
-        // const persistedState = actor.getPersistedSnapshot();
-        // this.saveState({ state: persistedState as any });
-        // if (!self.readonly) {
-        //   saveContextDebounced({ context: persistedState as any });
-        // }
         prev = state;
       },
     });
@@ -923,7 +923,6 @@ export abstract class BaseNode<
   }
 
   async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
-    console.log("updateOutputs", rawTemplate);
     for (const item of Object.keys(this.outputs)) {
       console.log("item", item, rawTemplate[item]);
       if (rawTemplate[item]) continue;
@@ -967,7 +966,6 @@ export abstract class BaseNode<
   }
 
   async updateInputs(rawTemplate: Record<string, JSONSocket>) {
-    console.log("updateInputs", rawTemplate);
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {

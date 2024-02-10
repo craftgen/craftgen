@@ -47,7 +47,6 @@ export const socketWatcher = fromObservable(
             previousOutputs.set(key, currentValue);
 
             // Send a key-specific change event
-            console.log("###", key, currentValue);
             updateConnections(state, key);
           }
         });

@@ -422,6 +422,19 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
         };
       });
   }, [state]);
+  const di = useCraftStore((state) => state.di);
+  const runs = useSelector(di?.actor!, (state) =>
+    Object.entries(state.children)
+      .filter(([key, child]) => key.startsWith("call"))
+      .filter(
+        ([key, child]) =>
+          child.getSnapshot().context.parent.id === node.actor.id,
+      )
+      .map(([key, child]) => child),
+  );
+
+  console.log("RUNS", runs);
+
   return (
     <div className="flex h-full w-full flex-1 flex-col">
       <Tabs defaultValue="controls">
@@ -437,7 +450,7 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
               ))}
               <DynamicInputsForm inputs={node.inputs} />
               <Separator />
-              {state.context.runs && <Runs actor={node.actor} />}
+              {runs && <Runs runs={runs} />}
             </ScrollArea>
           </div>
         </TabsContent>
@@ -469,21 +482,12 @@ const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
   );
 });
 
-const Runs = ({ actor }: { actor: AnyActorRef }) => {
-  const state = useSelector(actor, (state) => state);
-  const childrens = useSelector(actor, (state) => state.context.runs);
-  const runs = useMemo(() => {
-    return Object.values(childrens)
-      .filter((child) => !isNil(child))
-      .filter((child) => child.id.startsWith("call"))
-      .map((child) => child as AnyActorRef);
-  }, [childrens]);
-
+const Runs = ({ runs }: { runs: AnyActorRef[] }) => {
   return (
     <div className="mt-4 space-y-4 p-4">
       <div className="flex items-center justify-between">
         <h3 className="font-bold">Runs</h3>
-        <Button
+        {/* <Button
           variant={"outline"}
           disabled={!state.can({ type: "RESET" })}
           onClick={() =>
@@ -493,7 +497,7 @@ const Runs = ({ actor }: { actor: AnyActorRef }) => {
           }
         >
           Reset
-        </Button>
+        </Button> */}
       </div>
 
       <div className="flex flex-col space-y-2">
