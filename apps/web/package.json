@@ -22,6 +22,9 @@
     "root": true
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.12.0",
+    "@codemirror/lang-javascript": "^6.2.1",
+    "@codemirror/view": "^6.24.0",
     "@hookform/resolvers": "^3.3.0",
     "@lezer/common": "^1.2.0",
     "@liveblocks/client": "^1.1.6",
@@ -111,6 +114,8 @@
     "@udecode/plate-selection": "^23.7.0",
     "@udecode/plate-table": "^23.7.0",
     "@udecode/slate": "^22.0.2",
+    "@uiw/codemirror-theme-github": "^4.21.21",
+    "@uiw/react-codemirror": "^4.21.21",
     "@vercel/analytics": "^1.1.2",
     "@vercel/speed-insights": "^1.0.8",
     "@xstate/react": "4.0.0-beta.11",

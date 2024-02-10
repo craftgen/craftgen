@@ -1,5 +1,11 @@
-import { useCallback, useState } from "react";
+import * as tern from "tern";
+import { useCallback, useRef, useState } from "react";
 import { javascript } from "@codemirror/lang-javascript";
+import {
+  Completion,
+  CompletionContext,
+  autocompletion,
+} from "@codemirror/autocomplete";
 
 import {
   Decoration,
@@ -38,6 +44,12 @@ import { Icons } from "@/components/icons";
 import { P, match } from "ts-pattern";
 import { Key } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+import ecma from "@seocraft/core/src/worker/autocomplete/definitions/ecmascript.json";
+import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.json";
+import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
+import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
+import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -92,61 +104,38 @@ const secret = ViewPlugin.fromClass(
 export function CustomInput(props: { data: InputControl }) {
   const value = useSelector(props.data?.actor, props.data.selector);
   const { systemTheme } = useTheme();
-  const parseValue = useCallback((val: string) => {
-    const secret = /^\(?await getSecret\("([^"]+)"\)\)?$/;
-    const expression = /^ctx\["root"\](?:\["[^"]+"\])+$/;
 
-    if (secret.test(val)) {
-      const key = val?.match(secret)[1];
-      if (!key) return val;
-      return {
-        secretKey: key,
-      };
-    } else if (expression.test(val)) {
-      return {
-        expression: val,
-      };
-    }
-    return val;
-  }, []);
+  const ternServer = useRef(createTernServer());
+  const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
+  const parseValue = useCallback(parseValueFN, []);
 
-    console.log("##", val);
+  const handledChange = (val: string) => {
     const res = parseValue(val);
     match(res)
-      .with(
-        {
-          expression: P.string,
-        },
-        () => {
-          props.data.actor.send({
-            type: "UPDATE_SOCKET",
-            params: {
-              name: props.data.definition["x-key"],
-              side: "input",
-              socket: {
-                format: "expression",
-              },
+      .with({ expression: P.string }, () => {
+        props.data.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: props.data.definition["x-key"],
+            side: "input",
+            socket: {
+              format: "expression",
             },
-          });
-        },
-      )
-      .with(
-        {
-          secretKey: P.string,
-        },
-        () => {
-          props.data.actor.send({
-            type: "UPDATE_SOCKET",
-            params: {
-              name: props.data.definition["x-key"],
-              side: "input",
-              socket: {
-                format: "secret",
-              },
+          },
+        });
+      })
+      .with({ secretKey: P.string }, () => {
+        props.data.actor.send({
+          type: "UPDATE_SOCKET",
+          params: {
+            name: props.data.definition["x-key"],
+            side: "input",
+            socket: {
+              format: "secret",
             },
-          });
-        },
-      )
+          },
+        });
+      })
       .otherwise(() => {
         props.data.actor.send({
           type: "UPDATE_SOCKET",
@@ -161,10 +150,11 @@ export function CustomInput(props: { data: InputControl }) {
       });
     props.data.setValue(val);
   };
-  const { data: creds } = api.credentials.list.useQuery({
-    projectId: "9ad65390-e82b-42b2-9cae-a62dce62011e",
-  });
+
+  const projectId = "9ad65390-e82b-42b2-9cae-a62dce62011e";
+  const { data: creds } = api.credentials.list.useQuery({ projectId });
   const [open, setOpen] = useState(false);
+
   return (
     <div className="space-y-1">
       <div className="flex w-full items-center justify-between">
@@ -216,10 +206,12 @@ export function CustomInput(props: { data: InputControl }) {
         value={value}
         theme={systemTheme === "dark" ? githubDark : githubLight}
         extensions={[
-          javascript({
-            jsx: false,
-          }),
           secret,
+          javascript({ jsx: false }),
+          autocompletion({
+            override: [autocompleteProvider],
+            activateOnTyping: true,
+          }),
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
         width="100%"
@@ -238,4 +230,107 @@ export function CustomInput(props: { data: InputControl }) {
       </p>
     </div>
   );
+
+  function createTernServer() {
+    return new tern.Server({
+      async: true,
+      defs: [ecma as any, lodash, base64, moment, forge],
+      getFile: function (name, c) {
+        return getFile(self, name, c);
+      },
+    });
+  }
+
+  async function autocompleteProvider(context: CompletionContext) {
+    let before = context.matchBefore(/\w+/);
+    let completions = await getAutocompletion(
+      context.state.doc.toString(),
+      context.state.selection.main.head,
+    );
+
+    if (!context.explicit && !before) {
+      return null;
+    }
+
+    return {
+      from: before ? before.from : context.pos,
+      options: completions as Completion[],
+      validFor: /^\w*$/,
+    };
+  }
+
+  async function getAutocompletion(code: string, position: number) {
+    const query: tern.Query = {
+      types: true,
+      docs: true,
+      urls: true,
+      includeKeywords: true,
+      type: "completions",
+      end: position,
+      file: "temp.js",
+    };
+
+    const file: tern.File = {
+      type: "full",
+      name: "temp.js",
+      text: code,
+    } as any;
+
+    return new Promise<Completion[]>((resolve, reject) => {
+      ternServer.current.request(
+        { query, files: [file] },
+        (error, res: any) => {
+          if (error) {
+            return reject(error);
+          }
+
+          resolve(
+            res?.completions.map(
+              (item: any) =>
+                ({
+                  label: item.name,
+                  detail: item.type,
+                  apply: item.name,
+                  type: item.isKeyword ? "keyword" : typeToIcon(item.type),
+                }) as Completion,
+            ),
+          );
+        },
+      );
+    });
+  }
+}
+
+// Got from tern.js for CM5
+// Base CM6 Autocomplete library defines simple icons for
+// class, constant, enum, function, interface, keyword,
+// method, namespace, property, text, type, and variable.
+//
+// TODO: Extend this to support more types. We also need icons if we do so.
+// prettier-ignore
+function typeToIcon(type: any) {
+  var suffix;
+  if (type == "?") suffix = "unknown";
+  else if (type == "number" || type == "string" || type == "bool") suffix = type;
+  else if (/^fn\(/.test(type)) suffix = "function";
+  else if (/^\[/.test(type)) suffix = "array";
+  else suffix = "object";
+  return suffix;
+}
+
+function parseValueFN(value: string) {
+  const secret = /^\(?await getSecret\("([^"]+)"\)\)?$/;
+  const expression = /^ctx\["root"\](?:\["[^"]+"\])+$/;
+
+  if (secret.test(value)) {
+    const key = value?.match(secret)?.[1];
+    if (!key) return value;
+    return { secretKey: key };
+  }
+
+  if (expression.test(value)) {
+    return { expression: value };
+  }
+
+  return value;
 }
