@@ -24,7 +24,7 @@
     "openai": "^4.16.1",
     "replicate": "^0.22.0",
     "superjson": "1.13.1",
-    "zod": "3.21.4"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.2.0",
