@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { merge } from "lodash-es";
+import { isNil, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -184,7 +184,12 @@ const generateTextCall = setup({
   types: {
     input: {} as {
       inputs: GenerateTextInput;
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     context: {} as {
       inputs: GenerateTextInput;
@@ -192,7 +197,12 @@ const generateTextCall = setup({
         ok: boolean;
         result: OutputFrom<typeof generateTextActor> | ToolCallError;
       };
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     output: {} as {
       result: OutputFrom<typeof generateTextActor>;
@@ -203,6 +213,7 @@ const generateTextCall = setup({
     run: generateTextActor,
   },
 }).createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
   initial: "in_progress",
   context: ({ input }) => {
     return merge(
@@ -230,13 +241,16 @@ const generateTextCall = setup({
               }),
             });
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, ({ context, self }) => ({
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              }));
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
@@ -259,13 +273,16 @@ const generateTextCall = setup({
               }),
             });
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, {
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              });
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
@@ -286,154 +303,154 @@ const generateTextCall = setup({
   },
 });
 
-const GenerateTextMachine = createMachine(
-  {
-    id: "node-generate-text",
-    entry: enqueueActions(({ enqueue }) => {
-      enqueue("assignParent");
-      enqueue("spawnInputActors");
-    }),
-    context: ({ input }) =>
-      merge<typeof input, any>(
-        {
-          name: "Generate Text",
-          description: "Generate text based on a prompt using LLMs",
-          inputs: {
-            RUN: undefined,
-            system: "",
-            instruction: "",
-            llm: null,
-          },
-          outputs: {
-            onDone: undefined,
-            result: "",
-          },
-          inputSockets,
-          outputSockets,
+const GenerateTextMachine = createMachine({
+  id: "node-generate-text",
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("initialize");
+  }),
+  context: ({ input }) =>
+    merge<typeof input, any>(
+      {
+        name: "Generate Text",
+        description: "Generate text based on a prompt using LLMs",
+        inputs: {
+          RUN: undefined,
+          system: "",
+          instruction: "",
+          llm: null,
         },
-        input,
-      ),
-    types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        runs: Record<string, AnyActorRef>;
-      };
-      actions: None;
-      events: {
-        type: "INITIALIZE";
-      };
-      guards: None;
-      actors: {
-        src: "generateText";
-        logic: typeof generateTextCall;
-      };
-    }>,
-    initial: "idle",
-    on: {
-      ASSIGN_CHILD: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("assignChild");
-        }),
-      },
-      INITIALIZE: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("initialize");
-        }),
-      },
-    },
-    states: {
-      idle: {
-        on: {
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
-          RESET: {
-            guard: ({ context }) => {
-              return context.runs && Object.keys(context.runs).length > 0;
-            },
-            actions: enqueueActions(({ enqueue, context, self }) => {
-              Object.values(context.runs).map((run) => {
-                enqueue.stopChild(run);
-              });
-              enqueue.assign({
-                runs: {},
-                outputs: ({ context }) => ({
-                  ...context.outputs,
-                  result: null,
-                }),
-              });
-            }),
-          },
-
-          RESULT: {
-            actions: enqueueActions(({ enqueue, check, self, event }) => {
-              enqueue.assign({
-                outputs: ({ context, event }) => ({
-                  ...context.outputs,
-                  result: event.params?.res,
-                }),
-              });
-              enqueue({
-                type: "triggerSuccessors",
-                params: {
-                  port: "onDone",
-                },
-              });
-            }),
-          },
-
-          RUN: {
-            guard: and([
-              ({ context }) => context.inputs.instruction !== "",
-              ({ context }) => context.inputs.llm !== null,
-            ]),
-            actions: enqueueActions(({ enqueue }) => {
-              const runId = `call-${createId()}`;
-              enqueue.assign({
-                runs: ({ context, spawn, self }) => {
-                  const run = spawn("generateText", {
-                    id: runId,
-                    input: {
-                      inputs: {
-                        llm: context.inputs.llm! as
-                          | OpenAIModelConfig
-                          | OllamaModelConfig,
-                        system: context.inputs.system!,
-                        instruction: context.inputs.instruction!,
-                      },
-                      senders: [self],
-                    },
-                    syncSnapshot: true,
-                  });
-                  return {
-                    ...context.runs,
-                    [runId]: run,
-                  };
-                },
-              });
-            }),
-          },
-          SET_VALUE: {
-            actions: ["setValue"],
-          },
+        outputs: {
+          onDone: undefined,
+          result: "",
         },
+        inputSockets,
+        outputSockets,
       },
-      complete: {},
-      error: {
-        on: {
-          SET_VALUE: {
-            actions: ["setValue"],
-          },
-        },
-      },
-    },
-  },
-  {
+      input,
+    ),
+  types: {} as BaseMachineTypes<{
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+      runs: Record<string, AnyActorRef>;
+    };
+    actions: None;
+    events: {
+      type: "INITIALIZE";
+    };
+    guards: None;
     actors: {
-      generateText: generateTextCall,
+      src: "generateText";
+      logic: typeof generateTextCall;
+    };
+  }>,
+  initial: "idle",
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
+    },
+    INITIALIZE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("initialize");
+      }),
+    },
+    SET_VALUE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("setValue");
+      }),
     },
   },
-);
+  states: {
+    idle: {
+      on: {
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
+        RESET: {
+          guard: ({ context }) => {
+            return context.runs && Object.keys(context.runs).length > 0;
+          },
+          actions: enqueueActions(({ enqueue, context, self }) => {
+            Object.values(context.runs).map((run) => {
+              enqueue.stopChild(run);
+            });
+            enqueue.assign({
+              runs: {},
+              outputs: ({ context }) => ({
+                ...context.outputs,
+                result: null,
+              }),
+            });
+          }),
+        },
+
+        RESULT: {
+          actions: enqueueActions(({ enqueue, check, self, event }) => {
+            enqueue.assign({
+              outputs: ({ context, event }) => ({
+                ...context.outputs,
+                result: event.params?.res,
+              }),
+            });
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
+          }),
+        },
+
+        RUN: {
+          guard: and([
+            ({ context }) => context.inputs.instruction !== "",
+            ({ context }) => context.inputs.llm !== null,
+          ]),
+          actions: enqueueActions(({ enqueue, check }) => {
+            if (check(({ event }) => !isNil(event.params?.values))) {
+              enqueue(({ event }) => ({
+                type: "setValue",
+                params: {
+                  values: event.params?.values!,
+                },
+              }));
+            }
+            const runId = `call-${createId()}`;
+            enqueue.sendTo(
+              ({ system }) => system.get("editor"),
+              ({ self, context }) => ({
+                type: "SPAWN",
+                params: {
+                  id: runId,
+                  parentId: self.id,
+                  machineId: "NodeGenerateText.run",
+                  systemId: runId,
+                  input: {
+                    inputs: {
+                      llm: context.inputs.llm! as
+                        | OpenAIModelConfig
+                        | OllamaModelConfig,
+                      system: context.inputs.system!,
+                      instruction: context.inputs.instruction!,
+                    },
+                    senders: [{ id: self.id }],
+                    parent: {
+                      id: self.id,
+                    },
+                  },
+                  syncSnapshot: true,
+                },
+              }),
+            );
+          }),
+        },
+      },
+    },
+    complete: {},
+    error: {},
+  },
+});
 
 export type GenerateTextNode = ParsedNode<
   "NodeGenerateText",

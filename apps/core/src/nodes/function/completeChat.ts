@@ -874,15 +874,8 @@ const CompleteChatMachine = createMachine({
           }),
         },
         RESET: {
-          guard: ({ context }) => {
-            return context.runs && Object.keys(context.runs).length > 0;
-          },
           actions: enqueueActions(({ enqueue, context, self }) => {
-            Object.values(context.runs).map((run) => {
-              enqueue.stopChild(run);
-            });
             enqueue.assign({
-              runs: {},
               outputs: ({ context }) => ({
                 ...context.outputs,
                 result: null,

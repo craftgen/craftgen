@@ -114,7 +114,13 @@ export type BaseEventTypes =
         systemId: string;
         machineId: string;
         input: Record<string, any> & {
-          parent?: string;
+          parent?: {
+            id: string;
+            port?: string;
+          };
+          senders?: {
+            id: string;
+          }[];
         };
       };
     }

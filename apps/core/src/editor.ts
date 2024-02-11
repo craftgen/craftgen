@@ -211,24 +211,23 @@ const EditorMachine = setup({
         SPAWN: {
           description:
             "Spawn a node actor and inline actors. (a.k.a nested actors)",
-          actions: enqueueActions(
-            ({ enqueue, event, context, check, system }) => {
-              enqueue.assign({
-                actors: ({ spawn, context }) => {
-                  const actor = spawn(event.params.machineId, {
-                    input: event.params.input,
-                    id: event.params.id,
-                    syncSnapshot: true,
-                    systemId: event.params.systemId,
-                  });
-                  return {
-                    ...context.actors,
-                    [event.params.id]: actor,
-                  };
-                },
-              });
-            },
-          ),
+          actions: enqueueActions(({ enqueue, event }) => {
+            console.log("SPANWING", event);
+            enqueue.assign({
+              actors: ({ spawn, context }) => {
+                const actor = spawn(event.params.machineId, {
+                  input: event.params.input,
+                  id: event.params.id,
+                  syncSnapshot: true,
+                  systemId: event.params.systemId,
+                });
+                return {
+                  ...context.actors,
+                  [event.params.id]: actor,
+                };
+              },
+            });
+          }),
         },
       },
     },
