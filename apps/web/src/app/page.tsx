@@ -128,7 +128,21 @@ export default function Home() {
       <section>
         <Timeline />
       </section>
-      <section className="relative flex w-full flex-col items-center text-center">
+      <section className="flex w-full flex-col items-center text-center">
+        <div className="relative w-full overflow-hidden">
+          <div
+            className=" absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)] "
+            aria-hidden="true"
+          >
+            <div
+              className="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"
+              style={{
+                clipPath:
+                  "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
+              }}
+            />
+          </div>
+        </div>
         <div className="hidden sm:mb-8 sm:flex sm:justify-center">
           <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20 dark:ring-gray-100/10 dark:hover:ring-gray-100/20">
             Announcing our public release.{" "}
@@ -143,18 +157,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div
-          className=" absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)] "
-          aria-hidden="true"
-        >
-          <div
-            className="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"
-            style={{
-              clipPath:
-                "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
-            }}
-          />
-        </div>
         <div className=" max-w-5xl space-y-8  overflow-hidden p-4 text-xl sm:text-4xl">
           <h4 className="font-black">What is it about?</h4>
           <p className="">

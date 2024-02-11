@@ -73,16 +73,18 @@ const steps = [
 
 export const Timeline = () => {
   return (
-    <div className="space-y-4 pb-8">
+    <div className="flex flex-col items-center space-y-4 p-8">
       <div className="mb-8 flex flex-col items-center justify-center p-4">
-        <h1 className="text-6xl font-bold">What's next for CraftGen?</h1>
+        <h1 className="text-5xl font-bold md:text-6xl">
+          What's next for CraftGen?
+        </h1>
         <p className="text-muted-foreground text-xl">
           Here is a list of the features we are working on, and the progress we
           have made so far.
         </p>
       </div>
       <nav aria-label="Progress">
-        <ol role="list" className="overflow-hidden">
+        <ol role="list" className="max-w-2xl overflow-hidden">
           {steps.map((step, stepIdx) => (
             <li
               key={step.name}
