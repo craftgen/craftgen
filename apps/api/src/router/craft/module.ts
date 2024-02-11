@@ -1,11 +1,79 @@
 import { z } from "zod";
-import { isNil } from "lodash-es";
+import _ from "lodash-es";
 
 import { and, eq, schema, sql } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import { TRPCError } from "@trpc/server";
 
 export const craftModuleRouter = createTRPCRouter({
+  io: protectedProcedure
+    .input(
+      z.object({
+        workflowSlug: z.string(),
+        projectSlug: z.string(),
+        version: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const workflow = await ctx.db.query.workflow.findFirst({
+        where: (workflow, { eq, and }) =>
+          and(
+            eq(workflow.slug, input.workflowSlug),
+            eq(workflow.projectSlug, input.projectSlug),
+          ),
+        with: {
+          versions: {
+            where: (workflowVersion, { eq }) =>
+              eq(workflowVersion.version, input.version),
+            with: {
+              nodes: {
+                with: {
+                  context: {
+                    columns: {
+                      state: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      const version = workflow?.versions[0];
+      if (!version) {
+        throw new Error("Version not found");
+      }
+      const contentNodes = _.chain(version.nodes)
+        .map((node) => ({
+          context: node.context,
+        }))
+        .map((node) => node.context.state.snapshot.context);
+
+      const outputs = contentNodes
+        .map((context) => Object.values(context.outputSockets))
+        .flatten()
+        .filter((socket) => _.get(socket, ["x-showSocket"], false))
+        .filter(
+          (socket) =>
+            Object.entries(_.get(socket, "x-connection", {})).length === 0,
+        );
+
+      const inputs = contentNodes
+        .map((context) => Object.values(context.inputSockets))
+        .flatten()
+        .filter((socket) => _.get(socket, ["x-showSocket"], false))
+        .filter(
+          (socket) =>
+            Object.entries(_.get(socket, "x-connection", {})).length === 0,
+        );
+
+      return {
+        ...workflow,
+        inputs,
+        outputs,
+      };
+    }),
   meta: protectedProcedure
     .input(
       z.object({
@@ -26,10 +94,16 @@ export const craftModuleRouter = createTRPCRouter({
         },
       });
       if (!workflow) {
-        throw new Error("Workflow not found 4");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
       }
       if (!workflow.public && !ctx.session.user) {
-        throw new Error("Workflow not found 3");
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You need to be logged in to access this workflow.",
+        });
       }
 
       const userId = ctx.session?.user?.id;
@@ -64,12 +138,16 @@ export const craftModuleRouter = createTRPCRouter({
           )
           .limit(1);
         if (!isMember) {
-          throw new Error("Workflow not found 2");
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message:
+              "You need to be a member of the project to access this workflow.",
+          });
         }
       }
 
       let version;
-      if (!isNil(input.version)) {
+      if (!_.isNil(input.version)) {
         version = await ctx.db.query.workflowVersion.findFirst({
           where: (workflowVersion, { eq, and }) =>
             and(
@@ -82,7 +160,7 @@ export const craftModuleRouter = createTRPCRouter({
           where: (workflowVersion, { eq, and, isNotNull }) =>
             and(
               eq(workflowVersion.workflowId, workflow?.id),
-              isNotNull(workflowVersion.publishedAt),
+              // isNotNull(workflowVersion.publishedAt),
             ),
           orderBy: (workflowVersion, { desc }) => [
             desc(workflowVersion.version),
@@ -274,7 +352,7 @@ export const craftModuleRouter = createTRPCRouter({
           workflowId: node.workflowId,
           workflowVersionId: node.workflowVersionId,
           contextId: node.contextId,
-          
+
           // state: node.nodeExectutions.map((ne) => ne.state)[0],
           // nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
           position: node.position,
