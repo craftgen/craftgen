@@ -16,11 +16,14 @@ const nextConfig = {
     unoptimized: true,
   },
   webpack: (config, { isServer, webpack }) => {
-    if (!isServer) {
-      config.plugins.push(
-        new webpack.IgnorePlugin({ resourceRegExp: /^node:async_hooks$/ }),
-      );
+    if (isServer) {
+      return config;
     }
+    config.resolve = config.resolve ?? {};
+    config.resolve.fallback = config.resolve.fallback ?? {};
+
+    // async hooks is not available in the browser:
+    config.resolve.fallback.async_hooks = false;
     return config;
   },
   // headers: async () => {

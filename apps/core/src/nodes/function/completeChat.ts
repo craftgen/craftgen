@@ -7,10 +7,12 @@ import {
   generateToolCalls,
   ollama,
   openai,
+  trimChatPrompt,
   UncheckedSchema,
 } from "modelfusion";
 import type {
   OllamaChatMessage,
+  OllamaChatPrompt,
   OpenAIChatMessage,
   ToolCall,
   ToolCallError,
@@ -286,6 +288,7 @@ const simplyfyMessages = (messages: CompleteChatInput["messages"]) =>
 const completeChatActor = fromPromise(
   async ({ input }: { input: CompleteChatInput }) => {
     console.log("INPUT", input);
+
     const result = await match(input)
       .with(
         {
@@ -297,24 +300,21 @@ const completeChatActor = fromPromise(
           const model = ollama.ChatTextGenerator({
             ...llm,
           });
-          const res = await generateText(
+          const res = await generateText({
             model,
-            [
+            prompt: [
               ...(input.system
                 ? [
                     {
-                      role: "system",
+                      role: "system" as const,
                       content: input.system,
                     },
                   ]
                 : []),
-
               ...(simplyfyMessages(input.messages) as OllamaChatMessage[]),
             ],
-            {
-              fullResponse: true,
-            },
-          );
+            fullResponse: true,
+          });
           return res;
         },
       )
@@ -333,10 +333,10 @@ const completeChatActor = fromPromise(
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
 
-          const res = await generateToolCalls(
+          const res = await generateToolCalls({
             model,
             tools,
-            [
+            prompt: [
               ...(input.system
                 ? [
                     {
@@ -347,10 +347,8 @@ const completeChatActor = fromPromise(
                 : []),
               ...input.messages,
             ],
-            {
-              fullResponse: true,
-            },
-          );
+            fullResponse: true,
+          });
           return res;
         },
       )
@@ -387,10 +385,10 @@ const completeChatActor = fromPromise(
             });
           }
 
-          const res = await generateToolCalls(
+          const res = await generateToolCalls({
             model,
             tools,
-            [
+            prompt: [
               ...(input.system
                 ? [
                     {
@@ -402,10 +400,8 @@ const completeChatActor = fromPromise(
               ...input.messages,
               ...toolCallResponses,
             ],
-            {
-              fullResponse: true,
-            },
-          );
+            fullResponse: true,
+          });
           return res;
         },
       )
@@ -420,23 +416,24 @@ const completeChatActor = fromPromise(
             ...llm,
             api: new BaseUrlApiConfiguration(llm.apiConfiguration),
           });
-          const res = await generateText(
+          const res = await generateText({
             model,
-            [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...(input.messages as any),
-            ],
-            {
-              fullResponse: true,
-            },
-          );
+            promp: await trimChatPrompt({
+              model,
+              prompt: [
+                ...(input.system
+                  ? [
+                      {
+                        role: "system",
+                        content: input.system,
+                      },
+                    ]
+                  : []),
+                ...(input.messages as any),
+              ],
+            }),
+            fullResponse: true,
+          });
 
           return res;
         },
@@ -478,10 +475,17 @@ const completeChatMachineRun = setup({
           }
         >;
       };
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     context: {} as {
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
       inputs: {
         llm: OpenAIModelConfig | OllamaModelConfig;
         system: string;
@@ -497,6 +501,9 @@ const completeChatMachineRun = setup({
       };
       outputs: {
         result: string | ChatMessage;
+      };
+      parent: {
+        id: string;
       };
     },
     events: {} as
@@ -541,22 +548,12 @@ const completeChatMachineRun = setup({
         },
         COMPLETE: {
           target: "complete",
-          actions: enqueueActions(({ enqueue, context }) => {
-            for (const sender of context.senders) {
-              enqueue.sendTo(sender, ({ context, self }) => ({
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              }));
-            }
-          }),
         },
       },
       invoke: {
         src: "completeChat",
         input: ({ context }) => {
+          console.log("INVOKE CONTEXT", context.inputs);
           return {
             ...context.inputs,
             tools: Object.values(context.inputs.tools).map((t) => {
@@ -656,7 +653,11 @@ const completeChatMachineRun = setup({
             ({ self }) => ({
               type: eventType,
               params: {
-                senders: [self],
+                senders: [
+                  {
+                    id: self.id,
+                  },
+                ],
                 executionNodeId: toolCall.id,
                 values: {
                   ...args,
@@ -704,6 +705,18 @@ const completeChatMachineRun = setup({
     complete: {
       type: "final",
       output: ({ context }) => context.outputs,
+      entry: enqueueActions(({ enqueue, context, event, system }) => {
+        console.log("COMPLETE", context, event);
+        for (const sender of context.senders) {
+          enqueue.sendTo(system.get(sender.id), ({ context, self }) => ({
+            type: "RESULT",
+            params: {
+              id: self.id,
+              res: context.outputs,
+            },
+          }));
+        }
+      }),
     },
     error: {
       on: {
@@ -722,248 +735,232 @@ const completeChatMachineRun = setup({
   output: ({ context }) => context.outputs,
 });
 
-const CompleteChatMachine = createMachine(
-  {
-    /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgGzAFzAFpkALAQzwGIBBAZVoEkBxAOQH0BhACQYBkARANoAGALqJQmVLACWeGagB2EkAA9EAFgCsATgB0AJgCMANgAcAZjM6tw4UYDsFgDQgAnpoNa9wk16NmRsI6QRomGgC+Ea5oWLgExORUDCwMACoM1LwMAFoAoiLiSCBSsvJKKuoIFgb62g4OwoFaGtq6Lu6IRgYWhgYGdhoOGsIjJjoWUTEYOPhEpBSUtHlpbABqWQCqBWIqpXIKysVV43oORka6TY0WLS2uHgjdUyCxswkLeHoyELiUmwAFfjUNJ5Ni0ADyHAA0itCntpAcKsdNA4HogHCZerVhBYTAEtAMzGYTC83vF5klvr8wJQAEp5WibXhpeHFfblI6gKpmAxnHQaAwOWyCwnmDqPEzmHyXPwWIbWLRaMkzCmJCjUv4M5as3bsxGcyqIFp6bStWo6JwaeUhdEILQOPnDJpmLRBLS8y4quJzdVfH5azYsNmSA2HI0IPx6GpmByBMwaIyJrQ1O1DBymqVJkxOAzmOOTF6KVAQOAqcm+z4IsrhlEIQhGO0GBN6XmCy4XAV2Mze96UjUBsDVpFctSIS16HQGVq8sxNFOOnR2km9LQmN12fqE-qF6Y+j5UisEYeGutx-n58JzuwXAx2qd84QtcwjOO2LG9tWfPRgABOv9QX8T1rblx28G8LF8ElhEaHRfDTAJJ0xNdmwcLsrEiKIIiAA */
-    id: "complete-chat",
-    entry: enqueueActions(({ enqueue }) => {
-      enqueue("initialize");
-    }),
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        if (socket.default) {
-          defaultInputs[key as any] = socket.default;
-        } else {
-          defaultInputs[key as any] = undefined;
-        }
+const CompleteChatMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgGzAFzAFpkALAQzwGIBBAZVoEkBxAOQH0BhACQYBkARANoAGALqJQmVLACWeGagB2EkAA9EAFgCsATgB0AJgCMANgAcAZjM6tw4UYDsFgDQgAnpoNa9wk16NmRsI6QRomGgC+Ea5oWLgExORUDCwMACoM1LwMAFoAoiLiSCBSsvJKKuoIFgb62g4OwoFaGtq6Lu6IRgYWhgYGdhoOGsIjJjoWUTEYOPhEpBSUtHlpbABqWQCqBWIqpXIKysVV43oORka6TY0WLS2uHgjdUyCxswkLeHoyELiUmwAFfjUNJ5Ni0ADyHAA0itCntpAcKsdNA4HogHCZerVhBYTAEtAMzGYTC83vF5klvr8wJQAEp5WibXhpeHFfblI6gKpmAxnHQaAwOWyCwnmDqPEzmHyXPwWIbWLRaMkzCmJCjUv4M5as3bsxGcyqIFp6bStWo6JwaeUhdEILQOPnDJpmLRBLS8y4quJzdVfH5azYsNmSA2HI0IPx6GpmByBMwaIyJrQ1O1DBymqVJkxOAzmOOTF6KVAQOAqcm+z4IsrhlEIQhGO0GBN6XmCy4XAV2Mze96UjUBsDVpFctSIS16HQGVq8sxNFOOnR2km9LQmN12fqE-qF6Y+j5UisEYeGutx-n58JzuwXAx2qd84QtcwjOO2LG9tWfPRgABOv9QX8T1rblx28G8LF8ElhEaHRfDTAJJ0xNdmwcLsrEiKIIiAA */
+  id: "complete-chat",
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("initialize");
+  }),
+  context: ({ input }) => {
+    const defaultInputs: (typeof input)["inputs"] = {};
+    for (const [key, socket] of Object.entries(inputSockets)) {
+      if (socket.default) {
+        defaultInputs[key as any] = socket.default;
+      } else {
+        defaultInputs[key as any] = undefined;
       }
+    }
 
-      return merge<typeof input, any>(
-        {
-          inputs: {
-            RUN: undefined,
-            system: "",
-            messages: [],
-            llm: null,
-            tools: {},
-            ...defaultInputs,
-          },
-          runs: {},
-          outputs: {
-            onDone: undefined,
-            result: {},
-            messages: [],
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
+    return merge<typeof input, any>(
+      {
+        inputs: {
+          RUN: undefined,
+          system: "",
+          messages: [],
+          llm: null,
+          tools: {},
+          ...defaultInputs,
         },
-        input,
-      );
+        runs: {},
+        outputs: {
+          onDone: undefined,
+          result: {},
+          messages: [],
+        },
+        inputSockets: {
+          ...inputSockets,
+        },
+        outputSockets: {
+          ...outputSockets,
+        },
+      },
+      input,
+    );
+  },
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
     },
-    on: {
-      ASSIGN_CHILD: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("assignChild");
-        }),
-      },
-      INITIALIZE: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("initialize");
-        }),
-      },
-      SET_VALUE: {
-        actions: enqueueActions(({ enqueue }) => {
-          enqueue("setValue");
-        }),
-      },
+    INITIALIZE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("initialize");
+      }),
     },
-    types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
-        runs: Record<string, AnyActorRef>;
-      };
-      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        runs: Record<string, AnyActorRef>;
-      };
-      actions:
-        | {
-            type: "adjustMaxCompletionTokens";
-          }
-        | {
-            type: "updateOutputMessages";
+    SET_VALUE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("setValue");
+      }),
+    },
+  },
+  types: {} as BaseMachineTypes<{
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
+    actions:
+      | {
+          type: "adjustMaxCompletionTokens";
+        }
+      | {
+          type: "updateOutputMessages";
+        };
+    events:
+      | {
+          type: "TOOL_REQUEST";
+          params: ToolCall<string, any>[];
+        }
+      | {
+          type: "TOOL_RESULT";
+          params: {
+            id: string;
+            res: ToolCallResult<string, any, any>;
           };
-      events:
-        | {
-            type: "TOOL_REQUEST";
-            params: ToolCall<string, any>[];
-          }
-        | {
-            type: "TOOL_RESULT";
-            params: {
-              id: string;
-              res: ToolCallResult<string, any, any>;
-            };
-          }
-        | {
-            type: "RESULT";
-            params: {
-              id: string;
-              res: {
-                result: OutputFrom<typeof completeChatActor>;
-                ok: boolean;
-              };
+        }
+      | {
+          type: "RESULT";
+          params: {
+            id: string;
+            res: {
+              result: OutputFrom<typeof completeChatActor>;
+              ok: boolean;
             };
           };
-      guards: None;
-      actors: {
-        src: "completeChat";
-        logic: typeof completeChatMachineRun;
-      };
-    }>,
-    initial: "idle",
-    states: {
-      idle: {
-        on: {
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
-          RESULT: {
-            actions: enqueueActions(({ enqueue, event, check }) => {
-              console.log("RESULT @@", event);
-              enqueue.assign({
-                outputs: ({ context, event }) => ({
-                  ...context.outputs,
-                  result: event.params?.res,
-                  messages: [
-                    ...context.inputs.messages!,
-                    {
-                      id: event.params.id,
-                      ...standardizeMessage(event.params.res.result),
-                    },
-                  ],
-                  text: event.params?.res.result.text,
-                }),
-              });
-              if (check(({ context }) => !!context.inputs.append)) {
-                enqueue.sendTo(
-                  ({ context }) => context.inputSockets.messages["x-actor-ref"],
-                  ({ context, event }) => ({
-                    type: ThreadMachineEvents.addMessage,
-                    params: {
-                      id: event.params.id,
-                      ...standardizeMessage(event.params.res.result),
-                    },
-                  }),
-                );
-              }
-              enqueue({
-                type: "triggerSuccessors",
-                params: {
-                  port: "onDone",
-                },
-              });
-            }),
-          },
-          RESET: {
-            guard: ({ context }) => {
-              return context.runs && Object.keys(context.runs).length > 0;
-            },
-            actions: enqueueActions(({ enqueue, context, self }) => {
-              Object.values(context.runs).map((run) => {
-                enqueue.stopChild(run);
-              });
-              enqueue.assign({
-                runs: {},
-                outputs: ({ context }) => ({
-                  ...context.outputs,
-                  result: null,
-                }),
-              });
-            }),
-          },
-
-          RUN: {
-            guard: ({ context, event }) => {
-              return (
-                (context.inputs.messages || []).length > 0 ||
-                !isNil(event.params?.values)
-              );
-            },
-            actions: enqueueActions(({ enqueue, check, event }) => {
-              if (check(({ event }) => !isNil(event.params?.values))) {
-                enqueue({
-                  type: "setValue",
-                  params: {
-                    values: event.params?.values!,
+        };
+    guards: None;
+    actors: None;
+  }>,
+  initial: "idle",
+  states: {
+    idle: {
+      on: {
+        UPDATE_SOCKET: {
+          actions: ["updateSocket"],
+        },
+        RESULT: {
+          actions: enqueueActions(({ enqueue, event, check }) => {
+            console.log("RESULT @@", event);
+            enqueue.assign({
+              outputs: ({ context, event }) => ({
+                ...context.outputs,
+                result: event.params?.res,
+                messages: [
+                  ...context.inputs.messages!,
+                  {
+                    id: event.params.id,
+                    ...standardizeMessage(event.params.res.result),
                   },
-                });
-              }
-              enqueue.assign({
-                runs: ({ context, spawn, self }) => {
-                  const runId = `call-${createId()}`;
-                  return {
-                    ...context.runs,
-                    [runId]: spawn("completeChat", {
-                      id: runId,
-                      input: {
-                        senders: [self],
-                        inputs: {
-                          llm: context.inputs.llm! as
-                            | OpenAIModelConfig
-                            | OllamaModelConfig,
-                          system: context.inputs.system!,
-                          messages: context.inputs.messages?.map(
-                            ({ id, ...rest }) => {
-                              return rest;
-                            },
-                          ) as OpenAIChatMessage[],
-                          tools: Object.entries(context.inputs.tools)
-                            .map(([key, t]) => {
-                              const { nodeID } = extractGroupsFromToolName(key);
-                              const actorRef = get(context.inputSockets.tools, [
-                                "x-connection",
-                                nodeID,
-                                "actorRef",
-                              ]) as AnyActorRef;
-                              console.log("ACTOR REF", actorRef);
-                              return {
-                                key,
-                                actorRef,
-                                def: {
-                                  name: t.name,
-                                  description: t.description,
-                                  parameters: new UncheckedSchema(t.parameters),
-                                },
-                              };
-                            })
-                            .reduce((acc, { key, ...rest }) => {
-                              acc[key] = rest;
-                              return acc;
-                            }, {}),
-                        },
-                      },
-                    }),
-                  };
+                ],
+                text: event.params?.res.result.text,
+              }),
+            });
+            if (check(({ context }) => !!context.inputs.append)) {
+              enqueue.sendTo(
+                ({ context }) => context.inputSockets.messages["x-actor-ref"],
+                ({ context, event }) => ({
+                  type: ThreadMachineEvents.addMessage,
+                  params: {
+                    id: event.params.id,
+                    ...standardizeMessage(event.params.res.result),
+                  },
+                }),
+              );
+            }
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
+          }),
+        },
+        RESET: {
+          actions: enqueueActions(({ enqueue, context, self }) => {
+            enqueue.assign({
+              outputs: ({ context }) => ({
+                ...context.outputs,
+                result: null,
+              }),
+            });
+          }),
+        },
+
+        RUN: {
+          guard: ({ context, event }) => {
+            return (
+              (context.inputs.messages || []).length > 0 ||
+              !isNil(event.params?.values)
+            );
+          },
+          actions: enqueueActions(({ enqueue, check, event }) => {
+            if (check(({ event }) => !isNil(event.params?.values))) {
+              enqueue({
+                type: "setValue",
+                params: {
+                  values: event.params?.values!,
                 },
               });
-            }),
-          },
+            }
+            const runId = `call-${createId()}`;
+            enqueue.sendTo(
+              ({ system }) => system.get("editor"),
+              ({ self, context }) => ({
+                type: "SPAWN",
+                params: {
+                  id: runId,
+                  parentId: self.id,
+                  machineId: "NodeCompleteChat.run",
+                  systemId: runId,
+                  input: {
+                    senders: [{ id: self.id }],
+                    parent: {
+                      id: self.id,
+                    },
+                    inputs: {
+                      llm: context.inputs.llm! as
+                        | OpenAIModelConfig
+                        | OllamaModelConfig,
+                      system: context.inputs.system!,
+                      messages: context.inputs.messages?.map(
+                        ({ id, ...rest }) => {
+                          return rest;
+                        },
+                      ) as OpenAIChatMessage[],
+                      tools: Object.entries(context.inputs.tools)
+                        .map(([key, t]) => {
+                          const { nodeID } = extractGroupsFromToolName(key);
+                          const actorRef = get(context.inputSockets.tools, [
+                            "x-connection",
+                            nodeID,
+                            "actorRef",
+                          ]) as AnyActorRef;
+                          console.log("ACTOR REF", actorRef);
+                          return {
+                            key,
+                            actorRef,
+                            def: {
+                              name: t.name,
+                              description: t.description,
+                              parameters: new UncheckedSchema(t.parameters),
+                            },
+                          };
+                        })
+                        .reduce((acc, { key, ...rest }) => {
+                          acc[key] = rest;
+                          return acc;
+                        }, {}),
+                    },
+                  },
+                },
+              }),
+            );
+          }),
         },
       },
-      complete: {},
-      error: {},
     },
+    complete: {},
+    error: {},
   },
-  {
-    actors: {
-      completeChat: completeChatMachineRun,
-    },
-  },
-);
+});
 
 export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
   static nodeType = "CompleteChat";

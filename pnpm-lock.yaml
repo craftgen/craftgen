@@ -166,8 +166,8 @@ importers:
         specifier: ^6.10.2
         version: 6.10.2
       modelfusion:
-        specifier: ^0.121.0
-        version: 0.121.0
+        specifier: ^0.136.0
+        version: 0.136.0
       moment-timezone:
         specifier: ^0.5.45
         version: 0.5.45
@@ -803,8 +803,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
       modelfusion:
-        specifier: ^0.121.0
-        version: 0.121.0
+        specifier: ^0.136.0
+        version: 0.136.0
       moment-timezone:
         specifier: ^0.5.45
         version: 0.5.45
@@ -15696,14 +15696,15 @@ packages:
     resolution: {integrity: sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ==}
     dev: false
 
-  /modelfusion@0.121.0:
-    resolution: {integrity: sha512-vPVyIfM7MeLq9C/If0G8kK7BZx4gX69t/ZD/vJddnnIQMA+NAkRZ9zBpHox3A4z6+sgQuNM5J/5pTbKTaGXigQ==}
+  /modelfusion@0.136.0:
+    resolution: {integrity: sha512-EqFKzhFH9myPmWZgvIVpiKQ9Wj2ceWgaOPWzqOYb/Zv2qUYmk2hY6GmZR+7qWbD4P2KcQtIUlgCuLdo0L8E/UA==}
     engines: {node: '>=18'}
     dependencies:
       eventsource-parser: 1.1.1
       js-tiktoken: 1.0.7
       nanoid: 3.3.6
       secure-json-parse: 2.7.0
+      type-fest: 4.9.0
       ws: 8.14.2
       zod: 3.22.4
       zod-to-json-schema: 3.22.3(zod@3.22.4)
@@ -19390,6 +19391,11 @@ packages:
 
   /type-fest@4.6.0:
     resolution: {integrity: sha512-rLjWJzQFOq4xw7MgJrCZ6T1jIOvvYElXT12r+y0CC6u67hegDHaxcPqb2fZHOGlqxugGQPNB1EnTezjBetkwkw==}
+    engines: {node: '>=16'}
+    dev: false
+
+  /type-fest@4.9.0:
+    resolution: {integrity: sha512-KS/6lh/ynPGiHD/LnAobrEFq3Ad4pBzOlJ1wAnJx9N4EYoqFhMfLIBjUT2UEx4wg5ZE+cC1ob6DCSpppVo+rtg==}
     engines: {node: '>=16'}
     dev: false
 

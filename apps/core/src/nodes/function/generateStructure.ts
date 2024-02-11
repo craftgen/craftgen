@@ -2,8 +2,9 @@ import { createId } from "@paralleldrive/cuid2";
 import { isNil, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
-  generateStructure,
-  jsonStructurePrompt,
+  generateObject,
+  jsonObjectPrompt,
+  jsonToolCallPrompt,
   ollama,
   openai,
   ToolCallError,
@@ -12,7 +13,7 @@ import {
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { AnyActorRef, OutputFrom } from "xstate";
+import type { OutputFrom } from "xstate";
 import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
@@ -26,9 +27,8 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import { OllamaModelMachine } from "../ollama/ollama";
+
 import type { OllamaModelConfig } from "../ollama/ollama";
-import { OpenaiModelMachine } from "../openai/openai";
 import type { OpenAIModelConfig } from "../openai/openai";
 
 const inputSockets = {
@@ -83,14 +83,14 @@ const inputSockets = {
     `,
     allOf: [
       {
-        enum: ["Ollama", "OpenAI"],
+        enum: ["NodeOllama", "NodeOpenAI"],
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    "x-actor-type": "OpenAI",
+    "x-actor-type": "NodeOpenAI",
     "x-actor-config": {
-      Ollama: {
+      NodeOllama: {
         connections: {
           config: "llm",
         },
@@ -98,7 +98,7 @@ const inputSockets = {
           config: "llm",
         },
       },
-      OpenAI: {
+      NodeOpenAI: {
         connections: {
           config: "llm",
         },
@@ -153,8 +153,8 @@ const outputSockets = {
   }),
 };
 
-const OpenAIGenerateStructureMachine = createMachine({
-  id: "openai-generate-structure",
+const GenerateObjectMachine = createMachine({
+  id: "generate-object",
   context: ({ input }) => {
     const defaultInputs: (typeof input)["inputs"] = {};
     for (const [key, socket] of Object.entries(inputSockets)) {
@@ -166,6 +166,8 @@ const OpenAIGenerateStructureMachine = createMachine({
     }
     return merge<typeof input, any>(
       {
+        name: "GenerateObject",
+        description: "Generate Object",
         inputs: {
           ...defaultInputs,
         },
@@ -183,22 +185,34 @@ const OpenAIGenerateStructureMachine = createMachine({
     );
   },
   entry: enqueueActions(({ enqueue }) => {
-    enqueue("spawnInputActors");
+    enqueue("initialize");
   }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-      runs: Record<string, AnyActorRef>;
-    };
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
     actions: None;
     events: None;
-    actors: {
-      src: "generateText";
-      logic: typeof generateStructureActor;
-    };
+    actors: None;
     guards: None;
   }>,
   initial: "idle",
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
+    },
+    INITIALIZE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("initialize");
+      }),
+    },
+    SET_VALUE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("setValue");
+      }),
+    },
+  },
   states: {
     idle: {
       on: {
@@ -219,15 +233,8 @@ const OpenAIGenerateStructureMachine = createMachine({
           }),
         },
         RESET: {
-          guard: ({ context }) => {
-            return context.runs && Object.keys(context.runs).length > 0;
-          },
           actions: enqueueActions(({ enqueue, context, self }) => {
-            Object.values(context.runs).map((run) => {
-              enqueue.stopChild(run);
-            });
             enqueue.assign({
-              runs: {},
               outputs: ({ context }) => ({
                 ...context.outputs,
                 result: null,
@@ -240,12 +247,25 @@ const OpenAIGenerateStructureMachine = createMachine({
             ({ context }) => !isNil(context.inputs.schema),
             ({ context }) => !isNil(context.inputs.llm),
           ]),
-          actions: enqueueActions(({ enqueue }) => {
+          actions: enqueueActions(({ enqueue, check, event }) => {
+            if (check(({ event }) => !isNil(event.params?.values))) {
+              enqueue({
+                type: "setValue",
+                params: {
+                  values: event.params?.values!,
+                },
+              });
+            }
             const runId = `call-${createId()}`;
-            enqueue.assign({
-              runs: ({ context, spawn, self }) => {
-                const run = spawn("generateStructure", {
+            enqueue.sendTo(
+              ({ system }) => system.get("editor"),
+              ({ self, context }) => ({
+                type: "SPAWN",
+                params: {
                   id: runId,
+                  parentId: self.id,
+                  machineId: "NodeGenerateStructure.run",
+                  systemId: runId,
                   input: {
                     inputs: {
                       llm: context.inputs.llm! as
@@ -256,39 +276,24 @@ const OpenAIGenerateStructureMachine = createMachine({
                       instruction: context.inputs.instruction,
                       schema: context.inputs.schema,
                     },
-                    senders: [self],
+                    senders: [{ id: self.id }],
+                    parent: {
+                      id: self.id,
+                    },
                   },
                   syncSnapshot: true,
-                });
-                return {
-                  ...context.runs,
-                  [runId]: run,
-                };
-              },
-            });
+                },
+              }),
+            );
           }),
         },
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
         },
-        INITIALIZE: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue("initialize");
-          }),
-        },
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
       },
     },
     complete: {},
-    error: {
-      on: {
-        SET_VALUE: {
-          actions: ["setValue"],
-        },
-      },
-    },
+    error: {},
   },
 });
 
@@ -302,8 +307,6 @@ interface GenerateStructureInput {
 
 const generateStructureActor = fromPromise(
   async ({ input }: { input: GenerateStructureInput }) => {
-    console.log("@@@", { input });
-
     const model = match([input.llm, input.method])
       .with(
         [
@@ -317,21 +320,23 @@ const generateStructureActor = fromPromise(
             .ChatTextGenerator({
               ...config,
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
-              format: "json",
             })
-            .asStructureGenerationModel(jsonStructurePrompt.instruction());
+            .asObjectGenerationModel(
+              jsonObjectPrompt.instruction({
+                schemaPrefix: "schema",
+              }),
+            );
           return () =>
-            generateStructure(
+            generateObject({
               model,
-              new UncheckedSchema(input.schema.parameters),
-              {
+              schema: new UncheckedSchema(input.schema.parameters),
+
+              prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
               },
-              {
-                fullResponse: true,
-              },
-            );
+              fullResponse: true,
+            });
         },
       )
       .with(
@@ -348,19 +353,22 @@ const generateStructureActor = fromPromise(
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
               responseFormat: { type: "json_object" }, // force JSON output
             })
-            .asStructureGenerationModel(jsonStructurePrompt.instruction());
+            .asObjectGenerationModel(
+              jsonObjectPrompt.instruction({
+                schemaPrefix: "schema",
+                schemaSuffix: "parameters",
+              }),
+            );
           return () =>
-            generateStructure(
+            generateObject({
               model,
-              new UncheckedSchema(input.schema.parameters),
-              {
+              schema: new UncheckedSchema(input.schema.parameters),
+              prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
               },
-              {
-                fullResponse: true,
-              },
-            );
+              fullResponse: true,
+            });
         },
       )
       .with(
@@ -376,23 +384,21 @@ const generateStructureActor = fromPromise(
               ...config,
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
             })
-            .asFunctionCallStructureGenerationModel({
+            .asFunctionCallObjectGenerationModel({
               fnName: input.schema.name,
               fnDescription: input.schema.description,
             })
             .withInstructionPrompt();
           return () =>
-            generateStructure(
+            generateObject({
               model,
-              new UncheckedSchema(input.schema.parameters),
-              {
+              schema: new UncheckedSchema(input.schema.parameters),
+              prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
               },
-              {
-                fullResponse: true,
-              },
-            );
+              fullResponse: true,
+            });
         },
       )
       .run();
@@ -406,7 +412,12 @@ const generateStructureCall = setup({
   types: {
     input: {} as {
       inputs: GenerateStructureInput;
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     context: {} as {
       inputs: GenerateStructureInput;
@@ -414,7 +425,12 @@ const generateStructureCall = setup({
         ok: boolean;
         result: OutputFrom<typeof generateStructureActor> | ToolCallError;
       };
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     output: {} as {
       result: OutputFrom<typeof generateStructureActor>;
@@ -453,13 +469,16 @@ const generateStructureCall = setup({
             });
 
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, ({ context, self }) => ({
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              }));
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
@@ -482,13 +501,16 @@ const generateStructureCall = setup({
               }),
             });
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, {
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              });
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
@@ -512,11 +534,11 @@ const generateStructureCall = setup({
 
 export type OpenAIGenerateStructureNode = ParsedNode<
   "NodeGenerateStructure",
-  typeof OpenAIGenerateStructureMachine
+  typeof GenerateObjectMachine
 >;
 
 export class NodeGenerateStructure extends BaseNode<
-  typeof OpenAIGenerateStructureMachine
+  typeof GenerateObjectMachine
 > {
   static nodeType = "OpenAIGenerateStructure";
   static label = "Generate Structure";
@@ -534,26 +556,12 @@ export class NodeGenerateStructure extends BaseNode<
     };
   }
   static machines = {
-    NodeGenerateStructure: OpenAIGenerateStructureMachine,
+    NodeGenerateStructure: GenerateObjectMachine,
     "NodeGenerateStructure.run": generateStructureCall,
   };
 
   constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
-    super("NodeGenerateStructure", di, data, OpenAIGenerateStructureMachine, {
-      // actors: {
-      //   generateStructure: generateStructureCall,
-      // },
-    });
-    // this.extendMachine({
-    //   actors: {
-    //     Ollama: OllamaModelMachine.provide({
-    //       ...(this.baseImplentations as any),
-    //     }),
-    //     OpenAI: OpenaiModelMachine.provide({
-    //       ...(this.baseImplentations as any),
-    //     }),
-    //   },
-    // });
+    super("NodeGenerateStructure", di, data, GenerateObjectMachine, {});
 
     this.setup();
   }

@@ -19,7 +19,6 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
-import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -157,7 +156,7 @@ const inputSockets = {
     required: true,
     "x-actor-type": "NodeApiConfiguration",
     default: {
-      baseUrl: "http://127.0.0.1:11434/api",
+      baseUrl: "http://127.0.0.1:11434",
     },
     isMultiple: false,
     "x-actor-config": {
@@ -702,6 +701,7 @@ export const OllamaModelMachine = createMachine(
                 ...(context.outputs.config as object),
                 provider: "ollama",
                 ...context.inputs,
+                template: undefined,
               } as OllamaModelConfig,
             };
           },

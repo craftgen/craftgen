@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { get } from "lodash-es";
-import { and, eq, inArray, or, schema } from "@seocraft/supabase/db";
+import { and, eq, inArray, or, schema, sql } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -129,18 +129,18 @@ export const craftNodeRouter = createTRPCRouter({
                 ),
               ),
             );
-          await tx
-            .delete(schema.nodeExecutionData)
-            .where(
-              and(
-                eq(schema.nodeExecutionData.workflowId, input.workflowId),
-                eq(
-                  schema.nodeExecutionData.workflowVersionId,
-                  input.workflowVersionId,
-                ),
-                eq(schema.nodeExecutionData.workflowNodeId, input.data.id),
-              ),
-            );
+          // await tx
+          //   .delete(schema.nodeExecutionData)
+          //   .where(
+          //     and(
+          //       eq(schema.nodeExecutionData.workflowId, input.workflowId),
+          //       eq(
+          //         schema.nodeExecutionData.workflowVersionId,
+          //         input.workflowVersionId,
+          //       ),
+          //       eq(schema.nodeExecutionData.workflowNodeId, input.data.id),
+          //     ),
+          //   );
         }
         const [node] = await tx
           .delete(schema.workflowNode)
@@ -205,52 +205,38 @@ export const craftNodeRouter = createTRPCRouter({
     }),
   setContext: protectedProcedure
     .input(
-      z.object({
-        contextId: z.string(),
-        projectId: z.string(),
-        workflowId: z.string(),
-        workflowVersionId: z.string(),
-        context: z.string().transform((val) => JSON.parse(val)),
-      }),
+      z.array(
+        z.object({
+          contextId: z.string(),
+          projectId: z.string(),
+          workflowId: z.string(),
+          workflowVersionId: z.string(),
+          context: z.string().transform((val) => JSON.parse(val)),
+        }),
+      ),
     )
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         const newContext = await tx
           .insert(schema.context)
-          .values({
-            id: input.contextId,
-            project_id: input.projectId,
-            type: input.context.src,
-            state: input.context as any,
-            workflow_id: input.workflowId,
-            workflow_version_id: input.workflowVersionId,
-            parent_id: get(input.context, "snapshot.context.parent.id"),
-          })
+          .values(
+            input.map((i) => ({
+              id: i.contextId,
+              project_id: i.projectId,
+              type: i.context.src,
+              state: i.context as any,
+              workflow_id: i.workflowId,
+              workflow_version_id: i.workflowVersionId,
+              parent_id: get(i.context, "snapshot.context.parent.id"),
+            })),
+          )
           .onConflictDoUpdate({
             target: schema.context.id,
             set: {
-              state: input.context as any,
+              state: sql`excluded.state`,
             },
           })
           .returning();
-
-        // const parentId = get(input.context, "snapshot.context.parent.id");
-        // if (parentId) {
-        // const parent = await tx.query.context.findFirst({
-        //   where: (context, { eq }) => eq(context.id, parentId),
-        //   columns: {
-        //     id: true,
-        //   },
-        // // });
-        // await tx
-        //   .insert(schema.contextRelation)
-        //   .values({
-        //     source: parentId,
-        //     target: input.contextId,
-        //     type: "parent",
-        //   })
-        //   .onConflictDoNothing();
-        // }
 
         return newContext;
       });
