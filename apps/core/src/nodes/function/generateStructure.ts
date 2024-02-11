@@ -4,6 +4,7 @@ import {
   BaseUrlApiConfiguration,
   generateObject,
   jsonObjectPrompt,
+  jsonToolCallPrompt,
   ollama,
   openai,
   ToolCallError,
@@ -12,7 +13,7 @@ import {
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { AnyActorRef, OutputFrom } from "xstate";
+import type { OutputFrom } from "xstate";
 import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
@@ -188,15 +189,10 @@ const GenerateObjectMachine = createMachine({
   }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-      runs: Record<string, AnyActorRef>;
-    };
+    context: BaseContextType<typeof inputSockets, typeof outputSockets>;
     actions: None;
     events: None;
-    actors: {
-      src: "generateText";
-      logic: typeof generateStructureActor;
-    };
+    actors: None;
     guards: None;
   }>,
   initial: "idle",
@@ -237,15 +233,8 @@ const GenerateObjectMachine = createMachine({
           }),
         },
         RESET: {
-          guard: ({ context }) => {
-            return context.runs && Object.keys(context.runs).length > 0;
-          },
           actions: enqueueActions(({ enqueue, context, self }) => {
-            Object.values(context.runs).map((run) => {
-              enqueue.stopChild(run);
-            });
             enqueue.assign({
-              runs: {},
               outputs: ({ context }) => ({
                 ...context.outputs,
                 result: null,
@@ -275,7 +264,7 @@ const GenerateObjectMachine = createMachine({
                 params: {
                   id: runId,
                   parentId: self.id,
-                  machine: "NodeGenerateStructure.run",
+                  machineId: "NodeGenerateStructure.run",
                   systemId: runId,
                   input: {
                     inputs: {
@@ -331,13 +320,17 @@ const generateStructureActor = fromPromise(
             .ChatTextGenerator({
               ...config,
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
-              format: "json",
             })
-            .asObjectGenerationModel(jsonObjectPrompt.instruction());
+            .asObjectGenerationModel(
+              jsonObjectPrompt.instruction({
+                schemaPrefix: "schema",
+              }),
+            );
           return () =>
             generateObject({
               model,
               schema: new UncheckedSchema(input.schema.parameters),
+
               prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
@@ -360,7 +353,12 @@ const generateStructureActor = fromPromise(
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
               responseFormat: { type: "json_object" }, // force JSON output
             })
-            .asObjectGenerationModel(jsonStructurePrompt.instruction());
+            .asObjectGenerationModel(
+              jsonObjectPrompt.instruction({
+                schemaPrefix: "schema",
+                schemaSuffix: "parameters",
+              }),
+            );
           return () =>
             generateObject({
               model,
@@ -414,7 +412,12 @@ const generateStructureCall = setup({
   types: {
     input: {} as {
       inputs: GenerateStructureInput;
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     context: {} as {
       inputs: GenerateStructureInput;
@@ -422,7 +425,12 @@ const generateStructureCall = setup({
         ok: boolean;
         result: OutputFrom<typeof generateStructureActor> | ToolCallError;
       };
-      senders: AnyActorRef[];
+      senders: {
+        id: string;
+      }[];
+      parent: {
+        id: string;
+      };
     },
     output: {} as {
       result: OutputFrom<typeof generateStructureActor>;
@@ -461,13 +469,16 @@ const generateStructureCall = setup({
             });
 
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, ({ context, self }) => ({
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              }));
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
@@ -490,13 +501,16 @@ const generateStructureCall = setup({
               }),
             });
             for (const sender of context.senders) {
-              enqueue.sendTo(sender, {
-                type: "RESULT",
-                params: {
-                  id: self.id,
-                  res: context.outputs,
-                },
-              });
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context, self }) => ({
+                  type: "RESULT",
+                  params: {
+                    id: self.id,
+                    res: context.outputs,
+                  },
+                }),
+              );
             }
           }),
         },
