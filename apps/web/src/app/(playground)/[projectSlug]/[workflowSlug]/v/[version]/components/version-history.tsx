@@ -11,11 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ResultOfAction } from "@/lib/type";
 import { api } from "@/trpc/react";
+import { RouterOutputs } from "@seocraft/api";
 
 export const VersionHistory: React.FC<{
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs['craft']['module']['meta'];
 }> = ({ workflow }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -25,9 +25,10 @@ export const VersionHistory: React.FC<{
   const handleChange = (value: string) => {
     router.push(`/${workflow.projectSlug}/${workflow.slug}/v/${value}`);
   };
+  console.log(data)
   return (
     <Select
-      defaultValue={String(workflow.currentVersion)}
+      defaultValue={String(workflow.version?.version)}
       onValueChange={handleChange}
       open={open}
       onOpenChange={setOpen}
