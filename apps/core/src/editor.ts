@@ -480,8 +480,6 @@ export class Editor<
             ...context.inputSockets,
             [port]: {
               ...socket,
-              // "x-actor": event.params.actor,
-              // "x-actor-id": event.params.actor.id,
               "x-actor-type": actorType,
               "x-actor-ref": event.params.actor,
               "x-actor-ref-id": event.params.actor.id,
@@ -520,7 +518,7 @@ export class Editor<
                   ...socket["x-connection"],
                   [self.id]: {
                     key: value,
-                    actorRef: self,
+                    // actorRef: self,
                   },
                 } as ConnectionConfigRecord,
               },
@@ -683,7 +681,6 @@ export class Editor<
           }
         }
       }
-      console.groupEnd();
     }),
     triggerNode: async (
       action: ActionArgs<any, any, any>,
@@ -925,7 +922,7 @@ export class Editor<
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
     const nodeClass = nodeMeta.class;
-    const nodeActor = this.actor.system.get(node.contextId);
+    const nodeActor = this.actor?.system.get(node.contextId);
     if (!nodeActor) {
       console.log(
         "ACTOR NOT FOUND | SPAWNING",
@@ -934,7 +931,7 @@ export class Editor<
         node.type,
         node.state,
       );
-      this.actor.send({
+      this.actor?.send({
         type: "SPAWN",
         params: {
           id: node.contextId,

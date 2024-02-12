@@ -45,7 +45,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
-// import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
@@ -266,10 +265,10 @@ export const Playground: React.FC<{
             <div className="flex items-center space-x-2">
               {session && <UserNav session={session} />}
               <VersionHistory workflow={workflow} />
-              {!workflow.version.publishedAt ? (
+              {!workflow.version?.publishedAt ? (
                 <CreateReleaseButton
                   playgroundId={workflow.id}
-                  version={workflow.currentVersion}
+                  version={workflow.version?.version!}
                 />
               ) : (
                 <RestoreVersionButton />

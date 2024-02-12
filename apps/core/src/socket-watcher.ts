@@ -17,7 +17,9 @@ export const socketWatcher = fromObservable(
     const connectionsMap = new Map<ActorId, Set<string>>();
     const updateConnections = (state: SnapshotFrom<AnyActor>, key: string) => {
       const connections = state.context.outputSockets[key]["x-connection"];
+      console.log("connections", connections);
       for (const [t, conn] of Object.entries(connections || {})) {
+        console.log("Target", t, "Connection", conn);
         const target = system.get(t);
         target.send({
           type: "SET_VALUE",
