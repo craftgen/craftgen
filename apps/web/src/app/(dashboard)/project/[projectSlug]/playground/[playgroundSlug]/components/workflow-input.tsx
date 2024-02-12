@@ -25,13 +25,7 @@ export const WorkflowInput: React.FC<{
       <div className="p-2">
         <h2 className="text-3xl font-bold">Output</h2>
         <div className="space-y-2 pt-4">
-          {/* {output() &&
-              Object.keys(output()).map((o: any) => (
-                <div key={o} className="space-y-2">
-                  <div className="font-bold">{o}</div>
-                  <div className="bg-muted/40 rounded p-2">{output()[o]}</div>
-                </div>
-              ))} */}
+          <InputForm fields={nodes?.outputs} />
         </div>
       </div>
     </section>
