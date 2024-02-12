@@ -222,14 +222,9 @@ export const Playground: React.FC<{
       })
       .with("explorer", () => {
         return (
-          <div>
+          <div className="p-4">
             <h2>Workflows</h2>
             <ul>
-              <li>
-                <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
-                  {workflow.name}
-                </Link>
-              </li>
               <li>
                 <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
                   {workflow.name}

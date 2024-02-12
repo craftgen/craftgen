@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { Play } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { ContextFrom } from "xstate";
@@ -20,58 +19,23 @@ import {
 } from "@/components/ui/form";
 import { renderField } from "@/core/control-utils";
 import type { RouterOutputs } from "@/trpc/shared";
+import { JSONSchema } from "openai/lib/jsonschema";
+import { ajvResolver } from "@hookform/resolvers/ajv";
 
 export const InputForm: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["meta"];
-  input: ContextFrom<typeof InputNodeMachine>;
-}> = ({ workflow, input }) => {
+  fields: any[];
+}> = ({ workflow, fields }) => {
   const form = useForm({
     defaultValues: {
-      ...input?.inputs,
+      // ...input?.fields,
     },
     // resolver: ajvResolver(input?.schema as any), // TODO: fix types
   });
 
-  const fields = useMemo(() => input?.outputSockets, [input?.outputSockets]);
   const onSubmit = async (data: any) => {
     console.log(data);
-    // const { data: execution } = await createExecution({
-    //   workflowId: workflow.id,
-    //   workflowVersionId: workflow.version.id,
-    //   input: {
-    //     id: input.id,
-    //     values: data,
-    //   },
-    // });
     return;
-    //   try {
-    //     const nodes = workflow.version.nodes.map((n) => {
-    //       return {
-    //         id: n.id,
-    //         type: n.type as NodeTypes,
-    //         contextId: n.contextId,
-    //         state: JSON.stringify(n.context.state),
-    //       };
-    //     });
-    //     const { data: execution } = await createExecution({
-    //       workflowId: workflow.id,
-    //       workflowVersionId: workflow.version.id,
-    //       nodes,
-    //       input: {
-    //         id: inputs[0].id,
-    //         values: data,
-    //       },
-    //     });
-    //     if (!execution) {
-    //       throw new Error("Execution not created");
-    //     }
-    //     console.log(execution);
-    //     router.push(
-    //       `/${workflow.project.slug}/${workflow.slug}/playground?execution=${execution.id}`
-    //     );
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
   };
 
   return (
