@@ -1045,7 +1045,12 @@ export class Editor<
     await this.setupEnv();
     const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
     this.content.contexts.forEach((n: any) => {
-      children[n.id] = n.state;
+      children[n.id] = {
+        snapshot: n.state,
+        src: n.type,
+        systemId: n.id,
+        syncSnapshot: true,
+      };
     });
 
     const snapshot = {

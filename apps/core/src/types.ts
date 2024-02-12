@@ -23,7 +23,7 @@ import {
   Replicate,
   Shopify,
   Start,
-  TextNode,
+  NodeText,
   Webflow,
   Wordpress,
   NodeJavascriptCodeInterpreter,
@@ -77,7 +77,7 @@ export interface Node {
 export const nodes = {
   Start: Start,
   NodeLog: Log,
-  NodeText: TextNode,
+  NodeText: NodeText,
   NodeNumber: Number,
   NodePromptTemplate: PromptTemplate,
   NodeThread: NodeThread,

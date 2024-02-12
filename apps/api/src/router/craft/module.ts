@@ -189,15 +189,7 @@ export const craftModuleRouter = createTRPCRouter({
           eq(workflowVersion.id, input.versionId),
         with: {
           edges: true,
-          nodes: {
-            with: {
-              // context: {
-              //   columns: {
-              //     state: true,
-              //   },
-              // },
-            },
-          },
+          nodes: true,
         },
       });
       if (!version) {
@@ -327,7 +319,6 @@ export const craftModuleRouter = createTRPCRouter({
                         slug: true,
                       },
                     },
-                    // context: true,
                   },
                 },
               },
@@ -352,9 +343,6 @@ export const craftModuleRouter = createTRPCRouter({
           workflowId: node.workflowId,
           workflowVersionId: node.workflowVersionId,
           contextId: node.contextId,
-
-          // state: node.nodeExectutions.map((ne) => ne.state)[0],
-          // nodeExecutionId: node.nodeExectutions.map((ne) => ne.id)[0],
           position: node.position,
           width: node.width,
           height: node.height,

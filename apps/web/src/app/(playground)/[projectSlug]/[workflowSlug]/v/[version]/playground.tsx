@@ -265,15 +265,15 @@ export const Playground: React.FC<{
             <MenubarDemo />
             <div className="flex items-center space-x-2">
               {session && <UserNav session={session} />}
-              {/* <VersionHistory workflow={workflow} /> */}
-              {/* {!workflow.version.publishedAt ? (
+              <VersionHistory workflow={workflow} />
+              {!workflow.version.publishedAt ? (
                 <CreateReleaseButton
                   playgroundId={workflow.id}
                   version={workflow.currentVersion}
                 />
               ) : (
                 <RestoreVersionButton />
-              )} */}
+              )}
               <Link href={`/${workflow.projectSlug}/settings`}>
                 <Button variant={"outline"} size={"icon"}>
                   <Icon name="settings" />

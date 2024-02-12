@@ -1,6 +1,6 @@
 export { Start } from "./start";
 export { Log } from "./log";
-export { TextNode } from "./primitives/text";
+export { NodeText  } from "./primitives/text";
 export { Number } from "./primitives/number";
 export { PromptTemplate } from "./prompt-template";
 

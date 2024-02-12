@@ -84,11 +84,11 @@ export const craftVersionRouter = createTRPCRouter({
             with: {
               nodes: {
                 with: {
-                  // context: {
-                  //   with: {
-                  //     previousContext: true,
-                  //   },
-                  // },
+                  context: {
+                    with: {
+                      previousContext: true,
+                    },
+                  },
                 },
               },
               edges: true,
@@ -120,6 +120,8 @@ export const craftVersionRouter = createTRPCRouter({
                     project_id: contextState.project_id,
                     previousContextId: contextState.id,
                     state: contextState.state,
+                    workflow_id: input.workflowId,
+                    workflow_version_id: newVersion.id,
                   })
                   .returning();
                 if (!cloneContext) {
