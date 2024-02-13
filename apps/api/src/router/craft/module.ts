@@ -48,7 +48,7 @@ export const craftModuleRouter = createTRPCRouter({
         .map((node) => ({
           context: node.context,
         }))
-        .map((node) => node.context.state.snapshot.context);
+        .map((node) => node.context.state.context);
 
       const outputs = contentNodes
         .map((context) => Object.values(context.outputSockets))
@@ -57,7 +57,15 @@ export const craftModuleRouter = createTRPCRouter({
         .filter(
           (socket) =>
             Object.entries(_.get(socket, "x-connection", {})).length === 0,
-        );
+        )
+        .reduce((acc, socket) => {
+          const key = _.get(socket, ["x-key"]);
+          return {
+            ...acc,
+            [key]: socket,
+          };
+        }, {})
+        .value();
 
       const inputs = contentNodes
         .map((context) => Object.values(context.inputSockets))
@@ -66,7 +74,15 @@ export const craftModuleRouter = createTRPCRouter({
         .filter(
           (socket) =>
             Object.entries(_.get(socket, "x-connection", {})).length === 0,
-        );
+        )
+        .reduce((acc, socket) => {
+          const key = _.get(socket, ["x-key"]);
+          return {
+            ...acc,
+            [key]: socket,
+          };
+        }, {})
+        .value();
 
       return {
         ...workflow,
