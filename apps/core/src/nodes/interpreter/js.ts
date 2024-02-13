@@ -39,6 +39,7 @@ const inputSockets = {
     description: "the code",
     "x-showSocket": false,
     required: true,
+    "x-libraries": [],
   }),
   run: generateSocket({
     "x-key": "run",
@@ -254,7 +255,20 @@ export const JavascriptCodeInterpreterMachine = createMachine(
     initial: "idle",
     on: {
       SET_VALUE: {
-        actions: ["setValue"],
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("setValue");
+          enqueue.assign({
+            inputSockets: ({ context, event }) => {
+              return {
+                ...context.inputSockets,
+                code: {
+                  ...context.inputSockets["code"],
+                  "x-libraries": context.inputs.libraries,
+                },
+              };
+            },
+          });
+        }),
       },
       UPDATE_SOCKET: {
         actions: ["updateSocket"],

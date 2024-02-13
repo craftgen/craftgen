@@ -107,8 +107,10 @@ export function CustomInput(props: { data: InputControl }) {
 
   const ternServer = useRef(createTernServer());
   const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
+  const libraries = props.data.definition["x-libraries"] || [];
   const parseValue = useCallback(parseValueFN, []);
 
+  console.log("LIBS", libraries);
   const handledChange = (val: string) => {
     const res = parseValue(val);
     match(res)
