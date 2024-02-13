@@ -693,7 +693,7 @@ export abstract class BaseNode<
             if (acc[k]) {
               throw new Error(`Actor ${k} already exists`);
             }
-            acc[k] = this.getMachineActor(k);
+            // acc[k] = this.getMachineActor(k);
             return acc;
           },
           {} as Record<string, AnyStateMachine>,

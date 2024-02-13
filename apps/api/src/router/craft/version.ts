@@ -16,6 +16,7 @@ export const craftVersionRouter = createTRPCRouter({
       return await ctx.db.query.workflowVersion.findMany({
         where: (workflowVersion, { eq, and }) =>
           eq(workflowVersion.workflowId, input.workflowId),
+        orderBy: (workflowVersion) => desc(workflowVersion.version),
         with: {
           workflow: true,
         },

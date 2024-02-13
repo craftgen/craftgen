@@ -206,6 +206,7 @@ export const craftModuleRouter = createTRPCRouter({
         with: {
           edges: true,
           nodes: true,
+          contexts: true,
         },
       });
       if (!version) {

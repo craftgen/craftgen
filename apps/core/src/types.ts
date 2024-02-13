@@ -13,7 +13,7 @@ import {
   GoogleSheet,
   InputNode,
   Log,
-  ModuleNode,
+  NodeModule,
   Number,
   Ollama,
   OpenAI,
@@ -40,6 +40,7 @@ import { NodeThread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
 import { NodeMath } from "./nodes/tools/math";
+import { NodeReplicate } from "./nodes/replicate/replicate";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -106,9 +107,9 @@ export const nodes = {
 
   // InputNode,
   // OutputNode,
-  // ModuleNode,
+  NodeModule: NodeModule,
 
-  // Replicate: Replicate,
+  NodeReplicate: NodeReplicate,
 
   // // DataSources
   // GoogleSheet: GoogleSheet,

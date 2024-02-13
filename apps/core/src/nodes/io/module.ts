@@ -131,37 +131,29 @@ const ModuleNodeMachine = createMachine({
   },
 });
 
-export type ModuleNodeData = ParsedNode<"ModuleNode", typeof ModuleNodeMachine>;
+export type NodeModuleData = ParsedNode<"NodeModule", typeof ModuleNodeMachine>;
 
-export class ModuleNode extends BaseNode<typeof ModuleNodeMachine> {
-  static nodeType = "ModuleNode" as const;
+export class NodeModule extends BaseNode<typeof ModuleNodeMachine> {
+  static nodeType = "NodeModule" as const;
   static label = "Module";
   static description = "Node for handling module nodes";
   static icon = "component";
 
-  static parse(params: SetOptional<ModuleNodeData, "type">): ModuleNodeData {
+  static parse(params: SetOptional<NodeModuleData, "type">): NodeModuleData {
     return {
       ...params,
-      type: "ModuleNode",
+      type: "NodeModule",
     };
   }
 
+  static machines = {
+    NodeModule: ModuleNodeMachine,
+  };
+
   module: null | Editor = null;
 
-  constructor(di: DiContainer, data: ModuleNodeData) {
-    super("ModuleNode", di, data, ModuleNodeMachine, {
-      actors: {
-        execute: fromPromise(async ({ input }) => {
-          console.log("RUNNING", { input, module: this.module });
-          const val = await this.module?.run({
-            inputId: input.inputId,
-            inputs: input.inputData,
-          });
-          console.log("RES", val);
-          return val;
-        }),
-      },
-    });
+  constructor(di: DiContainer, data: NodeModuleData) {
+    super("NodeModule", di, data, ModuleNodeMachine, {});
     this.setup();
     makeObservable(this, {
       module: observable.ref,

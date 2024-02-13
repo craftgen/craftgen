@@ -26,7 +26,6 @@ import {
   ActionArgs,
   assertEvent,
   AnyActorRef,
-  sendTo,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -56,17 +55,7 @@ import {
   JSONSocket,
 } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
-import {
-  Subject,
-  bufferTime,
-  catchError,
-  concatMap,
-  filter,
-  distinct,
-  from,
-  mergeMap,
-  of,
-} from "rxjs";
+import { Subject, bufferTime, catchError, concatMap, filter, of } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
@@ -835,29 +824,42 @@ export class Editor<
     );
 
     this.machine = EditorMachine.provide({
-      // actions: {
-      //   ...this.baseActions,
-      // },
       actors: {
         socketWatcher,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
+            console.log(k, this.machines[k]);
             if (acc[k]) {
               throw new Error(`Actor ${k} already exists`);
             }
             const machine = this.machines[k];
+            if (machine.provide) {
+              acc[k] = machine.provide({
+                actors: {
+                  socketWatcher,
+                },
+                delays: {},
+                actions: {
+                  ...this.baseActions,
+                },
+                guards: {
+                  ...this.baseGuards,
+                },
+              });
+            } else if (typeof machine === "function") {
+              const [main, child] = k.split(".");
+              console.log({
+                main,
+                child,
+              });
+              acc[main] = acc[main].provide({
+                actors: {
+                  [child]: machine({ di: this }),
+                },
+              });
+              // acc[k] = machine({ di: this });
+            }
 
-            acc[k] = machine.provide({
-              actors: {
-                socketWatcher,
-              },
-              actions: {
-                ...this.baseActions,
-              },
-              guards: {
-                ...this.baseGuards,
-              },
-            });
             return acc;
           },
           {} as Record<string, AnyStateMachine>,
@@ -936,7 +938,7 @@ export class Editor<
         params: {
           id: node.contextId,
           machineId: node.type as string,
-          input: node.state,
+          input: node.state || node.context,
           systemId: node.contextId, // context
         },
       });
@@ -964,6 +966,7 @@ export class Editor<
       label?: string;
     },
   ) {
+    console.log("ADDING NODE", node, context, meta);
     const nodeMeta = this.nodeMeta.get(node);
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node)} not registered`);
@@ -1015,6 +1018,7 @@ export class Editor<
       content: {
         edges: workflow.edges,
         nodes: workflow.nodes,
+        contexts: workflow.contexts,
       },
     });
     await di.setup();
@@ -1061,28 +1065,9 @@ export class Editor<
       output: undefined,
     } as any;
 
-    function withPersistance(actorLogic: any) {
-      const enhancedLogic = {
-        ...actorLogic,
-        // transition: (state, event, actorCtx) => {
-        //   if (event.type.startsWith("xstate.snapshot")) {
-        //     self.stateEvents.next({
-        //       executionId: self.executionId,
-        //       nodeExecutionId: undefined,
-        //       state: event.snapshot,
-        //       readonly: false,
-        //     });
-        //   }
-        //   return actorLogic.transition(state, event, actorCtx);
-        // },
-      };
-
-      return enhancedLogic;
-    }
-
     this.inspector = createBrowserInspector({ autoStart: false });
 
-    this.actor = createActor(withLogging(withPersistance(this.machine)), {
+    this.actor = createActor(withLogging(this.machine), {
       systemId: "editor",
       inspect: (inspectionEvent) => {
         if (this.inspector) {
@@ -1466,7 +1451,6 @@ export class Editor<
     for (const n of nodes) {
       if (this.editor.getNode(n.id)) continue;
       const node = await this.createNodeInstance(n);
-      console.log({ node });
       await this.editor.addNode(node);
     }
 
