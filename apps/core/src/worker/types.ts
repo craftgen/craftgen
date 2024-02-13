@@ -6,65 +6,74 @@
  */
 
 export enum MessageType {
-    REQUEST = "REQUEST",
-    RESPONSE = "RESPONSE",
-    DEFAULT = "DEFAULT",
+  REQUEST = "REQUEST",
+  RESPONSE = "RESPONSE",
+  DEFAULT = "DEFAULT",
 }
 
 interface TRequestMessage<TBody> {
-    body: TBody;
-    messageId: string;
-    messageType: MessageType.REQUEST;
+  body: TBody;
+  messageId: string;
+  messageType: MessageType.REQUEST;
 }
 
 interface TResponseMessage<TBody> {
-    body: TBody;
-    messageId: string;
-    messageType: MessageType.RESPONSE;
+  body: TBody;
+  messageId: string;
+  messageType: MessageType.RESPONSE;
 }
 
 export interface TDefaultMessage<TBody> {
-    messageId?: string;
-    body: TBody;
-    messageType: MessageType.DEFAULT;
+  messageId?: string;
+  body: TBody;
+  messageType: MessageType.DEFAULT;
 }
 
-export type TMessage<TBody> = TRequestMessage<TBody> | TResponseMessage<TBody> | TDefaultMessage<TBody>;
-export type TransmissionErrorHandler = (messageId: string, timeTaken: number, responseData: unknown, e: unknown) => void;
+export type TMessage<TBody> =
+  | TRequestMessage<TBody>
+  | TResponseMessage<TBody>
+  | TDefaultMessage<TBody>;
+export type TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+  e: unknown,
+) => void;
 
 export interface WorkerRequest<TData, TActions> {
-    method: TActions;
-    data: TData;
+  method: TActions;
+  data: TData;
 }
 
 export enum EVAL_WORKER_ACTION {
-    EVAL_EXPRESSION = "EVAL_EXPRESSION",
-    LOAD_LIBRARIES = "LOAD_LIBRARIES",
-    INSTALL_LIBRARY = "INSTALL_LIBRARY",
-    UNINSTALL_LIBRARY = "UNINSTALL_LIBRARY",
+  EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  LOAD_LIBRARIES = "LOAD_LIBRARIES",
+  INSTALL_LIBRARY = "INSTALL_LIBRARY",
+  UNINSTALL_LIBRARY = "UNINSTALL_LIBRARY",
+  RESET_JS_CONTEXT = "RESET_JS_CONTEXT",
 }
 
 export type EvalWorkerRequest<T = any> = WorkerRequest<T, EVAL_WORKER_ACTION>;
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeResponseData {
-    errors: EvalError[];
+  errors: EvalError[];
 }
 
 export enum EvalErrorTypes {
-    EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
-    UNKNOWN_ERROR = "UNKNOWN_ERROR",
-    PARSE_JS_ERROR = "PARSE_JS_ERROR",
-    EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
-    SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
+  EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  PARSE_JS_ERROR = "PARSE_JS_ERROR",
+  EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
+  SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
 export enum WorkerErrorTypes {
-    CLONE_ERROR = "CLONE_ERROR",
+  CLONE_ERROR = "CLONE_ERROR",
 }
 
 export interface EvalError {
-    type: EvalErrorTypes;
-    message: string;
-    context?: Record<string, any>;
+  type: EvalErrorTypes;
+  message: string;
+  context?: Record<string, any>;
 }

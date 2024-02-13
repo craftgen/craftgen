@@ -1,4 +1,7 @@
+import "./custom-input.css";
+import _ from "lodash";
 import * as tern from "tern";
+import { useAsync, usePreviousDistinct } from "react-use";
 import { useCallback, useRef, useState } from "react";
 import { javascript } from "@codemirror/lang-javascript";
 import {
@@ -42,7 +45,6 @@ import {
 import { api } from "@/trpc/react";
 import { Icons } from "@/components/icons";
 import { P, match } from "ts-pattern";
-import { Key } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import ecma from "@seocraft/core/src/worker/autocomplete/definitions/ecmascript.json";
@@ -50,6 +52,7 @@ import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.js
 import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
 import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
 import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
+import { start } from "@seocraft/core/src/worker/main";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -105,12 +108,44 @@ export function CustomInput(props: { data: InputControl }) {
   const value = useSelector(props.data?.actor, props.data.selector);
   const { systemTheme } = useTheme();
 
+  // XXX: Normally we would use the top level worker for this,
+  // but it is hidden somewhere in the core and we can't access it.
+  const worker = useRef(start());
   const ternServer = useRef(createTernServer());
+
   const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
-  const libraries = props.data.definition["x-libraries"] || [];
   const parseValue = useCallback(parseValueFN, []);
 
-  console.log("LIBS", libraries);
+  const libraries: string[] = props.data.definition["x-libraries"] || [];
+  const librariesOld = usePreviousDistinct(libraries, (p, n) =>
+    _.isEqual(p, n),
+  );
+
+  useAsync(async () => {
+    const toInstall = _.difference(libraries, librariesOld || []);
+    const toRemove = _.difference(librariesOld || [], libraries);
+    console.log({ toInstall, toRemove, libraries });
+
+    // First we reset the worker context so we can re-install
+    // libraries to remove to get their defs generated.
+    await worker.current.postoffice.resetJSContext();
+    for (const lib of toRemove) {
+      if (!lib) continue;
+      const resp = await worker.current.postoffice.installLibrary(lib);
+      ternServer.current.deleteDefs(resp.defs["!name"]);
+      console.log(resp);
+    }
+
+    // Now we can clean install the libraries we want.
+    await worker.current.postoffice.resetJSContext();
+    for (const lib of toInstall) {
+      if (!lib) continue;
+      const resp = await worker.current.postoffice.installLibrary(lib);
+      ternServer.current.addDefs(resp.defs);
+      console.log(resp);
+    }
+  }, [libraries]);
+
   const handledChange = (val: string) => {
     const res = parseValue(val);
     match(res)
@@ -213,6 +248,9 @@ export function CustomInput(props: { data: InputControl }) {
           autocompletion({
             override: [autocompleteProvider],
             activateOnTyping: true,
+            optionClass: (completion) => {
+              return `cm-completion cm-completion-${completion.type}`;
+            },
           }),
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
@@ -287,15 +325,17 @@ export function CustomInput(props: { data: InputControl }) {
           }
 
           resolve(
-            res?.completions.map(
-              (item: any) =>
-                ({
-                  label: item.name,
-                  detail: item.type,
-                  apply: item.name,
-                  type: item.isKeyword ? "keyword" : typeToIcon(item.type),
-                }) as Completion,
-            ),
+            res?.completions
+              .map(
+                (item: any) =>
+                  ({
+                    label: item.name,
+                    apply: item.name,
+                    type: item.isKeyword ? "keyword" : typeToIcon(item.type),
+                    info: item.doc,
+                  }) as Completion,
+              )
+              .filter((c) => !!c.label),
           );
         },
       );
