@@ -1,7 +1,7 @@
-import { isEqual } from "lodash-es";
+import _ from "lodash-es";
 import { z } from "zod";
 
-import { and, desc, eq, schema } from "@seocraft/supabase/db";
+import { and, desc, eq, schema, alias } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -16,6 +16,7 @@ export const craftVersionRouter = createTRPCRouter({
       return await ctx.db.query.workflowVersion.findMany({
         where: (workflowVersion, { eq, and }) =>
           eq(workflowVersion.workflowId, input.workflowId),
+        orderBy: (workflowVersion) => desc(workflowVersion.version),
         with: {
           workflow: true,
         },
@@ -84,11 +85,11 @@ export const craftVersionRouter = createTRPCRouter({
             with: {
               nodes: {
                 with: {
-                  // context: {
-                  //   with: {
-                  //     previousContext: true,
-                  //   },
-                  // },
+                  context: {
+                    with: {
+                      previousContext: true,
+                    },
+                  },
                 },
               },
               edges: true,
@@ -106,36 +107,200 @@ export const craftVersionRouter = createTRPCRouter({
           previousWorkflowVersionWithGraph.nodes.map(
             async ({ id, ...node }) => {
               const { context: contextState, ...workflowNodeMeta } = node;
-              let contextId;
-              const previousContextState = contextState.previousContext?.state;
-              if (isEqual(previousContextState, contextState.state)) {
-                console.log("REUSING CONTEXT");
-                contextId = contextState.previousContext?.id;
-              } else {
-                console.log("CREATING NEW CONTEXT");
-                const [cloneContext] = await tx
-                  .insert(schema.context)
-                  .values({
-                    type: contextState.type,
-                    project_id: contextState.project_id,
-                    previousContextId: contextState.id,
-                    state: contextState.state,
-                  })
-                  .returning();
-                if (!cloneContext) {
-                  throw new Error("Could not create context");
+
+              const contextsWithChildren = new Map();
+              contextsWithChildren.set(contextState.id, contextState);
+
+              const getChildren = async (contextId: string) => {
+                const childrens = await tx.query.context.findMany({
+                  where: (context, { eq }) => eq(context.parent_id, contextId),
+                });
+                for (const child of childrens) {
+                  contextsWithChildren.set(child.id, child);
                 }
-                contextId = cloneContext.id;
+                for (const child of childrens) {
+                  await getChildren(child.id);
+                }
+              };
+              await getChildren(contextState.id);
+
+              for (const [previousId, context] of contextsWithChildren) {
+                if (_.isEqual(context.state, context.previousContext?.state)) {
+                  // THIS IS NO LONGER THE CASE.
+                  // WE are keeping the connection relations in the actors so in each release there's a new actor happening.
+                  console.log("REUSING CONTEXT");
+                } else {
+                  console.log(
+                    "CREATING NEW CONTEXT",
+                    context,
+                    context.previousContext,
+                  );
+                  const [cloneContext] = await tx
+                    .insert(schema.context)
+                    .values({
+                      type: context.type,
+                      project_id: context.project_id,
+                      previousContextId: context.id,
+                      state: context.state,
+                      parent_id: context.parent_id,
+                      workflow_id: input.workflowId,
+                      workflow_version_id: newVersion.id,
+                    })
+                    .returning();
+
+                  contextsWithChildren.set(previousId, cloneContext);
+                  if (!cloneContext) {
+                    throw new Error("Could not create context");
+                  }
+                }
               }
-              if (!contextId) {
-                throw new Error("Could not find or create context");
+              console.log("##".repeat(20));
+              console.log({
+                contextsWithChildren,
+              });
+
+              for (const [previousId, context] of contextsWithChildren) {
+                const changes: Partial<{
+                  parent_id: string;
+                  state: any;
+                }> = {};
+                console.log({ previousId, context, changes });
+                changes.state = { ...context.state };
+                if (!_.isNil(context.parent_id)) {
+                  const parent = contextsWithChildren.get(context.parent_id);
+                  if (context.parent_id !== parent.id) {
+                    changes["parent_id"] = parent.id;
+                  }
+                  if (_.get(changes.state, "context.parent.id")) {
+                    _.set(changes.state, "context.parent.id", parent.id);
+                  }
+                }
+
+                _.chain(changes.state)
+                  .get("context.outputSockets", {})
+                  .toPairs()
+                  .forEach(([key, value]) => {
+                    const connections = _.get(value, "x-connection", {});
+                    _.chain(connections)
+                      .entries()
+                      .forEach(([contextId, portConfig]) => {
+                        console.log("OUTPUTSOCKET", key, contextId, portConfig);
+                        const parent = contextsWithChildren.get(contextId);
+                        if (contextId === parent.id) {
+                          return;
+                        }
+                        console.log(
+                          "BEFORE",
+                          _.get(
+                            changes.state,
+                            `context.outputSockets.${key}.x-connection`,
+                          ),
+                        );
+                        // remove old connection
+                        _.unset(
+                          changes.state,
+                          `context.outputSockets.${key}.x-connection.${contextId}`,
+                        );
+                        // add new connection
+                        _.set(
+                          changes.state,
+                          `context.outputSockets.${key}.x-connection.${parent.id}`,
+                          portConfig,
+                        );
+                        _.set(
+                          changes.state,
+                          `context.outputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
+                          parent.id,
+                        );
+                        console.log(
+                          "BEFORE",
+                          _.get(
+                            changes.state,
+                            `context.outputSockets.${key}.x-connection`,
+                          ),
+                        );
+                      })
+                      .value();
+                  })
+                  .value();
+
+                _.chain(changes.state)
+                  .get("context.inputSockets", {})
+                  .toPairs()
+                  .forEach(([key, value]) => {
+                    const connections = _.get(value, "x-connection", {});
+                    _.chain(connections)
+                      .entries()
+                      .forEach(([contextId, portConfig]) => {
+                        const parent = contextsWithChildren.get(contextId);
+                        if (contextId === parent.id) {
+                          return;
+                        }
+                        // remove old connection
+                        _.unset(
+                          changes.state,
+                          `context.inputSockets.${key}.x-connection.${contextId}`,
+                        );
+                        // add new connection
+                        _.set(
+                          changes.state,
+                          `context.inputSockets.${key}.x-connection.${parent.id}`,
+                          portConfig,
+                        );
+                        _.set(
+                          changes.state,
+                          `context.inputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
+                          parent.id,
+                        );
+                      });
+
+                    if (_.get(value, "x-actor-config")) {
+                      const config = _.get(value, "x-actor-config", {});
+                      // Fix x-actor-config
+                      Object.entries(config).forEach(([actorType, value]) => {
+                        const actorId = _.get(value, "actorId");
+                        if (actorId) {
+                          const parent = contextsWithChildren.get(actorId);
+                          if (actorId !== parent.id) {
+                            _.set(
+                              changes.state,
+                              `context.inputSockets.${key}.x-actor-config.${actorType}.actorId`,
+                              parent.id,
+                            );
+                          }
+                        }
+                      });
+
+                      // Fix x-actor-ref-id
+                      const parent = contextsWithChildren.get(
+                        _.get(value, "x-actor-ref-id"),
+                      );
+                      if (parent.id !== _.get(value, "x-actor-ref-id")) {
+                        _.set(
+                          changes.state,
+                          `context.inputSockets.${key}.x-actor-ref-id`,
+                          parent.id,
+                        );
+                      }
+                    }
+                  })
+                  .value();
+
+                await tx
+                  .update(schema.context)
+                  .set({
+                    ...changes,
+                  })
+                  .where(eq(schema.context.id, context.id));
               }
+
+              let nodeContextId = contextsWithChildren.get(contextState.id).id;
 
               const [cloneNode] = await tx
                 .insert(schema.workflowNode)
                 .values({
                   ...workflowNodeMeta,
-                  contextId,
+                  contextId: nodeContextId,
                   workflowVersionId: newVersion.id,
                 })
                 .returning();
@@ -155,7 +320,6 @@ export const craftVersionRouter = createTRPCRouter({
           ),
         );
 
-        console.log("COPYING EDGES", edges);
         if (edges.length > 0) {
           await tx.insert(schema.workflowEdge).values(
             edges.map((edge) => ({
@@ -165,7 +329,14 @@ export const craftVersionRouter = createTRPCRouter({
           );
         }
 
-        return newVersion;
+        return tx.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq }) =>
+            eq(workflowVersion.id, newVersion.id),
+          with: {
+            project: true,
+            workflow: true,
+          },
+        });
       });
     }),
 });

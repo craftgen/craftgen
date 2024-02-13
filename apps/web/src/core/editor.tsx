@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
@@ -31,6 +31,61 @@ export const createEditorFunc = (params: {
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
+
+export const useHeadlessEditor = (params: {
+  workflow: RouterOutputs["craft"]["module"]["get"];
+  api: Partial<WorkflowAPI>;
+  store: ReteStoreInstance;
+}) => {
+  const ref = useRef<Editor | null>(null);
+  const [isInitialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    const initEditor = async () => {
+      if (!ref.current) {
+        // Check if the editor has not been initialized already.
+        ref.current = await createHeadlessEditor(params);
+        setInitialized(true); // Update state to indicate the editor is initialized.
+      }
+    };
+
+    initEditor();
+  }, []);
+  return {
+    editor: ref.current,
+    isInitialized,
+  };
+};
+
+export async function createHeadlessEditor(params: {
+  workflow: RouterOutputs["craft"]["module"]["get"];
+  api: Partial<WorkflowAPI>;
+  store: ReteStoreInstance;
+}) {
+  const di = new Editor({
+    config: {
+      nodes,
+      meta: {
+        projectId: params.workflow.projectId,
+        workflowId: params.workflow.id,
+        workflowVersionId: params.workflow.version.id,
+        executionId: params.workflow?.execution?.id,
+      },
+      api: {
+        trpc: params.api.trpc!,
+      },
+    },
+    content: {
+      nodes: params.workflow.nodes,
+      edges: params.workflow.edges,
+      contexts: params.workflow.contexts,
+    },
+  });
+
+  await di.setup();
+  params.store.getState().setDi(di);
+  return di;
+}
 
 export async function createEditor(params: {
   container: HTMLElement;

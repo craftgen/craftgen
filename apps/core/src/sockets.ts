@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
@@ -202,7 +202,7 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
   return socket;
 };
 
-export const getControlBySocket = <T extends AnyActor = AnyActor>({
+export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
   socket,
   actor,
   selector,

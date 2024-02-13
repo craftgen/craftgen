@@ -43,7 +43,11 @@ export const CreateReleaseButton = (props: {
       changeLog: data.changeLog,
     });
     if (newVersion) {
-      router.refresh();
+      router.push(
+        `/${newVersion.workflow.projectSlug}/${
+          newVersion.workflow.slug
+        }/v/${String(newVersion.version)}`,
+      );
     }
     form.reset();
     setOpen(false);

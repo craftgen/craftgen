@@ -19,6 +19,7 @@
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.43.0",
     "@trpc/server": "^10.43.0",
+    "@types/lodash-es": "^4.17.8",
     "date-fns": "^2.30.0",
     "lodash-es": "^4.17.21",
     "openai": "^4.16.1",

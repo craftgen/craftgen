@@ -223,8 +223,8 @@ export const craftNodeRouter = createTRPCRouter({
             input.map((i) => ({
               id: i.contextId,
               project_id: i.projectId,
-              type: i.context.src,
-              state: i.context as any,
+              type: i.context.src, // src
+              state: i.context.snapshot as any,
               workflow_id: i.workflowId,
               workflow_version_id: i.workflowVersionId,
               parent_id: get(i.context, "snapshot.context.parent.id"),
