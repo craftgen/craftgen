@@ -12,6 +12,10 @@ import {
 } from "@seocraft/core/src/sockets";
 import { getControl } from "@/core/control";
 import { useRef } from "react";
+import { createHeadlessEditor, useHeadlessEditor } from "@/core/editor";
+import { InspectorNode } from "@/app/(playground)/[projectSlug]/[workflowSlug]/v/[version]/playground";
+import { createCraftStore } from "@/core/store";
+import { CraftContext } from "@/core/use-store";
 
 const inputMachine = setup({
   types: {
@@ -104,7 +108,7 @@ export const WorkflowInput: React.FC<{
   workflowSlug: string;
   version: number;
 }> = ({ projectSlug, workflowSlug, version }) => {
-  const { data: nodes, isLoading } = api.craft.module.io.useQuery(
+  const { data: workflow, isLoading } = api.craft.module.get.useQuery(
     {
       projectSlug: projectSlug,
       workflowSlug: workflowSlug,
@@ -114,69 +118,40 @@ export const WorkflowInput: React.FC<{
       refetchOnWindowFocus: false,
     },
   );
-  console.log(nodes, isLoading);
+  console.log(workflow, isLoading);
   if (isLoading) return <div>Loading...</div>;
-  if (!nodes) return <div>Not found</div>;
-  return <WorkflowInputRender data={nodes} />;
+  if (!workflow) return <div>Not found</div>;
+  return <WorkflowSimple workflow={workflow} />;
 };
 
-export const WorkflowInputRender = ({
-  data,
-}: {
-  data: RouterOutputs["craft"]["module"]["io"];
+export const WorkflowSimple = (props: {
+  workflow: RouterOutputs["craft"]["module"]["get"];
 }) => {
-  console.log(data);
-  const [state, send, actor] = useMachine(inputMachine, {
-    id: "input",
-    input: {
-      inputs: {},
-      inputSockets: data.inputs,
-      outputSockets: data.outputs,
-      outputs: {},
+  const store = useRef(
+    createCraftStore({
+      layout: null as any,
+      theme: "dark",
+      readonly: false,
+      projectId: props.workflow.project.id,
+      projectSlug: props.workflow.projectSlug,
+      workflowId: props.workflow.id,
+      workflowSlug: props.workflow.slug,
+      workflowVersionId: props.workflow.version?.id,
+    }),
+  );
+  const utils = api.useUtils();
+  const { editor } = useHeadlessEditor({
+    workflow: props.workflow,
+    api: {
+      trpc: utils.client,
     },
+    store: store.current,
   });
-  const inputs = useSelector(actor, (state) => state.context.inputs);
-  console.log("STATE", { state, actor, inputs });
-
-  const socket = getSocketByJsonSchemaType(data.inputs["system"] as any);
-  const control = getControlBySocket({
-    socket,
-    actor,
-    selector: (state) => state.context.inputs["system"],
-    definition: data.inputs["system"] as any,
-    onChange: (value) => {
-      console.log("VALUE", value);
-      send({ type: "SET_VALUE", params: { values: { system: value } } });
-    },
-  });
-
-  const ref = useRef<HTMLDivElement>(null);
-  const ControlElement = getControl({
-    element: ref.current!,
-    type: "control",
-    payload: control,
-  });
-  console.log(actor);
-
+  console.log(editor);
+  if (!editor) return <div>Loading...</div>;
   return (
-    <>
-      {/* <pre>{JSON.stringify({ state }, null, 2)}</pre> */}
-      <section className="grid grid-cols-2 divide-x ">
-        <div className="p-2">
-          <h2 className="text-3xl font-bold">Input</h2>
-          <div className="pt-4">
-            <ControlElement data={control} />
-            {/* {controller} */}
-            {/* <InputForm fields={nodes?.inputs} /> */}
-          </div>
-        </div>
-        <div className="p-2">
-          <h2 className="text-3xl font-bold">Output</h2>
-          <div className="space-y-2 pt-4">
-            {/* <InputForm fields={nodes?.outputs} /> */}
-          </div>
-        </div>
-      </section>
-    </>
+    <CraftContext.Provider value={store?.current}>
+      <InspectorNode node={editor?.editor.getNodes()[0]} />
+    </CraftContext.Provider>
   );
 };
