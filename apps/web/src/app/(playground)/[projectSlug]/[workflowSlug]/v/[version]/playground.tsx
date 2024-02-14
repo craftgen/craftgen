@@ -55,7 +55,6 @@ import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
 import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
-import { InputWindow } from "./input/input-window";
 import { LogsTab } from "./logs/logs-tab";
 import Markdown from "react-markdown";
 
@@ -243,9 +242,6 @@ export const Playground: React.FC<{
         const node = di?.editor.getNode(config.nodeId);
         if (!node) return null;
         return <InspectorNode node={node} />;
-      })
-      .with("inputWindow", () => {
-        return <InputWindow />;
       })
       .with("logs", () => {
         if (workflow.readonly) {
