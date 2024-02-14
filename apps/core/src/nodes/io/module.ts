@@ -1,7 +1,7 @@
 import { merge } from "lodash-es";
 import { action, makeObservable, observable, reaction } from "mobx";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine } from "xstate";
 
 import { SelectControl } from "../../controls/select";
 import type { JSONSocket } from "../../controls/socket-generator";
@@ -170,80 +170,6 @@ export class NodeModule extends BaseNode<typeof ModuleNodeMachine> {
         console.log("MODULE ID ");
         if (!this.snap.context.moduleId) return;
         await this.setModule(this.snap.context.moduleId);
-      },
-    );
-
-    reaction(
-      () => this.module,
-      async () => {
-        if (this.module) {
-          console.log("MODULE is set", this.module);
-
-          if (this.snap.context.inputId) {
-            const node = this.module.editor.getNode(this.snap.context.inputId);
-            this.module.setInput(node.id);
-          } else {
-            if (this.module.selectedInput) {
-              this.actor.send({
-                type: "SET_INPUT",
-                inputId: this.module.selectedInput?.id,
-              });
-            }
-          }
-
-          this.addControl(
-            "Input",
-            new SelectControl(this.actor, (snap) => snap.context.inputId!, {
-              placeholder: "Select Input",
-              values: this.module.inputs.map((n) => ({
-                key: n.id,
-                value: `${n.label} | (${n.id.slice(5, 12)})`,
-              })),
-              change: (value) => {
-                console.log("SET INPUT", value);
-                this.actor.send({
-                  type: "SET_INPUT",
-                  inputId: value,
-                });
-              },
-            }),
-          );
-        }
-      },
-    );
-
-    reaction(
-      () => this.module?.selectedInput,
-      async () => {
-        console.log("INPUT CHANGED", this.module?.selectedInput);
-        const outputSockets = this.module?.selectedOutputs?.reduce(
-          (acc, curr) => {
-            Object.entries(curr.outputSockets).forEach(([key, socket]) => {
-              acc[`${curr.id}-${socket.name}`] = socket; // TODO this is probably bug.
-            });
-            return acc;
-          },
-          {} as Record<string, JSONSocket>,
-        );
-
-        this.actor.send({
-          type: "SET_CONFIG",
-          inputSockets: this.module?.selectedInput?.inputSockets || {},
-          outputSockets: outputSockets || {},
-        });
-        this.setLabel(`Module:(${this.module?.selectedInput?.label})`);
-      },
-    );
-
-    reaction(
-      () => this.snap.context.inputId,
-      () => {
-        console.log("INPUT ID CHANGED", this.snap.context.inputId);
-        this.actor.send({
-          type: "SET_INPUT",
-          inputId: this.snap.context.inputId!,
-        });
-        this.module?.setInput(this.snap.context.inputId!);
       },
     );
   }
