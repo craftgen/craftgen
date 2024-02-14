@@ -116,6 +116,9 @@ export const socketSchema = z
     "x-actor-config": actorConfigRecordSchema,
     "x-connection": connectionConfigRecordSchema,
     "x-compatible": z.array(z.custom<JSONSocketTypes>()).default([]).optional(),
+
+    // code editor related:
+    "x-libraries": z.array(z.string()).optional(),
     "x-language": z.string().optional(),
   })
   .superRefine((params, ctx) => {

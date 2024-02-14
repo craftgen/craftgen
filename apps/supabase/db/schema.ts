@@ -1,4 +1,4 @@
-import { createId } from "@paralleldrive/cuid2";
+import { init } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import {
   AnyPgColumn,
@@ -15,6 +15,10 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
+
+const createId = init({
+  length: 10,
+});
 
 export const createIdWithPrefix = (prefix: string) => () =>
   `${prefix}_${createId()}`;

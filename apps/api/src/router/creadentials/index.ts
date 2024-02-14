@@ -10,15 +10,21 @@ export const credentialsRouter = createTRPCRouter({
   list: protectedProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        // projectId: z.string(),
         provider: z.custom<ProviderType>().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
+      if (!ctx.session.user.user_metadata.currentProjectId) {
+        return [];
+      }
       const credentials = await ctx.db.query.variable.findMany({
         where: (token, { eq, and }) =>
           and(
-            eq(token.project_id, input.projectId),
+            eq(
+              token.project_id,
+              ctx.session.user.user_metadata.currentProjectId,
+            ),
             input?.provider ? eq(token.provider, input.provider) : sql`true`,
           ),
       });

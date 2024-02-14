@@ -115,9 +115,9 @@ const TextNodeMachine = createMachine({
   output: ({ context }) => context.outputs,
 });
 
-export type TextNodeData = ParsedNode<"TextNode", typeof TextNodeMachine>;
+export type TextNodeData = ParsedNode<"NodeText", typeof TextNodeMachine>;
 
-export class TextNode extends BaseNode<typeof TextNodeMachine> {
+export class NodeText extends BaseNode<typeof TextNodeMachine> {
   static nodeType = "TextNode" as const;
   static label = "Text";
   static description = "Node for handling static text";
@@ -128,7 +128,7 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
   static parse(params: SetOptional<TextNodeData, "type">): TextNodeData {
     return {
       ...params,
-      type: "TextNode",
+      type: "NodeText",
     };
   }
 
@@ -137,7 +137,7 @@ export class TextNode extends BaseNode<typeof TextNodeMachine> {
   };
 
   constructor(di: DiContainer, data: TextNodeData) {
-    super("TextNode", di, data, TextNodeMachine, {});
+    super("NodeText", di, data, TextNodeMachine, {});
     this.setup();
   }
 }

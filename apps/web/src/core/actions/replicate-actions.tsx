@@ -187,7 +187,7 @@ export const useRegisterReplicateActions = ({
               }`,
               perform: async () => {
                 await di?.addNode(
-                  "Replicate",
+                  "NodeReplicate",
                   {
                     settings: {
                       model: {
@@ -272,7 +272,7 @@ export const useRegisterReplicateActions = ({
             },
           )}`,
           perform: async () => {
-            await di?.addNode("Replicate", {
+            await di?.addNode("NodeReplicate", {
               settings: {
                 model: {
                   model_name: replicateModel?.name,

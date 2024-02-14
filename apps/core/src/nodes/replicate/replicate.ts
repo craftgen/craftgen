@@ -12,6 +12,7 @@ import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
 import { BaseNode } from "../base";
 import type { ParsedNode } from "../base";
+import { Editor } from "../../editor";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -424,10 +425,13 @@ const replicateMachine = createMachine({
   },
 });
 
-export type ReplicateData = ParsedNode<"Replicate", typeof replicateMachine>;
+export type ReplicateData = ParsedNode<
+  "NodeReplicate",
+  typeof replicateMachine
+>;
 
-export class Replicate extends BaseNode<typeof replicateMachine> {
-  static nodeType = "Replicate";
+export class NodeReplicate extends BaseNode<typeof replicateMachine> {
+  static nodeType = "NodeReplicate";
   static label = "Replicate";
   static description = "For using Replicate API";
   static icon = "replicate";
@@ -435,23 +439,57 @@ export class Replicate extends BaseNode<typeof replicateMachine> {
   static parse(params: SetOptional<ReplicateData, "type">): ReplicateData {
     return {
       ...params,
-      type: "Replicate",
+      type: "NodeReplicate",
     };
   }
 
-  constructor(di: DiContainer, data: ReplicateData) {
-    super("Replicate", di, data, replicateMachine, {
-      actors: {
-        getModelVersion: fromPromise(async ({ input }) => {
+  static machines = {
+    NodeReplicate: replicateMachine,
+    "NodeReplicate.getModelVersion": ({ di }: { di: Editor }) =>
+      fromPromise(
+        async ({
+          input,
+        }: {
+          input: RouterInputs["replicate"]["getModelVersion"];
+        }) => {
           return await di.api.trpc.replicate.getModelVersion.query(input);
-        }),
-        predictCreate: fromPromise(async ({ input }) => {
+        },
+      ),
+    "NodeReplicate.predictCreate": ({ di }: { di: Editor }) =>
+      fromPromise(
+        async ({
+          input,
+        }: {
+          input: RouterInputs["replicate"]["predict"]["create"];
+        }) => {
           return await di.api.trpc.replicate.predict.create.mutate(input);
-        }),
-        predictGet: fromPromise(async ({ input }) => {
+        },
+      ),
+    "NodeReplicate.predictGet": ({ di }: { di: Editor }) =>
+      fromPromise(
+        async ({
+          input,
+        }: {
+          input: RouterInputs["replicate"]["predict"]["get"];
+        }) => {
           return await di.api.trpc.replicate.predict.get.query(input);
-        }),
-      },
+        },
+      ),
+  };
+
+  constructor(di: DiContainer, data: ReplicateData) {
+    super("NodeReplicate", di, data, replicateMachine, {
+      // actors: {
+      //   getModelVersion: fromPromise(async ({ input }) => {
+      //     return await di.api.trpc.replicate.getModelVersion.query(input);
+      //   }),
+      //   predictCreate: fromPromise(async ({ input }) => {
+      //     return await di.api.trpc.replicate.predict.create.mutate(input);
+      //   }),
+      //   predictGet: fromPromise(async ({ input }) => {
+      //     return await di.api.trpc.replicate.predict.get.query(input);
+      //   }),
+      // },
     });
 
     this.setup();

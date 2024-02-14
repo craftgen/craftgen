@@ -54,7 +54,7 @@ export const createTRPCContext = async (opts: {
   req?: Request;
   auth: Session | null;
   supabaseService?: SupabaseClient;
-  headers: Headers
+  headers: Headers;
 }) => {
   const session = opts.auth;
 
@@ -236,7 +236,7 @@ const replicateMiddleware = t.middleware(async ({ ctx, next }) => {
     .where(
       and(
         eq(schema.variable.project_id, projectS.project.id),
-        eq(schema.variable.key, "REPLICATE_API_KEY"),
+        eq(schema.variable.provider, "REPLICATE"),
       ),
     )
     .limit(1);
@@ -244,7 +244,7 @@ const replicateMiddleware = t.middleware(async ({ ctx, next }) => {
   if (!replicateApiKey || !replicateApiKey.value) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "OpenAI API Key not found",
+      message: "REPLICATE_API_KEY API Key not found",
     });
   }
 

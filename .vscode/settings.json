@@ -8,5 +8,10 @@
     }
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "turboConsoleLog.includeFileNameAndLineNum": true
+  "turboConsoleLog.includeFileNameAndLineNum": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultColorDecorators": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

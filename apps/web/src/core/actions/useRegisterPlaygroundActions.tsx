@@ -203,9 +203,15 @@ export const useRegisterPlaygroundActions = ({
             name: `@${version.workflow.projectSlug}/${version.workflow.name}v${version.version}`,
             parent: version.workflowId,
             perform: async () => {
-              di?.addNode("ModuleNode", {
-                moduleId: version.id,
-              });
+              di?.addNode(
+                "NodeModule",
+                {
+                  moduleId: version.id,
+                },
+                {
+                  label: `@${version.workflow.projectSlug}/${version.workflow.name}`,
+                },
+              );
             },
           }) as Action,
       ) || []

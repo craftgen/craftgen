@@ -45,7 +45,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
-// import { Composer } from "@/core/composer";
 import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
@@ -265,15 +264,15 @@ export const Playground: React.FC<{
             <MenubarDemo />
             <div className="flex items-center space-x-2">
               {session && <UserNav session={session} />}
-              {/* <VersionHistory workflow={workflow} /> */}
-              {/* {!workflow.version.publishedAt ? (
+              <VersionHistory workflow={workflow} />
+              {!workflow.version?.publishedAt ? (
                 <CreateReleaseButton
                   playgroundId={workflow.id}
-                  version={workflow.currentVersion}
+                  version={workflow.version?.version!}
                 />
               ) : (
                 <RestoreVersionButton />
-              )} */}
+              )}
               <Link href={`/${workflow.projectSlug}/settings`}>
                 <Button variant={"outline"} size={"icon"}>
                   <Icon name="settings" />
@@ -402,80 +401,85 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   );
 });
 
-const InspectorNode: React.FC<{ node: NodeProps }> = observer(({ node }) => {
-  const controls = Object.entries(node.controls);
-  const state = useSelector(node.actor, (state) => state);
-  const outputs = useMemo(() => {
-    if (!state.context.outputs) return [];
-    return Object.entries(node.outputs)
-      .filter(([key, output]) => output?.socket.name !== "Trigger")
-      .map(([key, output]) => {
-        return {
-          key,
-          socket: output?.socket,
-          value: state.context.outputs[key],
-        };
-      });
-  }, [state]);
-  const di = useCraftStore((state) => state.di);
-  const runs = useSelector(di?.actor!, (state) =>
-    Object.entries(state.children)
-      .filter(([key, child]) => key.startsWith("call"))
-      .filter(
-        ([key, child]) =>
-          child.getSnapshot().context.parent.id === node.actor.id,
-      )
-      .map(([key, child]) => child),
-  );
+export const InspectorNode: React.FC<{ node: NodeProps }> = observer(
+  ({ node }) => {
+    const controls = Object.entries(node.controls);
+    const state = useSelector(node.actor, (state) => state);
+    const outputs = useMemo(() => {
+      if (!state.context.outputs) return [];
+      return Object.entries(node.outputs)
+        .filter(([key, output]) => output?.socket.name !== "Trigger")
+        .map(([key, output]) => {
+          return {
+            key,
+            socket: output?.socket,
+            value: state.context.outputs[key],
+          };
+        });
+    }, [state]);
+    const di = useCraftStore((state) => state.di);
+    const runs = useSelector(di?.actor!, (state) =>
+      Object.entries(state.children)
+        .filter(([key, child]) => key.startsWith("call"))
+        .filter(
+          ([key, child]) =>
+            child.getSnapshot().context.parent.id === node.actor.id,
+        )
+        .map(([key, child]) => child),
+    );
 
-  console.log("RUNS", runs);
+    console.log("RUNS", runs);
 
-  return (
-    <div className="flex h-full w-full flex-1 flex-col">
-      <Tabs defaultValue="controls">
-        <TabsList>
-          <TabsTrigger value="controls">Controls</TabsTrigger>
-          <TabsTrigger value="outputs">Outputs</TabsTrigger>
-        </TabsList>
-        <TabsContent value="controls" className="h-full ">
-          <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="w-full">
-              {controls.map(([key, control]) => (
-                <ControlWrapper key={key} control={control} label={key} />
+    return (
+      <div className="flex h-full w-full flex-1 flex-col">
+        <Tabs defaultValue="controls">
+          <TabsList>
+            <TabsTrigger value="controls">Controls</TabsTrigger>
+            <TabsTrigger value="outputs">Outputs</TabsTrigger>
+          </TabsList>
+          <TabsContent value="controls" className="h-full ">
+            <div className="flex h-full flex-col gap-4 overflow-hidden ">
+              <ScrollArea className="w-full">
+                {controls.map(([key, control]) => (
+                  <ControlWrapper key={key} control={control} label={key} />
+                ))}
+                <DynamicInputsForm inputs={node.inputs} />
+                <Separator />
+                {runs && <Runs runs={runs} />}
+              </ScrollArea>
+            </div>
+          </TabsContent>
+          <TabsContent value="outputs" className="h-full">
+            <ScrollArea>
+              {outputs.map((output) => (
+                <div key={output.key}>
+                  <Label className="capitalize">{output.key}</Label>
+                  {renderFieldValueBaseOnSocketType(
+                    output.socket,
+                    output.value,
+                  )}
+                </div>
               ))}
-              <DynamicInputsForm inputs={node.inputs} />
-              <Separator />
-              {runs && <Runs runs={runs} />}
             </ScrollArea>
+          </TabsContent>
+        </Tabs>
+        {state.matches("error") && (
+          <div className="px-4 py-4">
+            <Alert variant={"destructive"} className="bg-muted/80 shadow">
+              <ExclamationTriangleIcon className="h-6 w-6" />
+              <AlertTitle className="text-lg font-bold">
+                {state.context.error?.name}
+              </AlertTitle>
+              <AlertDescription className="prose">
+                <Markdown>{state.context.error?.message}</Markdown>
+              </AlertDescription>
+            </Alert>
           </div>
-        </TabsContent>
-        <TabsContent value="outputs" className="h-full">
-          <ScrollArea>
-            {outputs.map((output) => (
-              <div key={output.key}>
-                <Label className="capitalize">{output.key}</Label>
-                {renderFieldValueBaseOnSocketType(output.socket, output.value)}
-              </div>
-            ))}
-          </ScrollArea>
-        </TabsContent>
-      </Tabs>
-      {state.matches("error") && (
-        <div className="px-4 py-4">
-          <Alert variant={"destructive"} className="bg-muted/80 shadow">
-            <ExclamationTriangleIcon className="h-6 w-6" />
-            <AlertTitle className="text-lg font-bold">
-              {state.context.error?.name}
-            </AlertTitle>
-            <AlertDescription className="prose">
-              <Markdown>{state.context.error?.message}</Markdown>
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-    </div>
-  );
-});
+        )}
+      </div>
+    );
+  },
+);
 
 const Runs = ({ runs }: { runs: AnyActorRef[] }) => {
   return (
