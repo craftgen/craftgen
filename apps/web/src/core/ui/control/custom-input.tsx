@@ -58,11 +58,8 @@ import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.js
 import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
 import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
 import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
-<<<<<<< HEAD
 import { start } from "@seocraft/core/src/worker/main";
-=======
 import { isNil } from "lodash-es";
->>>>>>> main
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {

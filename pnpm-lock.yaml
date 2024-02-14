@@ -454,9 +454,6 @@ importers:
       '@codemirror/lang-javascript':
         specifier: ^6.2.1
         version: 6.2.1
-      '@codemirror/lint':
-        specifier: ^6.5.0
-        version: 6.5.0
       '@codemirror/view':
         specifier: ^6.24.0
         version: 6.24.0
@@ -784,9 +781,6 @@ importers:
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
-      eslint-linter-browserify:
-        specifier: ^8.56.0
-        version: 8.56.0
       flexlayout-react:
         specifier: ^0.7.15
         version: 0.7.15(react-dom@18.2.0)(react@18.2.0)
@@ -11783,10 +11777,6 @@ packages:
       - eslint-import-resolver-webpack
       - supports-color
 
-  /eslint-linter-browserify@8.56.0:
-    resolution: {integrity: sha512-srgKcpN5CVFZWj2/AqVfoL1rxD9+GFymynNcmkvHi0EcQDAwN2uh/ZEJSe4cm+pLZ7MVaeIUMUorXoTaLDH0ww==}
-    dev: false
-
   /eslint-module-utils@2.8.0(@typescript-eslint/parser@6.9.1)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.52.0):
     resolution: {integrity: sha512-aWajIYfsqCKRDgUfjEXNN/JlrzauMuSEy5sbd7WXbtW3EH6A6MpwEh42c7qD+MqQo9QMJ6fWLAeIJynx0g6OAw==}
     engines: {node: '>=4'}
@@ -18989,7 +18979,7 @@ packages:
       resolve-from: 2.0.0
     dev: false
 
-  /terser-webpack-plugin@5.3.10(esbuild@0.19.12)(webpack@5.90.1):
+  /terser-webpack-plugin@5.3.10(webpack@5.90.1):
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -19006,12 +18996,11 @@ packages:
         optional: true
     dependencies:
       '@jridgewell/trace-mapping': 0.3.20
-      esbuild: 0.19.12
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.27.0
-      webpack: 5.90.1(esbuild@0.19.12)
+      webpack: 5.90.1
     dev: false
 
   /terser@5.27.0:
@@ -20011,7 +20000,7 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: false
 
-  /webpack@5.90.1(esbuild@0.19.12):
+  /webpack@5.90.1:
     resolution: {integrity: sha512-SstPdlAC5IvgFnhiRok8hqJo/+ArAbNv7rhU4fnWGHNVfN59HSQFaxZDSAL3IFG2YmqxuRs+IU33milSxbPlog==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -20042,7 +20031,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(esbuild@0.19.12)(webpack@5.90.1)
+      terser-webpack-plugin: 5.3.10(webpack@5.90.1)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -20147,7 +20136,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.90.1(esbuild@0.19.12)
+      webpack: 5.90.1
     dev: false
 
   /wrap-ansi@6.2.0:
