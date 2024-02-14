@@ -276,7 +276,7 @@ export function CustomInput(props: { data: InputControl }) {
         theme={systemTheme === "dark" ? githubDark : githubLight}
         extensions={[
           secret,
-          javascript({ jsx: false, typescript: true }),
+          javascript({ jsx: false }),
           autocompletion({
             activateOnTyping: true,
             activateOnTypingDelay: 300,
