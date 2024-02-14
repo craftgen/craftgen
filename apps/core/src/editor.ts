@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, debounce, get, isNil } from "lodash-es";
+import { cloneDeep, debounce, get, isNil, merge } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -113,9 +113,19 @@ export interface EditorProps<
 const EditorMachine = setup({
   types: {
     context: {} as {
+      inputSockets: Record<string, JSONSocket>;
+      outputSockets: Record<string, JSONSocket>;
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+
       actors: Record<string, AnyActorRef>;
     },
     input: {} as {
+      inputSockets: Record<string, JSONSocket>;
+      outputSockets: Record<string, JSONSocket>;
+      inputs: Record<string, any>;
+      outputs: Record<string, any>;
+
       actors: Record<string, AnyActorRef>;
     },
     events: {} as
@@ -144,9 +154,16 @@ const EditorMachine = setup({
   description:
     "Editor machine responsible of spawning and destroying node actors.",
   context: ({ input }) => {
-    return {
-      ...input,
-    };
+    return merge(
+      {
+        inputSockets: {},
+        outputSockets: {},
+        inputs: {},
+        outputs: {},
+        actors: [],
+      },
+      input,
+    );
   },
   initial: "idle",
   states: {
@@ -314,19 +331,10 @@ export class Editor<
     this.content = content;
   }
 
-  public selectedInputId: string | null = null;
   public readonly: boolean;
   public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;
   public registry: NodeRegistry = {} as NodeRegistry;
   public machines: MachineRegistry = {} as MachineRegistry;
-
-  get selectedInput(): InputNode | null {
-    if (this.inputs.length === 1) {
-      this.selectedInputId = this.inputs[0]?.id || null;
-    }
-    if (!this.selectedInputId) return null;
-    return this.editor.getNode(this.selectedInputId);
-  }
 
   get rootNodes() {
     return this.graph.roots().nodes();
@@ -334,23 +342,6 @@ export class Editor<
 
   get leaves() {
     return this.graph.leaves().nodes();
-  }
-
-  get selectedOutputs() {
-    if (!this.selectedInput) return null;
-    const successors = this.graph.successors(this.selectedInput?.id);
-    if (successors.nodes().length > 0) {
-      return successors.leaves().nodes();
-    }
-    return [this.selectedInput];
-  }
-
-  public get inputs() {
-    return this.rootNodes;
-  }
-
-  public setInput(id: string) {
-    this.selectedInputId = id;
   }
 
   public logger = console;
@@ -870,10 +861,6 @@ export class Editor<
       selectedNodeId: observable,
       setSelectedNodeId: action,
       selectedNode: computed,
-
-      selectedInputId: observable,
-      selectedInput: computed,
-      setInput: action,
 
       executionId: observable,
       setExecutionId: action,
@@ -1572,6 +1559,7 @@ export class Editor<
         .with({ type: "connectioncreate" }, async ({ data }) => {
           console.log("CONNECTIONCREATE", { data });
           const { source, target } = this.getConnectionSockets(data);
+          console.log("CONNECTIONCREATE", { source, target })
           if (target && !target.isCompatibleWith(source.name)) {
             this.handlers.incompatibleConnection?.({
               source,

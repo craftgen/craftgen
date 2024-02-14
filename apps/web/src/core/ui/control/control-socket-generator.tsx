@@ -40,6 +40,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
+import _ from "lodash";
+import { useMemo } from "react";
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;
@@ -48,28 +50,31 @@ export function SocketGeneratorControlComponent(props: {
     props.data.actor,
     props.data.selector,
   );
+  const socketDatas = useMemo(() => {
+    return Object.values(sockets).map((socket) =>
+      _.omit(socket, "x-connection"),
+    );
+  }, [sockets]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       name: props.data.name,
       description: props.data.description,
-      sockets: Object.values(sockets),
+      sockets: socketDatas,
     },
     values: {
       name: props.data.name,
       description: props.data.description,
-      sockets: Object.values(sockets),
+      sockets: socketDatas,
     },
-    mode: "onBlur",
+    mode: "onSubmit",
   });
-
-  // useEffect(() => {
-  //   form.setValue("sockets", props.data.sockets);
-  // }, [props.data.sockets]);
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
       control: form.control, // control props comes from useForm (optional: if you are using FormContext)
       name: "sockets", // unique name for your Field Array
+      keyName: "x-key",
     },
   );
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
@@ -101,6 +106,8 @@ export function SocketGeneratorControlComponent(props: {
       "x-key": "",
       "x-showSocket": true,
       required: true,
+      "x-showController": true,
+      "x-isAdvanced": false,
     });
     onSubmit();
   };
@@ -292,17 +299,6 @@ export function SocketGeneratorControlComponent(props: {
                               />
                             </FormControl>
                           </FormItem>
-                          // <FormItem className="flex items-center space-y-0">
-                          //   <FormControl>
-                          //     <Checkbox
-                          //       className="mx-4"
-                          //       checked={field.value}
-                          //       onCheckedChange={field.onChange}
-                          //     />
-                          //   </FormControl>
-                          //   <FormLabel>Required</FormLabel>
-                          //   <FormMessage />
-                          // </FormItem>
                         )}
                       />
                     </div>

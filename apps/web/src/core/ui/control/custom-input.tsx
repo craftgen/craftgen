@@ -272,7 +272,7 @@ export function CustomInput(props: { data: InputControl }) {
       <CodeMirror
         id={props.data.id}
         readOnly={props.data.options.readonly}
-        value={value}
+        value={String(value)}
         theme={systemTheme === "dark" ? githubDark : githubLight}
         extensions={[
           secret,

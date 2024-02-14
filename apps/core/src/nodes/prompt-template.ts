@@ -31,6 +31,8 @@ const PromptTemplateNodeMachine = createMachine(
     context: ({ input }) =>
       merge<typeof input, any>(
         {
+          name: "Prompt Template",
+          description: "Template for user prompts",
           inputs: {
             template: "",
           },
@@ -105,6 +107,7 @@ const PromptTemplateNodeMachine = createMachine(
                       type: "string",
                       description: "variable",
                       required: true,
+                      "x-compatible": ["any"],
                       "x-key": item,
                       "x-showSocket": true,
                       "x-isAdvanced": false,

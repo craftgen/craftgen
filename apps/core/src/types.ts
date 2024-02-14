@@ -27,6 +27,7 @@ import {
   Webflow,
   Wordpress,
   NodeJavascriptCodeInterpreter,
+  NodeNumber,
 } from "./nodes";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
@@ -79,7 +80,7 @@ export const nodes = {
   Start: Start,
   NodeLog: Log,
   NodeText: NodeText,
-  NodeNumber: Number,
+  NodeNumber: NodeNumber,
   NodePromptTemplate: PromptTemplate,
   NodeThread: NodeThread,
 
