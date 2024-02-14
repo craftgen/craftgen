@@ -244,8 +244,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
       tern:
-        specifier: ^0.21.0
-        version: 0.21.0
+        specifier: ^0.24.3
+        version: 0.24.3
       ts-dedent:
         specifier: ^2.2.0
         version: 2.2.0
@@ -9460,6 +9460,18 @@ packages:
     dependencies:
       acorn: 8.11.3
 
+  /acorn-loose@6.1.0:
+    resolution: {integrity: sha512-FHhXoiF0Uch3IqsrnPpWwCtiv5PYvipTpT1k9lDMgQVVYc9iDuSl5zdJV358aI8twfHCYMFBRVYvAVki9wC/ng==}
+    engines: {node: '>=0.4.0'}
+    dependencies:
+      acorn: 6.4.2
+    dev: false
+
+  /acorn-walk@6.2.0:
+    resolution: {integrity: sha512-7evsyfH1cLOCdAzZAd43Cic04yKydNx0cF+7tiA19p1XnLLPU4dpCQOqpjqwokFe//vS0QqfqqjCS2JkiIs0cA==}
+    engines: {node: '>=0.4.0'}
+    dev: false
+
   /acorn-walk@8.3.0:
     resolution: {integrity: sha512-FS7hV565M5l1R08MXqo8odwMTB02C2UqzB17RVgu9EyuYFBqJZ3/ZY97sQD5FewVu1UyDFc1yztUDrAwT0EypA==}
     engines: {node: '>=0.4.0'}
@@ -9470,8 +9482,8 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: false
 
-  /acorn@4.0.13:
-    resolution: {integrity: sha512-fu2ygVGuMmlzG8ZeRJ0bvR41nsAkxxhbyk8bZ1SS521Z7vmgJFTQQlfz/Mp/nJexGBz+v8sC9bM6+lNgskt4Ug==}
+  /acorn@6.4.2:
+    resolution: {integrity: sha512-XtGIhXwF8YM8bJhGxG5kXgjkEuNGLTkoYqVE+KMR+aspr4KGYmKYg7yUe3KghyQ9yheNwLnjmzh/7+gfDBmHCQ==}
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: false
@@ -18913,11 +18925,13 @@ packages:
       supports-hyperlinks: 2.3.0
     dev: false
 
-  /tern@0.21.0:
-    resolution: {integrity: sha512-nZR1LS8c/cHna4fYSLJ31yFCXLFWcHENoFYXH7wVj5tw2PkHEz5EuQbbApUXDKSbMGS9LWjmNtCAT1Xno00+eA==}
+  /tern@0.24.3:
+    resolution: {integrity: sha512-Z8uvtdWIlFn1GWy0HW5FhZ8VDryZwoJUdnjZU25C7/PBOltLIn1uv+WF3rVq6S1761YbsmbZYRP/l0ZJBCkvrw==}
     hasBin: true
     dependencies:
-      acorn: 4.0.13
+      acorn: 6.4.2
+      acorn-loose: 6.1.0
+      acorn-walk: 6.2.0
       enhanced-resolve: 2.3.0
       glob: 7.2.3
       minimatch: 3.1.2
