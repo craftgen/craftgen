@@ -2,7 +2,7 @@ import "./custom-input.css";
 import _ from "lodash";
 import * as tern from "tern";
 import { useAsync, usePreviousDistinct } from "react-use";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 
 import {
@@ -60,6 +60,7 @@ import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.js
 import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
 import { start } from "@seocraft/core/src/worker/main";
 import { isNil } from "lodash-es";
+import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -111,13 +112,25 @@ const secret = ViewPlugin.fromClass(
   },
 );
 
+const useWorker = (workerId: string): WorkerMessenger => {
+  const { current: workers } = useRef(new Map<string, WorkerMessenger>());
+  if (workers.has(workerId)) {
+    console.log("Worker already exists", workerId);
+    return workers.get(workerId)!;
+  }
+
+  const worker = start();
+  workers.set(workerId, worker);
+  return worker;
+};
+
 export function CustomInput(props: { data: InputControl }) {
   const value = useSelector(props.data?.actor, props.data.selector);
   const { systemTheme } = useTheme();
 
   // XXX: Normally we would use the top level worker for this,
   // but it is hidden somewhere in the core and we can't access it.
-  const worker = useRef(start());
+  const { current: worker } = useRef(useWorker(props.data.id));
   const ternServer = useRef(createTernServer());
 
   const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
@@ -128,30 +141,31 @@ export function CustomInput(props: { data: InputControl }) {
     _.isEqual(p, n),
   );
 
-  useAsync(async () => {
-    const toInstall = _.difference(libraries, librariesOld || []);
-    const toRemove = _.difference(librariesOld || [], libraries);
-    console.log({ toInstall, toRemove, libraries });
+  // useAsync(async () => {
+  //   const toInstall = _.difference(libraries, librariesOld || []);
+  //   const toRemove = _.difference(librariesOld || [], libraries);
+  //   if (toInstall.length === 0 && toRemove.length === 0) return;
+  //   console.log({ toInstall, toRemove, libraries });
 
-    // First we reset the worker context so we can re-install
-    // libraries to remove to get their defs generated.
-    await worker.current.postoffice.resetJSContext();
-    for (const lib of toRemove) {
-      if (!lib) continue;
-      const resp = await worker.current.postoffice.installLibrary(lib);
-      ternServer.current.deleteDefs(resp.defs["!name"]);
-      console.log(resp);
-    }
+  //   // First we reset the worker context so we can re-install
+  //   // libraries to remove to get their defs generated.
+  //   await worker.postoffice.resetJSContext();
+  //   for (const lib of toRemove) {
+  //     if (!lib) continue;
+  //     const resp = await worker.postoffice.installLibrary(lib);
+  //     ternServer.current.deleteDefs(resp.defs["!name"]);
+  //     console.log(resp);
+  //   }
 
-    // Now we can clean install the libraries we want.
-    await worker.current.postoffice.resetJSContext();
-    for (const lib of toInstall) {
-      if (!lib) continue;
-      const resp = await worker.current.postoffice.installLibrary(lib);
-      ternServer.current.addDefs(resp.defs);
-      console.log(resp);
-    }
-  }, [libraries]);
+  //   // Now we can clean install the libraries we want.
+  //   await worker.postoffice.resetJSContext();
+  //   for (const lib of toInstall) {
+  //     if (!lib) continue;
+  //     const resp = await worker.postoffice.installLibrary(lib);
+  //     ternServer.current.addDefs(resp.defs);
+  //     console.log(resp);
+  //   }
+  // }, [libraries]);
 
   const handledChange = (val: string) => {
     props.data.setValue(val);
