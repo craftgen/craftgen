@@ -144,7 +144,7 @@ export function CustomInput(props: { data: InputControl }) {
   useEffect(() => {
     const worker_ = start();
     setWorker(worker_);
-    return () => worker_?.destroy();
+    return () => worker_.destroy();
   }, []);
 
   useAsync(async () => {
