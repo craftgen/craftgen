@@ -155,6 +155,10 @@ export class WorkerMessenger {
     this._ready = true;
   }
 
+  destroy() {
+    this._worker.terminate();
+  }
+
   async request(method: string, data = {}): Promise<any> {
     const messageId = uniqueId(`request-${method}-`);
     console.log("REQUEST ==>", {

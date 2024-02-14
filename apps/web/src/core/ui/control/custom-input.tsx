@@ -2,7 +2,7 @@ import "./custom-input.css";
 import _ from "lodash";
 import * as tern from "tern";
 import { useAsync, usePreviousDistinct } from "react-use";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 
 import {
@@ -130,8 +130,8 @@ export function CustomInput(props: { data: InputControl }) {
 
   // XXX: Normally we would use the top level worker for this,
   // but it is hidden somewhere in the core and we can't access it.
-  const { current: worker } = useRef(useWorker(props.data.id));
-  const ternServer = useRef(createTernServer());
+  const [worker, setWorker] = useState<WorkerMessenger | null>(null);
+  const { current: ternServer } = useRef(createTernServer());
 
   const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
   const parseValue = useCallback(parseValueFN, []);
@@ -141,31 +141,46 @@ export function CustomInput(props: { data: InputControl }) {
     _.isEqual(p, n),
   );
 
-  // useAsync(async () => {
-  //   const toInstall = _.difference(libraries, librariesOld || []);
-  //   const toRemove = _.difference(librariesOld || [], libraries);
-  //   if (toInstall.length === 0 && toRemove.length === 0) return;
-  //   console.log({ toInstall, toRemove, libraries });
+  useEffect(() => {
+    console.log("create new worker");
+    const worker_ = start();
+    setWorker(worker_);
+    console.log("created new worker", worker_);
 
-  //   // First we reset the worker context so we can re-install
-  //   // libraries to remove to get their defs generated.
-  //   await worker.postoffice.resetJSContext();
-  //   for (const lib of toRemove) {
-  //     if (!lib) continue;
-  //     const resp = await worker.postoffice.installLibrary(lib);
-  //     ternServer.current.deleteDefs(resp.defs["!name"]);
-  //     console.log(resp);
-  //   }
+    return () => {
+      console.log("destroy", worker_);
+      worker_?.destroy();
+    };
+  }, []);
 
-  //   // Now we can clean install the libraries we want.
-  //   await worker.postoffice.resetJSContext();
-  //   for (const lib of toInstall) {
-  //     if (!lib) continue;
-  //     const resp = await worker.postoffice.installLibrary(lib);
-  //     ternServer.current.addDefs(resp.defs);
-  //     console.log(resp);
-  //   }
-  // }, [libraries]);
+  useEffect(() => {
+    if (!worker) {
+      return;
+    }
+
+    const toInstall = _.difference(libraries, librariesOld || []);
+    const toRemove = _.difference(librariesOld || [], libraries);
+    if (toInstall.length === 0 && toRemove.length === 0) return;
+
+    (async () => {
+      // First we reset the worker context so we can re-install
+      // libraries to remove to get their defs generated.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toRemove) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.deleteDefs(resp.defs["!name"]);
+      }
+
+      // Now we can clean install the libraries we want.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toInstall) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.addDefs(resp.defs);
+      }
+    })();
+  }, [libraries, worker]);
 
   const handledChange = (val: string) => {
     props.data.setValue(val);
@@ -274,10 +289,10 @@ export function CustomInput(props: { data: InputControl }) {
           javascript({ jsx: false }),
           autocompletion({
             activateOnTyping: true,
+            activateOnTypingDelay: 300,
             optionClass: (completion) => {
               return `cm-completion cm-completion-${completion.type}`;
             },
-            activateOnTypingDelay: 300,
           }),
           cdnPackageCompletions,
           keymap.of(vscodeKeymap),
@@ -348,29 +363,26 @@ export function CustomInput(props: { data: InputControl }) {
     } as any;
 
     return new Promise<Completion[]>((resolve, reject) => {
-      ternServer.current.request(
-        { query, files: [file] },
-        (error, res: any) => {
-          if (error) {
-            return reject(error);
-          }
+      ternServer?.request({ query, files: [file] }, (error, res: any) => {
+        if (error) {
+          return reject(error);
+        }
 
-          resolve(
-            res?.completions
-              .map(
-                (item: any) =>
-                  ({
-                    label: item.name,
-                    apply: item.name,
-                    // detail: `${item.type}`,
-                    type: item.isKeyword ? "keyword" : typeToIcon(item.type),
-                    info: item.doc,
-                  }) as Completion,
-              )
-              .filter((c) => !!c.label),
-          );
-        },
-      );
+        resolve(
+          res?.completions
+            .map(
+              (item: any) =>
+                ({
+                  label: item.name,
+                  apply: item.name,
+                  // detail: `${item.type}`,
+                  type: item.isKeyword ? "keyword" : typeToIcon(item.type),
+                  info: item.doc,
+                }) as Completion,
+            )
+            .filter((c: Completion) => !!c.label),
+        );
+      });
     });
   }
 }
