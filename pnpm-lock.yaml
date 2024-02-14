@@ -448,9 +448,15 @@ importers:
       '@codemirror/autocomplete':
         specifier: ^6.12.0
         version: 6.12.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0)(@lezer/common@1.2.0)
+      '@codemirror/commands':
+        specifier: ^6.3.3
+        version: 6.3.3
       '@codemirror/lang-javascript':
         specifier: ^6.2.1
         version: 6.2.1
+      '@codemirror/lint':
+        specifier: ^6.5.0
+        version: 6.5.0
       '@codemirror/view':
         specifier: ^6.24.0
         version: 6.24.0
@@ -547,6 +553,12 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.0.6
         version: 1.0.7(@types/react-dom@18.2.14)(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
+      '@replit/codemirror-indentation-markers':
+        specifier: ^6.5.0
+        version: 6.5.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0)
+      '@replit/codemirror-vscode-keymap':
+        specifier: ^6.0.2
+        version: 6.0.2(@codemirror/autocomplete@6.12.0)(@codemirror/commands@6.3.3)(@codemirror/language@6.10.1)(@codemirror/lint@6.5.0)(@codemirror/search@6.5.6)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0)
       '@seocraft/api':
         specifier: ^0.1.0
         version: link:../api
@@ -772,6 +784,9 @@ importers:
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
+      eslint-linter-browserify:
+        specifier: ^8.56.0
+        version: 8.56.0
       flexlayout-react:
         specifier: ^0.7.15
         version: 0.7.15(react-dom@18.2.0)(react@18.2.0)
@@ -6304,6 +6319,38 @@ packages:
     resolution: {integrity: sha512-/RVXdLvJxLg4QKvMoM5WlwNR9ViO9z8B/qPcc+C0Sa/teJY7QG7kJ441DwzOjMYEY7GmU4dj5EcGHIkKZiQZCA==}
     dev: false
 
+  /@replit/codemirror-indentation-markers@6.5.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0):
+    resolution: {integrity: sha512-5RgeuQ6erfROi1EVI2X7G4UR+KByjb07jhYMynvpvlrV22JlnARifmKMGEUKy0pKcxBNfwbFqoUlTYHPgyZNlg==}
+    peerDependencies:
+      '@codemirror/language': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.0
+      '@codemirror/view': 6.24.0
+    dev: false
+
+  /@replit/codemirror-vscode-keymap@6.0.2(@codemirror/autocomplete@6.12.0)(@codemirror/commands@6.3.3)(@codemirror/language@6.10.1)(@codemirror/lint@6.5.0)(@codemirror/search@6.5.6)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0):
+    resolution: {integrity: sha512-j45qTwGxzpsv82lMD/NreGDORFKSctMDVkGRopaP+OrzSzv+pXDQuU3LnFvKpasyjVT0lf+PKG1v2DSCn/vxxg==}
+    peerDependencies:
+      '@codemirror/autocomplete': ^6.0.0
+      '@codemirror/commands': ^6.0.0
+      '@codemirror/language': ^6.0.0
+      '@codemirror/lint': ^6.0.0
+      '@codemirror/search': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+    dependencies:
+      '@codemirror/autocomplete': 6.12.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0)(@lezer/common@1.2.0)
+      '@codemirror/commands': 6.3.3
+      '@codemirror/language': 6.10.1
+      '@codemirror/lint': 6.5.0
+      '@codemirror/search': 6.5.6
+      '@codemirror/state': 6.4.0
+      '@codemirror/view': 6.24.0
+    dev: false
+
   /@rushstack/eslint-patch@1.5.1:
     resolution: {integrity: sha512-6i/8UoL0P5y4leBIGzvkZdS85RDMG9y1ihZzmTZQ5LdHUYmZ7pKFoj8X0236s3lusPs1Fa5HTQUpwI+UfTcmeA==}
     dev: true
@@ -11735,6 +11782,10 @@ packages:
       - eslint-import-resolver-node
       - eslint-import-resolver-webpack
       - supports-color
+
+  /eslint-linter-browserify@8.56.0:
+    resolution: {integrity: sha512-srgKcpN5CVFZWj2/AqVfoL1rxD9+GFymynNcmkvHi0EcQDAwN2uh/ZEJSe4cm+pLZ7MVaeIUMUorXoTaLDH0ww==}
+    dev: false
 
   /eslint-module-utils@2.8.0(@typescript-eslint/parser@6.9.1)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.52.0):
     resolution: {integrity: sha512-aWajIYfsqCKRDgUfjEXNN/JlrzauMuSEy5sbd7WXbtW3EH6A6MpwEh42c7qD+MqQo9QMJ6fWLAeIJynx0g6OAw==}
@@ -18938,7 +18989,7 @@ packages:
       resolve-from: 2.0.0
     dev: false
 
-  /terser-webpack-plugin@5.3.10(webpack@5.90.1):
+  /terser-webpack-plugin@5.3.10(esbuild@0.19.12)(webpack@5.90.1):
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -18955,11 +19006,12 @@ packages:
         optional: true
     dependencies:
       '@jridgewell/trace-mapping': 0.3.20
+      esbuild: 0.19.12
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.27.0
-      webpack: 5.90.1
+      webpack: 5.90.1(esbuild@0.19.12)
     dev: false
 
   /terser@5.27.0:
@@ -19959,7 +20011,7 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: false
 
-  /webpack@5.90.1:
+  /webpack@5.90.1(esbuild@0.19.12):
     resolution: {integrity: sha512-SstPdlAC5IvgFnhiRok8hqJo/+ArAbNv7rhU4fnWGHNVfN59HSQFaxZDSAL3IFG2YmqxuRs+IU33milSxbPlog==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -19990,7 +20042,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.90.1)
+      terser-webpack-plugin: 5.3.10(esbuild@0.19.12)(webpack@5.90.1)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -20095,7 +20147,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.90.1
+      webpack: 5.90.1(esbuild@0.19.12)
     dev: false
 
   /wrap-ansi@6.2.0:

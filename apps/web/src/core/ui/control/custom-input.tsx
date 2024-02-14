@@ -3,12 +3,14 @@ import _ from "lodash";
 import * as tern from "tern";
 import { useAsync, usePreviousDistinct } from "react-use";
 import { useCallback, useRef, useState } from "react";
-import { javascript } from "@codemirror/lang-javascript";
+import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
+
 import {
   Completion,
   CompletionContext,
   autocompletion,
 } from "@codemirror/autocomplete";
+import { indentWithTab } from "@codemirror/commands";
 
 import {
   Decoration,
@@ -17,7 +19,11 @@ import {
   MatchDecorator,
   ViewPlugin,
   ViewUpdate,
+  keymap,
 } from "@codemirror/view";
+import { vscodeKeymap } from "@replit/codemirror-vscode-keymap";
+import { indentationMarkers } from "@replit/codemirror-indentation-markers";
+
 import CodeMirror, { WidgetType } from "@uiw/react-codemirror";
 import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 
@@ -192,6 +198,10 @@ export function CustomInput(props: { data: InputControl }) {
   const { data: creds } = api.credentials.list.useQuery({ projectId });
   const [open, setOpen] = useState(false);
 
+  const cdnPackageCompletions = javascriptLanguage.data.of({
+    autocomplete: autocompleteProvider,
+  });
+
   return (
     <div className="space-y-1">
       <div className="flex w-full items-center justify-between">
@@ -246,12 +256,15 @@ export function CustomInput(props: { data: InputControl }) {
           secret,
           javascript({ jsx: false }),
           autocompletion({
-            override: [autocompleteProvider],
             activateOnTyping: true,
             optionClass: (completion) => {
               return `cm-completion cm-completion-${completion.type}`;
             },
           }),
+          cdnPackageCompletions,
+          keymap.of(vscodeKeymap),
+          keymap.of([indentWithTab]),
+          indentationMarkers(),
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
         width="100%"
@@ -331,6 +344,7 @@ export function CustomInput(props: { data: InputControl }) {
                   ({
                     label: item.name,
                     apply: item.name,
+                    // detail: `${item.type}`,
                     type: item.isKeyword ? "keyword" : typeToIcon(item.type),
                     info: item.doc,
                   }) as Completion,
