@@ -58,7 +58,11 @@ import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.js
 import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
 import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
 import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
+<<<<<<< HEAD
 import { start } from "@seocraft/core/src/worker/main";
+=======
+import { isNil } from "lodash-es";
+>>>>>>> main
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -153,9 +157,11 @@ export function CustomInput(props: { data: InputControl }) {
   }, [libraries]);
 
   const handledChange = (val: string) => {
+    props.data.setValue(val);
     const res = parseValue(val);
     match(res)
       .with({ expression: P.string }, () => {
+        if (props.data.definition?.format === "expression") return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -168,6 +174,7 @@ export function CustomInput(props: { data: InputControl }) {
         });
       })
       .with({ secretKey: P.string }, () => {
+        if (props.data.definition?.format === "secret") return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -180,6 +187,7 @@ export function CustomInput(props: { data: InputControl }) {
         });
       })
       .otherwise(() => {
+        if (isNil(props.data.definition?.format)) return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -191,11 +199,9 @@ export function CustomInput(props: { data: InputControl }) {
           },
         });
       });
-    props.data.setValue(val);
   };
 
-  const projectId = "9ad65390-e82b-42b2-9cae-a62dce62011e";
-  const { data: creds } = api.credentials.list.useQuery({ projectId });
+  const { data: creds } = api.credentials.list.useQuery({});
   const [open, setOpen] = useState(false);
 
   const cdnPackageCompletions = javascriptLanguage.data.of({
@@ -260,6 +266,7 @@ export function CustomInput(props: { data: InputControl }) {
             optionClass: (completion) => {
               return `cm-completion cm-completion-${completion.type}`;
             },
+            activateOnTypingDelay: 300,
           }),
           cdnPackageCompletions,
           keymap.of(vscodeKeymap),

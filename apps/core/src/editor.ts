@@ -828,7 +828,6 @@ export class Editor<
         socketWatcher,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
-            console.log(k, this.machines[k]);
             if (acc[k]) {
               throw new Error(`Actor ${k} already exists`);
             }
@@ -848,10 +847,6 @@ export class Editor<
               });
             } else if (typeof machine === "function") {
               const [main, child] = k.split(".");
-              console.log({
-                main,
-                child,
-              });
               acc[main] = acc[main].provide({
                 actors: {
                   [child]: machine({ di: this }),

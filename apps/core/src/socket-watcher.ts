@@ -1,5 +1,5 @@
 import { isEqual } from "lodash-es";
-import { from, of, switchMap } from "rxjs";
+import { debounceTime, from, of, switchMap } from "rxjs";
 import { ActorSystem, AnyActor, SnapshotFrom, fromObservable } from "xstate";
 
 export const socketWatcher = fromObservable(
@@ -17,6 +17,9 @@ export const socketWatcher = fromObservable(
     const connectionsMap = new Map<ActorId, Set<string>>();
     const updateConnections = (state: SnapshotFrom<AnyActor>, key: string) => {
       const connections = state.context.outputSockets[key]["x-connection"];
+      if (!connections) {
+        return;
+      }
       console.log("connections", connections);
       for (const [t, conn] of Object.entries(connections || {})) {
         console.log("Target", t, "Connection", conn);
@@ -34,6 +37,7 @@ export const socketWatcher = fromObservable(
 
     return from(input.self as any).pipe(
       // Listen to snapshot events
+      debounceTime(100),
       switchMap((state) => {
         const currentOutputs = state.context.outputs;
         const outputKeys = Object.keys(currentOutputs);

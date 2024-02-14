@@ -1,4 +1,3 @@
-import { action, makeObservable, observable, reaction } from "mobx";
 import type { AnyActor, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import { groupBy, omit } from "lodash-es";
+import { debounce, groupBy, omit } from "lodash-es";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
@@ -168,21 +168,22 @@ const InputItem = observer(
     actor: AnyActor;
   }) => {
     const socket = getSocketByJsonSchemaType(item);
+    const handleChange = (v: any) => {
+      actor.send({
+        type: "SET_VALUE",
+        params: {
+          values: {
+            [itemKey]: v,
+          },
+        },
+      });
+    };
+    const debouncedChange = debounce(handleChange, 100);
     const controller = getControlBySocket({
       socket,
       actor: actor,
       selector: (snapshot) => snapshot.context.inputs[itemKey],
-      onChange: (v) => {
-        console.log("onChange", v);
-        actor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [itemKey]: v,
-            },
-          },
-        });
-      },
+      onChange: debouncedChange,
       definition: item,
     });
     return (
