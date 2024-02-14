@@ -1,3 +1,4 @@
+import _ from "lodash";
 import dedent from "ts-dedent";
 import {
   BaseContextType,
@@ -90,8 +91,8 @@ const outputSockets = {
 type JavascriptCodeInterpreterInput = {
   code: string;
   libraries: string[];
-  args: {
-    [key: string]: any;
+  args: { [key: string]: any } & {
+    inputs: { [key: string]: any };
   };
 };
 
@@ -102,7 +103,11 @@ const executeJavascriptCode = fromPromise(
     for (const lib of libraries) {
       await worker.postoffice.installLibrary(lib);
     }
-    const result = await worker.postoffice.sendScript(code, args);
+
+    const result = await worker.postoffice.sendScript(code, {
+      inputs: args.inputs,
+    });
+
     return result;
   },
 );
@@ -315,7 +320,11 @@ export const JavascriptCodeInterpreterMachine = createMachine(
                       code: context.inputs.code,
                       libraries: context.inputs.libraries,
                       args: {
-                        ...context.inputs,
+                        inputs: _.omit(context.inputs, [
+                          "code",
+                          "libraries",
+                          "run",
+                        ]),
                       },
                     },
                     parent: {
@@ -361,7 +370,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         inputSockets: ({ event, context }) =>
           match(event)
             .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => ({
-              ...inputSockets,
+              inputs: inputSockets,
               libraries: context.inputSockets.libraries,
               code: context.inputSockets.code,
               run: context.inputSockets.run,

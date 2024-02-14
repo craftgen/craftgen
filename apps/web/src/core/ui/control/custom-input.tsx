@@ -1,9 +1,15 @@
 import "./custom-input.css";
 import _ from "lodash";
-import * as tern from "tern";
-import { useAsync, usePreviousDistinct } from "react-use";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
+import { usePreviousDistinct } from "react-use";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  javascript,
+  javascriptLanguage,
+  typescriptLanguage,
+} from "@codemirror/lang-javascript";
+
+require("tern/plugin/doc_comment");
+import tern from "tern";
 
 import {
   Completion,
@@ -112,19 +118,8 @@ const secret = ViewPlugin.fromClass(
   },
 );
 
-const useWorker = (workerId: string): WorkerMessenger => {
-  const { current: workers } = useRef(new Map<string, WorkerMessenger>());
-  if (workers.has(workerId)) {
-    console.log("Worker already exists", workerId);
-    return workers.get(workerId)!;
-  }
-
-  const worker = start();
-  workers.set(workerId, worker);
-  return worker;
-};
-
 export function CustomInput(props: { data: InputControl }) {
+  const isCode = (props.data.definition as any).format === "expression";
   const value = useSelector(props.data?.actor, props.data.selector);
   const { systemTheme } = useTheme();
 
@@ -142,13 +137,14 @@ export function CustomInput(props: { data: InputControl }) {
   );
 
   useEffect(() => {
+    if (!isCode) return;
     const worker_ = start();
     setWorker(worker_);
     return () => worker_.destroy();
   }, []);
 
-  useAsync(async () => {
-    if (!worker) {
+  useEffect(() => {
+    if (!worker || !isCode) {
       return;
     }
 
@@ -156,22 +152,24 @@ export function CustomInput(props: { data: InputControl }) {
     const toRemove = _.difference(librariesOld || [], libraries);
     if (toInstall.length === 0 && toRemove.length === 0) return;
 
-    // First we reset the worker context so we can re-install
-    // libraries to remove to get their defs generated.
-    await worker.postoffice.resetJSContext();
-    for (const lib of toRemove) {
-      if (!lib) continue;
-      const resp = await worker.postoffice.installLibrary(lib);
-      ternServer.deleteDefs(resp.defs["!name"]);
-    }
+    (async () => {
+      // First we reset the worker context so we can re-install
+      // libraries to remove to get their defs generated.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toRemove) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.deleteDefs(resp.defs["!name"]);
+      }
 
-    // Now we can clean install the libraries we want.
-    await worker.postoffice.resetJSContext();
-    for (const lib of toInstall) {
-      if (!lib) continue;
-      const resp = await worker.postoffice.installLibrary(lib);
-      ternServer.addDefs(resp.defs);
-    }
+      // Now we can clean install the libraries we want.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toInstall) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.addDefs(resp.defs);
+      }
+    })();
   }, [libraries, worker]);
 
   const handledChange = (val: string) => {
@@ -278,7 +276,7 @@ export function CustomInput(props: { data: InputControl }) {
         theme={systemTheme === "dark" ? githubDark : githubLight}
         extensions={[
           secret,
-          javascript({ jsx: false }),
+          javascript({ jsx: false, typescript: true }),
           autocompletion({
             activateOnTyping: true,
             activateOnTypingDelay: 300,
@@ -313,6 +311,7 @@ export function CustomInput(props: { data: InputControl }) {
     return new tern.Server({
       async: true,
       defs: [ecma as any, lodash, base64, moment, forge],
+      plugins: { doc_comment: {} },
       getFile: function (name, c) {
         return getFile(self, name, c);
       },
@@ -351,9 +350,10 @@ export function CustomInput(props: { data: InputControl }) {
     const file: tern.File = {
       type: "full",
       name: "temp.js",
-      text: code,
+      text: generateSignatureJSDOC({}) + code,
     } as any;
 
+    console.log(generateSignatureJSDOC({ arg1: "string" }) + code);
     return new Promise<Completion[]>((resolve, reject) => {
       ternServer?.request({ query, files: [file] }, (error, res: any) => {
         if (error) {
@@ -411,4 +411,27 @@ function parseValueFN(value: string) {
   }
 
   return value;
+}
+
+function generateSignatureJSDOC(args: any) {
+  const typedef = `\
+/**
+ * @typedef {object} Inputs
+ ${Object.keys(args)
+   .map((k) => `* @property {${args[k]}} ${k} -- Description`)
+   .join("\n")}
+ */
+`;
+
+  return `\
+${typedef}
+
+/**
+ * @typedef {object} Context
+ * @property {Inputs} inputs
+ */
+
+/**
+ * @param {Context} context
+ */\n`;
 }
