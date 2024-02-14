@@ -142,15 +142,9 @@ export function CustomInput(props: { data: InputControl }) {
   );
 
   useEffect(() => {
-    console.log("create new worker");
     const worker_ = start();
     setWorker(worker_);
-    console.log("created new worker", worker_);
-
-    return () => {
-      console.log("destroy", worker_);
-      worker_?.destroy();
-    };
+    return () => worker_?.destroy();
   }, []);
 
   useEffect(() => {
