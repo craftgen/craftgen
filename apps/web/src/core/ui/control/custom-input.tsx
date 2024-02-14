@@ -147,7 +147,7 @@ export function CustomInput(props: { data: InputControl }) {
     return () => worker_?.destroy();
   }, []);
 
-  useEffect(() => {
+  useAsync(async () => {
     if (!worker) {
       return;
     }
@@ -156,24 +156,22 @@ export function CustomInput(props: { data: InputControl }) {
     const toRemove = _.difference(librariesOld || [], libraries);
     if (toInstall.length === 0 && toRemove.length === 0) return;
 
-    (async () => {
-      // First we reset the worker context so we can re-install
-      // libraries to remove to get their defs generated.
-      await worker.postoffice.resetJSContext();
-      for (const lib of toRemove) {
-        if (!lib) continue;
-        const resp = await worker.postoffice.installLibrary(lib);
-        ternServer.deleteDefs(resp.defs["!name"]);
-      }
+    // First we reset the worker context so we can re-install
+    // libraries to remove to get their defs generated.
+    await worker.postoffice.resetJSContext();
+    for (const lib of toRemove) {
+      if (!lib) continue;
+      const resp = await worker.postoffice.installLibrary(lib);
+      ternServer.deleteDefs(resp.defs["!name"]);
+    }
 
-      // Now we can clean install the libraries we want.
-      await worker.postoffice.resetJSContext();
-      for (const lib of toInstall) {
-        if (!lib) continue;
-        const resp = await worker.postoffice.installLibrary(lib);
-        ternServer.addDefs(resp.defs);
-      }
-    })();
+    // Now we can clean install the libraries we want.
+    await worker.postoffice.resetJSContext();
+    for (const lib of toInstall) {
+      if (!lib) continue;
+      const resp = await worker.postoffice.installLibrary(lib);
+      ternServer.addDefs(resp.defs);
+    }
   }, [libraries, worker]);
 
   const handledChange = (val: string) => {
