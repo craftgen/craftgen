@@ -337,23 +337,24 @@ export function CustomInput(props: { data: InputControl }) {
   }
 
   async function getAutocompletion(code: string, position: number) {
+    const jsdoc = generateSignatureJSDOC({ arg1: "string" });
     const query: tern.Query = {
       types: true,
       docs: true,
       urls: true,
       includeKeywords: true,
       type: "completions",
-      end: position,
+      end: position + jsdoc.length,
       file: "temp.js",
     };
 
     const file: tern.File = {
       type: "full",
       name: "temp.js",
-      text: generateSignatureJSDOC({}) + code,
+      // TODO: Pass correct inputs and their types.
+      text: generateSignatureJSDOC({ arg1: "string" }) + code,
     } as any;
 
-    console.log(generateSignatureJSDOC({ arg1: "string" }) + code);
     return new Promise<Completion[]>((resolve, reject) => {
       ternServer?.request({ query, files: [file] }, (error, res: any) => {
         if (error) {
@@ -413,12 +414,15 @@ function parseValueFN(value: string) {
   return value;
 }
 
+/**
+ * Generate JSDOC signature for the given inputs.
+ */
 function generateSignatureJSDOC(args: any) {
   const typedef = `\
 /**
  * @typedef {object} Inputs
  ${Object.keys(args)
-   .map((k) => `* @property {${args[k]}} ${k} -- Description`)
+   .map((k) => `* @property {${args[k]}} ${k}`)
    .join("\n")}
  */
 `;

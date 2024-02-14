@@ -36,7 +36,7 @@ const inputSockets = {
     name: "Code" as const,
     title: "Code",
     type: "string" as const,
-    default: "async () => {\n  return 42\n}",
+    default: "async function (context) {\n  return 42\n}",
     description: "the code",
     "x-showSocket": false,
     required: true,
