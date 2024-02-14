@@ -352,7 +352,7 @@ export function CustomInput(props: { data: InputControl }) {
       type: "full",
       name: "temp.js",
       // TODO: Pass correct inputs and their types.
-      text: generateSignatureJSDOC({ arg1: "string" }) + code,
+      text: jsdoc + code,
     } as any;
 
     return new Promise<Completion[]>((resolve, reject) => {
