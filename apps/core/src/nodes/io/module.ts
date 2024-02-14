@@ -1,7 +1,7 @@
 import { merge } from "lodash-es";
 import { action, makeObservable, observable, reaction } from "mobx";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine } from "xstate";
 
 import { SelectControl } from "../../controls/select";
 import type { JSONSocket } from "../../controls/socket-generator";
