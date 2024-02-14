@@ -50,6 +50,7 @@ import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.js
 import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
 import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
 import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
+import { isNil } from "lodash-es";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -110,9 +111,11 @@ export function CustomInput(props: { data: InputControl }) {
   const parseValue = useCallback(parseValueFN, []);
 
   const handledChange = (val: string) => {
+    props.data.setValue(val);
     const res = parseValue(val);
     match(res)
       .with({ expression: P.string }, () => {
+        if (props.data.definition?.format === "expression") return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -125,6 +128,7 @@ export function CustomInput(props: { data: InputControl }) {
         });
       })
       .with({ secretKey: P.string }, () => {
+        if (props.data.definition?.format === "secret") return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -137,6 +141,7 @@ export function CustomInput(props: { data: InputControl }) {
         });
       })
       .otherwise(() => {
+        if (isNil(props.data.definition?.format)) return;
         props.data.actor.send({
           type: "UPDATE_SOCKET",
           params: {
@@ -148,11 +153,9 @@ export function CustomInput(props: { data: InputControl }) {
           },
         });
       });
-    props.data.setValue(val);
   };
 
-  const projectId = "9ad65390-e82b-42b2-9cae-a62dce62011e";
-  const { data: creds } = api.credentials.list.useQuery({ projectId });
+  const { data: creds } = api.credentials.list.useQuery({});
   const [open, setOpen] = useState(false);
 
   return (
@@ -211,6 +214,7 @@ export function CustomInput(props: { data: InputControl }) {
           autocompletion({
             override: [autocompleteProvider],
             activateOnTyping: true,
+            activateOnTypingDelay: 300,
           }),
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
