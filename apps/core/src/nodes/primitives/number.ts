@@ -38,6 +38,8 @@ const NumberMachine = createMachine({
   context: ({ input }) =>
     merge<typeof input, any>(
       {
+        name: "Number",
+        description: "Node for handling numbers",
         inputSockets: {
           ...inputSockets,
         },
@@ -114,9 +116,9 @@ const NumberMachine = createMachine({
   },
 });
 
-export type NumberData = ParsedNode<"Number", typeof NumberMachine>;
-export class Number extends BaseNode<typeof NumberMachine> {
-  static nodeType = "Number" as const;
+export type NumberData = ParsedNode<"NodeNumber", typeof NumberMachine>;
+export class NodeNumber extends BaseNode<typeof NumberMachine> {
+  static nodeType = "NodeNumber";
   static label = "Number";
   static description = "Node for handling numbers";
   static icon = "numbers";
@@ -126,7 +128,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
   static parse(params: SetOptional<NumberData, "type">): NumberData {
     return {
       ...params,
-      type: "Number",
+      type: "NodeNumber",
     };
   }
 
@@ -135,7 +137,7 @@ export class Number extends BaseNode<typeof NumberMachine> {
   };
 
   constructor(di: DiContainer, data: NumberData) {
-    super("Number", di, data, NumberMachine, {});
+    super("NodeNumber", di, data, NumberMachine, {});
     this.setup();
   }
 }

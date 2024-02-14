@@ -1,6 +1,7 @@
-import { isEqual } from "lodash-es";
+import { get, isEqual } from "lodash-es";
 import { debounceTime, from, of, switchMap } from "rxjs";
 import { ActorSystem, AnyActor, SnapshotFrom, fromObservable } from "xstate";
+import { JSONSocket } from "./controls/socket-generator";
 
 export const socketWatcher = fromObservable(
   ({
@@ -83,7 +84,48 @@ export const socketWatcher = fromObservable(
         }
 
         // This just ensures the switchMap has something to emit, actual value here is not used
-        return of(currentOutputs);
+        return state;
+      }),
+      debounceTime(1000),
+      switchMap((state) => {
+        // This is where we would handle any cleanup, if necessary
+        const inputSockets = state.context.inputSockets as Record<
+          string,
+          JSONSocket
+        >;
+        const outputSockets = state.context.outputSockets as Record<
+          string,
+          JSONSocket
+        >;
+
+        const openInputs = Object.entries(inputSockets)
+          .filter(([key, socket]) => {
+            return socket["x-showSocket"];
+          })
+          .filter(([key, socket]) => {
+            const connections = get(socket, ["x-connection"], {});
+            if (Object.values(connections).length === 0) {
+              return true;
+            }
+            return false;
+          });
+        const openOutputs = Object.entries(outputSockets)
+          .filter(([key, socket]) => {
+            return socket["x-showSocket"];
+          })
+          .filter(([key, socket]) => {
+            const connections = get(socket, ["x-connection"], {});
+            if (Object.values(connections).length === 0) {
+              return true;
+            }
+            return false;
+          });
+
+        console.log({
+          openInputs,
+          openOutputs,
+        });
+        return of(state);
       }),
       // Optionally, act on the changes here or directly within the forEach loop above
     );

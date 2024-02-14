@@ -1,7 +1,7 @@
 export { Start } from "./start";
 export { Log } from "./log";
 export { NodeText } from "./primitives/text";
-export { Number } from "./primitives/number";
+export { NodeNumber } from "./primitives/number";
 export { PromptTemplate } from "./prompt-template";
 
 export { NodeComposeObject } from "./object/composeObject";

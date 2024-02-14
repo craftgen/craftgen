@@ -40,7 +40,11 @@ export class Socket extends ClassicPreset.Socket {
   }
 
   isCompatibleWith(socket: string) {
-    return this.name === socket || this.compatible.includes(socket);
+    return (
+      this.name === socket ||
+      this.compatible.includes(socket) ||
+      this.compatible.includes("any")
+    );
   }
 }
 
