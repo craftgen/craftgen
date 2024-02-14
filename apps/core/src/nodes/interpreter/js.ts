@@ -98,7 +98,8 @@ type JavascriptCodeInterpreterInput = {
 
 const executeJavascriptCode = fromPromise(
   async ({ input }: { input: JavascriptCodeInterpreterInput }) => {
-    const worker = start();
+    const worker = start(); // TODO: Re-use a pool of workers.
+
     const { code, args, libraries } = input;
     for (const lib of libraries) {
       await worker.postoffice.installLibrary(lib);
@@ -108,6 +109,7 @@ const executeJavascriptCode = fromPromise(
       inputs: args.inputs,
     });
 
+    worker.destroy();
     return result;
   },
 );
