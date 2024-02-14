@@ -92,8 +92,8 @@ export const useRegisterPlaygroundActions = ({
     });
     res.push(
       ...(nodes
-        .filter((n) => n.nodeType !== "ModuleNode")
-        .filter((n) => n.nodeType !== "Replicate")
+        .filter((n) => n.nodeType !== "NodeModule")
+        .filter((n) => n.nodeType !== "NodeReplicate")
         .map((node) => ({
           id: node.nodeType,
           name: node.label,
