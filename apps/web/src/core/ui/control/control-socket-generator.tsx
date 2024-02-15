@@ -51,8 +51,8 @@ export function SocketGeneratorControlComponent(props: {
     props.data.selector,
   );
   const socketDatas = useMemo(() => {
-    return Object.values(sockets).map((socket) =>
-      _.omit(socket, "x-connection"),
+    return Object.values(sockets).map(
+      (socket: JSONSocket) => _.omit(socket, "x-connection") as JSONSocket,
     );
   }, [sockets]);
 
@@ -67,35 +67,42 @@ export function SocketGeneratorControlComponent(props: {
       description: props.data.description,
       sockets: socketDatas,
     },
-    mode: "onSubmit",
+    mode: "onBlur",
   });
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control: form.control, // control props comes from useForm (optional: if you are using FormContext)
-      name: "sockets", // unique name for your Field Array
-      keyName: "x-key",
-    },
-  );
+  const { fields, append, remove } = useFieldArray({
+    control: form.control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "sockets", // unique name for your Field Array
+    keyName: "x-key",
+  });
   const onSubmit = (data?: z.infer<typeof formSchema>) => {
     const fieldsValue = form.getValues();
-    console.log("@$", fieldsValue);
-    const sockets = fieldsValue.sockets
-      .filter((s) => s.name.length > 0)
+
+    const normalizedSockets = fieldsValue.sockets
+      .filter((s) => s?.name.length > 0)
       .reduce(
         (acc, socket) => {
+          console.log("SSS", socket);
           const socketKey = slugify(socket.name, "_");
           socket["x-key"] = socketKey;
           socket["x-showSocket"] = socket["x-showSocket"] ?? true;
 
           acc[socketKey] = socket as JSONSocket;
+
+          if (sockets[socketKey]) {
+            acc[socketKey] = {
+              ...sockets[socketKey],
+              ...socket,
+            };
+          }
           return acc;
         },
         {} as Record<string, JSONSocket>,
       );
+
     props.data.setValue({
       ...fieldsValue,
-      sockets,
+      sockets: normalizedSockets,
     });
   };
   const handleAppend = () => {
@@ -103,7 +110,7 @@ export function SocketGeneratorControlComponent(props: {
       name: "",
       type: "string",
       description: "",
-      "x-key": "",
+      "x-key": String(+new Date()),
       "x-showSocket": true,
       required: true,
       "x-showController": true,

@@ -372,7 +372,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         inputSockets: ({ event, context }) =>
           match(event)
             .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => ({
-              inputs: inputSockets,
+              ...inputSockets,
               libraries: context.inputSockets.libraries,
               code: context.inputSockets.code,
               run: context.inputSockets.run,
