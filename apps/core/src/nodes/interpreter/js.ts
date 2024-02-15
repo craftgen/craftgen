@@ -104,7 +104,6 @@ const executeJavascriptCode = fromPromise(
     for (const lib of libraries) {
       await worker.postoffice.installLibrary(lib);
     }
-
     const result = await worker.postoffice.sendScript(code, {
       inputs: args.inputs,
     });
@@ -119,7 +118,10 @@ export const executeJavascriptCodeMachine = setup({
     input: {} as {
       inputs: {
         code: string;
-        [key: string]: any;
+        libraries: string[];
+        args: { [key: string]: any } & {
+          inputs: { [key: string]: any };
+        };
       };
       parent: {
         id: string;
@@ -128,7 +130,10 @@ export const executeJavascriptCodeMachine = setup({
     context: {} as {
       inputs: {
         code: string;
-        [key: string]: any;
+        libraries: string[];
+        args: { [key: string]: any } & {
+          inputs: { [key: string]: any };
+        };
       };
       outputs: {
         result: any | null;
@@ -160,7 +165,7 @@ export const executeJavascriptCodeMachine = setup({
       invoke: {
         src: "executeJavascriptCode",
         input: ({ context }) => ({
-          args: context.inputs,
+          args: context.inputs.args,
           code: context.inputs.code,
           libraries: context.inputs.libraries,
         }),
