@@ -139,6 +139,7 @@
     "geist": "^1.0.0",
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
+    "json-schema-to-jsdoc": "^1.1.0",
     "kbar": "0.1.0-beta.43",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",

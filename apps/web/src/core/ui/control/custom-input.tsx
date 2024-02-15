@@ -8,6 +8,9 @@ import {
   typescriptLanguage,
 } from "@codemirror/lang-javascript";
 
+// @ts-ignore
+import jsdoc from "json-schema-to-jsdoc";
+
 require("tern/plugin/doc_comment");
 import tern from "tern";
 
@@ -15,6 +18,7 @@ import {
   Completion,
   CompletionContext,
   autocompletion,
+  startCompletion,
 } from "@codemirror/autocomplete";
 import { indentWithTab } from "@codemirror/commands";
 
@@ -67,6 +71,7 @@ import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json
 import { start } from "@seocraft/core/src/worker/main";
 import { isNil } from "lodash-es";
 import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
+import { JSONSchema } from "openai/lib/jsonschema";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -286,7 +291,11 @@ export function CustomInput(props: { data: InputControl }) {
           }),
           cdnPackageCompletions,
           keymap.of(vscodeKeymap),
-          keymap.of([indentWithTab]),
+          keymap.of([
+            { key: "c-Space", run: startCompletion },
+            { key: "Mod-Space", run: startCompletion },
+            indentWithTab,
+          ]),
           indentationMarkers(),
         ]}
         className="bg-muted/30 w-full rounded-lg p-2 outline-none"
@@ -311,7 +320,9 @@ export function CustomInput(props: { data: InputControl }) {
     return new tern.Server({
       async: true,
       defs: [ecma as any, lodash, base64, moment, forge],
-      plugins: { doc_comment: {} },
+      plugins: {
+        doc_comment: {},
+      },
       getFile: function (name, c) {
         return getFile(self, name, c);
       },
@@ -337,7 +348,18 @@ export function CustomInput(props: { data: InputControl }) {
   }
 
   async function getAutocompletion(code: string, position: number) {
-    const jsdoc = generateSignatureJSDOC({ arg1: "string" });
+    const schema = {
+      title: "Inputs",
+      type: "object",
+      properties: {
+        // name: { type: "string", description: "A person's name" },
+        // age: { type: "integer", description: "A person's age" },
+        // school: { type: "number", description: "A person's age" },
+      },
+      required: [],
+    };
+
+    const jsdoc = generateSignatureJSDOC(schema);
     const query: tern.Query = {
       types: true,
       docs: true,
@@ -354,13 +376,13 @@ export function CustomInput(props: { data: InputControl }) {
       // TODO: Pass correct inputs and their types.
       text: jsdoc + code,
     } as any;
+    console.log(jsdoc + code);
 
     return new Promise<Completion[]>((resolve, reject) => {
       ternServer?.request({ query, files: [file] }, (error, res: any) => {
         if (error) {
           return reject(error);
         }
-
         resolve(
           res?.completions
             .map(
@@ -368,7 +390,7 @@ export function CustomInput(props: { data: InputControl }) {
                 ({
                   label: item.name,
                   apply: item.name,
-                  // detail: `${item.type}`,
+                  // detail: item.type && `${item.type}`,
                   type: item.isKeyword ? "keyword" : typeToIcon(item.type),
                   info: item.doc,
                 }) as Completion,
@@ -417,15 +439,8 @@ function parseValueFN(value: string) {
 /**
  * Generate JSDOC signature for the given inputs.
  */
-function generateSignatureJSDOC(args: any) {
-  const typedef = `\
-/**
- * @typedef {object} Inputs
- ${Object.keys(args)
-   .map((k) => `* @property {${args[k]}} ${k}`)
-   .join("\n")}
- */
-`;
+function generateSignatureJSDOC(schema: JSONSchema) {
+  const typedef = jsdoc(schema);
 
   return `\
 ${typedef}
