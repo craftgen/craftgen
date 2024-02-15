@@ -2,7 +2,7 @@ JS worker evaluates arbitrary JS code in a safe sandbox. Check `main.ts` as an e
 
 We define an async messaging interface (`messenger.ts`) on top of the default `.postMessage` interface of WebWorkers for an easier DX.
 
-To summarize, this bit code can;
+To summarize, this bit of code can;
 
 - Create a sandboxed JS execution environment.
 - Define async interface on top of WebWorker API.
@@ -12,7 +12,7 @@ To summarize, this bit code can;
 
 ## JS Evaluation
 
-Check `worker-internal/eval.ts` for the heart of JS evaluation. We opted for indirect eval so that we can prevent local scope access. All JS code executes with the global scope of their sandbox.
+Check `worker-internal/eval.ts` for the heart of JS evaluation. We opted for indirect eval so that we can prevent local scope access. All JS code executes within the global scope of their sandbox.
 
 ## CDN Libraries
 
@@ -20,7 +20,7 @@ Check `worker-internal/eval.ts` for the heart of JS evaluation. We opted for ind
 
 ## NodeJS Support
 
-In theory, (almost) all the API we define here is NodeJS worker compatible. However, this is not tested yet. Only `importScripts` require a [polyfill](https://github.com/JamesJansson/importScripts/blob/master/importscripts.js).
+In theory, (almost) all the API we define here is NodeJS worker compatible so we can load the entry into a Node worker and fire it up. However, this is not tested yet. Only `importScripts` require a [polyfill](https://github.com/JamesJansson/importScripts/blob/master/importscripts.js).
 
 Extra:
 
