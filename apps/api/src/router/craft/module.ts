@@ -3,10 +3,84 @@ import _ from "lodash-es";
 
 import { and, eq, schema, sql } from "@seocraft/supabase/db";
 
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../../trpc";
 import { TRPCError } from "@trpc/server";
 
 export const craftModuleRouter = createTRPCRouter({
+  list: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        let canAccess = false;
+        if (ctx.session?.user) {
+          // check if user member of project
+          const member = await ctx.db.query.projectMembers.findFirst({
+            where: (projectMember, { eq, and }) =>
+              and(
+                eq(projectMember.projectId, input.projectId),
+                eq(projectMember.userId, ctx.session?.user?.id!),
+              ),
+          });
+          if (member) {
+            canAccess = true;
+          }
+        }
+        let workflows = [];
+        if (canAccess) {
+          workflows = await ctx.db.query.workflow.findMany({
+            where: (workflow, { eq, and }) =>
+              and(eq(workflow.projectId, input.projectId)),
+            with: {
+              versions: {
+                orderBy: (workflowVersion, { desc }) => [
+                  desc(workflowVersion.version),
+                ],
+                limit: 1,
+              },
+              project: {
+                columns: {
+                  slug: true,
+                },
+              },
+            },
+          });
+        } else {
+          workflows = await ctx.db.query.workflow.findMany({
+            where: (workflow, { eq, and }) =>
+              and(
+                eq(workflow.projectId, input.projectId),
+                eq(workflow.public, true),
+              ),
+            with: {
+              versions: {
+                orderBy: (workflowVersion, { desc }) => [
+                  desc(workflowVersion.version),
+                ],
+                limit: 1,
+              },
+              project: {
+                columns: {
+                  slug: true,
+                },
+              },
+            },
+          });
+        }
+
+        return workflows.map((w) => ({
+          ...w,
+          version: w.versions[0]!,
+        }));
+      });
+    }),
   io: protectedProcedure
     .input(
       z.object({

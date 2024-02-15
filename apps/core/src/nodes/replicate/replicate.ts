@@ -423,6 +423,7 @@ const replicateMachine = createMachine({
       },
     },
   },
+  output: ({ context }) => context.outputs,
 });
 
 export type ReplicateData = ParsedNode<

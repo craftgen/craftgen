@@ -483,7 +483,12 @@ export class Editor<
         event.params.actor.src as string,
       ]);
       if (!conf) {
-        console.error("Missing config for", event.params.actor.src);
+        console.error("Missing config for", {
+          socket,
+          src: event.params.actor.src,
+          context,
+          event,
+        });
       }
 
       for (const [key, value] of Object.entries(conf?.internal)) {
@@ -539,7 +544,14 @@ export class Editor<
     initialize: enqueueActions(({ enqueue, check, system, self }) => {
       enqueue("assignParent");
       enqueue("spawnInputActors");
-      if (check(() => !system.get(`${self.id}-socketWatcher`))) {
+
+      if (
+        check(
+          () =>
+            // (self.src as string).startsWith("Node") &&
+            !system.get(`${self.id}-socketWatcher`),
+        )
+      ) {
         enqueue.spawnChild("socketWatcher", {
           id: `${self.id}-socketWatcher`,
           input: {
@@ -803,6 +815,10 @@ export class Editor<
     this.registry = props.config.nodes;
     this.machines = Object.entries(props.config.nodes).reduce(
       (acc, [key, value]) => {
+        if (!value.machines) {
+          console.error("Node", key, "missing machines");
+          throw new Error(`Node ${key} missing machines`);
+        }
         Object.entries(value.machines).forEach(([machineId, value]) => {
           if (acc[machineId as string]) {
             throw new Error(`Machine with id ${machineId} already exists`);
@@ -1559,7 +1575,6 @@ export class Editor<
         .with({ type: "connectioncreate" }, async ({ data }) => {
           console.log("CONNECTIONCREATE", { data });
           const { source, target } = this.getConnectionSockets(data);
-          console.log("CONNECTIONCREATE", { source, target })
           if (target && !target.isCompatibleWith(source.name)) {
             this.handlers.incompatibleConnection?.({
               source,

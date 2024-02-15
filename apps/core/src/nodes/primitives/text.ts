@@ -92,7 +92,6 @@ const TextNodeMachine = createMachine({
       },
     },
     complete: {
-      // type: "final",
       output: ({ context }) => context.outputs,
       entry: [
         assign({

@@ -59,7 +59,10 @@ export const socketWatcher = fromObservable(
         });
 
         // Handle if there's a new connection added to any of the outputSockets and updateConnections for that key
-        const outputSockets = state.context.outputSockets;
+        const outputSockets = state.context.outputSockets as Record<
+          string,
+          JSONSocket
+        >;
         for (const key in outputSockets) {
           const connections = outputSockets[key]["x-connection"];
           if (connections) {
@@ -83,17 +86,7 @@ export const socketWatcher = fromObservable(
           }
         }
 
-        // This just ensures the switchMap has something to emit, actual value here is not used
-        return state;
-      }),
-      debounceTime(1000),
-      switchMap((state) => {
-        // This is where we would handle any cleanup, if necessary
         const inputSockets = state.context.inputSockets as Record<
-          string,
-          JSONSocket
-        >;
-        const outputSockets = state.context.outputSockets as Record<
           string,
           JSONSocket
         >;
@@ -125,9 +118,10 @@ export const socketWatcher = fromObservable(
           openInputs,
           openOutputs,
         });
-        return of(state);
+
+        // This just ensures the switchMap has something to emit, actual value here is not used
+        return of(currentOutputs);
       }),
-      // Optionally, act on the changes here or directly within the forEach loop above
     );
   },
 );

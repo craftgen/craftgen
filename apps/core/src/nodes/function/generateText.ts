@@ -298,7 +298,6 @@ const generateTextCall = setup({
           target: "in_progress",
         },
       },
-      output: ({ context }) => context.outputs,
     },
   },
 });

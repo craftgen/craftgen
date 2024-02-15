@@ -17,6 +17,13 @@ export const projectRouter = createTRPCRouter({
       },
     });
   }),
+  bySlug: publicProcedure
+    .input(z.object({ projectSlug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.project.findFirst({
+        where: (p, { eq }) => eq(p.slug, input.projectSlug),
+      });
+    }),
 
   // byId: publicProcedure
   //   .input(z.object({ id: z.number() }))

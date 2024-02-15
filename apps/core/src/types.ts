@@ -14,9 +14,6 @@ import {
   InputNode,
   Log,
   NodeModule,
-  Number,
-  Ollama,
-  OpenAI,
   OutputNode,
   Postgres,
   PromptTemplate,
@@ -28,6 +25,8 @@ import {
   Wordpress,
   NodeJavascriptCodeInterpreter,
   NodeNumber,
+  NodeOpenAI,
+  NodeOllama,
 } from "./nodes";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
@@ -90,8 +89,8 @@ export const nodes = {
   NodeMath: NodeMath,
 
   // Models
-  NodeOllama: Ollama,
-  NodeOpenAI: OpenAI,
+  NodeOllama: NodeOllama,
+  NodeOpenAI: NodeOpenAI,
 
   NodeApiConfiguration: NodeApiConfiguration,
 

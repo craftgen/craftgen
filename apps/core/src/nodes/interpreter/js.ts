@@ -204,6 +204,7 @@ export const executeJavascriptCodeMachine = setup({
     },
     error: {},
   },
+  output: ({ context }) => context.outputs,
 });
 
 export const JavascriptCodeInterpreterMachine = createMachine(

@@ -477,6 +477,7 @@ export const OpenAIAssistantMachine = createMachine({
     },
     error: {},
   },
+  output: ({ context }) => context.outputs,
 });
 
 export type OpenAIAssistantNode = ParsedNode<

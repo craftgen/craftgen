@@ -18,7 +18,6 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const inputSockets = {
   apiConfiguration: generateSocket({
@@ -158,7 +157,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "OpenAI",
+    type: "NodeOpenAI",
     description: dedent`
     Ollama config
     `,
@@ -339,13 +338,6 @@ export class NodeOpenAI extends BaseNode<typeof OpenaiModelMachine> {
 
   constructor(di: DiContainer, data: OpenaiModelNode) {
     super("NodeOpenAI", di, data, OpenaiModelMachine, {});
-    this.extendMachine({
-      actors: {
-        ApiConfiguration: ApiConfigurationMachine.provide({
-          ...(this.baseImplentations as any),
-        }),
-      },
-    });
     this.setup();
   }
 }

@@ -8,8 +8,8 @@ export { NodeComposeObject } from "./object/composeObject";
 
 export { InputNode } from "./io/input.node";
 export { OutputNode } from "./io/output";
-export { NodeOllama as Ollama } from "./ollama/ollama";
-export { NodeOpenAI as OpenAI } from "./openai/openai";
+export { NodeOllama } from "./ollama/ollama";
+export { NodeOpenAI } from "./openai/openai";
 
 export { NodeModule } from "./io/module";
 export { NodeReplicate as Replicate } from "./replicate/replicate";

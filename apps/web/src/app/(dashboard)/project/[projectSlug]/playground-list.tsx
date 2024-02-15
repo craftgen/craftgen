@@ -18,14 +18,15 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { ResultOf } from "@/lib/type";
 
-import { clonePlayground, deleteWorkflow, getWorkflows } from "./actions";
+import { clonePlayground, deleteWorkflow } from "./actions";
 import { useProject } from "./hooks/use-project";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
+import { api } from "@/trpc/react";
+import { RouterOutputs } from "@/trpc/shared";
 
-type Playground = ResultOf<typeof getWorkflows>[number];
+type Playground = RouterOutputs["craft"]["module"]["list"][number];
 
 const columns: ColumnDef<Playground>[] = [
   {
@@ -130,10 +131,9 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
 export const PlaygroundList: React.FC<{ projectId: string }> = ({
   projectId,
 }) => {
-  const { data, isLoading } = useSWR(
-    `/api/project/${projectId}/playgrounds`,
-    () => getWorkflows(projectId),
-  );
+  const { data } = api.craft.module.list.useQuery({
+    projectId: projectId,
+  });
   const [isOpen, setOpen] = useState(false);
   return (
     <div className="py-4">

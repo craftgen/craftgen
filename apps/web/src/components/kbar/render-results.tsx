@@ -1,6 +1,4 @@
-import { KBarResults, useMatches, type ActionImpl } from "kbar";
-
-import { cn } from "@/lib/utils";
+import { KBarResults, useMatches } from "kbar";
 
 import { ResultItem } from "./result-item";
 
