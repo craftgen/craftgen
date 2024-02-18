@@ -1,9 +1,9 @@
 import { merge } from "lodash-es";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine } from "xstate";
+import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import type { DiContainer, Node } from "../../types";
+import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
 import { BaseNode } from "../base";
 import type { ParsedNode } from "../base";
@@ -37,6 +37,21 @@ const outputSockets = {
 const TextNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDpkBPABwEsA7KAYgGUBRAFQH0A1AQQBkBVegbQAMAXUSgS2WGWRlsFUSCKIAjAA4ATPgCsKgOxqALDoBsmgMxLNAlaYA0INIktL8agJxG1pla9VGjrnQBfQLtUDBw8QlJKGjRYZABDVHwEgDNUACcACjUBAQBKajCsXAJicipBESQQcUlpWXkHBCcXd09vX38dO0UEJVN9LV0DYzMLK1Ng0PQSyIBjbABbEgAbMFQ6JjYuXir5OqkZORrmtSNTfFNXG9yBVxUVASVXfV7EcwF8C7NNHU1XGolAITMEQiAKKV4DVihEwAcJEdGqdEABafQqd4IQz4Kx6UxGdQGVxeILg2GlKIVKAI+rHJofZ74HT6EkXHwqPwBLGqDTaPSGEzmSzWaYgCkLZZrDbwmqHBonUDNARY8w6XEjQXjEVgwJAA */
   id: "textNode",
+  entry: enqueueActions(({ enqueue }) => {
+    enqueue("initialize");
+  }),
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
+    },
+    INITIALIZE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("initialize");
+      }),
+    },
+  },
   context: ({ input }) =>
     merge(
       {

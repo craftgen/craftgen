@@ -485,6 +485,8 @@ export const OllamaModelMachine = createMachine(
       }
       return merge<typeof input, any>(
         {
+          name: "Ollama Model",
+          description: "Ollama Model configuration",
           inputs: {
             ...defaultInputs,
           },

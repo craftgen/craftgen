@@ -15,7 +15,7 @@ import { api } from "@/trpc/react";
 import { RouterOutputs } from "@seocraft/api";
 
 export const VersionHistory: React.FC<{
-  workflow: RouterOutputs['craft']['module']['meta'];
+  workflow: RouterOutputs["craft"]["module"]["meta"];
 }> = ({ workflow }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -25,7 +25,6 @@ export const VersionHistory: React.FC<{
   const handleChange = (value: string) => {
     router.push(`/${workflow.projectSlug}/${workflow.slug}/v/${value}`);
   };
-  console.log(data)
   return (
     <Select
       defaultValue={String(workflow.version?.version)}

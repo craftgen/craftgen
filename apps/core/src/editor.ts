@@ -33,7 +33,6 @@ import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
-import type { InputNode } from "./nodes";
 import type {
   BaseMachine,
   BaseNode,
@@ -455,15 +454,20 @@ export class Editor<
           const port = event.params.port;
           const socket = context.inputSockets[port];
           const actorType = event.params.actor.src as string;
-
+          const isChildActorSelected =
+            context.inputSockets[port]["x-actor-ref-id"] ===
+              event.params.actor.id ||
+            isNil(context.inputSockets[port]["x-actor-ref-id"]);
           return {
             ...context.inputSockets,
             [port]: {
               ...socket,
-              "x-actor-type": actorType,
-              "x-actor-ref": event.params.actor,
-              "x-actor-ref-id": event.params.actor.id,
-              "x-actor-ref-type": actorType,
+              ...(isChildActorSelected && {
+                "x-actor-type": actorType,
+                "x-actor-ref": event.params.actor,
+                "x-actor-ref-id": event.params.actor.id,
+                "x-actor-ref-type": actorType,
+              }),
               "x-actor-config": {
                 ...socket["x-actor-config"],
                 [actorType]: {
@@ -544,14 +548,7 @@ export class Editor<
     initialize: enqueueActions(({ enqueue, check, system, self }) => {
       enqueue("assignParent");
       enqueue("spawnInputActors");
-
-      if (
-        check(
-          () =>
-            // (self.src as string).startsWith("Node") &&
-            !system.get(`${self.id}-socketWatcher`),
-        )
-      ) {
+      if (check(() => !system.get(`${self.id}-socketWatcher`))) {
         enqueue.spawnChild("socketWatcher", {
           id: `${self.id}-socketWatcher`,
           input: {
@@ -561,7 +558,7 @@ export class Editor<
         });
       }
     }),
-    spawnInputActors: enqueueActions(({ enqueue, context, system }) => {
+    spawnInputActors: enqueueActions(({ enqueue, context, system, self }) => {
       for (const [key, value] of Object.entries<JSONSocket>(
         context.inputSockets,
       )) {
@@ -569,6 +566,7 @@ export class Editor<
           // skip if no actor type.
           continue;
         }
+        console.log("@@@@", "SPAWNING INPUT ACTORS", value["x-actor-type"]);
 
         if (isNil(value["x-actor-ref"])) {
           // actor not spawned yet.
@@ -577,7 +575,6 @@ export class Editor<
             value["x-actor-ref-id"] &&
             value["x-actor-ref-type"] === value["x-actor-type"]
           ) {
-            console.log("ACTOR REF ID EXISTS and matching");
             // actor id exists but not the actor. link it.
             const actorRef = system.get(value["x-actor-ref-id"]!);
             if (!actorRef) {

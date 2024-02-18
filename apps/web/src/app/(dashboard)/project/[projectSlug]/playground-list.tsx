@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { clonePlayground, deleteWorkflow } from "./actions";
+import { clonePlayground } from "./actions";
 import { useProject } from "./hooks/use-project";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
@@ -77,8 +77,14 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
 }: DataTableRowActionsProps<TData>) {
   const { data: project } = useProject();
   const [editDialog, setEditDialog] = React.useState(false);
+  const utils = api.useUtils();
+  const { mutateAsync: deleteWorkflow } = api.craft.module.delete.useMutation({
+    onSuccess: async () => {
+      await utils.craft.module.list.invalidate();
+    },
+  });
   const handleDelete = async () => {
-    await deleteWorkflow({ id: row.original.id });
+    await deleteWorkflow({ workflowId: row.original.id });
     mutate(`/api/project/${project?.id}/playgrounds`);
   };
   const handleClone = async () => {

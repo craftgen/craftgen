@@ -12,7 +12,6 @@ import {
 } from "modelfusion";
 import type {
   OllamaChatMessage,
-  OllamaChatPrompt,
   OpenAIChatMessage,
   ToolCall,
   ToolCallError,
@@ -154,7 +153,8 @@ const inputSockets = {
     description: dedent`
     The tools agent to use. 
     `,
-    "x-showSocket": true,
+    "x-showSocket": false,
+    "x-isAdvanced": true,
     isMultiple: true,
     default: [],
   }),

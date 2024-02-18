@@ -1,4 +1,4 @@
-import { get, isEqual } from "lodash-es";
+import { get, isEqual, isNil } from "lodash-es";
 import { debounceTime, from, of, switchMap } from "rxjs";
 import { ActorSystem, AnyActor, SnapshotFrom, fromObservable } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
@@ -24,7 +24,12 @@ export const socketWatcher = fromObservable(
       console.log("connections", connections);
       for (const [t, conn] of Object.entries(connections || {})) {
         console.log("Target", t, "Connection", conn);
+
         const target = system.get(t);
+        if (!target) {
+          console.error("Target not found", t);
+          continue;
+        }
         target.send({
           type: "SET_VALUE",
           params: {
@@ -71,6 +76,10 @@ export const socketWatcher = fromObservable(
                 connectionsMap.set(t, new Set());
               }
               const target = system.get(t);
+              if (!target) {
+                console.error("Target not found", t);
+                continue;
+              }
               if (!connectionsMap.get(t)!.has(key)) {
                 connectionsMap.get(t)!.add(key);
                 target.send({
@@ -86,38 +95,40 @@ export const socketWatcher = fromObservable(
           }
         }
 
-        const inputSockets = state.context.inputSockets as Record<
-          string,
-          JSONSocket
-        >;
+        if (isNil(state.context.parent)) {
+          const inputSockets = state.context.inputSockets as Record<
+            string,
+            JSONSocket
+          >;
 
-        const openInputs = Object.entries(inputSockets)
-          .filter(([key, socket]) => {
-            return socket["x-showSocket"];
-          })
-          .filter(([key, socket]) => {
-            const connections = get(socket, ["x-connection"], {});
-            if (Object.values(connections).length === 0) {
-              return true;
-            }
-            return false;
-          });
-        const openOutputs = Object.entries(outputSockets)
-          .filter(([key, socket]) => {
-            return socket["x-showSocket"];
-          })
-          .filter(([key, socket]) => {
-            const connections = get(socket, ["x-connection"], {});
-            if (Object.values(connections).length === 0) {
-              return true;
-            }
-            return false;
-          });
+          const openInputs = Object.entries(inputSockets)
+            .filter(([key, socket]) => {
+              return socket["x-showSocket"];
+            })
+            .filter(([key, socket]) => {
+              const connections = get(socket, ["x-connection"], {});
+              if (Object.values(connections).length === 0) {
+                return true;
+              }
+              return false;
+            });
+          const openOutputs = Object.entries(outputSockets)
+            .filter(([key, socket]) => {
+              return socket["x-showSocket"];
+            })
+            .filter(([key, socket]) => {
+              const connections = get(socket, ["x-connection"], {});
+              if (Object.values(connections).length === 0) {
+                return true;
+              }
+              return false;
+            });
 
-        console.log({
-          openInputs,
-          openOutputs,
-        });
+          console.log("ROOT", input.self.src, {
+            openInputs,
+            openOutputs,
+          });
+        }
 
         // This just ensures the switchMap has something to emit, actual value here is not used
         return of(currentOutputs);

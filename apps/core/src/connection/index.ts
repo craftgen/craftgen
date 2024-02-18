@@ -1,13 +1,9 @@
-import type { ClassicPreset} from "rete";
+import type { ClassicPreset } from "rete";
 import { NodeEditor } from "rete";
-import type { Area2D} from "rete-area-plugin";
+import type { Area2D } from "rete-area-plugin";
 import { AreaPlugin } from "rete-area-plugin";
-import type {
-  ConnectionPlugin,
-  SocketData} from "rete-connection-plugin";
-import {
-  createPseudoconnection
-} from "rete-connection-plugin";
+import type { ConnectionPlugin, SocketData } from "rete-connection-plugin";
+import { createPseudoconnection } from "rete-connection-plugin";
 import { getElementCenter } from "rete-render-utils";
 
 import type { Socket, Sockets } from "../sockets";
@@ -47,7 +43,7 @@ export function useMagneticConnection<S extends Schemes, K = never>(
   let picked: null | SocketWithPayload = null;
   let nearestSocket: null | (SocketData & Position) = null;
 
-  (connection ).addPipe(async (context) => {
+  connection.addPipe(async (context) => {
     if (!context || typeof context !== "object" || !("type" in context))
       return context;
 
@@ -74,11 +70,14 @@ export function useMagneticConnection<S extends Schemes, K = never>(
         isInsideRect(rect, point, margin),
       );
       const nearestNodes = nearestRects.map(({ id }) => id);
+      // console.log(picked?.payload?.socket!);
       const nearestSockets = socketsList
         .filter((item) => nearestNodes.includes(item.nodeId))
         .filter(
           (item) =>
-            item.payload?.socket.isCompatibleWith(picked?.payload?.socket!),
+            item.payload?.socket.isCompatibleWith(
+              picked?.payload?.socket.name!,
+            ),
         );
 
       const socketsPositions = await Promise.all(

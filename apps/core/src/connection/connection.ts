@@ -1,6 +1,5 @@
-import { createId, init } from "@paralleldrive/cuid2";
 import type { CurveFactory } from "d3-shape";
-import { get, omit } from "lodash-es";
+import { get, has, omit } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ConnectionBase, NodeBase } from "rete";
 import { getUID } from "rete";
@@ -12,6 +11,7 @@ import type {
 } from "../controls/socket-generator";
 import type { Editor } from "../editor";
 import type { BaseMachine, BaseNode } from "../nodes/base";
+import { NodeTypes } from "../types";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
@@ -161,7 +161,7 @@ export class Connection<
         socket: {
           "x-connection": {
             ...this.targetDefintion?.["x-connection"],
-            [this.sourceNode.id]: {
+            [this.sourceNode.actor.id]: {
               actorRef: this.sourceNode.actor.ref,
               key: this.sourceOutput,
             },
@@ -178,7 +178,7 @@ export class Connection<
         socket: {
           "x-connection": {
             ...this.sourceDefintion?.["x-connection"],
-            [this.targetNode.id]: {
+            [this.targetNode.actor.id]: {
               actorRef: this.targetNode.actor.ref,
               key: this.targetInput,
             },
@@ -191,58 +191,50 @@ export class Connection<
       this.sync();
     }
 
-    const a = reaction(
-      () => this.sourceValue,
-      () => {
-        console.log(this.identifier, "source value changed", this.sourceValue);
-        if (!this.inSync) {
-          this.sync();
-        }
-      },
-    );
-    const b = reaction(
-      () => this.targetValue,
-      () => {
-        console.log(this.identifier, "target value changed", this.targetValue);
-        if (!this.inSync) {
-          this.sync();
-        }
-      },
-    );
-
     this.destroy = async () => {
-      a();
-      b();
-
-      const sourceConnections = this.sourceConnections;
-
-      this.sourceNode.actor.send({
-        type: "UPDATE_SOCKET",
-        params: {
-          name: this.sourceOutput,
-          side: "output",
-          socket: {
-            "x-connection": {
-              ...sourceConnections,
+      const sourceNodeContext = this.sourceNode.actor.getSnapshot().context;
+      for (const [key, socket] of Object.entries(
+        sourceNodeContext.outputSockets,
+      )) {
+        if (has(socket["x-connection"], this.targetNode.actor.id)) {
+          console.log("CONNECTION TO REMOVE", socket["x-connection"]);
+          this.sourceNode.actor.send({
+            type: "UPDATE_SOCKET",
+            params: {
+              name: key,
+              side: "output",
+              socket: {
+                "x-connection": omit(
+                  socket["x-connection"],
+                  this.targetNode.actor.id,
+                ),
+              },
             },
-          },
-        },
-      });
+          });
+        }
+      }
 
-      const targetConnections = this.targetConnections;
-
-      this.targetNode.actor.send({
-        type: "UPDATE_SOCKET",
-        params: {
-          name: this.targetInput,
-          side: "input",
-          socket: {
-            "x-connection": {
-              ...targetConnections,
+      const targetNodeContext = this.targetNode.actor.getSnapshot().context;
+      for (const [key, socket] of Object.entries(
+        targetNodeContext.inputSockets,
+      )) {
+        if (has(socket["x-connection"], this.sourceNode.actor.id)) {
+          console.log("CONNECTION TO REMOVE", socket["x-connection"]);
+          this.targetNode.actor.send({
+            type: "UPDATE_SOCKET",
+            params: {
+              name: key,
+              side: "input",
+              socket: {
+                "x-connection": omit(
+                  socket["x-connection"],
+                  this.sourceNode.actor.id,
+                ),
+              },
             },
-          },
-        },
-      });
+          });
+        }
+      }
 
       if (this.targetDefintion.type === "tool") {
         const keys = Object.keys(this.targetValue).filter((key) =>
@@ -264,44 +256,28 @@ export class Connection<
       }
 
       if (this.isActorRef) {
-        console.log("@@@@", "RESTORING THE REFERENCE", {
-          type: "UPDATE_SOCKET",
-          params: {
-            name: this.targetInput,
-            side: "input",
-            socket: {
-              "x-actor-ref":
-                this.targetNode.snap.context.inputSockets[this.targetInput][
-                  "x-actor"
-                ],
-            },
-          },
-        });
-
-        const childActor = this.targetDefintion?.["x-actor"];
-
+        console.log("RESTORE");
+        const lastUsedInternalActorType = get(this.targetDefintion, [
+          "x-actor-ref-type",
+        ])!;
+        const lastUserInternalActor = get(this.targetDefintion, [
+          "x-actor-config",
+          lastUsedInternalActorType,
+          "actor",
+        ]);
         this.targetNode.actor.send({
           type: "UPDATE_SOCKET",
           params: {
             name: this.targetInput,
             side: "input",
             socket: {
-              "x-actor-ref": childActor,
+              "x-actor-ref": lastUserInternalActor,
+              "x-actor-ref-id": lastUserInternalActor.id,
+              "x-actor-ref-type": lastUserInternalActor.src as NodeTypes,
+              "x-actor-type": lastUserInternalActor.src as NodeTypes,
             },
           },
         });
-        childActor.send({
-          type: "UPDATE_OUTPUTS",
-        });
-
-        const targetInput = this.targetNode.inputs[this.targetInput];
-        if (targetInput?.control?.id) {
-          await this.targetNode.di.area?.update(
-            "control",
-            targetInput?.control?.id,
-          );
-        }
-        await this.targetNode.di.area?.update("node", this.targetNode.id);
       }
     };
   }
@@ -355,9 +331,6 @@ export class Connection<
         this.targetDefintion["x-actor-ref"] !== this.sourceNode.actor.ref)
     ) {
       this.updateActorReference();
-      this.sourceNode.actor.send({
-        type: "UPDATE_OUTPUTS",
-      });
       this.isActorRef = true;
     } else if (this.targetDefintion.type === "tool") {
       this.targetNode.actor.send({
@@ -371,28 +344,12 @@ export class Connection<
           },
         },
       });
-    } else if (!this.isActorRef) {
-      const canSetValue = this.targetNode.snap.can({
-        type: "SET_VALUE",
-      });
-      if (!canSetValue) {
-        console.error("cannot set value");
-      }
-      this.targetNode.actor.send({
-        type: "SET_VALUE",
-        params: {
-          values: {
-            [this.targetInput]: this.sourceValue,
-          },
-        },
-      });
     } else {
       console.log("DO NOTHING");
     }
   }
 
   private updateActorReference() {
-    console.log("UPDATE ACTOR REFERENCE");
     this.targetNode.actor.send({
       type: "UPDATE_SOCKET",
       params: {
@@ -400,6 +357,9 @@ export class Connection<
         side: "input",
         socket: {
           "x-actor-ref": this.sourceNode.actor.ref,
+          "x-actor-ref-id": this.sourceNode.actor.id,
+          "x-actor-ref-type": this.sourceNode.actor.src as NodeTypes,
+          "x-actor-type": this.sourceNode.actor.src as NodeTypes,
         },
       },
     });
@@ -408,7 +368,6 @@ export class Connection<
       this.sourceNode.ID,
     ]) as ActorConfig;
     if (config) {
-      console.log(config);
       for (const [key, value] of Object.entries(config.connections)) {
         this.sourceNode.actor.send({
           type: "UPDATE_SOCKET",
@@ -418,7 +377,7 @@ export class Connection<
             socket: {
               "x-connection": {
                 ...this.sourceDefintion?.["x-connection"],
-                [this.targetNode.id]: {
+                [this.targetNode.actor.id]: {
                   actorRef: this.targetNode.actor.ref,
                   key: value,
                 },

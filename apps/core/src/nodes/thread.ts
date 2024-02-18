@@ -2,12 +2,11 @@ import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
 import type { ChatMessage } from "modelfusion";
 import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
-import type { SetOptional } from "type-fest";
 import type { PromiseActorLogic } from "xstate";
-import { assign, createMachine, enqueueActions, log } from "xstate";
+import { assign, createMachine, enqueueActions } from "xstate";
+import dedent from "ts-dedent";
 
 import { generateSocket } from "../controls/socket-generator";
-import type { DiContainer } from "../types";
 import type {
   BaseContextType,
   BaseInputType,
@@ -16,6 +15,8 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode } from "./base";
+import { DiContainer } from "../types";
+import { SetOptional } from "type-fest";
 
 export enum ThreadActions {
   addMessage = "addMessage",
@@ -55,7 +56,7 @@ const outputSockets = {
   }),
   thread: generateSocket({
     name: "Thread",
-    type: "Thread",
+    type: "NodeThread",
     "x-controller": "thread",
     isMultiple: true,
     "x-key": "thread",
@@ -302,18 +303,20 @@ export const ThreadMachine = createMachine(
   },
 );
 
-export type ThreadNode = ParsedNode<"Thread", typeof ThreadMachine>;
+export type NodeThreadData = ParsedNode<"NodeThread", typeof ThreadMachine>;
 
 export class NodeThread extends BaseNode<typeof ThreadMachine> {
   static nodeType = "Thread";
   static label = "Thread";
-  static description: "Message Thread";
+  static description = dedent`
+  Used for keeping the messages.
+  `;
   static icon = "mails";
 
-  static parse(params: SetOptional<ThreadNode, "type">): ThreadNode {
+  static parse(params: SetOptional<NodeThreadData, "type">): NodeThreadData {
     return {
       ...params,
-      type: "Thread",
+      type: "NodeThread",
     };
   }
 
@@ -321,7 +324,7 @@ export class NodeThread extends BaseNode<typeof ThreadMachine> {
     NodeThread: ThreadMachine,
   };
 
-  constructor(di: DiContainer, data: ThreadNode) {
+  constructor(di: DiContainer, data: NodeThreadData) {
     super("NodeThread", di, data, ThreadMachine, {});
     this.setup();
   }

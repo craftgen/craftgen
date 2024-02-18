@@ -4,6 +4,7 @@ import { ChevronRightIcon, GithubIcon } from "lucide-react";
 
 import { ModeToggle } from "@/components/theme-toggle";
 import { Timeline } from "./components/timeline";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -88,17 +89,17 @@ export default function Home() {
               >
                 Get started
               </a>
-              <a
-                href="#"
+              <Link
+                href="/login"
                 className="text-foreground text-sm font-semibold leading-6"
-                onClick={() => {
-                  alert(
-                    "Hey there, almost there. We are working hard to get this ready. Star us on GitHub, and be instantly notified for new releases! ",
-                  );
-                }}
+                // onClick={() => {
+                //   alert(
+                //     "Hey there, almost there. We are working hard to get this ready. Star us on GitHub, and be instantly notified for new releases! ",
+                //   );
+                // }}
               >
                 Live demo <span aria-hidden="true">→</span>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">

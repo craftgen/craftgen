@@ -432,7 +432,16 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = observer(
           <TabsList>
             <TabsTrigger value="controls">Controls</TabsTrigger>
             <TabsTrigger value="outputs">Outputs</TabsTrigger>
+            <TabsTrigger value="debug">Debug</TabsTrigger>
           </TabsList>
+          <TabsContent value="debug" className="h-full">
+            <div className="flex h-full flex-col gap-4 overflow-hidden ">
+              <ScrollArea className="w-full">
+                <JSONView src={state} />
+              </ScrollArea>
+            </div>
+          </TabsContent>
+
           <TabsContent value="controls" className="h-full ">
             <div className="flex h-full flex-col gap-4 overflow-hidden ">
               <ScrollArea className="w-full">

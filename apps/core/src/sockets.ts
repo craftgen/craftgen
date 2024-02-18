@@ -190,7 +190,6 @@ export const useSocketConfig = (name: SocketNameType) => {
 export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
   const socket = new Socket(schema.type);
   socket.combineWith(socket.name); // comine with itself
-  socket.combineWith("any"); // combine with any
 
   if (schema["x-compatible"]) {
     // combine with compatible

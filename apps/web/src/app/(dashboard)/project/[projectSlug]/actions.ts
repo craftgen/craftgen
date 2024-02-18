@@ -56,8 +56,6 @@ export const deleteProject = async (params: { id: string }) => {
   });
 };
 
-
-
 export const checkSlugAvailable = async (params: {
   slug: string;
   projectId: string;
@@ -118,10 +116,6 @@ export const createPlayground = action(
     return newPlayground;
   },
 );
-
-export const deleteWorkflow = async ({ id }: { id: string }) => {
-  return await db.delete(workflow).where(eq(workflow.id, id)).returning();
-};
 
 export const clonePlayground = async ({
   playgroundId,
@@ -217,73 +211,6 @@ export const clonePlayground = async ({
   //       })
   //       .where(eq(playground.id, clonePlayground.id));
   //   });
-};
-
-export const getWorkflows = async (projectId: string) => {
-  const supabase = createServerActionClient({ cookies });
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return await db.transaction(async (tx) => {
-    let canAccess = false;
-    if (user) {
-      // check if user member of project
-      const member = await db.query.projectMembers.findFirst({
-        where: (projectMember, { eq, and }) =>
-          and(
-            eq(projectMember.projectId, projectId),
-            eq(projectMember.userId, user?.id),
-          ),
-      });
-      if (member) {
-        canAccess = true;
-      }
-    }
-    let workflows = [];
-    if (canAccess) {
-      workflows = await db.query.workflow.findMany({
-        where: (workflow, { eq, and }) =>
-          and(eq(workflow.projectId, projectId)),
-        with: {
-          versions: {
-            orderBy: (workflowVersion, { desc }) => [
-              desc(workflowVersion.version),
-            ],
-            limit: 1,
-          },
-          project: {
-            columns: {
-              slug: true,
-            },
-          },
-        },
-      });
-    } else {
-      workflows = await db.query.workflow.findMany({
-        where: (workflow, { eq, and }) =>
-          and(eq(workflow.projectId, projectId), eq(workflow.public, true)),
-        with: {
-          versions: {
-            orderBy: (workflowVersion, { desc }) => [
-              desc(workflowVersion.version),
-            ],
-            limit: 1,
-          },
-          project: {
-            columns: {
-              slug: true,
-            },
-          },
-        },
-      });
-    }
-
-    return workflows.map((w) => ({
-      ...w,
-      version: w.versions[0]!,
-    }));
-  });
 };
 
 export const getUser = async () => {

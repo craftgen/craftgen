@@ -65,11 +65,11 @@ const inputSockets = {
 };
 
 const outputSockets = {
-  ApiConfiguration: generateSocket({
-    "x-key": "ApiConfiguration",
+  NodeApiConfiguration: generateSocket({
+    "x-key": "NodeApiConfiguration",
     name: "api" as const,
     title: "Api Configuration",
-    type: "ApiConfiguration" as const,
+    type: "NodeApiConfiguration" as const,
     description: dedent`
     Api configuration
     `,

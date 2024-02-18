@@ -11,6 +11,27 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const craftModuleRouter = createTRPCRouter({
+  delete: protectedProcedure
+    .input(
+      z.object({
+        workflowId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You need to be logged in to delete a workflow.",
+        });
+      }
+      // TODO check ownership
+
+      return await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(schema.workflow)
+          .where(and(eq(schema.workflow.id, input.workflowId)));
+      });
+    }),
   list: publicProcedure
     .input(
       z.object({
