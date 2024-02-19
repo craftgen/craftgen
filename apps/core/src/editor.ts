@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, debounce, get, groupBy, isNil, merge } from "lodash-es";
+import { cloneDeep, debounce, get, isNil, merge } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -63,8 +63,12 @@ import {
   debounceTime,
   filter,
   of,
+  groupBy,
+  mergeMap,
+  scan,
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
+import { RouterInputs } from "@seocraft/api";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -1777,10 +1781,23 @@ export class Editor<
   }
 
   private handleAreaEvents() {
-    const updateMeta = debounce(
-      this.api.trpc.craft.node.updateMetadata.mutate,
-      500,
-    );
+    const metaEvents = new Subject<
+      RouterInputs["craft"]["node"]["updateMetadata"]
+    >();
+    metaEvents
+      .pipe(
+        groupBy((event) => event.id),
+        mergeMap((group) =>
+          group.pipe(
+            scan((acc, curr) => ({ ...acc, ...curr })),
+            debounceTime(1000),
+          ),
+        ),
+      )
+      .subscribe(async (event) => {
+        await this.api.trpc.craft.node.updateMetadata.mutate(event);
+      });
+
     const positionSubject = new BehaviorSubject<Position>({ x: 0, y: 0 });
     positionSubject.pipe(debounceTime(100)).subscribe((position) => {
       this.setCursorPosition(position);
@@ -1817,7 +1834,7 @@ export class Editor<
           const node = this.editor.getNode(data.id);
           if (node.size !== size) {
             node.setSize(size);
-            updateMeta({ id: data.id, size });
+            metaEvents.next({ id: data.id, size });
           }
         })
         .with({ type: "nodetranslated" }, ({ data }) => {
@@ -1825,7 +1842,7 @@ export class Editor<
             data.position.x !== data.previous.y ||
             data.position.y !== data.previous.y
           ) {
-            updateMeta(data);
+            metaEvents.next({ id: data.id, position: data.position });
           }
         });
       return context;
