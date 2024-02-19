@@ -13,8 +13,11 @@ import {
   getSocketByJsonSchemaType,
 } from "@seocraft/core/src/sockets";
 
-import { ControlWrapper } from "@/app/(playground)/[projectSlug]/[workflowSlug]/v/[version]/playground";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+const ControlWrapper = dynamic(() =>
+  import("@/core/ui/control-wrapper").then((mod) => mod.ControlWrapper),
+);
 
 export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   const state = useSelector(props.data.actor, (state) => state);
