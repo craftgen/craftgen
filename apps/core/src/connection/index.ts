@@ -46,7 +46,6 @@ export function useMagneticConnection<S extends Schemes, K = never>(
   connection.addPipe(async (context) => {
     if (!context || typeof context !== "object" || !("type" in context))
       return context;
-
     if (context.type === "connectionpick") {
       picked = context.data.socket;
     } else if (context.type === "connectiondrop") {

@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, debounce, get, isNil, merge } from "lodash-es";
+import { cloneDeep, debounce, get, groupBy, isNil, merge } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -54,7 +54,16 @@ import {
   JSONSocket,
 } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
-import { Subject, bufferTime, catchError, concatMap, filter, of } from "rxjs";
+import {
+  BehaviorSubject,
+  Subject,
+  bufferTime,
+  catchError,
+  concatMap,
+  debounceTime,
+  filter,
+  of,
+} from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
@@ -1772,18 +1781,23 @@ export class Editor<
       this.api.trpc.craft.node.updateMetadata.mutate,
       500,
     );
-    const positionUpdate = debounce((position: Position) => {
+    const positionSubject = new BehaviorSubject<Position>({ x: 0, y: 0 });
+    positionSubject.pipe(debounceTime(100)).subscribe((position) => {
       this.setCursorPosition(position);
-    }, 10);
+    });
+    const selectedNodeSubject = new BehaviorSubject<NodeId | null>(null);
+
+    selectedNodeSubject.pipe(debounceTime(100)).subscribe((nodeId) => {
+      this.setSelectedNodeId(nodeId);
+    });
+
     this.area?.addPipe((context) => {
       match(context)
         .with({ type: "pointermove" }, ({ data: { position } }) => {
-          positionUpdate(position);
+          positionSubject.next(position);
         })
         .with({ type: "nodepicked" }, ({ data }) => {
-          requestAnimationFrame(() => {
-            this.setSelectedNodeId(data.id);
-          });
+          selectedNodeSubject.next(data.id);
         })
         .with({ type: "pointerdown" }, ({ data }) => {
           if (
@@ -1792,10 +1806,7 @@ export class Editor<
             ) &&
             this.selectedNodeId
           ) {
-            requestAnimationFrame(() => {
-              this.setSelectedNodeId(null);
-            });
-            return context;
+            selectedNodeSubject.next(null);
           }
         })
         .with({ type: "noderesized" }, ({ data }) => {
@@ -1816,15 +1827,8 @@ export class Editor<
           ) {
             updateMeta(data);
           }
-        })
-        .otherwise(() => {
-          // console.log(context.type, { context });
         });
       return context;
     });
   }
-}
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
