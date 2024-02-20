@@ -72,6 +72,7 @@ import { start } from "@seocraft/core/src/worker/main";
 import { isNil } from "lodash-es";
 import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
 import { JSONSchema } from "openai/lib/jsonschema";
+import { ControlContainer } from "../control-container";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -124,14 +125,16 @@ const secret = ViewPlugin.fromClass(
 );
 
 export function CustomInput(props: { data: InputControl }) {
+  console.log("CustomInput", props.data);
   const isCode = (props.data.definition as any).format === "expression";
   const value = useSelector(props.data?.actor, props.data.selector);
+  // const [value, setValue] = useState(initialValue);
   const { systemTheme } = useTheme();
 
   // XXX: Normally we would use the top level worker for this,
   // but it is hidden somewhere in the core and we can't access it.
-  const [worker, setWorker] = useState<WorkerMessenger | null>(null);
-  const { current: ternServer } = useRef(createTernServer());
+  // const [worker, setWorker] = useState<WorkerMessenger | null>(null);
+  // const { current: ternServer } = useRef(createTernServer());
 
   const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
   const parseValue = useCallback(parseValueFN, []);
@@ -141,43 +144,44 @@ export function CustomInput(props: { data: InputControl }) {
     _.isEqual(p, n),
   );
 
-  useEffect(() => {
-    if (!isCode) return;
-    const worker_ = start();
-    setWorker(worker_);
-    return () => worker_.destroy();
-  }, []);
+  // useEffect(() => {
+  //   if (!isCode) return;
+  //   const worker_ = start();
+  //   setWorker(worker_);
+  //   return () => worker_.destroy();
+  // }, []);
 
-  useEffect(() => {
-    if (!worker || !isCode) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!worker || !isCode) {
+  //     return;
+  //   }
 
-    const toInstall = _.difference(libraries, librariesOld || []);
-    const toRemove = _.difference(librariesOld || [], libraries);
-    if (toInstall.length === 0 && toRemove.length === 0) return;
+  //   const toInstall = _.difference(libraries, librariesOld || []);
+  //   const toRemove = _.difference(librariesOld || [], libraries);
+  //   if (toInstall.length === 0 && toRemove.length === 0) return;
 
-    (async () => {
-      // First we reset the worker context so we can re-install
-      // libraries to remove to get their defs generated.
-      await worker.postoffice.resetJSContext();
-      for (const lib of toRemove) {
-        if (!lib) continue;
-        const resp = await worker.postoffice.installLibrary(lib);
-        ternServer.deleteDefs(resp.defs["!name"]);
-      }
+  //   (async () => {
+  //     // First we reset the worker context so we can re-install
+  //     // libraries to remove to get their defs generated.
+  //     await worker.postoffice.resetJSContext();
+  //     for (const lib of toRemove) {
+  //       if (!lib) continue;
+  //       const resp = await worker.postoffice.installLibrary(lib);
+  //       ternServer.deleteDefs(resp.defs["!name"]);
+  //     }
 
-      // Now we can clean install the libraries we want.
-      await worker.postoffice.resetJSContext();
-      for (const lib of toInstall) {
-        if (!lib) continue;
-        const resp = await worker.postoffice.installLibrary(lib);
-        ternServer.addDefs(resp.defs);
-      }
-    })();
-  }, [libraries, worker]);
+  //     // Now we can clean install the libraries we want.
+  //     await worker.postoffice.resetJSContext();
+  //     for (const lib of toInstall) {
+  //       if (!lib) continue;
+  //       const resp = await worker.postoffice.installLibrary(lib);
+  //       ternServer.addDefs(resp.defs);
+  //     }
+  //   })();
+  // }, [libraries, worker]);
 
   const handledChange = (val: string) => {
+    // setValue(val);
     props.data.setValue(val);
     const res = parseValue(val);
     match(res)
@@ -222,19 +226,16 @@ export function CustomInput(props: { data: InputControl }) {
       });
   };
 
-  const { data: creds } = api.credentials.list.useQuery({});
-  const [open, setOpen] = useState(false);
+  // const { data: creds } = api.credentials.list.useQuery({});
+  // const [open, setOpen] = useState(false);
 
-  const cdnPackageCompletions = javascriptLanguage.data.of({
-    autocomplete: autocompleteProvider,
-  });
+  // const cdnPackageCompletions = javascriptLanguage.data.of({
+  //   autocomplete: autocompleteProvider,
+  // });
 
   return (
-    <div className="space-y-1">
-      <div className="flex w-full items-center justify-between">
-        <Label htmlFor={props.data.id}>
-          {props.data?.definition?.title || props.data?.definition?.name}
-        </Label>
+    <ControlContainer id={props.data.id} definition={props.data.definition}>
+      {/* <div className="flex w-full items-center justify-between">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="justify-start" size="sm">
@@ -273,7 +274,7 @@ export function CustomInput(props: { data: InputControl }) {
             </Command>
           </PopoverContent>
         </Popover>
-      </div>
+      </div> */}
       <CodeMirror
         id={props.data.id}
         readOnly={props.data.options.readonly}
@@ -282,14 +283,14 @@ export function CustomInput(props: { data: InputControl }) {
         extensions={[
           secret,
           javascript({ jsx: false }),
-          autocompletion({
-            activateOnTyping: true,
-            activateOnTypingDelay: 300,
-            optionClass: (completion) => {
-              return `cm-completion cm-completion-${completion.type}`;
-            },
-          }),
-          cdnPackageCompletions,
+          // autocompletion({
+          //   activateOnTyping: true,
+          //   activateOnTypingDelay: 300,
+          //   optionClass: (completion) => {
+          //     return `cm-completion cm-completion-${completion.type}`;
+          //   },
+          // }),
+          // cdnPackageCompletions,
           keymap.of(vscodeKeymap),
           keymap.of([
             { key: "c-Space", run: startCompletion },
@@ -311,10 +312,7 @@ export function CustomInput(props: { data: InputControl }) {
           handledChange(val);
         }}
       />
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.definition?.description}
-      </p>
-    </div>
+    </ControlContainer>
   );
 
   function createTernServer() {

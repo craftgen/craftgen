@@ -21,7 +21,6 @@ export class InputControl<T extends AnyActor = AnyActor> extends BaseControl {
   }
 
   setValue(value: string) {
-    console.log("Setting value", value);
     if (this.options?.change) this.options.change(value);
   }
 }

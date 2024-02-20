@@ -6,6 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ControlContainer } from "../control-container";
 
 export function CustomTextarea(props: { data: TextareControl }) {
+  console.group("TextArea", props.data.id);
+  console.log("TextArea", props.data.definition);
+  console.groupEnd();
   const value = useSelector(props.data?.actor, props.data.selector);
 
   return (

@@ -30,7 +30,7 @@ const ControlWrapper = dynamic(() =>
   import("@/core/ui/control-wrapper").then((mod) => mod.ControlWrapper),
 );
 
-export const NodeControlComponent = observer((props: { data: NodeControl }) => {
+export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
   const item = useSelector<AnyActor, JSONSocket>(
     props.data.actor,
@@ -120,7 +120,7 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
       </LayoutGroup>
     </div>
   );
-});
+};
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
@@ -209,24 +209,29 @@ const InputItem = ({
   const targetActor = item["x-actor-id"]
     ? actor.system.get(item["x-actor-id"])
     : actor;
-  const socket = getSocketByJsonSchemaType(item);
+  const socket = useMemo(() => getSocketByJsonSchemaType(item), [item]);
   const handleChange = (v: any) => {
     targetActor.send({
       type: "SET_VALUE",
       params: {
         values: {
-          [itemKey]: v,
+          [item["x-key"]]: v,
         },
       },
     });
   };
-  const controller = getControlBySocket({
-    socket,
-    actor: targetActor,
-    selector: (snapshot) => snapshot.context.inputs[itemKey],
-    onChange: handleChange,
-    definition: item,
-  });
+  const controller = useMemo(
+    () =>
+      getControlBySocket({
+        socket,
+        actor: targetActor,
+        selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
+        onChange: handleChange,
+        definition: item,
+      }),
+    [item],
+  );
+
   return (
     <SocketController actor={actor} socket={item}>
       <ControlWrapper control={controller} definition={item} />
