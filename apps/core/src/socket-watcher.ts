@@ -1,5 +1,5 @@
 import { get, isEqual, isNil } from "lodash-es";
-import { debounceTime, from, of, switchMap } from "rxjs";
+import { debounceTime, from, of, switchMap, filter } from "rxjs";
 import { ActorSystem, AnyActor, SnapshotFrom, fromObservable } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 
@@ -40,8 +40,79 @@ export const socketWatcher = fromObservable(
         });
       }
     };
+    if (isNil(input.self)) {
+      console.log("No self", input.self);
+      // throw new Error("No self");
+      return of({});
+    }
 
-    return from(input.self as any).pipe(
+    console.log("SELF", input.self);
+    const nodeEvents = from(input.self as any);
+    console.log("SELF NODE EVENTS", nodeEvents);
+
+    nodeEvents
+      .pipe(
+        debounceTime(1000),
+        filter((state) => {
+          return isNil(state.context.parent);
+        }),
+        switchMap((state) => {
+          const inputSockets = state.context.inputSockets as Record<
+            string,
+            JSONSocket
+          >;
+
+          const openInputs = Object.entries(inputSockets)
+            .filter(([key, socket]) => {
+              return socket["x-showSocket"];
+            })
+            .filter(([key, socket]) => {
+              const connections = get(socket, ["x-connection"], {});
+              if (Object.values(connections).length === 0) {
+                return true;
+              }
+              return false;
+            })
+            .map(([key, socket]) => socket);
+
+          const outputSockets = state.context.outputSockets as Record<
+            string,
+            JSONSocket
+          >;
+          const openOutputs = Object.entries(outputSockets)
+            .filter(([key, socket]) => {
+              return socket["x-showSocket"];
+            })
+            .filter(([key, socket]) => {
+              const connections = get(socket, ["x-connection"], {});
+              if (Object.values(connections).length === 0) {
+                return true;
+              }
+              return false;
+            })
+            .map(([key, socket]) => socket);
+
+          console.log("ROOT", input.self.src, {
+            openInputs,
+            openOutputs,
+          });
+          const module = system.get("editor");
+          module.send({
+            type: "SET_INPUT_OUTPUT",
+            params: {
+              id: input.self.id,
+              inputs: openInputs,
+              outputs: openOutputs,
+            },
+          });
+          return of({});
+        }),
+      )
+      .subscribe((event) => {
+        console.log("INPUT OUTPUT", event);
+      });
+
+    return nodeEvents.pipe(
       // Listen to snapshot events
       debounceTime(100),
       switchMap((state) => {
@@ -93,41 +164,6 @@ export const socketWatcher = fromObservable(
               }
             }
           }
-        }
-
-        if (isNil(state.context.parent)) {
-          const inputSockets = state.context.inputSockets as Record<
-            string,
-            JSONSocket
-          >;
-
-          const openInputs = Object.entries(inputSockets)
-            .filter(([key, socket]) => {
-              return socket["x-showSocket"];
-            })
-            .filter(([key, socket]) => {
-              const connections = get(socket, ["x-connection"], {});
-              if (Object.values(connections).length === 0) {
-                return true;
-              }
-              return false;
-            });
-          const openOutputs = Object.entries(outputSockets)
-            .filter(([key, socket]) => {
-              return socket["x-showSocket"];
-            })
-            .filter(([key, socket]) => {
-              const connections = get(socket, ["x-connection"], {});
-              if (Object.values(connections).length === 0) {
-                return true;
-              }
-              return false;
-            });
-
-          console.log("ROOT", input.self.src, {
-            openInputs,
-            openOutputs,
-          });
         }
 
         // This just ensures the switchMap has something to emit, actual value here is not used

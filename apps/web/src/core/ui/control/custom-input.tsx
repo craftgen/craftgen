@@ -307,6 +307,7 @@ export function CustomInput(props: { data: InputControl }) {
           foldGutter: false,
         }}
         onChange={(val, viewUpdate) => {
+          // console.log("VALUE CHANGED", val);
           handledChange(val);
         }}
       />

@@ -19,7 +19,7 @@ export interface SocketGeneratorControlOptions {
   onChange: (data: SocketGeneratorControlData) => void;
 }
 
-export type JSONSocket = MergeDeep<JSONSchema, z.infer<typeof socketSchema>>;
+export type JSONSocket = z.infer<typeof socketSchema>;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
 export const actorConfigSchema = z.object({
@@ -104,7 +104,7 @@ export const socketSchema = z
 
     // belongs to parent.
     // "x-actor": z.custom<AnyActor>().optional(),
-    // "x-actor-id": z.string().optional(),
+    "x-actor-id": z.string().optional(),
 
     "x-actor-type": z.custom<NodeTypes>().optional(),
 

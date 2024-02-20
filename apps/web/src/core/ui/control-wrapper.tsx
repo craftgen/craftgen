@@ -1,12 +1,12 @@
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
-import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 import { getControl } from "../control";
 
 export const ControlWrapper: React.FC<{
   control: any;
   definition: JSONSocket;
-}> = observer(({ control, definition }) => {
+}> = ({ control, definition }) => {
+  console.log("ControlWrapper", control, definition);
   const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,
@@ -24,4 +24,4 @@ export const ControlWrapper: React.FC<{
       </div>
     </>
   );
-});
+};

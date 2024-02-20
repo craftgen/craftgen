@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, debounce, get, isNil, merge } from "lodash-es";
+import { cloneDeep, debounce, get, isEqual, isNil, merge } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -158,6 +158,14 @@ const EditorMachine = setup({
           params: {
             id: string;
           };
+        }
+      | {
+          type: "SET_INPUT_OUTPUT";
+          params: {
+            id: string;
+            inputs: JSONSocket[];
+            outputs: JSONSocket[];
+          };
         },
   },
 }).createMachine({
@@ -178,6 +186,132 @@ const EditorMachine = setup({
     );
   },
   initial: "idle",
+  on: {
+    SET_INPUT_OUTPUT: {
+      actions: enqueueActions(({ enqueue, event, check }) => {
+        console.log("SET_INPUT_OUTPUT", event);
+        event.params.inputs.forEach((input) => {
+          const key = `${event.params.id}-${input["x-key"]}`;
+          const socket = {
+            ...input,
+            "x-actor-id": event.params.id,
+          };
+          if (check(({ context }) => !context.inputSockets[key])) {
+            enqueue.assign({
+              inputSockets: ({ context }) => {
+                return {
+                  ...context.inputSockets,
+                  [key]: socket,
+                };
+              },
+            });
+          } else if (
+            check(({ context }) => !isEqual(context.inputSockets[key], socket))
+          ) {
+            enqueue.assign({
+              inputSockets: ({ context }) => {
+                return {
+                  ...context.inputSockets,
+                  [key]: socket,
+                };
+              },
+            });
+          }
+        });
+        event.params.outputs.forEach((output) => {
+          const key = `${event.params.id}-${output["x-key"]}`;
+          const socket = {
+            ...output,
+            "x-actor-id": event.params.id,
+          };
+          if (check(({ context }) => !context.outputSockets[key])) {
+            enqueue.assign({
+              outputSockets: ({ context }) => {
+                return {
+                  ...context.outputSockets,
+                  [key]: socket,
+                };
+              },
+            });
+          } else if (
+            check(({ context }) => !isEqual(context.outputSockets[key], socket))
+          ) {
+            enqueue.assign({
+              outputSockets: ({ context }) => {
+                return {
+                  ...context.outputSockets,
+                  [key]: socket,
+                };
+              },
+            });
+          }
+        });
+
+        // enqueue.assign({
+        //   inputSockets: ({ context, event, system }) => {
+        //     const otherInputsSockets = Object.values(context.inputSockets)
+        //       .filter((value) => {
+        //         return value["x-actor-id"] !== event.params.id;
+        //       })
+        //       .reduce(
+        //         (acc, value) => {
+        //           acc[value["x-key"]] = value;
+        //           return acc;
+        //         },
+        //         {} as Record<string, JSONSocket>,
+        //       );
+        //     console.log("OTHER INPUTS", otherInputsSockets);
+        //     const sockets = { ...otherInputsSockets };
+        //     for (const value of event.params.inputs) {
+        //       const key = `${event.params.id}-${value["x-key"]}`;
+        //       if (context.inputSockets[key]) {
+        //         if (isEqual(context.inputSockets[key], value)) {
+        //           sockets[key] = context.inputSockets[key];
+        //           console.log("ALREADY EXISTS", key);
+        //           continue;
+        //         }
+        //       }
+
+        //       sockets[key] = {
+        //         ...value,
+        //         "x-actor-id": event.params.id,
+        //         ...(!value["x-actor-ref"] &&
+        //           {
+        //             // "x-actor-ref": system.get(event.params.id),
+        //             // "x-actor-ref-id": event.params.id,
+        //             // "x-actor-ref-type": system.get(event.params.id).src,
+        //           }),
+        //       };
+        //     }
+
+        //     return sockets;
+        //   },
+        //   outputSockets: ({ context, event }) => {
+        //     const otherOutputSockets = Object.values(context.outputSockets)
+        //       .filter((value) => {
+        //         return value["x-actor-id"] !== event.params.id;
+        //       })
+        //       .reduce(
+        //         (acc, value) => {
+        //           acc[value["x-key"]] = value;
+        //           return acc;
+        //         },
+        //         {} as Record<string, JSONSocket>,
+        //       );
+        //     console.log("OTHER OUTPUTS", otherOutputSockets);
+        //     const sockets = { ...otherOutputSockets };
+        //     for (const value of event.params.outputs) {
+        //       sockets[value["x-key"]] = {
+        //         ...value,
+        //         "x-actor-id": event.params.id,
+        //       };
+        //     }
+        //     return sockets;
+        //   },
+        // });
+      }),
+    },
+  },
   states: {
     error: {},
     idle: {
@@ -841,6 +975,9 @@ export class Editor<
     );
 
     this.machine = EditorMachine.provide({
+      actions: {
+        ...this.baseActions,
+      },
       actors: {
         socketWatcher,
         ...Object.keys(this.machines).reduce(
@@ -878,7 +1015,6 @@ export class Editor<
         ),
       },
     });
-    // this.actor.start();
 
     makeObservable(this, {
       cursorPosition: observable,
@@ -1067,6 +1203,10 @@ export class Editor<
       status: "active",
       children,
       context: {
+        inputSockets: {},
+        outputSockets: {},
+        inputs: {},
+        outputs: {},
         actors: {},
       },
       error: undefined,

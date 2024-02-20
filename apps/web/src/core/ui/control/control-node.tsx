@@ -1,8 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import { debounce, groupBy, omit } from "lodash-es";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { omit } from "lodash-es";
+import {
+  AlertCircle,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  CircleDot,
+} from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
 
@@ -15,12 +22,16 @@ import {
 
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
+import _ from "lodash";
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
+
 const ControlWrapper = dynamic(() =>
   import("@/core/ui/control-wrapper").then((mod) => mod.ControlWrapper),
 );
 
 export const NodeControlComponent = observer((props: { data: NodeControl }) => {
-  const state = useSelector(props.data.actor, (state) => state);
+  console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
   const item = useSelector<AnyActor, JSONSocket>(
     props.data.actor,
     (state) =>
@@ -39,7 +50,7 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
       socket: getSocketByJsonSchemaType(item),
       actor: props.data.actor,
       selector: (snapshot) =>
-        state.context.inputSockets[props.data.definition["x-key"]][
+        snapshot.context.inputSockets[props.data.definition["x-key"]][
           "x-actor-type"
         ],
       onChange: (v) => {
@@ -100,10 +111,9 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
               )}
             </div>
             {selectedActor && (
-              <InputsList
-                actor={selectedActor}
-                showAdvanced={item["x-showControl"]}
-              />
+              <div className="border p-1">
+                <InputsList actor={selectedActor} />
+              </div>
             )}
           </div>
         )}
@@ -112,87 +122,195 @@ export const NodeControlComponent = observer((props: { data: NodeControl }) => {
   );
 });
 
-const InputsList = observer(
-  (props: { actor: AnyActor; showAdvanced: boolean }) => {
-    const selectedActorState = useSelector<AnyActor, any>(
-      props.actor,
-      (state) => state,
-    );
-    const { true: advanceInputs, false: basicInputs } = useMemo(() => {
-      return (
-        groupBy(
-          Object.values<JSONSocket>(selectedActorState.context.inputSockets),
-          (input) => {
-            return input["x-isAdvanced"];
-          },
-        ) || { true: [], false: [] }
-      );
-    }, [selectedActorState.context.inputSockets]);
-    return (
-      <LayoutGroup>
-        {basicInputs?.map((item) => {
-          return (
-            <InputItem
-              key={item["x-key"]}
-              itemKey={item["x-key"]}
-              item={item}
-              actor={props.actor}
-            />
-          );
-        })}
+const advanceInputSelector = (state: any) =>
+  _.chain(state.context.inputSockets)
+    .pickBy((v) => v["x-isAdvanced"])
+    .keys()
+    .value();
+const basicInputSelector = (state: any) =>
+  _.chain(state.context.inputSockets)
+    .pickBy((v) => !v["x-isAdvanced"])
+    .keys()
+    .value();
 
-        {props.showAdvanced && (
-          <motion.div layout>
-            {advanceInputs?.map((item) => {
-              return (
-                <InputItem
-                  key={item["x-key"]}
-                  itemKey={item["x-key"]}
-                  item={item}
-                  actor={props.actor}
-                />
-              );
-            })}
-          </motion.div>
-        )}
-      </LayoutGroup>
-    );
-  },
-);
+const hasAdvancedInputSelector = (state: any) =>
+  _.chain(state.context.inputSockets)
+    .pickBy((v) => v["x-isAdvanced"])
+    .keys()
+    .value().length > 0;
 
-const InputItem = observer(
-  ({
-    itemKey,
-    item,
+export const InputsList = (props: {
+  actor: AnyActor;
+  showAdvanced?: boolean;
+}) => {
+  return (
+    <LayoutGroup>
+      <BasicInputs actor={props.actor} />
+      <AdvanceInputs
+        actor={props.actor}
+        showAdvanced={props.showAdvanced || false}
+      />
+    </LayoutGroup>
+  );
+};
+
+const BasicInputs = (props: { actor: AnyActor }) => {
+  const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
+  console.log("Basic inputSockets", inputSockets);
+  return (
+    <>
+      {inputSockets?.map((item) => {
+        return <InputItem key={item} itemKey={item} actor={props.actor} />;
+      })}
+    </>
+  );
+};
+
+const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
+  const [showAdvanced, setShowAdvanced] = useState(props.showAdvanced);
+  const hasAdvanced = useSelector(props.actor, hasAdvancedInputSelector);
+  const inputSockets = useSelector(props.actor, advanceInputSelector);
+  return (
+    <>
+      {hasAdvanced && (
+        <div
+          className={cn("flex w-full items-center justify-center divide-x-2")}
+        >
+          <Button
+            variant={showAdvanced ? "outline" : "ghost"}
+            onClick={() => setShowAdvanced(!showAdvanced)}
+          >
+            {showAdvanced ? "Hide" : "Show"} Advance Settings
+          </Button>
+        </div>
+      )}
+      {showAdvanced && (
+        <motion.div layout>
+          {inputSockets?.map((item) => {
+            return <InputItem key={item} itemKey={item} actor={props.actor} />;
+          })}
+        </motion.div>
+      )}
+    </>
+  );
+};
+
+const InputItem = ({
+  itemKey,
+  actor,
+}: {
+  itemKey: string;
+  actor: AnyActor;
+}) => {
+  const item = useSelector(
     actor,
-  }: {
-    itemKey: string;
-    item: JSONSocket;
-    actor: AnyActor;
-  }) => {
-    const socket = getSocketByJsonSchemaType(item);
-    const handleChange = (v: any) => {
-      actor.send({
-        type: "SET_VALUE",
-        params: {
-          values: {
-            [itemKey]: v,
-          },
+    (state) => state.context.inputSockets[itemKey],
+  );
+  const targetActor = item["x-actor-id"]
+    ? actor.system.get(item["x-actor-id"])
+    : actor;
+  const socket = getSocketByJsonSchemaType(item);
+  const handleChange = (v: any) => {
+    targetActor.send({
+      type: "SET_VALUE",
+      params: {
+        values: {
+          [itemKey]: v,
         },
-      });
-    };
-    const debouncedChange = debounce(handleChange, 100);
-    const controller = getControlBySocket({
-      socket,
-      actor: actor,
-      selector: (snapshot) => snapshot.context.inputs[itemKey],
-      onChange: debouncedChange,
-      definition: item,
+      },
     });
+  };
+  const controller = getControlBySocket({
+    socket,
+    actor: targetActor,
+    selector: (snapshot) => snapshot.context.inputs[itemKey],
+    onChange: handleChange,
+    definition: item,
+  });
+  return (
+    <SocketController actor={actor} socket={item}>
+      <ControlWrapper control={controller} definition={item} />
+    </SocketController>
+  );
+};
+
+const SocketController = ({
+  actor,
+  socket,
+  children,
+}: {
+  actor: AnyActor;
+  socket: JSONSocket;
+  children: React.ReactNode;
+}) => {
+  const hasConnection = useMemo(() => {
     return (
-      <motion.div className="space-y-1" layout>
-        <ControlWrapper control={controller} definition={item} />
-      </motion.div>
+      socket["x-connection"] && Object.keys(socket["x-connection"]).length > 0
     );
-  },
-);
+  }, [socket]);
+  const handleToggleSocket = (val: boolean) => {
+    actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: socket["x-key"],
+        side: "input",
+        socket: {
+          "x-showSocket": val,
+        },
+      },
+    });
+  };
+  const handleToggleController = (val: boolean) => {
+    actor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        name: socket["x-key"],
+        side: "input",
+        socket: {
+          "x-showControl": val,
+        },
+      },
+    });
+  };
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0 }}
+      className={cn(
+        "mb-2 flex flex-row space-x-1 p-2",
+        hasConnection && "bg-muted/30 rounded border",
+      )}
+    >
+      <div className="flex flex-col space-y-1">
+        <Toggle
+          onPressedChange={handleToggleSocket}
+          pressed={socket["x-showSocket"]}
+          size={"sm"}
+          disabled={hasConnection}
+        >
+          {socket["x-showSocket"] ? (
+            <CircleDot className="h-4 w-4" />
+          ) : (
+            <Circle className="h-4 w-4" />
+          )}
+        </Toggle>
+        {socket["x-actor-ref"] && (
+          <Toggle
+            variant={"default"}
+            size={"sm"}
+            onPressedChange={handleToggleController}
+          >
+            {socket["x-showController"] ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Toggle>
+        )}
+      </div>
+      {children}
+    </motion.div>
+  );
+};

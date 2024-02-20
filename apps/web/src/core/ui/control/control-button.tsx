@@ -5,10 +5,11 @@ import type { ButtonControl } from "@seocraft/core/src/controls/button";
 import { Button } from "@/components/ui/button";
 
 export function CustomButton(props: { data: ButtonControl }) {
-  const state = useSelector(props.data.actor, (snap) => snap);
-  const can = state.can({
-    type: props.data.definition["x-event"],
-  });
+  const can = useSelector(props.data.actor, (snap) =>
+    snap.can({
+      type: props.data.definition["x-event"],
+    }),
+  );
 
   return (
     <Button
