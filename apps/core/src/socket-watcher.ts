@@ -1,5 +1,12 @@
 import { get, isEqual, isNil } from "lodash-es";
-import { debounceTime, from, of, switchMap, filter } from "rxjs";
+import {
+  debounceTime,
+  from,
+  of,
+  switchMap,
+  filter,
+  distinctUntilChanged,
+} from "rxjs";
 import { ActorSystem, AnyActor, SnapshotFrom, fromObservable } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 
@@ -21,7 +28,6 @@ export const socketWatcher = fromObservable(
       if (!connections) {
         return;
       }
-      console.log("connections", connections);
       for (const [t, conn] of Object.entries(connections || {})) {
         console.log("Target", t, "Connection", conn);
 
@@ -46,16 +52,14 @@ export const socketWatcher = fromObservable(
       return of({});
     }
 
-    console.log("SELF", input.self);
     const nodeEvents = from(input.self as any);
-    console.log("SELF NODE EVENTS", nodeEvents);
 
     nodeEvents
       .pipe(
-        debounceTime(1000),
         filter((state) => {
           return isNil(state.context.parent);
         }),
+        debounceTime(1000),
         switchMap((state) => {
           const inputSockets = state.context.inputSockets as Record<
             string,
@@ -92,24 +96,20 @@ export const socketWatcher = fromObservable(
             })
             .map(([key, socket]) => socket);
 
-          console.log("ROOT", input.self.src, {
-            openInputs,
-            openOutputs,
-          });
-          const module = system.get("editor");
-          module.send({
-            type: "SET_INPUT_OUTPUT",
-            params: {
-              id: input.self.id,
-              inputs: openInputs,
-              outputs: openOutputs,
-            },
-          });
-          return of({});
+          return of({ openInputs, openOutputs });
         }),
+        distinctUntilChanged(isEqual),
       )
       .subscribe((event) => {
-        console.log("INPUT OUTPUT", event);
+        const module = system.get("editor");
+        module.send({
+          type: "SET_INPUT_OUTPUT",
+          params: {
+            id: input.self.id,
+            inputs: event.openInputs,
+            outputs: event.openOutputs,
+          },
+        });
       });
 
     return nodeEvents.pipe(

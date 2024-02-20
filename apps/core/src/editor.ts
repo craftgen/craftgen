@@ -189,7 +189,6 @@ const EditorMachine = setup({
   on: {
     SET_INPUT_OUTPUT: {
       actions: enqueueActions(({ enqueue, event, check }) => {
-        console.log("SET_INPUT_OUTPUT", event);
         event.params.inputs.forEach((input) => {
           const key = `${event.params.id}-${input["x-key"]}`;
           const socket = {

@@ -105,7 +105,6 @@ export const Node = observer((props: Props<Schemes>) => {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, di } = props.data;
-  const { projectSlug, layout } = useStore(props.store);
   const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
@@ -143,6 +142,7 @@ export const Node = observer((props: Props<Schemes>) => {
   };
 
   const pinNode = React.useCallback(async () => {
+    const layout = props.store.getState().layout;
     const tabset = layout.getActiveTabset()?.getId()!;
     layout.doAction(
       FlexLayout.Actions.addNode(
@@ -203,33 +203,6 @@ export const Node = observer((props: Props<Schemes>) => {
 
   const state = useSelector(props.data.actor, (state) => state);
 
-  const { toast } = useToast();
-  React.useEffect(() => {
-    const subs = props.data.actor.subscribe((state) => {
-      if (state.matches("error")) {
-        if (state.context.error.name === "MISSING_API_KEY_ERROR") {
-          toast({
-            title: "Error",
-            description: state.context.error.message,
-            action: (
-              <Link href={`/project/${projectSlug}/settings/tokens`}>
-                <ToastAction altText={"go to settings"}>
-                  {/* <Button size="sm">Go to Settings</Button> */}
-                  Go to Settings
-                </ToastAction>
-              </Link>
-            ),
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: state.context.error.message,
-          });
-        }
-      }
-    });
-    return subs.unsubscribe;
-  }, []);
   const NodeIcon = React.useMemo(() => {
     const iconName = props.data.di.nodeMeta.get(props.data.ID)?.icon;
     if (!iconName) return Icons.component;

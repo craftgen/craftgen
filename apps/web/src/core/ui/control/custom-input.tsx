@@ -1,12 +1,8 @@
 import "./custom-input.css";
 import _ from "lodash";
 import { usePreviousDistinct } from "react-use";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  javascript,
-  javascriptLanguage,
-  typescriptLanguage,
-} from "@codemirror/lang-javascript";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 
 // @ts-ignore
 import jsdoc from "json-schema-to-jsdoc";
@@ -73,6 +69,14 @@ import { isNil } from "lodash-es";
 import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
 import { JSONSchema } from "openai/lib/jsonschema";
 import { ControlContainer } from "../control-container";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 class SecretWidget extends WidgetType {
   constructor(readonly value: string = "") {
@@ -126,116 +130,74 @@ const secret = ViewPlugin.fromClass(
 
 export function CustomInput(props: { data: InputControl }) {
   console.log("CustomInput", props.data);
-  const isCode = (props.data.definition as any).format === "expression";
-  const value = useSelector(props.data?.actor, props.data.selector);
-  // const [value, setValue] = useState(initialValue);
-  const { systemTheme } = useTheme();
-
-  // XXX: Normally we would use the top level worker for this,
-  // but it is hidden somewhere in the core and we can't access it.
-  // const [worker, setWorker] = useState<WorkerMessenger | null>(null);
-  // const { current: ternServer } = useRef(createTernServer());
-
-  const getFile = useCallback((ts: any, name: any, c: any) => value, [value]);
-  const parseValue = useCallback(parseValueFN, []);
-
-  const libraries: string[] = props.data.definition["x-libraries"] || [];
-  const librariesOld = usePreviousDistinct(libraries, (p, n) =>
-    _.isEqual(p, n),
+  // const value = useSelector(props.data?.actor, props.data.selector);
+  const [format, setFormat] = useState(props.data.definition?.format || "text");
+  const [value, setValue] = useState(
+    props.data.selector(props.data.actor.getSnapshot()),
   );
 
-  // useEffect(() => {
-  //   if (!isCode) return;
-  //   const worker_ = start();
-  //   setWorker(worker_);
-  //   return () => worker_.destroy();
-  // }, []);
+  const parseValue = useCallback(parseValueFN, []);
 
-  // useEffect(() => {
-  //   if (!worker || !isCode) {
-  //     return;
-  //   }
+  const libraries: string[] = useMemo(
+    () => props.data.definition["x-libraries"] || [],
+    [],
+  );
 
-  //   const toInstall = _.difference(libraries, librariesOld || []);
-  //   const toRemove = _.difference(librariesOld || [], libraries);
-  //   if (toInstall.length === 0 && toRemove.length === 0) return;
-
-  //   (async () => {
-  //     // First we reset the worker context so we can re-install
-  //     // libraries to remove to get their defs generated.
-  //     await worker.postoffice.resetJSContext();
-  //     for (const lib of toRemove) {
-  //       if (!lib) continue;
-  //       const resp = await worker.postoffice.installLibrary(lib);
-  //       ternServer.deleteDefs(resp.defs["!name"]);
-  //     }
-
-  //     // Now we can clean install the libraries we want.
-  //     await worker.postoffice.resetJSContext();
-  //     for (const lib of toInstall) {
-  //       if (!lib) continue;
-  //       const resp = await worker.postoffice.installLibrary(lib);
-  //       ternServer.addDefs(resp.defs);
-  //     }
-  //   })();
-  // }, [libraries, worker]);
-
-  const handledChange = (val: string) => {
-    // setValue(val);
+  const handledChange = useCallback((val: string) => {
+    setValue(val);
     props.data.setValue(val);
-    const res = parseValue(val);
-    match(res)
-      .with({ expression: P.string }, () => {
-        if (props.data.definition?.format === "expression") return;
-        props.data.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: props.data.definition["x-key"],
-            side: "input",
-            socket: {
-              format: "expression",
-            },
-          },
-        });
-      })
-      .with({ secretKey: P.string }, () => {
-        if (props.data.definition?.format === "secret") return;
-        props.data.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: props.data.definition["x-key"],
-            side: "input",
-            socket: {
-              format: "secret",
-            },
-          },
-        });
-      })
-      .otherwise(() => {
-        if (isNil(props.data.definition?.format)) return;
-        props.data.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: props.data.definition["x-key"],
-            side: "input",
-            socket: {
-              format: undefined,
-            },
-          },
-        });
-      });
-  };
+    // const res = parseValue(val);
+    // match(res)
+    //   .with({ expression: P.string }, () => {
+    //     if (props.data.definition?.format === "expression") return;
+    //     console.log("SEINGINexpression".repeat(20));
+    //     props.data.actor.send({
+    //       type: "UPDATE_SOCKET",
+    //       params: {
+    //         name: props.data.definition["x-key"],
+    //         side: "input",
+    //         socket: {
+    //           format: "expression",
+    //         },
+    //       },
+    //     });
+    //   })
+    //   .with({ secretKey: P.string }, () => {
+    //     if (props.data.definition?.format === "secret") return;
+    //     console.log("SEINGINexpression".repeat(20));
+    //     props.data.actor.send({
+    //       type: "UPDATE_SOCKET",
+    //       params: {
+    //         name: props.data.definition["x-key"],
+    //         side: "input",
+    //         socket: {
+    //           format: "secret",
+    //         },
+    //       },
+    //     });
+    //   })
+    //   .otherwise(() => {
+    //     if (isNil(props.data.definition?.format)) return;
+    //     console.log("SEINGINexpression".repeat(20));
+    //     props.data.actor.send({
+    //       type: "UPDATE_SOCKET",
+    //       params: {
+    //         name: props.data.definition["x-key"],
+    //         side: "input",
+    //         socket: {
+    //           format: undefined,
+    //         },
+    //       },
+    //     });
+    //   });
+  }, []);
 
-  // const { data: creds } = api.credentials.list.useQuery({});
-  // const [open, setOpen] = useState(false);
-
-  // const cdnPackageCompletions = javascriptLanguage.data.of({
-  //   autocomplete: autocompleteProvider,
-  // });
+  const { data: creds } = api.credentials.list.useQuery({});
+  const [open, setOpen] = useState(false);
 
   return (
     <ControlContainer id={props.data.id} definition={props.data.definition}>
-      {/* <div className="flex w-full items-center justify-between">
+      <div className="flex w-full items-center justify-between">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="justify-start" size="sm">
@@ -274,46 +236,131 @@ export function CustomInput(props: { data: InputControl }) {
             </Command>
           </PopoverContent>
         </Popover>
-      </div> */}
-      <CodeMirror
-        id={props.data.id}
-        readOnly={props.data.options.readonly}
-        value={String(value)}
-        theme={systemTheme === "dark" ? githubDark : githubLight}
-        extensions={[
-          secret,
-          javascript({ jsx: false }),
-          // autocompletion({
-          //   activateOnTyping: true,
-          //   activateOnTypingDelay: 300,
-          //   optionClass: (completion) => {
-          //     return `cm-completion cm-completion-${completion.type}`;
-          //   },
-          // }),
-          // cdnPackageCompletions,
-          keymap.of(vscodeKeymap),
-          keymap.of([
-            { key: "c-Space", run: startCompletion },
-            { key: "Mod-Space", run: startCompletion },
-            indentWithTab,
-          ]),
-          indentationMarkers(),
-        ]}
-        className="bg-muted/30 w-full rounded-lg p-2 outline-none"
-        width="100%"
-        height="100%"
-        basicSetup={{
-          lineNumbers: false,
-          autocompletion: true,
-          foldGutter: false,
-        }}
-        onChange={(val, viewUpdate) => {
-          // console.log("VALUE CHANGED", val);
-          handledChange(val);
-        }}
-      />
+        <Select
+          value={props.data.definition.format || "text"}
+          onValueChange={(val) => {
+            props.data.actor.send({
+              type: "UPDATE_SOCKET",
+              params: {
+                name: props.data.definition["x-key"],
+                side: "input",
+                socket: {
+                  format: val === "text" ? undefined : val,
+                },
+              },
+            });
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="text">Text</SelectItem>
+            <SelectItem value="expression">Expression</SelectItem>
+            <SelectItem value="secret">Variable</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {format === "expression" && (
+        <CMInput
+          value={value}
+          onChange={handledChange}
+          libraries={libraries}
+          id={props.data.id}
+          readonly={props.data.options.readonly || false}
+        />
+      )}
+      {format === "text" && (
+        <Input
+          value={value}
+          onChange={(e) => {
+            handledChange(e.target.value);
+          }}
+          disabled={props.data.options.readonly}
+        />
+      )}
     </ControlContainer>
   );
+}
+
+const CMExtensions = [
+  secret,
+  javascript({ jsx: false }),
+  autocompletion({
+    activateOnTyping: true,
+    activateOnTypingDelay: 300,
+    optionClass: (completion) => {
+      return `cm-completion cm-completion-${completion.type}`;
+    },
+  }),
+  keymap.of(vscodeKeymap),
+  keymap.of([
+    { key: "c-Space", run: startCompletion },
+    { key: "Mod-Space", run: startCompletion },
+    indentWithTab,
+  ]),
+  indentationMarkers(),
+];
+
+const CMInput = (props: {
+  value: string;
+  onChange: (val: string) => void;
+  libraries: string[];
+  id: string;
+  readonly: boolean;
+}) => {
+  const { systemTheme } = useTheme();
+  const getFile = useCallback(
+    (ts: any, name: any, c: any) => props.value,
+    [props.value],
+  );
+
+  // XXX: Normally we would use the top level worker for this,
+  // but it is hidden somewhere in the core and we can't access it.
+  const [worker, setWorker] = useState<WorkerMessenger | null>(null);
+  const { current: ternServer } = useRef(createTernServer());
+
+  useEffect(() => {
+    const worker_ = start();
+    setWorker(worker_);
+    return () => worker_.destroy();
+  }, []);
+  const librariesOld = usePreviousDistinct(props.libraries, (p, n) =>
+    _.isEqual(p, n),
+  );
+
+  useEffect(() => {
+    if (!worker) {
+      return;
+    }
+
+    const toInstall = _.difference(props.libraries, librariesOld || []);
+    const toRemove = _.difference(librariesOld || [], props.libraries);
+    if (toInstall.length === 0 && toRemove.length === 0) return;
+
+    (async () => {
+      // First we reset the worker context so we can re-install
+      // libraries to remove to get their defs generated.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toRemove) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.deleteDefs(resp.defs["!name"]);
+      }
+
+      // Now we can clean install the libraries we want.
+      await worker.postoffice.resetJSContext();
+      for (const lib of toInstall) {
+        if (!lib) continue;
+        const resp = await worker.postoffice.installLibrary(lib);
+        ternServer.addDefs(resp.defs);
+      }
+    })();
+  }, [props.libraries, worker]);
+
+  const handledChange = (val: string) => {
+    props.onChange(val);
+  };
 
   function createTernServer() {
     return new tern.Server({
@@ -328,78 +375,31 @@ export function CustomInput(props: { data: InputControl }) {
     });
   }
 
-  async function autocompleteProvider(context: CompletionContext) {
-    let before = context.matchBefore(/\w+/);
-    let completions = await getAutocompletion(
-      context.state.doc.toString(),
-      context.state.selection.main.head,
-    );
+  const extension = useMemo(() => {
+    return [...CMExtensions, cdnPackageCompletions(ternServer)];
+  }, [ternServer]);
 
-    if (!context.explicit && !before) {
-      return null;
-    }
-
-    return {
-      from: before ? before.from : context.pos,
-      options: completions as Completion[],
-      validFor: /^\w*$/,
-    };
-  }
-
-  async function getAutocompletion(code: string, position: number) {
-    const schema = {
-      title: "Inputs",
-      type: "object",
-      properties: {
-        // name: { type: "string", description: "A person's name" },
-        // age: { type: "integer", description: "A person's age" },
-        // school: { type: "number", description: "A person's age" },
-      },
-      required: [],
-    };
-
-    const jsdoc = generateSignatureJSDOC(schema);
-    const query: tern.Query = {
-      types: true,
-      docs: true,
-      urls: true,
-      includeKeywords: true,
-      type: "completions",
-      end: position + jsdoc.length,
-      file: "temp.js",
-    };
-
-    const file: tern.File = {
-      type: "full",
-      name: "temp.js",
-      // TODO: Pass correct inputs and their types.
-      text: jsdoc + code,
-    } as any;
-    console.log(jsdoc + code);
-
-    return new Promise<Completion[]>((resolve, reject) => {
-      ternServer?.request({ query, files: [file] }, (error, res: any) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(
-          res?.completions
-            .map(
-              (item: any) =>
-                ({
-                  label: item.name,
-                  apply: item.name,
-                  // detail: item.type && `${item.type}`,
-                  type: item.isKeyword ? "keyword" : typeToIcon(item.type),
-                  info: item.doc,
-                }) as Completion,
-            )
-            .filter((c: Completion) => !!c.label),
-        );
-      });
-    });
-  }
-}
+  return (
+    <CodeMirror
+      id={props.id}
+      readOnly={props.readonly}
+      value={String(props.value)}
+      theme={systemTheme === "dark" ? githubDark : githubLight}
+      extensions={extension}
+      className="bg-muted/30 w-full rounded-lg p-2 outline-none"
+      width="100%"
+      height="100%"
+      basicSetup={{
+        lineNumbers: false,
+        autocompletion: true,
+        foldGutter: false,
+      }}
+      onChange={(val, viewUpdate) => {
+        handledChange(val);
+      }}
+    />
+  );
+};
 
 // Got from tern.js for CM5
 // Base CM6 Autocomplete library defines simple icons for
@@ -453,3 +453,80 @@ ${typedef}
  * @param {Context} context
  */\n`;
 }
+
+const cdnPackageCompletions = (ternServer: tern.Server) => {
+  async function autocompleteProvider(context: CompletionContext) {
+    let before = context.matchBefore(/\w+/);
+    let completions = await getAutocompletion(
+      context.state.doc.toString(),
+      context.state.selection.main.head,
+    );
+
+    if (!context.explicit && !before) {
+      return null;
+    }
+
+    return {
+      from: before ? before.from : context.pos,
+      options: completions as Completion[],
+      validFor: /^\w*$/,
+    };
+  }
+
+  async function getAutocompletion(code: string, position: number) {
+    const schema = {
+      title: "Inputs",
+      type: "object",
+      properties: {
+        // name: { type: "string", description: "A person's name" },
+        // age: { type: "integer", description: "A person's age" },
+        // school: { type: "number", description: "A person's age" },
+      },
+      required: [],
+    };
+
+    const jsdoc = generateSignatureJSDOC(schema);
+    const query: tern.Query = {
+      types: true,
+      docs: true,
+      urls: true,
+      includeKeywords: true,
+      type: "completions",
+      end: position + jsdoc.length,
+      file: "temp.js",
+    };
+
+    const file: tern.File = {
+      type: "full",
+      name: "temp.js",
+      // TODO: Pass correct inputs and their types.
+      text: jsdoc + code,
+    } as any;
+
+    return new Promise<Completion[]>((resolve, reject) => {
+      ternServer?.request({ query, files: [file] }, (error, res: any) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(
+          res?.completions
+            .map(
+              (item: any) =>
+                ({
+                  label: item.name,
+                  apply: item.name,
+                  // detail: item.type && `${item.type}`,
+                  type: item.isKeyword ? "keyword" : typeToIcon(item.type),
+                  info: item.doc,
+                }) as Completion,
+            )
+            .filter((c: Completion) => !!c.label),
+        );
+      });
+    });
+  }
+  const cdnPackageCompletions = javascriptLanguage.data.of({
+    autocomplete: autocompleteProvider,
+  });
+  return cdnPackageCompletions;
+};
