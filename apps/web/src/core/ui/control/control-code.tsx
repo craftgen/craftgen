@@ -298,7 +298,8 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
       console.log("STATE", inSync, stateValue, editorValue.current);
 
       if (!inSync) {
-        console.log("TODO")
+        // TODO: Update Editor state instead of setValue
+        setValue(stateValue);
         // setState(EditorState.create({ doc: stateValue }));
         // setValue(stateValue);
         // setState(EditorState.create({
