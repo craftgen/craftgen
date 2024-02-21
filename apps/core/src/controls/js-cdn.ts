@@ -1,4 +1,4 @@
-import { AnyActor, SnapshotFrom } from "xstate";
+import { AnyActorRef, SnapshotFrom } from "xstate";
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
 
@@ -7,7 +7,7 @@ export interface JsCdnControlOptions {
 }
 
 export class JsCdnController<
-  T extends AnyActor = AnyActor,
+  T extends AnyActorRef = AnyActorRef,
 > extends BaseControl {
   __type = "js-cdn";
   constructor(

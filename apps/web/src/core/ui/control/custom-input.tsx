@@ -30,7 +30,7 @@ import {
 import { vscodeKeymap } from "@replit/codemirror-vscode-keymap";
 import { indentationMarkers } from "@replit/codemirror-indentation-markers";
 
-import CodeMirror, { WidgetType } from "@uiw/react-codemirror";
+import CodeMirror, { WidgetType, useCodeMirror } from "@uiw/react-codemirror";
 import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 
 import { useSelector } from "@xstate/react";
@@ -130,11 +130,8 @@ const secret = ViewPlugin.fromClass(
 
 export function CustomInput(props: { data: InputControl }) {
   console.log("CustomInput", props.data);
-  // const value = useSelector(props.data?.actor, props.data.selector);
+  const value = useSelector(props.data?.actor, props.data.selector);
   const [format, setFormat] = useState(props.data.definition?.format || "text");
-  const [value, setValue] = useState(
-    props.data.selector(props.data.actor.getSnapshot()),
-  );
 
   const parseValue = useCallback(parseValueFN, []);
 
@@ -144,7 +141,6 @@ export function CustomInput(props: { data: InputControl }) {
   );
 
   const handledChange = useCallback((val: string) => {
-    setValue(val);
     props.data.setValue(val);
     // const res = parseValue(val);
     // match(res)
@@ -375,30 +371,35 @@ const CMInput = (props: {
     });
   }
 
-  const extension = useMemo(() => {
+  const extensions = useMemo(() => {
     return [...CMExtensions, cdnPackageCompletions(ternServer)];
   }, [ternServer]);
 
-  return (
-    <CodeMirror
-      id={props.id}
-      readOnly={props.readonly}
-      value={String(props.value)}
-      theme={systemTheme === "dark" ? githubDark : githubLight}
-      extensions={extension}
-      className="bg-muted/30 w-full rounded-lg p-2 outline-none"
-      width="100%"
-      height="100%"
-      basicSetup={{
-        lineNumbers: false,
-        autocompletion: true,
-        foldGutter: false,
-      }}
-      onChange={(val, viewUpdate) => {
-        handledChange(val);
-      }}
-    />
-  );
+  const editor = useRef<HTMLDivElement | null>(null);
+  const { setContainer } = useCodeMirror({
+    container: editor.current,
+    theme: systemTheme === "dark" ? githubDark : githubLight,
+    extensions,
+    className: "bg-muted/30 w-full rounded-lg p-2 outline-none",
+    width: "100%",
+    height: "100%",
+    basicSetup: {
+      lineNumbers: false,
+      autocompletion: true,
+      foldGutter: false,
+    },
+    onChange: (val, viewUpdate) => {
+      handledChange(val);
+    },
+    value: props.value,
+  });
+  useEffect(() => {
+    if (editor.current) {
+      setContainer(editor.current);
+    }
+  }, [editor.current]);
+
+  return <div ref={editor} />;
 };
 
 // Got from tern.js for CM5

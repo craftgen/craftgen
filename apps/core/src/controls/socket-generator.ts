@@ -1,6 +1,6 @@
 import type { JSONSchema } from "openai/lib/jsonschema.mjs";
 import type { MergeDeep } from "type-fest";
-import type { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 import * as z from "zod";
 
 import type { JSONSocketPrimitiveTypeKeys, SocketNameType } from "../sockets";
@@ -167,7 +167,7 @@ export const formOnSubmitSchema = z.object({
 });
 
 export class SocketGeneratorControl<
-  T extends AnyActor = AnyActor,
+  T extends AnyActorRef = AnyActorRef,
 > extends BaseControl {
   __type = "socket-generator";
   name: string;

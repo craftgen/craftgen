@@ -1,4 +1,4 @@
-import type { AnyActor, AnyStateMachine, SnapshotFrom } from "xstate";
+import type { AnyActorRef, AnyStateMachine, SnapshotFrom } from "xstate";
 
 import type { ParsedNode } from "../nodes/base";
 import { BaseControl } from "./base";
@@ -6,7 +6,9 @@ import type { JSONSocket } from "./socket-generator";
 
 interface NodeControlOptions {}
 
-export class NodeControl<T extends AnyActor = AnyActor> extends BaseControl {
+export class NodeControl<
+  T extends AnyActorRef = AnyActorRef,
+> extends BaseControl {
   __type = "node";
 
   constructor(

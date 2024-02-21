@@ -1,4 +1,4 @@
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
@@ -10,7 +10,9 @@ export interface SliderControlOptions {
   change: (value: number) => void;
 }
 
-export class SliderControl<T extends AnyActor = AnyActor> extends BaseControl {
+export class SliderControl<
+  T extends AnyActorRef = AnyActorRef,
+> extends BaseControl {
   __type = "slider";
 
   get step(): number {

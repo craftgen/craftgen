@@ -1,4 +1,4 @@
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
@@ -11,7 +11,7 @@ export interface SelectControlOptions<U extends string> {
 }
 
 export class SelectControl<
-  T extends AnyActor = AnyActor,
+  T extends AnyActorRef = AnyActorRef,
   U extends string = string,
 > extends BaseControl {
   __type = "select";

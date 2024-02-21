@@ -1,7 +1,13 @@
 import type { OpenAIChatMessage } from "modelfusion";
 
 import type { ThreadMessage } from "openai/resources/beta/threads/messages/messages.mjs";
-import type { Actor, ActorRefFrom, AnyActor, SnapshotFrom } from "xstate";
+import type {
+  Actor,
+  ActorRefFrom,
+  AnyActor,
+  AnyActorRef,
+  SnapshotFrom,
+} from "xstate";
 
 import type { ThreadMachine } from "../nodes/thread";
 import { BaseControl } from "./base";
@@ -20,7 +26,9 @@ export interface Message {
   content: MessageContent;
 }
 
-export class ThreadControl<T extends AnyActor = AnyActor> extends BaseControl {
+export class ThreadControl<
+  T extends AnyActorRef = AnyActorRef,
+> extends BaseControl {
   __type = "thread";
 
   constructor(

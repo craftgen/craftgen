@@ -1,4 +1,4 @@
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
@@ -9,7 +9,9 @@ export interface CodeControlOptions {
   language?: string;
 }
 
-export class CodeControl<T extends AnyActor = AnyActor> extends BaseControl {
+export class CodeControl<
+  T extends AnyActorRef = AnyActorRef,
+> extends BaseControl {
   __type = "code";
 
   constructor(

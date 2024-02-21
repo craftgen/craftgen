@@ -1,4 +1,4 @@
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
@@ -14,7 +14,7 @@ export interface ComboboxControlOptions<U extends string> {
 
 export class ComboboxControl<
   Data,
-  T extends AnyActor = AnyActor,
+  T extends AnyActorRef = AnyActorRef,
 > extends BaseControl {
   __type = "combobox";
 

@@ -422,6 +422,26 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
           name: "string",
         },
         {
+          format: "expression",
+        },
+      ],
+      () => {
+        return new InputControl(
+          actor,
+          selector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "string",
+        },
+        {
           type: "string",
         },
       ],

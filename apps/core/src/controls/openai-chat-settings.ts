@@ -1,5 +1,5 @@
 import type { OpenAIChatSettings } from "modelfusion";
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 
@@ -9,7 +9,7 @@ interface OpenAIChatSettingsControlOptions {
 }
 
 export class OpenAIChatSettingsControl<
-  T extends AnyActor = AnyActor,
+  T extends AnyActorRef = AnyActorRef,
 > extends BaseControl {
   __type = "openai-chat-settings";
   constructor(

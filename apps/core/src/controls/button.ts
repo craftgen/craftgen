@@ -1,4 +1,4 @@
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
@@ -8,7 +8,9 @@ export interface ButtonControlOptions {
   onClick?: () => void;
 }
 
-export class ButtonControl<T extends AnyActor = AnyActor> extends BaseControl {
+export class ButtonControl<
+  T extends AnyActorRef = AnyActorRef,
+> extends BaseControl {
   __type = "ButtonControl";
 
   constructor(
