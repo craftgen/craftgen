@@ -3,19 +3,22 @@ import { useCallback, useState } from "react";
 export type MapOrEntries<K, V> = Map<K, V> | [K, V][];
 
 // Public interface
-export interface Actions<K, V> {
+export interface Registry<K, V> {
   has: (key: K) => boolean;
   get: (key: K) => V | undefined;
   set: (key: K, value: V) => void;
   setAll: (entries: MapOrEntries<K, V>) => void;
   remove: (key: K) => void;
   reset: Map<K, V>["clear"];
+  entries: () => IterableIterator<[K, V]>;
 }
 
 // We hide some setters from the returned map to disable autocompletion
+// export type Registry<K, V> = Omit<Map<K, V>, "set" | "clear">;
+
 type Return<K, V> = [
   Omit<Map<K, V>, "set" | "clear" | "delete">,
-  Actions<K, V>,
+  Registry<K, V>,
 ];
 
 export function useRegistry<K, V>(
@@ -23,11 +26,12 @@ export function useRegistry<K, V>(
 ): Return<K, V> {
   const [map, setMap] = useState(new Map(initialState));
 
-  const actions: Actions<K, V> = {
-    has: useCallback((key) => map.has(key), []),
-    get: useCallback((key) => map.get(key), []),
+  const actions: Registry<K, V> = {
+    has: useCallback((key: K) => map.has(key), []),
+    get: useCallback((key: K) => map.get(key), []),
+    entries: useCallback(() => map.entries(), []),
 
-    set: useCallback((key, value) => {
+    set: useCallback((key: K, value: V) => {
       setMap((prev) => {
         const copy = new Map(prev);
         copy.set(key, value);

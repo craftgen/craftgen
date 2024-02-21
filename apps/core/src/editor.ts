@@ -42,6 +42,7 @@ import type {
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type {
+  Registry as DOMRegistry,
   ClassicScheme,
   ReactArea2D,
   ReactPlugin,
@@ -478,6 +479,15 @@ export class Editor<
 
   public readonly: boolean;
   public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;
+  public domRegistry:
+    | DOMRegistry<
+        HTMLElement,
+        {
+          element: HTMLElement;
+          component: any;
+        }
+      >
+    | undefined;
   public registry: NodeRegistry = {} as NodeRegistry;
   public machines: MachineRegistry = {} as MachineRegistry;
 
@@ -1368,12 +1378,20 @@ export class Editor<
   public async mount(params: {
     container: HTMLElement;
     render: ReactPlugin<Scheme, AreaExtra<Scheme>>;
+    domRegistry: DOMRegistry<
+      HTMLElement,
+      {
+        element: HTMLElement;
+        component: any;
+      }
+    >;
   }) {
     const { AreaExtensions, AreaPlugin, Zoom } = await import(
       "rete-area-plugin"
     );
     const render = params.render;
     this.render = render;
+    this.domRegistry = params.domRegistry;
     this.area = new AreaPlugin(params.container);
     this.selector = AreaExtensions.selector();
     function accumulateOnCtrl() {

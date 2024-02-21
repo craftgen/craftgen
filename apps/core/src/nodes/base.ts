@@ -707,6 +707,7 @@ export abstract class BaseNode<
         socket: socket,
         actor: this.pactor,
         selector: (snapshot) => snapshot.context.inputs[key],
+        definitionSelector: (snapshot) => snapshot.context.inputSockets[key],
         onChange: (v) => {
           this.pactor.send({
             type: "SET_VALUE",

@@ -17,6 +17,7 @@ export class CodeControl<
   constructor(
     public actor: T,
     public selector: (snapshot: SnapshotFrom<T>) => string, // Function that returns the observable value
+    public definitionSelector: (snapshot: SnapshotFrom<T>) => JSONSocket,
     public options: CodeControlOptions,
     public definition: JSONSocket,
   ) {

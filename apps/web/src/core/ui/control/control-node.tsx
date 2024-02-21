@@ -10,7 +10,6 @@ import {
   Circle,
   CircleDot,
 } from "lucide-react";
-import { observer } from "mobx-react-lite";
 import { AnyActor } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
@@ -53,6 +52,8 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
         snapshot.context.inputSockets[props.data.definition["x-key"]][
           "x-actor-type"
         ],
+      definitionSelector: (snapshot) =>
+        snapshot.context.inputSockets[props.data.definition["x-key"]],
       onChange: (v) => {
         console.log("onChange", v);
         props.data.actor.send({
@@ -226,11 +227,14 @@ const InputItem = ({
         socket,
         actor: targetActor,
         selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
+        definitionSelector: (snapshot) =>
+          snapshot.context.inputSockets[item["x-key"]],
         onChange: handleChange,
         definition: item,
       }),
-    [item],
+    [item, item.format],
   );
+  console.log("RERENDER", item.format, controller);
 
   return (
     <SocketController actor={actor} socket={item}>

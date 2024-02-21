@@ -1,5 +1,4 @@
 import * as React from "react";
-import Link from "next/link";
 import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
 import {
@@ -17,7 +16,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
 import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
 import { Key } from "ts-key-enum";
-import { useStore } from "zustand";
 
 import {
   Drag,
@@ -292,11 +290,11 @@ export const Node = observer((props: Props<Schemes>) => {
                 "@container group rounded-lg",
                 selected && " border-primary",
                 "glass flex flex-1 flex-col",
-                state.matches("loading") &&
-                  "animate-pulse border-2 border-blue-300",
-                state.matches("running") && "border-yellow-300",
-                state.matches("action_required") && "border-yellow-300/40",
-                state.matches("error") && "border-2 border-red-600",
+                // state.matches("loading") &&
+                //   "animate-pulse border-2 border-blue-300",
+                // state.matches("running") && "border-yellow-300",
+                // state.matches("action_required") && "border-yellow-300/40",
+                // state.matches("error") && "border-2 border-red-600",
               )}
             >
               <div ref={internalRef} className="flex flex-col justify-between">
@@ -357,11 +355,11 @@ export const Node = observer((props: Props<Schemes>) => {
                     <Button
                       ref={ref2}
                       onClick={triggerNode}
-                      disabled={!state.matches("idle")}
+                      // disabled={!state.matches("idle")}
                       variant={"ghost"}
                       size="icon"
                     >
-                      {state.matches("editing") && (
+                      {/* {state.matches("editing") && (
                         <Cog
                           className="text-muted-foreground animate-spin"
                           size={14}
@@ -379,7 +377,7 @@ export const Node = observer((props: Props<Schemes>) => {
                       {state.matches("idle") && <Play size={14} />}
                       {state.matches("complete") && (
                         <CheckCircle size={14} className="text-green-400" />
-                      )}
+                      )} */}
                     </Button>
                   </div>
                 </CardHeader>
@@ -514,9 +512,9 @@ export const Node = observer((props: Props<Schemes>) => {
                 src={{
                   isExection: !isNil(props.data.executionId),
                   executionNodeId: props.data.executionNodeId,
-                  status: state.status,
-                  state: state.value,
-                  context: state.context,
+                  // status: state.status,
+                  // state: state.value,
+                  // context: state.context,
                   dd: props.data.snap.toJSON(),
                   // executionNode: props.data.executionNode,
                   node: props.data.nodeData,

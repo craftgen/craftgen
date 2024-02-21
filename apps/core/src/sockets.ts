@@ -1,8 +1,7 @@
 import { useCallback } from "react";
-import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
-import type { AnyActor, AnyActorRef, SnapshotFrom } from "xstate";
+import type { AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
@@ -24,6 +23,7 @@ import { ThreadControl } from "./controls/thread.control";
 import type { NodeTypes } from "./types";
 import { nodeTypes } from "./types";
 import { JsCdnController } from "./controls/js-cdn";
+import { JSONSchema } from "openai/lib/jsonschema.mjs";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -209,14 +209,16 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
   socket,
   actor,
   selector,
+  definitionSelector,
   onChange,
   definition,
 }: {
   socket: Socket;
   actor: T;
   selector: (emitted: SnapshotFrom<T>) => any;
+  definitionSelector: (emitted: SnapshotFrom<T>) => JSONSocket;
   onChange: (v: any) => void;
-  definition: JSONSocket;
+  definition: JSONSocket & JSONSchema;
 }) => {
   return match([socket, definition])
     .with(
@@ -395,6 +397,7 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         return new CodeControl(
           actor,
           selector,
+          definitionSelector,
           {
             change: onChange,
             language: definition["x-language"],
@@ -426,9 +429,10 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         },
       ],
       () => {
-        return new InputControl(
+        return new CodeControl(
           actor,
           selector,
+          definitionSelector,
           {
             change: onChange,
           },
@@ -442,13 +446,33 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
           name: "string",
         },
         {
-          type: "string",
+          format: "secret",
         },
       ],
       () => {
         return new InputControl(
           actor,
           selector,
+          definitionSelector,
+          {
+            change: onChange,
+          },
+          definition,
+        );
+      },
+    )
+    .with(
+      [
+        {
+          name: "string",
+        },
+        P._,
+      ],
+      () => {
+        return new InputControl(
+          actor,
+          selector,
+          definitionSelector,
           {
             change: onChange,
           },

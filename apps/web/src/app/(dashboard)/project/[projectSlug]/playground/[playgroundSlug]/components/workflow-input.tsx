@@ -59,8 +59,7 @@ export const WorkflowSimple = (props: {
   if (!editor) return <div>Loading...</div>;
   return (
     <CraftContext.Provider value={store?.current}>
-      {/* <InspectorNode node={editor?.editor.getNodes()[0]} /> */}
-      <InputsList actor={editor.actor} showAdvanced={true} />
+      {editor.actor && <InputsList actor={editor.actor} />}
     </CraftContext.Provider>
   );
 };

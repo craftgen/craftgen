@@ -1,6 +1,6 @@
 import * as ReactDOM from "react-dom";
 
-import type { Actions } from "./useRegistry";
+import type { Registry } from "./useRegistry";
 
 export interface Renderer {
   mount: ReactDOM.Renderer;
@@ -11,7 +11,7 @@ type CreateRoot = (container: Element | DocumentFragment) => any;
 
 export function getRenderer(props?: {
   createRoot?: CreateRoot;
-  createPortal?: Actions<HTMLElement, React.ReactNode>;
+  createPortal?: Registry<HTMLElement, React.ReactNode>;
 }): Renderer {
   const createRoot = props?.createRoot;
   const registry = props?.createPortal;

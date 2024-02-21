@@ -5,7 +5,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { Editor } from "@seocraft/core";
 import type { AreaExtra } from "@seocraft/core/src/editor";
 import {
-  Actions,
+  Registry,
   Presets,
   ReactPlugin,
 } from "@seocraft/core/src/plugins/reactPlugin";
@@ -27,7 +27,13 @@ export const createEditorFunc = (params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   store: ReteStoreInstance;
   api: Partial<WorkflowAPI>;
-  componentRegistry: Actions<HTMLElement, ReactNode>;
+  componentRegistry: Registry<
+    HTMLElement,
+    {
+      element: HTMLElement;
+      component: ReactNode;
+    }
+  >;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
@@ -92,7 +98,13 @@ export async function createEditor(params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
-  componentRegistry: Actions<HTMLElement, ReactNode>;
+  componentRegistry: Registry<
+    HTMLElement,
+    {
+      element: HTMLElement;
+      component: ReactNode;
+    }
+  >;
 }) {
   console.log("BEFORE", params.workflow);
   const di = new Editor({
@@ -160,6 +172,7 @@ export async function createEditor(params: {
   await di.mount({
     container: params.container,
     render: render as any,
+    domRegistry: params.componentRegistry,
   });
   await di.setup();
   addCustomBackground(di?.area!);

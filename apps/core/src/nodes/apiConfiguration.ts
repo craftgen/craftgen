@@ -1,13 +1,6 @@
-import { has, merge, isEqual } from "lodash-es";
+import { has, merge } from "lodash-es";
 import dedent from "ts-dedent";
-import {
-  createMachine,
-  assign,
-  enqueueActions,
-  fromObservable,
-  SnapshotFrom,
-  AnyActor,
-} from "xstate";
+import { createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -19,16 +12,6 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode } from "./base";
-import {
-  from,
-  tap,
-  map,
-  distinctUntilChanged,
-  switchMap,
-  combineLatest,
-  BehaviorSubject,
-  of,
-} from "rxjs";
 
 const inputSockets = {
   baseUrl: generateSocket({

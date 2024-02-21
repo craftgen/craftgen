@@ -7,7 +7,7 @@ import type { RenderPreset } from "./presets/types";
 import type { Renderer } from "./renderer";
 import { getRenderer } from "./renderer";
 import type { Position, RenderSignal } from "./types";
-import type { Actions } from "./useRegistry";
+import type { Registry } from "./useRegistry";
 import { Root } from "./utils";
 
 export * as Presets from "./presets";
@@ -50,7 +50,7 @@ type Requires<Schemes extends BaseSchemes> =
 export interface Props {
   /** root factory for React.js 18+ */
   createRoot?: (container: Element | DocumentFragment) => any;
-  createPortal?: Actions<HTMLElement, React.ReactNode>;
+  createPortal?: Registry<HTMLElement, React.ReactNode>;
 }
 
 /**

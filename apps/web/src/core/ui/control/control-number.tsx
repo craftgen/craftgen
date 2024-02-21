@@ -1,5 +1,4 @@
 import { useSelector } from "@xstate/react";
-import { observer } from "mobx-react-lite";
 
 import type { NumberControl } from "@seocraft/core/src/controls/number";
 
