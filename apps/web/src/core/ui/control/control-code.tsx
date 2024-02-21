@@ -272,7 +272,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     return [...CMExtensions, cdnPackageCompletions(ternServer)];
   }, [ternServer]);
   const editorContainer = useRef<HTMLDivElement | null>(null);
-  const { setContainer, setState, view, setView } = useCodeMirror({
+  const { setContainer, setState, view } = useCodeMirror({
     container: editorContainer.current,
     theme: systemTheme === "dark" ? githubDark : githubLight,
     extensions,
@@ -293,24 +293,23 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
 
   useEffect(() => {
     const listener = props.data.actor.subscribe((event: any) => {
+      if (!view) return;
       const stateValue = props.data.selector(event);
       const inSync = stateValue === editorValue.current;
-      console.log("STATE", inSync, stateValue, editorValue.current);
 
       if (!inSync) {
-        // TODO: Update Editor state instead of setValue
-        setValue(stateValue);
-        // setState(EditorState.create({ doc: stateValue }));
-        // setValue(stateValue);
-        // setState(EditorState.create({
-        //   doc: stateValue,
-        //   extensions: extensions,
-        // }));
+        view.dispatch({
+          changes: {
+            from: 0,
+            to: view.state.doc.length,
+            insert: stateValue,
+          },
+        });
       }
     });
 
     return () => listener.unsubscribe();
-  }, [setState]);
+  }, [view]);
 
   useEffect(() => {
     if (editorContainer.current) {
