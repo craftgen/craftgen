@@ -54,7 +54,7 @@ import type { ReteStoreInstance } from "../store";
 import "react-resizable/css/styles.css";
 
 import { useState } from "react";
-import { isNil } from "lodash-es";
+import { isEqual, isNil } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
@@ -69,6 +69,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AnyActorRef } from "xstate";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -101,7 +102,6 @@ export const Node = (props: Props<Schemes>) => {
   const controls = Object.entries(props.data.controls);
   const selected = props.data.selected || false;
   const { id, di } = props.data;
-  const [debug, SetDebug] = React.useState(false);
 
   sortByIndex(inputs);
   sortByIndex(outputs);
@@ -188,16 +188,16 @@ export const Node = (props: Props<Schemes>) => {
     },
   );
 
-  const toggleDebug = () => {
-    console.log("toglle debug");
-    SetDebug(!debug);
-  };
   const ref = React.useRef<HTMLButtonElement>(null);
   Drag.useNoDrag(ref);
   const ref2 = React.useRef<HTMLButtonElement>(null);
   Drag.useNoDrag(ref2);
 
-  const state = useSelector(props.data.actor, (state) => state);
+  const stateValue = useSelector(
+    props.data.actor,
+    (state) => state.value,
+    isEqual,
+  );
 
   const NodeIcon = React.useMemo(() => {
     const iconName = props.data.di.nodeMeta.get(props.data.ID)?.icon;
@@ -288,11 +288,11 @@ export const Node = (props: Props<Schemes>) => {
                 "@container group rounded-lg",
                 selected && " border-primary",
                 "glass flex flex-1 flex-col",
-                state.matches("loading") &&
+                stateValue === "loading" &&
                   "animate-pulse border-2 border-blue-300",
-                state.matches("running") && "border-yellow-300",
-                state.matches("action_required") && "border-yellow-300/40",
-                state.matches("error") && "border-2 border-red-600",
+                stateValue === "running" && "border-yellow-300",
+                stateValue === "action_required" && "border-yellow-300/40",
+                stateValue === "error" && "border-2 border-red-600",
               )}
             >
               <div ref={internalRef} className="flex flex-col justify-between">
@@ -341,15 +341,6 @@ export const Node = (props: Props<Schemes>) => {
                         </Button>
                       </Drag.NoDrag>
                     )}
-                    <Drag.NoDrag>
-                      <Button
-                        variant={"ghost"}
-                        size={"icon"}
-                        onClick={toggleDebug}
-                      >
-                        <Wrench size={14} />
-                      </Button>
-                    </Drag.NoDrag>
                     <Button
                       ref={ref2}
                       onClick={triggerNode}
@@ -357,23 +348,23 @@ export const Node = (props: Props<Schemes>) => {
                       variant={"ghost"}
                       size="icon"
                     >
-                      {state.matches("editing") && (
+                      {stateValue === "editing" && (
                         <Cog
                           className="text-muted-foreground animate-spin"
                           size={14}
                         />
                       )}
-                      {state.matches("running") && (
+                      {stateValue === "running" && (
                         <Loader2
                           size={14}
                           className="animate-spin text-green-400"
                         />
                       )}
-                      {state.matches("action_required") && (
+                      {stateValue === "action_required" && (
                         <AlertCircle size={14} className="text-yellow-400" />
                       )}
-                      {state.matches("idle") && <Play size={14} />}
-                      {state.matches("complete") && (
+                      {stateValue === "idle" && <Play size={14} />}
+                      {stateValue === "complete" && (
                         <CheckCircle size={14} className="text-green-400" />
                       )}
                     </Button>
@@ -464,65 +455,16 @@ export const Node = (props: Props<Schemes>) => {
                     })}
                   </section>
                 </CardContent>
-
-                <CardFooter className="mt-auto flex flex-col overflow-hidden p-1 px-2 pt-0">
-                  {(props.data.snap.matches("complete") ||
-                    props.data.snap.matches("running") ||
-                    props.data.snap.matches("typing")) && (
-                    <Drag.NoDrag>
-                      <Tabs defaultValue="JSON" className="w-full">
-                        <TabsList>
-                          <TabsTrigger value="Output">Output</TabsTrigger>
-                          <TabsTrigger value="JSON">JSON</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="Output">
-                          {props.data.snap.context.outputs?.value && (
-                            <div>
-                              <Markdown>
-                                {props.data.snap.context.outputs?.value}
-                              </Markdown>
-                            </div>
-                          )}
-                          {props.data.snap.context.outputs?.result &&
-                            props.data.snap.context.outputs?.result[0] && (
-                              <img
-                                src={props.data.snap.context.outputs?.result[0]}
-                                className="w-full"
-                              />
-                            )}
-                        </TabsContent>
-                        <TabsContent value="JSON">
-                          <JSONView src={props.data.snap.context.outputs} />
-                        </TabsContent>
-                      </Tabs>
-                    </Drag.NoDrag>
-                  )}
-                  <NodeIdBadge id={props.data.id} />
-                </CardFooter>
+                <Drag.NoDrag>
+                  <CardFooter className="bg-muted mx-2 my-2 mt-auto flex flex-col  rounded p-1 px-2 ">
+                    <NodeOutput id={props.data.id} actor={props.data.actor} />
+                    <NodeIdBadge id={props.data.id} />
+                  </CardFooter>
+                </Drag.NoDrag>
               </div>
             </Card>
           </Resizable>
         </ContextMenuTrigger>
-        {debug && (
-          <div className="bg-background absolute left-0 top-0 ml-96 shadow">
-            <Drag.NoDrag>
-              <JsonView
-                src={{
-                  isExection: !isNil(props.data.executionId),
-                  executionNodeId: props.data.executionNodeId,
-                  // status: state.status,
-                  // state: state.value,
-                  // context: state.context,
-                  dd: props.data.snap.toJSON(),
-                  // executionNode: props.data.executionNode,
-                  node: props.data.nodeData,
-                  size: props.data.size,
-                }}
-                collapsed={2}
-              />
-            </Drag.NoDrag>
-          </div>
-        )}
         <ContextMenuContent>
           <ContextMenuItem onClick={cloneNode}>
             Clone
@@ -552,6 +494,35 @@ export const Node = (props: Props<Schemes>) => {
   );
 };
 
+const NodeOutput = ({ id, actor }: { id: string; actor: AnyActorRef }) => {
+  const outputs = useSelector(actor, (state) => state.context.outputs, isEqual);
+  return (
+    <Tabs defaultValue="JSON" className="w-full">
+      <TabsList className="w-full">
+        <Drag.NoDrag>
+          <TabsTrigger value="Output">Output</TabsTrigger>
+        </Drag.NoDrag>
+        <Drag.NoDrag>
+          <TabsTrigger value="JSON">JSON</TabsTrigger>
+        </Drag.NoDrag>
+      </TabsList>
+      <TabsContent value="Output">
+        {outputs?.value && (
+          <div className="break-words">
+            <Markdown>{outputs?.value}</Markdown>
+          </div>
+        )}
+        {outputs?.result && outputs?.result[0] && (
+          <img src={outputs?.result[0]} className="w-full" />
+        )}
+      </TabsContent>
+      <TabsContent value="JSON">
+        <JSONView src={outputs} />
+      </TabsContent>
+    </Tabs>
+  );
+};
+
 const NodeIdBadge: React.FC<{ id: string }> = ({ id }) => {
   const [copied, setCopied] = React.useState(false);
   const handleCopy = () => {
@@ -565,29 +536,27 @@ const NodeIdBadge: React.FC<{ id: string }> = ({ id }) => {
   const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
 
   return (
-    <Drag.NoDrag>
-      <Tooltip>
-        <TooltipTrigger>
-          <Badge
-            variant={"outline"}
-            className="text-muted group-hover:text-primary cursor-pointer truncate font-mono text-xs"
-            onClick={handleCopy}
-          >
-            {id}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent className={cn(copied && "bg-green-500")}>
-          <span className="flex">
-            Copy ID
-            {copied ? (
-              <CheckSquare className="ml-1  h-4 w-4 " />
-            ) : (
-              <Copy className="ml-1  h-4 w-4" />
-            )}
-          </span>
-        </TooltipContent>
-      </Tooltip>
-    </Drag.NoDrag>
+    <Tooltip>
+      <TooltipTrigger>
+        <Badge
+          variant={"outline"}
+          className="text-muted group-hover:text-primary cursor-pointer truncate font-mono text-xs"
+          onClick={handleCopy}
+        >
+          {id}
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent className={cn(copied && "bg-green-500")}>
+        <span className="flex">
+          Copy ID
+          {copied ? (
+            <CheckSquare className="ml-1  h-4 w-4 " />
+          ) : (
+            <Copy className="ml-1  h-4 w-4" />
+          )}
+        </span>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

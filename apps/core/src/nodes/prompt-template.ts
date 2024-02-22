@@ -1,7 +1,7 @@
 import { get, isString, merge, set } from "lodash-es";
 import * as Sqrl from "squirrelly";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
+import { assign, createMachine, fromPromise, enqueueActions } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { MappedType } from "../sockets";
@@ -19,6 +19,7 @@ const inputSockets = {
     "x-key": "x-template",
     "x-showSocket": false,
     "x-controller": "code",
+    format: "expression",
     "x-language": "handlebars",
   }),
 };
@@ -79,6 +80,21 @@ const PromptTemplateNodeMachine = createMachine(
       guards: None;
       actors: None;
     }>,
+    entry: enqueueActions(({ enqueue }) => {
+      enqueue("initialize");
+    }),
+    on: {
+      ASSIGN_CHILD: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("assignChild");
+        }),
+      },
+      INITIALIZE: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("initialize");
+        }),
+      },
+    },
     states: {
       complete: {
         invoke: {

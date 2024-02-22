@@ -13,8 +13,6 @@ import { AnyActor } from "xstate";
 import { InputsList } from "@/core/ui/control/control-node";
 
 export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
-  console.log("@@NODE", node);
-
   return (
     <div className="flex h-full w-full flex-1 flex-col">
       <Tabs defaultValue="controls">

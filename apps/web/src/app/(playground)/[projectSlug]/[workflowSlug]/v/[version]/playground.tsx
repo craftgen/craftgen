@@ -52,9 +52,10 @@ import { VersionHistory } from "./components/version-history";
 import { LogsTab } from "./logs/logs-tab";
 
 import dynamic from "next/dynamic";
-const InspectorNode = dynamic(() =>
-  import("./components/inspector-node").then((mod) => mod.InspectorNode),
-);
+import { InspectorNode } from "./components/inspector-node";
+// const InspectorNode = dynamic(() =>
+//   import("./components/inspector-node").then((mod) => mod.InspectorNode),
+// );
 const Composer = dynamic(() =>
   import("@/core/composer").then((mod) => mod.Composer),
 );
