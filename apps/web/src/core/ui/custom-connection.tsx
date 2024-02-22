@@ -12,13 +12,11 @@ import { useSelector } from "@xstate/react";
 const { useConnection } = Presets.classic;
 
 const useConnectionSync = (props: { data: Connection }) => {
-  const sourceValue = useSelector(
-    props.data?.sourceNode?.actor,
-    (state) => state.context.outputs[props.data.sourceOutput],
+  const sourceValue = useSelector(props.data?.sourceNode?.actor, (state) =>
+    state ? state?.context?.outputs[props.data.sourceOutput] : null,
   );
-  const targetValue = useSelector(
-    props.data?.targetNode?.actor,
-    (state) => state.context.inputs[props.data.targetInput],
+  const targetValue = useSelector(props.data?.targetNode?.actor, (state) =>
+    state ? state?.context?.inputs[props.data.targetInput] : null,
   );
 
   const inSync = React.useMemo(() => {
@@ -62,8 +60,8 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
           variants={{
             sync: { pathLength: 1, pathSpacing: 0.2 },
             inSync: {
-              pathLength: [0.2, 0.4],
-              pathSpacing: 0.2,
+              pathLength: [0, 0.4, 0.8],
+              pathSpacing: [0.2, 0.4],
               transition: {
                 duration: 0.2,
                 ease: "easeInOut",
