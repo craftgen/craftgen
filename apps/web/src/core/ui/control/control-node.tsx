@@ -24,9 +24,7 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
-const ControlWrapper = dynamic(() =>
-  import("@/core/ui/control-wrapper").then((mod) => mod.ControlWrapper),
-);
+import { ControlWrapper } from "@/core/ui/control-wrapper";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);

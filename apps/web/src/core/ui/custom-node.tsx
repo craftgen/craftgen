@@ -70,6 +70,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AnyActorRef } from "xstate";
+import { useCraftStore } from "../use-store";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -372,38 +373,8 @@ export const Node = (props: Props<Schemes>) => {
                 </CardHeader>
                 <Separator />
                 <div className="grid grid-cols-2 py-4">
-                  <div>
-                    {/* Inputs */}
-                    {inputs.map(([key, input]) => {
-                      // if (!input || !input.showSocket) return null;
-                      if (!input || !input.actor) return null;
-
-                      return (
-                        <RenderInput
-                          emit={props.emit}
-                          input={input}
-                          key={`input-key-${key}`}
-                          inputKey={key}
-                          id={id}
-                        />
-                      );
-                    })}
-                  </div>
-                  <div>
-                    {/* Outputs */}
-                    {outputs.map(([key, output]) => {
-                      if (!output || !output.actor) return null;
-                      return (
-                        <RenderOutput
-                          emit={props.emit}
-                          output={output}
-                          key={`output-key-${key}`}
-                          outputKey={key}
-                          id={id}
-                        />
-                      );
-                    })}
-                  </div>
+                  <NodeInputs node={props.data} emit={props.emit} />
+                  <NodeOutputs node={props.data} emit={props.emit} />
                 </div>
                 <CardContent className="flex-1">
                   {/* controls */}
@@ -494,6 +465,68 @@ export const Node = (props: Props<Schemes>) => {
   );
 };
 
+const NodeOutputs = ({
+  node,
+  emit,
+}: {
+  node: Schemes["Node"];
+  emit: RenderEmit<Schemes>;
+}) => {
+  const outputSockets = useSelector(
+    node.actor,
+    (state) =>
+      Object.entries(state.context.outputSockets)
+        .filter(([, v]) => v["x-showSocket"])
+        .map(([key, input]) => key) as string[],
+    isEqual,
+  );
+
+  return (
+    <div>
+      {/* Outputs */}
+      {outputSockets.map((key) => (
+        <RenderOutput
+          key={`output-${node.id}-${key}`}
+          emit={emit}
+          outputKey={key}
+          id={node.id}
+        />
+      ))}
+    </div>
+  );
+};
+
+const NodeInputs = ({
+  node,
+  emit,
+}: {
+  node: Schemes["Node"];
+  emit: RenderEmit<Schemes>;
+}) => {
+  const inputSockets = useSelector(
+    node.actor,
+    (state) =>
+      Object.entries(state.context.inputSockets)
+        .filter(([, v]) => v["x-showSocket"])
+        .map(([key, input]) => key) as string[],
+    isEqual,
+  );
+
+  return (
+    <div>
+      {/* Inputs */}
+      {inputSockets.map((key) => (
+        <RenderInput
+          key={`input-${node.id}-${key}`}
+          emit={emit}
+          inputKey={key}
+          id={node.id}
+        />
+      ))}
+    </div>
+  );
+};
+
 const NodeOutput = ({ id, actor }: { id: string; actor: AnyActorRef }) => {
   const outputs = useSelector(actor, (state) => state.context.outputs, isEqual);
   return (
@@ -573,44 +606,50 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 });
 ResizeHandle.displayName = "ResizeHandle";
 
-const RenderInput: React.FC<any> = ({ input, emit, id, inputKey }) => {
-  // if (!def["x-showSocket"]) return null;
-  const showInput = input.definition["x-showSocket"];
-  if (!showInput) return null;
+const RenderInput: React.FC<any> = ({ emit, id, inputKey }) => {
+  const di = useCraftStore((state) => state.di);
+  const node = di?.editor.getNode(id);
+  const input = node?.inputs[inputKey];
+
   return (
     <div
       className="flex select-none items-center text-left "
       data-testid={`input-${inputKey}`}
     >
-      <RefSocket
-        name="input-socket"
-        emit={emit}
-        side="input"
-        socketKey={inputKey}
-        nodeId={id}
-        payload={{ socket: input.socket, input } as any}
-      />
+      {input && (
+        <RefSocket
+          name="input-socket"
+          emit={emit}
+          side="input"
+          socketKey={inputKey}
+          nodeId={id}
+          payload={{ socket: input.socket, input } as any}
+        />
+      )}
     </div>
   );
 };
 
-const RenderOutput: React.FC<any> = ({ output, emit, id, outputKey }) => {
-  const showInput = output.definition["x-showSocket"];
+const RenderOutput: React.FC<any> = ({ emit, id, outputKey }) => {
+  const di = useCraftStore((state) => state.di);
+  const node = di?.editor.getNode(id);
+  const output = node?.outputs[outputKey];
 
-  if (!showInput) return null;
   return (
     <div
       className="flex select-none items-center justify-end text-right"
       data-testid={`output-${outputKey}`}
     >
-      <RefSocket
-        name="output-socket"
-        side="output"
-        emit={emit}
-        socketKey={outputKey}
-        nodeId={id}
-        payload={{ socket: output?.socket!, output } as any}
-      />
+      {output && (
+        <RefSocket
+          name="output-socket"
+          side="output"
+          emit={emit}
+          socketKey={outputKey}
+          nodeId={id}
+          payload={{ socket: output?.socket!, output } as any}
+        />
+      )}
     </div>
   );
 };
