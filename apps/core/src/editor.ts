@@ -649,6 +649,7 @@ export class Editor<
           context,
           event,
         });
+        return;
       }
 
       for (const [key, value] of Object.entries(conf?.internal)) {

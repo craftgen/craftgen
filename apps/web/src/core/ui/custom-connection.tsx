@@ -13,7 +13,7 @@ const { useConnection } = Presets.classic;
 
 const useConnectionSync = (props: { data: Connection }) => {
   const sourceValue = useSelector(
-    props.data.sourceNode?.actor,
+    props.data?.sourceNode?.actor,
     (state) => state.context.outputs[props.data.sourceOutput],
   );
   const targetValue = useSelector(

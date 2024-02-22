@@ -427,7 +427,7 @@ export const Node = (props: Props<Schemes>) => {
                   </section>
                 </CardContent>
                 <Drag.NoDrag>
-                  <CardFooter className="bg-muted mx-2 my-2 mt-auto flex flex-col  rounded p-1 px-2 ">
+                  <CardFooter className="mx-2 my-2 mt-auto flex flex-col  rounded p-1 px-2 ">
                     <NodeOutput id={props.data.id} actor={props.data.actor} />
                     <NodeIdBadge id={props.data.id} />
                   </CardFooter>
@@ -529,30 +529,33 @@ const NodeInputs = ({
 
 const NodeOutput = ({ id, actor }: { id: string; actor: AnyActorRef }) => {
   const outputs = useSelector(actor, (state) => state.context.outputs, isEqual);
+
   return (
-    <Tabs defaultValue="JSON" className="w-full">
-      <TabsList className="w-full">
-        <Drag.NoDrag>
-          <TabsTrigger value="Output">Output</TabsTrigger>
-        </Drag.NoDrag>
-        <Drag.NoDrag>
-          <TabsTrigger value="JSON">JSON</TabsTrigger>
-        </Drag.NoDrag>
-      </TabsList>
-      <TabsContent value="Output">
-        {outputs?.value && (
-          <div className="break-words">
-            <Markdown>{outputs?.value}</Markdown>
-          </div>
-        )}
-        {outputs?.result && outputs?.result[0] && (
-          <img src={outputs?.result[0]} className="w-full" />
-        )}
-      </TabsContent>
-      <TabsContent value="JSON">
-        <JSONView src={outputs} />
-      </TabsContent>
-    </Tabs>
+    <div>
+      {outputs?.value && (
+        <div className="break-words">
+          <Markdown>{String(outputs?.value)}</Markdown>
+        </div>
+      )}
+      {outputs?.result && outputs?.result[0] && (
+        <img src={outputs?.result[0]} className="w-full" />
+      )}
+    </div>
+    // <Tabs defaultValue="JSON" className="w-full">
+    //   <TabsList className="w-full">
+    //     <Drag.NoDrag>
+    //       <TabsTrigger value="Output">Output</TabsTrigger>
+    //     </Drag.NoDrag>
+    //     <Drag.NoDrag>
+    //       <TabsTrigger value="JSON">JSON</TabsTrigger>
+    //     </Drag.NoDrag>
+    //   </TabsList>
+    //   <TabsContent value="Output">
+    //   </TabsContent>
+    //   <TabsContent value="JSON">
+    //     <JSONView src={outputs} />
+    //   </TabsContent>
+    // </Tabs>
   );
 };
 

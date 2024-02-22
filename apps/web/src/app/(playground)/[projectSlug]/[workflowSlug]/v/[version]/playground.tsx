@@ -53,9 +53,6 @@ import { LogsTab } from "./logs/logs-tab";
 
 import dynamic from "next/dynamic";
 import { InspectorNode } from "./components/inspector-node";
-// const InspectorNode = dynamic(() =>
-//   import("./components/inspector-node").then((mod) => mod.InspectorNode),
-// );
 const Composer = dynamic(() =>
   import("@/core/composer").then((mod) => mod.Composer),
 );
@@ -378,11 +375,7 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
   return (
     <>
       {selectedNode ? (
-        <ScrollArea className="h-full">
-          <div className="mr-4 flex h-full flex-col p-4 pr-0 ">
-            <InspectorNode node={selectedNode} />
-          </div>
-        </ScrollArea>
+        <InspectorNode node={selectedNode} />
       ) : (
         <div className="my-auto flex h-full w-full flex-1 flex-col items-center justify-center">
           <div className="text-muted-foreground border-spacing-3 border  border-dashed p-4 py-6 font-sans text-xl font-bold">

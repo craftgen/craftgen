@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { omit, get } from "lodash-es";
+import _, { omit, get, isEqual } from "lodash-es";
 import {
   AlertCircle,
   CheckCircle,
@@ -10,7 +10,7 @@ import {
   Circle,
   CircleDot,
 } from "lucide-react";
-import { AnyActor } from "xstate";
+import { AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -20,7 +20,6 @@ import {
 } from "@seocraft/core/src/sockets";
 
 import { cn } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -28,7 +27,7 @@ import { ControlWrapper } from "@/core/ui/control-wrapper";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
-  const item = useSelector<AnyActor, JSONSocket>(
+  const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
     (state) =>
       state.context.inputSockets[props.data.definition["x-key"]] as JSONSocket,
@@ -76,14 +75,15 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     );
   }, [item]);
 
-  const selectedActor = useSelector<AnyActor, AnyActor>(
-    props.data.actor,
+  const selectedActor = useSelector<AnyActorRef, AnyActor>(
+    props.data?.actor,
     (state) =>
       state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
   );
   const selectedActorState = useSelector<AnyActor, any>(
     selectedActor,
-    (state) => state,
+    (state) => state.value,
+    isEqual,
   );
 
   return (
@@ -94,17 +94,17 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
           <div
             className={cn(
               "bg-muted/10 flex flex-col rounded border p-2",
-              selectedActorState?.matches("complete") && "border-green-400/30",
-              selectedActorState?.matches("action_required") &&
+              selectedActorState === "complete" && "border-green-400/30",
+              selectedActorState === "action_required" &&
                 "border-yellow-400/30",
             )}
           >
             <div className="flex items-center justify-end">
               {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
-              {selectedActorState?.matches("complete") && (
+              {selectedActorState === "complete" && (
                 <CheckCircle size={14} className="text-green-400" />
               )}
-              {selectedActorState?.matches("action_required") && (
+              {selectedActorState === "action_required" && (
                 <AlertCircle size={14} className="text-yellow-400" />
               )}
             </div>
