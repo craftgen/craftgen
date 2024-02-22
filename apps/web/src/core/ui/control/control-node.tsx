@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import { omit } from "lodash-es";
+import _, { omit, get } from "lodash-es";
 import {
   AlertCircle,
   CheckCircle,
@@ -21,7 +21,6 @@ import {
 
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-import _ from "lodash";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -125,20 +124,15 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    .pickBy((v) => v["x-isAdvanced"])
+    .pickBy((v) => get(v, "x-isAdvanced", false))
     .keys()
     .value();
+
 const basicInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
     .pickBy((v) => !v["x-isAdvanced"])
     .keys()
     .value();
-
-const hasAdvancedInputSelector = (state: any) =>
-  _.chain(state.context.inputSockets)
-    .pickBy((v) => v["x-isAdvanced"])
-    .keys()
-    .value().length > 0;
 
 export const InputsList = (props: {
   actor: AnyActor;
@@ -168,12 +162,15 @@ const BasicInputs = (props: { actor: AnyActor }) => {
 };
 
 const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
-  const [showAdvanced, setShowAdvanced] = useState(props.showAdvanced);
-  const hasAdvanced = useSelector(props.actor, hasAdvancedInputSelector);
-  const inputSockets = useSelector(props.actor, advanceInputSelector);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const inputSockets = useSelector(
+    props.actor,
+    advanceInputSelector,
+    _.isEqual,
+  );
   return (
     <>
-      {hasAdvanced && (
+      {inputSockets.length > 0 && (
         <div
           className={cn("flex w-full items-center justify-center divide-x-2")}
         >

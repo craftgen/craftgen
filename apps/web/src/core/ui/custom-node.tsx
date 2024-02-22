@@ -47,8 +47,6 @@ import {
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 
 import type { ReteStoreInstance } from "../store";
@@ -97,7 +95,7 @@ export function CustomNode(props: Props<Schemes>) {
   return <Node {...props} />;
 }
 
-export const Node = observer((props: Props<Schemes>) => {
+export const Node = (props: Props<Schemes>) => {
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);
@@ -290,11 +288,11 @@ export const Node = observer((props: Props<Schemes>) => {
                 "@container group rounded-lg",
                 selected && " border-primary",
                 "glass flex flex-1 flex-col",
-                // state.matches("loading") &&
-                //   "animate-pulse border-2 border-blue-300",
-                // state.matches("running") && "border-yellow-300",
-                // state.matches("action_required") && "border-yellow-300/40",
-                // state.matches("error") && "border-2 border-red-600",
+                state.matches("loading") &&
+                  "animate-pulse border-2 border-blue-300",
+                state.matches("running") && "border-yellow-300",
+                state.matches("action_required") && "border-yellow-300/40",
+                state.matches("error") && "border-2 border-red-600",
               )}
             >
               <div ref={internalRef} className="flex flex-col justify-between">
@@ -359,7 +357,7 @@ export const Node = observer((props: Props<Schemes>) => {
                       variant={"ghost"}
                       size="icon"
                     >
-                      {/* {state.matches("editing") && (
+                      {state.matches("editing") && (
                         <Cog
                           className="text-muted-foreground animate-spin"
                           size={14}
@@ -377,7 +375,7 @@ export const Node = observer((props: Props<Schemes>) => {
                       {state.matches("idle") && <Play size={14} />}
                       {state.matches("complete") && (
                         <CheckCircle size={14} className="text-green-400" />
-                      )} */}
+                      )}
                     </Button>
                   </div>
                 </CardHeader>
@@ -431,11 +429,11 @@ export const Node = observer((props: Props<Schemes>) => {
                         input?.definition["x-showSocket"] && (
                           <div className="flex flex-col space-y-1" key={key}>
                             {/* <Label
-                              htmlFor={input.control.id}
-                              className="capitalize"
-                            >
-                              {key}
-                            </Label> */}
+                                                htmlFor={input.control.id}
+                                                className="capitalize"
+                                              >
+                                                {key}
+                                              </Label> */}
                             <Drag.NoDrag>
                               <RefControl
                                 key={key}
@@ -451,8 +449,8 @@ export const Node = observer((props: Props<Schemes>) => {
                       return control ? (
                         <div className="flex flex-col space-y-1" key={key}>
                           {/* <Label htmlFor={control.id} className="capitalize">
-                            {key}
-                          </Label> */}
+                                              {key}
+                                            </Label> */}
                           <Drag.NoDrag>
                             <RefControl
                               key={key}
@@ -552,7 +550,7 @@ export const Node = observer((props: Props<Schemes>) => {
       </ContextMenu>
     </TooltipProvider>
   );
-});
+};
 
 const NodeIdBadge: React.FC<{ id: string }> = ({ id }) => {
   const [copied, setCopied] = React.useState(false);

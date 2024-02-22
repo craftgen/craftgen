@@ -143,7 +143,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
 export const Playground: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["meta"];
   session: Session | null;
-}> = observer(({ workflow, session }) => {
+}> = ({ workflow, session }) => {
   const params = useParams();
   const { theme } = useTheme();
 
@@ -332,7 +332,7 @@ export const Playground: React.FC<{
       </TooltipProvider>
     </CraftContext.Provider>
   );
-});
+};
 
 const LoginToContinue: React.FC<{}> = ({}) => {
   return (

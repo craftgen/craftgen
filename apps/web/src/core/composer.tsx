@@ -40,7 +40,7 @@ export type ComponentRegistry = Map<
 export const Composer: React.FC<{
   workflowMeta: RouterOutputs["craft"]["module"]["meta"];
   store: any;
-}> = observer(({ workflowMeta, store }) => {
+}> = ({ workflowMeta, store }) => {
   const { data: latestWorkflow, isLoading } = api.craft.module.get.useQuery(
     {
       projectSlug: workflowMeta.project.slug,
@@ -62,7 +62,7 @@ export const Composer: React.FC<{
   //   </div>
   // );
   return <ComposerUI workflow={latestWorkflow} store={store} />;
-});
+};
 
 const ComposerUI = (props: {
   workflow: RouterOutputs["craft"]["module"]["get"];
