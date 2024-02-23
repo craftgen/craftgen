@@ -23,8 +23,9 @@ export const getUserProjects = async () => {
 
 export const getFeaturedWorkflows = async () => {
   return await db.query.workflow.findMany({
-    where: (workflow, { eq, and }) =>
-      and(eq(workflow.featured, true), eq(workflow.public, true)),
+    where: (workflow, { eq, and }) => and(eq(workflow.public, true)),
+    orderBy: (workflow, { desc }) => desc(workflow.updatedAt),
+    limit: 20,
     with: {
       project: true,
       versions: {

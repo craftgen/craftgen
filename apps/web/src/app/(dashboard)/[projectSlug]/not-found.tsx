@@ -138,7 +138,7 @@ export default function NotFound() {
         <div className="relative mt-8 w-full lg:mt-0 lg:w-1/2 ">
           <img
             src="/images/nothing-to-see.webp"
-            className=" h-80 w-full rounded object-cover p-2 md:h-96 lg:h-[32rem]"
+            className="h-80 w-full rounded-xl object-center md:h-96 lg:h-[32rem]"
           />
         </div>
       </div>

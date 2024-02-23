@@ -33,7 +33,10 @@ const columns: ColumnDef<Playground>[] = [
     header: "Name",
     accessorKey: "name",
     cell: ({ row }) => (
-      <Link href={`/${row.original.project.slug}/${row.original.slug}`}>
+      <Link
+        href={`/${row.original.project.slug}/${row.original.slug}`}
+        className="font-bold"
+      >
         {row.getValue("name")}
       </Link>
     ),
@@ -93,7 +96,6 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
       targetProjectId: project?.id!,
     });
     mutate(`/api/project/${project?.id}/playgrounds`);
-    console.log(res);
   };
 
   return (
@@ -148,6 +150,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
           <DataTable
             columns={columns}
             data={data}
+            headerLeft={<h1 className="text-xl font-semibold">Playgrounds</h1>}
             headerRight={
               <Button
                 onClick={() => setOpen(true)}

@@ -1,9 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { mutate } from "swr";
 import { z } from "zod";
 
-import { updateWorkflowMeta } from "@/actions/update-workflow-meta";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useProject } from "./hooks/use-project";
+import { api } from "@/trpc/react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -41,7 +39,6 @@ export const WorkflowEditDialog: React.FC<{
   onOpenChange: (isOpen: boolean) => void;
   workflow: any;
 }> = ({ isOpen, onOpenChange, workflow }) => {
-  const { data: project } = useProject();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,11 +47,17 @@ export const WorkflowEditDialog: React.FC<{
       public: workflow?.public,
     },
   });
-
+  const utils = api.useUtils();
+  const { mutateAsync } = api.craft.module.update.useMutation({
+    onSuccess: async () => {
+      await utils.craft.invalidate();
+    },
+  });
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await updateWorkflowMeta(workflow.id, data);
-    await mutate(`/api/project/${project?.id}/playgrounds`);
-    await mutate(`/api/playground/${workflow.id}`);
+    await mutateAsync({
+      workflowId: workflow.id,
+      args: data,
+    });
     form.reset();
     onOpenChange(false);
   };

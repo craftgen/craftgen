@@ -49,7 +49,7 @@ const formSchema = z.object({
   }),
   slug: z.string(),
   description: z.string().default(""),
-  public: z.boolean().default(false),
+  public: z.boolean().default(true),
 });
 
 const templates = [
@@ -131,7 +131,7 @@ export const WorkflowCreateDialog: React.FC<{
       name: "",
       slug: "",
       description: "",
-      public: false,
+      public: true,
     },
   });
   const params = useParams();

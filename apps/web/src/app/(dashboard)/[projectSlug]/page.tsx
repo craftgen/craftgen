@@ -4,6 +4,8 @@ import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
 import { ProjectNavbar } from "./project-navbar";
 import { notFound } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
 const ProjectPage = async ({
   params,
@@ -22,12 +24,34 @@ const ProjectPage = async ({
   //   ? await getAnalytics({ siteUrl: project?.site })
   //   : undefined;
   return (
-    <div className="p-10">
-      <h1 className="p-2 text-3xl leading-tight">{project?.name}</h1>
+    <div className="flex flex-col items-center p-10">
       {/* {metrics && <Metrics metrics={metrics} />} */}
-      <section>
-        <PlaygroundList projectId={project?.id!} />
-      </section>
+      <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-12">
+        <div className="col-span-3 ">
+          <Card className="p-4 space-y-2 rounded-lg">
+            <div className="flex w-full items-center justify-center">
+              <Avatar className="h-40 w-40">
+                {project?.avatar_url && (
+                  <AvatarImage src={project.avatar_url} />
+                )}
+                <AvatarFallback>
+                  {project.slug[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <h1 className="font-mono text-xl font-bold leading-tight">
+              {project?.name}
+            </h1>
+            <h2 className="text-muted-foreground text-lg leading-tight">
+              {project?.slug}
+            </h2>
+          </Card>
+        </div>
+
+        <section className="col-span-9">
+          <PlaygroundList projectId={project?.id!} />
+        </section>
+      </div>
     </div>
   );
 };

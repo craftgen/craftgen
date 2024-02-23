@@ -1,7 +1,7 @@
 import { z } from "zod";
 import _ from "lodash-es";
 
-import { and, eq, schema, sql } from "@seocraft/supabase/db";
+import { and, eq, schema, sql, workflow } from "@seocraft/supabase/db";
 
 import {
   createTRPCRouter,
@@ -11,6 +11,25 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const craftModuleRouter = createTRPCRouter({
+  update: protectedProcedure
+    .input(
+      z.object({
+        workflowId: z.string(),
+        args: z.object({
+          name: z.string(),
+          description: z.string(),
+          public: z.boolean(),
+        }),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db
+        .update(workflow)
+        .set(input.args)
+        .where(eq(workflow.id, input.workflowId))
+        .returning();
+    }),
+
   delete: protectedProcedure
     .input(
       z.object({

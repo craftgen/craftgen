@@ -109,7 +109,6 @@ export const ModuleHeader = ({
         <TabsList>
           <TabsTrigger value="demo">Demo</TabsTrigger>
           <TabsTrigger value="api">API</TabsTrigger>
-          <TabsTrigger value="examples">Examples</TabsTrigger>
           <TabsTrigger value="versions">Versions</TabsTrigger>
         </TabsList>
       </Tabs>
