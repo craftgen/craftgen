@@ -67,12 +67,7 @@ const nextConfig = {
           destination: "https://app.posthog.com/:path*",
         },
       ],
-      afterFiles: [],
-      fallback: [
-        {
-          source: "/:project",
-          destination: "/project/:project",
-        },
+      afterFiles: [
         {
           source: "/:project/settings",
           destination: "/project/:project/settings",
@@ -80,6 +75,12 @@ const nextConfig = {
         {
           source: "/:project/settings/:path*",
           destination: "/project/:project/settings/:path*",
+        },
+      ],
+      fallback: [
+        {
+          source: "/:project",
+          destination: "/project/:project",
         },
         {
           source: "/:project/:playground/:path*",
