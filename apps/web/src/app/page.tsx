@@ -85,15 +85,15 @@ export default function Home() {
               automate your work.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
-              <a
-                href="#"
+              <Link
+                href="/login"
                 className="text-primary-foreground bg-primary hover:bg-primary/80 rounded-md px-3.5 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
                 onClick={() => {
                   posthog.capture("cta_clicked", { cta: "get_started" });
                 }}
               >
                 Get started
-              </a>
+              </Link>
               <Link
                 href="/login"
                 className="text-foreground text-sm font-semibold leading-6"
