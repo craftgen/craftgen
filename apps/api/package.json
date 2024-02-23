@@ -14,7 +14,7 @@
   "dependencies": {
     "@seocraft/supabase": "^0.1.0",
     "@seocraft/utils": "^0.1.0",
-    "@supabase/supabase-js": "^2.38.1",
+    "@supabase/supabase-js": "^2.39.7",
     "@trpc/client": "^10.43.0",
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.43.0",
