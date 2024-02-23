@@ -5,9 +5,10 @@ import { ChevronRightIcon, GithubIcon } from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
 import { Timeline } from "./components/timeline";
 import Link from "next/link";
-import posthog from "posthog-js";
+import { usePostHog } from "posthog-js/react";
 
 export default function Home() {
+  const posthog = usePostHog();
   return (
     <main className="flex min-h-screen flex-col items-center justify-center ">
       <section className="relative isolate w-full overflow-hidden">

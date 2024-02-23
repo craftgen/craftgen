@@ -27,10 +27,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useUser } from "../hooks/use-user";
-import posthog from "posthog-js";
+import { usePostHog } from "posthog-js/react";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
+  const posthog = usePostHog();
   const avatarFallbackInitials = useMemo(() => {
     if (!user) return "S";
     const [firstName, lastName] = (user?.fullName || "S C").split(" ") as [

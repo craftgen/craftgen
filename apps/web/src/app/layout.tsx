@@ -12,6 +12,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 import { KBar } from "../components/kbar/kbar";
 import { Providers } from "./providers";
+import { PHIdentify } from "@/components/ph-identify";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter-variable" });
 const notoSans = Noto_Sans({
@@ -43,6 +44,7 @@ export default async function RootLayout({
               <Analytics />
               <SpeedInsights />
               <Toaster />
+              <PHIdentify />
             </KBar>
           </Providers>
         </TRPCReactProvider>

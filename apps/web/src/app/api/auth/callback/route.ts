@@ -13,6 +13,7 @@ import {
 import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { BASE_URL } from "@/lib/constants";
+import PostHogClient from "@/lib/posthog";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
 
   const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
   const session = AuthResponse.data.session;
+  const posthog = PostHogClient();
 
   if (scopes && session) {
     await db
@@ -56,13 +58,31 @@ export async function GET(request: Request) {
 
   if (!projectS) {
     // TODO: redirect to onboarding to create user personal project.
-    redirect(`${BASE_URL}/explore`);
+    redirect(`${BASE_URL}/explore?identify`);
   }
+  posthog.identify({
+    distinctId: session?.user.id!,
+    properties: {
+      email: session?.user.email,
+      name: session?.user.user_metadata?.full_name,
+    },
+  });
+
+  posthog.capture({
+    distinctId: session?.user.id!,
+    event: "Login",
+    properties: {
+      $set: {
+        currentProjectId: projectS.project.id,
+      },
+    },
+  });
 
   await supabase.auth.updateUser({
     data: {
       currentProjectId: projectS.project.id,
     },
   });
-  redirect(`${BASE_URL}/${projectS.project.slug}`);
+
+  redirect(`${BASE_URL}/${projectS.project.slug}?identify`);
 }
