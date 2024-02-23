@@ -30,7 +30,7 @@ import type { Socket } from "@seocraft/core/src/sockets";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
-import { TokenList } from "@/app/(dashboard)/project/[projectSlug]/settings/tokens/token-item";
+import { TokenList } from "@/app/(dashboard)/[projectSlug]/settings/tokens/token-item";
 import { Icon, Icons } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -155,7 +155,7 @@ export const Playground: React.FC<{
       projectId: workflow.project.id,
       projectSlug: params.projectSlug as string,
       workflowId: workflow.id,
-      workflowSlug: params.playgroundSlug as string,
+      workflowSlug: params.workflowSlug as string,
       workflowVersionId: workflow.version?.id,
     }),
   );

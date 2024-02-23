@@ -67,26 +67,8 @@ const nextConfig = {
           destination: "https://app.posthog.com/:path*",
         },
       ],
-      afterFiles: [
-        {
-          source: "/:project/settings",
-          destination: "/project/:project/settings",
-        },
-        {
-          source: "/:project/settings/:path*",
-          destination: "/project/:project/settings/:path*",
-        },
-      ],
-      fallback: [
-        {
-          source: "/:project",
-          destination: "/project/:project",
-        },
-        {
-          source: "/:project/:playground/:path*",
-          destination: "/project/:project/playground/:playground/:path*",
-        },
-      ],
+      afterFiles: [],
+      fallback: [],
     };
   },
 };

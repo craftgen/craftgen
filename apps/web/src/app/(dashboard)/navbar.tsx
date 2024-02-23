@@ -31,13 +31,13 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
           {session && (
             <>
               {params.projectSlug && <TeamSwitcher />}
-              {params.playgroundSlug && (
+              {params.workflowSlug && (
                 <>
                   <Slash className="text-muted-foreground mx-2 h-4 w-4 -rotate-12" />
                   <Link
-                    href={`/${params.projectSlug}/${params.playgroundSlug}`}
+                    href={`/${params.projectSlug}/${params.workflowSlug}`}
                   >
-                    <span>{params.playgroundSlug}</span>
+                    <span>{params.workflowSlug}</span>
                   </Link>
                 </>
               )}

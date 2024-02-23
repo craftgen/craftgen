@@ -13,7 +13,7 @@ export async function POST(
   console.log("req", input, params);
 
   const workflow = await getWorkflow({
-    workflowSlug: params.playgroundSlug,
+    workflowSlug: params.workflowSlug,
     projectSlug: params.projectSlug,
     version: Number(params.version),
   });
@@ -25,7 +25,7 @@ export async function POST(
   await client.sendEvent({
     name: "workflow.execute",
     payload: {
-      workflowSlug: params.playgroundSlug,
+      workflowSlug: params.workflowSlug,
       projectSlug: params.projectSlug,
       version: params.version,
     },

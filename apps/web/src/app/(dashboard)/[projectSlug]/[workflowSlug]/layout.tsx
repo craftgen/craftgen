@@ -13,7 +13,7 @@ const PlaygroundLayout = async (props: {
 }) => {
   const workflow = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.workflowSlug,
   });
   console.log("@@@", workflow);
   if (!workflow) return notFound();

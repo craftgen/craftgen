@@ -19,7 +19,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const workflowMeta = await api.craft.module.meta.query({
     projectSlug: params.projectSlug,
-    workflowSlug: params.playgroundSlug,
+    workflowSlug: params.workflowSlug,
   });
 
   return {
@@ -30,7 +30,7 @@ export async function generateMetadata(
 const PlaygroundPage: React.FC<Props> = async (props) => {
   const workflowMeta = await api.craft.module.meta.query({
     projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.playgroundSlug,
+    workflowSlug: props.params.workflowSlug,
   });
   if (!workflowMeta) return <div>Not found</div>;
   return (
