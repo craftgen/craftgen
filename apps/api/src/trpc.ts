@@ -136,8 +136,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 const getActiveProject = async (session: Session) => {
-  const currentProjectId = session?.user.user_metadata.currentProjectId;
-  console.log("currentProjectId", session);
+  const currentProjectSlug = session?.user.user_metadata.currentProjectSlug;
 
   const [projectS] = await db
     .select()
@@ -151,7 +150,7 @@ const getActiveProject = async (session: Session) => {
     )
     .where(
       and(
-        eq(schema.project.id, currentProjectId),
+        eq(schema.project.slug, currentProjectSlug),
         eq(schema.project.id, schema.projectMembers.projectId),
       ),
     )

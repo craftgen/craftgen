@@ -5,7 +5,7 @@ import { ProjectNavbar } from "./project-navbar";
 const ProjectLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <>
-      {/* <ProjectNavbar /> */}
+      <ProjectNavbar />
       {children}
     </>
   );

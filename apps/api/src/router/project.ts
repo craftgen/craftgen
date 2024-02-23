@@ -18,6 +18,13 @@ export const projectRouter = createTRPCRouter({
       },
     });
   }),
+  byId: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.project.findFirst({
+        where: (p, { eq }) => eq(p.id, input.id),
+      });
+    }),
   bySlug: publicProcedure
     .input(z.object({ projectSlug: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -47,32 +54,4 @@ export const projectRouter = createTRPCRouter({
         avatar_url: null,
       };
     }),
-
-  // byId: publicProcedure
-  //   .input(z.object({ id: z.number() }))
-  //   .query(({ ctx, input }) => {
-  //     // return ctx.db
-  //     //   .select()
-  //     //   .from(schema.post)
-  //     //   .where(eq(schema.post.id, input.id));
-
-  //     return ctx.db.query.post.findFirst({
-  //       where: eq(schema.post.id, input.id),
-  //     });
-  //   }),
-
-  // create: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       title: z.string().min(1),
-  //       content: z.string().min(1),
-  //     }),
-  //   )
-  //   .mutation(({ ctx, input }) => {
-  //     return ctx.db.insert(schema.post).values(input);
-  //   }),
-
-  // delete: protectedProcedure.input(z.number()).mutation(({ ctx, input }) => {
-  //   return ctx.db.delete(schema.post).where(eq(schema.post.id, input));
-  // }),
 });

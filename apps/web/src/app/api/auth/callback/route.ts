@@ -73,14 +73,14 @@ export async function GET(request: Request) {
     event: "Login",
     properties: {
       $set: {
-        currentProjectId: projectS.project.id,
+        currentProjectSlug: projectS.project.slug,
       },
     },
   });
 
   await supabase.auth.updateUser({
     data: {
-      currentProjectId: projectS.project.id,
+      currentProjectSlug: projectS.project.slug,
     },
   });
 

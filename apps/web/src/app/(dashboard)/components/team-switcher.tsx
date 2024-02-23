@@ -58,7 +58,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
   const handleChange = async (value: string) => {
     if (value !== params.projectSlug) {
       await supabase.auth.updateUser({
-        data: { currentProjectId: value },
+        data: { currentProjectSlug: value },
       });
       router.push(`/${value}`);
     }

@@ -14,6 +14,7 @@ import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { useRouter } from "next/navigation";
 import { KBarProviderWrapper } from "./provider";
 import { isNil } from "lodash-es";
+import { useMemo } from "react";
 
 export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
@@ -28,16 +29,20 @@ export const KBarCore = () => {
   const { data: user } = useUser();
   const router = useRouter();
 
+  const currentProjectSlug = useMemo(() => {
+    return user?.user.user_metadata.currentProjectSlug;
+  }, [user]);
+
   useRegisterActions(
     [
-      ...(!isNil(user)
+      ...(!isNil(currentProjectSlug)
         ? [
             {
               id: "profile",
               name: "Profile",
               shortcut: ["@"],
               keywords: "profile",
-              perform: () => router.push(`/${user?.username}`),
+              perform: () => router.push(`/${currentProjectSlug}`),
             },
           ]
         : [

@@ -24,7 +24,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
       <div className="flex w-full items-center justify-between p-1">
         <div className="flex items-center">
           <div className="mr-4 flex p-2">
-            <Link href="/dashboard">
+            <Link href="/explore">
               <Network />
             </Link>
           </div>
@@ -34,9 +34,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
               {params.workflowSlug && (
                 <>
                   <Slash className="text-muted-foreground mx-2 h-4 w-4 -rotate-12" />
-                  <Link
-                    href={`/${params.projectSlug}/${params.workflowSlug}`}
-                  >
+                  <Link href={`/${params.projectSlug}/${params.workflowSlug}`}>
                     <span>{params.workflowSlug}</span>
                   </Link>
                 </>

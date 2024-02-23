@@ -15,20 +15,28 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.session.user.user_metadata.currentProjectId) {
+      if (!ctx.session.user.user_metadata.currentProjectSlug) {
         return [];
       }
-      const credentials = await ctx.db.query.variable.findMany({
-        where: (token, { eq, and }) =>
-          and(
-            eq(
-              token.project_id,
-              ctx.session.user.user_metadata.currentProjectId,
+      return await ctx.db.transaction(async (tx) => {
+        const project = await tx.query.project.findFirst({
+          where: (p, { eq }) =>
+            eq(p.slug, ctx.session.user.user_metadata.currentProjectSlug),
+        });
+        if (!project) {
+          return [];
+        }
+        return await ctx.db.query.variable.findMany({
+          where: (token, { eq, and }) =>
+            and(
+              eq(token.project_id, project?.id),
+              input?.provider ? eq(token.provider, input.provider) : sql`true`,
             ),
-            input?.provider ? eq(token.provider, input.provider) : sql`true`,
-          ),
+          columns: {
+            value: false,
+          },
+        });
       });
-      return credentials;
     }),
 
   hasKeyForProvider: protectedProcedure
