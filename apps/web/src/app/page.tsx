@@ -5,6 +5,7 @@ import { ChevronRightIcon, GithubIcon } from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
 import { Timeline } from "./components/timeline";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 export default function Home() {
   return (
@@ -86,17 +87,18 @@ export default function Home() {
               <a
                 href="#"
                 className="text-primary-foreground bg-primary hover:bg-primary/80 rounded-md px-3.5 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+                onClick={() => {
+                  posthog.capture("cta_clicked", { cta: "get_started" });
+                }}
               >
                 Get started
               </a>
               <Link
                 href="/login"
                 className="text-foreground text-sm font-semibold leading-6"
-                // onClick={() => {
-                //   alert(
-                //     "Hey there, almost there. We are working hard to get this ready. Star us on GitHub, and be instantly notified for new releases! ",
-                //   );
-                // }}
+                onClick={() => {
+                  posthog.capture("cta_clicked", { cta: "live_demo" });
+                }}
               >
                 Live demo <span aria-hidden="true">→</span>
               </Link>

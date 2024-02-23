@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useUser } from "../hooks/use-user";
+import posthog from "posthog-js";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
@@ -51,6 +52,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    posthog.reset();
     router.push("/");
   };
   useHotkeys(`${Key.Meta}+${Key.Shift}+q`, handleLogout);
