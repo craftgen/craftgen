@@ -204,7 +204,7 @@ export const craftModuleRouter = createTRPCRouter({
         outputs,
       };
     }),
-  meta: protectedProcedure
+  meta:protectedProcedure 
     .input(
       z.object({
         workflowSlug: z.string(),
