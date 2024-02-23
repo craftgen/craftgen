@@ -11,6 +11,7 @@ import {
   UncheckedSchema,
 } from "modelfusion";
 import type {
+  ChatPrompt,
   OllamaChatMessage,
   OpenAIChatMessage,
   ToolCall,
@@ -300,6 +301,7 @@ const completeChatActor = fromPromise(
           const model = ollama.ChatTextGenerator({
             ...llm,
           });
+
           const res = await generateText({
             model,
             prompt: [
@@ -328,25 +330,25 @@ const completeChatActor = fromPromise(
         },
         async ({ llm, tools, toolCalls }) => {
           console.log("REQUESTING tool call from the API.");
-          const model = openai.ChatTextGenerator({
-            ...llm,
-            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-          });
+          const model = openai
+            .ChatTextGenerator({
+              ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+            })
+            .withChatPrompt();
+
+          const chat: ChatPrompt = {
+            system: input.system,
+            messages: input.messages as ChatMessage[],
+          };
 
           const res = await generateToolCalls({
             model,
             tools,
-            prompt: [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...input.messages,
-            ],
+            prompt: await trimChatPrompt({
+              model: model,
+              prompt: chat,
+            }),
             fullResponse: true,
           });
           return res;
@@ -362,10 +364,12 @@ const completeChatActor = fromPromise(
         },
         async ({ llm, tools, toolCalls }) => {
           console.log("PASSING THE TOOL CALL RESULTS TO API.");
-          const model = openai.ChatTextGenerator({
-            ...llm,
-            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-          });
+          const model = openai
+            .ChatTextGenerator({
+              ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+            })
+            .withChatPrompt();
 
           const toolCallResponses: OpenAIChatMessage[] = [];
 
@@ -385,21 +389,18 @@ const completeChatActor = fromPromise(
             });
           }
 
+          const chat: ChatPrompt = {
+            system: input.system,
+            messages: input.messages as ChatMessage[],
+          };
+
           const res = await generateToolCalls({
             model,
             tools,
-            prompt: [
-              ...(input.system
-                ? [
-                    {
-                      role: "system",
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...input.messages,
-              ...toolCallResponses,
-            ],
+            prompt: await trimChatPrompt({
+              model: model,
+              prompt: chat,
+            }),
             fullResponse: true,
           });
           return res;
@@ -412,25 +413,22 @@ const completeChatActor = fromPromise(
           },
         },
         async ({ llm }) => {
-          const model = openai.ChatTextGenerator({
-            ...llm,
-            api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-          });
+          const model = openai
+            .ChatTextGenerator({
+              ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+            })
+            .withChatPrompt();
+
+          const chat: ChatPrompt = {
+            system: input.system,
+            messages: input.messages as ChatMessage[],
+          };
           const res = await generateText({
             model,
-            promp: await trimChatPrompt({
-              model,
-              prompt: [
-                ...(input.system
-                  ? [
-                      {
-                        role: "system",
-                        content: input.system,
-                      },
-                    ]
-                  : []),
-                ...(input.messages as any),
-              ],
+            prompt: await trimChatPrompt({
+              model: model,
+              prompt: chat,
             }),
             fullResponse: true,
           });
