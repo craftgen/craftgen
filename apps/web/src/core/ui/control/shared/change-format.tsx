@@ -39,7 +39,7 @@ export const ChangeFormat = <T extends AnyActorRef = AnyActorRef>(props: {
 
   return (
     <Select
-      value={definition.format || "text"}
+      value={definition?.format || "text"}
       onValueChange={(val) => {
         props.actor.send({
           type: "UPDATE_SOCKET",
