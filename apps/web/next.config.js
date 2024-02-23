@@ -34,6 +34,11 @@ const nextConfig = {
     config.resolve.fallback.async_hooks = false;
     return config;
   },
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
   // headers: async () => {
   //   return [
   //     {
@@ -60,7 +65,7 @@ const nextConfig = {
       beforeFiles: [
         {
           source: "/discord",
-          destination: "https://discord.gg/c5tyy982V5",
+          destination: "https://discord.gg/Qvm4wehMeK",
         },
         {
           source: "/ingest/:path*",

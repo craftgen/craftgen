@@ -3,7 +3,7 @@
 import { ChevronRightIcon, GithubIcon } from "lucide-react";
 
 import { ModeToggle } from "@/components/theme-toggle";
-import { Timeline } from "./components/timeline";
+import { Timeline } from "@/components/marketing/timeline";
 import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
 

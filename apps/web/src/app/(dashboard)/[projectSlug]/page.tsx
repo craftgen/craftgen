@@ -3,6 +3,7 @@ import { getAnalytics } from "./actions";
 import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
 import { ProjectNavbar } from "./project-navbar";
+import { notFound } from "next/navigation";
 
 const ProjectPage = async ({
   params,
@@ -14,6 +15,9 @@ const ProjectPage = async ({
   const project = await api.project.bySlug.query({
     projectSlug: params.projectSlug,
   });
+  if (!project) {
+    notFound();
+  }
   // const metrics = project?.site
   //   ? await getAnalytics({ siteUrl: project?.site })
   //   : undefined;
