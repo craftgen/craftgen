@@ -14,7 +14,7 @@ const ProjectPage = async ({
     projectSlug: string;
   };
 }) => {
-  const project = await api.project.bySlug.query({
+  const project = await api.project.bySlug({
     projectSlug: params.projectSlug,
   });
   if (!project) {
@@ -28,7 +28,7 @@ const ProjectPage = async ({
       {/* {metrics && <Metrics metrics={metrics} />} */}
       <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-12">
         <div className="col-span-3 ">
-          <Card className="p-4 space-y-2 rounded-lg">
+          <Card className="space-y-2 rounded-lg p-4">
             <div className="flex w-full items-center justify-center">
               <Avatar className="h-40 w-40">
                 {project?.avatar_url && (

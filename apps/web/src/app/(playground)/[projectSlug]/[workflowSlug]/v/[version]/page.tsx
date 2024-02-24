@@ -21,7 +21,7 @@ const PlaygroundPage = async (props: {
   const cookieStore = cookies();
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
-  const workflow = await api.craft.module.meta.query({
+  const workflow = await api.craft.module.meta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
     version: Number(props.params.version),

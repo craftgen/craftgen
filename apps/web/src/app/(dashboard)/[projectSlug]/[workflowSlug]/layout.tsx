@@ -7,11 +7,11 @@ import { ModuleHeader } from "./components/module-header";
 const PlaygroundLayout = async (props: {
   params: {
     projectSlug: string;
-    playgroundSlug: string;
+    workflowSlug: string;
   };
   children: React.ReactNode;
 }) => {
-  const workflow = await api.craft.module.meta.query({
+  const workflow = await api.craft.module.meta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
   });

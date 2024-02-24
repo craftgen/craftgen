@@ -7,7 +7,7 @@ import { api } from "@/trpc/server";
 interface Props {
   params: {
     projectSlug: string;
-    playgroundSlug: string;
+    workflowSlug: string;
   };
   searchParams: Record<string, string | string[] | undefined>;
 }
@@ -16,7 +16,7 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const workflowMeta = await api.craft.module.meta.query({
+  const workflowMeta = await api.craft.module.meta({
     projectSlug: params.projectSlug,
     workflowSlug: params.workflowSlug,
   });
@@ -27,11 +27,11 @@ export async function generateMetadata(
 }
 
 const PlaygroundVersionsPage: React.FC<Props> = async (props) => {
-  const workflowMeta = await api.craft.module.meta.query({
+  const workflowMeta = await api.craft.module.meta({
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
   });
-  const versions = await api.craft.version.list.query({
+  const versions = await api.craft.version.list({
     workflowId: workflowMeta.id,
   });
   return (
