@@ -68,9 +68,15 @@ importers:
       replicate:
         specifier: ^0.22.0
         version: 0.22.0
+      stripe:
+        specifier: ^14.18.0
+        version: 14.18.0
       superjson:
         specifier: 1.13.1
         version: 1.13.1
+      ts-pattern:
+        specifier: ^5.0.5
+        version: 5.0.5
       zod:
         specifier: 3.21.4
         version: 3.21.4
@@ -565,6 +571,9 @@ importers:
       '@seocraft/supabase':
         specifier: '*'
         version: link:../supabase
+      '@stripe/stripe-js':
+        specifier: ^3.0.5
+        version: 3.0.5
       '@supabase/auth-helpers-nextjs':
         specifier: ^0.8.1
         version: 0.8.4(@supabase/supabase-js@2.39.7)
@@ -958,6 +967,9 @@ importers:
       squirrelly:
         specifier: ^9.0.0
         version: 9.0.0
+      stripe:
+        specifier: ^14.18.0
+        version: 14.18.0
       superjson:
         specifier: 1.13.1
         version: 1.13.1
@@ -6401,6 +6413,11 @@ packages:
 
   /@stitches/core@1.2.8:
     resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
+    dev: false
+
+  /@stripe/stripe-js@3.0.5:
+    resolution: {integrity: sha512-0BTd2bC+8gSKty7jXKRntLnvmWgFTmpZkY0oP7ADBYfdV0JtuGoDbfQawui0W5eUlwT3CcKh2IeRV4SPOBIeXQ==}
+    engines: {node: '>=12.16'}
     dev: false
 
   /@supabase/auth-helpers-nextjs@0.8.4(@supabase/supabase-js@2.39.7):
@@ -18634,6 +18651,14 @@ packages:
   /strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  /stripe@14.18.0:
+    resolution: {integrity: sha512-yLqKPqYgGJbMxrQiE4+i2i00ZVA2NRIZbZ1rejzj5XR3F3Uc+1iy9QE133knZudhVGMw367b8vTpB8D9pYMETw==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@types/node': 20.9.0
+      qs: 6.11.2
+    dev: false
 
   /style-mod@4.1.0:
     resolution: {integrity: sha512-Ca5ib8HrFn+f+0n4N4ScTIA9iTOQ7MaGS1ylHcoVqW9J7w2w8PzN6g9gKmTYgGEBH8e120+RCmhpje6jC5uGWA==}

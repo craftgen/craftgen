@@ -63,7 +63,9 @@ export const ProjectDeleteSection = () => {
       </p>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant={"destructive"}>Delete Project</Button>
+          <Button variant={"destructive"} disabled={project.personal}>
+            Delete Project
+          </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>

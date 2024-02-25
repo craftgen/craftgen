@@ -24,7 +24,9 @@
     "lodash-es": "^4.17.21",
     "openai": "^4.16.1",
     "replicate": "^0.22.0",
+    "stripe": "^14.18.0",
     "superjson": "1.13.1",
+    "ts-pattern": "^5.0.5",
     "zod": "3.21.4"
   },
   "devDependencies": {

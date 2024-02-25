@@ -188,6 +188,7 @@ export interface Database {
           personal: boolean
           site: string | null
           slug: string
+          stripe_account_id: string | null
         }
         Insert: {
           id: string
@@ -195,6 +196,7 @@ export interface Database {
           personal?: boolean
           site?: string | null
           slug: string
+          stripe_account_id?: string | null
         }
         Update: {
           id?: string
@@ -202,6 +204,7 @@ export interface Database {
           personal?: boolean
           site?: string | null
           slug?: string
+          stripe_account_id?: string | null
         }
         Relationships: []
       }

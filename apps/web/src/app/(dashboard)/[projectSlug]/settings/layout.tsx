@@ -17,6 +17,10 @@ const sidebarNavItems = [
     title: "Variables",
     href: "/[projectSlug]/settings/tokens",
   },
+  {
+    title: "Payment",
+    href: "/[projectSlug]/settings/payment",
+  },
 ];
 
 const ProjectSettingPageLayout: React.FC<PropsWithChildren> = ({

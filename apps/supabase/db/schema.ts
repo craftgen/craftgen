@@ -52,6 +52,7 @@ export const project = pgTable("project", {
   site: text("site").unique(),
   slug: text("slug").notNull().unique(),
   personal: boolean("personal").notNull().default(false),
+  stripeAccountId: text("stripe_account_id"),
 });
 
 export const apiKey = pgTable(
