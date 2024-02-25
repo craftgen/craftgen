@@ -532,11 +532,11 @@ const NodeOutput = ({ id, actor }: { id: string; actor: AnyActorRef }) => {
 
   return (
     <div>
-      {outputs?.value && (
-        <div className="break-words">
+      {/* {outputs?.value && (
+        <div className="break-words overflow-clip">
           <Markdown>{String(outputs?.value)}</Markdown>
         </div>
-      )}
+      )} */}
       {outputs?.result && outputs?.result[0] && (
         <img src={outputs?.result[0]} className="w-full" />
       )}

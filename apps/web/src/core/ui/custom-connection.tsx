@@ -8,6 +8,7 @@ import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useSelector } from "@xstate/react";
+import { get } from "lodash-es";
 
 const { useConnection } = Presets.classic;
 
@@ -15,13 +16,22 @@ const useConnectionSync = (props: { data: Connection }) => {
   const sourceValue = useSelector(props.data?.sourceNode?.actor, (state) =>
     state ? state?.context?.outputs[props.data.sourceOutput] : null,
   );
+  const sourceId = props.data?.sourceNode?.actor?.id;
+  const targetActorRefId = useSelector(props.data?.targetNode?.actor, (state) =>
+    get(
+      state,
+      ["context", "inputSockets", props.data.targetInput, "x-actor-ref-id"],
+      null,
+    ),
+  );
+
   const targetValue = useSelector(props.data?.targetNode?.actor, (state) =>
     state ? state?.context?.inputs[props.data.targetInput] : null,
   );
 
   const inSync = React.useMemo(() => {
-    return sourceValue === targetValue;
-  }, [sourceValue, targetValue]);
+    return sourceValue === targetValue || sourceId === targetActorRefId;
+  }, [sourceValue, targetValue, sourceId, targetActorRefId]);
   return inSync;
 };
 
