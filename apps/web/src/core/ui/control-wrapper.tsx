@@ -6,7 +6,6 @@ export const ControlWrapper: React.FC<{
   control: any;
   definition: JSONSocket;
 }> = ({ control, definition }) => {
-  console.log("ControlWrapper", control, definition);
   const ref = useRef<HTMLDivElement>(null);
   const ControlElement = getControl({
     element: ref.current!,

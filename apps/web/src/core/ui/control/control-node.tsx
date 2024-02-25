@@ -229,7 +229,6 @@ const InputItem = ({
       }),
     [item, item.format],
   );
-  console.log("RERENDER", item.format, controller);
 
   return (
     <SocketController actor={actor} socket={item}>
