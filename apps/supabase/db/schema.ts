@@ -125,6 +125,9 @@ export const workflowVersion = pgTable(
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
+    contextId: text("context_id").references((): AnyPgColumn => context.id, {
+      onDelete: "cascade",
+    }),
     previousVersionId: text("previous_workflow_version_id"),
     version: integer("version").notNull().default(0),
     publishedAt: timestamp("published_at"),
@@ -146,6 +149,10 @@ export const workflowVersionRelations = relations(
     }),
     edges: many(workflowEdge),
     nodes: many(workflowNode),
+    context: one(context, {
+      fields: [workflowVersion.contextId],
+      references: [context.id],
+    }),
     contexts: many(context),
     previousVersion: one(workflowVersion, {
       fields: [workflowVersion.previousVersionId],
@@ -225,38 +232,6 @@ export const context = pgTable("context", {
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
 });
 
-// export const contextRelation = pgTable(
-//   "context_relation",
-//   {
-//     source: text("source")
-//       .notNull()
-//       .references(() => context.id, { onDelete: "cascade" }),
-//     type: text("type").$type<"parent">().notNull(),
-//     target: text("target")
-//       .notNull()
-//       .references(() => context.id, { onDelete: "cascade" }),
-//   },
-//   (t) => {
-//     return {
-//       pk: primaryKey(t.source, t.target, t.type),
-//     };
-//   },
-// );
-
-// export const contextRelationRelations = relations(
-//   contextRelation,
-//   ({ one }) => ({
-//     source: one(context, {
-//       fields: [contextRelation.source],
-//       references: [context.id],
-//     }),
-//     target: one(context, {
-//       fields: [contextRelation.target],
-//       references: [context.id],
-//     }),
-//   }),
-// );
-
 export const workflowEdge = pgTable(
   "workflow_edge",
   {
@@ -281,12 +256,14 @@ export const workflowEdge = pgTable(
   },
   (edge) => {
     return {
-      pk: primaryKey(
-        edge.source,
-        edge.target,
-        edge.sourceOutput,
-        edge.targetInput,
-      ),
+      pk: primaryKey({
+        columns: [
+          edge.source,
+          edge.target,
+          edge.sourceOutput,
+          edge.targetInput,
+        ],
+      }),
     };
   },
 );

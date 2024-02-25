@@ -17,7 +17,6 @@ import {
 } from "@seocraft/supabase/db";
 
 import { getDrive, getWebmaster } from "@/lib/google/auth";
-import { action } from "@/lib/safe-action";
 
 import type { GoogleIntegrationsScope } from "./settings/integrations/page";
 
@@ -74,48 +73,6 @@ export const checkSlugAvailable = async (params: {
     .limit(1);
   return exist.length === 0;
 };
-
-export const createPlayground = action(
-  z.object({
-    projectId: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    description: z.string().optional(),
-    template: z.string().optional(),
-  }),
-  async ({ projectId, name, slug, description, template }) => {
-    const supabase = createServerActionClient({ cookies });
-    const session = await supabase.auth.getSession();
-
-    const newPlayground = await db.transaction(async (tx) => {
-      const project = await tx.query.project.findFirst({
-        where: (project, { eq }) => eq(project.id, projectId),
-        columns: {
-          slug: true,
-        },
-      });
-      if (!project) throw new Error("Project not found");
-      const [newP] = await tx
-        .insert(workflow)
-        .values({
-          name,
-          slug,
-          description,
-          projectId,
-          projectSlug: project?.slug,
-        })
-        .returning();
-      if (!newP) throw new Error("Failed to create playground");
-      await tx.insert(workflowVersion).values({
-        workflowId: newP.id,
-        projectId: newP.projectId,
-      });
-      return newP;
-    });
-
-    return newPlayground;
-  },
-);
 
 export const clonePlayground = async ({
   playgroundId,

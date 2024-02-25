@@ -36,11 +36,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
 
-import {
-  checkSlugAvailable,
-  createPlayground as createWorkflow,
-} from "./actions";
+import { checkSlugAvailable } from "./actions";
 import { useProject } from "./hooks/use-project";
+import { api } from "@/trpc/react";
 
 const formSchema = z.object({
   template: z.string().nullable(),
@@ -155,33 +153,34 @@ export const WorkflowCreateDialog: React.FC<{
     [slug],
   );
 
+  const utils = api.useUtils();
+  const { mutateAsync: createWorkflow, error } =
+    api.craft.module.create.useMutation({
+      onSuccess: async () => {
+        await utils.craft.module.list.invalidate();
+      },
+    });
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
-    const {
-      data: newPlayground,
-      serverError,
-      validationError,
-    } = await createWorkflow({
+    toast({
+      title: "Creating playground...",
+      description: "This may take a few seconds.",
+    });
+
+    const newPlayground = await createWorkflow({
       projectId: project?.id!,
+      public: data.public,
       name: data.name,
       slug: data.slug,
       description: data.description,
     });
-    if (!newPlayground) {
+    if (error) {
       toast({
         title: "Error",
-        description:
-          serverError ||
-          JSON.stringify(validationError) ||
-          "Something went wrong.",
+        description: "Something went wrong.",
       });
       return;
     }
-    const t = toast({
-      title: "Creating playground...",
-      description: "This may take a few seconds.",
-    });
-    await mutate(`/api/project/${project?.id}/playgrounds`);
     router.push(`/${params.projectSlug}/${newPlayground.slug}/v/0`);
     form.reset();
     onOpenChange(false);

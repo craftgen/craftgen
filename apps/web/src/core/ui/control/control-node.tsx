@@ -82,7 +82,7 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
   );
   const selectedActorState = useSelector<AnyActor, any>(
     selectedActor,
-    (state) => state.value,
+    (state) => state?.value,
     isEqual,
   );
 
@@ -281,6 +281,9 @@ const SocketController = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       exit={{ opacity: 0 }}
+      data-socket-key={socket["x-key"]}
+      data-socket-type={socket["x-type"]}
+      data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
         "mb-2 flex flex-row space-x-1 p-2",
         hasConnection && "bg-muted/30 rounded border",

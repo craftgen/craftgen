@@ -1,6 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, get, isEqual, isNil, merge } from "lodash-es";
+import { cloneDeep, difference, get, isEqual, isNil, merge } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -97,32 +97,6 @@ export interface EditorHandlers {
   incompatibleConnection?: (data: { source: Socket; target: Socket }) => void;
 }
 
-export interface EditorProps<
-  NodeProps extends BaseNode<any, any, any>,
-  ConnProps extends Connection<NodeProps, NodeProps>,
-  Scheme extends GetSchemes<NodeProps, ConnProps>,
-  Registry extends NodeRegistry,
-> {
-  config: {
-    nodes: Registry;
-    api: WorkflowAPI;
-    logger?: typeof console;
-    readonly?: boolean; // default false
-    meta: {
-      workflowId: string;
-      workflowVersionId: string;
-      projectId: string;
-      executionId?: string;
-    };
-    on?: EditorHandlers;
-  };
-  content?: {
-    nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
-    edges: SetOptional<ConnProps, "id">[];
-    contexts: SnapshotFrom<AnyStateMachine>[];
-  };
-}
-
 const EditorMachine = setup({
   types: {
     context: {} as {
@@ -189,8 +163,8 @@ const EditorMachine = setup({
   initial: "idle",
   on: {
     SET_INPUT_OUTPUT: {
-      actions: enqueueActions(({ enqueue, event, check }) => {
-        event.params.inputs.forEach((input) => {
+      actions: enqueueActions(({ enqueue, event, check, context }) => {
+        const inputKeys = event.params.inputs.map((input) => {
           const key = `${event.params.id}-${input["x-key"]}`;
           const socket = {
             ...input,
@@ -217,8 +191,39 @@ const EditorMachine = setup({
               },
             });
           }
+          return key;
         });
-        event.params.outputs.forEach((output) => {
+
+        /**
+         * DROP INPUT SOCKETS NO LONGER EXISTS.
+         */
+        if (
+          check(
+            ({ context }) =>
+              difference(
+                Object.keys(context.inputSockets).filter((k) =>
+                  k.startsWith(event.params.id),
+                ),
+                inputKeys,
+              ).length > 0,
+          )
+        ) {
+          enqueue.assign({
+            inputSockets: ({ context, event }) => {
+              const sockets = { ...context.inputSockets };
+              for (const key of difference(
+                Object.keys(context.inputSockets).filter((k) =>
+                  k.startsWith(event.params.id),
+                ),
+                inputKeys,
+              )) {
+                delete sockets[key];
+              }
+              return sockets;
+            },
+          });
+        }
+        const outputKeys = event.params.outputs.map((output) => {
           const key = `${event.params.id}-${output["x-key"]}`;
           const socket = {
             ...output,
@@ -245,70 +250,38 @@ const EditorMachine = setup({
               },
             });
           }
+          return key;
         });
 
-        // enqueue.assign({
-        //   inputSockets: ({ context, event, system }) => {
-        //     const otherInputsSockets = Object.values(context.inputSockets)
-        //       .filter((value) => {
-        //         return value["x-actor-id"] !== event.params.id;
-        //       })
-        //       .reduce(
-        //         (acc, value) => {
-        //           acc[value["x-key"]] = value;
-        //           return acc;
-        //         },
-        //         {} as Record<string, JSONSocket>,
-        //       );
-        //     console.log("OTHER INPUTS", otherInputsSockets);
-        //     const sockets = { ...otherInputsSockets };
-        //     for (const value of event.params.inputs) {
-        //       const key = `${event.params.id}-${value["x-key"]}`;
-        //       if (context.inputSockets[key]) {
-        //         if (isEqual(context.inputSockets[key], value)) {
-        //           sockets[key] = context.inputSockets[key];
-        //           console.log("ALREADY EXISTS", key);
-        //           continue;
-        //         }
-        //       }
-
-        //       sockets[key] = {
-        //         ...value,
-        //         "x-actor-id": event.params.id,
-        //         ...(!value["x-actor-ref"] &&
-        //           {
-        //             // "x-actor-ref": system.get(event.params.id),
-        //             // "x-actor-ref-id": event.params.id,
-        //             // "x-actor-ref-type": system.get(event.params.id).src,
-        //           }),
-        //       };
-        //     }
-
-        //     return sockets;
-        //   },
-        //   outputSockets: ({ context, event }) => {
-        //     const otherOutputSockets = Object.values(context.outputSockets)
-        //       .filter((value) => {
-        //         return value["x-actor-id"] !== event.params.id;
-        //       })
-        //       .reduce(
-        //         (acc, value) => {
-        //           acc[value["x-key"]] = value;
-        //           return acc;
-        //         },
-        //         {} as Record<string, JSONSocket>,
-        //       );
-        //     console.log("OTHER OUTPUTS", otherOutputSockets);
-        //     const sockets = { ...otherOutputSockets };
-        //     for (const value of event.params.outputs) {
-        //       sockets[value["x-key"]] = {
-        //         ...value,
-        //         "x-actor-id": event.params.id,
-        //       };
-        //     }
-        //     return sockets;
-        //   },
-        // });
+        /**
+         * DROP OUTPUT SOCKETS NO LONGER EXISTS.
+         */
+        if (
+          check(
+            ({ context }) =>
+              difference(
+                Object.keys(context.outputSockets).filter((k) =>
+                  k.startsWith(event.params.id),
+                ),
+                outputKeys,
+              ).length > 0,
+          )
+        ) {
+          enqueue.assign({
+            outputSockets: ({ context, event }) => {
+              const sockets = { ...context.outputSockets };
+              for (const key of difference(
+                Object.keys(context.outputSockets).filter((k) =>
+                  k.startsWith(event.params.id),
+                ),
+                outputKeys,
+              )) {
+                delete sockets[key];
+              }
+              return sockets;
+            },
+          });
+        }
       }),
     },
   },
@@ -403,6 +376,38 @@ function withLogging(actorLogic: any) {
   return enhancedLogic;
 }
 
+export interface EditorMachineContext {
+  id: string;
+  state: SnapshotFrom<typeof EditorMachine> | null;
+}
+
+export interface EditorProps<
+  NodeProps extends BaseNode<any, any, any>,
+  ConnProps extends Connection<NodeProps, NodeProps>,
+  Scheme extends GetSchemes<NodeProps, ConnProps>,
+  Registry extends NodeRegistry,
+> {
+  config: {
+    nodes: Registry;
+    api: WorkflowAPI;
+    logger?: typeof console;
+    readonly?: boolean; // default false
+    meta: {
+      workflowId: string;
+      workflowVersionId: string;
+      projectId: string;
+      executionId?: string;
+    };
+    on?: EditorHandlers;
+  };
+  content?: {
+    context: EditorMachineContext;
+    nodes: ConvertToNodeWithState<Registry, ParsedNode<any, any>>[];
+    edges: SetOptional<ConnProps, "id">[];
+    contexts: SnapshotFrom<AnyStateMachine>[];
+  };
+}
+
 export class Editor<
   NodeProps extends BaseNode<any, any, any, any> = BaseNode<any, any, any, any>,
   ConnProps extends Connection<NodeProps, NodeProps> = Connection<
@@ -462,20 +467,13 @@ export class Editor<
   public variables = new Map<string, string>();
 
   public content = {
+    context: {} as EditorMachineContext,
     contexts: [] as SnapshotFrom<AnyStateMachine>[],
     nodes: [] as NodeWithState<Registry>[],
     edges: [] as SetOptional<ConnProps, "id">[],
   };
 
   public inspector: ReturnType<typeof createBrowserInspector> | undefined;
-
-  public setContent(content: {
-    contexts: SnapshotFrom<AnyStateMachine>[];
-    nodes: NodeWithState<Registry>[];
-    edges: SetOptional<ConnProps, "id">[];
-  }) {
-    this.content = content;
-  }
 
   public readonly: boolean;
   public render: ReactPlugin<Scheme, AreaExtra<Scheme>> | undefined;
@@ -1052,6 +1050,7 @@ export class Editor<
     this.api = props.config.api;
     console.log("DATA IN ======>", props.content);
     this.content = {
+      context: props.content?.context!,
       nodes: (props.content?.nodes as NodeWithState<Registry>[]) || [],
       edges: props.content?.edges || [],
       contexts: props.content?.contexts || [],
@@ -1199,19 +1198,24 @@ export class Editor<
 
     await this.setupEnv();
     const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
-    this.content.contexts.forEach((n: any) => {
-      children[n.id] = {
-        snapshot: n.state,
-        src: n.type,
-        systemId: n.id,
-        syncSnapshot: true,
-      };
+    this.content.contexts
+      .filter((c) => {
+        return c.id !== this.content.context.id;
+      })
+      .forEach((n: any) => {
+        children[n.id] = {
+          snapshot: n.state,
+          src: n.type,
+          systemId: n.id,
+          syncSnapshot: true,
+        };
+      });
+    console.log("!!!!1", {
+      context: this.content.context,
     });
-
-    const snapshot = {
+    let snapshot = {
       value: "idle",
       status: "active",
-      children,
       context: {
         inputSockets: {},
         outputSockets: {},
@@ -1222,11 +1226,26 @@ export class Editor<
       error: undefined,
       output: undefined,
     } as any;
+    if (this.content.context?.state) {
+      snapshot = {
+        ...snapshot,
+        ...this.content.context.state,
+      };
+      console.log("!!!!2", {
+        snapshot,
+      });
+    }
+
+    snapshot.children = children;
+    console.log("!!!!3", {
+      context: this.content.context,
+      snapshot,
+    });
 
     this.inspector = createBrowserInspector({ autoStart: false });
-
     this.actor = createActor(withLogging(this.machine), {
-      systemId: "editor",
+      id: this.content.context?.id,
+      systemId: "editor", // ROOT ACTOR.
       inspect: (inspectionEvent) => {
         if (this.inspector) {
           this.inspector?.inspect?.next(inspectionEvent);
@@ -1234,6 +1253,23 @@ export class Editor<
         if (inspectionEvent.type === "@xstate.snapshot") {
           // skip editor snapshots
           if (inspectionEvent.actorRef === this.actor) {
+            const editorSnapshot = {
+              src: "NodeModule",
+              syncSnapshot: true,
+              snapshot: inspectionEvent.actorRef.getPersistedSnapshot(),
+              systemId: inspectionEvent.actorRef.id,
+            } as unknown as SnapshotFrom<typeof EditorMachine>;
+
+            this.stateEvents.next({
+              executionId: this.executionId,
+              state: editorSnapshot,
+              readonly: false,
+              timestamp: +new Date(),
+            });
+            console.log("EDITOR SNAPSHOT", {
+              snapshot: editorSnapshot,
+            });
+
             return;
           }
 
