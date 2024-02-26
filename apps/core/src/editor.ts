@@ -583,32 +583,39 @@ export class Editor<
         type: event.value,
       }),
     }),
-    assignParent: enqueueActions(({ enqueue, event, context, check, self }) => {
-      if (check(({ context }) => !isNil(context.parent))) {
-        if (self.id.startsWith("call")) {
-          enqueue.sendTo(
-            ({ context, system }) => system.get(context.parent?.id!),
-            ({ self }) => ({
-              type: "ASSIGN_RUN",
-              params: {
-                actor: self,
-              },
-            }),
-          );
-        } else {
-          enqueue.sendTo(
-            ({ context, system }) => system.get(context.parent?.id!),
-            ({ context, self }) => ({
-              type: "ASSIGN_CHILD",
-              params: {
-                actor: self,
-                port: context.parent?.port!,
-              },
-            }),
-          );
+    assignParent: enqueueActions(
+      ({ enqueue, event, context, check, self, system }) => {
+        if (check(({ context }) => !isNil(context.parent))) {
+          if (self.id.startsWith("call")) {
+            enqueue.sendTo(
+              ({ context, system }) => system.get(context.parent?.id!),
+              ({ self }) => ({
+                type: "ASSIGN_RUN",
+                params: {
+                  actor: self,
+                },
+              }),
+            );
+          } else if (
+            // skip the root actor
+            check(
+              ({ context }) => context.parent?.id !== system.get("editor").id,
+            )
+          ) {
+            enqueue.sendTo(
+              ({ context, system }) => system.get(context.parent?.id!),
+              ({ context, self }) => ({
+                type: "ASSIGN_CHILD",
+                params: {
+                  actor: self,
+                  port: context.parent?.port!,
+                },
+              }),
+            );
+          }
         }
-      }
-    }),
+      },
+    ),
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
       assertEvent(event, "ASSIGN_CHILD");
       enqueue.assign({
