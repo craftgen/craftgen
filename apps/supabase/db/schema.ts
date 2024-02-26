@@ -223,7 +223,7 @@ export const context = pgTable("context", {
     }),
   workflow_version_id: text("workflow_version_id")
     .notNull()
-    .references(() => workflowVersion.id, { onDelete: "cascade" }),
+    .references(() => workflowVersion.id, { onDelete: "set null" }),
   parent_id: text("parent_id").references((): AnyPgColumn => context.id, {
     onDelete: "cascade",
   }),

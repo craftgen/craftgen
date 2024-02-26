@@ -524,6 +524,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
 
         const version = workflow?.versions[0];
+
         if (!version) {
           throw new Error("Playground version not found");
         }
@@ -558,7 +559,9 @@ export const craftModuleRouter = createTRPCRouter({
           context: version.context,
           nodes: contentNodes,
           edges: contentEdges,
-          contexts: version.contexts,
+          contexts: version.contexts.filter(
+            (c) => c.id !== version.context?.id,
+          ),
           version,
           execution: workflow?.versions[0]?.executions[0],
           readonly,

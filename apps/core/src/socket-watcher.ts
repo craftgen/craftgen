@@ -57,7 +57,11 @@ export const socketWatcher = fromObservable(
     nodeEvents
       .pipe(
         filter((state) => {
-          return isNil(state.context.parent);
+          const moduleNode = system.get("editor");
+
+          const parentId = get(state, ["context", "parent", "id"]);
+
+          return moduleNode.id === parentId;
         }),
         debounceTime(1000),
         switchMap((state) => {
@@ -101,8 +105,9 @@ export const socketWatcher = fromObservable(
         distinctUntilChanged(isEqual),
       )
       .subscribe((event) => {
-        const module = system.get("editor");
-        module.send({
+        console.log("SET_INPUT_OUTPUT", event);
+        const editorModule = system.get("editor");
+        editorModule.send({
           type: "SET_INPUT_OUTPUT",
           params: {
             id: input.self.id,

@@ -172,6 +172,7 @@ export const EditorMachine = setup({
   on: {
     SET_INPUT_OUTPUT: {
       actions: enqueueActions(({ enqueue, event, check, context }) => {
+        console.log("SET_INPUT_OUTPUT", event);
         const inputKeys = event.params.inputs.map((input) => {
           const key = `${event.params.id}-${input["x-key"]}`;
           const socket = {
@@ -347,7 +348,7 @@ export const EditorMachine = setup({
           actions: enqueueActions(({ enqueue, event }) => {
             console.log("SPANWING", event);
             enqueue.assign({
-              actors: ({ spawn, context }) => {
+              actors: ({ spawn, context, system }) => {
                 const actor = spawn(event.params.machineId, {
                   input: event.params.input,
                   id: event.params.id,
@@ -613,6 +614,7 @@ export class Editor<
       enqueue.assign({
         inputSockets: ({ context, system, event }) => {
           assertEvent(event, "ASSIGN_CHILD");
+          console.log("ASSIGN CHILD", event);
           const port = event.params.port;
           const socket = context.inputSockets[port];
           const actorType = event.params.actor.src as string;
@@ -1092,6 +1094,22 @@ export class Editor<
     }
     const nodeClass = nodeMeta.class;
     const nodeActor = this.actor?.system.get(node.contextId);
+    if (node.type === "NodeModule") {
+      const snap = this.actor?.getPersistedSnapshot();
+      this.actor?.stop();
+      console.log("PERSISTED SNAPSHOT", snap);
+      console.log("NODE CONTEXT", node.context.children);
+      const mergedChildrens = merge(snap.children, node.children);
+
+      this.actor = this.createActor({
+        ...snap,
+        children: mergedChildrens,
+      });
+
+      this.initializeChildrens(node.children);
+
+      this.actor?.start();
+    }
     if (!nodeActor) {
       console.log(
         "ACTOR NOT FOUND | SPAWNING",
@@ -1207,11 +1225,9 @@ export class Editor<
     // this.variables.set("OPENAI_API_KEY", openai);
   }
 
-  public async setup() {
-    this.editor.use(this.engine);
-    this.editor.use(this.dataFlow);
+  private async setupInitialActor() {}
 
-    await this.setupEnv();
+  private createInitialSnapshot() {
     const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
     this.content.contexts
       .filter((c) => {
@@ -1225,9 +1241,6 @@ export class Editor<
           syncSnapshot: true,
         };
       });
-    console.log("!!!!1", {
-      context: this.content.context,
-    });
     let snapshot = {
       value: "idle",
       status: "active",
@@ -1246,19 +1259,15 @@ export class Editor<
         ...snapshot,
         ...this.content.context.state,
       };
-      console.log("!!!!2", {
-        snapshot,
-      });
     }
 
     snapshot.children = children;
-    console.log("!!!!3", {
-      context: this.content.context,
-      snapshot,
-    });
 
-    this.inspector = createBrowserInspector({ autoStart: false });
-    this.actor = createActor(withLogging(this.machine), {
+    return snapshot;
+  }
+
+  private createActor(snapshot: SnapshotFrom<typeof EditorMachine>) {
+    return createActor(withLogging(this.machine), {
       id: this.content.context?.id,
       systemId: "editor", // ROOT ACTOR.
       inspect: (inspectionEvent) => {
@@ -1349,28 +1358,14 @@ export class Editor<
       },
       snapshot: cloneDeep(snapshot),
     });
+  }
 
-    console.log("IN SETUP 3", this.content, snapshot, this.actor);
-    // return;
-
-    this.actor.subscribe({
-      next: (state) => {
-        // console.log("EDITOR STATE", state);
-      },
-      error: (error) => {
-        console.error("EDITOR ERROR", error);
-      },
-      complete: () => {
-        console.log("EDITOR COMPLETE");
-      },
-    });
-    this.setupEventHandling();
-    await this.import(this.content);
-
-    this.actor.start();
-
+  public initializeChildrens(children: Record<string, AnyActorRef>) {
+    if (!this.actor) {
+      return;
+    }
     for (const [key, value] of Object.entries(children)) {
-      const actor = this.actor.system.get(key);
+      const actor = this.actor?.system.get(key);
       if (!actor) {
         // ACTOR HAS REACHED THE FINAL STATE.
         // console.error("ACTOR NOT FOUND", key, value);
@@ -1386,6 +1381,23 @@ export class Editor<
         });
       }
     }
+  }
+
+  public async setup() {
+    this.editor.use(this.engine);
+    this.editor.use(this.dataFlow);
+
+    await this.setupEnv();
+
+    const snapshot = this.createInitialSnapshot();
+
+    this.inspector = createBrowserInspector({ autoStart: false });
+    this.actor = this.createActor(snapshot);
+
+    this.setupEventHandling();
+    await this.import(this.content);
+    this.actor.start();
+    this.initializeChildrens(snapshot.children);
 
     this.handleNodeEvents();
 

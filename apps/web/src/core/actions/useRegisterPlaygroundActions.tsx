@@ -213,7 +213,7 @@ export const useRegisterPlaygroundActions = ({
                 "NodeModule",
                 {
                   // moduleId: version.id,
-                  ...module.context?.state?.context,
+                  ...module.context?.state,
                 },
                 {
                   label: `@${version.workflow.projectSlug}/${version.workflow.name}`,
