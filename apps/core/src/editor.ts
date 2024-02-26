@@ -1,6 +1,14 @@
 import { init } from "@paralleldrive/cuid2";
 import Ajv from "ajv";
-import { cloneDeep, difference, get, isEqual, isNil, merge } from "lodash-es";
+import {
+  cloneDeep,
+  difference,
+  get,
+  isEqual,
+  isNil,
+  merge,
+  set,
+} from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
 import { NodeEditor } from "rete";
@@ -97,7 +105,7 @@ export interface EditorHandlers {
   incompatibleConnection?: (data: { source: Socket; target: Socket }) => void;
 }
 
-const EditorMachine = setup({
+export const EditorMachine = setup({
   types: {
     context: {} as {
       inputSockets: Record<string, JSONSocket>;
@@ -1024,6 +1032,12 @@ export class Editor<
       },
     });
 
+    this.machine = this.machine.provide({
+      actors: {
+        NodeModule: this.machine,
+      },
+    });
+
     makeObservable(this, {
       cursorPosition: observable,
       setCursorPosition: action,
@@ -1124,7 +1138,7 @@ export class Editor<
     if (!nodeMeta) {
       throw new Error(`Node type ${String(node)} not registered`);
     }
-    if (nodeMeta.nodeType === "ModuleNode") {
+    if (nodeMeta.nodeType === "NodeModule") {
       const isSameModule = context?.moduleId === this.workflowVersionId;
       if (isSameModule) {
         throw new Error("Can not add self module");
@@ -1169,6 +1183,7 @@ export class Editor<
         ),
       },
       content: {
+        context: workflow.context,
         edges: workflow.edges,
         nodes: workflow.nodes,
         contexts: workflow.contexts,
@@ -1303,10 +1318,23 @@ export class Editor<
             const contextId = event.type.split("xstate.snapshot.")[1];
             const actor = this.actor.system.get(contextId);
 
+            let actorSnapshot = event.snapshot.toJSON();
+
+            /**
+             * Here we are making sure the everything within the module has a parent.
+             */
+            const parentId = get(
+              actorSnapshot,
+              "context.parent.id",
+              this.actor.id,
+            );
+
+            actorSnapshot = set(actorSnapshot, "context.parent.id", parentId);
+
             const snapshot = {
               src: actor?.src,
               syncSnapshot: actor._syncSnapshot,
-              snapshot: event.snapshot.toJSON(),
+              snapshot: actorSnapshot,
               systemId: contextId,
             } as SnapshotFrom<AnyActor>;
 

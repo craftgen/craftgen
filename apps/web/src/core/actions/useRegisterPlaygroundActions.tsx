@@ -194,6 +194,8 @@ export const useRegisterPlaygroundActions = ({
     );
   }, [assistants]);
 
+  const utils = api.useUtils();
+
   const workflowActions = useMemo<Action[]>(() => {
     return (
       workflowVersions?.map(
@@ -203,10 +205,15 @@ export const useRegisterPlaygroundActions = ({
             name: `@${version.workflow.projectSlug}/${version.workflow.name}v${version.version}`,
             parent: version.workflowId,
             perform: async () => {
+              const module = await utils.craft.module.getById.fetch({
+                versionId: version.id,
+              });
+              console.log("MODULE", module);
               di?.addNode(
                 "NodeModule",
                 {
-                  moduleId: version.id,
+                  // moduleId: version.id,
+                  ...module.context?.state?.context,
                 },
                 {
                   label: `@${version.workflow.projectSlug}/${version.workflow.name}`,

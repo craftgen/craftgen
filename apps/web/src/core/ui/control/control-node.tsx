@@ -221,9 +221,9 @@ const InputItem = ({
       getControlBySocket({
         socket,
         actor: targetActor,
-        selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
+        selector: (snapshot) => snapshot.context.inputs[itemKey],
         definitionSelector: (snapshot) =>
-          snapshot.context.inputSockets[item["x-key"]],
+          snapshot.context.inputSockets[itemKey],
         onChange: handleChange,
         definition: item,
       }),

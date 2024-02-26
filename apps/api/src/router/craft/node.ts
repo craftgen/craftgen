@@ -234,6 +234,7 @@ export const craftNodeRouter = createTRPCRouter({
             target: schema.context.id,
             set: {
               state: sql`excluded.state`,
+              parent_id: sql`excluded.parent_id`,
             },
           })
           .returning();
