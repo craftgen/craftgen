@@ -52,7 +52,7 @@ export const socketWatcher = fromObservable(
       return of({});
     }
 
-    const nodeEvents = from(input.self as any);
+    const nodeEvents = from(system.get(input.self.id));
 
     nodeEvents
       .pipe(

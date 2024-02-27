@@ -1100,22 +1100,48 @@ export class Editor<
       throw new Error(`Node type ${String(node.type)} not registered`);
     }
     const nodeClass = nodeMeta.class;
-    const nodeActor = this.actor?.system.get(node.contextId);
+    let nodeActor = this.actor?.system.get(node.contextId);
     if (node.type === "NodeModule") {
+      // console.log(
+      //   "EDITOR ACTOR",
+      //   this.actor,
+      //   this.actor?.getSnapshot(),
+      //   this.actor?.getPersistedSnapshot(),
+      // );
+
       const snap = this.actor?.getPersistedSnapshot();
+
       this.actor?.stop();
-      console.log("PERSISTED SNAPSHOT", snap);
-      console.log("NODE CONTEXT", node.context.children);
-      const mergedChildrens = merge(snap.children, node.children);
+      console.log("NODE CONTEXT", node.context);
+      // const mergedChildrens = merge(snap.children, node.context);
+      const mergedChildrens = {
+        ...snap.children,
+        [node.contextId]: {
+          snapshot: node.context,
+          src: node.type,
+          systemId: node.contextId,
+          syncSnapshot: true,
+        },
+      };
+
+      // debugger;
 
       this.actor = this.createActor({
         ...snap,
         children: mergedChildrens,
       });
 
-      this.initializeChildrens(node.children);
+      debugger;
 
       this.actor?.start();
+
+      console.log("EDITOR ACTOR SNAP", this.actor.getPersistedSnapshot());
+
+      this.initializeChildrens(mergedChildrens);
+
+      nodeActor = this.actor?.system.get(node.contextId);
+
+      console.log("NODE ACTOR", nodeActor);
     }
     if (!nodeActor) {
       console.log(
@@ -1164,6 +1190,7 @@ export class Editor<
       throw new Error(`Node type ${String(node)} not registered`);
     }
     if (nodeMeta.nodeType === "NodeModule") {
+      // TODO: this is not been checked.
       const isSameModule = context?.moduleId === this.workflowVersionId;
       if (isSameModule) {
         throw new Error("Can not add self module");

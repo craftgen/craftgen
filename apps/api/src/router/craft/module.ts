@@ -29,7 +29,7 @@ export const craftModuleRouter = createTRPCRouter({
         });
         if (!project) throw new Error("Project not found");
         // TODO check Ownership.
-        const [newP] = await tx
+        const [newWorkflow] = await tx
           .insert(schema.workflow)
           .values({
             name: input.name,
@@ -41,12 +41,12 @@ export const craftModuleRouter = createTRPCRouter({
           })
           .returning();
 
-        if (!newP) throw new Error("Failed to create playground");
+        if (!newWorkflow) throw new Error("Failed to create workflow");
         const [initialVersion] = await tx
           .insert(schema.workflowVersion)
           .values({
-            workflowId: newP.id,
-            projectId: newP.projectId,
+            workflowId: newWorkflow.id,
+            projectId: newWorkflow.projectId,
           })
           .returning();
         if (!initialVersion)
@@ -57,17 +57,22 @@ export const craftModuleRouter = createTRPCRouter({
           .values({
             project_id: project.id,
             type: "NodeModule",
-            workflow_id: newP?.id,
+            workflow_id: newWorkflow?.id,
             workflow_version_id: initialVersion.id,
           })
           .returning({
             id: schema.context.id,
           });
         if (!rootContext) throw new Error("Failed to create root context");
-        await tx.update(schema.workflowVersion).set({
-          contextId: rootContext.id,
-        });
-        return newP;
+
+        await tx
+          .update(schema.workflowVersion)
+          .set({
+            contextId: rootContext.id,
+          })
+          .where(eq(schema.workflowVersion.id, initialVersion.id));
+
+        return newWorkflow;
       });
       return newPlayground;
     }),
