@@ -59,6 +59,8 @@ export class Connection<
   targetActor?: AnyActor;
 
   destroy: () => Promise<void>;
+  sourceActorOutput: string;
+  targetActorInput: string;
 
   get inSync() {
     if (this.isActorRef) {
@@ -132,43 +134,24 @@ export class Connection<
     this.sourceNode = this.editor.editor.getNode(source.id);
     this.targetNode = this.editor.editor.getNode(target.id);
 
-    if (this.sourceNode.snap.context.outputs?.[sourceOutput]) {
-      this.sourceValue = this.sourceNode.snap.context.outputs[sourceOutput];
-    }
+    // if (this.sourceNode.snap.context.outputs?.[sourceNodeOutput]) {
+    //   this.sourceValue = this.sourceNode.snap.context.outputs[sourceNodeOutput];
+    // }
 
-    this.targetValue =
-      this.targetNode.snap.context.inputs[targetInput] ?? undefined;
-
-    this.sourceNode.actor.subscribe((state) => {
-      if (
-        state.context.outputs === undefined ||
-        state.context.outputs[sourceOutput] === undefined
-      ) {
-        return;
-      }
-      if (state.context.outputs) {
-        [];
-      }
-      if (this.sourceValue !== state.context.outputs[sourceOutput]) {
-        this.setSourceValue(state.context.outputs[sourceOutput]);
-      }
-    });
-
-    this.targetNode.actor.subscribe((state) => {
-      if (this.targetValue !== state.context.inputs[targetInput]) {
-        this.setTargetValue(state.context.inputs[targetInput]);
-      }
-    });
-
-    makeObservable(this, {
-      sourceValue: observable,
-      targetValue: observable,
-
-      setTargetValue: action,
-      setSourceValue: action,
-
-      inSync: computed,
-    });
+    // this.sourceNode.actor.subscribe((state) => {
+    //   if (
+    //     state.context.outputs === undefined ||
+    //     state.context.outputs[sourceNodeOutput] === undefined
+    //   ) {
+    //     return;
+    //   }
+    //   if (state.context.outputs) {
+    //     [];
+    //   }
+    //   if (this.sourceValue !== state.context.outputs[sourceNodeOutput]) {
+    //     this.setSourceValue(state.context.outputs[sourceNodeOutput]);
+    //   }
+    // });
 
     this.targetActor = get(
       this.targetNodeDefintion,
@@ -176,15 +159,40 @@ export class Connection<
       this.targetNode.actor,
     ) as AnyActor;
 
+    this.targetActorInput = get(
+      this.targetNodeDefintion,
+      ["x-key"],
+      this.targetInput,
+    );
+
+    this.targetValue =
+      this.targetActor.getSnapshot().context.inputs[this.targetActorInput];
+
+    this.targetActor.subscribe((state) => {
+      if (this.targetValue !== state.context.inputs[targetInput]) {
+        this.setTargetValue(state.context.inputs[targetInput]);
+      }
+    });
+
     this.sourceActor = get(
       this.sourceNodeDefintion,
       ["x-actor-ref"],
       this.sourceNode.actor,
     ) as AnyActor;
 
-    console.log("@$#@!$!@$!@", {
-      sourceACtor: this.sourceActor,
-      targetActor: this.targetActor,
+    this.sourceActorOutput = get(
+      this.sourceNodeDefintion,
+      ["x-key"],
+      this.sourceOutput,
+    );
+
+    this.sourceValue =
+      this.sourceActor.getSnapshot().context.outputs[this.sourceActorOutput];
+
+    this.sourceActor.subscribe((state) => {
+      if (this.sourceValue !== state.context.outputs[sourceOutput]) {
+        this.setSourceValue(state.context.outputs[sourceOutput]);
+      }
     });
 
     this.targetActor.send({
@@ -197,7 +205,7 @@ export class Connection<
             ...this.targetDefinition?.["x-connection"],
             [this.sourceActor.id]: {
               actorRef: this.sourceActor.ref,
-              key: this.sourceNodeDefintion?.["x-key"] ?? this.sourceOutput,
+              key: this.sourceActorOutput,
             },
           } as ConnectionConfigRecord,
         },
@@ -215,7 +223,7 @@ export class Connection<
             ...this.sourceDefinition?.["x-connection"],
             [this.targetActor.id]: {
               actorRef: this.targetActor.ref,
-              key: this.targetNodeDefintion?.["x-key"] ?? this.targetInput,
+              key: this.targetActorInput,
             },
           } as ConnectionConfigRecord,
         },
@@ -225,6 +233,16 @@ export class Connection<
     if (!this.inSync) {
       this.sync();
     }
+
+    makeObservable(this, {
+      sourceValue: observable,
+      targetValue: observable,
+
+      setTargetValue: action,
+      setSourceValue: action,
+
+      inSync: computed,
+    });
 
     this.destroy = async () => {
       const sourceNodeContext = this.sourceNode.actor.getSnapshot().context;
