@@ -150,6 +150,143 @@ export const EditorMachine = setup({
             outputs: JSONSocket[];
           };
         },
+    actions: {} as {
+      type: "setInputOutput";
+      params: {
+        id: string;
+        inputs: JSONSocket[];
+        outputs: JSONSocket[];
+      };
+    },
+  },
+  actions: {
+    setInputOutput: enqueueActions(({ enqueue, event, check, context }) => {
+      assertEvent(event, "SET_INPUT_OUTPUT");
+      console.log("SET_INPUT_OUTPUT", event);
+      const inputKeys = event.params.inputs.map((input) => {
+        const key = `${event.params.id}-${input["x-key"]}`;
+        const socket = {
+          ...input,
+          "x-actor-id": event.params.id,
+        };
+        if (check(({ context }) => !context.inputSockets[key])) {
+          enqueue.assign({
+            inputSockets: ({ context }) => {
+              return {
+                ...context.inputSockets,
+                [key]: socket,
+              };
+            },
+          });
+        } else if (
+          check(({ context }) => !isEqual(context.inputSockets[key], socket))
+        ) {
+          enqueue.assign({
+            inputSockets: ({ context }) => {
+              return {
+                ...context.inputSockets,
+                [key]: socket,
+              };
+            },
+          });
+        }
+        return key;
+      });
+
+      /**
+       * DROP INPUT SOCKETS NO LONGER EXISTS.
+       */
+      if (
+        check(
+          ({ context }) =>
+            difference(
+              Object.keys(context.inputSockets).filter((k) =>
+                k.startsWith(event.params.id),
+              ),
+              inputKeys,
+            ).length > 0,
+        )
+      ) {
+        enqueue.assign({
+          inputSockets: ({ context, event }) => {
+            const sockets = { ...context.inputSockets };
+            for (const key of difference(
+              Object.keys(context.inputSockets).filter((k) =>
+                k.startsWith(event.params.id),
+              ),
+              inputKeys,
+            )) {
+              delete sockets[key];
+            }
+            return sockets;
+          },
+        });
+      }
+      const outputKeys = event.params.outputs.map((output) => {
+        const key = `${event.params.id}-${output["x-key"]}`;
+        const socket = {
+          ...output,
+          "x-actor-id": event.params.id,
+          "x-connection": {
+            [event.params.id]: {
+              key: context.inputs[output["x-key"]],
+            },
+          },
+        };
+        if (check(({ context }) => !context.outputSockets[key])) {
+          enqueue.assign({
+            outputSockets: ({ context }) => {
+              return {
+                ...context.outputSockets,
+                [key]: socket,
+              };
+            },
+          });
+        } else if (
+          check(({ context }) => !isEqual(context.outputSockets[key], socket))
+        ) {
+          enqueue.assign({
+            outputSockets: ({ context }) => {
+              return {
+                ...context.outputSockets,
+                [key]: socket,
+              };
+            },
+          });
+        }
+        return key;
+      });
+
+      /**
+       * DROP OUTPUT SOCKETS NO LONGER EXISTS.
+       */
+      if (
+        check(
+          ({ context }) =>
+            difference(
+              Object.keys(context.outputSockets).filter((k) =>
+                k.startsWith(event.params.id),
+              ),
+              outputKeys,
+            ).length > 0,
+        )
+      ) {
+        enqueue.assign({
+          outputSockets: ({ context, event }) => {
+            const sockets = { ...context.outputSockets };
+            for (const key of difference(
+              Object.keys(context.outputSockets).filter((k) =>
+                k.startsWith(event.params.id),
+              ),
+              outputKeys,
+            )) {
+              delete sockets[key];
+            }
+            return sockets;
+          },
+        });
+      }
+    }),
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QFEIEsAuB7ATgOjQgBswBiAEWQGUAVAJQHkBNAbQAYBdRUABy1kxosAO24gAHogDMAJgCMeKQE4A7AA4ZbJVJUqZUgDQgAntI2K5UtXIBsAViUAWHTLt2Avu6OpMuAsTIqAAUAQQB1ADl2LiQQPgEMIVFYyQQAWjktCztMqTYZG1dHG0MTREsZPHtnORU7Rzs2OUcWzy8QYSwIODEfbBwxeMERMVSMuxVs3PzC+pKjUwQFNialGzla-WKlGUdPb3R+-xJB-mHk0FS5NUm1KXurNQdZGRkFxEc2KSqlO1lHPROZwFNruIA */
@@ -171,127 +308,10 @@ export const EditorMachine = setup({
   initial: "idle",
   on: {
     SET_INPUT_OUTPUT: {
-      actions: enqueueActions(({ enqueue, event, check, context }) => {
-        console.log("SET_INPUT_OUTPUT", event);
-        const inputKeys = event.params.inputs.map((input) => {
-          const key = `${event.params.id}-${input["x-key"]}`;
-          const socket = {
-            ...input,
-            "x-actor-id": event.params.id,
-          };
-          if (check(({ context }) => !context.inputSockets[key])) {
-            enqueue.assign({
-              inputSockets: ({ context }) => {
-                return {
-                  ...context.inputSockets,
-                  [key]: socket,
-                };
-              },
-            });
-          } else if (
-            check(({ context }) => !isEqual(context.inputSockets[key], socket))
-          ) {
-            enqueue.assign({
-              inputSockets: ({ context }) => {
-                return {
-                  ...context.inputSockets,
-                  [key]: socket,
-                };
-              },
-            });
-          }
-          return key;
-        });
-
-        /**
-         * DROP INPUT SOCKETS NO LONGER EXISTS.
-         */
-        if (
-          check(
-            ({ context }) =>
-              difference(
-                Object.keys(context.inputSockets).filter((k) =>
-                  k.startsWith(event.params.id),
-                ),
-                inputKeys,
-              ).length > 0,
-          )
-        ) {
-          enqueue.assign({
-            inputSockets: ({ context, event }) => {
-              const sockets = { ...context.inputSockets };
-              for (const key of difference(
-                Object.keys(context.inputSockets).filter((k) =>
-                  k.startsWith(event.params.id),
-                ),
-                inputKeys,
-              )) {
-                delete sockets[key];
-              }
-              return sockets;
-            },
-          });
-        }
-        const outputKeys = event.params.outputs.map((output) => {
-          const key = `${event.params.id}-${output["x-key"]}`;
-          const socket = {
-            ...output,
-            "x-actor-id": event.params.id,
-          };
-          if (check(({ context }) => !context.outputSockets[key])) {
-            enqueue.assign({
-              outputSockets: ({ context }) => {
-                return {
-                  ...context.outputSockets,
-                  [key]: socket,
-                };
-              },
-            });
-          } else if (
-            check(({ context }) => !isEqual(context.outputSockets[key], socket))
-          ) {
-            enqueue.assign({
-              outputSockets: ({ context }) => {
-                return {
-                  ...context.outputSockets,
-                  [key]: socket,
-                };
-              },
-            });
-          }
-          return key;
-        });
-
-        /**
-         * DROP OUTPUT SOCKETS NO LONGER EXISTS.
-         */
-        if (
-          check(
-            ({ context }) =>
-              difference(
-                Object.keys(context.outputSockets).filter((k) =>
-                  k.startsWith(event.params.id),
-                ),
-                outputKeys,
-              ).length > 0,
-          )
-        ) {
-          enqueue.assign({
-            outputSockets: ({ context, event }) => {
-              const sockets = { ...context.outputSockets };
-              for (const key of difference(
-                Object.keys(context.outputSockets).filter((k) =>
-                  k.startsWith(event.params.id),
-                ),
-                outputKeys,
-              )) {
-                delete sockets[key];
-              }
-              return sockets;
-            },
-          });
-        }
-      }),
+      actions: ["setInputOutput"],
+    },
+    UPDATE_SOCKET: {
+      actions: ["updateSocket"],
     },
   },
   states: {
@@ -1124,14 +1144,10 @@ export class Editor<
         },
       };
 
-      // debugger;
-
       this.actor = this.createActor({
         ...snap,
         children: mergedChildrens,
       });
-
-      debugger;
 
       this.actor?.start();
 
@@ -1361,7 +1377,13 @@ export class Editor<
             const contextId = event.type.split("xstate.snapshot.")[1];
             const actor = this.actor.system.get(contextId);
 
-            let actorSnapshot = event.snapshot.toJSON();
+            console.log("@@@@", {
+              source: inspectionEvent.sourceRef,
+              actor: inspectionEvent.actorRef,
+            });
+
+            let actorSnapshot =
+              inspectionEvent.sourceRef?.getPersistedSnapshot();
 
             /**
              * Here we are making sure the everything within the module has a parent.
@@ -1372,7 +1394,11 @@ export class Editor<
               this.actor.id,
             );
 
-            actorSnapshot = set(actorSnapshot, "context.parent.id", parentId);
+            actorSnapshot = set(
+              actorSnapshot,
+              "context.parent.id",
+              parentId,
+            ) as any;
 
             const snapshot = {
               src: actor?.src,

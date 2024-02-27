@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
+import { MissingConnectionResolvedNotification } from "@trigger.dev/sdk";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
@@ -231,7 +232,7 @@ const InputItem = ({
   );
 
   return (
-    <SocketController actor={actor} socket={item}>
+    <SocketController actor={actor} socket={item} socketKey={itemKey}>
       <ControlWrapper control={controller} definition={item} />
     </SocketController>
   );
@@ -240,10 +241,12 @@ const InputItem = ({
 const SocketController = ({
   actor,
   socket,
+  socketKey,
   children,
 }: {
   actor: AnyActor;
   socket: JSONSocket;
+  socketKey: string;
   children: React.ReactNode;
 }) => {
   const hasConnection = useMemo(() => {
@@ -255,7 +258,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socket["x-key"],
+        name: socketKey,
         side: "input",
         socket: {
           "x-showSocket": val,
@@ -267,7 +270,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socket["x-key"],
+        name: socketKey,
         side: "input",
         socket: {
           "x-showControl": val,
@@ -281,7 +284,8 @@ const SocketController = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       exit={{ opacity: 0 }}
-      data-socket-key={socket["x-key"]}
+      data-socket-key={socketKey}
+      data-socket-value-key={socket["x-key"]}
       data-socket-type={socket["x-type"]}
       data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
