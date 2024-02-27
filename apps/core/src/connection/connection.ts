@@ -12,6 +12,7 @@ import type {
 import type { Editor } from "../editor";
 import type { BaseMachine, BaseNode } from "../nodes/base";
 import { NodeTypes } from "../types";
+import { AnyActor } from "xstate";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
@@ -53,15 +54,19 @@ export class Connection<
 
   sourceNode: BaseNode<BaseMachine, any, any, any>;
   targetNode: BaseNode<BaseMachine, any, any, any>;
+
+  sourceActor?: AnyActor;
+  targetActor?: AnyActor;
+
   destroy: () => Promise<void>;
 
   get inSync() {
     if (this.isActorRef) {
       return (
-        this.targetDefintion?.["x-actor-ref"] === this.sourceNode.actor.ref
+        this.targetNodeDefintion?.["x-actor-ref"] === this.sourceNode.actor.ref
       );
     }
-    if (this.targetDefintion.type === "tool") {
+    if (this.targetNodeDefintion.type === "tool") {
       // console.log("$$$$ TOOL $$$$", {
       //   targetValue: this.targetValue,
       //   sourceNode: this.sourceNode.toolDefination,
@@ -82,11 +87,23 @@ export class Connection<
 
     return this.sourceValue === this.targetValue;
   }
-  get sourceDefintion(): JSONSocket {
+  get sourceNodeDefintion(): JSONSocket {
     return this.sourceNode.snap.context.outputSockets[this.sourceOutput];
   }
-  get targetDefintion(): JSONSocket {
+  get targetNodeDefintion(): JSONSocket {
     return this.targetNode.snap.context.inputSockets[this.targetInput];
+  }
+
+  get targetDefinition() {
+    return this.targetActor?.getSnapshot().context.inputSockets[
+      this.sourceNodeDefintion["x-key"]
+    ];
+  }
+
+  get sourceDefinition() {
+    return this.sourceActor?.getSnapshot().context.outputSockets[
+      this.targetNodeDefintion["x-key"]
+    ];
   }
 
   constructor(
@@ -153,34 +170,52 @@ export class Connection<
       inSync: computed,
     });
 
-    this.targetNode.actor.send({
+    this.targetActor = get(
+      this.targetNodeDefintion,
+      ["x-actor-ref"],
+      this.targetNode.actor,
+    ) as AnyActor;
+
+    this.sourceActor = get(
+      this.sourceNodeDefintion,
+      ["x-actor-ref"],
+      this.sourceNode.actor,
+    ) as AnyActor;
+
+    console.log("@$#@!$!@$!@", {
+      sourceACtor: this.sourceActor,
+      targetActor: this.targetActor,
+    });
+
+    this.targetActor.send({
       type: "UPDATE_SOCKET",
       params: {
         name: this.targetInput,
         side: "input",
         socket: {
           "x-connection": {
-            ...this.targetDefintion?.["x-connection"],
-            [this.sourceNode.actor.id]: {
-              actorRef: this.sourceNode.actor.ref,
-              key: this.sourceOutput,
+            ...this.targetDefinition?.["x-connection"],
+            [this.sourceActor.id]: {
+              actorRef: this.sourceActor.ref,
+              key: this.sourceNodeDefintion?.["x-key"] ?? this.sourceOutput,
             },
           } as ConnectionConfigRecord,
         },
       },
     });
+    // }
 
-    this.sourceNode.actor.send({
+    this.sourceActor.send({
       type: "UPDATE_SOCKET",
       params: {
         name: this.sourceOutput,
         side: "output",
         socket: {
           "x-connection": {
-            ...this.sourceDefintion?.["x-connection"],
-            [this.targetNode.actor.id]: {
-              actorRef: this.targetNode.actor.ref,
-              key: this.targetInput,
+            ...this.sourceDefinition?.["x-connection"],
+            [this.targetActor.id]: {
+              actorRef: this.targetActor.ref,
+              key: this.targetNodeDefintion?.["x-key"] ?? this.targetInput,
             },
           } as ConnectionConfigRecord,
         },
@@ -236,7 +271,7 @@ export class Connection<
         }
       }
 
-      if (this.targetDefintion.type === "tool") {
+      if (this.targetNodeDefintion.type === "tool") {
         const keys = Object.keys(this.targetValue).filter((key) =>
           // we omit `node_` for the tool names. here we are putting back to make it work.
           `node_${key}`.startsWith(`${this.source}`),
@@ -257,10 +292,10 @@ export class Connection<
 
       if (this.isActorRef) {
         console.log("RESTORE");
-        const lastUsedInternalActorType = get(this.targetDefintion, [
+        const lastUsedInternalActorType = get(this.targetNodeDefintion, [
           "x-actor-ref-type",
         ])!;
-        const lastUserInternalActor = get(this.targetDefintion, [
+        const lastUserInternalActor = get(this.targetNodeDefintion, [
           "x-actor-config",
           lastUsedInternalActorType,
           "actor",
@@ -323,16 +358,16 @@ export class Connection<
   public sync() {
     console.log("SYNC");
     if (
-      this.targetDefintion["x-compatible"] &&
-      this.targetDefintion["x-compatible"].includes(
-        this.sourceDefintion.type,
+      this.targetNodeDefintion["x-compatible"] &&
+      this.targetNodeDefintion["x-compatible"].includes(
+        this.sourceNodeDefintion.type,
       ) &&
       (!this.isActorRef ||
-        this.targetDefintion["x-actor-ref"] !== this.sourceNode.actor.ref)
+        this.targetNodeDefintion["x-actor-ref"] !== this.sourceNode.actor.ref)
     ) {
       this.updateActorReference();
       this.isActorRef = true;
-    } else if (this.targetDefintion.type === "tool") {
+    } else if (this.targetNodeDefintion.type === "tool") {
       this.targetNode.actor.send({
         type: "SET_VALUE",
         params: {
@@ -363,7 +398,7 @@ export class Connection<
         },
       },
     });
-    const config = get(this.targetDefintion, [
+    const config = get(this.targetNodeDefintion, [
       "x-actor-config",
       this.sourceNode.ID,
     ]) as ActorConfig;
@@ -376,7 +411,7 @@ export class Connection<
             side: "output",
             socket: {
               "x-connection": {
-                ...this.sourceDefintion?.["x-connection"],
+                ...this.sourceNodeDefintion?.["x-connection"],
                 [this.targetNode.actor.id]: {
                   actorRef: this.targetNode.actor.ref,
                   key: value,

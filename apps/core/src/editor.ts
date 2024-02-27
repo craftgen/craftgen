@@ -369,7 +369,7 @@ export const EditorMachine = setup({
             >;
             Object.entries(childs)
               .filter(([key, value]) => {
-                return value["x-actor-type"];
+                return value["x-actor-type"] && value["x-actor-config"];
               })
               .map(([key, value]) => value["x-actor-config"]!)
               .forEach((config: Record<string, ActorConfig>) => {
