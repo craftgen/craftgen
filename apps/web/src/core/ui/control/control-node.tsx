@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { omit, get, isEqual } from "lodash-es";
+import _, { omit, get, isEqual, isNil } from "lodash-es";
 import {
   AlertCircle,
   CheckCircle,
@@ -24,14 +24,24 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
-import { MissingConnectionResolvedNotification } from "@trigger.dev/sdk";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
-  console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
+  console.log("NODE CONTROLLER", props.data.actor.src, props);
+  // const socketKey = useMemo(() => {
+  //   return props.data.actor.src === "NodeModule"
+  //     ? `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`
+  //     : props.data.definition["x-key"];
+
+  // }, [props.data.actor.src, props.data.definition["x-key"]]);
+  const socketKey = useMemo(() => {
+    return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
+  }, [props.data.actor.src, props.data.definition["x-key"]]);
+
+  console.log("NODE CONTROLLER SOCKET", socketKey);
+
   const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
-    (state) =>
-      state.context.inputSockets[props.data.definition["x-key"]] as JSONSocket,
+    (state) => state.context.inputSockets[socketKey] as JSONSocket,
   );
 
   const actorSelector = useMemo(() => {
@@ -39,18 +49,16 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     if (item["x-connection"] && Object.keys(item["x-connection"]).length > 0) {
       return null;
     }
-    if (item["x-compatible"]?.length === 1) {
+    if (item["x-compatible"]?.length === 1 || isNil(item["x-compatible"])) {
       return null;
     }
     const controller = getControlBySocket({
       socket: getSocketByJsonSchemaType(item),
       actor: props.data.actor,
       selector: (snapshot) =>
-        snapshot.context.inputSockets[props.data.definition["x-key"]][
-          "x-actor-type"
-        ],
+        snapshot.context.inputSockets[socketKey]["x-actor-type"],
       definitionSelector: (snapshot) =>
-        snapshot.context.inputSockets[props.data.definition["x-key"]],
+        snapshot.context.inputSockets[socketKey],
       onChange: (v) => {
         console.log("onChange", v);
         props.data.actor.send({
@@ -78,48 +86,46 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 
   const selectedActor = useSelector<AnyActorRef, AnyActor>(
     props.data?.actor,
-    (state) =>
-      state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
+    (state) => state.context.inputSockets[socketKey]["x-actor-ref"],
   );
-  const selectedActorState = useSelector<AnyActor, any>(
-    selectedActor,
-    (state) => state?.value,
-    isEqual,
-  );
+
+  console.log("selectedActorState", selectedActor, item["x-key"]);
 
   return (
     <div>
       <LayoutGroup>
         {actorSelector}
-        {selectedActorState && (
-          <div
-            className={cn(
-              "bg-muted/10 flex flex-col rounded border p-2",
-              selectedActorState === "complete" && "border-green-400/30",
-              selectedActorState === "action_required" &&
-                "border-yellow-400/30",
-            )}
-          >
-            <div className="flex items-center justify-end">
-              {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
-              {selectedActorState === "complete" && (
-                <CheckCircle size={14} className="text-green-400" />
-              )}
-              {selectedActorState === "action_required" && (
-                <AlertCircle size={14} className="text-yellow-400" />
-              )}
-            </div>
-            {selectedActor && (
-              <div className="border p-1">
-                <InputsList actor={selectedActor} />
-              </div>
-            )}
-          </div>
-        )}
+        <InputItem key={item} itemKey={item["x-key"]} actor={selectedActor} />
       </LayoutGroup>
     </div>
   );
 };
+
+// {selectedActorState && (
+//   <div
+//     className={cn(
+//       "bg-muted/10 flex flex-col rounded border p-2",
+//       selectedActorState === "complete" && "border-green-400/30",
+//       selectedActorState === "action_required" &&
+//         "border-yellow-400/30",
+//     )}
+//   >
+//     <div className="flex items-center justify-end">
+//       {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
+//       {selectedActorState === "complete" && (
+//         <CheckCircle size={14} className="text-green-400" />
+//       )}
+//       {selectedActorState === "action_required" && (
+//         <AlertCircle size={14} className="text-yellow-400" />
+//       )}
+//     </div>
+//     {selectedActor && (
+//       <div className="border p-1">
+//         <InputsList actor={selectedActor} />
+//       </div>
+//     )}
+//   </div>
+// )}
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
