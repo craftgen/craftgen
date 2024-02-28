@@ -506,9 +506,9 @@ const NodeInputs = ({
   const inputSockets = useSelector(
     node.actor,
     (state) =>
-      Object.entries(state.context.inputSockets)
-        .filter(([, v]) => v["x-showSocket"])
-        .map(([key, input]) => key) as string[],
+      Object.entries(state.context.inputSockets).map(
+        ([key, input]) => key,
+      ) as string[],
     isEqual,
   );
 

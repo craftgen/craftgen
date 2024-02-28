@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { ClassicPreset } from "rete";
 import { match } from "ts-pattern";
 
 import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
@@ -8,12 +7,14 @@ import type { Schemes } from "@seocraft/core/src/types";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Input, Output } from "@seocraft/core/src/input-output";
+import { useSelector } from "@xstate/react";
 
 export function CustomSocket<T extends Socket>(props: {
   data: {
     socket: T;
-    input?: ClassicPreset.Input<Socket>;
-    output?: ClassicPreset.Output<Socket>;
+    input?: Input;
+    output?: Output;
   };
   meta: Omit<ExtractPayload<Schemes, "socket">, "payload">;
 }) {
@@ -42,6 +43,16 @@ export function CustomSocket<T extends Socket>(props: {
       .exhaustive();
   }, [props.data]);
 
+  const label = useSelector(
+    data?.actor,
+    (state) =>
+      state?.context?.definition?.name ||
+      state?.context?.definition?.title ||
+      data?.label,
+  );
+
+  console.log("CUSTOM SOCKET", { data, props, config });
+
   return (
     <div title={props.data.socket.name}>
       <Badge
@@ -51,10 +62,9 @@ export function CustomSocket<T extends Socket>(props: {
           props.meta.side === "input" && "-ml-1 rounded-l-none",
           props.meta.side === "output" && "-mr-1 rounded-r-none",
         )}
-        data-testid="input-title"
         variant={"outline"}
       >
-        {data?.label}
+        {label}
       </Badge>
     </div>
   );

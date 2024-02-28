@@ -31,6 +31,8 @@ import { getControlBySocket, getSocketByJsonSchemaType } from "../sockets";
 import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
+import { socketMachine } from "../socket";
+import def from "ajv/dist/vocabularies/discriminator";
 
 export type ParsedNode<
   NodeType extends string,
@@ -441,31 +443,6 @@ export abstract class BaseNode<
     this.machineImplements = this.machine.implementations;
   }
 
-  public stateEvents = new Subject<{
-    executionId: string | undefined;
-    nodeExecutionId: string | undefined;
-    state: SnapshotFrom<Machine>;
-    readonly: boolean;
-  }>();
-
-  public getMachineActor = (name: string) => {
-    return this.di.machines[name].provide({
-      ...(this.baseImplentations as any),
-      actors: {
-        // ...Object.keys(this.di.machines).reduce(
-        //   (acc, k) => {
-        //     if (acc[k]) {
-        //       throw new Error(`Actor ${k} already exists`);
-        //     }
-        //     acc[k] = this.getMachineActor(k);
-        //     return acc;
-        //   },
-        //   {} as Record<string, AnyStateMachine>,
-        // ),
-      },
-    });
-  };
-
   constructor(
     public readonly ID: NodeTypes,
     public di: DiContainer,
@@ -650,7 +627,49 @@ export abstract class BaseNode<
     }
   }
 
-  async updateInputs(rawTemplate: Record<string, JSONSocket>) {
+  async updateInputs(
+    inputSockets: Record<string, Actor<typeof socketMachine>>,
+  ) {
+    console.log("UPDATING INPUTS", inputSockets);
+
+    /**
+     * CLEAN up inputs
+     */
+    for (const item of Object.keys(this.inputs)) {
+      if (inputSockets[item]) continue;
+      const connections = this.di.editor
+        .getConnections()
+        .filter((c) => c.target === this.id && c.targetInput === item);
+      if (connections.length >= 1) {
+        for (const c of connections) {
+          await this.di.editor.removeConnection(c.id);
+          this.di.editor.addConnection({
+            ...c,
+            target: this.id,
+            targetInput: item,
+          } as any);
+        }
+      }
+      this.removeInput(item);
+    }
+
+    for (const [key, socketActor] of Object.entries(inputSockets)) {
+      const definition = socketActor.getSnapshot().context.definition;
+      if (this.hasInput(key)) {
+        const input = this.inputs[key];
+        if (input) {
+          input.socket = getSocketByJsonSchemaType(definition)! as any;
+        }
+        continue;
+      }
+
+      const socket = getSocketByJsonSchemaType(definition)!;
+      const input = new Input(socket, key, definition.isMultiple, socketActor);
+      this.addInput(key, input as any);
+    }
+  }
+
+  async _updateInputs(rawTemplate: Record<string, JSONSocket>) {
     const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
     // CLEAN up inputs
     for (const item of Object.keys(this.inputs)) {

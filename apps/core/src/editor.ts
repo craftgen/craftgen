@@ -78,6 +78,7 @@ import {
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 import { RouterInputs } from "@seocraft/api";
+import { socketMachine } from "./socket";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -1027,18 +1028,24 @@ export class Editor<
       },
     }),
     setValue: assign({
-      inputs: ({ context, event }, params: { values: Record<string, any> }) => {
+      inputs: (
+        { context, event, self },
+        params: { values: Record<string, any> },
+      ) => {
+        console.log("SET VALUE", { event, params, self });
         const values = event.params?.values || params?.values;
-        Object.keys(context.inputs).forEach((key) => {
-          if (!context.inputSockets[key]) {
-            delete context.inputs[key];
-          }
-        });
-        Object.keys(values).forEach((key) => {
-          if (!context.inputSockets[key]) {
-            delete values[key];
-          }
-        });
+
+        // TODO:
+        // Object.keys(context.inputs).forEach((key) => {
+        //   if (!context.inputSockets[key]) {
+        //     delete context.inputs[key];
+        //   }
+        // });
+        // Object.keys(values).forEach((key) => {
+        //   if (!context.inputSockets[key]) {
+        //     delete values[key];
+        //   }
+        // });
 
         return {
           ...context.inputs,
@@ -1078,6 +1085,7 @@ export class Editor<
       },
       actors: {
         socketWatcher,
+        socketMachine,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -1088,6 +1096,7 @@ export class Editor<
               acc[k] = machine.provide({
                 actors: {
                   socketWatcher,
+                  socketMachine,
                 },
                 delays: {},
                 actions: {
@@ -1328,25 +1337,27 @@ export class Editor<
     // this.variables.set("OPENAI_API_KEY", openai);
   }
 
-  private async setupInitialActor() {}
-
   private createInitialSnapshot() {
-    const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
-    this.content.contexts
-      .filter((c) => {
-        return c.id !== this.content.context.id;
-      })
-      .forEach((n: any) => {
-        children[n.id] = {
-          snapshot: n.state,
-          src: n.type,
-          systemId: n.id,
-          syncSnapshot: true,
-        };
-      });
+    if (this.content.context?.state) {
+      return this.content.context.state;
+    }
+    // const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
+    // this.content.contexts
+    //   .filter((c) => {
+    //     return c.id !== this.content.context.id;
+    //   })
+    //   .forEach((n: any) => {
+    //     children[n.id] = {
+    //       snapshot: n.state,
+    //       src: n.type,
+    //       systemId: n.id,
+    //       syncSnapshot: true,
+    //     };
+    //   });
     let snapshot = {
       value: "idle",
       status: "active",
+      children: {},
       context: {
         inputSockets: {},
         outputSockets: {},
@@ -1357,15 +1368,14 @@ export class Editor<
       error: undefined,
       output: undefined,
     } as any;
-    if (this.content.context?.state) {
-      snapshot = {
-        ...snapshot,
-        ...this.content.context.state,
-      };
-    }
+    // if (this.content.context?.state) {
+    //   snapshot = {
+    //     ...snapshot,
+    //   };
+    // }
 
-    snapshot.children = children;
-
+    // snapshot.children = children;
+    console.log("INITIAL SNAPSHOT", snapshot);
     return snapshot;
   }
 

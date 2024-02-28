@@ -10,7 +10,7 @@ import {
   Circle,
   CircleDot,
 } from "lucide-react";
-import { AnyActor, AnyActorRef } from "xstate";
+import { Actor, AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
+import { socketMachine } from "@seocraft/core/src/socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props);
@@ -135,8 +136,8 @@ const advanceInputSelector = (state: any) =>
 
 const basicInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    .pickBy((v) => !v["x-isAdvanced"])
-    .keys()
+    // .pickBy((v) => !v["x-isAdvanced"])
+    .entries()
     .value();
 
 export const InputsList = (props: {
@@ -157,10 +158,11 @@ export const InputsList = (props: {
 const BasicInputs = (props: { actor: AnyActor }) => {
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
   console.log("Basic inputSockets", inputSockets);
+
   return (
     <>
-      {inputSockets?.map((item) => {
-        return <InputItem key={item} itemKey={item} actor={props.actor} />;
+      {inputSockets?.map(([key, actor]) => {
+        return <InputItem key={key} itemKey={key} actor={actor} />;
       })}
     </>
   );
@@ -203,39 +205,55 @@ const InputItem = ({
   actor,
 }: {
   itemKey: string;
-  actor: AnyActor;
+  actor: Actor<typeof socketMachine>;
 }) => {
-  const item = useSelector(
-    actor,
-    (state) => state.context.inputSockets[itemKey],
-  );
-  const targetActor = item["x-actor-id"]
-    ? actor.system.get(item["x-actor-id"])
-    : actor;
+  console.log("INPUT ITEM", itemKey, actor);
+  // return <div>INPUT</div>;
+  const item = useSelector(actor, (state) => state.context.definition);
+
+  const targetActorId = useSelector(actor, (state) => state.context.parent.id);
+  const targetActor = actor.system.get(targetActorId);
+
+  // const targetActor = item["x-actor-id"]
+  //   ? actor.system.get(item["x-actor-id"])
+  //   : actor;
   const socket = useMemo(() => getSocketByJsonSchemaType(item), [item]);
   const handleChange = (v: any) => {
-    targetActor.send({
+    console.log("handleChange", {
+      v,
+      k: item["x-key"],
+      src: targetActor.src,
+      targetActor,
+      actor,
+    });
+
+    actor.send({
       type: "SET_VALUE",
       params: {
-        values: {
-          [item["x-key"]]: v,
-        },
+        value: v,
       },
     });
+
+    // targetActor.send({
+    //   type: "SET_VALUE",
+    //   params: {
+    //     values: {
+    //       [item["x-key"]]: v,
+    //     },
+    //   },
+    // });
   };
-  const controller = useMemo(
-    () =>
-      getControlBySocket({
-        socket,
-        actor: targetActor,
-        selector: (snapshot) => snapshot.context.inputs[itemKey],
-        definitionSelector: (snapshot) =>
-          snapshot.context.inputSockets[itemKey],
-        onChange: handleChange,
-        definition: item,
-      }),
-    [item, item.format],
-  );
+  const controller = useMemo(() => {
+    console.log("GET CONTROL", item, item.format, targetActor.src, targetActor);
+    return getControlBySocket({
+      socket,
+      actor: targetActor,
+      selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
+      definitionSelector: (snapshot) => snapshot.context.definition,
+      onChange: handleChange,
+      definition: item,
+    });
+  }, [item, item.format, targetActor]);
 
   return (
     <SocketController actor={actor} socket={item} socketKey={itemKey}>
@@ -250,7 +268,7 @@ const SocketController = ({
   socketKey,
   children,
 }: {
-  actor: AnyActor;
+  actor: Actor<typeof socketMachine>;
   socket: JSONSocket;
   socketKey: string;
   children: React.ReactNode;
@@ -264,11 +282,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socketKey,
-        side: "input",
-        socket: {
-          "x-showSocket": val,
-        },
+        "x-showSocket": val,
       },
     });
   };
@@ -276,11 +290,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socketKey,
-        side: "input",
-        socket: {
-          "x-showControl": val,
-        },
+        "x-showControl": val,
       },
     });
   };

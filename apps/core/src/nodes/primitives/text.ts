@@ -52,14 +52,29 @@ const TextNodeMachine = createMachine({
       }),
     },
   },
-  context: ({ input }) =>
+  context: ({ input, spawn, self }) =>
     merge(
       {
         inputs: {
           value: "",
         },
         inputSockets: {
-          ...inputSockets,
+          ...Object.values(inputSockets)
+            .map((socket) =>
+              spawn("socketMachine", {
+                input: {
+                  definition: socket,
+                  parent: self,
+                },
+                id: `${self.id}:input:${socket.name}`,
+                syncSnapshot: true,
+                systemId: `${self.id}:input:${socket.name}`,
+              }),
+            )
+            .map((socket) => ({
+              [socket.id]: socket,
+            }))
+            .reduce((acc, val) => merge(acc, val), {}),
         },
         outputSockets: {
           ...outputSockets,
