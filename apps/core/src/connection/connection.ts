@@ -12,7 +12,9 @@ import type {
 import type { Editor } from "../editor";
 import type { BaseMachine, BaseNode } from "../nodes/base";
 import { NodeTypes } from "../types";
-import { AnyActor } from "xstate";
+import { Actor, AnyActor } from "xstate";
+import { outputSocketMachine } from "../output-socket";
+import { inputSocketMachine } from "../input-socket";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 
@@ -55,12 +57,12 @@ export class Connection<
   sourceNode: BaseNode<BaseMachine, any, any, any>;
   targetNode: BaseNode<BaseMachine, any, any, any>;
 
-  sourceActor?: AnyActor;
-  targetActor?: AnyActor;
+  // sourceActor?: AnyActor;
+  // targetActor?: AnyActor;
 
   destroy: () => Promise<void>;
-  sourceActorOutput: string;
-  targetActorInput: string;
+  sourceSocketActor: Actor<typeof outputSocketMachine>;
+  targetSocketActor: Actor<typeof inputSocketMachine>;
 
   get inSync() {
     if (this.isActorRef) {
@@ -97,15 +99,27 @@ export class Connection<
   }
 
   get targetDefinition() {
-    return this.targetActor?.getSnapshot().context.inputSockets[
-      this.sourceNodeDefintion["x-key"]
-    ];
+    return this.targetSocketActor?.getSnapshot().context.definition;
+  }
+
+  get sourceActorId() {
+    return this.sourceSocketActor?.getSnapshot().context.parent.id;
+  }
+
+  get sourceActor(): AnyActor {
+    return this.editor.actor?.system.get(this.sourceActorId);
+  }
+
+  get targetActorId() {
+    return this.targetSocketActor?.getSnapshot().context.parent.id;
+  }
+
+  get targetActor(): AnyActor {
+    return this.editor.actor?.system.get(this.targetActorId);
   }
 
   get sourceDefinition() {
-    return this.sourceActor?.getSnapshot().context.outputSockets[
-      this.targetNodeDefintion["x-key"]
-    ];
+    return this.sourceSocketActor?.getSnapshot().context.definition;
   }
 
   constructor(
@@ -152,87 +166,70 @@ export class Connection<
     //     this.setSourceValue(state.context.outputs[sourceNodeOutput]);
     //   }
     // });
-
-    this.targetActor = get(
-      this.targetNodeDefintion,
-      ["x-actor-ref"],
-      this.targetNode.actor,
-    ) as AnyActor;
-
-    this.targetActorInput = get(
-      this.targetNodeDefintion,
-      ["x-key"],
-      this.targetInput,
-    );
+    this.sourceSocketActor = this.editor.actor?.system.get(this.sourceOutput);
+    this.targetSocketActor = this.editor.actor?.system.get(this.targetInput);
 
     this.targetValue =
-      this.targetActor.getSnapshot().context.inputs[this.targetActorInput];
+      this.targetActor.getSnapshot().context.inputs[
+        this.targetDefinition["x-key"]
+      ];
 
     this.targetActor.subscribe((state) => {
-      if (this.targetValue !== state.context.inputs[targetInput]) {
-        this.setTargetValue(state.context.inputs[targetInput]);
+      if (
+        this.targetValue !==
+        state.context.inputs[this.targetDefinition["x-key"]]
+      ) {
+        this.setTargetValue(
+          state.context.inputs[this.targetDefinition["x-key"]],
+        );
       }
     });
-
-    this.sourceActor = get(
-      this.sourceNodeDefintion,
-      ["x-actor-ref"],
-      this.sourceNode.actor,
-    ) as AnyActor;
-
-    this.sourceActorOutput = get(
-      this.sourceNodeDefintion,
-      ["x-key"],
-      this.sourceOutput,
-    );
 
     this.sourceValue =
-      this.sourceActor.getSnapshot().context.outputs[this.sourceActorOutput];
+      this.sourceActor.getSnapshot().context.outputs[
+        this.sourceDefinition["x-key"]
+      ];
 
     this.sourceActor.subscribe((state) => {
-      if (this.sourceValue !== state.context.outputs[sourceOutput]) {
-        this.setSourceValue(state.context.outputs[sourceOutput]);
+      if (
+        this.sourceValue !==
+        state.context.outputs[this.sourceDefinition["x-key"]]
+      ) {
+        this.setSourceValue(
+          state.context.outputs[this.sourceDefinition["x-key"]],
+        );
       }
     });
 
-    this.targetActor.send({
+    this.targetSocketActor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: this.targetInput,
-        side: "input",
-        socket: {
-          "x-connection": {
-            ...this.targetDefinition?.["x-connection"],
-            [this.sourceActor.id]: {
-              actorRef: this.sourceActor.ref,
-              key: this.sourceActorOutput,
-            },
-          } as ConnectionConfigRecord,
-        },
+        "x-connection": {
+          ...this.targetDefinition?.["x-connection"],
+          [this.sourceActor.id]: {
+            actorRef: this.sourceActor.ref,
+            key: this.sourceOutput,
+          },
+        } as ConnectionConfigRecord,
       },
     });
+
+    this.sourceSocketActor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        "x-connection": {
+          ...this.sourceDefinition?.["x-connection"],
+          [this.targetActor.id]: {
+            actorRef: this.targetActor.ref,
+            key: this.targetInput,
+          },
+        } as ConnectionConfigRecord,
+      },
+    });
+
+    // if (!this.inSync) {
+    //   this.sync();
     // }
-
-    this.sourceActor.send({
-      type: "UPDATE_SOCKET",
-      params: {
-        name: this.sourceOutput,
-        side: "output",
-        socket: {
-          "x-connection": {
-            ...this.sourceDefinition?.["x-connection"],
-            [this.targetActor.id]: {
-              actorRef: this.targetActor.ref,
-              key: this.targetActorInput,
-            },
-          } as ConnectionConfigRecord,
-        },
-      },
-    });
-
-    if (!this.inSync) {
-      this.sync();
-    }
 
     makeObservable(this, {
       sourceValue: observable,
@@ -245,6 +242,8 @@ export class Connection<
     });
 
     this.destroy = async () => {
+      return;
+
       const sourceNodeContext = this.sourceNode.actor.getSnapshot().context;
       for (const [key, socket] of Object.entries(
         sourceNodeContext.outputSockets,
