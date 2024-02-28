@@ -1,7 +1,7 @@
 import { AnyActorRef, enqueueActions, setup } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 
-export const socketMachine = setup({
+export const inputSocketMachine = setup({
   types: {
     context: {} as {
       definition: JSONSocket;
@@ -26,7 +26,7 @@ export const socketMachine = setup({
         },
   },
 }).createMachine({
-  id: "socketMachine",
+  id: "InputSocketMachine",
   context: ({ input }) => ({
     ...input,
     parent: {

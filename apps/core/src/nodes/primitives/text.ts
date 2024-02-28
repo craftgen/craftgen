@@ -61,14 +61,14 @@ const TextNodeMachine = createMachine({
         inputSockets: {
           ...Object.values(inputSockets)
             .map((socket) =>
-              spawn("socketMachine", {
+              spawn("input", {
                 input: {
                   definition: socket,
                   parent: self,
                 },
-                id: `${self.id}:input:${socket.name}`,
+                id: `${self.id}:input:${socket["x-key"]}`,
                 syncSnapshot: true,
-                systemId: `${self.id}:input:${socket.name}`,
+                systemId: `${self.id}:input:${socket["x-key"]}`,
               }),
             )
             .map((socket) => ({
@@ -77,7 +77,22 @@ const TextNodeMachine = createMachine({
             .reduce((acc, val) => merge(acc, val), {}),
         },
         outputSockets: {
-          ...outputSockets,
+          ...Object.values(outputSockets)
+            .map((socket) =>
+              spawn("output", {
+                input: {
+                  definition: socket,
+                  parent: self,
+                },
+                id: `${self.id}:output:${socket["x-key"]}`,
+                syncSnapshot: true,
+                systemId: `${self.id}:output:${socket["x-key"]}`,
+              }),
+            )
+            .map((socket) => ({
+              [socket.id]: socket,
+            }))
+            .reduce((acc, val) => merge(acc, val), {}),
         },
         outputs: {
           value: "",

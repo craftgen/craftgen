@@ -78,7 +78,8 @@ import {
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 import { RouterInputs } from "@seocraft/api";
-import { socketMachine } from "./socket";
+import { inputSocketMachine } from "./input-socket";
+import { outputSocketMachine } from "./output-socket";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -794,15 +795,15 @@ export class Editor<
     initialize: enqueueActions(({ enqueue, check, system, self }) => {
       enqueue("assignParent");
       enqueue("spawnInputActors");
-      if (check(() => !system.get(`${self.id}-socketWatcher`))) {
-        enqueue.spawnChild("socketWatcher", {
-          id: `${self.id}-socketWatcher`,
-          input: {
-            self,
-          },
-          syncSnapshot: false,
-        });
-      }
+      // if (check(() => !system.get(`${self.id}-socketWatcher`))) {
+      //   enqueue.spawnChild("socketWatcher", {
+      //     id: `${self.id}-socketWatcher`,
+      //     input: {
+      //       self,
+      //     },
+      //     syncSnapshot: false,
+      //   });
+      // }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system, self }) => {
       for (const [key, value] of Object.entries<JSONSocket>(
@@ -1085,7 +1086,8 @@ export class Editor<
       },
       actors: {
         socketWatcher,
-        socketMachine,
+        input: inputSocketMachine,
+        output: outputSocketMachine,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -1096,7 +1098,8 @@ export class Editor<
               acc[k] = machine.provide({
                 actors: {
                   socketWatcher,
-                  socketMachine,
+                  input: inputSocketMachine,
+                  output: outputSocketMachine,
                 },
                 delays: {},
                 actions: {

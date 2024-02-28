@@ -31,8 +31,9 @@ import { getControlBySocket, getSocketByJsonSchemaType } from "../sockets";
 import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
-import { socketMachine } from "../socket";
+import { inputSocketMachine } from "../input-socket";
 import def from "ajv/dist/vocabularies/discriminator";
+import { outputSocketMachine } from "../output-socket";
 
 export type ParsedNode<
   NodeType extends string,
@@ -373,16 +374,18 @@ export abstract class BaseNode<
     return this.snap as SnapshotFrom<BaseMachine>;
   }
 
-  public inputSockets: Record<string, JSONSocket>;
-  public outputSockets: Record<string, JSONSocket>;
+  public inputSockets: Record<string, Actor<typeof inputSocketMachine>>;
+  public outputSockets: Record<string, Actor<typeof outputSocketMachine>>;
 
   // public output: Record<string, any> = {};
 
   get inputSchema() {
-    return createJsonSchema(this.inputSockets);
+    throw new Error("Not implemented");
+    // return createJsonSchema(this.inputSockets);
   }
   get outputSchema() {
-    return createJsonSchema(this.outputSockets);
+    throw new Error("Not implemented");
+    // return createJsonSchema(this.outputSockets);
   }
 
   get readonly() {
@@ -585,9 +588,11 @@ export abstract class BaseNode<
     this.di.area?.update("node", this.id);
   }
 
-  async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
+  async updateOutputs(
+    outputSockets: Record<string, Actor<typeof outputSocketMachine>>,
+  ) {
     for (const item of Object.keys(this.outputs)) {
-      if (rawTemplate[item]) continue;
+      if (outputSockets[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.source === this.id && c.sourceOutput === item);
@@ -604,23 +609,24 @@ export abstract class BaseNode<
       }
       this.removeOutput(item);
     }
+
     const index = 0;
-    for (const [key, item] of Object.entries(rawTemplate)) {
+    for (const [key, socketActor] of Object.entries(outputSockets)) {
+      const definition = socketActor.getSnapshot().context.definition;
       if (this.hasOutput(key)) {
         const output = this.outputs[key];
         if (output) {
-          output.socket = getSocketByJsonSchemaType(item)! as any;
+          output.socket = getSocketByJsonSchemaType(definition)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item)!;
+      const socket = getSocketByJsonSchemaType(definition)!;
       const output = new Output(
         socket,
         key,
-        item.isMultiple || true,
-        this.pactor,
-        (snapshot) => snapshot.context.outputSockets[key],
+        definition.isMultiple || true,
+        socketActor,
       ) as any;
       output.index = index + 1;
       this.addOutput(key, output);
@@ -628,7 +634,7 @@ export abstract class BaseNode<
   }
 
   async updateInputs(
-    inputSockets: Record<string, Actor<typeof socketMachine>>,
+    inputSockets: Record<string, Actor<typeof inputSocketMachine>>,
   ) {
     console.log("UPDATING INPUTS", inputSockets);
 
@@ -669,144 +675,15 @@ export abstract class BaseNode<
     }
   }
 
-  async _updateInputs(rawTemplate: Record<string, JSONSocket>) {
-    const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
-    // CLEAN up inputs
-    for (const item of Object.keys(this.inputs)) {
-      if (rawTemplate[item]) continue;
-      const connections = this.di.editor
-        .getConnections()
-        .filter((c) => c.target === this.id && c.targetInput === item);
-      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
-      if (connections.length >= 1) {
-        for (const c of connections) {
-          await this.di.editor.removeConnection(c.id);
-          this.di.editor.addConnection({
-            ...c,
-            target: this.id,
-            targetInput: item,
-          } as any);
-        }
-      }
-      this.removeInput(item);
-    }
-
-    const values: Record<string, any> = {
-      ...state.context.inputs,
-    };
-
-    let index = 0;
-
-    const addController = (
-      input: Input,
-      item: JSONSocket,
-      key: string,
-      socket: Socket,
-    ) => {
-      // if (item["x-actor-ref"]) {
-      //   console.log({ socket, item, input, key });
-      //   const controller = getControlBySocket({
-      //     socket: socket,
-      //     actor: item["x-actor-ref"],
-      //     selector: (snapshot) => snapshot.context.inputs[key], //TODO:
-      //     // selector: (snapshot) => snapshot.context.outputs["config"],
-      //     onChange: (v) => {
-      //       this.pactor.send({
-      //         type: "SET_VALUE",
-      //         values: {
-      //           [key]: v,
-      //         },
-      //       });
-      //     },
-      //     definition: item,
-      //   });
-      //   input.addControl(controller);
-      // } else {
-      const controller = getControlBySocket({
-        socket: socket,
-        actor: this.pactor,
-        selector: (snapshot) => snapshot.context.inputs[key],
-        definitionSelector: (snapshot) => snapshot.context.inputSockets[key],
-        onChange: (v) => {
-          this.pactor.send({
-            type: "SET_VALUE",
-            params: {
-              values: {
-                [key]: v,
-              },
-            },
-          });
-        },
-        definition: item,
-      });
-      input.addControl(controller);
-      // }
-    };
-    for (const [key, item] of Object.entries(rawTemplate)) {
-      if (this.hasInput(key)) {
-        const input = this.inputs[key];
-        if (input) {
-          const socket = getSocketByJsonSchemaType(item)! as any;
-          if (item["x-compatible"]) {
-            for (const compatible of item["x-compatible"]) {
-              socket.combineWith(compatible);
-            }
-          }
-
-          input.socket = socket;
-          input.actor = this.actor;
-          if (input.control) {
-            input.removeControl();
-            addController(input, item, key, input.socket);
-          }
-        }
-        continue;
-      }
-
-      const socket = getSocketByJsonSchemaType(item)!;
-      const input = new Input(
-        socket,
-        item.name,
-        item.isMultiple,
-        this.pactor,
-        (snapshot) => {
-          return snapshot.context.inputSockets[key];
-        },
-        /**
-         * TODO:
-         * We need a smarter way of determining if the input should be shown or not.
-         * need to track the if value set or not.
-         * if value is not set show the input
-         */
-      );
-
-      if (item["x-order"]) {
-        index = item["x-order"];
-      }
-      input.index = index + 1;
-      addController(input, item, key, socket);
-      this.addInput(key, input as any);
-      if (item.type !== "trigger" && isUndefined(values[key])) {
-        if (!isUndefined(item.default) && !item["x-actor-ref"]) {
-          values[key] = item.default;
-        } else {
-          // values[key] = item.type === "date" ? undefined : "";
-          values[key] = undefined;
-        }
-      }
-    }
-    // console.log("setting values", values);
-    // this.pactor.send({
-    //   type: "SET_VALUE",
-    //   values,
-    // });
-  }
-
-  public setOutputSockets(sockets: Record<string, JSONSocket>) {
+  public setOutputSockets(
+    sockets: Record<string, Actor<typeof outputSocketMachine>>,
+  ) {
     this.outputSockets = sockets;
   }
 
-  public setInputSockets(sockets: Record<string, JSONSocket>) {
+  public setInputSockets(
+    sockets: Record<string, Actor<typeof inputSocketMachine>>,
+  ) {
     this.inputSockets = sockets;
   }
 
@@ -1044,62 +921,6 @@ export abstract class BaseNode<
       width: this.width,
       height: this.height,
     };
-  }
-
-  async setInputs(inputs: Record<string, Socket>) {
-    const newInputs = Object.entries(inputs);
-    newInputs.forEach(([key, socket]) => {
-      if (this.hasInput(key)) {
-        if (this.inputs[key]?.socket.name !== socket.name) {
-          this.inputs[key]?.socket;
-        }
-      } else {
-        this.addInput(key, new Input(socket as any, key, false));
-      }
-    });
-
-    Object.entries(this.inputs).forEach(async ([key, input]) => {
-      if (input?.socket.name === "Trigger") return;
-      if (!newInputs.find(([k]) => k === key)) {
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.target === this.id && c.targetInput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            }),
-        );
-        this.removeInput(key);
-      }
-    });
-  }
-
-  async setOutputs(outputs: Record<string, Socket>) {
-    const newOutputs = Object.entries(outputs);
-    newOutputs.forEach(([key, socket]) => {
-      if (this.hasOutput(key)) {
-        if (this.outputs[key]?.socket.name !== socket.name) {
-          this.outputs[key]?.socket;
-        }
-      } else {
-        this.addOutput(key, new Output(socket as any, key, true));
-      }
-    });
-
-    Object.entries(this.outputs).forEach(async ([key, output]) => {
-      if (output?.socket.name === "Trigger") return;
-      if (!newOutputs.find(([k]) => k === key)) {
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.source === this.id && c.sourceOutput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            }),
-        );
-        this.removeOutput(key);
-      }
-    });
   }
 
   async setLabel(label: string) {

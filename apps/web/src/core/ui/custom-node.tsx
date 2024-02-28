@@ -54,7 +54,7 @@ import type { ReteStoreInstance } from "../store";
 import "react-resizable/css/styles.css";
 
 import { useState } from "react";
-import { isEqual, isNil } from "lodash-es";
+import { get, isEqual, isNil } from "lodash-es";
 import { observer } from "mobx-react-lite";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
@@ -474,21 +474,19 @@ const NodeOutputs = ({
 }) => {
   const outputSockets = useSelector(
     node.actor,
-    (state) =>
-      Object.entries(state.context.outputSockets)
-        .filter(([, v]) => v["x-showSocket"])
-        .map(([key, input]) => key) as string[],
+    (state) => Object.entries(state.context.outputSockets),
     isEqual,
   );
 
   return (
     <div>
       {/* Outputs */}
-      {outputSockets.map((key) => (
+      {outputSockets.map(([key, socketActor]) => (
         <RenderOutput
           key={`output-${node.id}-${key}`}
           emit={emit}
           outputKey={key}
+          actor={socketActor}
           id={node.id}
         />
       ))}
@@ -505,21 +503,19 @@ const NodeInputs = ({
 }) => {
   const inputSockets = useSelector(
     node.actor,
-    (state) =>
-      Object.entries(state.context.inputSockets).map(
-        ([key, input]) => key,
-      ) as string[],
+    (state) => Object.entries(state.context.inputSockets),
     isEqual,
   );
 
   return (
     <div>
       {/* Inputs */}
-      {inputSockets.map((key) => (
+      {inputSockets.map(([key, socketActor]) => (
         <RenderInput
           key={`input-${node.id}-${key}`}
           emit={emit}
           inputKey={key}
+          actor={socketActor}
           id={node.id}
         />
       ))}
@@ -609,8 +605,19 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 });
 ResizeHandle.displayName = "ResizeHandle";
 
-const RenderInput: React.FC<any> = ({ emit, id, inputKey }) => {
+const RenderInput: React.FC<any> = ({ emit, id, inputKey, actor }) => {
   const di = useCraftStore((state) => state.di);
+
+  const isVisible = useSelector(
+    actor,
+    (state) => get(state, ["context", "definition", "x-showSocket"], false),
+    isEqual,
+  );
+
+  if (!isVisible) {
+    return null;
+  }
+
   const node = di?.editor.getNode(id);
   const input = node?.inputs[inputKey];
 
@@ -633,8 +640,19 @@ const RenderInput: React.FC<any> = ({ emit, id, inputKey }) => {
   );
 };
 
-const RenderOutput: React.FC<any> = ({ emit, id, outputKey }) => {
+const RenderOutput: React.FC<any> = ({ emit, id, outputKey, actor }) => {
   const di = useCraftStore((state) => state.di);
+
+  const isVisible = useSelector(
+    actor,
+    (state) => get(state, ["context", "definition", "x-showSocket"], false),
+    isEqual,
+  );
+
+  if (!isVisible) {
+    return null;
+  }
+
   const node = di?.editor.getNode(id);
   const output = node?.outputs[outputKey];
 
