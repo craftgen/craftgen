@@ -3,29 +3,36 @@ import { useSelector } from "@xstate/react";
 
 import type { SliderControl } from "@seocraft/core/src/controls/slider";
 
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
+import { useStep } from "./shared/useStep";
+import { ControlContainer } from "../control-container";
 
 export function SliderControlComponenet(props: { data: SliderControl }) {
-  const value = useSelector(props.data?.actor, props.data.selector);
-  const definition = useSelector(
-    props.data?.actor,
-    (state) => state.context.inputSockets[props.data.definition["x-key"]],
-  );
+  console.log("SliderControlComponenet", props.data);
   const handleChange = (n: number[]) => {
-    props.data.setValue(n[0] || props.data.options.min);
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value: n[0] || definition.exclusiveMinimum || definition.minimum,
+      },
+    });
   };
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const value = useSelector(
+    props.data?.actor.system.get(parent.id),
+    (snap) => snap.context.inputs[definition["x-key"]],
+  );
+  const step = useStep(definition);
   useEffect(() => {
-    if (value > definition.maximum) {
-      handleChange([definition.maximum]);
+    if (value > definition?.maximum) {
+      handleChange([definition?.maximum]);
     }
-  }, [value, definition.maximum]);
+  }, [value, definition?.maximum]);
   return (
-    <div className="space-y-2">
-      <Label htmlFor={props.data.id}>
-        {definition?.title || definition?.name}{" "}
-      </Label>
+    <ControlContainer id={props.data.id} definition={definition}>
       <span className="bg-muted text-muted-foreground mx-4 rounded px-2 py-1">
         {value}
       </span>
@@ -33,12 +40,9 @@ export function SliderControlComponenet(props: { data: SliderControl }) {
         value={[value]}
         onValueChange={handleChange}
         className="mt-2"
-        max={definition.maximum}
-        step={props.data.step}
+        max={definition?.maximum}
+        step={step}
       />
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {definition?.description}
-      </p>
-    </div>
+    </ControlContainer>
   );
 }

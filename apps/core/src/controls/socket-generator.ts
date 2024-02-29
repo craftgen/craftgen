@@ -18,7 +18,6 @@ export interface SocketGeneratorControlOptions {
   };
   onChange: (data: SocketGeneratorControlData) => void;
 }
-
 export type JSONSocket = z.infer<typeof socketSchema> & JSONSchema;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 

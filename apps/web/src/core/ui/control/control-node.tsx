@@ -1,15 +1,8 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { omit, get, isEqual, isNil } from "lodash-es";
-import {
-  AlertCircle,
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Circle,
-  CircleDot,
-} from "lucide-react";
+import _, { omit, get, isNil, isEqual } from "lodash-es";
+import { ChevronDown, ChevronRight, Circle, CircleDot } from "lucide-react";
 import { Actor, AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
@@ -24,7 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
-import { socketMachine } from "@seocraft/core/src/socket";
+import {
+  inputSocketMachine,
+  inputSocketMachine,
+} from "@seocraft/core/src/input-socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   console.log("NODE CONTROLLER", props.data.actor.src, props);
@@ -205,11 +201,11 @@ const InputItem = ({
   actor,
 }: {
   itemKey: string;
-  actor: Actor<typeof socketMachine>;
+  actor: Actor<typeof inputSocketMachine>;
 }) => {
   console.log("INPUT ITEM", itemKey, actor);
   // return <div>INPUT</div>;
-  const item = useSelector(actor, (state) => state.context.definition);
+  const item = useSelector(actor, (state) => state.context.definition, isEqual);
 
   const targetActorId = useSelector(actor, (state) => state.context.parent.id);
   const targetActor = actor.system.get(targetActorId);
@@ -233,27 +229,16 @@ const InputItem = ({
         value: v,
       },
     });
-
-    // targetActor.send({
-    //   type: "SET_VALUE",
-    //   params: {
-    //     values: {
-    //       [item["x-key"]]: v,
-    //     },
-    //   },
-    // });
   };
   const controller = useMemo(() => {
     console.log("GET CONTROL", item, item.format, targetActor.src, targetActor);
     return getControlBySocket({
-      socket,
-      actor: targetActor,
-      selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
-      definitionSelector: (snapshot) => snapshot.context.definition,
-      onChange: handleChange,
+      actor: actor,
+      // selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
+      // onChange: handleChange,
       definition: item,
     });
-  }, [item, item.format, targetActor]);
+  }, [item]);
 
   return (
     <SocketController actor={actor} socket={item} socketKey={itemKey}>

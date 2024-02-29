@@ -1,13 +1,12 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
-import { JSONSchema } from "openai/lib/jsonschema";
 import React from "react";
 
 export const ControlContainer = React.memo(
   (props: {
     id: string;
-    definition: JSONSocket & JSONSchema;
+    definition: JSONSocket;
     children: React.ReactNode;
   }) => {
     return (

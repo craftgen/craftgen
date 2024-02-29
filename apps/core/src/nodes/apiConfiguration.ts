@@ -1,4 +1,4 @@
-import { has, merge } from "lodash-es";
+import { has, merge, set } from "lodash-es";
 import dedent from "ts-dedent";
 import { createMachine, enqueueActions } from "xstate";
 
@@ -12,6 +12,8 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode } from "./base";
+import { spawnInputSockets } from "../input-socket";
+import { spawnOutputSockets } from "../output-socket";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -98,7 +100,7 @@ export const ApiConfigurationMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
     id: "api-configuration",
-    context: ({ input }) => {
+    context: ({ input, self, spawn }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
         const inputKey = key as keyof typeof inputSockets;
@@ -108,7 +110,7 @@ export const ApiConfigurationMachine = createMachine(
           defaultInputs[inputKey] = undefined;
         }
       }
-      return merge<typeof input, any>(
+      const config = merge<typeof input, any>(
         {
           name: "API Configuration",
           description: "API Configuration",
@@ -129,6 +131,21 @@ export const ApiConfigurationMachine = createMachine(
         },
         input,
       );
+      const spawnedInputSockets = spawnInputSockets({
+        spawn,
+        self,
+        inputSockets: config.inputSockets as any,
+      });
+      const spawnedOutputSockets = spawnOutputSockets({
+        spawn,
+        self,
+        outputSockets: config.outputSockets as any,
+      });
+
+      set(config, "inputSockets", spawnedInputSockets);
+      set(config, "outputSockets", spawnedOutputSockets);
+
+      return config;
     },
     entry: enqueueActions(({ enqueue, self }) => {
       enqueue("initialize");

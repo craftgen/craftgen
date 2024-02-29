@@ -2,9 +2,7 @@ import { merge } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
-import { SocketGeneratorControl } from "../../controls/socket-generator";
 import type { JSONSocket } from "../../controls/socket-generator";
-import { getControlBySocket, getSocketByJsonSchemaType } from "../../sockets";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None, ParsedNode } from "../base";
 import { BaseNode } from "../base";

@@ -1,14 +1,13 @@
-import { get, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
+import { get, isEqual, isNil, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
-import { of, Subject } from "rxjs";
-import { catchError, debounceTime, groupBy, mergeMap } from "rxjs/operators";
 import { match, P } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
 import { waitFor } from "xstate";
 import type {
   Actor,
+  ActorRefFrom,
   AnyActorLogic,
   AnyActorRef,
   AnyStateMachine,
@@ -27,12 +26,11 @@ import type { BaseControl } from "../controls/base";
 import type { JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
-import { getControlBySocket, getSocketByJsonSchemaType } from "../sockets";
+import { getSocketByJsonSchemaType } from "../sockets";
 import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
 import { inputSocketMachine } from "../input-socket";
-import def from "ajv/dist/vocabularies/discriminator";
 import { outputSocketMachine } from "../output-socket";
 
 export type ParsedNode<
@@ -59,14 +57,20 @@ export interface BaseInputType<
 }
 
 export interface BaseContextType<
-  I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
-  O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
+  I extends Record<string, ActorRefFrom<typeof inputSocketMachine>> = Record<
+    string,
+    ActorRefFrom<typeof inputSocketMachine>
+  >,
+  O extends Record<string, ActorRefFrom<typeof outputSocketMachine>> = Record<
+    string,
+    ActorRefFrom<typeof outputSocketMachine>
+  >,
 > {
   name: string;
   description: string;
 
-  inputs: MappedType<I>;
-  outputs: MappedType<O>;
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
 
   outputSockets: O;
   inputSockets: I;

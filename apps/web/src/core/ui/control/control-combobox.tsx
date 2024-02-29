@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import { CheckIcon } from "lucide-react";
@@ -13,24 +13,42 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ControlContainer } from "../control-container";
 
-export function ComboboxControlComponent(props: {
-  data: ComboboxControl<any, any>;
-}) {
-  const value = useSelector(props.data.actor, props.data.selector);
+export function ComboboxControlComponent(props: { data: ComboboxControl }) {
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const value = useSelector(
+    props.data?.actor.system.get(parent.id),
+    (snap) => snap.context.inputs[definition["x-key"]],
+  );
   const [open, setOpen] = useState(false);
+  const values = useMemo(() => {
+    return definition?.allOf?.[0]?.enum?.map((v: any) => {
+      return {
+        key: v,
+        value: v,
+      };
+    });
+  }, [definition]);
+  const handleChange = (val: string) => {
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value: val,
+      },
+    });
+  };
   return (
-    <div className="space-y-1">
-      <Label htmlFor={props.data.id}>
-        {props.data?.definition?.title || props.data?.definition?.name}
-      </Label>
+    <ControlContainer id={props.data.id} definition={props.data.definition}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -40,9 +58,7 @@ export function ComboboxControlComponent(props: {
             className="w-full justify-between"
           >
             {value
-              ? props.data.options.values.find(
-                  (framework) => framework.key === value,
-                )?.value
+              ? values.find((entry) => entry.key === value)?.value
               : "Select framework..."}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -50,27 +66,25 @@ export function ComboboxControlComponent(props: {
         <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandInput
-              placeholder={props.data.options.placeholder}
+              placeholder={definition.title || definition.description}
               className="h-9"
             />
             <CommandEmpty>No {props.data.definition.name} found.</CommandEmpty>
             <CommandGroup>
-              {props.data.options.values.map((framework) => (
+              {values.map((entry) => (
                 <CommandItem
-                  key={framework.key}
-                  value={framework.key}
+                  key={entry.key}
+                  value={entry.key}
                   onSelect={(currentValue) => {
-                    props.data.setValue(
-                      currentValue === value ? "" : currentValue,
-                    );
+                    handleChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
-                  {framework.value}
+                  {entry.value}
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      value === framework.key ? "opacity-100" : "opacity-0",
+                      value === entry.key ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
@@ -79,9 +93,6 @@ export function ComboboxControlComponent(props: {
           </Command>
         </PopoverContent>
       </Popover>
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.definition?.description}
-      </p>
-    </div>
+    </ControlContainer>
   );
 }

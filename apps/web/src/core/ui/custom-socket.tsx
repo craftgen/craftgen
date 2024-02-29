@@ -51,8 +51,6 @@ export function CustomSocket<T extends Socket>(props: {
       data?.label,
   );
 
-  console.log("CUSTOM SOCKET", { data, props, config });
-
   return (
     <div title={props.data.socket.name}>
       <Badge

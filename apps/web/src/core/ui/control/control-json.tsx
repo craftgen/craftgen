@@ -8,7 +8,14 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export const JsonControlComponent = (props: { data: JsonControl }) => {
-  const a = useSelector(props.data?.actor, props.data.selector);
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const a = useSelector(
+    props.data?.actor.system.get(parent.id),
+    (snap) => snap.context.inputs[definition["x-key"]],
+  );
   const [value, setValue] = useState(a);
 
   useEffect(() => {
@@ -17,7 +24,12 @@ export const JsonControlComponent = (props: { data: JsonControl }) => {
   const handleChange = (val: { src: any }) => {
     console.log(val.src);
     setValue(val.src);
-    props.data.setValue(val.src);
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value: val,
+      },
+    });
   };
   return (
     <div className="space-y-1">

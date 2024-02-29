@@ -1,5 +1,38 @@
-import { AnyActorRef, enqueueActions, setup } from "xstate";
+import {
+  ActorRefFrom,
+  AnyActorRef,
+  Spawner,
+  enqueueActions,
+  setup,
+} from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
+import { merge } from "lodash-es";
+
+export const spawnInputSockets = ({
+  spawn,
+  self,
+  inputSockets,
+}: {
+  spawn: Spawner<any>;
+  self: AnyActorRef;
+  inputSockets: Record<string, JSONSocket>;
+}): Record<string, ActorRefFrom<typeof inputSocketMachine>> =>
+  Object.values(inputSockets)
+    .map((socket) =>
+      spawn("input", {
+        input: {
+          definition: socket,
+          parent: self,
+        },
+        id: `${self.id}:input:${socket["x-key"]}`,
+        syncSnapshot: true,
+        systemId: `${self.id}:input:${socket["x-key"]}`,
+      }),
+    )
+    .map((socket) => ({
+      [socket.id]: socket,
+    }))
+    .reduce((acc, val) => merge(acc, val), {});
 
 export const inputSocketMachine = setup({
   types: {

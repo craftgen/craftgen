@@ -15,7 +15,7 @@ import {
   ViewUpdate,
   keymap,
 } from "@codemirror/view";
-import { EditorState, WidgetType, useCodeMirror } from "@uiw/react-codemirror";
+import { WidgetType, useCodeMirror } from "@uiw/react-codemirror";
 import type { CodeControl } from "@seocraft/core/src/controls/code";
 import {
   Completion,
@@ -43,10 +43,9 @@ import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
 
 // @ts-ignore
 import jsdoc from "json-schema-to-jsdoc";
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { JSONSchema } from "openai/lib/jsonschema";
-import { difference, isEqual } from "lodash-es";
-import { stateIn } from "xstate";
+import { difference, get, isEqual } from "lodash-es";
 
 const secretMatcher = new MatchDecorator({
   regexp: /\(?await\s+getSecret\("(.+?)"\)\)?/g,
@@ -107,6 +106,7 @@ const CMExtensions = [
       return `cm-completion cm-completion-${completion.type}`;
     },
   }),
+  EditorView.lineWrapping,
   keymap.of(vscodeKeymap),
   keymap.of([
     { key: "c-Space", run: startCompletion },
@@ -194,15 +194,27 @@ const cdnPackageCompletions = (ternServer: tern.Server) => {
 };
 
 export function CodeEditor<T extends string>(props: { data: CodeControl }) {
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
   const [code, setValue] = useState<string>(
-    props.data.selector(props.data.actor.getSnapshot()),
+    props.data.actor.system.get(parent.id).getSnapshot().context.inputs[
+      definition["x-key"]
+    ],
   );
 
   const { systemTheme } = useTheme();
 
   const handleChange = (value: any) => {
-    props.data.setValue(value as T);
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value,
+      },
+    });
   };
+
   const [worker, setWorker] = useState<WorkerMessenger | null>(null);
   const { current: ternServer } = useRef(createTernServer());
 
@@ -212,12 +224,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     return () => worker_.destroy();
   }, []);
 
-  const definition = useSelector(
-    props.data.actor,
-    props.data.definitionSelector,
-  );
-
-  const libraries = definition["x-libraries"] || [];
+  const libraries = useMemo(() => get(definition, ["x-libraries"], []), []);
 
   const librariesOld = usePreviousDistinct(libraries, (p, n) => isEqual(p, n));
 
@@ -272,7 +279,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     return [...CMExtensions, cdnPackageCompletions(ternServer)];
   }, [ternServer]);
   const editorContainer = useRef<HTMLDivElement | null>(null);
-  const { setContainer, setState, view } = useCodeMirror({
+  const { setContainer, view } = useCodeMirror({
     container: editorContainer.current,
     theme: systemTheme === "dark" ? githubDark : githubLight,
     extensions,
@@ -292,21 +299,23 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   });
 
   useEffect(() => {
-    const listener = props.data.actor.subscribe((event: any) => {
-      if (!view) return;
-      const stateValue = props.data.selector(event);
-      const inSync = stateValue === editorValue.current;
+    const listener = props.data.actor.system
+      .get(parent.id)
+      .subscribe((event: any) => {
+        if (!view) return;
+        const stateValue = event.context.inputs[definition["x-key"]];
+        const inSync = stateValue === editorValue.current;
 
-      if (!inSync) {
-        view.dispatch({
-          changes: {
-            from: 0,
-            to: view.state.doc.length,
-            insert: stateValue,
-          },
-        });
-      }
-    });
+        if (!inSync) {
+          view.dispatch({
+            changes: {
+              from: 0,
+              to: view.state.doc.length,
+              insert: stateValue,
+            },
+          });
+        }
+      });
 
     return () => listener.unsubscribe();
   }, [view]);
@@ -321,22 +330,24 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     <ControlContainer id={props.data.id} definition={props.data.definition}>
       <div className="flex w-full items-center justify-between">
         <SecretDropdown
-          onSelect={(val) =>
+          onSelect={(val) => {
+            props.data.actor.send({
+              type: "UPDATE_SOCKET",
+              params: {
+                format: "expression",
+              },
+            });
             view?.dispatch({
               changes: {
                 from: editorValue.current.length,
                 insert: val,
               },
-            })
-          }
+            });
+          }}
         />
-        <ChangeFormat
-          value={editorValue.current}
-          actor={props.data.actor}
-          selector={props.data.definitionSelector}
-        />
+        <ChangeFormat value={editorValue.current} actor={props.data.actor} />
       </div>
-      <div ref={editorContainer} />
+      <div ref={editorContainer} className="inline-flex w-full" />
     </ControlContainer>
   );
 }

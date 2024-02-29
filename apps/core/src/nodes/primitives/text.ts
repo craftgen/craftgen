@@ -1,4 +1,4 @@
-import { merge } from "lodash-es";
+import { merge, set } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
@@ -7,6 +7,8 @@ import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
 import { BaseNode } from "../base";
 import type { ParsedNode } from "../base";
+import { spawnInputSockets } from "../../input-socket";
+import { spawnOutputSockets } from "../../output-socket";
 
 const inputSockets = {
   value: generateSocket({
@@ -52,47 +54,17 @@ const TextNodeMachine = createMachine({
       }),
     },
   },
-  context: ({ input, spawn, self }) =>
-    merge(
+  context: ({ input, spawn, self }) => {
+    const config = merge(
       {
         inputs: {
           value: "",
         },
         inputSockets: {
-          ...Object.values(inputSockets)
-            .map((socket) =>
-              spawn("input", {
-                input: {
-                  definition: socket,
-                  parent: self,
-                },
-                id: `${self.id}:input:${socket["x-key"]}`,
-                syncSnapshot: true,
-                systemId: `${self.id}:input:${socket["x-key"]}`,
-              }),
-            )
-            .map((socket) => ({
-              [socket.id]: socket,
-            }))
-            .reduce((acc, val) => merge(acc, val), {}),
+          ...inputSockets,
         },
         outputSockets: {
-          ...Object.values(outputSockets)
-            .map((socket) =>
-              spawn("output", {
-                input: {
-                  definition: socket,
-                  parent: self,
-                },
-                id: `${self.id}:output:${socket["x-key"]}`,
-                syncSnapshot: true,
-                systemId: `${self.id}:output:${socket["x-key"]}`,
-              }),
-            )
-            .map((socket) => ({
-              [socket.id]: socket,
-            }))
-            .reduce((acc, val) => merge(acc, val), {}),
+          ...outputSockets,
         },
         outputs: {
           value: "",
@@ -100,7 +72,24 @@ const TextNodeMachine = createMachine({
         error: null,
       },
       input,
-    ),
+    );
+
+    const spawnedInputSockets = spawnInputSockets({
+      spawn,
+      self,
+      inputSockets: config.inputSockets as any,
+    });
+    const spawnedOutputSockets = spawnOutputSockets({
+      spawn,
+      self,
+      outputSockets: config.outputSockets as any,
+    });
+
+    set(config, "inputSockets", spawnedInputSockets);
+    set(config, "outputSockets", spawnedOutputSockets);
+
+    return config;
+  },
   initial: "complete",
   types: {} as BaseMachineTypes<{
     input: {

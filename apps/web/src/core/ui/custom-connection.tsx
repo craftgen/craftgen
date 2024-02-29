@@ -73,10 +73,10 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
             variants={{
               sync: { pathLength: 1, pathSpacing: 0.2 },
               inSync: {
-                pathLength: [0, 0.4, 0.8],
+                pathLength: [0.1, 0.4, 0.8],
                 pathSpacing: [0.2, 0.4],
                 transition: {
-                  duration: 0.2,
+                  duration: 0.4,
                   ease: "easeInOut",
                   repeat: 1,
                   repeatType: "loop",

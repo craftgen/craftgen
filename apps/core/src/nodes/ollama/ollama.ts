@@ -1,12 +1,18 @@
 import ky from "ky";
-import { merge } from "lodash-es";
+import { merge, set } from "lodash-es";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OllamaChatModelSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import {
+  ActorRefFrom,
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -19,6 +25,8 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
+import { spawnOutputSockets } from "../../output-socket";
+import { inputSocketMachine, spawnInputSockets } from "../../input-socket";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -145,31 +153,31 @@ const listModels = fromPromise(
 );
 
 const inputSockets = {
-  apiConfiguration: generateSocket({
-    "x-key": "apiConfiguration",
-    name: "api" as const,
-    title: "API",
-    type: "NodeApiConfiguration",
-    description: dedent`
-    Api configuration for Ollama
-    `,
-    required: true,
-    "x-actor-type": "NodeApiConfiguration",
-    default: {
-      baseUrl: "http://127.0.0.1:11434",
-    },
-    isMultiple: false,
-    "x-actor-config": {
-      NodeApiConfiguration: {
-        connections: {
-          config: "apiConfiguration",
-        },
-        internal: {
-          config: "apiConfiguration",
-        },
-      },
-    },
-  }),
+  // apiConfiguration: generateSocket({
+  //   "x-key": "apiConfiguration",
+  //   name: "api" as const,
+  //   title: "API",
+  //   type: "NodeApiConfiguration",
+  //   description: dedent`
+  //   Api configuration for Ollama
+  //   `,
+  //   required: true,
+  //   "x-actor-type": "NodeApiConfiguration",
+  //   default: {
+  //     baseUrl: "http://127.0.0.1:11434",
+  //   },
+  //   isMultiple: false,
+  //   "x-actor-config": {
+  //     NodeApiConfiguration: {
+  //       connections: {
+  //         config: "apiConfiguration",
+  //       },
+  //       internal: {
+  //         config: "apiConfiguration",
+  //       },
+  //     },
+  //   },
+  // }),
   model: generateSocket({
     name: "model" as const,
     "x-key": "model",
@@ -433,6 +441,7 @@ const inputSockets = {
     required: false,
     default: undefined,
     isMultiple: false,
+    format: "expression",
     "x-controller": "code",
     "x-language": "handlebars",
     "x-showSocket": false,
@@ -447,6 +456,7 @@ const inputSockets = {
     required: false,
     default: undefined,
     isMultiple: false,
+    format: "expression",
     "x-language": "handlebars",
     "x-showSocket": false,
     "x-isAdvanced": true,
@@ -474,7 +484,7 @@ export const OllamaModelMachine = createMachine(
     entry: enqueueActions(({ enqueue }) => {
       enqueue("initialize");
     }),
-    context: ({ input }) => {
+    context: ({ input, spawn, self }) => {
       const defaultInputs: (typeof input)["inputs"] = {};
       for (const [key, socket] of Object.entries(inputSockets)) {
         if (socket.default) {
@@ -483,7 +493,7 @@ export const OllamaModelMachine = createMachine(
           defaultInputs[key as any] = undefined;
         }
       }
-      return merge<typeof input, any>(
+      const config = merge<typeof input, any>(
         {
           name: "Ollama Model",
           description: "Ollama Model configuration",
@@ -500,6 +510,21 @@ export const OllamaModelMachine = createMachine(
         },
         input,
       );
+      const spawnedInputSockets = spawnInputSockets({
+        spawn,
+        self,
+        inputSockets: config.inputSockets as any,
+      });
+      const spawnedOutputSockets = spawnOutputSockets({
+        spawn,
+        self,
+        outputSockets: config.outputSockets as any,
+      });
+
+      set(config, "inputSockets", spawnedInputSockets);
+      set(config, "outputSockets", spawnedOutputSockets);
+
+      return config;
     },
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
@@ -558,12 +583,16 @@ export const OllamaModelMachine = createMachine(
           src: "getModels",
           onDone: {
             actions: enqueueActions(({ enqueue, event }) => {
-              enqueue.raise({
-                type: "UPDATE_SOCKET",
-                params: {
-                  name: "model",
-                  side: "input",
-                  socket: {
+              enqueue.sendTo(
+                ({ context, system }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("model"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                {
+                  type: "UPDATE_SOCKET",
+                  params: {
                     allOf: [
                       {
                         enum: [
@@ -575,7 +604,7 @@ export const OllamaModelMachine = createMachine(
                     ],
                   },
                 },
-              });
+              );
             }),
           },
           onError: {

@@ -1,7 +1,40 @@
-import { AnyActorRef, enqueueActions, fromObservable, setup } from "xstate";
+import {
+  ActorRefFrom,
+  AnyActorRef,
+  Spawner,
+  enqueueActions,
+  fromObservable,
+  setup,
+} from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 import { distinctUntilChanged, from, switchMap, of, debounceTime } from "rxjs";
-import { isEqual } from "lodash";
+import { isEqual, merge } from "lodash";
+
+export const spawnOutputSockets = ({
+  spawn,
+  self,
+  outputSockets,
+}: {
+  spawn: Spawner<any>;
+  self: AnyActorRef;
+  outputSockets: Record<string, JSONSocket>;
+}): Record<string, ActorRefFrom<typeof outputSocketMachine>> =>
+  Object.values(outputSockets)
+    .map((socket) =>
+      spawn("output", {
+        input: {
+          definition: socket,
+          parent: self,
+        },
+        id: `${self.id}:output:${socket["x-key"]}`,
+        syncSnapshot: true,
+        systemId: `${self.id}:output:${socket["x-key"]}`,
+      }),
+    )
+    .map((socket) => ({
+      [socket.id]: socket,
+    }))
+    .reduce((acc, val) => merge(acc, val), {});
 
 export const outputSocketMachine = setup({
   types: {

@@ -6,9 +6,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
+import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { useSelector } from "@xstate/react";
 import { useMemo } from "react";
-import { AnyActorRef, SnapshotFrom } from "xstate";
+import { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
 function parseValueFN(value: string) {
   const secret = /^\(?await getSecret\("([^"]+)"\)\)?$/;
@@ -29,12 +30,18 @@ function parseValueFN(value: string) {
   return "text";
 }
 
-export const ChangeFormat = <T extends AnyActorRef = AnyActorRef>(props: {
+export const ChangeFormat = <
+  T extends ActorRefFrom<typeof inputSocketMachine> = ActorRefFrom<
+    typeof inputSocketMachine
+  >,
+>(props: {
   value: string;
   actor: T;
-  selector: (snapshot: SnapshotFrom<T> | undefined) => JSONSocket;
 }) => {
-  const definition = useSelector(props.actor, props.selector);
+  const definition = useSelector(
+    props.actor,
+    (snap) => snap.context.definition,
+  );
   const format = useMemo(() => parseValueFN(props.value), [props.value]);
 
   return (
@@ -44,16 +51,12 @@ export const ChangeFormat = <T extends AnyActorRef = AnyActorRef>(props: {
         props.actor.send({
           type: "UPDATE_SOCKET",
           params: {
-            name: definition["x-key"],
-            side: "input",
-            socket: {
-              format: val === "text" ? undefined : val,
-            },
+            format: val === "text" ? undefined : val,
           },
         });
       }}
     >
-      <SelectTrigger className="w-10 min-w-fit">
+      <SelectTrigger className="hover:text-foreground text-muted-foreground hover:border-1 max-w-fit  border-none py-1 text-sm shadow-none">
         <SelectValue placeholder="type" />
       </SelectTrigger>
       <SelectContent>
