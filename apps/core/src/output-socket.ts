@@ -1,5 +1,7 @@
-import { AnyActorRef, enqueueActions, setup } from "xstate";
+import { AnyActorRef, enqueueActions, fromObservable, setup } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
+import { distinctUntilChanged, from, switchMap, of, debounceTime } from "rxjs";
+import { isEqual } from "lodash";
 
 export const outputSocketMachine = setup({
   types: {
@@ -18,6 +20,33 @@ export const outputSocketMachine = setup({
       params: Partial<JSONSocket>;
     },
   },
+  actors: {
+    valueWatcher: fromObservable(
+      ({
+        input,
+        system,
+      }: {
+        input: {
+          definition: JSONSocket;
+          parent: {
+            id: string;
+          };
+        };
+        system: any;
+      }) => {
+        const parent = system.get(input.parent.id);
+        const events = from(parent);
+        const definition = input.definition;
+        return events.pipe(
+          switchMap((state) => {
+            return of(state.context.outputs[definition["x-key"]]);
+          }),
+          debounceTime(150),
+          distinctUntilChanged(isEqual),
+        );
+      },
+    ),
+  },
 }).createMachine({
   id: "OutputSocketMachine",
   context: ({ input }) => ({
@@ -26,6 +55,32 @@ export const outputSocketMachine = setup({
       id: input.parent.id,
     },
   }),
+  invoke: {
+    src: "valueWatcher",
+    input: ({ context }) => context,
+    onSnapshot: {
+      actions: enqueueActions(({ enqueue, event, context, system, check }) => {
+        console.log("VALUE CHANGED SNAPSHOT", event, event?.snapshot?.context);
+        if (check(({ context }) => context.definition["x-connection"])) {
+          for (const [t, conn] of Object.entries(
+            context.definition["x-connection"] || {},
+          )) {
+            console.log("Target", t, "Connection", conn);
+
+            enqueue.sendTo(
+              ({ system }) => system.get(t),
+              ({ event }) => ({
+                type: "SET_VALUE",
+                params: {
+                  value: event.snapshot.context,
+                },
+              }),
+            );
+          }
+        }
+      }),
+    },
+  },
   on: {
     UPDATE_SOCKET: {
       actions: enqueueActions(({ enqueue, event, system }) => {

@@ -206,10 +206,7 @@ export class Connection<
       params: {
         "x-connection": {
           ...this.targetDefinition?.["x-connection"],
-          [this.sourceActor.id]: {
-            actorRef: this.sourceActor.ref,
-            key: this.sourceOutput,
-          },
+          [this.sourceSocketActor.id]: this.sourceSocketActor.ref,
         } as ConnectionConfigRecord,
       },
     });
@@ -219,10 +216,7 @@ export class Connection<
       params: {
         "x-connection": {
           ...this.sourceDefinition?.["x-connection"],
-          [this.targetActor.id]: {
-            actorRef: this.targetActor.ref,
-            key: this.targetInput,
-          },
+          [this.targetSocketActor.id]: this.targetSocketActor.ref,
         } as ConnectionConfigRecord,
       },
     });
