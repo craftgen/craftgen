@@ -10,7 +10,6 @@ import {
   Loader2,
   Play,
   Undo2,
-  Wrench,
 } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";

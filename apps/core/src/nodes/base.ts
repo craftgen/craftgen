@@ -572,6 +572,8 @@ export abstract class BaseNode<
       },
     });
 
+    // if (prev.context.inputs)
+
     this.actors.set(actor.id, actor);
     this.actorListeners.set(actor.id, listener);
 
@@ -671,6 +673,18 @@ export abstract class BaseNode<
           input.socket = getSocketByJsonSchemaType(definition)! as any;
         }
         continue;
+      }
+
+      if (definition["x-actor-type"]) {
+        const actor = socketActor.system.get(
+          socketActor.getSnapshot().context.parent.id,
+        );
+
+        if (actor) {
+          actor.send({
+            type: "INITIALIZE",
+          });
+        }
       }
 
       const socket = getSocketByJsonSchemaType(definition)!;

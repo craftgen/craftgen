@@ -685,13 +685,13 @@ export class Editor<
         }),
       );
 
-      const childSnap = event.params.actor.getSnapshot();
-      enqueue.assign({
-        inputSockets: ({ context, system, event }) => ({
-          ...context.inputSockets,
-          ...childSnap.context.inputSockets,
-        }),
-      });
+      // const childSnap = event.params.actor.getSnapshot();
+      // enqueue.assign({
+      //   inputSockets: ({ context, system, event }) => ({
+      //     ...context.inputSockets,
+      //     ...childSnap.context.inputSockets,
+      //   }),
+      // });
 
       return;
       enqueue.assign({

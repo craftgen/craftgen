@@ -17,10 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
-import {
-  inputSocketMachine,
-  inputSocketMachine,
-} from "@seocraft/core/src/input-socket";
+import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   // const socketKey = useMemo(() => {
@@ -202,36 +199,27 @@ const InputItem = ({
   actor: Actor<typeof inputSocketMachine>;
 }) => {
   const item = useSelector(actor, (state) => state.context.definition, isEqual);
+  const parentId = useSelector(
+    actor,
+    (state) => state.context.parent.id,
+    isEqual,
+  );
 
-  const targetActorId = useSelector(actor, (state) => state.context.parent.id);
-  const targetActor = actor.system.get(targetActorId);
-
-  // const targetActor = item["x-actor-id"]
-  //   ? actor.system.get(item["x-actor-id"])
-  //   : actor;
-  const socket = useMemo(() => getSocketByJsonSchemaType(item), [item]);
-  const handleChange = (v: any) => {
-    console.log("handleChange", {
-      v,
-      k: item["x-key"],
-      src: targetActor.src,
-      targetActor,
-      actor,
-    });
-
-    actor.send({
-      type: "SET_VALUE",
-      params: {
-        value: v,
-      },
-    });
-  };
   const controller = useMemo(() => {
     return getControlBySocket({
       actor: actor,
       definition: item,
     });
   }, [item]);
+
+  if (item["x-actor-type"]) {
+    console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
+    const targetActor = actor.system.get(parentId).getSnapshot().context.inputs[
+      item["x-key"]
+    ];
+    console.log("TARGET ACTOR", targetActor, parentId, item["x-key"]);
+    return <InputsList actor={targetActor} showAdvanced={true} />;
+  }
 
   return (
     <SocketController actor={actor} socket={item} socketKey={itemKey}>
