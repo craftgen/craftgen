@@ -153,31 +153,31 @@ const listModels = fromPromise(
 );
 
 const inputSockets = {
-  // apiConfiguration: generateSocket({
-  //   "x-key": "apiConfiguration",
-  //   name: "api" as const,
-  //   title: "API",
-  //   type: "NodeApiConfiguration",
-  //   description: dedent`
-  //   Api configuration for Ollama
-  //   `,
-  //   required: true,
-  //   "x-actor-type": "NodeApiConfiguration",
-  //   default: {
-  //     baseUrl: "http://127.0.0.1:11434",
-  //   },
-  //   isMultiple: false,
-  //   "x-actor-config": {
-  //     NodeApiConfiguration: {
-  //       connections: {
-  //         config: "apiConfiguration",
-  //       },
-  //       internal: {
-  //         config: "apiConfiguration",
-  //       },
-  //     },
-  //   },
-  // }),
+  apiConfiguration: generateSocket({
+    "x-key": "apiConfiguration",
+    name: "api" as const,
+    title: "API",
+    type: "NodeApiConfiguration",
+    description: dedent`
+    Api configuration for Ollama
+    `,
+    required: true,
+    "x-actor-type": "NodeApiConfiguration",
+    default: {
+      baseUrl: "http://127.0.0.1:11434",
+    },
+    isMultiple: false,
+    "x-actor-config": {
+      NodeApiConfiguration: {
+        connections: {
+          config: "apiConfiguration",
+        },
+        internal: {
+          config: "apiConfiguration",
+        },
+      },
+    },
+  }),
   model: generateSocket({
     name: "model" as const,
     "x-key": "model",

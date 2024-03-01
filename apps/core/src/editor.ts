@@ -34,6 +34,7 @@ import {
   ActionArgs,
   assertEvent,
   AnyActorRef,
+  ActorRefFrom,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -639,41 +640,60 @@ export class Editor<
         type: event.value,
       }),
     }),
-    assignParent: enqueueActions(
-      ({ enqueue, event, context, check, self, system }) => {
-        if (check(({ context }) => !isNil(context.parent))) {
-          if (self.id.startsWith("call")) {
-            enqueue.sendTo(
-              ({ context, system }) => system.get(context.parent?.id!),
-              ({ self }) => ({
-                type: "ASSIGN_RUN",
-                params: {
-                  actor: self,
-                },
-              }),
-            );
-          } else if (
-            // skip the root actor
-            check(
-              ({ context }) => context.parent?.id !== system.get("editor").id,
-            )
-          ) {
-            enqueue.sendTo(
-              ({ context, system }) => system.get(context.parent?.id!),
-              ({ context, self }) => ({
-                type: "ASSIGN_CHILD",
-                params: {
-                  actor: self,
-                  port: context.parent?.port!,
-                },
-              }),
-            );
-          }
+    assignParent: enqueueActions(({ enqueue, check, self, system }) => {
+      if (check(({ context }) => !isNil(context.parent))) {
+        if (self.id.startsWith("call")) {
+          enqueue.sendTo(
+            ({ context, system }) => system.get(context.parent?.id!),
+            ({ self }) => ({
+              type: "ASSIGN_RUN",
+              params: {
+                actor: self,
+              },
+            }),
+          );
+        } else if (
+          // skip the root actor
+          check(({ context }) => context.parent?.id !== system.get("editor").id)
+        ) {
+          enqueue.sendTo(
+            ({ context, system }) => system.get(context.parent?.id!),
+            ({ context, self }) => ({
+              type: "ASSIGN_CHILD",
+              params: {
+                actor: self,
+                port: context.parent?.port!,
+              },
+            }),
+          );
         }
-      },
-    ),
+      }
+    }),
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
       assertEvent(event, "ASSIGN_CHILD");
+      console.log("ASSIGN CHILD", event);
+      enqueue.sendTo(
+        ({ system }) =>
+          system.get(event.params.port) as ActorRefFrom<
+            typeof inputSocketMachine
+          >,
+        ({ self }) => ({
+          type: "SET_VALUE",
+          params: {
+            value: event.params.actor,
+          },
+        }),
+      );
+
+      const childSnap = event.params.actor.getSnapshot();
+      enqueue.assign({
+        inputSockets: ({ context, system, event }) => ({
+          ...context.inputSockets,
+          ...childSnap.context.inputSockets,
+        }),
+      });
+
+      return;
       enqueue.assign({
         inputSockets: ({ context, system, event }) => {
           assertEvent(event, "ASSIGN_CHILD");
@@ -794,7 +814,7 @@ export class Editor<
     }),
     initialize: enqueueActions(({ enqueue, check, system, self }) => {
       enqueue("assignParent");
-      enqueue("spawnInputActors");
+      // enqueue("spawnInputActors");
       // if (check(() => !system.get(`${self.id}-socketWatcher`))) {
       //   enqueue.spawnChild("socketWatcher", {
       //     id: `${self.id}-socketWatcher`,
@@ -806,9 +826,9 @@ export class Editor<
       // }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system, self }) => {
-      for (const [key, value] of Object.entries<JSONSocket>(
-        context.inputSockets,
-      )) {
+      for (const [key, value] of Object.entries<
+        ActorRefFrom<typeof inputSocketMachine>
+      >(context.inputSockets)) {
         if (isNil(value["x-actor-type"])) {
           // skip if no actor type.
           continue;

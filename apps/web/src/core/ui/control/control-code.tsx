@@ -283,7 +283,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     container: editorContainer.current,
     theme: systemTheme === "dark" ? githubDark : githubLight,
     extensions,
-    className: "bg-muted/30 w-full rounded-lg p-2 outline-none",
+    className: "bg-muted/30 w-full rounded-lg p-2 outline-none min-h-[10rem]",
     width: "100%",
     height: "100%",
     basicSetup: {
@@ -347,7 +347,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
         />
         <ChangeFormat value={editorValue.current} actor={props.data.actor} />
       </div>
-      <div ref={editorContainer} className="inline-flex w-full" />
+      <div ref={editorContainer} className="inline-flex  w-full" />
     </ControlContainer>
   );
 }

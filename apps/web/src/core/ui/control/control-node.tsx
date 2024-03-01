@@ -23,7 +23,6 @@ import {
 } from "@seocraft/core/src/input-socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
-  console.log("NODE CONTROLLER", props.data.actor.src, props);
   // const socketKey = useMemo(() => {
   //   return props.data.actor.src === "NodeModule"
   //     ? `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`
@@ -153,7 +152,6 @@ export const InputsList = (props: {
 
 const BasicInputs = (props: { actor: AnyActor }) => {
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
-  console.log("Basic inputSockets", inputSockets);
 
   return (
     <>
@@ -203,8 +201,6 @@ const InputItem = ({
   itemKey: string;
   actor: Actor<typeof inputSocketMachine>;
 }) => {
-  console.log("INPUT ITEM", itemKey, actor);
-  // return <div>INPUT</div>;
   const item = useSelector(actor, (state) => state.context.definition, isEqual);
 
   const targetActorId = useSelector(actor, (state) => state.context.parent.id);
@@ -231,11 +227,8 @@ const InputItem = ({
     });
   };
   const controller = useMemo(() => {
-    console.log("GET CONTROL", item, item.format, targetActor.src, targetActor);
     return getControlBySocket({
       actor: actor,
-      // selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
-      // onChange: handleChange,
       definition: item,
     });
   }, [item]);
