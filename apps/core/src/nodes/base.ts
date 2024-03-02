@@ -2,9 +2,9 @@ import { get, isEqual, isNil, pickBy } from "lodash-es";
 import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
-import { match, P } from "ts-pattern";
+import { match } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { waitFor } from "xstate";
+import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
   ActorRefFrom,
@@ -304,6 +304,57 @@ export type BaseMachine = StateMachine<
   any
 >;
 
+const NodeMachine = setup({
+  types: {
+    context: {} as {
+      actors: Record<
+        string,
+        {
+          outputSockets: Record<
+            string,
+            ActorRefFrom<typeof outputSocketMachine>
+          >;
+          inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+        }
+      >;
+    },
+    events: {} as {
+      type: "SET_INPUT_OUTPUT";
+      params: {
+        actorId: string;
+        sockets: {
+          inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+          outputSockets: Record<
+            string,
+            ActorRefFrom<typeof outputSocketMachine>
+          >;
+        };
+      };
+    },
+  },
+}).createMachine({
+  id: "node",
+  context: ({ input }) => ({
+    actors: {},
+  }),
+  on: {
+    SET_INPUT_OUTPUT: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        console.log("SETTING INPUT OUTPUT", event);
+        enqueue.assign({
+          actors: ({ event, context }) => {
+            const { actorId, sockets } = event.params;
+            return {
+              ...context.actors,
+              [actorId]: sockets,
+            };
+          },
+        });
+      }),
+    },
+  },
+});
+
 export abstract class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
@@ -325,6 +376,9 @@ export abstract class BaseNode<
   static nodeType: string;
 
   public actor: Actor<Machine>;
+
+  public nodeActor: Actor<typeof NodeMachine>;
+
   public readonly variables: string[] = [];
   description: any;
 
@@ -380,11 +434,6 @@ export abstract class BaseNode<
   private get snapshot() {
     return this.snap as SnapshotFrom<BaseMachine>;
   }
-
-  // public inputSockets = new Map<string, Actor<typeof inputSocketMachine>>();
-  // public outputSockets = new Map<string, Actor<typeof outputSocketMachine>>();
-
-  // public output: Record<string, any> = {};
 
   get inputSchema() {
     throw new Error("Not implemented");
@@ -544,37 +593,30 @@ export abstract class BaseNode<
       executionId: computed,
       setExecutionNodeId: action,
     });
+    this.nodeActor = createActor(NodeMachine, {
+      id: this.id,
+    });
+    this.nodeActor.start();
   }
 
   public setup() {
     this.actor = this.setupActor(this.di?.actor?.system.get(this.contextId));
-    // this.setSnap(this.actor.getSnapshot() as any);
-
-    // this.inputSockets = this.snapshot.context?.inputSockets || {};
-    // this.outputSockets = this.snapshot.context?.outputSockets || {};
-
-    this.updateOutputs(this.outputSockets);
-    this.updateInputs(this.inputSockets);
-    // const reactForExecutionId = reaction(
-    //   () => this.executionId,
-    //   async (executionId) => {
-    //     if (!executionId) {
-    //       this.setExecutionNodeId(undefined);
-    //     }
-    //   },
-    // );
-    // const inputSocketHandlers = reaction(
-    //   () => this.inputSockets,
-    //   async (sockets) => {
-    //     await this.updateInputs(sockets);
-    //   },
-    // );
-    // const outputSocketHandlers = reaction(
-    //   () => this.outputSockets,
-    //   async (sockets) => {
-    //     await this.updateOutputs(sockets);
-    //   },
-    // );
+    this.nodeActor.subscribe((state) => {
+      let inputSockets = {};
+      let outputSockets = {};
+      for (const [key, value] of Object.entries(state.context.actors)) {
+        inputSockets = {
+          ...inputSockets,
+          ...value.inputSockets,
+        };
+        outputSockets = {
+          ...outputSockets,
+          ...value.outputSockets,
+        };
+      }
+      this.updateInputs(inputSockets);
+      this.updateOutputs(outputSockets);
+    });
     this.isReady = true;
   }
 
@@ -584,15 +626,26 @@ export abstract class BaseNode<
       return;
     }
     let prev = actor.getSnapshot();
-    console.log("SETTING UP THE ACTOR SNAP", prev);
-
     const childActors = Object.values(
       get(prev, "context.childs", {}),
     ) as Actor<Machine>[];
 
     for (const childActor of childActors) {
-      this.setupActor(childActor);
+      if (childActor) {
+        if (this.actors.has(childActor.id)) continue;
+        this.setupActor(childActor);
+      }
     }
+    this.nodeActor.send({
+      type: "SET_INPUT_OUTPUT",
+      params: {
+        actorId: actor.id,
+        sockets: {
+          inputSockets: prev?.context?.inputSockets,
+          outputSockets: prev?.context?.outputSockets,
+        },
+      },
+    });
 
     const listener = actor.subscribe({
       complete: async () => {
@@ -601,24 +654,27 @@ export abstract class BaseNode<
       next: async (state: any) => {
         // this.state = state.value;
         // this.setSnap(state);
+        const childActors = Object.values(
+          get(state, "context.childs", {}),
+        ) as Actor<Machine>[];
 
-        if (
-          !isEqual(
-            this.actorSockets.get(actor.id),
-            state.context.inputSockets,
-          ) ||
-          !isEqual(this.actorSockets.get(actor.id), state.context.outputSockets)
-        ) {
-          // this.setInputSockets(state.context?.inputSockets || {});
-          this.actorSockets.set(actor.id, {
-            inputSockets: state.context.inputSockets,
-            outputSocket: state.context.outputSockets,
-          });
+        for (const childActor of childActors) {
+          if (childActor) {
+            if (this.actors.has(childActor.id)) continue;
+            this.setupActor(childActor);
+          }
         }
 
-        // if (!isEqual(prev.context.outputs, state.context.outputs)) {
-        //   this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-        // }
+        this.nodeActor.send({
+          type: "SET_INPUT_OUTPUT",
+          params: {
+            actorId: actor.id,
+            sockets: {
+              inputSockets: state.context.inputSockets,
+              outputSockets: state.context.outputSockets,
+            },
+          },
+        });
 
         prev = state;
       },
@@ -630,7 +686,6 @@ export abstract class BaseNode<
       outputSocket: prev.context?.outputSockets || {},
     });
     this.actorListeners.set(actor.id, listener);
-
     return actor;
   }
 
@@ -760,6 +815,7 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string,
   ) {
+    throw new Error("Not implemented");
     console.log(this.identifier, "@@@", input, "execute", executionId);
 
     const allConnections = this.di.editor
@@ -778,10 +834,10 @@ export abstract class BaseNode<
     if (this.snapshot.status === "done") {
       console.log("Running same node In the single execution with new input");
       this.executionNodeId = undefined; // reset execution node id
-      this.actor = this.setupActor({
+      this.nodeActor = this.setupActor({
         input: this.snapshot.context as any,
       });
-      this.actor.start();
+      this.nodeActor.start();
     }
     const canRun = this.snapshot.can({
       type: input,
@@ -938,7 +994,7 @@ export abstract class BaseNode<
       this.di.logger.log(this.identifier, "waiting for complete");
       await waitFor(this.pactor, (state) => state.matches("complete"));
     }
-    state = this.actor.getSnapshot();
+    state = this.nodeActor.getSnapshot();
 
     return {
       ...state.context.outputs,
@@ -1086,7 +1142,8 @@ export abstract class BaseNode<
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {
-    const state = this.actor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
+    const state =
+      this.nodeActor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
     return {
       ...this.nodeData,
       // state: state,
