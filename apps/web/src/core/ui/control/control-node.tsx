@@ -18,14 +18,9 @@ import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
+import { Label } from "@/components/ui/label";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
-  // const socketKey = useMemo(() => {
-  //   return props.data.actor.src === "NodeModule"
-  //     ? `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`
-  //     : props.data.definition["x-key"];
-
-  // }, [props.data.actor.src, props.data.definition["x-key"]]);
   const socketKey = useMemo(() => {
     return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
   }, [props.data.actor.src, props.data.definition["x-key"]]);
@@ -218,13 +213,86 @@ const InputItem = ({
       item["x-key"]
     ];
     console.log("TARGET ACTOR", targetActor, parentId, item["x-key"]);
-    return <InputsList actor={targetActor} showAdvanced={true} />;
+    return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 
   return (
     <SocketController actor={actor} socket={item} socketKey={itemKey}>
       <ControlWrapper control={controller} definition={item} />
     </SocketController>
+  );
+};
+
+const ActorInputItem = ({
+  targetActor,
+  socketActor,
+}: {
+  targetActor: AnyActor;
+  socketActor: Actor<typeof inputSocketMachine>;
+}) => {
+  const handleToggleSocket = (val: boolean) => {
+    socketActor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        "x-showSocket": val,
+      },
+    });
+  };
+  const handleToggleController = (val: boolean) => {
+    socketActor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        "x-showControl": val,
+      },
+    });
+  };
+  const socket = useSelector(socketActor, (state) => state.context.definition);
+  return (
+    <div className="border-1 ">
+      <div className="m-2 mb-2 flex w-full flex-row items-center p-2 ">
+        <div className="flex w-full flex-1 flex-row items-center space-x-1">
+          <Toggle
+            onPressedChange={handleToggleSocket}
+            pressed={socket["x-showSocket"]}
+            size={"sm"}
+            // disabled={hasConnection}
+          >
+            {socket["x-showSocket"] ? (
+              <CircleDot className="h-4 w-4" />
+            ) : (
+              <Circle className="h-4 w-4" />
+            )}
+          </Toggle>
+          <div
+            className="flex w-full flex-1 cursor-pointer flex-col"
+            onClick={() => handleToggleController(!socket["x-showControl"])}
+          >
+            <Label>{socket.title || socket.name}</Label>
+            <p className={cn("text-muted-foreground text-[0.8rem]")}>
+              {socket?.description}
+            </p>
+          </div>
+        </div>
+        <div>
+          <Toggle
+            variant={"default"}
+            size={"sm"}
+            onPressedChange={handleToggleController}
+          >
+            {socket["x-showControl"] ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Toggle>
+        </div>
+      </div>
+      {socket["x-showControl"] && (
+        <div className="bg-muted/20  rounded border m-1">
+          <InputsList actor={targetActor} showAdvanced={true} />
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -271,7 +339,7 @@ const SocketController = ({
       data-socket-type={socket["x-type"]}
       data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
-        "mb-2 flex flex-row space-x-1 p-2",
+        "m-2 mb-2 flex flex-row space-x-1 p-2",
         hasConnection && "bg-muted/30 rounded border",
       )}
     >

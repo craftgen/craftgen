@@ -3,11 +3,13 @@ import {
   AnyActorRef,
   Spawner,
   enqueueActions,
+  fromObservable,
   setup,
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 import { isNil, merge } from "lodash-es";
 import { init } from "@paralleldrive/cuid2";
+import { Observable, from } from "rxjs";
 
 function createId(prefix: "context", parentId: string) {
   const createId = init({
@@ -21,6 +23,7 @@ export const inputSocketMachine = setup({
   types: {
     context: {} as {
       definition: JSONSocket;
+      value: Observable<any>;
       parent: {
         id: string;
       };
@@ -43,7 +46,7 @@ export const inputSocketMachine = setup({
   },
 }).createMachine({
   id: "InputSocketMachine",
-  context: ({ input }) => {
+  context: ({ input, spawn }) => {
     return {
       ...input,
       parent: {

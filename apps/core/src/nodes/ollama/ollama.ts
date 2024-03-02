@@ -158,7 +158,7 @@ const inputSockets = {
   apiConfiguration: generateSocket({
     "x-key": "apiConfiguration",
     name: "api" as const,
-    title: "API",
+    title: "API Configuration",
     type: "NodeApiConfiguration",
     description: dedent`
     Api configuration for Ollama

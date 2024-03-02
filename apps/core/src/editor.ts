@@ -1433,9 +1433,6 @@ export class Editor<
               readonly: false,
               timestamp: +new Date(),
             });
-            console.log("EDITOR SNAPSHOT", {
-              snapshot: editorSnapshot,
-            });
 
             return;
           }
@@ -1469,11 +1466,6 @@ export class Editor<
           if (event.type.startsWith("xstate.snapshot")) {
             const contextId = event.type.split("xstate.snapshot.")[1];
             const actor = this.actor.system.get(contextId);
-
-            console.log("@@@@", {
-              source: inspectionEvent.sourceRef,
-              actor: inspectionEvent.actorRef,
-            });
 
             let actorSnapshot =
               inspectionEvent.sourceRef?.getPersistedSnapshot();

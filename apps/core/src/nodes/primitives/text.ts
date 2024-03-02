@@ -17,7 +17,7 @@ const inputSockets = {
     description: "Text",
     required: false,
     isMultiple: false,
-    "x-showSocket": false,
+    "x-showSocket": true,
     "x-key": "value",
     "x-controller": "textarea",
   }),

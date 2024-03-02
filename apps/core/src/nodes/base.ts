@@ -1,5 +1,5 @@
 import { get, isEqual, isNil, pickBy } from "lodash-es";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
 import { match } from "ts-pattern";
@@ -32,6 +32,7 @@ import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
 import { inputSocketMachine } from "../input-socket";
 import { outputSocketMachine } from "../output-socket";
+import { map, from, distinctUntilChanged, share, filter } from "rxjs";
 
 export type ParsedNode<
   NodeType extends string,
@@ -307,6 +308,8 @@ export type BaseMachine = StateMachine<
 const NodeMachine = setup({
   types: {
     context: {} as {
+      inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+      outputSockets: Record<string, ActorRefFrom<typeof outputSocketMachine>>;
       actors: Record<
         string,
         {
@@ -580,6 +583,7 @@ export abstract class BaseNode<
 
     makeObservable(this, {
       inputs: observable,
+      outputs: observable,
 
       snap: observable,
       inputSockets: computed,
@@ -602,6 +606,7 @@ export abstract class BaseNode<
   public setup() {
     this.actor = this.setupActor(this.di?.actor?.system.get(this.contextId));
     this.nodeActor.subscribe((state) => {
+      console.log("NODE STATE", state.context);
       let inputSockets = {};
       let outputSockets = {};
       for (const [key, value] of Object.entries(state.context.actors)) {
@@ -620,7 +625,7 @@ export abstract class BaseNode<
     this.isReady = true;
   }
 
-  public setupActor(actor: Actor<Machine>) {
+  public setupActor(actor: Actor<BaseMachine>) {
     console.log("SETTING UP THE ACTOR", actor);
     if (!actor) {
       return;
@@ -647,38 +652,54 @@ export abstract class BaseNode<
       },
     });
 
-    const listener = actor.subscribe({
-      complete: async () => {
-        // this.di.logger.log(this.identifier, "finito main");
-      },
-      next: async (state: any) => {
-        // this.state = state.value;
-        // this.setSnap(state);
-        const childActors = Object.values(
-          get(state, "context.childs", {}),
-        ) as Actor<Machine>[];
-
-        for (const childActor of childActors) {
-          if (childActor) {
-            if (this.actors.has(childActor.id)) continue;
-            this.setupActor(childActor);
-          }
+    const actorEvents = from(actor).pipe(share());
+    actorEvents
+      .pipe(
+        map((state) => get(state, "context.childs", {})),
+        filter((childs) => Object.keys(childs).length > 0),
+        map((childs) => {
+          // Convert `childs` to an array, filtering out undefined values
+          return Object.values(childs).filter(
+            (child) => child !== undefined,
+          ) as Actor<Machine>[];
+        }),
+        distinctUntilChanged(),
+      )
+      .subscribe((childs) => {
+        for (const child of childs) {
+          if (this.actors.has(child.id)) continue;
+          this.setupActor(child);
         }
+      });
 
+    const listener = actorEvents
+      .pipe(
+        map((state) => {
+          return {
+            event: {
+              actorId: actor.id,
+              sockets: {
+                inputSockets: state.context.inputSockets,
+                outputSockets: state.context.outputSockets,
+              },
+            },
+            socketKeys: {
+              inputSockets: Object.keys(state.context.inputSockets),
+              outputSockets: Object.keys(state.context.outputSockets),
+            },
+          };
+        }),
+        distinctUntilChanged((prev, curr) =>
+          isEqual(prev.socketKeys, curr.socketKeys),
+        ),
+        map((state) => state.event),
+      )
+      .subscribe((state) => {
         this.nodeActor.send({
           type: "SET_INPUT_OUTPUT",
-          params: {
-            actorId: actor.id,
-            sockets: {
-              inputSockets: state.context.inputSockets,
-              outputSockets: state.context.outputSockets,
-            },
-          },
+          params: state,
         });
-
-        prev = state;
-      },
-    });
+      });
 
     this.actors.set(actor.id, actor);
     this.actorSockets.set(actor.id, {

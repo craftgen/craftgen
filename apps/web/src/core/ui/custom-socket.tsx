@@ -12,13 +12,14 @@ import { useSelector } from "@xstate/react";
 
 export function CustomSocket<T extends Socket>(props: {
   data: {
-    socket: T;
+    socket?: T;
     input?: Input;
     output?: Output;
   };
   meta: Omit<ExtractPayload<Schemes, "socket">, "payload">;
 }) {
-  const config = useSocketConfig(props.data.socket.name);
+  if (!props.data.socket) return null;
+  const config = useSocketConfig(props.data.socket?.name);
 
   const data = React.useMemo(() => {
     return match(props)

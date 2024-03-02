@@ -93,7 +93,6 @@ export const outputSocketMachine = setup({
     input: ({ context }) => context,
     onSnapshot: {
       actions: enqueueActions(({ enqueue, event, context, system, check }) => {
-        console.log("VALUE CHANGED SNAPSHOT", event, event?.snapshot?.context);
         if (check(({ context }) => context.definition["x-connection"])) {
           for (const [t, conn] of Object.entries(
             context.definition["x-connection"] || {},
