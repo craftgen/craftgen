@@ -79,6 +79,9 @@ export interface BaseContextType<
     id: string; // System Id
     port?: string; // Input port // CHILD ACTORS only
   };
+  childs: {
+    [key: NodeTypes]: ActorRefFrom<AnyStateMachine>;
+  };
   error: {
     name: string;
     message: string;
@@ -378,8 +381,8 @@ export abstract class BaseNode<
     return this.snap as SnapshotFrom<BaseMachine>;
   }
 
-  public inputSockets: Record<string, Actor<typeof inputSocketMachine>>;
-  public outputSockets: Record<string, Actor<typeof outputSocketMachine>>;
+  // public inputSockets = new Map<string, Actor<typeof inputSocketMachine>>();
+  // public outputSockets = new Map<string, Actor<typeof outputSocketMachine>>();
 
   // public output: Record<string, any> = {};
 
@@ -401,6 +404,38 @@ export abstract class BaseNode<
 
   actors = new Map<string, Actor<Machine>>();
   actorListeners = new Map<string, Subscription>();
+  actorSockets = new Map<
+    string,
+    {
+      inputSockets: Record<string, Actor<typeof inputSocketMachine>>;
+      outputSocket: Record<string, Actor<typeof outputSocketMachine>>;
+    }
+  >();
+
+  get inputSockets() {
+    let combined = {} as Record<string, Actor<typeof inputSocketMachine>>;
+    for (let actorSocket of this.actorSockets.values()) {
+      combined = {
+        ...combined,
+        ...actorSocket.inputSockets,
+      };
+    }
+    return combined;
+  }
+
+  get outputSockets() {
+    let combined = {} as Record<string, Actor<typeof outputSocketMachine>>;
+
+    for (let actorSocket of this.actorSockets.values()) {
+      // Combine outputSocket
+      combined = {
+        ...combined,
+        ...actorSocket.outputSocket,
+      };
+    }
+
+    return combined;
+  }
 
   public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
     hasConnection: (
@@ -490,21 +525,19 @@ export abstract class BaseNode<
     }) as Machine;
 
     this.snap = nodeData.context?.state || {};
-    this.inputSockets = nodeData.context?.state?.context?.inputSockets || {};
-    this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
+    // this.inputSockets = nodeData.context?.state?.context?.inputSockets || {};
+    // this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
     this.executionNodeId = this.nodeData?.executionNodeId;
 
     makeObservable(this, {
       inputs: observable,
 
       snap: observable,
-      inputSockets: observable,
+      inputSockets: computed,
       inputSchema: computed,
-      outputSockets: observable,
+      outputSockets: computed,
       outputSchema: computed,
 
-      setInputSockets: action,
-      setOutputSockets: action,
       setSnap: action,
 
       executionNodeId: observable,
@@ -515,66 +548,87 @@ export abstract class BaseNode<
 
   public setup() {
     this.actor = this.setupActor(this.di?.actor?.system.get(this.contextId));
-    this.setSnap(this.actor.getSnapshot() as any);
+    // this.setSnap(this.actor.getSnapshot() as any);
 
-    this.inputSockets = this.snapshot.context?.inputSockets || {};
-    this.outputSockets = this.snapshot.context?.outputSockets || {};
+    // this.inputSockets = this.snapshot.context?.inputSockets || {};
+    // this.outputSockets = this.snapshot.context?.outputSockets || {};
 
-    this.updateInputs(this.inputSockets);
     this.updateOutputs(this.outputSockets);
-    const reactForExecutionId = reaction(
-      () => this.executionId,
-      async (executionId) => {
-        if (!executionId) {
-          this.setExecutionNodeId(undefined);
-        }
-      },
-    );
-    const inputSocketHandlers = reaction(
-      () => this.inputSockets,
-      async (sockets) => {
-        await this.updateInputs(sockets);
-      },
-    );
-    const outputSocketHandlers = reaction(
-      () => this.outputSockets,
-      async (sockets) => {
-        await this.updateOutputs(sockets);
-      },
-    );
+    this.updateInputs(this.inputSockets);
+    // const reactForExecutionId = reaction(
+    //   () => this.executionId,
+    //   async (executionId) => {
+    //     if (!executionId) {
+    //       this.setExecutionNodeId(undefined);
+    //     }
+    //   },
+    // );
+    // const inputSocketHandlers = reaction(
+    //   () => this.inputSockets,
+    //   async (sockets) => {
+    //     await this.updateInputs(sockets);
+    //   },
+    // );
+    // const outputSocketHandlers = reaction(
+    //   () => this.outputSockets,
+    //   async (sockets) => {
+    //     await this.updateOutputs(sockets);
+    //   },
+    // );
     this.isReady = true;
   }
 
   public setupActor(actor: Actor<Machine>) {
+    console.log("SETTING UP THE ACTOR", actor);
+    if (!actor) {
+      return;
+    }
     let prev = actor.getSnapshot();
+    console.log("SETTING UP THE ACTOR SNAP", prev);
+
+    const childActors = Object.values(
+      get(prev, "context.childs", {}),
+    ) as Actor<Machine>[];
+
+    for (const childActor of childActors) {
+      this.setupActor(childActor);
+    }
+
     const listener = actor.subscribe({
       complete: async () => {
         // this.di.logger.log(this.identifier, "finito main");
       },
       next: async (state: any) => {
-        this.state = state.value;
-        this.setSnap(state);
+        // this.state = state.value;
+        // this.setSnap(state);
 
-        if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
-          this.setInputSockets(state.context?.inputSockets || {});
-        }
         if (
-          !isEqual(prev.context?.outputSockets, state.context.outputSockets)
+          !isEqual(
+            this.actorSockets.get(actor.id),
+            state.context.inputSockets,
+          ) ||
+          !isEqual(this.actorSockets.get(actor.id), state.context.outputSockets)
         ) {
-          this.setOutputSockets(state.context?.outputSockets || {});
+          // this.setInputSockets(state.context?.inputSockets || {});
+          this.actorSockets.set(actor.id, {
+            inputSockets: state.context.inputSockets,
+            outputSocket: state.context.outputSockets,
+          });
         }
 
-        if (!isEqual(prev.context.outputs, state.context.outputs)) {
-          this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-        }
+        // if (!isEqual(prev.context.outputs, state.context.outputs)) {
+        //   this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
+        // }
 
         prev = state;
       },
     });
 
-    // if (prev.context.inputs)
-
     this.actors.set(actor.id, actor);
+    this.actorSockets.set(actor.id, {
+      inputSockets: prev.context?.inputSockets || {},
+      outputSocket: prev.context?.outputSockets || {},
+    });
     this.actorListeners.set(actor.id, listener);
 
     return actor;
@@ -691,18 +745,6 @@ export abstract class BaseNode<
       const input = new Input(socket, key, definition.isMultiple, socketActor);
       this.addInput(key, input as any);
     }
-  }
-
-  public setOutputSockets(
-    sockets: Record<string, Actor<typeof outputSocketMachine>>,
-  ) {
-    this.outputSockets = sockets;
-  }
-
-  public setInputSockets(
-    sockets: Record<string, Actor<typeof inputSocketMachine>>,
-  ) {
-    this.inputSockets = sockets;
   }
 
   public setSnap(snap: SnapshotFrom<Machine>) {

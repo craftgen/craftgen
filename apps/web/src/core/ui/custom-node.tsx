@@ -471,11 +471,7 @@ const NodeOutputs = ({
   node: Schemes["Node"];
   emit: RenderEmit<Schemes>;
 }) => {
-  const outputSockets = useSelector(
-    node.actor,
-    (state) => Object.entries(state.context.outputSockets),
-    isEqual,
-  );
+  const outputSockets = Object.entries(node.outputSockets);
 
   return (
     <div>
@@ -500,11 +496,7 @@ const NodeInputs = ({
   node: Schemes["Node"];
   emit: RenderEmit<Schemes>;
 }) => {
-  const inputSockets = useSelector(
-    node.actor,
-    (state) => Object.entries(state.context.inputSockets),
-    isEqual,
-  );
+  const inputSockets = Object.entries(node.inputSockets);
 
   return (
     <div>

@@ -685,6 +685,13 @@ export class Editor<
         }),
       );
 
+      enqueue.assign({
+        childs: ({ context, event }) => ({
+          ...context.childs,
+          [event.params.actor.src]: event.params.actor,
+        }),
+      });
+
       // const childSnap = event.params.actor.getSnapshot();
       // enqueue.assign({
       //   inputSockets: ({ context, system, event }) => ({

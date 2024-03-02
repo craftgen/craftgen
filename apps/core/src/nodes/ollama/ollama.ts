@@ -8,6 +8,7 @@ import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import {
   ActorRefFrom,
+  AnyActor,
   assign,
   createMachine,
   enqueueActions,
@@ -27,6 +28,7 @@ import type {
 import { OllamaNetworkError } from "./OllamaNetworkError";
 import { spawnOutputSockets } from "../../output-socket";
 import { inputSocketMachine, spawnInputSockets } from "../../input-socket";
+import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -507,6 +509,7 @@ export const OllamaModelMachine = createMachine(
             ...outputSockets,
           },
           outputs: {},
+          childs: {},
         },
         input,
       );
@@ -530,6 +533,9 @@ export const OllamaModelMachine = createMachine(
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
         model?: ShowResponse & { name: string };
+        childs: {
+          apiConfiguration: ActorRefFrom<typeof ApiConfigurationMachine>;
+        };
       };
       actions: {
         type: "updateOutput";

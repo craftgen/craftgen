@@ -111,7 +111,6 @@ export const WorkflowCreateDialog: React.FC<{
             slug,
             projectId: project?.id!,
           });
-          console.log(val);
           return val;
         },
         {
