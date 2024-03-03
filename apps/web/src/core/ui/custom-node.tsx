@@ -192,7 +192,7 @@ export const Node = (props: Props<Schemes>) => {
   Drag.useNoDrag(ref2);
 
   const stateValue = useSelector(
-    props.data.actor,
+    props.data.nodeActor,
     (state) => state.value,
     isEqual,
   );

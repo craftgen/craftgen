@@ -366,27 +366,19 @@ export const EditorMachine = setup({
             }
 
             // If actor has child actors, destroy them as well.
-            const childs = actor.getSnapshot().context.inputSockets as Record<
-              string,
-              JSONSocket
-            >;
-            Object.entries(childs)
-              .filter(([key, value]) => {
-                return value["x-actor-type"] && value["x-actor-config"];
-              })
-              .map(([key, value]) => value["x-actor-config"]!)
-              .forEach((config: Record<string, ActorConfig>) => {
-                Object.entries(config).forEach(([key, value]) => {
-                  if (value.actor) {
-                    enqueue.raise({
-                      type: "DESTROY",
-                      params: {
-                        id: value.actor.id,
-                      },
-                    });
-                  }
-                });
+            const childs =
+              (actor.getSnapshot().context.childs as Record<
+                string,
+                AnyActorRef
+              >) || {};
+            Object.entries(childs).forEach(([key, childActor]) => {
+              enqueue.raise({
+                type: "DESTROY",
+                params: {
+                  id: childActor.id,
+                },
               });
+            });
             enqueue.stopChild(({ system, event }) =>
               system.get(event.params.id),
             );

@@ -248,8 +248,8 @@ const ActorInputItem = ({
   };
   const socket = useSelector(socketActor, (state) => state.context.definition);
   return (
-    <div className="border-1 ">
-      <div className="m-2 mb-2 flex w-full flex-row items-center p-2 ">
+    <div className="m-2 rounded border">
+      <div className="m-2 ml-0 flex w-full flex-row items-center p-1 ">
         <div className="flex w-full flex-1 flex-row items-center space-x-1">
           <Toggle
             onPressedChange={handleToggleSocket}
@@ -288,7 +288,7 @@ const ActorInputItem = ({
         </div>
       </div>
       {socket["x-showControl"] && (
-        <div className="bg-muted/20  rounded border m-1">
+        <div className="bg-muted/20   m-1">
           <InputsList actor={targetActor} showAdvanced={true} />
         </div>
       )}
