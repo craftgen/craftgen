@@ -1,5 +1,4 @@
 import { createId } from "@paralleldrive/cuid2";
-import { merge } from "lodash-es";
 import type { ChatMessage } from "modelfusion";
 import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import type { PromiseActorLogic } from "xstate";
@@ -14,7 +13,7 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
 import { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
 
@@ -54,14 +53,14 @@ const outputSockets = {
     "x-showSocket": true,
     "x-event": "RUN",
   }),
-  thread: generateSocket({
-    name: "Thread",
-    type: "NodeThread",
-    "x-controller": "thread",
-    isMultiple: true,
-    "x-key": "thread",
-    "x-showSocket": true,
-  }),
+  // thread: generateSocket({
+  //   name: "Thread",
+  //   type: "NodeThread",
+  //   "x-controller": "thread",
+  //   isMultiple: true,
+  //   "x-key": "self",
+  //   "x-showSocket": true,
+  // }),
   messages: generateSocket({
     name: "messages",
     type: "array",
@@ -106,29 +105,14 @@ export const ThreadMachine = createMachine(
     entry: enqueueActions(({ enqueue, context }) => {
       enqueue("initialize");
     }),
-    context: ({ input }) =>
-      merge<typeof input, any>(
-        {
-          name: "Thread",
-          description: "Thread of messages",
-          inputs: {
-            messages: [],
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputs: {
-            messages: [],
-            thread: {
-              name: "Thread",
-              description: "Thread of messages",
-              schema: {},
-            },
-          },
-          outputSockets: { ...outputSockets },
-        },
-        input,
-      ),
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Thread",
+        description: "Thread of messages",
+        inputSockets,
+        outputSockets,
+      }),
+
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
         inputs: {

@@ -7,10 +7,22 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 export const BooleanControlComponent = (props: { data: BooleanControl }) => {
-  const value = useSelector(props.data?.actor, props.data.selector);
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const value = useSelector(
+    props.data?.actor.system.get(parent.id),
+    (snap) => snap.context.inputs[definition["x-key"]],
+  );
 
   const handleChange = (value: boolean) => {
-    props.data.setValue(value);
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value,
+      },
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, merge } from "lodash-es";
+import { isNil, merge, set } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -15,7 +15,7 @@ import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -307,26 +307,13 @@ const GenerateTextMachine = createMachine({
   entry: enqueueActions(({ enqueue }) => {
     enqueue("initialize");
   }),
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        name: "Generate Text",
-        description: "Generate text based on a prompt using LLMs",
-        inputs: {
-          RUN: undefined,
-          system: "",
-          instruction: "",
-          llm: null,
-        },
-        outputs: {
-          onDone: undefined,
-          result: "",
-        },
-        inputSockets,
-        outputSockets,
-      },
-      input,
-    ),
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Generate Text",
+      description: "Use LLMs to generate text base on a prompt",
+      inputSockets,
+      outputSockets,
+    }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
     context: BaseContextType<typeof inputSockets, typeof outputSockets> & {

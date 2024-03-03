@@ -1,4 +1,4 @@
-import { has, merge, set } from "lodash-es";
+import { has } from "lodash-es";
 import dedent from "ts-dedent";
 import { createMachine, enqueueActions } from "xstate";
 
@@ -11,9 +11,7 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode } from "./base";
-import { spawnInputSockets } from "../input-socket";
-import { spawnOutputSockets } from "../output-socket";
+import { BaseNode, NodeContextFactory } from "./base";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -50,18 +48,6 @@ const inputSockets = {
 };
 
 const outputSockets = {
-  NodeApiConfiguration: generateSocket({
-    "x-key": "NodeApiConfiguration",
-    name: "api" as const,
-    title: "Api Configuration",
-    type: "NodeApiConfiguration" as const,
-    description: dedent`
-    Api configuration
-    `,
-    required: true,
-    isMultiple: false,
-    "x-showSocket": true,
-  }),
   config: generateSocket({
     "x-key": "config",
     name: "config" as const,
@@ -100,53 +86,13 @@ export const ApiConfigurationMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
     id: "api-configuration",
-    context: ({ input, self, spawn }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        const inputKey = key as keyof typeof inputSockets;
-        if (socket.default) {
-          defaultInputs[inputKey] = socket.default as any;
-        } else {
-          defaultInputs[inputKey] = undefined;
-        }
-      }
-      const config = merge<typeof input, any>(
-        {
-          name: "API Configuration",
-          description: "API Configuration",
-          inputs: {
-            ...defaultInputs,
-          },
-          outputs: {
-            config: {
-              ...defaultInputs,
-            },
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-        },
-        input,
-      );
-      const spawnedInputSockets = spawnInputSockets({
-        spawn,
-        self,
-        inputSockets: config.inputSockets as any,
-      });
-      const spawnedOutputSockets = spawnOutputSockets({
-        spawn,
-        self,
-        outputSockets: config.outputSockets as any,
-      });
-
-      set(config, "inputSockets", spawnedInputSockets);
-      set(config, "outputSockets", spawnedOutputSockets);
-
-      return config;
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "API Configuration",
+        description: "API Configuration",
+        inputSockets,
+        outputSockets,
+      }),
     entry: enqueueActions(({ enqueue, self }) => {
       enqueue("initialize");
       enqueue("updateOutput");

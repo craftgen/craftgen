@@ -35,6 +35,7 @@ import {
   assertEvent,
   AnyActorRef,
   ActorRefFrom,
+  waitFor,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 

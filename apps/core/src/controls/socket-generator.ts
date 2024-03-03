@@ -155,7 +155,7 @@ export const generateSocket = <
     type: socket.type as TypeOfSocket,
     "x-key": socket["x-key"] as T,
   };
-  return res;
+  return res as JSONSocket;
 };
 
 export type SocketGeneratorControlData = z.infer<typeof formOnSubmitSchema>;

@@ -17,7 +17,7 @@ import {
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -469,7 +469,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "NodeOllama",
+    type: "object",
     description: dedent`
     Ollama config
     `,
@@ -486,49 +486,13 @@ export const OllamaModelMachine = createMachine(
     entry: enqueueActions(({ enqueue }) => {
       enqueue("initialize");
     }),
-    context: ({ input, spawn, self }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        if (socket.default) {
-          defaultInputs[key as any] = socket.default;
-        } else {
-          defaultInputs[key as any] = undefined;
-        }
-      }
-      const config = merge<typeof input, any>(
-        {
-          name: "Ollama Model",
-          description: "Ollama Model configuration",
-          inputs: {
-            ...defaultInputs,
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-          outputs: {},
-          childs: {},
-        },
-        input,
-      );
-      const spawnedInputSockets = spawnInputSockets({
-        spawn,
-        self,
-        inputSockets: config.inputSockets as any,
-      });
-      const spawnedOutputSockets = spawnOutputSockets({
-        spawn,
-        self,
-        outputSockets: config.outputSockets as any,
-      });
-
-      set(config, "inputSockets", spawnedInputSockets);
-      set(config, "outputSockets", spawnedOutputSockets);
-
-      return config;
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Ollama Model",
+        description: "Ollama Model configuration",
+        inputSockets,
+        outputSockets,
+      }),
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {

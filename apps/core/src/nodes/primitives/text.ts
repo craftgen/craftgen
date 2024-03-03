@@ -1,14 +1,11 @@
-import { merge, set } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
-import { spawnInputSockets } from "../../input-socket";
-import { spawnOutputSockets } from "../../output-socket";
 
 const inputSockets = {
   value: generateSocket({
@@ -54,42 +51,13 @@ const TextNodeMachine = createMachine({
       }),
     },
   },
-  context: ({ input, spawn, self }) => {
-    const config = merge(
-      {
-        inputs: {
-          value: "",
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-        outputs: {
-          value: "",
-        },
-        error: null,
-      },
-      input,
-    );
-
-    const spawnedInputSockets = spawnInputSockets({
-      spawn,
-      self,
-      inputSockets: config.inputSockets as any,
-    });
-    const spawnedOutputSockets = spawnOutputSockets({
-      spawn,
-      self,
-      outputSockets: config.outputSockets as any,
-    });
-
-    set(config, "inputSockets", spawnedInputSockets);
-    set(config, "outputSockets", spawnedOutputSockets);
-
-    return config;
-  },
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Text",
+      description: "Text value",
+      inputSockets,
+      outputSockets,
+    }),
   initial: "complete",
   types: {} as BaseMachineTypes<{
     input: {

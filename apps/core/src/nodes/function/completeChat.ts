@@ -35,7 +35,7 @@ import type { AnyActorRef } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -739,42 +739,13 @@ const CompleteChatMachine = createMachine({
   entry: enqueueActions(({ enqueue }) => {
     enqueue("initialize");
   }),
-  context: ({ input }) => {
-    const defaultInputs: (typeof input)["inputs"] = {};
-    for (const [key, socket] of Object.entries(inputSockets)) {
-      if (socket.default) {
-        defaultInputs[key as any] = socket.default;
-      } else {
-        defaultInputs[key as any] = undefined;
-      }
-    }
-
-    return merge<typeof input, any>(
-      {
-        inputs: {
-          RUN: undefined,
-          system: "",
-          messages: [],
-          llm: null,
-          tools: {},
-          ...defaultInputs,
-        },
-        runs: {},
-        outputs: {
-          onDone: undefined,
-          result: {},
-          messages: [],
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    );
-  },
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Complete Chat",
+      description: "Creates response to a chat message using the model",
+      inputSockets,
+      outputSockets,
+    }),
   on: {
     ASSIGN_CHILD: {
       actions: enqueueActions(({ enqueue }) => {

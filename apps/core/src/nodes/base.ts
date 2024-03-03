@@ -1,4 +1,4 @@
-import { get, isEqual, isNil, pickBy } from "lodash-es";
+import { cloneDeep, get, isEqual, isNil, merge, pickBy, set } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
@@ -8,31 +8,34 @@ import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
   ActorRefFrom,
+  AnyActor,
   AnyActorLogic,
   AnyActorRef,
   AnyStateMachine,
+  ContextFactory,
   ContextFrom,
   InputFrom,
   MachineImplementationsFrom,
   ProvidedActor,
   Snapshot,
   SnapshotFrom,
+  Spawner,
   StateMachine,
   Subscription,
 } from "xstate";
 import type { GuardArgs } from "xstate/guards";
 
 import type { BaseControl } from "../controls/base";
-import type { JSONSocket } from "../controls/socket-generator";
+import { generateSocket, type JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
 import { getSocketByJsonSchemaType } from "../sockets";
 import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
-import { inputSocketMachine } from "../input-socket";
-import { outputSocketMachine } from "../output-socket";
-import { map, from, distinctUntilChanged, share, filter } from "rxjs";
+import { inputSocketMachine, spawnInputSockets } from "../input-socket";
+import { outputSocketMachine, spawnOutputSockets } from "../output-socket";
+import { map, from, distinctUntilChanged, share, filter, generate } from "rxjs";
 
 export type ParsedNode<
   NodeType extends string,
@@ -357,6 +360,97 @@ const NodeMachine = setup({
     },
   },
 });
+
+export const NodeContextFactory = <
+  C extends {
+    spawn: Spawner<any>;
+    input: any;
+    self: AnyActorRef;
+  },
+>(
+  ctx: C,
+  {
+    name,
+    description,
+    inputSockets,
+    outputSockets,
+  }: {
+    name: string;
+    description: string;
+    inputSockets: Record<string, JSONSocket>;
+    outputSockets: Record<string, JSONSocket>;
+  },
+) => {
+  const defaultInputs = {};
+  for (const [key, socket] of Object.entries(inputSockets)) {
+    const inputKey = key as keyof typeof inputSockets;
+    if (socket.default) {
+      defaultInputs[inputKey] = socket.default as any;
+    } else {
+      defaultInputs[inputKey] = undefined;
+    }
+  }
+
+  const config = merge(
+    {
+      name,
+      description,
+      inputs: {
+        ...defaultInputs,
+      },
+      outputs: {
+        ...Object.values(outputSockets).reduce((prev, socket) => {
+          return {
+            ...prev,
+            [socket["x-key"]]: undefined,
+          };
+        }, {}),
+      },
+      inputSockets: cloneDeep(inputSockets),
+      outputSockets: cloneDeep(outputSockets),
+    },
+    ctx.input,
+  );
+
+  set(
+    config,
+    ["outputSockets", `${ctx.self.id}:output:${ctx.self.src}`],
+    generateSocket({
+      name: "self",
+      type: ctx.self.src as NodeTypes,
+      isMultiple: true,
+      "x-order": 0,
+      "x-key": "self",
+      "x-showSocket": true,
+    }),
+  );
+
+  const hasParentActor = get(ctx, "input.parent.port");
+  if (hasParentActor) {
+    Object.keys(config.inputSockets).forEach((key) => {
+      set(config, ["inputSockets", key, "x-showSocket"], false);
+    });
+    Object.keys(config.outputSockets).forEach((key) => {
+      set(config, ["outputSockets", key, "x-showSocket"], false);
+    });
+  }
+
+  const spawnedInputSockets = spawnInputSockets({
+    spawn: ctx.spawn,
+    self: ctx.self,
+    inputSockets: config.inputSockets as any,
+  });
+  const spawnedOutputSockets = spawnOutputSockets({
+    spawn: ctx.spawn,
+    self: ctx.self,
+    outputSockets: config.outputSockets as any,
+  });
+
+  set(config, "inputSockets", spawnedInputSockets);
+  set(config, "outputSockets", spawnedOutputSockets);
+
+  return config as any;
+};
 
 export abstract class BaseNode<
   Machine extends AnyStateMachine,
