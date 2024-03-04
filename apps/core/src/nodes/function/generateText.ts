@@ -8,10 +8,17 @@ import {
   ToolCallError,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { AnyActorRef, OutputFrom } from "xstate";
-import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
+import type { ActorRefFrom, AnyActorRef, OutputFrom } from "xstate";
+import {
+  Actor,
+  and,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -23,8 +30,9 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import type { OllamaModelConfig } from "../ollama/ollama";
-import type { OpenAIModelConfig } from "../openai/openai";
+import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
+import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
+import { inputSocketMachine } from "../../input-socket";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -124,9 +132,36 @@ interface GenerateTextInput {
   system?: string;
   instruction: string;
 }
+
+const computeExecutionValue = (actorRef: AnyActorRef) => {
+  const state = actorRef.getSnapshot();
+  const value: Record<string, any> = {};
+
+  for (const [key, outputValue] of Object.entries(
+    state.context.outputs.config,
+  )) {
+    console.log("OUTPUT VALUE", key, outputValue);
+    match(outputValue)
+      .with(
+        {
+          _systemId: P.string,
+        },
+        (_, actorRef: AnyActorRef) => {
+          value[key] = computeExecutionValue(actorRef);
+        },
+      )
+      .otherwise((val) => {
+        value[key] = val;
+      });
+  }
+
+  return value;
+};
+
 const generateTextActor = fromPromise(
   async ({ input }: { input: GenerateTextInput }) => {
     console.log("INPUT", input);
+
     const result = match(input)
       .with(
         {
@@ -180,10 +215,16 @@ const generateTextActor = fromPromise(
   },
 );
 
+interface GenerateTextCallInput {
+  llm: ActorRefFrom<typeof OllamaModelMachine | typeof OpenaiModelMachine>;
+  system?: string;
+  instruction: string;
+}
+
 const generateTextCall = setup({
   types: {
     input: {} as {
-      inputs: GenerateTextInput;
+      inputs: GenerateTextCallInput;
       senders: {
         id: string;
       }[];
@@ -216,13 +257,18 @@ const generateTextCall = setup({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
   initial: "in_progress",
   context: ({ input }) => {
-    return merge(
-      {
-        inputs: {},
-        outputs: null,
+    const compute = computeExecutionValue(
+      input.inputs.llm,
+    ) as GenerateTextInput;
+    return {
+      ...input,
+      inputs: {
+        llm: compute,
+        system: input.inputs.system,
+        instruction: input.inputs.instruction,
       },
-      input,
-    );
+      outputs: null,
+    };
   },
   states: {
     in_progress: {
@@ -370,7 +416,6 @@ const GenerateTextMachine = createMachine({
             });
           }),
         },
-
         RESULT: {
           actions: enqueueActions(({ enqueue, check, self, event }) => {
             enqueue.assign({
@@ -387,7 +432,6 @@ const GenerateTextMachine = createMachine({
             });
           }),
         },
-
         RUN: {
           guard: and([
             ({ context }) => context.inputs.instruction !== "",
@@ -403,7 +447,7 @@ const GenerateTextMachine = createMachine({
               }));
             }
             const runId = `call-${createId()}`;
-            enqueue.sendTo(
+            enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({
                 type: "SPAWN",
@@ -414,9 +458,7 @@ const GenerateTextMachine = createMachine({
                   systemId: runId,
                   input: {
                     inputs: {
-                      llm: context.inputs.llm! as
-                        | OpenAIModelConfig
-                        | OllamaModelConfig,
+                      llm: context.inputs.llm,
                       system: context.inputs.system!,
                       instruction: context.inputs.instruction!,
                     },

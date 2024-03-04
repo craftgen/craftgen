@@ -4,15 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { redirect, useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
-import { useSelector } from "@xstate/react";
 import * as FlexLayout from "flexlayout-react";
-import { LayoutGroup, motion } from "framer-motion";
-import { debounce, groupBy } from "lodash-es";
+import { motion } from "framer-motion";
+import { debounce } from "lodash-es";
 import {
-  ChevronDown,
-  ChevronRight,
-  Circle,
-  CircleDot,
   FileClock,
   LayoutDashboard,
   MousePointerSquareDashed,
@@ -21,35 +16,25 @@ import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import JsonView from "react18-json-view";
 import { match, P } from "ts-pattern";
-import { AnyActor } from "xstate";
 import { useStore } from "zustand";
 
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
-import { Input } from "@seocraft/core/src/input-output";
 import type { Socket } from "@seocraft/core/src/sockets";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
 import { TokenList } from "@/app/(dashboard)/[projectSlug]/settings/tokens/token-item";
 import { Icon, Icons } from "@/components/icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Toggle } from "@/components/ui/toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { getControl } from "@/core/control";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
-import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
 import { MenubarDemo } from "./components/menubar";
 import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
-import { LogsTab } from "./logs/logs-tab";
 
 import dynamic from "next/dynamic";
 import { InspectorNode } from "./components/inspector-node";

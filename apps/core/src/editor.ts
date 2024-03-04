@@ -984,6 +984,8 @@ export class Editor<
         port: string;
       },
     ) => {
+      return;
+
       if (!params?.port) {
         throw new Error("Missing params");
       }

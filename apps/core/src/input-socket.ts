@@ -10,6 +10,7 @@ import { JSONSocket } from "./controls/socket-generator";
 import { isNil, merge } from "lodash-es";
 import { init } from "@paralleldrive/cuid2";
 import { Observable, from } from "rxjs";
+import { match } from "ts-pattern";
 
 function createId(prefix: "context", parentId: string) {
   const createId = init({
@@ -56,7 +57,7 @@ export const inputSocketMachine = setup({
   },
   on: {
     UPDATE_SOCKET: {
-      actions: enqueueActions(({ enqueue, event, system }) => {
+      actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({
           definition: ({ context, event }) => ({
             ...context.definition,
@@ -72,15 +73,41 @@ export const inputSocketMachine = setup({
           ({ context }) => system.get(context.parent.id),
           ({ context, event }) => {
             const key = context.definition["x-key"];
+            const value = match(context.definition)
+              // .with(
+              //   {
+              //     format: "expression",
+              //   },
+              //   () => {
+              //     return {
+              //       type: "expression",
+              //       value: event.params.value,
+              //     };
+              //   },
+              // )
+              // .with(
+              //   {
+              //     format: "secret",
+              //   },
+              //   () => {
+              //     return {
+              //       type: "secret",
+              //       value: event.params.value,
+              //     };
+              //   },
+              // )
+              .otherwise(() => {
+                return event.params.value;
+              });
             console.log("SETVALUE_SOCKET", {
               key,
-              value: event.params.value,
+              value,
             });
             return {
               type: "SET_VALUE",
               params: {
                 values: {
-                  [key]: event.params.value,
+                  [key]: value,
                 },
               },
             };

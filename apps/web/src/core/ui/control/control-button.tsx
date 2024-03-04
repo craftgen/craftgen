@@ -5,11 +5,21 @@ import type { ButtonControl } from "@seocraft/core/src/controls/button";
 import { Button } from "@/components/ui/button";
 
 export function CustomButton(props: { data: ButtonControl }) {
-  const can = useSelector(props.data.actor, (snap) =>
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const targetActor = props.data.actor.system.get(parent.id);
+  const can = useSelector(targetActor, (snap) =>
     snap.can({
-      type: props.data.definition["x-event"],
+      type: definition["x-event"],
     }),
   );
+  const handleSendEvent = () => {
+    targetActor.send({
+      type: definition["x-event"],
+    });
+  };
 
   return (
     <Button
@@ -17,7 +27,7 @@ export function CustomButton(props: { data: ButtonControl }) {
       onPointerDown={(e) => e.stopPropagation()}
       onDoubleClick={(e) => e.stopPropagation()}
       size={"sm"}
-      onClick={props.data.options.onClick}
+      onClick={handleSendEvent}
       disabled={!can}
     >
       {props.data.definition?.title || props.data.definition?.name}

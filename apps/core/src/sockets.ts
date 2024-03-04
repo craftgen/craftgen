@@ -16,7 +16,7 @@ import { NumberControl } from "./controls/number";
 import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
-import type { JSONSocket } from "./controls/socket-generator";
+import type { JSONSocket, socketSchema } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 import type { Message } from "./controls/thread.control";
 import { ThreadControl } from "./controls/thread.control";
@@ -25,6 +25,7 @@ import { nodeTypes } from "./types";
 import { JsCdnController } from "./controls/js-cdn";
 import { JSONSchema } from "openai/lib/jsonschema.mjs";
 import def from "ajv/dist/vocabularies/discriminator";
+import { z } from "zod";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -213,7 +214,7 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
   actor: T;
   definition: JSONSocket;
 }) => {
-  return match(definition)
+  return match(definition as z.infer<typeof socketSchema>)
     .with(
       {
         type: "string",
@@ -271,10 +272,28 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
     )
     .with(
       {
+        type: "array",
+        "x-controller": "thread",
+      },
+      (def) => {
+        return new ThreadControl(actor, def);
+      },
+    )
+    .with(
+      {
         type: "string",
       },
       (def) => {
         return new InputControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "trigger",
+        "x-event": P.string,
+      },
+      () => {
+        return new ButtonControl(actor, definition);
       },
     )
     .with(
