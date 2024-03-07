@@ -425,7 +425,7 @@ export const Node = (props: Props<Schemes>) => {
                 </CardContent>
                 <Drag.NoDrag>
                   <CardFooter className="mx-2 my-2 mt-auto flex flex-col  rounded p-1 px-2 ">
-                    <NodeOutput id={props.data.id} actor={props.data.actor} />
+                    {/* <NodeOutput id={props.data.id} actor={props.data.actor} /> */}
                     <NodeIdBadge id={props.data.id} />
                   </CardFooter>
                 </Drag.NoDrag>

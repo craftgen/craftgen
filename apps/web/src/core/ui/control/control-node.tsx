@@ -19,6 +19,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { ControlWrapper } from "@/core/ui/control-wrapper";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { Label } from "@/components/ui/label";
+import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   const socketKey = useMemo(() => {
@@ -247,6 +248,37 @@ const ActorInputItem = ({
     });
   };
   const socket = useSelector(socketActor, (state) => state.context.definition);
+
+  if (socket["x-actor-type"] === "NodeText") {
+    console.log({
+      targetActor,
+      socketActor,
+      socket,
+      // outputs: Object.values(
+      //   targetActor.getSnapshot().context.outputSockets,
+      // )[0],
+    });
+
+    // const controller = useMemo(() => {
+    //   const actor = Object.values(
+    //     targetActor.getSnapshot().context.inputSockets,
+    //   )[0] as Actor<typeof outputSocketMachine>;
+    //   return getControlBySocket({
+    //     actor: actor,
+    //     definition: actor.getSnapshot().context.definition,
+    //   });
+    // }, []);
+    return (
+      <SocketController
+        actor={socketActor}
+        socket={socket}
+        socketKey={socket["x-key"]}
+      >
+        <ControlWrapper control={null} definition={socket} />
+      </SocketController>
+    );
+  }
+
   return (
     <div className="m-2 rounded border">
       <div className="m-2 ml-0 flex w-full flex-row items-center p-1 ">
@@ -302,7 +334,7 @@ const SocketController = ({
   socketKey,
   children,
 }: {
-  actor: Actor<typeof socketMachine>;
+  actor: Actor<typeof inputSocketMachine | typeof outputSocketMachine>;
   socket: JSONSocket;
   socketKey: string;
   children: React.ReactNode;

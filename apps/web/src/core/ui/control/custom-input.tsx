@@ -4,7 +4,6 @@ import { useSelector } from "@xstate/react";
 
 import type { InputControl } from "@seocraft/core/src/controls/input.control";
 
-import { ControlContainer } from "../control-container";
 import { Input } from "@/components/ui/input";
 import { ChangeFormat } from "./shared/change-format";
 import { SecretDropdown } from "./shared/secret-dropdown";
@@ -14,10 +13,13 @@ export function CustomInput(props: { data: InputControl }) {
     props.data?.actor,
     (snap) => snap.context,
   );
-  const value = useSelector(
+
+  const valueActor = useSelector(
     props.data?.actor.system.get(parent.id),
     (snap) => snap.context.inputs[definition["x-key"]],
   );
+
+  const value = useSelector(valueActor, (snap) => snap.context.value);
 
   const handledChange = useCallback((val: string) => {
     props.data.actor.send({
@@ -29,7 +31,7 @@ export function CustomInput(props: { data: InputControl }) {
   }, []);
 
   return (
-    <ControlContainer id={props.data.id} definition={props.data.definition}>
+    <>
       <div className="flex w-full items-center justify-between">
         <SecretDropdown
           onSelect={(val) => {
@@ -51,6 +53,6 @@ export function CustomInput(props: { data: InputControl }) {
         }}
         disabled={definition.readonly}
       />
-    </ControlContainer>
+    </>
   );
 }

@@ -198,10 +198,10 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     props.data?.actor,
     (snap) => snap.context,
   );
+  const valueActor = props.data.actor.system.get(parent.id).getSnapshot()
+    .context.inputs[definition["x-key"]];
   const [code, setValue] = useState<string>(
-    props.data.actor.system.get(parent.id).getSnapshot().context.inputs[
-      definition["x-key"]
-    ],
+    valueActor.getSnapshot().context.value,
   );
 
   const { systemTheme } = useTheme();
@@ -299,23 +299,21 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   });
 
   useEffect(() => {
-    const listener = props.data.actor.system
-      .get(parent.id)
-      .subscribe((event: any) => {
-        if (!view) return;
-        const stateValue = event.context.inputs[definition["x-key"]];
-        const inSync = stateValue === editorValue.current;
+    const listener = valueActor.subscribe((event: any) => {
+      if (!view) return;
+      const stateValue = event.context.value;
+      const inSync = stateValue === editorValue.current;
 
-        if (!inSync) {
-          view.dispatch({
-            changes: {
-              from: 0,
-              to: view.state.doc.length,
-              insert: stateValue,
-            },
-          });
-        }
-      });
+      if (!inSync) {
+        view.dispatch({
+          changes: {
+            from: 0,
+            to: view.state.doc.length,
+            insert: stateValue,
+          },
+        });
+      }
+    });
 
     return () => listener.unsubscribe();
   }, [view]);
@@ -327,7 +325,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   }, [editorContainer.current]);
 
   return (
-    <ControlContainer id={props.data.id} definition={props.data.definition}>
+    <>
       <div className="flex w-full items-center justify-between">
         <SecretDropdown
           onSelect={(val) => {
@@ -348,7 +346,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
         <ChangeFormat value={editorValue.current} actor={props.data.actor} />
       </div>
       <div ref={editorContainer} className="inline-flex  w-full" />
-    </ControlContainer>
+    </>
   );
 }
 

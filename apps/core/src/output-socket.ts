@@ -8,7 +8,8 @@ import {
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
 import { distinctUntilChanged, from, switchMap, of, debounceTime } from "rxjs";
-import { isEqual, merge } from "lodash";
+import { isEqual, isNil, merge } from "lodash";
+import { inputSocketMachine } from "./input-socket";
 
 export const spawnOutputSockets = ({
   spawn,
@@ -60,6 +61,7 @@ export const outputSocketMachine = setup({
         system,
       }: {
         input: {
+          self: ActorRefFrom<typeof outputSocketMachine>;
           definition: JSONSocket;
           parent: {
             id: string;
@@ -67,16 +69,28 @@ export const outputSocketMachine = setup({
         };
         system: any;
       }) => {
-        const parent = system.get(input.parent.id);
-        const events = from(parent);
-        const definition = input.definition;
-        return events.pipe(
+        if (isNil(input.self)) {
+          console.log("No self", input.self);
+          // throw new Error("No self");
+          return of({});
+        }
+
+        return from(input.self).pipe(
           switchMap((state) => {
-            return of(state.context.outputs[definition["x-key"]]);
+            return of(state.context.definition["x-connection"] || {});
           }),
           debounceTime(150),
           distinctUntilChanged(isEqual),
         );
+        // const events = from(parent);
+        // const definition = input.definition;
+        // return events.pipe(
+        //   switchMap((state) => {
+        //     return of(state.context.outputs[definition["x-key"]]);
+        //   }),
+        //   debounceTime(150),
+        //   distinctUntilChanged(isEqual),
+        // );
       },
     ),
   },
@@ -90,25 +104,27 @@ export const outputSocketMachine = setup({
   }),
   invoke: {
     src: "valueWatcher",
-    input: ({ context }) => context,
+    input: ({ context, self }) => ({
+      self,
+      ...context,
+    }),
     onSnapshot: {
-      actions: enqueueActions(({ enqueue, event, context, system, check }) => {
-        if (check(({ context }) => context.definition["x-connection"])) {
-          for (const [t, conn] of Object.entries(
-            context.definition["x-connection"] || {},
-          )) {
-            console.log("Target", t, "Connection", conn);
-
+      actions: enqueueActions(({ enqueue, event, check }) => {
+        console.log("OUTPUT WATCHER", event.snapshot.context);
+        if (check(({ event }) => !isNil(event.snapshot.context))) {
+          Object.values(event.snapshot.context).forEach((conn) => {
             enqueue.sendTo(
-              ({ system }) => system.get(t),
-              ({ event }) => ({
-                type: "SET_VALUE",
+              // ({ system }) => system.get(conn.target),
+              conn as ActorRefFrom<typeof inputSocketMachine>,
+              ({ system, context }) => ({
+                type: "SET_CONNECTION",
                 params: {
-                  value: event.snapshot.context,
+                  value: system.get(context.parent.id).getSnapshot().context
+                    .outputs[context.definition["x-key"]],
                 },
               }),
             );
-          }
+          });
         }
       }),
     },

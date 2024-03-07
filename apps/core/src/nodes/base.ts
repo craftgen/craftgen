@@ -440,6 +440,7 @@ export const NodeContextFactory = <
     self: ctx.self,
     inputSockets: config.inputSockets as any,
   });
+
   const spawnedOutputSockets = spawnOutputSockets({
     spawn: ctx.spawn,
     self: ctx.self,

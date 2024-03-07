@@ -33,9 +33,6 @@ export const JsonControlComponent = (props: { data: JsonControl }) => {
   };
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>
-        {props.data?.definition?.title || props.data?.definition?.name}
-      </Label>
       <JsonView
         src={value}
         editable
@@ -44,9 +41,6 @@ export const JsonControlComponent = (props: { data: JsonControl }) => {
         onDelete={handleChange}
         onEdit={handleChange}
       />
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.definition?.description}
-      </p>
     </div>
   );
 };
