@@ -3,8 +3,6 @@ import { useSelector } from "@xstate/react";
 import type { NumberControl } from "@seocraft/core/src/controls/number";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { useStep } from "./shared/useStep";
 
 export const NumberControlComponent = (props: { data: NumberControl }) => {
@@ -12,10 +10,13 @@ export const NumberControlComponent = (props: { data: NumberControl }) => {
     props.data?.actor,
     (snap) => snap.context,
   );
-  const value = useSelector(
+  const valueActor = useSelector(
     props.data?.actor.system.get(parent.id),
     (snap) => snap.context.inputs[definition["x-key"]],
   );
+
+  const value = useSelector(valueActor, (snap) => snap.context.value);
+
   const handleChange = (value: number) => {
     props.data.actor.send({
       type: "SET_VALUE",
@@ -28,9 +29,6 @@ export const NumberControlComponent = (props: { data: NumberControl }) => {
 
   return (
     <div className="space-y-1">
-      <Label htmlFor={props.data.id}>
-        {props.data?.definition?.title || props.data?.definition?.name}
-      </Label>
       <Input
         id={props.data.id}
         type="number"
@@ -41,9 +39,6 @@ export const NumberControlComponent = (props: { data: NumberControl }) => {
         className="w-full max-w-md"
         onChange={(e) => handleChange(Number(e.target.value))}
       />
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
-        {props.data?.definition?.description}
-      </p>
     </div>
   );
 };

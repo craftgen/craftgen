@@ -201,7 +201,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   const valueActor = props.data.actor.system.get(parent.id).getSnapshot()
     .context.inputs[definition["x-key"]];
   const [code, setValue] = useState<string>(
-    valueActor.getSnapshot().context.value,
+    valueActor.getSnapshot().context.value || "",
   );
 
   const { systemTheme } = useTheme();
@@ -337,7 +337,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
             });
             view?.dispatch({
               changes: {
-                from: editorValue.current.length,
+                from: editorValue.current?.length,
                 insert: val,
               },
             });
