@@ -37,7 +37,6 @@ export const inputSocketMachine = setup({
       parent: {
         id: string;
       };
-      connection: AnyActorRef | undefined; // | ActorRefFrom<typeof inputSocketMachine;
     },
     input: {} as {
       definition: JSONSocket;

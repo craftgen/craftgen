@@ -53,7 +53,7 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
 };
 
 const ActorDebug = (props: { actor: AnyActor }) => {
-  const state = useSelector(props.actor, (state) => state);
+  const state = useSelector(props.actor, (state) => state.context);
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden ">
       <ScrollArea className="w-full">
