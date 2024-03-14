@@ -165,7 +165,32 @@ export const inputSocketMachine = setup({
         },
       ],
     },
+    connection: {
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, event }) => {
+            enqueue.sendTo(
+              ({ system, context }) => system.get(context.parent.id),
+              ({ event, context }) => ({
+                type: "SET_VALUE",
+                params: {
+                  values: {
+                    [context.definition["x-key"]]: event.params.value,
+                  },
+                },
+              }),
+            );
+          }),
+        },
+      },
+    },
     basic: {
+      always: [
+        {
+          guard: ({ context }) => !isNil(context.definition["x-connection"]),
+          target: "#InputSocketMachine.connection",
+        },
+      ],
       invoke: {
         src: "valueWatcher",
         input: ({ context, self }) => ({

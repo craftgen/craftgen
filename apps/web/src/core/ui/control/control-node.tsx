@@ -206,25 +206,6 @@ const InputItem = ({
   }, [item]);
 
   const { controller, definition } = useMemo(() => {
-    // if (hasConnection) {
-    //   console.log("HAS CONNECTION");
-    //   const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
-    //     Object.values(item["x-connection"])[0];
-
-    //   const connectionDefinition =
-    //     connectionActor?.getSnapshot().context.definition;
-
-    //   const controller = getControlBySocket({
-    //     actor: connectionActor,
-    //     definition: connectionDefinition,
-    //   });
-    //   console.log("CONNECTION", connectionActor, connectionDefinition);
-    //   return {
-    //     controller,
-    //     definition: item,
-    //   };
-    // }
-
     const controller = getControlBySocket({
       actor: actor,
       definition: item,
@@ -234,6 +215,23 @@ const InputItem = ({
       definition: item,
     };
   }, [item]);
+
+  if (hasConnection) {
+    //   console.log("HAS CONNECTION");
+    const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
+      Object.values(item["x-connection"])[0];
+
+    // console.log(connectionActors);
+    // const connectionDefinition =
+    //   connectionActor?.getSnapshot().context.definition;
+
+    if (!connectionActor) return null;
+    const targetActor = actor.system.get(
+      connectionActor.getSnapshot().context.parent.id,
+    );
+
+    return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
+  }
 
   if (item["x-actor-type"]) {
     console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
