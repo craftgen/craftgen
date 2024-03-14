@@ -123,25 +123,34 @@ export const ApiConfigurationMachine = createMachine(
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
           enqueue("updateOutput");
+          console.log("SET VALUE API Configuration", event);
 
           if (check(({ event }) => has(event.params.values, "APIKey"))) {
-            enqueue.assign({
-              inputs: ({ context, event }) => {
+            enqueue.sendTo(
+              ({ context }) =>
+                Object.keys(context.inputSockets).find((k) =>
+                  k.endsWith("headers"),
+                ),
+              ({ context, event }) => {
                 const headers = { ...context.inputs.headers } as any;
-                if (event.params.values["APIKey"] === "") {
+                if (
+                  event.params.values["APIKey"] === "" ||
+                  event.params.values["APIKey"] === undefined
+                ) {
                   delete headers.Authorization;
                 } else {
                   headers.Authorization = `Bearer ${event.params.values["APIKey"]}`;
                 }
-
                 return {
-                  ...context.inputs,
-                  headers: {
-                    ...headers,
+                  type: "SET_VALUE",
+                  params: {
+                    value: {
+                      ...headers,
+                    },
                   },
                 };
               },
-            });
+            );
           }
         }),
       },

@@ -167,21 +167,6 @@ export const inputSocketMachine = setup({
       ],
     },
     basic: {
-      entry: enqueueActions(({ enqueue, context }) => {
-        // console.log("SETTING INITIAL VALUE", context);
-        // enqueue.sendTo(
-        //   ({ system, context }) => system.get(context.parent.id),
-        //   ({ context }) => ({
-        //     type: "SET_VALUE",
-        //     params: {
-        //       values: {
-        //         [context.definition["x-key"]]:
-        //           context.value?.getSnapshot().context.value,
-        //       },
-        //     },
-        //   }),
-        // );
-      }),
       invoke: {
         src: "valueWatcher",
         input: ({ context, self }) => ({

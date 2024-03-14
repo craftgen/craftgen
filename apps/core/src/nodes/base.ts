@@ -372,8 +372,8 @@ export const NodeContextFactory = <
   {
     name,
     description,
-    inputSockets,
-    outputSockets,
+    inputSockets: originalInputSockets,
+    outputSockets: originalOutputSockets,
   }: {
     name: string;
     description: string;
@@ -381,10 +381,18 @@ export const NodeContextFactory = <
     outputSockets: Record<string, JSONSocket>;
   },
 ) => {
-  const defaultInputs = {};
+  console.log("CONTEXT FACTORY:", { INPUT: ctx.input });
+  const initialValueForTheNode = get(ctx.input, "inputs", {});
+  const inputSockets = cloneDeep(originalInputSockets);
+  const outputSockets = cloneDeep(originalOutputSockets);
+
+  const defaultInputs = { ...initialValueForTheNode };
   for (const [key, socket] of Object.entries(inputSockets)) {
+    if (initialValueForTheNode[key]) {
+      socket.default = initialValueForTheNode[key];
+    }
     const inputKey = key as keyof typeof inputSockets;
-    if (socket.default) {
+    if (socket.default && defaultInputs[inputKey] === undefined) {
       defaultInputs[inputKey] = socket.default as any;
     } else {
       defaultInputs[inputKey] = undefined;
@@ -406,8 +414,8 @@ export const NodeContextFactory = <
           };
         }, {}),
       },
-      inputSockets: cloneDeep(inputSockets),
-      outputSockets: cloneDeep(outputSockets),
+      inputSockets,
+      outputSockets,
     },
     ctx.input,
   );
