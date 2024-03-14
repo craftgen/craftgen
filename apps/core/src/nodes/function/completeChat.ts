@@ -960,6 +960,5 @@ export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
         }),
       },
     });
-    this.setup();
   }
 }

@@ -113,23 +113,20 @@ export const outputSocketMachine = setup({
       ...context,
     }),
     onSnapshot: {
-      actions: enqueueActions(({ enqueue, event, check, context, system }) => {
+      actions: enqueueActions(({ enqueue, event, context }) => {
         console.log("OUTPUT WATCHER", event.snapshot.context);
         const connections = get(context, ["definition", "x-connection"], {});
-        for (const [key, connection] of Object.entries(connections)) {
-          console.log("CONNECTION", key, connection);
-          const actor = system.get(key) as ActorRefFrom<
-            typeof inputSocketMachine
-          >;
-
-          if (actor) {
-            actor.send({
+        for (const key of Object.keys(connections)) {
+          enqueue.sendTo(
+            ({ system }) =>
+              system.get(key) as ActorRefFrom<typeof inputSocketMachine>,
+            ({ event }) => ({
               type: "SET_VALUE",
               params: {
                 value: event.snapshot.context,
               },
-            });
-          }
+            }),
+          );
         }
       }),
     },

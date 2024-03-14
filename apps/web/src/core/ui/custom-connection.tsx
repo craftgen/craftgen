@@ -8,7 +8,6 @@ import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useSelector } from "@xstate/react";
-import { get } from "lodash-es";
 
 const { useConnection } = Presets.classic;
 

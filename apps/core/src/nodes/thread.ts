@@ -310,6 +310,5 @@ export class NodeThread extends BaseNode<typeof ThreadMachine> {
 
   constructor(di: DiContainer, data: NodeThreadData) {
     super("NodeThread", di, data, ThreadMachine, {});
-    this.setup();
   }
 }

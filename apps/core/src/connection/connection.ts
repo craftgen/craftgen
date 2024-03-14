@@ -1,25 +1,16 @@
 import type { CurveFactory } from "d3-shape";
-import { get, has, omit } from "lodash-es";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
 import type { ConnectionBase, NodeBase } from "rete";
 import { getUID } from "rete";
 
-import type {
-  ActorConfig,
-  ConnectionConfigRecord,
-  JSONSocket,
-} from "../controls/socket-generator";
+import type { ConnectionConfigRecord } from "../controls/socket-generator";
 import type { Editor } from "../editor";
 import type { BaseMachine, BaseNode } from "../nodes/base";
-import { NodeTypes } from "../types";
 import { Actor, AnyActor } from "xstate";
 import { outputSocketMachine } from "../output-socket";
 import { inputSocketMachine } from "../input-socket";
+import { omit } from "lodash-es";
 
 type StringKeyof<T> = Extract<keyof T, string>;
-
-type NODEID = string;
-type SOCKET_KEY = string;
 
 export class Connection<
   Source extends BaseNode<any, any, any> = BaseNode<any, any, any>,
@@ -50,10 +41,6 @@ export class Connection<
    * @param target Target node instance
    * @param targetInput Target node input key
    */
-
-  sourceValue?: any = undefined;
-  targetValue?: any = undefined;
-
   sourceNode: BaseNode<BaseMachine, any, any, any>;
   targetNode: BaseNode<BaseMachine, any, any, any>;
 
@@ -63,40 +50,6 @@ export class Connection<
   destroy: () => Promise<void>;
   sourceSocketActor: Actor<typeof outputSocketMachine>;
   targetSocketActor: Actor<typeof inputSocketMachine>;
-
-  get inSync() {
-    if (this.isActorRef) {
-      return (
-        this.targetNodeDefintion?.["x-actor-ref"] === this.sourceNode.actor.ref
-      );
-    }
-    if (this.targetNodeDefintion.type === "tool") {
-      // console.log("$$$$ TOOL $$$$", {
-      //   targetValue: this.targetValue,
-      //   sourceNode: this.sourceNode.toolDefination,
-      // });
-
-      for (const [key, value] of Object.entries(
-        this.sourceNode.toolDefination,
-      )) {
-        const hashTarget = JSON.stringify(this.targetValue[key]);
-        const hashSource = JSON.stringify(value);
-
-        if (hashTarget !== hashSource) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    return this.sourceValue === this.targetValue;
-  }
-  get sourceNodeDefintion(): JSONSocket {
-    return this.sourceNode.snap.context.outputSockets[this.sourceOutput];
-  }
-  get targetNodeDefintion(): JSONSocket {
-    return this.targetNode.snap.context.inputSockets[this.targetInput];
-  }
 
   get targetDefinition() {
     return this.targetSocketActor?.getSnapshot().context.definition;
@@ -120,6 +73,18 @@ export class Connection<
 
   get sourceDefinition() {
     return this.sourceSocketActor?.getSnapshot().context.definition;
+  }
+
+  get sourceValue() {
+    return this.sourceActor.getSnapshot().context.outputs[
+      this.sourceDefinition["x-key"]
+    ];
+  }
+
+  get targetValue() {
+    return this.targetActor.getSnapshot().context.inputs[
+      this.targetDefinition["x-key"]
+    ];
   }
 
   constructor(
@@ -148,58 +113,8 @@ export class Connection<
     this.sourceNode = this.editor.editor.getNode(source.id);
     this.targetNode = this.editor.editor.getNode(target.id);
 
-    // if (this.sourceNode.snap.context.outputs?.[sourceNodeOutput]) {
-    //   this.sourceValue = this.sourceNode.snap.context.outputs[sourceNodeOutput];
-    // }
-
-    // this.sourceNode.actor.subscribe((state) => {
-    //   if (
-    //     state.context.outputs === undefined ||
-    //     state.context.outputs[sourceNodeOutput] === undefined
-    //   ) {
-    //     return;
-    //   }
-    //   if (state.context.outputs) {
-    //     [];
-    //   }
-    //   if (this.sourceValue !== state.context.outputs[sourceNodeOutput]) {
-    //     this.setSourceValue(state.context.outputs[sourceNodeOutput]);
-    //   }
-    // });
     this.sourceSocketActor = this.editor.actor?.system.get(this.sourceOutput);
     this.targetSocketActor = this.editor.actor?.system.get(this.targetInput);
-
-    this.targetValue =
-      this.targetActor.getSnapshot().context.inputs[
-        this.targetDefinition["x-key"]
-      ];
-
-    this.targetActor.subscribe((state) => {
-      if (
-        this.targetValue !==
-        state.context.inputs[this.targetDefinition["x-key"]]
-      ) {
-        this.setTargetValue(
-          state.context.inputs[this.targetDefinition["x-key"]],
-        );
-      }
-    });
-
-    this.sourceValue =
-      this.sourceActor.getSnapshot().context.outputs[
-        this.sourceDefinition["x-key"]
-      ];
-
-    this.sourceActor.subscribe((state) => {
-      if (
-        this.sourceValue !==
-        state.context.outputs[this.sourceDefinition["x-key"]]
-      ) {
-        this.setSourceValue(
-          state.context.outputs[this.sourceDefinition["x-key"]],
-        );
-      }
-    });
 
     this.targetSocketActor.send({
       type: "UPDATE_SOCKET",
@@ -208,6 +123,13 @@ export class Connection<
           ...this.targetDefinition?.["x-connection"],
           [this.sourceSocketActor.id]: this.sourceSocketActor.ref,
         } as ConnectionConfigRecord,
+      },
+    });
+    console.log("SENDING INITIAL VALUE", this.sourceValue);
+    this.targetSocketActor.send({
+      type: "SET_VALUE",
+      params: {
+        value: this.sourceValue,
       },
     });
 
@@ -221,143 +143,31 @@ export class Connection<
       },
     });
 
-    // if (!this.inSync) {
-    //   this.sync();
-    // }
-
-    makeObservable(this, {
-      sourceValue: observable,
-      targetValue: observable,
-
-      setTargetValue: action,
-      setSourceValue: action,
-
-      inSync: computed,
-    });
-
     this.destroy = async () => {
-      return;
+      this.targetSocketActor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          "x-connection": {
+            ...omit(
+              this.targetDefinition["x-connection"],
+              this.sourceSocketActor.id,
+            ),
+          } as ConnectionConfigRecord,
+        },
+      });
 
-      const sourceNodeContext = this.sourceNode.actor.getSnapshot().context;
-      for (const [key, socket] of Object.entries(
-        sourceNodeContext.outputSockets,
-      )) {
-        if (has(socket["x-connection"], this.targetNode.actor.id)) {
-          console.log("CONNECTION TO REMOVE", socket["x-connection"]);
-          this.sourceNode.actor.send({
-            type: "UPDATE_SOCKET",
-            params: {
-              name: key,
-              side: "output",
-              socket: {
-                "x-connection": omit(
-                  socket["x-connection"],
-                  this.targetNode.actor.id,
-                ),
-              },
-            },
-          });
-        }
-      }
-
-      const targetNodeContext = this.targetNode.actor.getSnapshot().context;
-      for (const [key, socket] of Object.entries(
-        targetNodeContext.inputSockets,
-      )) {
-        if (has(socket["x-connection"], this.sourceNode.actor.id)) {
-          console.log("CONNECTION TO REMOVE", socket["x-connection"]);
-          this.targetNode.actor.send({
-            type: "UPDATE_SOCKET",
-            params: {
-              name: key,
-              side: "input",
-              socket: {
-                "x-connection": omit(
-                  socket["x-connection"],
-                  this.sourceNode.actor.id,
-                ),
-              },
-            },
-          });
-        }
-      }
-
-      if (this.targetNodeDefintion.type === "tool") {
-        const keys = Object.keys(this.targetValue).filter((key) =>
-          // we omit `node_` for the tool names. here we are putting back to make it work.
-          `node_${key}`.startsWith(`${this.source}`),
-        );
-        const value = omit({ ...this.targetValue }, keys);
-
-        this.targetNode.actor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [this.targetInput]: {
-                ...value,
-              },
-            },
-          },
-        });
-      }
-
-      if (this.isActorRef) {
-        console.log("RESTORE");
-        const lastUsedInternalActorType = get(this.targetNodeDefintion, [
-          "x-actor-ref-type",
-        ])!;
-        const lastUserInternalActor = get(this.targetNodeDefintion, [
-          "x-actor-config",
-          lastUsedInternalActorType,
-          "actor",
-        ]);
-        this.targetNode.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: this.targetInput,
-            side: "input",
-            socket: {
-              "x-actor-ref": lastUserInternalActor,
-              "x-actor-ref-id": lastUserInternalActor.id,
-              "x-actor-ref-type": lastUserInternalActor.src as NodeTypes,
-              "x-actor-type": lastUserInternalActor.src as NodeTypes,
-            },
-          },
-        });
-      }
+      this.sourceSocketActor.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          "x-connection": {
+            ...omit(
+              this.sourceDefinition["x-connection"],
+              this.targetSocketActor.id,
+            ),
+          } as ConnectionConfigRecord,
+        },
+      });
     };
-  }
-
-  get sourceConnections(): Record<NODEID, SOCKET_KEY> {
-    return this.editor.editor
-      .getConnections()
-      .filter(
-        (connection) =>
-          connection.source === this.source &&
-          connection.sourceOutput === this.sourceOutput,
-      )
-      .reduce((acc, connection) => {
-        return {
-          ...acc,
-          [connection.target]: connection.targetInput,
-        };
-      }, {});
-  }
-
-  get targetConnections(): Record<NODEID, SOCKET_KEY> {
-    return this.editor.editor
-      .getConnections()
-      .filter(
-        (connection) =>
-          connection.target === this.target &&
-          connection.targetInput === this.targetInput,
-      )
-      .reduce((acc, connection) => {
-        return {
-          ...acc,
-          [connection.source]: connection.sourceOutput,
-        };
-      }, {});
   }
 
   get identifier() {
@@ -365,83 +175,6 @@ export class Connection<
   }
 
   public isActorRef = false;
-
-  public sync() {
-    console.log("SYNC");
-    if (
-      this.targetNodeDefintion["x-compatible"] &&
-      this.targetNodeDefintion["x-compatible"].includes(
-        this.sourceNodeDefintion.type,
-      ) &&
-      (!this.isActorRef ||
-        this.targetNodeDefintion["x-actor-ref"] !== this.sourceNode.actor.ref)
-    ) {
-      this.updateActorReference();
-      this.isActorRef = true;
-    } else if (this.targetNodeDefintion.type === "tool") {
-      this.targetNode.actor.send({
-        type: "SET_VALUE",
-        params: {
-          values: {
-            [this.targetInput]: {
-              ...this.targetValue,
-              ...this.sourceNode.toolDefination,
-            },
-          },
-        },
-      });
-    } else {
-      console.log("DO NOTHING");
-    }
-  }
-
-  private updateActorReference() {
-    this.targetNode.actor.send({
-      type: "UPDATE_SOCKET",
-      params: {
-        name: this.targetInput,
-        side: "input",
-        socket: {
-          "x-actor-ref": this.sourceNode.actor.ref,
-          "x-actor-ref-id": this.sourceNode.actor.id,
-          "x-actor-ref-type": this.sourceNode.actor.src as NodeTypes,
-          "x-actor-type": this.sourceNode.actor.src as NodeTypes,
-        },
-      },
-    });
-    const config = get(this.targetNodeDefintion, [
-      "x-actor-config",
-      this.sourceNode.ID,
-    ]) as ActorConfig;
-    if (config) {
-      for (const [key, value] of Object.entries(config.connections)) {
-        this.sourceNode.actor.send({
-          type: "UPDATE_SOCKET",
-          params: {
-            name: key,
-            side: "output",
-            socket: {
-              "x-connection": {
-                ...this.sourceNodeDefintion?.["x-connection"],
-                [this.targetNode.actor.id]: {
-                  actorRef: this.targetNode.actor.ref,
-                  key: value,
-                },
-              } as ConnectionConfigRecord,
-            },
-          },
-        });
-      }
-    }
-  }
-
-  public setTargetValue(value: any) {
-    this.targetValue = value;
-  }
-
-  public setSourceValue(value: any) {
-    this.sourceValue = value;
-  }
 
   public toJSON() {
     return {

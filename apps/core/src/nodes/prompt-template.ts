@@ -262,7 +262,5 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
 
   constructor(di: DiContainer, data: PromptTemplateNode) {
     super("NodePromptTemplate", di, data, PromptTemplateNodeMachine, {});
-
-    this.setup();
   }
 }

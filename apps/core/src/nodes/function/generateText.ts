@@ -513,6 +513,5 @@ export class NodeGenerateText extends BaseNode<typeof GenerateTextMachine> {
 
   constructor(di: DiContainer, data: GenerateTextNode) {
     super("NodeGenerateText", di, data, GenerateTextMachine, {});
-    this.setup();
   }
 }

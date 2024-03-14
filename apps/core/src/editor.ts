@@ -17,7 +17,7 @@ import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import {
   setup,
@@ -35,7 +35,6 @@ import {
   assertEvent,
   AnyActorRef,
   ActorRefFrom,
-  waitFor,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -1323,7 +1322,9 @@ export class Editor<
       context,
     });
 
+    await newNode.setup();
     await this.editor.addNode(newNode);
+
     await this?.area?.translate(newNode.id, {
       x: this.cursorPosition.x,
       y: this.cursorPosition.y,
@@ -1849,6 +1850,7 @@ export class Editor<
     for (const n of nodes) {
       if (this.editor.getNode(n.id)) continue;
       const node = await this.createNodeInstance(n);
+      await node.setup();
       await this.editor.addNode(node);
     }
 
@@ -1869,7 +1871,6 @@ export class Editor<
           c.targetInput,
           this,
         );
-        conn.sync();
 
         await this.editor.addConnection(conn as Scheme["Connection"]);
       }

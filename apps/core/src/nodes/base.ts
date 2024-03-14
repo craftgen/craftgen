@@ -706,8 +706,28 @@ export abstract class BaseNode<
     this.nodeActor.start();
   }
 
-  public setup() {
+  public async setup() {
     this.actor = this.setupActor(this.di?.actor?.system.get(this.contextId));
+    const snap = this.nodeActor.getSnapshot();
+
+    const process = async (state: any) => {
+      let inputSockets = {};
+      let outputSockets = {};
+      for (const [key, value] of Object.entries(state.context.actors)) {
+        inputSockets = {
+          ...inputSockets,
+          ...value.inputSockets,
+        };
+        outputSockets = {
+          ...outputSockets,
+          ...value.outputSockets,
+        };
+      }
+      await this.updateInputs(inputSockets);
+      await this.updateOutputs(outputSockets);
+    };
+    await process(snap);
+
     this.nodeActor.subscribe((state) => {
       console.log("NODE STATE", state.context);
       let inputSockets = {};
@@ -823,7 +843,7 @@ export abstract class BaseNode<
       this.actors.delete(actor.id);
     });
 
-    this.setup();
+    await this.setup();
     this.di.area?.update("node", this.id);
   }
 

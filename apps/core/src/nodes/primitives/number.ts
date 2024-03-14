@@ -157,6 +157,5 @@ export class NodeNumber extends BaseNode<typeof NumberMachine> {
 
   constructor(di: DiContainer, data: NumberData) {
     super("NodeNumber", di, data, NumberMachine, {});
-    this.setup();
   }
 }

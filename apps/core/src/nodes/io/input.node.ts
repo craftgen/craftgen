@@ -92,7 +92,6 @@ export class InputNode extends BaseNode<typeof InputNodeMachine> {
 
   constructor(di: DiContainer, data: InputNodeData) {
     super("InputNode", di, data, InputNodeMachine, {});
-    this.setup();
     // const outputGenerator = new SocketGeneratorControl({
     //   connectionType: "output",
     //   name: "Output Sockets",

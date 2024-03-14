@@ -151,7 +151,6 @@ export class NodeModule extends BaseNode<typeof EditorMachine> {
 
   constructor(di: DiContainer, data: NodeModuleData) {
     super("NodeModule", di, data, EditorMachine, {});
-    this.setup();
 
     // const state = this.actor.getSnapshot();
 

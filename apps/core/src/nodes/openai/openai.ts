@@ -317,6 +317,5 @@ export class NodeOpenAI extends BaseNode<typeof OpenaiModelMachine> {
 
   constructor(di: DiContainer, data: OpenaiModelNode) {
     super("NodeOpenAI", di, data, OpenaiModelMachine, {});
-    this.setup();
   }
 }

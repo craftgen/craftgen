@@ -127,7 +127,6 @@ export class Shopify extends BaseNode<typeof ShopifyMachine> {
         },
       },
     });
-    this.setup();
     // const state = this.actor.getSnapshot();
     // this.action = state.context.settings.action;
 

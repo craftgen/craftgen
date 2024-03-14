@@ -7,7 +7,7 @@ import {
   setup,
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
-import { isEqual, isNil, merge } from "lodash-es";
+import { get, isEqual, isNil, merge } from "lodash-es";
 import { init } from "@paralleldrive/cuid2";
 import { P, match } from "ts-pattern";
 import { valueActorMachine } from "./value-actor";
@@ -166,6 +166,14 @@ export const inputSocketMachine = setup({
       ],
     },
     connection: {
+      always: [
+        {
+          guard: ({ context }) =>
+            Object.values(get(context, ["definition", "x-connection"], {}))
+              .length === 0,
+          target: "#InputSocketMachine.basic",
+        },
+      ],
       on: {
         SET_VALUE: {
           actions: enqueueActions(({ enqueue, event }) => {
@@ -187,7 +195,9 @@ export const inputSocketMachine = setup({
     basic: {
       always: [
         {
-          guard: ({ context }) => !isNil(context.definition["x-connection"]),
+          guard: ({ context }) =>
+            Object.values(get(context, ["definition", "x-connection"], {}))
+              .length > 0,
           target: "#InputSocketMachine.connection",
         },
       ],

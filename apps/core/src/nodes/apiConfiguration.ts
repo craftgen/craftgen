@@ -201,6 +201,5 @@ export class NodeApiConfiguration extends BaseNode<
 
   constructor(di: DiContainer, data: ApiConfigurationNode) {
     super("NodeApiConfiguration", di, data, ApiConfigurationMachine, {});
-    this.setup();
   }
 }

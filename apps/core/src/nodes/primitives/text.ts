@@ -136,6 +136,5 @@ export class NodeText extends BaseNode<typeof TextNodeMachine> {
 
   constructor(di: DiContainer, data: TextNodeData) {
     super("NodeText", di, data, TextNodeMachine, {});
-    this.setup();
   }
 }

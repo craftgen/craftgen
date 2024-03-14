@@ -758,6 +758,5 @@ export class NodeOllama extends BaseNode<typeof OllamaModelMachine> {
 
   constructor(di: DiContainer, data: OllamaModelNode) {
     super("NodeOllama", di, data, OllamaModelMachine, {});
-    this.setup();
   }
 }
