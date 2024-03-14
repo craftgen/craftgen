@@ -268,8 +268,8 @@ const generateTextCall = setup({
       ...input,
       inputs: {
         llm: computeExecutionValue(input.inputs.llm),
-        system: input.inputs.system.getSnapshot().context.value,
-        instruction: input.inputs.instruction.getSnapshot().context.value,
+        system: input.inputs.system,
+        instruction: input.inputs.instruction,
       },
       outputs: null,
     };
