@@ -3,15 +3,25 @@ import {
   AnyActorRef,
   Spawner,
   enqueueActions,
+  fromObservable,
   setup,
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
-import { isNil, merge } from "lodash-es";
+import { isEqual, isNil, merge } from "lodash-es";
 import { init } from "@paralleldrive/cuid2";
 import { P, match } from "ts-pattern";
 import { valueActorMachine } from "./value-actor";
+import {
+  of,
+  from,
+  switchMap,
+  debounceTime,
+  distinctUntilChanged,
+  BehaviorSubject,
+  startWith,
+} from "rxjs";
 
-function createId(prefix: "context", parentId: string) {
+function createId(prefix: "context" | "value", parentId: string) {
   const createId = init({
     length: 10,
     fingerprint: parentId,
@@ -27,6 +37,7 @@ export const inputSocketMachine = setup({
       parent: {
         id: string;
       };
+      connection: AnyActorRef | undefined; // | ActorRefFrom<typeof inputSocketMachine;
     },
     input: {} as {
       definition: JSONSocket;
@@ -52,6 +63,52 @@ export const inputSocketMachine = setup({
   },
   actors: {
     value: valueActorMachine,
+    valueWatcher: fromObservable(
+      ({
+        input,
+        system,
+      }: {
+        input: {
+          value: ActorRefFrom<typeof valueActorMachine>;
+          definition: JSONSocket;
+          parent: {
+            id: string;
+          };
+        };
+        system: any;
+      }) => {
+        console.log("INITIALIZEING VALUE WATCHER", input);
+        const actor = match(input.value)
+          .with(
+            {
+              src: P.string,
+            },
+            (value) => {
+              return value;
+            },
+          )
+          .with(
+            {
+              id: P.string,
+            },
+            (value) => {
+              return system.get(value.id);
+            },
+          )
+          .run();
+
+        const initialSnapshotSubject = new BehaviorSubject(actor.getSnapshot());
+
+        return from(actor).pipe(
+          startWith(initialSnapshotSubject.value), // Start with the snapshot
+          switchMap((state) => {
+            return of(state.context.value);
+          }),
+          debounceTime(150),
+          distinctUntilChanged(isEqual),
+        );
+      },
+    ),
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IAHACYAdLIMB2ACwWAzAasBOWY6tGAjABoQAT0QBaI1sLE3cAVmCLCwA2A1lwo0cDAF9k7zQsPCJSCmp6RhMIMjAAJwBbBmY5RSQQFTUNLR19BHcLMNDY9udg2QtHL19EWyNTaLD3BwNbR2i+idT0jBwCEjIqWkrC4vLKpml3GuVVdU1tWpa2jvcusJ6LPoHvPwQwoxCrYyDHdqMnIMWIAyK2y6zyWwARpQ1IQmLgpAIAGpcAAyLD41R09VOTQuw1sHTiYXiVjaslk4yMYWeiCsIxMb0mVgicSMBkcYWigOBWTWuU2BWo2HwJRMDFOlAANnQAF7MeE8JGo9GY2rYxrnUAtYmmMKc96WT4TKw0hCJELRWyTPVBcIxMJWVJpECofBFeC1HmrHIbfJgLEnDXNAKDF7tEwGdmOZzuT4WdyJFLOr2g-l+7bYUoVRgBhpnYMIGymkbREzWOKOWyyd4cqlc5PLXk+8EFKEw3M4zV6YZ3UKRhMWUYVimmiKmUmTAlvZzV+tLTLesECsAmIUijtBvFmjkmaKWmKjIxzZzM01GFxl6bWKuW1zRGzcxuLtNbNeikpgSgQF7HPO4rWIPeIQ3NEbJ6lYsh0okxbniYtjwV00SDvEVYWI+C6pr6r6EMKorihoUqyv6aqBvmW62HSu77qBozHpB1JDNupZJNGsyyBE9hRE6yRAA */
@@ -66,12 +123,18 @@ export const inputSocketMachine = setup({
           return undefined;
         },
       )
-      .otherwise(() =>
-        spawn("value", { input: { value: input.definition.default } }),
-      );
+      .otherwise(() => {
+        const valueId = createId("value", input.parent.id);
+        return spawn("value", {
+          input: { value: input.definition.default },
+          id: valueId,
+          systemId: valueId,
+          syncSnapshot: true,
+        });
+      });
     return {
       ...input,
-      value: value,
+      value,
       parent: {
         id: input.parent.id,
       },
@@ -104,19 +167,47 @@ export const inputSocketMachine = setup({
       ],
     },
     basic: {
-      entry: enqueueActions(({ enqueue }) => {
-        enqueue.sendTo(
-          ({ system, context }) => system.get(context.parent.id),
-          ({ context }) => ({
-            type: "SET_VALUE",
-            params: {
-              values: {
-                [context.definition["x-key"]]: context.value,
-              },
-            },
-          }),
-        );
+      entry: enqueueActions(({ enqueue, context }) => {
+        // console.log("SETTING INITIAL VALUE", context);
+        // enqueue.sendTo(
+        //   ({ system, context }) => system.get(context.parent.id),
+        //   ({ context }) => ({
+        //     type: "SET_VALUE",
+        //     params: {
+        //       values: {
+        //         [context.definition["x-key"]]:
+        //           context.value?.getSnapshot().context.value,
+        //       },
+        //     },
+        //   }),
+        // );
       }),
+      invoke: {
+        src: "valueWatcher",
+        input: ({ context, self }) => ({
+          ...context,
+        }),
+        onSnapshot: {
+          actions: enqueueActions(({ enqueue, event, context }) => {
+            console.log(
+              "SNAPSHOT",
+              context.definition["x-key"],
+              event.snapshot.context,
+            );
+            enqueue.sendTo(
+              ({ system, context }) => system.get(context.parent.id),
+              ({ event, context }) => ({
+                type: "SET_VALUE",
+                params: {
+                  values: {
+                    [context.definition["x-key"]]: event.snapshot.context,
+                  },
+                },
+              }),
+            );
+          }),
+        },
+      },
       on: {
         SET_CONNECTION: {
           actions: enqueueActions(({ enqueue, event }) => {
@@ -135,20 +226,19 @@ export const inputSocketMachine = setup({
           }),
         },
         SET_VALUE: {
+          /**
+           * We are setting the value of the valueActor here.
+           */
           actions: enqueueActions(({ enqueue, event }) => {
             console.log("SETVALUE_SOCKET", { event });
-
             enqueue.sendTo(
-              ({ system, context }) =>
-                system.get(context.parent.id).getSnapshot().context.inputs[
-                  context.definition["x-key"]
-                ],
-              {
+              ({ context }) => context.value,
+              ({ event }) => ({
                 type: "SET_VALUE",
                 params: {
                   value: event.params.value,
                 },
-              },
+              }),
             );
           }),
         },
@@ -156,6 +246,28 @@ export const inputSocketMachine = setup({
     },
     actor: {
       initial: "initialize",
+      on: {
+        SET_VALUE: {
+          target: "#InputSocketMachine.actor.ready",
+          actions: enqueueActions(({ enqueue, event }) => {
+            console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
+            enqueue.assign({
+              value: event.params.value,
+            });
+            enqueue.sendTo(
+              ({ system, context }) => system.get(context.parent.id),
+              ({ event, context }) => ({
+                type: "SET_VALUE",
+                params: {
+                  values: {
+                    [context.definition["x-key"]]: event.params.value,
+                  },
+                },
+              }),
+            );
+          }),
+        },
+      },
       states: {
         ready: {},
         initialize: {
@@ -183,32 +295,13 @@ export const inputSocketMachine = setup({
                 },
               }),
             );
+            enqueue.assign({
+              value: {
+                id: actorId,
+                xstate$$type: 1,
+              },
+            });
           }),
-          on: {
-            SET_VALUE: {
-              target: "ready",
-              actions: enqueueActions(({ enqueue, event }) => {
-                console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
-                enqueue.assign({
-                  value: event.params.value,
-                });
-                enqueue.sendTo(
-                  ({ context }) => system.get(context.parent.id),
-                  ({ context, event }) => {
-                    const key = context.definition["x-key"];
-                    return {
-                      type: "SET_VALUE",
-                      params: {
-                        values: {
-                          [key]: event.params.value,
-                        },
-                      },
-                    };
-                  },
-                );
-              }),
-            },
-          },
         },
       },
     },
@@ -223,20 +316,38 @@ export const spawnInputSockets = ({
   spawn: Spawner<any>;
   self: AnyActorRef;
   inputSockets: Record<string, JSONSocket>;
-}): Record<string, ActorRefFrom<typeof inputSocketMachine>> =>
-  Object.values(inputSockets)
-    .map((socket) =>
-      spawn("input", {
+}): Record<string, ActorRefFrom<typeof inputSocketMachine>> => {
+  return Object.values(inputSockets)
+    .map((socket) => {
+      // const value = match(socket)
+      //   .with(
+      //     {
+      //       "x-actor-type": P.string.select(),
+      //     },
+      //     (type) => {
+      //       console.log("TYPE", type, socket);
+      //       return undefined;
+      //     },
+      //   )
+      //   .otherwise(() =>
+      //     spawn("value", {
+      //       input: { value: socket.default },
+      //       syncSnapshot: true,
+      //     }),
+      //   );
+      return spawn("input", {
         input: {
           definition: socket,
           parent: self,
+          // value: value,
         },
         id: `${self.id}:input:${socket["x-key"]}`,
         syncSnapshot: true,
         systemId: `${self.id}:input:${socket["x-key"]}`,
-      }),
-    )
+      });
+    })
     .map((socket) => ({
       [socket.id]: socket,
     }))
     .reduce((acc, val) => merge(acc, val), {});
+};

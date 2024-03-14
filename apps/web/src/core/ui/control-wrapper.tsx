@@ -14,8 +14,6 @@ export const ControlWrapper: React.FC<{
     payload: control,
   });
 
-  console.log("ControlWrapper", control, definition);
-
   return (
     <>
       <div

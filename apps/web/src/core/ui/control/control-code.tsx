@@ -194,14 +194,13 @@ const cdnPackageCompletions = (ternServer: tern.Server) => {
 };
 
 export function CodeEditor<T extends string>(props: { data: CodeControl }) {
-  const { definition, parent } = useSelector(
+  const { definition, value: valueActor } = useSelector(
     props.data?.actor,
     (snap) => snap.context,
   );
-  const valueActor = props.data.actor.system.get(parent.id).getSnapshot()
-    .context.inputs[definition["x-key"]];
+
   const [code, setValue] = useState<string>(
-    valueActor.getSnapshot().context.value || "",
+    valueActor?.getSnapshot().context.value || "",
   );
 
   const { systemTheme } = useTheme();

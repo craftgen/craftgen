@@ -6,14 +6,14 @@ import { Input } from "@/components/ui/input";
 import { useStep } from "./shared/useStep";
 
 export const NumberControlComponent = (props: { data: NumberControl }) => {
-  const { definition, parent } = useSelector(
+  const { definition, value: valueActor } = useSelector(
     props.data?.actor,
     (snap) => snap.context,
   );
-  const valueActor = useSelector(
-    props.data?.actor.system.get(parent.id),
-    (snap) => snap.context.inputs[definition["x-key"]],
-  );
+  // const valueActor = useSelector(
+  //   props.data?.actor.system.get(parent.id),
+  //   (snap) => snap.context.inputs[definition["x-key"]],
+  // );
 
   const value = useSelector(valueActor, (snap) => snap.context.value);
 

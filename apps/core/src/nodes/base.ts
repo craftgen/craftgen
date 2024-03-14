@@ -412,18 +412,18 @@ export const NodeContextFactory = <
     ctx.input,
   );
 
-  set(
-    config,
-    ["outputSockets", `${ctx.self.id}:output:${ctx.self.src}`],
-    generateSocket({
-      name: "self",
-      type: ctx.self.src as NodeTypes,
-      isMultiple: true,
-      "x-order": 0,
-      "x-key": "self",
-      "x-showSocket": true,
-    }),
-  );
+  // set(
+  //   config,
+  //   ["outputSockets", `${ctx.self.id}:output:${ctx.self.src}`],
+  //   generateSocket({
+  //     name: "self",
+  //     type: ctx.self.src as NodeTypes,
+  //     isMultiple: true,
+  //     "x-order": 0,
+  //     "x-key": "self",
+  //     "x-showSocket": true,
+  //   }),
+  // );
 
   const hasParentActor = get(ctx, "input.parent.port");
   if (hasParentActor) {

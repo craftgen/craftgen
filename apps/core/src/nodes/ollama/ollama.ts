@@ -1,5 +1,4 @@
 import ky from "ky";
-import { merge, set } from "lodash-es";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OllamaChatModelSettings,
@@ -8,8 +7,6 @@ import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import {
   ActorRefFrom,
-  AnyActor,
-  assign,
   createMachine,
   enqueueActions,
   fromPromise,
@@ -26,8 +23,7 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
-import { spawnOutputSockets } from "../../output-socket";
-import { inputSocketMachine, spawnInputSockets } from "../../input-socket";
+import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
@@ -606,20 +602,43 @@ export const OllamaModelMachine = createMachine(
           }),
           onDone: {
             target: "#ollama-model.complete",
-            actions: assign({
-              model: ({ event, context }) => {
-                return {
-                  ...event.output,
-                  name: context.inputs.model,
-                };
-              },
-              inputs: ({ context, event }) => {
-                return {
-                  ...context.inputs,
-                  modelfile: event.output.modelfile,
-                  template: event.output.template,
-                };
-              },
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue.assign({
+                model: ({ event, context }) => {
+                  return {
+                    ...event.output,
+                    name: context.inputs.model,
+                  };
+                },
+              });
+              enqueue.sendTo(
+                ({ system, context }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("modelfile"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                ({ event }) => ({
+                  type: "SET_VALUE",
+                  params: {
+                    value: event.output.modelfile,
+                  },
+                }),
+              );
+              enqueue.sendTo(
+                ({ system, context }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("template"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                ({ event }) => ({
+                  type: "SET_VALUE",
+                  params: {
+                    value: event.output.template,
+                  },
+                }),
+              );
             }),
           },
           onError: {
@@ -627,9 +646,6 @@ export const OllamaModelMachine = createMachine(
             target: "action_required",
           },
         },
-        // after: {
-        //   1000: "idle",
-        // },
       },
       error: {
         on: {
@@ -680,7 +696,6 @@ export const OllamaModelMachine = createMachine(
           },
           SET_VALUE: {
             actions: ["setValue", "updateOutput"],
-            // target: "action_required",
           },
         },
       },

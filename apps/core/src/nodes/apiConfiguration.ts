@@ -21,7 +21,6 @@ const inputSockets = {
     type: "string" as const,
     default: "https://api.example.com/v1",
     description: "The base URL for the API",
-    required: true,
   }),
   APIKey: generateSocket({
     "x-key": "APIKey",
@@ -29,7 +28,6 @@ const inputSockets = {
     title: "API Key",
     type: "string" as const,
     description: "The API key for the API",
-    required: true,
     format: "secret",
   }),
   headers: generateSocket({
@@ -42,7 +40,6 @@ const inputSockets = {
     default: {
       "Content-Type": "application/json",
     },
-    required: true,
     "x-isAdvanced": true,
   }),
 };

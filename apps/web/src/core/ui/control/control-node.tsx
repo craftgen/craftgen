@@ -3,7 +3,7 @@ import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
 import _, { omit, get, isNil, isEqual } from "lodash-es";
 import { ChevronDown, ChevronRight, Circle, CircleDot } from "lucide-react";
-import { Actor, AnyActor, AnyActorRef } from "xstate";
+import { Actor, ActorRefFrom, AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -201,25 +201,53 @@ const InputItem = ({
     isEqual,
   );
 
-  const controller = useMemo(() => {
-    return getControlBySocket({
+  const hasConnection = useMemo(() => {
+    return item["x-connection"] && Object.keys(item["x-connection"]).length > 0;
+  }, [item]);
+
+  const { controller, definition } = useMemo(() => {
+    if (hasConnection) {
+      console.log("HAS CONNECTION");
+      const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
+        Object.values(item["x-connection"])[0];
+
+      const connectionDefinition =
+        connectionActor?.getSnapshot().context.definition;
+
+      const controller = getControlBySocket({
+        actor: connectionActor,
+        definition: connectionDefinition,
+      });
+      console.log("CONNECTION", connectionActor, connectionDefinition);
+      return {
+        controller,
+        definition: item,
+      };
+    }
+
+    const controller = getControlBySocket({
       actor: actor,
       definition: item,
     });
+    return {
+      controller,
+      definition: item,
+    };
   }, [item]);
 
   if (item["x-actor-type"]) {
     console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
-    const targetActor = actor.system.get(parentId).getSnapshot().context.inputs[
-      item["x-key"]
-    ];
-    console.log("TARGET ACTOR", targetActor, parentId, item["x-key"]);
+
+    const parent = actor.system.get(parentId);
+    const targetActor = parent.getSnapshot().context.inputs[item["x-key"]];
+    console.log("TARGET ACTOR", parent, targetActor, parentId, item["x-key"]);
+    // return null;
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 
   return (
     <SocketController actor={actor} socket={item} socketKey={itemKey}>
-      <ControlWrapper control={controller} definition={item} />
+      <ControlWrapper control={controller} definition={definition} />
     </SocketController>
   );
 };
@@ -243,41 +271,11 @@ const ActorInputItem = ({
     socketActor.send({
       type: "UPDATE_SOCKET",
       params: {
-        "x-showControl": val,
+        "x-showController": val,
       },
     });
   };
   const socket = useSelector(socketActor, (state) => state.context.definition);
-
-  if (socket["x-actor-type"] === "NodeText") {
-    console.log({
-      targetActor,
-      socketActor,
-      socket,
-      // outputs: Object.values(
-      //   targetActor.getSnapshot().context.outputSockets,
-      // )[0],
-    });
-
-    // const controller = useMemo(() => {
-    //   const actor = Object.values(
-    //     targetActor.getSnapshot().context.inputSockets,
-    //   )[0] as Actor<typeof outputSocketMachine>;
-    //   return getControlBySocket({
-    //     actor: actor,
-    //     definition: actor.getSnapshot().context.definition,
-    //   });
-    // }, []);
-    return (
-      <SocketController
-        actor={socketActor}
-        socket={socket}
-        socketKey={socket["x-key"]}
-      >
-        <ControlWrapper control={null} definition={socket} />
-      </SocketController>
-    );
-  }
 
   return (
     <div className="m-2 rounded border">
@@ -297,7 +295,7 @@ const ActorInputItem = ({
           </Toggle>
           <div
             className="flex w-full flex-1 cursor-pointer flex-col"
-            onClick={() => handleToggleController(!socket["x-showControl"])}
+            onClick={() => handleToggleController(!socket["x-showController"])}
           >
             <Label>{socket.title || socket.name}</Label>
             <p className={cn("text-muted-foreground text-[0.8rem]")}>
@@ -311,7 +309,7 @@ const ActorInputItem = ({
             size={"sm"}
             onPressedChange={handleToggleController}
           >
-            {socket["x-showControl"] ? (
+            {socket["x-showController"] ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
               <ChevronRight className="h-4 w-4" />
@@ -319,7 +317,7 @@ const ActorInputItem = ({
           </Toggle>
         </div>
       </div>
-      {socket["x-showControl"] && (
+      {socket["x-showController"] && (
         <div className="bg-muted/20   m-1">
           <InputsList actor={targetActor} showAdvanced={true} />
         </div>
@@ -356,7 +354,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        "x-showControl": val,
+        "x-showController": val,
       },
     });
   };

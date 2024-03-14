@@ -4,18 +4,13 @@ import JsonView from "react18-json-view";
 
 import { JsonControl } from "@seocraft/core/src/controls/json";
 
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-
 export const JsonControlComponent = (props: { data: JsonControl }) => {
-  const { definition, parent } = useSelector(
+  const { value: valueActor } = useSelector(
     props.data?.actor,
     (snap) => snap.context,
   );
-  const a = useSelector(
-    props.data?.actor.system.get(parent.id),
-    (snap) => snap.context.inputs[definition["x-key"]],
-  );
+
+  const a = useSelector(valueActor, (snap) => snap.context.value);
   const [value, setValue] = useState(a);
 
   useEffect(() => {

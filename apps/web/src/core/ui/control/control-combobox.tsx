@@ -21,13 +21,9 @@ import {
 import { cn } from "@/lib/utils";
 
 export function ComboboxControlComponent(props: { data: ComboboxControl }) {
-  const { definition, parent } = useSelector(
+  const { definition, value: valueActor } = useSelector(
     props.data?.actor,
     (snap) => snap.context,
-  );
-  const valueActor = useSelector(
-    props.data?.actor.system.get(parent.id),
-    (snap) => snap.context.inputs[definition["x-key"]],
   );
 
   const value = useSelector(valueActor, (snap) => snap.context.value);

@@ -82,6 +82,7 @@ import { socketWatcher } from "./socket-watcher";
 import { RouterInputs } from "@seocraft/api";
 import { inputSocketMachine } from "./input-socket";
 import { outputSocketMachine } from "./output-socket";
+import { valueActorMachine } from "./value-actor";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -662,6 +663,7 @@ export class Editor<
         }
       }
     }),
+
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
       assertEvent(event, "ASSIGN_CHILD");
       console.log("ASSIGN CHILD", event);
@@ -1055,8 +1057,8 @@ export class Editor<
         { context, event, self },
         params: { values: Record<string, any> },
       ) => {
-        console.log("SET VALUE", { event, params, self });
         const values = event.params?.values || params?.values;
+        console.log("SET VALUE", { values, self });
 
         // TODO:
         // Object.keys(context.inputs).forEach((key) => {
@@ -1110,6 +1112,13 @@ export class Editor<
         socketWatcher,
         input: inputSocketMachine,
         output: outputSocketMachine,
+        value: valueActorMachine.provide({
+          actions: {
+            compute: async ({ context }) => {
+              return context.value + "<SUPER_SECRET>";
+            },
+          },
+        }),
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -1122,6 +1131,13 @@ export class Editor<
                   socketWatcher,
                   input: inputSocketMachine,
                   output: outputSocketMachine,
+                  value: valueActorMachine.provide({
+                    actions: {
+                      compute: async ({ context }) => {
+                        return context.value + "<SUPER_SECRET>";
+                      },
+                    },
+                  }),
                 },
                 delays: {},
                 actions: {
@@ -1231,12 +1247,12 @@ export class Editor<
         },
       };
 
-      this.actor = this.createActor({
-        ...snap,
-        children: mergedChildrens,
-      });
+      // this.actor = this.createActor({
+      //   ...snap,
+      //   children: mergedChildrens,
+      // });
 
-      this.actor?.start();
+      // this.actor?.start();
 
       console.log("EDITOR ACTOR SNAP", this.actor.getPersistedSnapshot());
 

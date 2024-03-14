@@ -1,5 +1,6 @@
 import {
   ActorRefFrom,
+  AnyActor,
   AnyActorRef,
   Spawner,
   enqueueActions,
@@ -61,7 +62,7 @@ export const outputSocketMachine = setup({
         system,
       }: {
         input: {
-          self: ActorRefFrom<typeof outputSocketMachine>;
+          self: AnyActor;
           definition: JSONSocket;
           parent: {
             id: string;
@@ -75,22 +76,16 @@ export const outputSocketMachine = setup({
           return of({});
         }
 
-        return from(input.self).pipe(
+        const actor = system.get(input.self.id) as ActorRefFrom<
+          typeof inputSocketMachine
+        >;
+        return from(actor).pipe(
           switchMap((state) => {
             return of(state.context.definition["x-connection"] || {});
           }),
           debounceTime(150),
           distinctUntilChanged(isEqual),
         );
-        // const events = from(parent);
-        // const definition = input.definition;
-        // return events.pipe(
-        //   switchMap((state) => {
-        //     return of(state.context.outputs[definition["x-key"]]);
-        //   }),
-        //   debounceTime(150),
-        //   distinctUntilChanged(isEqual),
-        // );
       },
     ),
   },
@@ -113,17 +108,17 @@ export const outputSocketMachine = setup({
         console.log("OUTPUT WATCHER", event.snapshot.context);
         if (check(({ event }) => !isNil(event.snapshot.context))) {
           Object.values(event.snapshot.context).forEach((conn) => {
-            enqueue.sendTo(
-              // ({ system }) => system.get(conn.target),
-              conn as ActorRefFrom<typeof inputSocketMachine>,
-              ({ system, context }) => ({
-                type: "SET_CONNECTION",
-                params: {
-                  value: system.get(context.parent.id).getSnapshot().context
-                    .outputs[context.definition["x-key"]],
-                },
-              }),
-            );
+            // enqueue.sendTo(
+            //   // ({ system }) => system.get(conn.target),
+            //   conn as ActorRefFrom<typeof inputSocketMachine>,
+            //   ({ system, context }) => ({
+            //     type: "SET_CONNECTION",
+            //     params: {
+            //       value: system.get(context.parent.id).getSnapshot().context
+            //         .outputs[context.definition["x-key"]],
+            //     },
+            //   }),
+            // );
           });
         }
       }),

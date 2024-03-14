@@ -32,7 +32,6 @@ import type {
 } from "../base";
 import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
-import { inputSocketMachine } from "../../input-socket";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -144,10 +143,18 @@ const computeExecutionValue = (actorRef: AnyActorRef) => {
     match(outputValue)
       .with(
         {
-          _systemId: P.string,
+          src: P.string.startsWith("Node"),
         },
         (_, actorRef: AnyActorRef) => {
           value[key] = computeExecutionValue(actorRef);
+        },
+      )
+      .with(
+        {
+          src: P.string.startsWith("value"),
+        },
+        (val) => {
+          value[key] = val.getSnapshot().context.value;
         },
       )
       .otherwise((val) => {
@@ -257,15 +264,12 @@ const generateTextCall = setup({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
   initial: "in_progress",
   context: ({ input }) => {
-    const compute = computeExecutionValue(
-      input.inputs.llm,
-    ) as GenerateTextInput;
     return {
       ...input,
       inputs: {
-        llm: compute,
-        system: input.inputs.system,
-        instruction: input.inputs.instruction,
+        llm: computeExecutionValue(input.inputs.llm),
+        system: input.inputs.system.getSnapshot().context.value,
+        instruction: input.inputs.instruction.getSnapshot().context.value,
       },
       outputs: null,
     };
