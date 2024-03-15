@@ -76,6 +76,13 @@ export class Connection<
   }
 
   get sourceValue() {
+    if (
+      this.targetDefinition["x-compatible"]?.includes(
+        this.sourceDefinition.type,
+      )
+    ) {
+      return this.sourceActor;
+    }
     return this.sourceActor.getSnapshot().context.outputs[
       this.sourceDefinition["x-key"]
     ];
@@ -126,6 +133,7 @@ export class Connection<
       },
     });
     console.log("SENDING INITIAL VALUE", this.sourceValue);
+
     this.targetSocketActor.send({
       type: "SET_VALUE",
       params: {

@@ -12,11 +12,19 @@ import { useSelector } from "@xstate/react";
 const { useConnection } = Presets.classic;
 
 const useConnectionSync = (props: { data: Connection }) => {
-  const sourceValue = useSelector(props.data?.sourceActor, (state) =>
-    state
-      ? state?.context?.outputs[props.data.sourceDefinition["x-key"]]
-      : null,
-  );
+  const sourceValue = useSelector(props.data?.sourceActor, (state) => {
+    if (!state) {
+      return null;
+    }
+    if (
+      props.data.targetDefinition["x-compatible"]?.includes(
+        props.data.sourceDefinition.type,
+      )
+    ) {
+      return props.data.sourceActor;
+    }
+    return state?.context?.outputs[props.data.sourceDefinition["x-key"]];
+  });
 
   const targetValue = useSelector(props.data?.targetActor, (state) =>
     state ? state?.context?.inputs[props.data.targetDefinition["x-key"]] : null,

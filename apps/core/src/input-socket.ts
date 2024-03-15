@@ -288,7 +288,57 @@ export const inputSocketMachine = setup({
         },
       },
       states: {
-        ready: {},
+        connection: {
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length === 0,
+              target: "#InputSocketMachine.actor.ready",
+              actions: enqueueActions(({ enqueue }) => {
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ context }) => ({
+                    type: "SET_VALUE",
+                    params: {
+                      values: {
+                        [context.definition["x-key"]]: context.value,
+                      },
+                    },
+                  }),
+                );
+              }),
+            },
+          ],
+          on: {
+            SET_VALUE: {
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ event, context }) => ({
+                    type: "SET_VALUE",
+                    params: {
+                      values: {
+                        [context.definition["x-key"]]: event.params.value,
+                      },
+                    },
+                  }),
+                );
+              }),
+            },
+          },
+        },
+        ready: {
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length > 0,
+              target: "#InputSocketMachine.actor.connection",
+            },
+          ],
+        },
         initialize: {
           entry: enqueueActions(({ enqueue, context }) => {
             console.log("ACTOR TYPE", context);
