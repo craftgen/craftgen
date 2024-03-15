@@ -52,12 +52,6 @@ export const inputSocketMachine = setup({
           params: {
             value: any;
           };
-        }
-      | {
-          type: "SET_CONNECTION";
-          params: {
-            value: AnyActorRef | ActorRefFrom<typeof valueActorMachine>;
-          };
         },
   },
   actors: {
@@ -76,7 +70,6 @@ export const inputSocketMachine = setup({
         };
         system: any;
       }) => {
-        console.log("INITIALIZEING VALUE WATCHER", input);
         const actor = match(input.value)
           .with(
             {
@@ -110,7 +103,7 @@ export const inputSocketMachine = setup({
     ),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IAHACYAdLIMB2ACwWAzAasBOWY6tGAjABoQAT0QBaI1sLE3cAVmCLCwA2A1lwo0cDAF9k7zQsPCJSCmp6RhMIMjAAJwBbBmY5RSQQFTUNLR19BHcLMNDY9udg2QtHL19EWyNTaLD3BwNbR2i+idT0jBwCEjIqWkrC4vLKpml3GuVVdU1tWpa2jvcusJ6LPoHvPwQwoxCrYyDHdqMnIMWIAyK2y6zyWwARpQ1IQmLgpAIAGpcAAyLD41R09VOTQuw1sHTiYXiVjaslk4yMYWeiCsIxMb0mVgicSMBkcYWigOBWTWuU2BWo2HwJRMDFOlAANnQAF7MeE8JGo9GY2rYxrnUAtYmmMKc96WT4TKw0hCJELRWyTPVBcIxMJWVJpECofBFeC1HmrHIbfJgLEnDXNAKDF7tEwGdmOZzuT4WdyJFLOr2g-l+7bYUoVRgBhpnYMIGymkbREzWOKOWyyd4cqlc5PLXk+8EFKEw3M4zV6YZ3UKRhMWUYVimmiKmUmTAlvZzV+tLTLesECsAmIUijtBvFmjkmaKWmKjIxzZzM01GFxl6bWKuW1zRGzcxuLtNbNeikpgSgQF7HPO4rWIPeIQ3NEbJ6lYsh0okxbniYtjwV00SDvEVYWI+C6pr6r6EMKorihoUqyv6aqBvmW62HSu77qBozHpB1JDNupZJNGsyyBE9hRE6yRAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IATAA4AjADojATgAsB2QFYTAZksmD9gGwAaEAE9EbgC+gT5oWHhEpBTU9IxmEGRgAE4AtgzMcopIICpqGlo6+ggmAOz2ZnZOztYmsk4GBiV1Pv7Fpmb2liUe9o5utSbW9sGhGDgEJGRUtOnxianpTNImWcqq6pra2UWl5ZXVtfWNzX6GBh5mriWWRiWDRk4lTvZOIyBh45FTMbMARpRqQhLBQ6XIbArbRCWAwtAKyaxOMxlEwogyuWRuIxvD4RSbRGZxf6Asx0CAAG2YuCkAgAalwADIsPiZUHrfJbUBFaw2S5GewYx5GDwokweEqwhA2WQVEpGazCoVPayyDzYsa4qLTWJgMxEuiEMyELSMQjsphUni0hlMlnZMHswqGOpmDxWWyNaEeDzWKwSmxGF0uG4eAw1WpetXhCaan6EgH6w3GsCmzbA1Y5NmbR0IJwIpElZVGOqWIMhiW1fmXSwl6Hym6layRz54rWzajYfBJc3UumM5kgu2ZiGcxAhywdZUq2Wu6soiX8gwu6zWbrXBpuR5NjXfAk69udxOoE1mi1Wvu2tZ5LOQ4qyBxmJwPEyWGey4ww04IBHlOW2e4opxZCMLEQnedVox3bUzH3JJD2PVMLwzK9hz0RArERDwSwLJ4XgMUojAlZdrEuXN4WFSw6icXNhlAnEIPxKCYLMJIwEoCBfDTVlkI5VCEHQl0sNsO931uedniROp7G6KwS1kGxglA1B8ASeBsjor4GPSLjwR4ooAFprD9YjGhXGohncEpugMLd6NbOIEmwZI0kYbSHRvFdyz5S4PVdIt7GXFwQNGKMNLsnU9UIVzrxHL9DM-PlF0sXp-KMOxZVFIKwJCltY3C+MDVJCkopQrkpKRew5WFb1ZEaVLvE-WplQ6XCao3cMbNC3LdXyuDkzcy8dOzOxyhub9lxsKjvXq1pGoDVwV3OblXRKazaPAzrd2g01O2K3TEAq8x-LvMUhRkudP1zAN7DwwCUUcWVuUbNbspjTamKNI8+uipDBpvWpZBKF10uMTobGrAjPxeC4USsXopwB2wOpyt7ttgli2NaAb+t465ER9F5oQeflfPndwOkeJwQwMR8MQBpHXsY1GSVQDZKDJOgAC8wF27MxwnY7pzOkwJQ8AHLmfRxnnfN8FMCIA */
   id: "InputSocketMachine",
   context: ({ input, spawn }) => {
     const value = match(input.definition)
@@ -165,101 +158,90 @@ export const inputSocketMachine = setup({
         },
       ],
     },
-    connection: {
-      always: [
-        {
-          guard: ({ context }) =>
-            Object.values(get(context, ["definition", "x-connection"], {}))
-              .length === 0,
-          target: "#InputSocketMachine.basic",
-        },
-      ],
-      on: {
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue, event }) => {
-            enqueue.sendTo(
-              ({ system, context }) => system.get(context.parent.id),
-              ({ event, context }) => ({
-                type: "SET_VALUE",
-                params: {
-                  values: {
-                    [context.definition["x-key"]]: event.params.value,
-                  },
-                },
-              }),
-            );
-          }),
-        },
-      },
-    },
     basic: {
+      initial: "idle",
       always: [
         {
           guard: ({ context }) =>
             Object.values(get(context, ["definition", "x-connection"], {}))
               .length > 0,
-          target: "#InputSocketMachine.connection",
+          target: "#InputSocketMachine.basic.connection",
         },
       ],
-      invoke: {
-        src: "valueWatcher",
-        input: ({ context, self }) => ({
-          ...context,
-        }),
-        onSnapshot: {
-          actions: enqueueActions(({ enqueue, event, context }) => {
-            console.log(
-              "SNAPSHOT",
-              context.definition["x-key"],
-              event.snapshot.context,
-            );
-            enqueue.sendTo(
-              ({ system, context }) => system.get(context.parent.id),
-              ({ event, context }) => ({
-                type: "SET_VALUE",
-                params: {
-                  values: {
-                    [context.definition["x-key"]]: event.snapshot.context,
-                  },
-                },
+      states: {
+        idle: {
+          invoke: {
+            src: "valueWatcher",
+            input: ({ context, self }) => ({
+              ...context,
+            }),
+            onSnapshot: {
+              actions: enqueueActions(({ enqueue, event, context }) => {
+                console.log(
+                  "SNAPSHOT",
+                  context.definition["x-key"],
+                  event.snapshot.context,
+                );
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ event, context }) => ({
+                    type: "SET_VALUE",
+                    params: {
+                      values: {
+                        [context.definition["x-key"]]: event.snapshot.context,
+                      },
+                    },
+                  }),
+                );
               }),
-            );
-          }),
+            },
+          },
+          on: {
+            SET_VALUE: {
+              /**
+               * We are setting the value of the valueActor here.
+               */
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log("SETVALUE_SOCKET", { event });
+                enqueue.sendTo(
+                  ({ context }) => context.value,
+                  ({ event }) => ({
+                    type: "SET_VALUE",
+                    params: {
+                      value: event.params.value,
+                    },
+                  }),
+                );
+              }),
+            },
+          },
         },
-      },
-      on: {
-        SET_CONNECTION: {
-          actions: enqueueActions(({ enqueue, event }) => {
-            console.log("SETCONNECTION_SOCKET", { event });
-            enqueue.sendTo(
-              ({ system, context }) => system.get(context.parent.id),
-              ({ context }) => ({
-                type: "SET_VALUE",
-                params: {
-                  values: {
-                    [context.definition["x-key"]]: event.params.value,
-                  },
-                },
+        connection: {
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length === 0,
+              target: "#InputSocketMachine.basic.idle",
+            },
+          ],
+          on: {
+            SET_VALUE: {
+              actions: enqueueActions(({ enqueue, event }) => {
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ event, context }) => ({
+                    type: "SET_VALUE",
+                    params: {
+                      values: {
+                        [context.definition["x-key"]]: event.params.value,
+                      },
+                    },
+                  }),
+                );
               }),
-            );
-          }),
-        },
-        SET_VALUE: {
-          /**
-           * We are setting the value of the valueActor here.
-           */
-          actions: enqueueActions(({ enqueue, event }) => {
-            console.log("SETVALUE_SOCKET", { event });
-            enqueue.sendTo(
-              ({ context }) => context.value,
-              ({ event }) => ({
-                type: "SET_VALUE",
-                params: {
-                  value: event.params.value,
-                },
-              }),
-            );
-          }),
+            },
+          },
         },
       },
     },

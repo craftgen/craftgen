@@ -1536,7 +1536,7 @@ export class Editor<
 
     const snapshot = this.createInitialSnapshot();
 
-    this.inspector = createBrowserInspector({ autoStart: false });
+    // this.inspector = createBrowserInspector({ autoStart: false });
     this.actor = this.createActor(snapshot);
 
     this.setupEventHandling();

@@ -201,10 +201,6 @@ const InputItem = ({
     isEqual,
   );
 
-  const hasConnection = useMemo(() => {
-    return item["x-connection"] && Object.keys(item["x-connection"]).length > 0;
-  }, [item]);
-
   const { controller, definition } = useMemo(() => {
     const controller = getControlBySocket({
       actor: actor,
@@ -216,7 +212,13 @@ const InputItem = ({
     };
   }, [item]);
 
-  if (hasConnection) {
+  const hasConnectionBasic = useSelector(actor, (s) =>
+    s.matches({ basic: "connection" }),
+  );
+
+  console.log(item["x-key"], hasConnectionBasic);
+
+  if (hasConnectionBasic) {
     //   console.log("HAS CONNECTION");
     const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
       Object.values(item["x-connection"])[0];
