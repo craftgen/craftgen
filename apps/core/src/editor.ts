@@ -965,27 +965,15 @@ export class Editor<
       // params.event.params.sender = this.pactor.ref;
       // targetNode.actor.send(params.event);
     },
-    setExecutionNodeId: async (
-      action: ActionArgs<any, any, any>,
-      params?: {
-        executionNodeId?: string;
-      },
-    ) => {
-      throw new Error("Not Implemented yet.");
-      if (params?.executionNodeId) {
-        this.setExecutionNodeId(params?.executionNodeId);
-      } else {
-        this.setExecutionNodeId(this.di.createId("state"));
-      }
-      this.setup();
-    },
     triggerSuccessors: async (
       action: ActionArgs<any, any, any>,
       params: {
         port: string;
       },
     ) => {
-      return;
+      console.log("TRIGGER SUCCESSORS", action, params);
+
+      // return;
 
       if (!params?.port) {
         throw new Error("Missing params");

@@ -53,20 +53,20 @@ const outputSockets = {
     "x-showSocket": true,
     "x-event": "RUN",
   }),
-  // thread: generateSocket({
-  //   name: "Thread",
-  //   type: "NodeThread",
-  //   "x-controller": "thread",
-  //   isMultiple: true,
-  //   "x-key": "self",
-  //   "x-showSocket": true,
-  // }),
+  thread: generateSocket({
+    name: "Thread",
+    type: "NodeThread",
+    "x-controller": "thread",
+    isMultiple: true,
+    "x-key": "self",
+    "x-showSocket": true,
+  }),
   messages: generateSocket({
     name: "messages",
     type: "array",
     isMultiple: true,
     "x-key": "thread",
-    "x-showSocket": false,
+    "x-showSocket": true,
   }),
 };
 
@@ -172,9 +172,6 @@ export const ThreadMachine = createMachine(
       idle: {
         entry: ["updateOutput"],
         on: {
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               enqueue({
@@ -208,13 +205,9 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.run]: {
-            guard: {
-              type: "hasConnection",
-              params: {
-                port: "output",
-                key: "onRun",
-              },
-            },
+            // guard: ({context}) => {
+            //   return context.outputSockets.onRun
+            // },
             actions: {
               type: "triggerSuccessors",
               params: {
@@ -224,13 +217,13 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.addAndRunMessage]: {
-            guard: {
-              type: "hasConnection",
-              params: {
-                port: "output",
-                key: "onRun",
-              },
-            },
+            // guard: {
+            //   type: "hasConnection",
+            //   params: {
+            //     port: "output",
+            //     key: "onRun",
+            //   },
+            // },
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
                 type: "addMessage",

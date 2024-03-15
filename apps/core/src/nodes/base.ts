@@ -201,12 +201,6 @@ export type BaseActionTypes =
       };
     }
   | {
-      type: "setExecutionNodeId";
-      params?: {
-        executionNodeId?: string;
-      };
-    }
-  | {
       type: "triggerNode";
       params: {
         nodeId: string;
@@ -698,7 +692,6 @@ export abstract class BaseNode<
 
       executionNodeId: observable,
       executionId: computed,
-      setExecutionNodeId: action,
     });
     this.nodeActor = createActor(NodeMachine, {
       id: this.id,
@@ -948,10 +941,6 @@ export abstract class BaseNode<
 
   public setSnap(snap: SnapshotFrom<Machine>) {
     this.snap = snap;
-  }
-
-  public setExecutionNodeId(executionNodeId: string | undefined) {
-    this.executionNodeId = executionNodeId;
   }
 
   async execute(

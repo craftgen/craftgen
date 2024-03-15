@@ -802,9 +802,6 @@ const CompleteChatMachine = createMachine({
   states: {
     idle: {
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         RESULT: {
           actions: enqueueActions(({ enqueue, event, check }) => {
             console.log("RESULT @@", event);
@@ -852,7 +849,6 @@ const CompleteChatMachine = createMachine({
             });
           }),
         },
-
         RUN: {
           guard: ({ context, event }) => {
             return (

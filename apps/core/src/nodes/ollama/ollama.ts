@@ -465,7 +465,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "object",
+    type: "NodeOllama",
     description: dedent`
     Ollama config
     `,

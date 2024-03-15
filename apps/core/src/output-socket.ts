@@ -99,6 +99,7 @@ export const outputSocketMachine = setup({
     ),
   },
 }).createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QHkCuAXADhgygewGMBrMdAWQEMCALASwDswBiAVQAUARAQQBUBRAPo5kAYQDSfHgG0ADAF1EoTHli10tPPUUgAHogC0ARkMBWAHQAWAGwyAnBYsAOAOwXbj21YA0IAJ4HTGTMAZmMAJhlHFytnQzDggF8EnzQsXEIScio6RjNaCAAbZlkFJBBlVXVNbT0EQ2DzKxMokxMLeODHSJ9-BHirMxNgyNNgtw96pJSMbHR8YlJKGgYwM2oKWBFNRgIq+iYS7Qq1DS0y2vrG5sdW9uDO7r9EQ1tDMzDDGRMZSJtbZysiSmIHoeAgcG0qVm80ySxyYCOKhO1XOAR6iHs71czmC9hiXWGVmBUPSCyyy1y+SKiMqpxqiAsznRdUxzhkrkBoVsMgiFmJM1JsOyKzWGy29B2expyLOoFqYTcZisFmC8RMOLcYUBJmZhkcbxM-yawWcjnuwWVQKSQA */
   id: "OutputSocketMachine",
   context: ({ input }) => ({
     ...input,
@@ -106,29 +107,91 @@ export const outputSocketMachine = setup({
       id: input.parent.id,
     },
   }),
-  invoke: {
-    src: "valueWatcher",
-    input: ({ context, self }) => ({
-      self,
-      ...context,
-    }),
-    onSnapshot: {
-      actions: enqueueActions(({ enqueue, event, context }) => {
-        console.log("OUTPUT WATCHER", event.snapshot.context);
-        const connections = get(context, ["definition", "x-connection"], {});
-        for (const key of Object.keys(connections)) {
-          enqueue.sendTo(
-            ({ system }) =>
-              system.get(key) as ActorRefFrom<typeof inputSocketMachine>,
-            ({ event }) => ({
-              type: "SET_VALUE",
-              params: {
-                value: event.snapshot.context,
-              },
+  initial: "idle",
+  states: {
+    idle: {
+      always: [
+        {
+          target: "hasConnection",
+          guard: ({ context }) => {
+            return (
+              Object.values(get(context, ["definition", "x-connection"], {}))
+                .length > 0
+            );
+          },
+        },
+      ],
+    },
+    hasConnection: {
+      initial: "determine",
+      always: [
+        {
+          target: "idle",
+          guard: ({ context }) => {
+            return (
+              Object.values(get(context, ["definition", "x-connection"], {}))
+                .length === 0
+            );
+          },
+        },
+      ],
+      states: {
+        determine: {
+          always: [
+            {
+              guard: ({ context }) => context.definition.type === "trigger",
+              target: "trigger",
+            },
+            {
+              guard: ({ context }) =>
+                context.definition.type.startsWith("Node"),
+              target: "actor",
+            },
+            {
+              guard: ({ context }) =>
+                !context.definition.type.startsWith("Node"),
+              target: "value",
+            },
+          ],
+        },
+        trigger: {
+
+        },
+        value: {
+          invoke: {
+            src: "valueWatcher",
+            input: ({ context, self }) => ({
+              self,
+              ...context,
             }),
-          );
-        }
-      }),
+            onSnapshot: {
+              actions: enqueueActions(({ enqueue, event, context }) => {
+                console.log("OUTPUT WATCHER", event.snapshot.context);
+                const connections = get(
+                  context,
+                  ["definition", "x-connection"],
+                  {},
+                );
+                for (const key of Object.keys(connections)) {
+                  enqueue.sendTo(
+                    ({ system }) =>
+                      system.get(key) as ActorRefFrom<
+                        typeof inputSocketMachine
+                      >,
+                    ({ event }) => ({
+                      type: "SET_VALUE",
+                      params: {
+                        value: event.snapshot.context,
+                      },
+                    }),
+                  );
+                }
+              }),
+            },
+          },
+        },
+        actor: {},
+      },
     },
   },
   on: {
