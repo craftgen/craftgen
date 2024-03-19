@@ -25,7 +25,6 @@ import {
 } from "@codemirror/autocomplete";
 import { indentWithTab } from "@codemirror/commands";
 
-import { ControlContainer } from "../control-container";
 import { SecretDropdown } from "./shared/secret-dropdown";
 import { ChangeFormat } from "./shared/change-format";
 
@@ -323,6 +322,15 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
     }
   }, [editorContainer.current]);
 
+  const canChangeFormat = useSelector(props.data.actor, (snap) =>
+    snap.can({
+      type: "CHANGE_FORMAT",
+      params: {
+        value: "expression",
+      },
+    }),
+  );
+
   return (
     <>
       <div className="flex w-full items-center justify-between">
@@ -342,7 +350,9 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
             });
           }}
         />
-        <ChangeFormat value={editorValue.current} actor={props.data.actor} />
+        {canChangeFormat && (
+          <ChangeFormat value={editorValue.current} actor={props.data.actor} />
+        )}
       </div>
       <div ref={editorContainer} className="inline-flex  w-full" />
     </>

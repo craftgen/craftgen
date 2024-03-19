@@ -97,6 +97,7 @@ export const socketSchema = z
 
     "x-showSocket": z.boolean().default(true),
     "x-showController": z.boolean().default(true),
+    
     "x-isAdvanced": z.boolean().default(false),
     "x-key": z.string(),
     "x-event": z.string().optional(),
@@ -119,6 +120,7 @@ export const socketSchema = z
     // code editor related:
     "x-libraries": z.array(z.string()).optional(),
     "x-language": z.string().optional(),
+    "x-canChangeFormat": z.boolean().default(true).optional(),
   })
   .superRefine((params, ctx) => {
     if (params.type === "trigger" && params["x-event"] === undefined) {

@@ -15,7 +15,12 @@ import { X } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 export const JsCdnControlComponent = (props: { data: JsCdnController }) => {
-  const libraries = useSelector(props.data.actor, props.data.selector);
+  const { definition, value: valueActor } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const libraries = useSelector(valueActor, (snap) => snap.context.value);
+
   const form = useForm<{
     libraries: { url: string }[];
   }>({
@@ -36,7 +41,12 @@ export const JsCdnControlComponent = (props: { data: JsCdnController }) => {
   );
   const onSubmit = (data?: any) => {
     const fieldsValue = form.getValues();
-    props.data.setValue(fieldsValue.libraries.map((d: any) => d.url));
+    props.data.actor.send({
+      type: "SET_VALUE",
+      params: {
+        value: fieldsValue.libraries.map((d: any) => d.url),
+      },
+    });
   };
   const handleAppend = () => {
     append({ url: "" });

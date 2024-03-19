@@ -55,6 +55,18 @@ export const inputSocketMachine = setup({
         }
       | {
           type: "TRIGGER";
+        }
+      | {
+          type: "CHANGE_FORMAT";
+          params: {
+            value: "expression" | "secret" | "date" | "uri";
+          };
+        }
+      | {
+          type: "COMPUTE";
+          params?: {
+            value: any;
+          };
         },
   },
   actors: {
@@ -219,27 +231,76 @@ export const inputSocketMachine = setup({
               ...context,
             }),
             onSnapshot: {
-              actions: enqueueActions(({ enqueue, event, context }) => {
+              actions: enqueueActions(({ enqueue, event, context, check }) => {
                 console.log(
                   "SNAPSHOT",
                   context.definition["x-key"],
                   event.snapshot.context,
                 );
-                enqueue.sendTo(
-                  ({ system, context }) => system.get(context.parent.id),
-                  ({ event, context }) => ({
-                    type: "SET_VALUE",
-                    params: {
-                      values: {
-                        [context.definition["x-key"]]: event.snapshot.context,
-                      },
-                    },
-                  }),
-                );
+                enqueue.raise({
+                  type: "COMPUTE",
+                  params: {
+                    value: event.snapshot.context,
+                  },
+                });
+                // enqueue.sendTo(
+                //   ({ system, context }) => system.get(context.parent.id),
+                //   ({ event, context }) => ({
+                //     type: "SET_VALUE",
+                //     params: {
+                //       values: {
+                //         [context.definition["x-key"]]: event.snapshot.context,
+                //       },
+                //     },
+                //   }),
+                // );
               }),
             },
           },
           on: {
+            COMPUTE: {
+              actions: enqueueActions(({ enqueue, check, event, context }) => {
+                const value =
+                  event?.params?.value ||
+                  context.value?.getSnapshot().context.value;
+                if (
+                  check(
+                    ({ context }) => context.definition.format === "expression",
+                  )
+                ) {
+                  enqueue.spawnChild("computeValue", {
+                    input: {
+                      value,
+                      parent: context.parent.id,
+                      key: context.definition["x-key"],
+                      libraries: [
+                        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
+                      ],
+                    },
+                    syncSnapshot: false,
+                  });
+                } else {
+                  enqueue({
+                    type: "setComputedValue",
+                    params: {
+                      value,
+                    },
+                  });
+                }
+              }),
+            },
+            CHANGE_FORMAT: {
+              guard: ({ context }) =>
+                get(context, ["definition", "x-canChangeFormat"], true),
+              actions: enqueueActions(({ enqueue }) => {
+                enqueue.assign({
+                  definition: ({ context, event }) => ({
+                    ...context.definition,
+                    format: event.params.value,
+                  }),
+                });
+              }),
+            },
             SET_VALUE: {
               /**
                * We are setting the value of the valueActor here.
@@ -413,27 +474,10 @@ export const spawnInputSockets = ({
 }): Record<string, ActorRefFrom<typeof inputSocketMachine>> => {
   return Object.values(inputSockets)
     .map((socket) => {
-      // const value = match(socket)
-      //   .with(
-      //     {
-      //       "x-actor-type": P.string.select(),
-      //     },
-      //     (type) => {
-      //       console.log("TYPE", type, socket);
-      //       return undefined;
-      //     },
-      //   )
-      //   .otherwise(() =>
-      //     spawn("value", {
-      //       input: { value: socket.default },
-      //       syncSnapshot: true,
-      //     }),
-      //   );
       return spawn("input", {
         input: {
           definition: socket,
           parent: self,
-          // value: value,
         },
         id: `${self.id}:input:${socket["x-key"]}`,
         syncSnapshot: true,

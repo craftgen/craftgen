@@ -1,6 +1,5 @@
 import {
   setup,
-  assign,
   enqueueActions,
   fromObservable,
   AnyActor,
@@ -17,14 +16,21 @@ export const valueActorMachine = setup({
       value: any | undefined; // Stores the current value
     },
     input: {} as {
+      value?: any;
+    },
+    output: {} as {
       value: any;
     },
-    events: {} as {
-      type: "SET_VALUE";
-      params: {
-        value: any;
-      };
-    },
+    events: {} as
+      | {
+          type: "SET_VALUE";
+          params: {
+            value: any;
+          };
+        }
+      | {
+          type: "COMPUTE";
+        },
   },
 }).createMachine({
   id: "value",
@@ -45,10 +51,19 @@ export const valueActorMachine = setup({
           }),
         },
         COMPUTE: {
-          actions: assign({
-            value: ({ context }) => {
-              return context.value;
-            },
+          target: "computing",
+        },
+      },
+    },
+    computing: {
+      invoke: {
+        src: "computeValue",
+        onDone: {
+          target: "done",
+          actions: enqueueActions(({ enqueue, event }) => {
+            enqueue.assign({
+              value: event.data,
+            });
           }),
         },
       },
@@ -56,7 +71,7 @@ export const valueActorMachine = setup({
     done: {
       type: "final",
       output: ({ context }) => {
-        return context.value;
+        return context.value + "COMPUTED";
       },
     },
   },

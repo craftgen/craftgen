@@ -441,7 +441,7 @@ const GenerateTextMachine = createMachine({
             ({ context }) => context.inputs.instruction !== "",
             ({ context }) => context.inputs.llm !== null,
           ]),
-          actions: enqueueActions(({ enqueue, check }) => {
+          actions: enqueueActions(({ enqueue, check, context }) => {
             if (check(({ event }) => !isNil(event.params?.values))) {
               enqueue(({ event }) => ({
                 type: "setValue",
@@ -451,6 +451,14 @@ const GenerateTextMachine = createMachine({
               }));
             }
             const runId = `call-${createId()}`;
+
+            const sockets = Object.values(context.inputSockets);
+            for (const socket of sockets) {
+              enqueue.sendTo(socket, {
+                type: "COMPUTE",
+              });
+            }
+
             enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({

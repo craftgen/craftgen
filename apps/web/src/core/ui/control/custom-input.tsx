@@ -11,14 +11,9 @@ import { SecretDropdown } from "./shared/secret-dropdown";
 export function CustomInput(props: { data: InputControl }) {
   const {
     definition,
-    // parent,
     value: valueActor,
   } = useSelector(props.data?.actor, (snap) => snap.context);
 
-  // const valueActor = useSelector(
-  //   props.data?.actor.system.get(parent.id),
-  //   (snap) => snap.context.inputs[definition["x-key"]],
-  // );
 
   const value = useSelector(valueActor, (snap) => snap.context.value);
 

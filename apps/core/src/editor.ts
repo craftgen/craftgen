@@ -31,10 +31,10 @@ import {
   createActor,
   Actor,
   MachineImplementationsFrom,
-  ActionArgs,
   assertEvent,
   AnyActorRef,
   ActorRefFrom,
+  fromPromise,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -1106,15 +1106,43 @@ export class Editor<
       },
       actors: {
         socketWatcher,
-        input: inputSocketMachine,
-        output: outputSocketMachine,
-        value: valueActorMachine.provide({
-          actions: {
-            compute: async ({ context }) => {
-              return context.value + "<SUPER_SECRET>";
-            },
+        input: inputSocketMachine.provide({
+          actors: {
+            computeValue: fromPromise(
+              async ({
+                input,
+                system,
+              }: {
+                input: {
+                  value: any;
+                  libraries: string[];
+                  parent: string;
+                  key: string;
+                };
+                system: any;
+              }) => {
+                console.log("COMPUTER", input);
+
+                const { start } = await import("./worker/main");
+                const worker = await start();
+
+                for (const lib of input.libraries) {
+                  await worker.postoffice.installLibrary(lib);
+                }
+                const result = await worker.postoffice.sendScript(
+                  `() => \`${input.value}\``,
+                  {},
+                );
+                worker.destroy();
+                console.log("RRR", result);
+
+                return result;
+              },
+            ),
           },
         }),
+        output: outputSocketMachine,
+        value: valueActorMachine,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -1125,15 +1153,116 @@ export class Editor<
               acc[k] = machine.provide({
                 actors: {
                   socketWatcher,
-                  input: inputSocketMachine,
-                  output: outputSocketMachine,
-                  value: valueActorMachine.provide({
+                  input: inputSocketMachine.provide({
+                    actors: {
+                      computeValue: fromPromise(
+                        async ({
+                          input,
+                          system,
+                        }: {
+                          input: {
+                            value: any;
+                            libraries: string[];
+                            parent: string;
+                            key: string;
+                          };
+                          system: any;
+                        }) => {
+                          console.log("COMPUTER", input);
+
+                          const { start } = await import("./worker/main");
+                          const worker = await start();
+
+                          for (const lib of input.libraries) {
+                            await worker.postoffice.installLibrary(lib);
+                          }
+                          const result = await worker.postoffice.sendScript(
+                            `() => \`${input.value}\``,
+                            {},
+                          );
+                          worker.destroy();
+                          console.log("RRR", result);
+
+                          const p = system.get(input.parent);
+                          p.send({
+                            type: "SET_VALUE",
+                            params: {
+                              values: {
+                                [input.key]: result,
+                              },
+                            },
+                          });
+                          // return result;
+                        },
+                      ),
+                    },
                     actions: {
-                      compute: async ({ context }) => {
-                        return context.value + "<SUPER_SECRET>";
-                      },
+                      setComputedValue: enqueueActions(
+                        (
+                          { enqueue, context },
+                          params: {
+                            value: any;
+                          },
+                        ) => {
+                          console.log("COMPUTING", params);
+                          const value = match(context.definition)
+                            .with(
+                              {
+                                format: "expression",
+                              },
+                              () => {
+                                // const { start } = await import("./worker/main");
+                                // const worker = await start();
+                                // const result =
+                                //   await worker.postoffice.sendScript(
+                                //     `() => \`${params.value}\``,
+                                //   );
+                                // console.log("RRR", result);
+                                // return result;
+                                return params.value + "SECRET";
+                              },
+                            )
+                            .with(
+                              {
+                                format: "secret",
+                              },
+                              () => {
+                                return this.variables.get(params.value);
+                              },
+                            )
+                            .otherwise(() => {
+                              return params.value;
+                            });
+
+                          console.log({
+                            type: "SET_VALUE",
+                            params: {
+                              values: {
+                                [context.definition["x-key"]]: value,
+                              },
+                            },
+                          });
+                          enqueue.sendTo(
+                            ({ system, context }) => {
+                              const parent = system.get(context.parent.id);
+                              console.log("PARENT", parent, context.parent.id);
+                              return parent;
+                            },
+                            ({ context }) => ({
+                              type: "SET_VALUE",
+                              params: {
+                                values: {
+                                  [context.definition["x-key"]]: value,
+                                },
+                              },
+                            }),
+                          );
+                        },
+                      ),
                     },
                   }),
+                  output: outputSocketMachine,
+                  value: valueActorMachine,
                 },
                 delays: {},
                 actions: {
@@ -1365,14 +1494,17 @@ export class Editor<
   }
 
   public async setupEnv() {
-    const creds = this.api.trpc.credentials.list.query({
-      projectId: this.projectId,
+    const creds = await this.api.trpc.credentials.list.query({
+      // projectId: this.projectId,
     });
     console.log("CREDS", creds);
     // const openai = await this.api.getAPIKey({
     //   key: "OPENAI_API_KEY",
     //   projectId: this.projectId,
     // });
+    creds.forEach((c) => {
+      this.variables.set(c.key, c.value);
+    });
     // this.variables.set("OPENAI_API_KEY", openai);
   }
 
@@ -2024,7 +2156,7 @@ export class Editor<
               id: data.contextId,
             },
           });
-          await queue.add(() =>
+          queue.add(() =>
             this.api.trpc.craft.node.delete.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,

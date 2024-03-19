@@ -5,6 +5,7 @@ import {
   BaseInputType,
   BaseMachineTypes,
   BaseNode,
+  NodeContextFactory,
   None,
 } from "../base";
 import { match, P } from "ts-pattern";
@@ -31,17 +32,6 @@ import { slugify } from "../../lib/string";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 const inputSockets = {
-  code: generateSocket({
-    "x-key": "code",
-    name: "Code" as const,
-    title: "Code",
-    type: "string" as const,
-    default: "async function (context) {\n  return 42\n}",
-    description: "the code",
-    "x-showSocket": false,
-    required: true,
-    "x-libraries": [],
-  }),
   run: generateSocket({
     "x-key": "run",
     name: "run" as const,
@@ -51,6 +41,20 @@ const inputSockets = {
     "x-event": "RUN",
     description: "Run the Javascript code",
     required: true,
+  }),
+  logic: generateSocket({
+    "x-key": "logic",
+    name: "Logic" as const,
+    title: "Logic",
+    type: "string" as const,
+    default: "async function (context) {\n  return 42\n}",
+    description: "the code",
+    "x-controller": "code",
+    "x-showSocket": false,
+    required: true,
+    "x-libraries": [],
+    "x-canChangeFormat": false,
+    "x-language": "javascript",
   }),
   libraries: generateSocket({
     "x-key": "libraries",
@@ -210,36 +214,13 @@ export const executeJavascriptCodeMachine = setup({
 export const JavascriptCodeInterpreterMachine = createMachine(
   {
     id: "javascript-code-interpreter",
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        const inputKey = key as keyof typeof inputSockets;
-        if (socket.default) {
-          defaultInputs[inputKey] = socket.default as any;
-        } else {
-          defaultInputs[inputKey] = undefined;
-        }
-      }
-      return merge<typeof input, any>(
-        {
-          name: "Javascript",
-          description: "Javascript code interpreter",
-          inputs: {
-            ...defaultInputs,
-          },
-          outputs: {
-            result: {},
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-        },
-        input,
-      );
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Javascript",
+        description: "Javascript code interpreter",
+        inputSockets,
+        outputSockets,
+      }),
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets> & {};
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
@@ -270,21 +251,21 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       SET_VALUE: {
         actions: enqueueActions(({ enqueue }) => {
           enqueue("setValue");
-          enqueue.assign({
-            inputSockets: ({ context, event }) => {
-              return {
-                ...context.inputSockets,
-                code: {
-                  ...context.inputSockets["code"],
-                  "x-libraries": context.inputs.libraries,
-                },
-              };
-            },
-          });
+          enqueue.sendTo(
+            ({ context, system }) =>
+              system.get(
+                Object.keys(context.inputSockets).find((k) =>
+                  k.endsWith("logic"),
+                ),
+              ),
+            ({ context }) => ({
+              type: "UPDATE_SOCKET",
+              params: {
+                "x-libraries": context.inputs.libraries,
+              },
+            }),
+          );
         }),
-      },
-      UPDATE_SOCKET: {
-        actions: ["updateSocket"],
       },
       ASSIGN_CHILD: {
         actions: enqueueActions(({ enqueue }) => {
@@ -309,7 +290,6 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         }),
       },
     },
-
     states: {
       idle: {
         on: {
@@ -325,7 +305,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
                   systemId: runId,
                   input: {
                     inputs: {
-                      code: context.inputs.code,
+                      code: context.inputs.logic,
                       libraries: context.inputs.libraries,
                       args: {
                         inputs: _.omit(context.inputs, [
@@ -443,35 +423,35 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
       {},
     );
     this.setup();
-    const state = this.actor.getSnapshot();
-    const inputGenerator = new SocketGeneratorControl(
-      this.actor,
-      (s) => omit(s.context.inputSockets, ["code", "run", "libraries"]),
-      {
-        connectionType: "input",
-        name: "Input Sockets",
-        ignored: ["trigger"],
-        tooltip: "Add input sockets",
-        initial: {
-          name: state.context.name,
-          description: state.context.description,
-        },
-        onChange: ({ sockets, name, description }) => {
-          const schema = createJsonSchema(sockets);
-          this.setLabel(name);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            name,
-            description: description || "",
-            inputSockets: sockets,
-            schema,
-          });
-        },
-      },
-    );
-    this.setLabel(
-      this.snap.context.name || NodeJavascriptCodeInterpreter.label,
-    );
-    this.addControl("inputGenerator", inputGenerator);
+    // const state = this.actor.getSnapshot();
+    // const inputGenerator = new SocketGeneratorControl(
+    //   this.actor,
+    //   (s) => omit(s.context.inputSockets, ["code", "run", "libraries"]),
+    //   {
+    //     connectionType: "input",
+    //     name: "Input Sockets",
+    //     ignored: ["trigger"],
+    //     tooltip: "Add input sockets",
+    //     initial: {
+    //       name: state.context.name,
+    //       description: state.context.description,
+    //     },
+    //     onChange: ({ sockets, name, description }) => {
+    //       const schema = createJsonSchema(sockets);
+    //       this.setLabel(name);
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         name,
+    //         description: description || "",
+    //         inputSockets: sockets,
+    //         schema,
+    //       });
+    //     },
+    //   },
+    // );
+    // this.setLabel(
+    //   this.snap.context.name || NodeJavascriptCodeInterpreter.label,
+    // );
+    // this.addControl("inputGenerator", inputGenerator);
   }
 }

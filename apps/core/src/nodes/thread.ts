@@ -34,8 +34,8 @@ const inputSockets = {
   //   "x-event": "ADD_MESSAGE",
   // }),
   messages: generateSocket({
-    name: "Thread",
-    description: "Thread of messages",
+    name: "messages",
+    description: "Array of messages",
     "x-showSocket": false,
     "x-key": "messages",
     type: "array",
