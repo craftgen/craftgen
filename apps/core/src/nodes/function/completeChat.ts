@@ -81,11 +81,11 @@ const inputSockets = {
     isMultiple: false,
     default: true,
   }),
-  messages: generateSocket({
-    name: "Messages",
+  thread: generateSocket({
+    name: "Thread",
     description: "Thread of messages",
     "x-showSocket": true,
-    "x-key": "messages",
+    "x-key": "thread",
     type: "array",
     allOf: [
       {
@@ -107,7 +107,6 @@ const inputSockets = {
       },
     },
     isMultiple: false,
-    default: [],
   }),
   llm: generateSocket({
     "x-key": "llm",

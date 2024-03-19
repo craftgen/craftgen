@@ -216,8 +216,6 @@ const InputItem = ({
     s.matches({ basic: "connection" }),
   );
 
-  console.log(item["x-key"], hasConnectionBasic);
-
   if (hasConnectionBasic) {
     //   console.log("HAS CONNECTION");
     const connectionActor: ActorRefFrom<typeof outputSocketMachine> =

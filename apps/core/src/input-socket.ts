@@ -52,6 +52,9 @@ export const inputSocketMachine = setup({
           params: {
             value: any;
           };
+        }
+      | {
+          type: "TRIGGER";
         },
   },
   actors: {
@@ -153,10 +156,50 @@ export const inputSocketMachine = setup({
           target: "#InputSocketMachine.actor.initialize",
         },
         {
+          guard: ({ context }) => context.definition["type"] === "trigger",
+          target: "#InputSocketMachine.trigger",
+        },
+        {
           guard: ({ context }) => isNil(context.definition["x-actor-type"]),
           target: "#InputSocketMachine.basic",
         },
       ],
+    },
+    trigger: {
+      initial: "idle",
+      always: [
+        {
+          guard: ({ context }) =>
+            Object.values(get(context, ["definition", "x-connection"], {}))
+              .length > 0,
+          target: "#InputSocketMachine.trigger.connection",
+        },
+      ],
+      states: {
+        idle: {},
+        connection: {
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length === 0,
+              target: "#InputSocketMachine.trigger.idle",
+            },
+          ],
+          on: {
+            TRIGGER: {
+              actions: enqueueActions(({ enqueue }) => {
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ context }) => ({
+                    type: context.definition["x-event"],
+                  }),
+                );
+              }),
+            },
+          },
+        },
+      },
     },
     basic: {
       initial: "idle",

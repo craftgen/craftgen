@@ -939,80 +939,74 @@ export class Editor<
         }
       }
     }),
-    triggerNode: async (
-      action: ActionArgs<any, any, any>,
-      params: {
-        nodeId: string;
-        event: {
-          type: string;
-          params: {
-            executionNodeId?: string;
-            values?: Record<string, any>;
-            sender?: AnyActorRef;
-          };
-        };
-      },
-    ) => {
-      throw new Error("Not Implemented yet.");
-      // if (!params) {
-      //   throw new Error("Missing params");
-      // }
-      // const targetNode = this.editor.getNode(params?.nodeId);
-      // if (!targetNode) {
-      //   throw new Error("Missing targetNode");
-      // }
-
-      // params.event.params.sender = this.pactor.ref;
-      // targetNode.actor.send(params.event);
-    },
-    triggerSuccessors: async (
-      action: ActionArgs<any, any, any>,
-      params: {
-        port: string;
-      },
-    ) => {
-      console.log("TRIGGER SUCCESSORS", action, params);
-
-      // return;
-
-      if (!params?.port) {
-        throw new Error("Missing params");
-      }
-      const port = action.context.outputSockets[params?.port];
-
-      const connections = port["x-connection"] || {};
-
-      for (const [nodeId, conn] of Object.entries(connections)) {
-        const targetNode = action.system.get(nodeId);
-
-        const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
-
-        const values = Object.entries(action.context.outputSockets)
-          .filter(([key, value]) => {
-            return value["x-connection"]?.[nodeId];
-          })
-          .filter(([key, value]) => {
-            return key !== params.port;
-          })
-          .map(([key, value]) => {
-            const targetkey = value["x-connection"]?.[nodeId].key;
-            const sourceValue = action.context.outputs[key];
-            return {
-              [targetkey]: sourceValue,
-            };
-          })
-          .reduce((acc, value) => {
-            return { ...acc, ...value };
-          }, {});
-
-        targetNode.send({
-          type: socket["x-event"],
-          params: {
-            values,
+    triggerSuccessors: enqueueActions(
+      (
+        { enqueue },
+        params: {
+          port: string;
+        },
+      ) => {
+        enqueue.sendTo(
+          ({ context, system }) =>
+            system.get(
+              Object.keys(context.outputSockets).find((k) =>
+                k.endsWith(params.port),
+              ),
+            ),
+          {
+            type: "TRIGGER",
           },
-        });
-      }
-    },
+        );
+      },
+    ),
+    // triggerSuccessors: async (
+    //   action: ActionArgs<any, any, any>,
+    //   params: {
+    //     port: string;
+    //   },
+    // ) => {
+    //   console.log("TRIGGER SUCCESSORS", action, params);
+
+    //   // return;
+
+    //   if (!params?.port) {
+    //     throw new Error("Missing params");
+    //   }
+    //   const port = action.context.outputSockets[params?.port];
+
+    //   const connections = port["x-connection"] || {};
+
+    //   for (const [nodeId, conn] of Object.entries(connections)) {
+    //     const targetNode = action.system.get(nodeId);
+
+    //     const socket = targetNode.getSnapshot().context.inputSockets[conn.key];
+
+    //     const values = Object.entries(action.context.outputSockets)
+    //       .filter(([key, value]) => {
+    //         return value["x-connection"]?.[nodeId];
+    //       })
+    //       .filter(([key, value]) => {
+    //         return key !== params.port;
+    //       })
+    //       .map(([key, value]) => {
+    //         const targetkey = value["x-connection"]?.[nodeId].key;
+    //         const sourceValue = action.context.outputs[key];
+    //         return {
+    //           [targetkey]: sourceValue,
+    //         };
+    //       })
+    //       .reduce((acc, value) => {
+    //         return { ...acc, ...value };
+    //       }, {});
+
+    //     targetNode.send({
+    //       type: socket["x-event"],
+    //       params: {
+    //         values,
+    //       },
+    //     });
+    //   }
+    // },
     updateSocket: assign({
       inputSockets: ({ context, event }) => {
         if (event.params.side === "input") {
@@ -1037,6 +1031,21 @@ export class Editor<
           };
         }
         return context.outputSockets;
+      },
+    }),
+    setOutput: assign({
+      outputs: (
+        { context, event },
+        params: {
+          key: string;
+          value: any;
+        },
+      ) => {
+        const p = event.params || params;
+        return {
+          ...context.outputs,
+          [p.key]: p.value,
+        };
       },
     }),
     setValue: assign({

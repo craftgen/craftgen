@@ -16,6 +16,7 @@ import type {
 import { BaseNode, NodeContextFactory } from "./base";
 import { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
+import { isNil } from "lodash";
 
 export enum ThreadActions {
   addMessage = "addMessage",
@@ -167,6 +168,9 @@ export const ThreadMachine = createMachine(
       INITIALIZE: {
         actions: ["initialize"],
       },
+      SET_OUTPUT: {
+        actions: ["setOutput"],
+      },
     },
     states: {
       idle: {
@@ -205,25 +209,22 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.run]: {
-            // guard: ({context}) => {
-            //   return context.outputSockets.onRun
-            // },
-            actions: {
-              type: "triggerSuccessors",
-              params: {
-                port: "onRun",
-              },
+            guard: ({ context }) => {
+              return !isNil(context.outputs.onRun);
             },
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue({
+                type: "triggerSuccessors",
+                params: {
+                  port: "onRun",
+                },
+              });
+            }),
           },
-
           [ThreadMachineEvents.addAndRunMessage]: {
-            // guard: {
-            //   type: "hasConnection",
-            //   params: {
-            //     port: "output",
-            //     key: "onRun",
-            //   },
-            // },
+            guard: ({ context }) => {
+              return !isNil(context.outputs.onRun);
+            },
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
                 type: "addMessage",
@@ -256,6 +257,7 @@ export const ThreadMachine = createMachine(
         enqueue.assign({
           outputs: ({ context }) => {
             return {
+              ...context.outputs,
               messages: context.inputs.messages,
             };
           },

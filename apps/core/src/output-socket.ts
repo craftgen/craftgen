@@ -58,12 +58,36 @@ export const outputSocketMachine = setup({
       definition: JSONSocket;
       parent: AnyActorRef;
     },
-    events: {} as {
-      type: "UPDATE_SOCKET";
-      params: Partial<JSONSocket>;
-    },
+    events: {} as
+      | {
+          type: "UPDATE_SOCKET";
+          params: Partial<JSONSocket>;
+        }
+      | {
+          type: "TRIGGER";
+        },
   },
   actors: {
+    stateMapper: fromObservable(
+      ({
+        input,
+        system,
+      }: {
+        input: {
+          self: AnyActorRef;
+        };
+        system: any;
+      }) => {
+        const self = system.get(input.self.id) as AnyActor;
+
+        return from(self).pipe(
+          switchMap((state) => {
+            return of(state.value);
+          }),
+          distinctUntilChanged(isEqual),
+        );
+      },
+    ),
     valueWatcher: fromObservable(
       ({
         input,
@@ -155,7 +179,61 @@ export const outputSocketMachine = setup({
           ],
         },
         trigger: {
-
+          exit: enqueueActions(({ enqueue }) => {
+            enqueue.sendTo(
+              ({ context, system }) => system.get(context.parent.id),
+              ({ context }) => ({
+                type: "SET_OUTPUT",
+                params: {
+                  key: context.definition["x-key"],
+                  value: undefined,
+                },
+              }),
+            );
+          }),
+          on: {
+            TRIGGER: {
+              actions: enqueueActions(({ enqueue, context }) => {
+                const connections = get(
+                  context,
+                  ["definition", "x-connection"],
+                  {},
+                );
+                for (const key of Object.keys(connections)) {
+                  enqueue.sendTo(
+                    ({ system }) =>
+                      system.get(key) as ActorRefFrom<
+                        typeof inputSocketMachine
+                      >,
+                    {
+                      type: "TRIGGER",
+                    },
+                  );
+                }
+              }),
+            },
+          },
+          invoke: {
+            src: "stateMapper",
+            input: ({ self }) => ({
+              self,
+            }),
+            onSnapshot: {
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log("TRIGGER WATCHER", event);
+                enqueue.sendTo(
+                  ({ context, system }) => system.get(context.parent.id),
+                  ({ event, context }) => ({
+                    type: "SET_OUTPUT",
+                    params: {
+                      key: context.definition["x-key"],
+                      value: event.snapshot.context,
+                    },
+                  }),
+                );
+              }),
+            },
+          },
         },
         value: {
           invoke: {

@@ -110,6 +110,13 @@ export type BaseEventTypes =
       };
     }
   | {
+      type: "SET_OUTPUT";
+      params: {
+        key: string;
+        value: any;
+      };
+    }
+  | {
       type: "RUN";
       params?: {
         executionNodeId?: string;
@@ -198,16 +205,6 @@ export type BaseActionTypes =
       type: "triggerSuccessors";
       params?: {
         port: string;
-      };
-    }
-  | {
-      type: "triggerNode";
-      params: {
-        nodeId: string;
-        event: {
-          type: string;
-          params?: any;
-        };
       };
     }
   | {
