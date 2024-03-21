@@ -26,6 +26,7 @@ import { JsCdnController } from "./controls/js-cdn";
 import { JSONSchema } from "openai/lib/jsonschema.mjs";
 import def from "ajv/dist/vocabularies/discriminator";
 import { z } from "zod";
+import { SecretController } from "./controls/secret";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -227,6 +228,15 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
     .with(
       {
         type: "string",
+        format: "secret",
+      },
+      (def) => {
+        return new SecretController(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "string",
         "x-controller": "code",
         "x-language": P.string,
         "x-canChangeFormat": false,
@@ -241,10 +251,7 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         "x-controller": "js-cdn",
       },
       () => {
-        return new JsCdnController(
-          actor,
-          definition,
-        );
+        return new JsCdnController(actor, definition);
       },
     )
     .with(

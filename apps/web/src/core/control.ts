@@ -52,8 +52,8 @@ import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai
 import { ThreadControlComponent } from "./ui/control/thread/control-thread";
 import { JsCdnController } from "@seocraft/core/src/controls/js-cdn";
 import { JsCdnControlComponent } from "./ui/control/control-js-cdn";
-
-export const getControlWithDefinition = (definition: any) => {};
+import { SecretController } from "@seocraft/core/src/controls/secret";
+import { SecretControlComponent } from "./ui/control/control-secret";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">,
@@ -78,6 +78,7 @@ export const getControl = (
     .with(P.instanceOf(GoogleDriveControl), () => GoogleDriveControlComponent)
     .with(P.instanceOf(ComboboxControl), () => ComboboxControlComponent)
     .with(P.instanceOf(JsCdnController), () => JsCdnControlComponent)
+    .with(P.instanceOf(SecretController), () => SecretControlComponent)
     .with(P.instanceOf(OpenAIThreadControl), () => OpenAIThreadControlComponent)
     .with(
       P.instanceOf(OpenAIApiConfigurationControl),

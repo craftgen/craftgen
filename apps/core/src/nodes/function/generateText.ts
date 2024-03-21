@@ -266,12 +266,6 @@ const generateTextCall = setup({
   initial: "prepare",
   context: ({ input }) => {
     console.log("INPUT", input);
-    // const inputs = Object.values(input.inputs) as ActorRefFrom<typeof inputSocketMachine>[];
-    // console.log(inputs)
-    // const inputValues = inputs.reduce((acc, input) => {
-    //   const socket = input.getSnapshot();
-    //   return merge(acc, {[socket.context.definition["x-key"]]: undefined});
-    // }, {})
 
     return {
       ...input,
@@ -281,21 +275,12 @@ const generateTextCall = setup({
         system: null,
         instruction: null,
       },
-      // inputs: {
-      // ...inputValues
-      // },
-      // inputs: {
-      //   llm: computeExecutionValue(input.inputs.llm),
-      //   system: input.inputs.system,
-      //   instruction: input.inputs.instruction,
-      // },
       outputs: null,
     };
   },
   states: {
     prepare: {
       entry: enqueueActions(({ enqueue, context, self }) => {
-        console.log("PREPARE", context, self);
         const inputSockets = Object.values(context.inputSockets);
         for (const socket of inputSockets) {
           enqueue.sendTo(socket, {
@@ -311,15 +296,6 @@ const generateTextCall = setup({
           actions: enqueueActions(({ enqueue, context, event }) => {
             console.log("SET VALUE ON EXECUTION", event);
             enqueue("setValue");
-            // enqueue.assign({
-            //   inputs: ({context}) => {
-            //     return set(
-            //       context.inputs,
-            //       event.params.key,
-            //       event.params.value,
-            //     );
-            //   },
-            // });
           }),
         },
       },

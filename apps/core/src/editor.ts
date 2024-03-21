@@ -1121,7 +1121,6 @@ export class Editor<
       context: ({ input }) => input,
       invoke: {
         src: fromPromise(async ({ input }) => {
-          console.log("COMPUTER", input);
           if (input.definition.format === "secret") {
             return this.variables.get(input.value);
           } else if (input.definition.format === "expression") {
@@ -1145,7 +1144,6 @@ export class Editor<
         input: ({ context }) => context,
         onDone: {
           actions: enqueueActions(({ enqueue, event, context }) => {
-            console.log("COMPUTING ENDED", event, context);
             enqueue.sendTo(
               ({ context }) => context.parent,
               ({ event, context }) => ({
