@@ -1,19 +1,11 @@
 import type { SetOptional } from "type-fest";
-import {
-  assign,
-  createActor,
-  createMachine,
-  enqueueActions,
-  toPromise,
-} from "xstate";
+import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
 import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
-import { inputSocketMachine } from "../../input-socket";
-import { valueActorMachine } from "../../value-actor";
 
 const inputSockets = {
   value: generateSocket({
@@ -25,16 +17,6 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "value",
     "x-controller": "textarea",
-  }),
-  run: generateSocket({
-    name: "run",
-    type: "trigger",
-    description: "Run",
-    required: false,
-    isMultiple: false,
-    "x-showSocket": true,
-    "x-key": "run",
-    "x-event": "RUN",
   }),
 };
 
@@ -124,16 +106,6 @@ const TextNodeMachine = createMachine({
         SET_VALUE: {
           target: "typing",
           actions: ["setValue"],
-        },
-        RUN: {
-          actions: enqueueActions(({ enqueue, context }) => {
-            const sockets = Object.values(context.inputSockets);
-            for (const socket of sockets) {
-              enqueue.sendTo(socket, {
-                type: "COMPUTE",
-              });
-            }
-          }),
         },
       },
     },

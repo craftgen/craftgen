@@ -66,6 +66,14 @@ export const inputSocketMachine = setup({
           type: "COMPUTE";
           params?: {
             value: any;
+            targets?: string[];
+          };
+        }
+      | {
+          type: "RESULT";
+          params: {
+            value: any;
+            targets: string[];
           };
         },
   },
@@ -259,34 +267,50 @@ export const inputSocketMachine = setup({
           },
           on: {
             COMPUTE: {
-              actions: enqueueActions(({ enqueue, check, event, context }) => {
+              actions: enqueueActions(({ enqueue, event, context, self }) => {
                 const value =
                   event?.params?.value ||
                   context.value?.getSnapshot().context.value;
-                if (
-                  check(
-                    ({ context }) => context.definition.format === "expression",
-                  )
-                ) {
-                  enqueue.spawnChild("computeValue", {
-                    input: {
-                      value,
-                      parent: context.parent.id,
-                      key: context.definition["x-key"],
-                      libraries: [
-                        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
-                      ],
-                    },
-                    syncSnapshot: false,
-                  });
-                } else {
-                  enqueue({
-                    type: "setComputedValue",
-                    params: {
-                      value,
-                    },
-                  });
-                }
+                console.log("COMPUTE", event, {
+                  value,
+                  definition: context.definition,
+                  targets: [
+                    context.parent.id,
+                    ...(event?.params?.targets || []),
+                  ],
+                  parent: self,
+                });
+
+                enqueue.spawnChild("computeValue", {
+                  input: {
+                    value,
+                    definition: context.definition,
+                    targets: [
+                      context.parent.id,
+                      ...(event?.params?.targets || []),
+                    ],
+                    parent: self,
+                  },
+                  syncSnapshot: false,
+                });
+              }),
+            },
+            RESULT: {
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log("INPUT SOCKET GOT RESULT", event);
+                event.params.targets.forEach((target) => {
+                  enqueue.sendTo(
+                    ({ system }) => system.get(target),
+                    ({ event, context }) => ({
+                      type: "SET_VALUE",
+                      params: {
+                        values: {
+                          [context.definition["x-key"]]: event.params.value,
+                        },
+                      },
+                    }),
+                  );
+                });
               }),
             },
             CHANGE_FORMAT: {
@@ -306,7 +330,6 @@ export const inputSocketMachine = setup({
                * We are setting the value of the valueActor here.
                */
               actions: enqueueActions(({ enqueue, event }) => {
-                console.log("SETVALUE_SOCKET", { event });
                 enqueue.sendTo(
                   ({ context }) => context.value,
                   ({ event }) => ({

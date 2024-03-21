@@ -1100,6 +1100,67 @@ export class Editor<
       {} as MachineRegistry,
     );
 
+    const computeValue = setup({
+      types: {
+        input: {} as {
+          value: any;
+          definition: JSONSocket;
+          targets: string[];
+          parent: ActorRefFrom<typeof inputSocketMachine>;
+        },
+        context: {} as {
+          value: any;
+          definition: JSONSocket;
+          targets: string[];
+          parent: ActorRefFrom<typeof inputSocketMachine>;
+        },
+      },
+    }).createMachine({
+      /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgVwC5gDUBDAG2zAGIJUA7MAOllyP3rSz0NPIG0AGALqJQmVLACWucbWEgAHogAsi+gEYAnOoBMqgOxaArAA4AzOoBsJrYoA0IAJ6JVWgL5u7NVBDiz2OfMRkYLKiElIySPJOunaOCKqqfPSKBibOfOqKuuppBopubkA */
+      id: "computeValue",
+      context: ({ input }) => input,
+      invoke: {
+        src: fromPromise(async ({ input }) => {
+          console.log("COMPUTER", input);
+          if (input.definition.format === "secret") {
+            return this.variables.get(input.value);
+          } else if (input.definition.format === "expression") {
+            const { start } = await import("./worker/main");
+            const worker = await start();
+
+            // for (const lib of input.libraries) {
+            //   await worker.postoffice.installLibrary(lib);
+            // }
+            const result = await worker.postoffice.sendScript(
+              `() => \`${input.value}\``,
+              {},
+            );
+            worker.destroy();
+            console.log("RRR", result);
+            return result;
+          } else {
+            return input.value;
+          }
+        }),
+        input: ({ context }) => context,
+        onDone: {
+          actions: enqueueActions(({ enqueue, event, context }) => {
+            console.log("COMPUTING ENDED", event, context);
+            enqueue.sendTo(
+              ({ context }) => context.parent,
+              ({ event, context }) => ({
+                type: "RESULT",
+                params: {
+                  value: event.output,
+                  targets: context.targets,
+                },
+              }),
+            );
+          }),
+        },
+      },
+    });
+
     this.machine = EditorMachine.provide({
       actions: {
         ...this.baseActions,
@@ -1108,37 +1169,7 @@ export class Editor<
         socketWatcher,
         input: inputSocketMachine.provide({
           actors: {
-            computeValue: fromPromise(
-              async ({
-                input,
-                system,
-              }: {
-                input: {
-                  value: any;
-                  libraries: string[];
-                  parent: string;
-                  key: string;
-                };
-                system: any;
-              }) => {
-                console.log("COMPUTER", input);
-
-                const { start } = await import("./worker/main");
-                const worker = await start();
-
-                for (const lib of input.libraries) {
-                  await worker.postoffice.installLibrary(lib);
-                }
-                const result = await worker.postoffice.sendScript(
-                  `() => \`${input.value}\``,
-                  {},
-                );
-                worker.destroy();
-                console.log("RRR", result);
-
-                return result;
-              },
-            ),
+            computeValue,
           },
         }),
         output: outputSocketMachine,
@@ -1155,110 +1186,7 @@ export class Editor<
                   socketWatcher,
                   input: inputSocketMachine.provide({
                     actors: {
-                      computeValue: fromPromise(
-                        async ({
-                          input,
-                          system,
-                        }: {
-                          input: {
-                            value: any;
-                            libraries: string[];
-                            parent: string;
-                            key: string;
-                          };
-                          system: any;
-                        }) => {
-                          console.log("COMPUTER", input);
-
-                          const { start } = await import("./worker/main");
-                          const worker = await start();
-
-                          for (const lib of input.libraries) {
-                            await worker.postoffice.installLibrary(lib);
-                          }
-                          const result = await worker.postoffice.sendScript(
-                            `() => \`${input.value}\``,
-                            {},
-                          );
-                          worker.destroy();
-                          console.log("RRR", result);
-
-                          const p = system.get(input.parent);
-                          p.send({
-                            type: "SET_VALUE",
-                            params: {
-                              values: {
-                                [input.key]: result,
-                              },
-                            },
-                          });
-                          // return result;
-                        },
-                      ),
-                    },
-                    actions: {
-                      setComputedValue: enqueueActions(
-                        (
-                          { enqueue, context },
-                          params: {
-                            value: any;
-                          },
-                        ) => {
-                          console.log("COMPUTING", params);
-                          const value = match(context.definition)
-                            .with(
-                              {
-                                format: "expression",
-                              },
-                              () => {
-                                // const { start } = await import("./worker/main");
-                                // const worker = await start();
-                                // const result =
-                                //   await worker.postoffice.sendScript(
-                                //     `() => \`${params.value}\``,
-                                //   );
-                                // console.log("RRR", result);
-                                // return result;
-                                return params.value + "SECRET";
-                              },
-                            )
-                            .with(
-                              {
-                                format: "secret",
-                              },
-                              () => {
-                                return this.variables.get(params.value);
-                              },
-                            )
-                            .otherwise(() => {
-                              return params.value;
-                            });
-
-                          console.log({
-                            type: "SET_VALUE",
-                            params: {
-                              values: {
-                                [context.definition["x-key"]]: value,
-                              },
-                            },
-                          });
-                          enqueue.sendTo(
-                            ({ system, context }) => {
-                              const parent = system.get(context.parent.id);
-                              console.log("PARENT", parent, context.parent.id);
-                              return parent;
-                            },
-                            ({ context }) => ({
-                              type: "SET_VALUE",
-                              params: {
-                                values: {
-                                  [context.definition["x-key"]]: value,
-                                },
-                              },
-                            }),
-                          );
-                        },
-                      ),
+                      computeValue,
                     },
                   }),
                   output: outputSocketMachine,
@@ -1580,19 +1508,22 @@ export class Editor<
 
           if (inspectionEvent.event.type.startsWith("xstate.done.actor")) {
             const actor = inspectionEvent.actorRef;
-            const snapshot = {
-              src: actor?.src,
-              syncSnapshot: true,
-              snapshot: actor.getPersistedSnapshot(),
-              systemId: actor.id,
-            } as SnapshotFrom<AnyActor>;
+            console.log("DONE ACTOR", actor.src);
+            if (actor.src !== "computeValue") {
+              const snapshot = {
+                src: actor?.src,
+                syncSnapshot: true,
+                snapshot: actor.getPersistedSnapshot(),
+                systemId: actor.id,
+              } as SnapshotFrom<AnyActor>;
 
-            this.stateEvents.next({
-              executionId: this.executionId,
-              state: snapshot,
-              readonly: false,
-              timestamp: +new Date(),
-            });
+              this.stateEvents.next({
+                executionId: this.executionId,
+                state: snapshot,
+                readonly: false,
+                timestamp: +new Date(),
+              });
+            }
           }
         }
         if (inspectionEvent.type === "@xstate.event") {

@@ -21,16 +21,12 @@ export const valueActorMachine = setup({
     output: {} as {
       value: any;
     },
-    events: {} as
-      | {
-          type: "SET_VALUE";
-          params: {
-            value: any;
-          };
-        }
-      | {
-          type: "COMPUTE";
-        },
+    events: {} as {
+      type: "SET_VALUE";
+      params: {
+        value: any;
+      };
+    },
   },
 }).createMachine({
   id: "value",
@@ -50,28 +46,6 @@ export const valueActorMachine = setup({
             });
           }),
         },
-        COMPUTE: {
-          target: "computing",
-        },
-      },
-    },
-    computing: {
-      invoke: {
-        src: "computeValue",
-        onDone: {
-          target: "done",
-          actions: enqueueActions(({ enqueue, event }) => {
-            enqueue.assign({
-              value: event.data,
-            });
-          }),
-        },
-      },
-    },
-    done: {
-      type: "final",
-      output: ({ context }) => {
-        return context.value + "COMPUTED";
       },
     },
   },

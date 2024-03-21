@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, merge, set } from "lodash-es";
+import { isNil, isNull, merge, set } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -32,6 +32,7 @@ import type {
 } from "../base";
 import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
+import { inputSocketMachine } from "../../input-socket";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -262,19 +263,75 @@ const generateTextCall = setup({
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
-  initial: "in_progress",
+  initial: "prepare",
   context: ({ input }) => {
+    console.log("INPUT", input);
+    // const inputs = Object.values(input.inputs) as ActorRefFrom<typeof inputSocketMachine>[];
+    // console.log(inputs)
+    // const inputValues = inputs.reduce((acc, input) => {
+    //   const socket = input.getSnapshot();
+    //   return merge(acc, {[socket.context.definition["x-key"]]: undefined});
+    // }, {})
+
     return {
       ...input,
+      ...input.inputs,
       inputs: {
-        llm: computeExecutionValue(input.inputs.llm),
-        system: input.inputs.system,
-        instruction: input.inputs.instruction,
+        llm: computeExecutionValue(input.inputs.inputs.llm),
+        system: null,
+        instruction: null,
       },
+      // inputs: {
+      // ...inputValues
+      // },
+      // inputs: {
+      //   llm: computeExecutionValue(input.inputs.llm),
+      //   system: input.inputs.system,
+      //   instruction: input.inputs.instruction,
+      // },
       outputs: null,
     };
   },
   states: {
+    prepare: {
+      entry: enqueueActions(({ enqueue, context, self }) => {
+        console.log("PREPARE", context, self);
+        const inputSockets = Object.values(context.inputSockets);
+        for (const socket of inputSockets) {
+          enqueue.sendTo(socket, {
+            type: "COMPUTE",
+            params: {
+              targets: [self.id],
+            },
+          });
+        }
+      }),
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("SET VALUE ON EXECUTION", event);
+            enqueue("setValue");
+            // enqueue.assign({
+            //   inputs: ({context}) => {
+            //     return set(
+            //       context.inputs,
+            //       event.params.key,
+            //       event.params.value,
+            //     );
+            //   },
+            // });
+          }),
+        },
+      },
+      always: [
+        {
+          guard: ({ context }) => {
+            return Object.values(context.inputs).every((t) => !isNull(t));
+          },
+          target: "in_progress",
+        },
+      ],
+    },
     in_progress: {
       invoke: {
         src: "run",
@@ -452,12 +509,12 @@ const GenerateTextMachine = createMachine({
             }
             const runId = `call-${createId()}`;
 
-            const sockets = Object.values(context.inputSockets);
-            for (const socket of sockets) {
-              enqueue.sendTo(socket, {
-                type: "COMPUTE",
-              });
-            }
+            // const sockets = Object.values(context.inputSockets);
+            // for (const socket of sockets) {
+            //   enqueue.sendTo(socket, {
+            //     type: "COMPUTE",
+            //   });
+            // }
 
             enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
               ({ system }) => system.get("editor"),
@@ -470,9 +527,10 @@ const GenerateTextMachine = createMachine({
                   systemId: runId,
                   input: {
                     inputs: {
-                      llm: context.inputs.llm,
-                      system: context.inputs.system!,
-                      instruction: context.inputs.instruction!,
+                      ...context,
+                      // llm: context.inputSockets.llm,
+                      // system: context.inputs.system!,
+                      // instruction: context.inputs.instruction!,
                     },
                     senders: [{ id: self.id }],
                     parent: {
