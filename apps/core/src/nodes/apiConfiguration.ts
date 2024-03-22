@@ -12,6 +12,7 @@ import type {
   ParsedNode,
 } from "./base";
 import { BaseNode, NodeContextFactory } from "./base";
+import { createId } from "@paralleldrive/cuid2";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -104,9 +105,19 @@ export const ApiConfigurationMachine = createMachine(
         | {
             type: "adjustMaxCompletionTokens";
           };
-      events: {
-        type: "UPDATE_OUTPUTS";
-      };
+      events:
+        | {
+            type: "UPDATE_OUTPUTS";
+          }
+        | {
+            type: "COMPUTE";
+          }
+        | {
+            type: "RESULT";
+            params: {
+              inputs: {};
+            };
+          };
       actors: None;
       guards: None;
     }>,
@@ -122,36 +133,52 @@ export const ApiConfigurationMachine = createMachine(
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
-          enqueue("updateOutput");
-          console.log("SET VALUE API Configuration", event);
-
-          if (check(({ event }) => has(event.params.values, "APIKey"))) {
-            enqueue.sendTo(
-              ({ context }) =>
-                Object.keys(context.inputSockets).find((k) =>
-                  k.endsWith("headers"),
-                ),
-              ({ context, event }) => {
-                const headers = { ...context.inputs.headers } as any;
-                if (
-                  event.params.values["APIKey"] === "" ||
-                  event.params.values["APIKey"] === undefined
-                ) {
-                  delete headers.Authorization;
-                } else {
-                  headers.Authorization = `Bearer ${event.params.values["APIKey"]}`;
-                }
-                return {
-                  type: "SET_VALUE",
-                  params: {
-                    value: {
-                      ...headers,
-                    },
-                  },
-                };
-              },
-            );
+          // enqueue("updateOutput");
+          // enqueue.raise({
+          //   type: "COMPUTE",
+          // });
+        }),
+      },
+      COMPUTE: {
+        actions: enqueueActions(({ enqueue, context, self }) => {
+          console.log("COMPUTE API Configuration", context);
+          const valueId = `value_${createId()}`;
+          enqueue.spawnChild("computeActorInputs", {
+            id: valueId,
+            input: {
+              value: context,
+              targets: [self.id],
+            },
+            systemId: valueId,
+            syncSnapshot: false,
+          });
+        }),
+      },
+      RESULT: {
+        actions: enqueueActions(({ enqueue, event, check }) => {
+          console.log("RESULT API Configuration", event);
+          const headers = { ...event.params.inputs.headers } as any;
+          if (
+            event.params.inputs["APIKey"] === "" ||
+            event.params.inputs["APIKey"] === undefined
+          ) {
+            delete headers.Authorization;
+          } else {
+            headers.Authorization = `Bearer ${event.params.inputs["APIKey"]}`;
           }
+
+          enqueue.assign({
+            outputs: ({ event }) => {
+              return {
+                baseUrl: event.params.inputs.baseUrl,
+                headers,
+                config: {
+                  ...event.params.inputs,
+                  headers,
+                },
+              };
+            },
+          });
         }),
       },
       UPDATE_SOCKET: {

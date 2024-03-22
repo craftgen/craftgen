@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { get, isNil, merge } from "lodash-es";
+import { get, isNil, isNull, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   ChatMessage,
@@ -535,9 +535,37 @@ const completeChatMachineRun = setup({
       input,
     );
   },
-
-  initial: "in_progress",
+  initial: "prepare",
   states: {
+    prepare: {
+      entry: enqueueActions(({ enqueue, context, self }) => {
+        const inputSockets = Object.values(context.inputSockets);
+        for (const socket of inputSockets) {
+          enqueue.sendTo(socket, {
+            type: "COMPUTE",
+            params: {
+              targets: [self.id],
+            },
+          });
+        }
+      }),
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("SET VALUE ON EXECUTION", event);
+            enqueue("setValue");
+          }),
+        },
+      },
+      always: [
+        {
+          guard: ({ context }) => {
+            return Object.values(context.inputs).every((t) => !isNull(t));
+          },
+          target: "in_progress",
+        },
+      ],
+    },
     in_progress: {
       on: {
         TOOL_REQUEST: {

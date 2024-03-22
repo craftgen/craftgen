@@ -6,6 +6,7 @@ import {
   get,
   isEqual,
   isNil,
+  isNull,
   merge,
   set,
 } from "lodash-es";
@@ -1100,6 +1101,88 @@ export class Editor<
       {} as MachineRegistry,
     );
 
+    const computeActorInputs = setup({
+      types: {
+        input: {} as {
+          value: ContextFrom<AnyActor>;
+          targets: string[];
+          parent: ActorRefFrom<typeof inputSocketMachine>;
+        },
+        context: {} as {
+          value: ContextFrom<AnyActor>;
+          targets: string[];
+          parent: ActorRefFrom<typeof inputSocketMachine>;
+        },
+      },
+      actions: {
+        setValue: this.baseActions.setValue,
+      },
+    }).createMachine({
+      context: ({ input }) => {
+        const inputs = Object.keys(input.value.inputs).reduce((acc, key) => {
+          return {
+            ...acc,
+            [key]: null,
+          };
+        }, {});
+        return {
+          ...input,
+          inputs,
+        };
+      },
+      initial: "prepare",
+      states: {
+        prepare: {
+          entry: enqueueActions(({ enqueue, context, self }) => {
+            console.log("PREPARE", context);
+            const inputSockets = Object.values(context.value.inputSockets);
+            for (const socket of inputSockets) {
+              enqueue.sendTo(socket, {
+                type: "COMPUTE",
+                params: {
+                  targets: [self.id],
+                },
+              });
+            }
+          }),
+          on: {
+            SET_VALUE: {
+              actions: enqueueActions(({ enqueue, context, event }) => {
+                console.log("SET VALUE ON EXECUTION", event);
+                enqueue("setValue");
+              }),
+            },
+          },
+          always: [
+            {
+              guard: ({ context }) => {
+                return Object.values(context.inputs).every((t) => !isNull(t));
+              },
+              target: "done",
+              actions: enqueueActions(({ enqueue, context, event }) => {
+                console.log("COMPUTE ACTOR INPUTS DONE", context);
+                context.targets.forEach((target) => {
+                  enqueue.sendTo(
+                    ({ system }) => system.get(target),
+                    ({ context }) => ({
+                      type: "RESULT",
+                      params: {
+                        inputs: context.inputs,
+                      },
+                    }),
+                  );
+                });
+              }),
+            },
+          ],
+        },
+        done: {
+          // type: "final",
+          // output: ({ context }) => context.inputs,
+        },
+      },
+    });
+
     const computeValue = setup({
       types: {
         input: {} as {
@@ -1165,6 +1248,7 @@ export class Editor<
       },
       actors: {
         socketWatcher,
+        computeActorInputs,
         input: inputSocketMachine.provide({
           actors: {
             computeValue,
@@ -1182,6 +1266,7 @@ export class Editor<
               acc[k] = machine.provide({
                 actors: {
                   socketWatcher,
+                  computeActorInputs,
                   input: inputSocketMachine.provide({
                     actors: {
                       computeValue,

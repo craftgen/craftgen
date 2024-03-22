@@ -266,12 +266,12 @@ const generateTextCall = setup({
   initial: "prepare",
   context: ({ input }) => {
     console.log("INPUT", input);
-
     return {
       ...input,
       ...input.inputs,
       inputs: {
-        llm: computeExecutionValue(input.inputs.inputs.llm),
+        // llm: computeExecutionValue(input.inputs.inputs.llm),
+        llm: null,
         system: null,
         instruction: null,
       },

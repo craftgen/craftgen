@@ -447,6 +447,13 @@ export const inputSocketMachine = setup({
               target: "#InputSocketMachine.actor.connection",
             },
           ],
+          on: {
+            COMPUTE: {
+              actions: enqueueActions(({ enqueue, event, context }) => {
+                console.log("COMPUTE", context, event);
+              }),
+            },
+          },
         },
         initialize: {
           entry: enqueueActions(({ enqueue, context }) => {
