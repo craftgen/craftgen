@@ -30,6 +30,7 @@ export async function GET(request: Request) {
   const session = AuthResponse.data.session;
   const posthog = PostHogClient();
 
+
   if (scopes && session) {
     await db
       .update(user)

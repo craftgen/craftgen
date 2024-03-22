@@ -7,6 +7,8 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { api } from "@/trpc/server";
 import React from "react";
+import { notFound } from "next/navigation";
+import { TRPCError } from "@trpc/server";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -21,18 +23,24 @@ const PlaygroundPage = async (props: {
   const cookieStore = cookies();
   const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
-  const workflow = await api.craft.module.meta({
-    projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.workflowSlug,
-    version: Number(props.params.version),
-  });
+  try {
+    const workflow = await api.craft.module.meta({
+      projectSlug: props.params.projectSlug,
+      workflowSlug: props.params.workflowSlug,
+      version: Number(props.params.version),
+    });
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-  if (!workflow) return <div>Not found</div>;
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return <Playground workflow={workflow} session={session} />;
+    return <Playground workflow={workflow} session={session} />;
+  } catch (e) {
+    if (e instanceof TRPCError) {
+      if (e.code === "NOT_FOUND") {
+        notFound();
+      }
+    }
+  }
 };
 
 export default PlaygroundPage;

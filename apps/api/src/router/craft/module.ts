@@ -11,6 +11,72 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const craftModuleRouter = createTRPCRouter({
+  create: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        description: z.string(),
+        public: z.boolean(),
+        template: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const newPlayground = await ctx.db.transaction(async (tx) => {
+        const project = await tx.query.project.findFirst({
+          where: (project, { eq }) => eq(project.id, input.projectId),
+        });
+        if (!project) throw new Error("Project not found");
+        // TODO check Ownership.
+        const [newWorkflow] = await tx
+          .insert(schema.workflow)
+          .values({
+            name: input.name,
+            slug: input.slug,
+            description: input.description,
+            projectId: project?.id,
+            projectSlug: project?.slug,
+            public: input.public,
+          })
+          .returning();
+
+        if (!newWorkflow) throw new Error("Failed to create workflow");
+        const [initialVersion] = await tx
+          .insert(schema.workflowVersion)
+          .values({
+            workflowId: newWorkflow.id,
+            projectId: newWorkflow.projectId,
+          })
+          .returning();
+        if (!initialVersion)
+          throw new Error("Failed to create playground version");
+
+        const [rootContext] = await tx
+          .insert(schema.context)
+          .values({
+            project_id: project.id,
+            type: "NodeModule",
+            workflow_id: newWorkflow?.id,
+            workflow_version_id: initialVersion.id,
+          })
+          .returning({
+            id: schema.context.id,
+          });
+        if (!rootContext) throw new Error("Failed to create root context");
+
+        await tx
+          .update(schema.workflowVersion)
+          .set({
+            contextId: rootContext.id,
+          })
+          .where(eq(schema.workflowVersion.id, initialVersion.id));
+
+        return newWorkflow;
+      });
+      return newPlayground;
+    }),
+
   update: protectedProcedure
     .input(
       z.object({
@@ -204,7 +270,7 @@ export const craftModuleRouter = createTRPCRouter({
         outputs,
       };
     }),
-  meta:protectedProcedure 
+  meta: protectedProcedure
     .input(
       z.object({
         workflowSlug: z.string(),
@@ -321,6 +387,7 @@ export const craftModuleRouter = createTRPCRouter({
           edges: true,
           nodes: true,
           contexts: true,
+          context: true,
         },
       });
       if (!version) {
@@ -420,6 +487,7 @@ export const craftModuleRouter = createTRPCRouter({
                 },
                 edges: true,
                 contexts: true,
+                context: true,
                 nodes: {
                   with: {
                     // nodeExectutions: {
@@ -461,6 +529,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
 
         const version = workflow?.versions[0];
+
         if (!version) {
           throw new Error("Playground version not found");
         }
@@ -492,9 +561,12 @@ export const craftModuleRouter = createTRPCRouter({
         const res = {
           ...workflow,
           currentVersion: workflow.versions.length > 0 ? version.version : 0,
+          context: version.context,
           nodes: contentNodes,
           edges: contentEdges,
-          contexts: version.contexts,
+          contexts: version.contexts.filter(
+            (c) => c.id !== version.context?.id,
+          ),
           version,
           execution: workflow?.versions[0]?.executions[0],
           readonly,

@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, merge } from "lodash-es";
+import { isNil, isNull, merge, set } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -8,14 +8,21 @@ import {
   ToolCallError,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { AnyActorRef, OutputFrom } from "xstate";
-import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
+import type { ActorRefFrom, AnyActorRef, OutputFrom } from "xstate";
+import {
+  Actor,
+  and,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -23,8 +30,9 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import type { OllamaModelConfig } from "../ollama/ollama";
-import type { OpenAIModelConfig } from "../openai/openai";
+import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
+import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
+import { inputSocketMachine } from "../../input-socket";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -124,9 +132,44 @@ interface GenerateTextInput {
   system?: string;
   instruction: string;
 }
+
+const computeExecutionValue = (actorRef: AnyActorRef) => {
+  const state = actorRef.getSnapshot();
+  const value: Record<string, any> = {};
+
+  for (const [key, outputValue] of Object.entries(
+    state.context.outputs.config,
+  )) {
+    console.log("OUTPUT VALUE", key, outputValue);
+    match(outputValue)
+      .with(
+        {
+          src: P.string.startsWith("Node"),
+        },
+        (_, actorRef: AnyActorRef) => {
+          value[key] = computeExecutionValue(actorRef);
+        },
+      )
+      .with(
+        {
+          src: P.string.startsWith("value"),
+        },
+        (val) => {
+          value[key] = val.getSnapshot().context.value;
+        },
+      )
+      .otherwise((val) => {
+        value[key] = val;
+      });
+  }
+
+  return value;
+};
+
 const generateTextActor = fromPromise(
   async ({ input }: { input: GenerateTextInput }) => {
     console.log("INPUT", input);
+
     const result = match(input)
       .with(
         {
@@ -180,10 +223,16 @@ const generateTextActor = fromPromise(
   },
 );
 
+interface GenerateTextCallInput {
+  llm: ActorRefFrom<typeof OllamaModelMachine | typeof OpenaiModelMachine>;
+  system?: string;
+  instruction: string;
+}
+
 const generateTextCall = setup({
   types: {
     input: {} as {
-      inputs: GenerateTextInput;
+      inputs: GenerateTextCallInput;
       senders: {
         id: string;
       }[];
@@ -214,17 +263,51 @@ const generateTextCall = setup({
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
-  initial: "in_progress",
+  initial: "prepare",
   context: ({ input }) => {
-    return merge(
-      {
-        inputs: {},
-        outputs: null,
+    console.log("INPUT", input);
+    return {
+      ...input,
+      ...input.inputs,
+      inputs: {
+        // llm: computeExecutionValue(input.inputs.inputs.llm),
+        llm: null,
+        system: null,
+        instruction: null,
       },
-      input,
-    );
+      outputs: null,
+    };
   },
   states: {
+    prepare: {
+      entry: enqueueActions(({ enqueue, context, self }) => {
+        const inputSockets = Object.values(context.inputSockets);
+        for (const socket of inputSockets) {
+          enqueue.sendTo(socket, {
+            type: "COMPUTE",
+            params: {
+              targets: [self.id],
+            },
+          });
+        }
+      }),
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("SET VALUE ON EXECUTION", event);
+            enqueue("setValue");
+          }),
+        },
+      },
+      always: [
+        {
+          guard: ({ context }) => {
+            return Object.values(context.inputs).every((t) => !isNull(t));
+          },
+          target: "in_progress",
+        },
+      ],
+    },
     in_progress: {
       invoke: {
         src: "run",
@@ -307,26 +390,13 @@ const GenerateTextMachine = createMachine({
   entry: enqueueActions(({ enqueue }) => {
     enqueue("initialize");
   }),
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        name: "Generate Text",
-        description: "Generate text based on a prompt using LLMs",
-        inputs: {
-          RUN: undefined,
-          system: "",
-          instruction: "",
-          llm: null,
-        },
-        outputs: {
-          onDone: undefined,
-          result: "",
-        },
-        inputSockets,
-        outputSockets,
-      },
-      input,
-    ),
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Generate Text",
+      description: "Use LLMs to generate text base on a prompt",
+      inputSockets,
+      outputSockets,
+    }),
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
     context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
@@ -383,7 +453,6 @@ const GenerateTextMachine = createMachine({
             });
           }),
         },
-
         RESULT: {
           actions: enqueueActions(({ enqueue, check, self, event }) => {
             enqueue.assign({
@@ -400,13 +469,12 @@ const GenerateTextMachine = createMachine({
             });
           }),
         },
-
         RUN: {
           guard: and([
             ({ context }) => context.inputs.instruction !== "",
             ({ context }) => context.inputs.llm !== null,
           ]),
-          actions: enqueueActions(({ enqueue, check }) => {
+          actions: enqueueActions(({ enqueue, check, context }) => {
             if (check(({ event }) => !isNil(event.params?.values))) {
               enqueue(({ event }) => ({
                 type: "setValue",
@@ -416,7 +484,15 @@ const GenerateTextMachine = createMachine({
               }));
             }
             const runId = `call-${createId()}`;
-            enqueue.sendTo(
+
+            // const sockets = Object.values(context.inputSockets);
+            // for (const socket of sockets) {
+            //   enqueue.sendTo(socket, {
+            //     type: "COMPUTE",
+            //   });
+            // }
+
+            enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({
                 type: "SPAWN",
@@ -427,11 +503,10 @@ const GenerateTextMachine = createMachine({
                   systemId: runId,
                   input: {
                     inputs: {
-                      llm: context.inputs.llm! as
-                        | OpenAIModelConfig
-                        | OllamaModelConfig,
-                      system: context.inputs.system!,
-                      instruction: context.inputs.instruction!,
+                      ...context,
+                      // llm: context.inputSockets.llm,
+                      // system: context.inputs.system!,
+                      // instruction: context.inputs.instruction!,
                     },
                     senders: [{ id: self.id }],
                     parent: {
@@ -480,6 +555,5 @@ export class NodeGenerateText extends BaseNode<typeof GenerateTextMachine> {
 
   constructor(di: DiContainer, data: GenerateTextNode) {
     super("NodeGenerateText", di, data, GenerateTextMachine, {});
-    this.setup();
   }
 }

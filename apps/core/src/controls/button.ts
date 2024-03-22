@@ -1,7 +1,8 @@
-import type { AnyActorRef, SnapshotFrom } from "xstate";
+import type { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
+import { inputSocketMachine } from "../input-socket";
 
 export interface ButtonControlOptions {
   disabled?: boolean;
@@ -9,14 +10,14 @@ export interface ButtonControlOptions {
 }
 
 export class ButtonControl<
-  T extends AnyActorRef = AnyActorRef,
+  T extends ActorRefFrom<typeof inputSocketMachine> = ActorRefFrom<
+    typeof inputSocketMachine
+  >,
 > extends BaseControl {
   __type = "ButtonControl";
 
   constructor(
     public actor: T,
-    public selector: (snapshot: SnapshotFrom<T>) => number, // Function that returns the observable value
-    public options: ButtonControlOptions,
     public definition: JSONSocket,
   ) {
     super(50);

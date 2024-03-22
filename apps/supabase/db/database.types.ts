@@ -671,6 +671,7 @@ export interface Database {
       workflow_version: {
         Row: {
           change_log: string | null
+          context_id: string | null
           id: string
           previous_workflow_version_id: string | null
           project_id: string
@@ -680,6 +681,7 @@ export interface Database {
         }
         Insert: {
           change_log?: string | null
+          context_id?: string | null
           id: string
           previous_workflow_version_id?: string | null
           project_id: string
@@ -689,6 +691,7 @@ export interface Database {
         }
         Update: {
           change_log?: string | null
+          context_id?: string | null
           id?: string
           previous_workflow_version_id?: string | null
           project_id?: string
@@ -697,6 +700,13 @@ export interface Database {
           workflow_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workflow_version_context_id_context_id_fk"
+            columns: ["context_id"]
+            isOneToOne: false
+            referencedRelation: "context"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "workflow_version_project_id_project_id_fk"
             columns: ["project_id"]

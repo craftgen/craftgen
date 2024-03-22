@@ -1,54 +1,46 @@
 import { ClassicPreset } from "rete";
-import type { AnyActor, SnapshotFrom } from "xstate";
+import type { Actor, AnyActor, SnapshotFrom } from "xstate";
 
 import type { BaseControl } from "./controls/base";
 import type { JSONSocket } from "./controls/socket-generator";
 import type { Socket } from "./sockets";
+import { inputSocketMachine } from "./input-socket";
+import { outputSocketMachine } from "./output-socket";
 
 export class Input<
-  T extends AnyActor = AnyActor,
+  T extends Actor<typeof inputSocketMachine> = Actor<typeof inputSocketMachine>,
   S extends Socket = Socket,
 > extends ClassicPreset.Input<S> {
-  public definition: JSONSocket;
-
   declare control: BaseControl | null;
 
   constructor(
     socket: S,
-    name: string,
-    multiple = false,
+    label: string,
+    public multiple = false,
     public actor: T,
-    public selector: (snapshot: SnapshotFrom<T>) => JSONSocket, // Function that returns the observable value
   ) {
-    super(socket, name, multiple);
-    const snap = this.actor.getSnapshot();
-    this.definition = this.selector(snap);
+    super(socket, label, multiple);
 
     this.actor.subscribe((snapshot) => {
-      this.definition = this.selector(snapshot);
+      if (snapshot.context.definition.isMultiple) {
+        this.multiple = snapshot.context.definition.isMultiple;
+      }
     });
   }
 }
 
 export class Output<
-  T extends AnyActor = AnyActor,
+  T extends Actor<typeof outputSocketMachine> = Actor<
+    typeof outputSocketMachine
+  >,
   S extends Socket = Socket,
 > extends ClassicPreset.Output<S> {
-  public definition: JSONSocket;
-
   constructor(
     socket: S,
-    name: string,
+    label: string,
     multiple = true,
     public actor: T,
-    public selector: (snapshot: SnapshotFrom<T>) => JSONSocket, // Function that returns the observable value
   ) {
-    super(socket, name, multiple);
-    const snap = this.actor.getSnapshot();
-    this.definition = this.selector(snap);
-
-    this.actor.subscribe((snapshot) => {
-      this.definition = this.selector(snapshot);
-    });
+    super(socket, label, multiple);
   }
 }

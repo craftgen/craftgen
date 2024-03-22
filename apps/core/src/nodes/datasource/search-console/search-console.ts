@@ -182,7 +182,6 @@ export class GoogleSearchConsole extends BaseNode<
         ),
       },
     });
-    this.setup();
 
     // this.addControl(
     //   "site",

@@ -562,7 +562,5 @@ export class NodeGenerateStructure extends BaseNode<
 
   constructor(di: DiContainer, data: OpenAIGenerateStructureNode) {
     super("NodeGenerateStructure", di, data, GenerateObjectMachine, {});
-
-    this.setup();
   }
 }

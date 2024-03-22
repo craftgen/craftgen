@@ -1,11 +1,10 @@
-import { merge } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
 
 const inputSockets = {
@@ -15,7 +14,7 @@ const inputSockets = {
     description: "Text",
     required: false,
     isMultiple: false,
-    "x-showSocket": false,
+    "x-showSocket": true,
     "x-key": "value",
     "x-controller": "textarea",
   }),
@@ -52,25 +51,13 @@ const TextNodeMachine = createMachine({
       }),
     },
   },
-  context: ({ input }) =>
-    merge(
-      {
-        inputs: {
-          value: "",
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-        outputs: {
-          value: "",
-        },
-        error: null,
-      },
-      input,
-    ),
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Text",
+      description: "Text value",
+      inputSockets,
+      outputSockets,
+    }),
   initial: "complete",
   types: {} as BaseMachineTypes<{
     input: {
@@ -96,9 +83,6 @@ const TextNodeMachine = createMachine({
         10: "complete",
       },
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         SET_VALUE: {
           target: "typing",
           reenter: true,
@@ -152,6 +136,5 @@ export class NodeText extends BaseNode<typeof TextNodeMachine> {
 
   constructor(di: DiContainer, data: TextNodeData) {
     super("NodeText", di, data, TextNodeMachine, {});
-    this.setup();
   }
 }

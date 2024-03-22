@@ -49,13 +49,11 @@ export const Composer: React.FC<{
       // executionId: workflow?.execution?.id,
     },
     {
-      keepPreviousData: true,
       refetchOnWindowFocus: false,
     },
   );
 
   if (isLoading) return <div> Loading </div>;
-  console.log({ latestWorkflow });
   // return (
   //   <div>
   //     <pre>{JSON.stringify(latestWorkflow, null, 2)}</pre>

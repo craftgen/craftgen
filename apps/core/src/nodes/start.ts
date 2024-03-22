@@ -94,6 +94,5 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
 
   constructor(di: DiContainer, data: StartNodeData) {
     super("Start", di, data, StartNodeMachine, {});
-    this.setup();
   }
 }

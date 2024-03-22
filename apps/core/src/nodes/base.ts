@@ -1,36 +1,41 @@
-import { get, isEqual, isNil, isUndefined, pickBy } from "lodash-es";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { cloneDeep, get, isEqual, isNil, merge, pickBy, set } from "lodash-es";
+import { action, computed, makeObservable, observable } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
-import { of, Subject } from "rxjs";
-import { catchError, debounceTime, groupBy, mergeMap } from "rxjs/operators";
-import { match, P } from "ts-pattern";
+import { match } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { waitFor } from "xstate";
+import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
+  ActorRefFrom,
+  AnyActor,
   AnyActorLogic,
   AnyActorRef,
   AnyStateMachine,
+  ContextFactory,
   ContextFrom,
   InputFrom,
   MachineImplementationsFrom,
   ProvidedActor,
   Snapshot,
   SnapshotFrom,
+  Spawner,
   StateMachine,
   Subscription,
 } from "xstate";
 import type { GuardArgs } from "xstate/guards";
 
 import type { BaseControl } from "../controls/base";
-import type { JSONSocket } from "../controls/socket-generator";
+import { generateSocket, type JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
-import { getControlBySocket, getSocketByJsonSchemaType } from "../sockets";
+import { getSocketByJsonSchemaType } from "../sockets";
 import type { MappedType, Socket, Tool } from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
+import { inputSocketMachine, spawnInputSockets } from "../input-socket";
+import { outputSocketMachine, spawnOutputSockets } from "../output-socket";
+import { map, from, distinctUntilChanged, share, filter, generate } from "rxjs";
 
 export type ParsedNode<
   NodeType extends string,
@@ -56,14 +61,20 @@ export interface BaseInputType<
 }
 
 export interface BaseContextType<
-  I extends Record<string, JSONSocket> = Record<string, JSONSocket>,
-  O extends Record<string, JSONSocket> = Record<string, JSONSocket>,
+  I extends Record<string, ActorRefFrom<typeof inputSocketMachine>> = Record<
+    string,
+    ActorRefFrom<typeof inputSocketMachine>
+  >,
+  O extends Record<string, ActorRefFrom<typeof outputSocketMachine>> = Record<
+    string,
+    ActorRefFrom<typeof outputSocketMachine>
+  >,
 > {
   name: string;
   description: string;
 
-  inputs: MappedType<I>;
-  outputs: MappedType<O>;
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
 
   outputSockets: O;
   inputSockets: I;
@@ -71,6 +82,9 @@ export interface BaseContextType<
   parent?: {
     id: string; // System Id
     port?: string; // Input port // CHILD ACTORS only
+  };
+  childs: {
+    [key: NodeTypes]: ActorRefFrom<AnyStateMachine>;
   };
   error: {
     name: string;
@@ -93,6 +107,13 @@ export type BaseEventTypes =
       type: "SET_VALUE";
       params: {
         values: Record<string, any>;
+      };
+    }
+  | {
+      type: "SET_OUTPUT";
+      params: {
+        key: string;
+        value: any;
       };
     }
   | {
@@ -187,22 +208,6 @@ export type BaseActionTypes =
       };
     }
   | {
-      type: "setExecutionNodeId";
-      params?: {
-        executionNodeId?: string;
-      };
-    }
-  | {
-      type: "triggerNode";
-      params: {
-        nodeId: string;
-        event: {
-          type: string;
-          params?: any;
-        };
-      };
-    }
-  | {
       type: "setError";
       params?: {
         name: string;
@@ -294,6 +299,159 @@ export type BaseMachine = StateMachine<
   any
 >;
 
+const NodeMachine = setup({
+  types: {
+    context: {} as {
+      inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+      outputSockets: Record<string, ActorRefFrom<typeof outputSocketMachine>>;
+      actors: Record<
+        string,
+        {
+          outputSockets: Record<
+            string,
+            ActorRefFrom<typeof outputSocketMachine>
+          >;
+          inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+        }
+      >;
+    },
+    events: {} as {
+      type: "SET_INPUT_OUTPUT";
+      params: {
+        actorId: string;
+        sockets: {
+          inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
+          outputSockets: Record<
+            string,
+            ActorRefFrom<typeof outputSocketMachine>
+          >;
+        };
+      };
+    },
+  },
+}).createMachine({
+  id: "node",
+  context: ({ input }) => ({
+    actors: {},
+  }),
+  on: {
+    SET_INPUT_OUTPUT: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        console.log("SETTING INPUT OUTPUT", event);
+        enqueue.assign({
+          actors: ({ event, context }) => {
+            const { actorId, sockets } = event.params;
+            return {
+              ...context.actors,
+              [actorId]: sockets,
+            };
+          },
+        });
+      }),
+    },
+  },
+});
+
+export const NodeContextFactory = <
+  C extends {
+    spawn: Spawner<any>;
+    input: any;
+    self: AnyActorRef;
+  },
+>(
+  ctx: C,
+  {
+    name,
+    description,
+    inputSockets: originalInputSockets,
+    outputSockets: originalOutputSockets,
+  }: {
+    name: string;
+    description: string;
+    inputSockets: Record<string, JSONSocket>;
+    outputSockets: Record<string, JSONSocket>;
+  },
+) => {
+  console.log("CONTEXT FACTORY:", { INPUT: ctx.input });
+  const initialValueForTheNode = get(ctx.input, "inputs", {});
+  const inputSockets = cloneDeep(originalInputSockets);
+  const outputSockets = cloneDeep(originalOutputSockets);
+
+  const defaultInputs = { ...initialValueForTheNode };
+  for (const [key, socket] of Object.entries(inputSockets)) {
+    if (initialValueForTheNode[key]) {
+      socket.default = initialValueForTheNode[key];
+    }
+    const inputKey = key as keyof typeof inputSockets;
+    if (socket.default && defaultInputs[inputKey] === undefined) {
+      defaultInputs[inputKey] = socket.default as any;
+    } else {
+      defaultInputs[inputKey] = undefined;
+    }
+  }
+
+  const config = merge(
+    {
+      name,
+      description,
+      inputs: {
+        ...defaultInputs,
+      },
+      outputs: {
+        ...Object.values(outputSockets).reduce((prev, socket) => {
+          return {
+            ...prev,
+            [socket["x-key"]]: undefined,
+          };
+        }, {}),
+      },
+      inputSockets,
+      outputSockets,
+    },
+    ctx.input,
+  );
+
+  // set(
+  //   config,
+  //   ["outputSockets", `${ctx.self.id}:output:${ctx.self.src}`],
+  //   generateSocket({
+  //     name: "self",
+  //     type: ctx.self.src as NodeTypes,
+  //     isMultiple: true,
+  //     "x-order": 0,
+  //     "x-key": "self",
+  //     "x-showSocket": true,
+  //   }),
+  // );
+
+  const hasParentActor = get(ctx, "input.parent.port");
+  if (hasParentActor) {
+    Object.keys(config.inputSockets).forEach((key) => {
+      set(config, ["inputSockets", key, "x-showSocket"], false);
+    });
+    Object.keys(config.outputSockets).forEach((key) => {
+      set(config, ["outputSockets", key, "x-showSocket"], false);
+    });
+  }
+
+  const spawnedInputSockets = spawnInputSockets({
+    spawn: ctx.spawn,
+    self: ctx.self,
+    inputSockets: config.inputSockets as any,
+  });
+
+  const spawnedOutputSockets = spawnOutputSockets({
+    spawn: ctx.spawn,
+    self: ctx.self,
+    outputSockets: config.outputSockets as any,
+  });
+
+  set(config, "inputSockets", spawnedInputSockets);
+  set(config, "outputSockets", spawnedOutputSockets);
+
+  return config as any;
+};
+
 export abstract class BaseNode<
   Machine extends AnyStateMachine,
   Inputs extends {
@@ -315,6 +473,9 @@ export abstract class BaseNode<
   static nodeType: string;
 
   public actor: Actor<Machine>;
+
+  public nodeActor: Actor<typeof NodeMachine>;
+
   public readonly variables: string[] = [];
   description: any;
 
@@ -371,16 +532,13 @@ export abstract class BaseNode<
     return this.snap as SnapshotFrom<BaseMachine>;
   }
 
-  public inputSockets: Record<string, JSONSocket>;
-  public outputSockets: Record<string, JSONSocket>;
-
-  // public output: Record<string, any> = {};
-
   get inputSchema() {
-    return createJsonSchema(this.inputSockets);
+    throw new Error("Not implemented");
+    // return createJsonSchema(this.inputSockets);
   }
   get outputSchema() {
-    return createJsonSchema(this.outputSockets);
+    throw new Error("Not implemented");
+    // return createJsonSchema(this.outputSockets);
   }
 
   get readonly() {
@@ -392,6 +550,38 @@ export abstract class BaseNode<
 
   actors = new Map<string, Actor<Machine>>();
   actorListeners = new Map<string, Subscription>();
+  actorSockets = new Map<
+    string,
+    {
+      inputSockets: Record<string, Actor<typeof inputSocketMachine>>;
+      outputSocket: Record<string, Actor<typeof outputSocketMachine>>;
+    }
+  >();
+
+  get inputSockets() {
+    let combined = {} as Record<string, Actor<typeof inputSocketMachine>>;
+    for (let actorSocket of this.actorSockets.values()) {
+      combined = {
+        ...combined,
+        ...actorSocket.inputSockets,
+      };
+    }
+    return combined;
+  }
+
+  get outputSockets() {
+    let combined = {} as Record<string, Actor<typeof outputSocketMachine>>;
+
+    for (let actorSocket of this.actorSockets.values()) {
+      // Combine outputSocket
+      combined = {
+        ...combined,
+        ...actorSocket.outputSocket,
+      };
+    }
+
+    return combined;
+  }
 
   public baseGuards: MachineImplementationsFrom<BaseMachine>["guards"] = {
     hasConnection: (
@@ -441,31 +631,6 @@ export abstract class BaseNode<
     this.machineImplements = this.machine.implementations;
   }
 
-  public stateEvents = new Subject<{
-    executionId: string | undefined;
-    nodeExecutionId: string | undefined;
-    state: SnapshotFrom<Machine>;
-    readonly: boolean;
-  }>();
-
-  public getMachineActor = (name: string) => {
-    return this.di.machines[name].provide({
-      ...(this.baseImplentations as any),
-      actors: {
-        // ...Object.keys(this.di.machines).reduce(
-        //   (acc, k) => {
-        //     if (acc[k]) {
-        //       throw new Error(`Actor ${k} already exists`);
-        //     }
-        //     acc[k] = this.getMachineActor(k);
-        //     return acc;
-        //   },
-        //   {} as Record<string, AnyStateMachine>,
-        // ),
-      },
-    });
-  };
-
   constructor(
     public readonly ID: NodeTypes,
     public di: DiContainer,
@@ -506,91 +671,155 @@ export abstract class BaseNode<
     }) as Machine;
 
     this.snap = nodeData.context?.state || {};
-    this.inputSockets = nodeData.context?.state?.context?.inputSockets || {};
-    this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
+    // this.inputSockets = nodeData.context?.state?.context?.inputSockets || {};
+    // this.outputSockets = nodeData.context?.state?.context?.outputSockets || {};
     this.executionNodeId = this.nodeData?.executionNodeId;
 
     makeObservable(this, {
       inputs: observable,
+      outputs: observable,
 
       snap: observable,
-      inputSockets: observable,
+      inputSockets: computed,
       inputSchema: computed,
-      outputSockets: observable,
+      outputSockets: computed,
       outputSchema: computed,
 
-      setInputSockets: action,
-      setOutputSockets: action,
       setSnap: action,
 
       executionNodeId: observable,
       executionId: computed,
-      setExecutionNodeId: action,
     });
+    this.nodeActor = createActor(NodeMachine, {
+      id: this.id,
+    });
+    this.nodeActor.start();
   }
 
-  public setup() {
+  public async setup() {
     this.actor = this.setupActor(this.di?.actor?.system.get(this.contextId));
-    this.setSnap(this.actor.getSnapshot() as any);
+    const snap = this.nodeActor.getSnapshot();
 
-    this.inputSockets = this.snapshot.context?.inputSockets || {};
-    this.outputSockets = this.snapshot.context?.outputSockets || {};
+    const process = async (state: any) => {
+      let inputSockets = {};
+      let outputSockets = {};
+      for (const [key, value] of Object.entries(state.context.actors)) {
+        inputSockets = {
+          ...inputSockets,
+          ...value.inputSockets,
+        };
+        outputSockets = {
+          ...outputSockets,
+          ...value.outputSockets,
+        };
+      }
+      await this.updateInputs(inputSockets);
+      await this.updateOutputs(outputSockets);
+    };
+    await process(snap);
 
-    this.updateInputs(this.inputSockets);
-    this.updateOutputs(this.outputSockets);
-    const reactForExecutionId = reaction(
-      () => this.executionId,
-      async (executionId) => {
-        if (!executionId) {
-          this.setExecutionNodeId(undefined);
-        }
-      },
-    );
-    const inputSocketHandlers = reaction(
-      () => this.inputSockets,
-      async (sockets) => {
-        await this.updateInputs(sockets);
-      },
-    );
-    const outputSocketHandlers = reaction(
-      () => this.outputSockets,
-      async (sockets) => {
-        await this.updateOutputs(sockets);
-      },
-    );
+    this.nodeActor.subscribe((state) => {
+      console.log("NODE STATE", state.context);
+      let inputSockets = {};
+      let outputSockets = {};
+      for (const [key, value] of Object.entries(state.context.actors)) {
+        inputSockets = {
+          ...inputSockets,
+          ...value.inputSockets,
+        };
+        outputSockets = {
+          ...outputSockets,
+          ...value.outputSockets,
+        };
+      }
+      this.updateInputs(inputSockets);
+      this.updateOutputs(outputSockets);
+    });
     this.isReady = true;
   }
 
-  public setupActor(actor: Actor<Machine>) {
+  public setupActor(actor: Actor<BaseMachine>) {
+    console.log("SETTING UP THE ACTOR", actor);
+    if (!actor) {
+      return;
+    }
     let prev = actor.getSnapshot();
-    const listener = actor.subscribe({
-      complete: async () => {
-        // this.di.logger.log(this.identifier, "finito main");
-      },
-      next: async (state: any) => {
-        this.state = state.value;
-        this.setSnap(state);
+    const childActors = Object.values(
+      get(prev, "context.childs", {}),
+    ) as Actor<Machine>[];
 
-        if (!isEqual(prev.context?.inputSockets, state.context.inputSockets)) {
-          this.setInputSockets(state.context?.inputSockets || {});
-        }
-        if (
-          !isEqual(prev.context?.outputSockets, state.context.outputSockets)
-        ) {
-          this.setOutputSockets(state.context?.outputSockets || {});
-        }
-
-        if (!isEqual(prev.context.outputs, state.context.outputs)) {
-          this.di.dataFlow?.cache.delete(this.id); // reset cache for this node.
-        }
-
-        prev = state;
+    for (const childActor of childActors) {
+      if (childActor) {
+        if (this.actors.has(childActor.id)) continue;
+        this.setupActor(childActor);
+      }
+    }
+    this.nodeActor.send({
+      type: "SET_INPUT_OUTPUT",
+      params: {
+        actorId: actor.id,
+        sockets: {
+          inputSockets: prev?.context?.inputSockets,
+          outputSockets: prev?.context?.outputSockets,
+        },
       },
     });
 
-    this.actors.set(actor.id, actor);
-    this.actorListeners.set(actor.id, listener);
+    const actorEvents = from(actor).pipe(share());
+    actorEvents
+      .pipe(
+        map((state) => get(state, "context.childs", {})),
+        filter((childs) => Object.keys(childs).length > 0),
+        map((childs) => {
+          // Convert `childs` to an array, filtering out undefined values
+          return Object.values(childs).filter(
+            (child) => child !== undefined,
+          ) as Actor<Machine>[];
+        }),
+        distinctUntilChanged(),
+      )
+      .subscribe((childs) => {
+        for (const child of childs) {
+          if (this.actors.has(child.id)) continue;
+          this.setupActor(child);
+        }
+      });
 
+    const listener = actorEvents
+      .pipe(
+        map((state) => {
+          return {
+            event: {
+              actorId: actor.id,
+              sockets: {
+                inputSockets: state.context.inputSockets,
+                outputSockets: state.context.outputSockets,
+              },
+            },
+            socketKeys: {
+              inputSockets: Object.keys(state.context.inputSockets),
+              outputSockets: Object.keys(state.context.outputSockets),
+            },
+          };
+        }),
+        distinctUntilChanged((prev, curr) =>
+          isEqual(prev.socketKeys, curr.socketKeys),
+        ),
+        map((state) => state.event),
+      )
+      .subscribe((state) => {
+        this.nodeActor.send({
+          type: "SET_INPUT_OUTPUT",
+          params: state,
+        });
+      });
+
+    this.actors.set(actor.id, actor);
+    this.actorSockets.set(actor.id, {
+      inputSockets: prev.context?.inputSockets || {},
+      outputSocket: prev.context?.outputSockets || {},
+    });
+    this.actorListeners.set(actor.id, listener);
     return actor;
   }
 
@@ -604,13 +833,15 @@ export abstract class BaseNode<
       this.actors.delete(actor.id);
     });
 
-    this.setup();
+    await this.setup();
     this.di.area?.update("node", this.id);
   }
 
-  async updateOutputs(rawTemplate: Record<string, JSONSocket>) {
+  async updateOutputs(
+    outputSockets: Record<string, Actor<typeof outputSocketMachine>>,
+  ) {
     for (const item of Object.keys(this.outputs)) {
-      if (rawTemplate[item]) continue;
+      if (outputSockets[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.source === this.id && c.sourceOutput === item);
@@ -627,38 +858,43 @@ export abstract class BaseNode<
       }
       this.removeOutput(item);
     }
+
     const index = 0;
-    for (const [key, item] of Object.entries(rawTemplate)) {
+    for (const [key, socketActor] of Object.entries(outputSockets)) {
+      const definition = socketActor.getSnapshot().context.definition;
       if (this.hasOutput(key)) {
         const output = this.outputs[key];
         if (output) {
-          output.socket = getSocketByJsonSchemaType(item)! as any;
+          output.socket = getSocketByJsonSchemaType(definition)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item)!;
+      const socket = getSocketByJsonSchemaType(definition)!;
       const output = new Output(
         socket,
         key,
-        item.isMultiple || true,
-        this.pactor,
-        (snapshot) => snapshot.context.outputSockets[key],
+        definition.isMultiple || true,
+        socketActor,
       ) as any;
       output.index = index + 1;
       this.addOutput(key, output);
     }
   }
 
-  async updateInputs(rawTemplate: Record<string, JSONSocket>) {
-    const state = this.actor.getSnapshot() as SnapshotFrom<BaseMachine>;
-    // CLEAN up inputs
+  async updateInputs(
+    inputSockets: Record<string, Actor<typeof inputSocketMachine>>,
+  ) {
+    console.log("UPDATING INPUTS", inputSockets);
+
+    /**
+     * CLEAN up inputs
+     */
     for (const item of Object.keys(this.inputs)) {
-      if (rawTemplate[item]) continue;
+      if (inputSockets[item]) continue;
       const connections = this.di.editor
         .getConnections()
         .filter((c) => c.target === this.id && c.targetInput === item);
-      // if (connections.length >= 1) continue; // if there's an input that's not in the template keep it.
       if (connections.length >= 1) {
         for (const c of connections) {
           await this.di.editor.removeConnection(c.id);
@@ -672,131 +908,36 @@ export abstract class BaseNode<
       this.removeInput(item);
     }
 
-    const values: Record<string, any> = {
-      ...state.context.inputs,
-    };
-
-    let index = 0;
-
-    const addController = (
-      input: Input,
-      item: JSONSocket,
-      key: string,
-      socket: Socket,
-    ) => {
-      // if (item["x-actor-ref"]) {
-      //   console.log({ socket, item, input, key });
-      //   const controller = getControlBySocket({
-      //     socket: socket,
-      //     actor: item["x-actor-ref"],
-      //     selector: (snapshot) => snapshot.context.inputs[key], //TODO:
-      //     // selector: (snapshot) => snapshot.context.outputs["config"],
-      //     onChange: (v) => {
-      //       this.pactor.send({
-      //         type: "SET_VALUE",
-      //         values: {
-      //           [key]: v,
-      //         },
-      //       });
-      //     },
-      //     definition: item,
-      //   });
-      //   input.addControl(controller);
-      // } else {
-      const controller = getControlBySocket({
-        socket: socket,
-        actor: this.pactor,
-        selector: (snapshot) => snapshot.context.inputs[key],
-        definitionSelector: (snapshot) => snapshot.context.inputSockets[key],
-        onChange: (v) => {
-          this.pactor.send({
-            type: "SET_VALUE",
-            params: {
-              values: {
-                [key]: v,
-              },
-            },
-          });
-        },
-        definition: item,
-      });
-      input.addControl(controller);
-      // }
-    };
-    for (const [key, item] of Object.entries(rawTemplate)) {
+    for (const [key, socketActor] of Object.entries(inputSockets)) {
+      const definition = socketActor.getSnapshot().context.definition;
       if (this.hasInput(key)) {
         const input = this.inputs[key];
         if (input) {
-          const socket = getSocketByJsonSchemaType(item)! as any;
-          if (item["x-compatible"]) {
-            for (const compatible of item["x-compatible"]) {
-              socket.combineWith(compatible);
-            }
-          }
-
-          input.socket = socket;
-          input.actor = this.actor;
-          if (input.control) {
-            input.removeControl();
-            addController(input, item, key, input.socket);
-          }
+          input.socket = getSocketByJsonSchemaType(definition)! as any;
         }
         continue;
       }
 
-      const socket = getSocketByJsonSchemaType(item)!;
-      const input = new Input(
-        socket,
-        item.name,
-        item.isMultiple,
-        this.pactor,
-        (snapshot) => {
-          return snapshot.context.inputSockets[key];
-        },
-        /**
-         * TODO:
-         * We need a smarter way of determining if the input should be shown or not.
-         * need to track the if value set or not.
-         * if value is not set show the input
-         */
-      );
+      if (definition["x-actor-type"]) {
+        const actor = socketActor.system.get(
+          socketActor.getSnapshot().context.parent.id,
+        );
 
-      if (item["x-order"]) {
-        index = item["x-order"];
-      }
-      input.index = index + 1;
-      addController(input, item, key, socket);
-      this.addInput(key, input as any);
-      if (item.type !== "trigger" && isUndefined(values[key])) {
-        if (!isUndefined(item.default) && !item["x-actor-ref"]) {
-          values[key] = item.default;
-        } else {
-          // values[key] = item.type === "date" ? undefined : "";
-          values[key] = undefined;
+        if (actor) {
+          actor.send({
+            type: "INITIALIZE",
+          });
         }
       }
+
+      const socket = getSocketByJsonSchemaType(definition)!;
+      const input = new Input(socket, key, definition.isMultiple, socketActor);
+      this.addInput(key, input as any);
     }
-    // console.log("setting values", values);
-    // this.pactor.send({
-    //   type: "SET_VALUE",
-    //   values,
-    // });
-  }
-
-  public setOutputSockets(sockets: Record<string, JSONSocket>) {
-    this.outputSockets = sockets;
-  }
-
-  public setInputSockets(sockets: Record<string, JSONSocket>) {
-    this.inputSockets = sockets;
   }
 
   public setSnap(snap: SnapshotFrom<Machine>) {
     this.snap = snap;
-  }
-
-  public setExecutionNodeId(executionNodeId: string | undefined) {
-    this.executionNodeId = executionNodeId;
   }
 
   async execute(
@@ -804,6 +945,7 @@ export abstract class BaseNode<
     forward: (output: "trigger") => void,
     executionId: string,
   ) {
+    throw new Error("Not implemented");
     console.log(this.identifier, "@@@", input, "execute", executionId);
 
     const allConnections = this.di.editor
@@ -822,10 +964,10 @@ export abstract class BaseNode<
     if (this.snapshot.status === "done") {
       console.log("Running same node In the single execution with new input");
       this.executionNodeId = undefined; // reset execution node id
-      this.actor = this.setupActor({
+      this.nodeActor = this.setupActor({
         input: this.snapshot.context as any,
       });
-      this.actor.start();
+      this.nodeActor.start();
     }
     const canRun = this.snapshot.can({
       type: input,
@@ -982,7 +1124,7 @@ export abstract class BaseNode<
       this.di.logger.log(this.identifier, "waiting for complete");
       await waitFor(this.pactor, (state) => state.matches("complete"));
     }
-    state = this.actor.getSnapshot();
+    state = this.nodeActor.getSnapshot();
 
     return {
       ...state.context.outputs,
@@ -1025,62 +1167,6 @@ export abstract class BaseNode<
       width: this.width,
       height: this.height,
     };
-  }
-
-  async setInputs(inputs: Record<string, Socket>) {
-    const newInputs = Object.entries(inputs);
-    newInputs.forEach(([key, socket]) => {
-      if (this.hasInput(key)) {
-        if (this.inputs[key]?.socket.name !== socket.name) {
-          this.inputs[key]?.socket;
-        }
-      } else {
-        this.addInput(key, new Input(socket as any, key, false));
-      }
-    });
-
-    Object.entries(this.inputs).forEach(async ([key, input]) => {
-      if (input?.socket.name === "Trigger") return;
-      if (!newInputs.find(([k]) => k === key)) {
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.target === this.id && c.targetInput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            }),
-        );
-        this.removeInput(key);
-      }
-    });
-  }
-
-  async setOutputs(outputs: Record<string, Socket>) {
-    const newOutputs = Object.entries(outputs);
-    newOutputs.forEach(([key, socket]) => {
-      if (this.hasOutput(key)) {
-        if (this.outputs[key]?.socket.name !== socket.name) {
-          this.outputs[key]?.socket;
-        }
-      } else {
-        this.addOutput(key, new Output(socket as any, key, true));
-      }
-    });
-
-    Object.entries(this.outputs).forEach(async ([key, output]) => {
-      if (output?.socket.name === "Trigger") return;
-      if (!newOutputs.find(([k]) => k === key)) {
-        await Promise.all(
-          this.di.editor
-            .getConnections()
-            .filter((c) => c.source === this.id && c.sourceOutput === key)
-            .map(async (c) => {
-              await this.di.editor.removeConnection(c.id);
-            }),
-        );
-        this.removeOutput(key);
-      }
-    });
   }
 
   async setLabel(label: string) {
@@ -1186,7 +1272,8 @@ export abstract class BaseNode<
   }
 
   async serialize(): Promise<ParsedNode<NodeTypes, Machine>> {
-    const state = this.actor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
+    const state =
+      this.nodeActor.getPersistedSnapshot() as Snapshot<Machine> as any; //TODO: types
     return {
       ...this.nodeData,
       // state: state,

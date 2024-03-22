@@ -1,16 +1,9 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { omit, get, isEqual } from "lodash-es";
-import {
-  AlertCircle,
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Circle,
-  CircleDot,
-} from "lucide-react";
-import { AnyActor, AnyActorRef } from "xstate";
+import _, { omit, get, isNil, isEqual } from "lodash-es";
+import { ChevronDown, ChevronRight, Circle, CircleDot } from "lucide-react";
+import { Actor, ActorRefFrom, AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
@@ -24,13 +17,20 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
+import { inputSocketMachine } from "@seocraft/core/src/input-socket";
+import { Label } from "@/components/ui/label";
+import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
-  console.log("NODE CONTROLLER", props.data.actor.src, props.data.actor.src);
+  const socketKey = useMemo(() => {
+    return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
+  }, [props.data.actor.src, props.data.definition["x-key"]]);
+
+  console.log("NODE CONTROLLER SOCKET", socketKey);
+
   const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
-    (state) =>
-      state.context.inputSockets[props.data.definition["x-key"]] as JSONSocket,
+    (state) => state.context.inputSockets[socketKey] as JSONSocket,
   );
 
   const actorSelector = useMemo(() => {
@@ -38,18 +38,16 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     if (item["x-connection"] && Object.keys(item["x-connection"]).length > 0) {
       return null;
     }
-    if (item["x-compatible"]?.length === 1) {
+    if (item["x-compatible"]?.length === 1 || isNil(item["x-compatible"])) {
       return null;
     }
     const controller = getControlBySocket({
       socket: getSocketByJsonSchemaType(item),
       actor: props.data.actor,
       selector: (snapshot) =>
-        snapshot.context.inputSockets[props.data.definition["x-key"]][
-          "x-actor-type"
-        ],
+        snapshot.context.inputSockets[socketKey]["x-actor-type"],
       definitionSelector: (snapshot) =>
-        snapshot.context.inputSockets[props.data.definition["x-key"]],
+        snapshot.context.inputSockets[socketKey],
       onChange: (v) => {
         console.log("onChange", v);
         props.data.actor.send({
@@ -77,48 +75,46 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 
   const selectedActor = useSelector<AnyActorRef, AnyActor>(
     props.data?.actor,
-    (state) =>
-      state.context.inputSockets[props.data.definition["x-key"]]["x-actor-ref"],
+    (state) => state.context.inputSockets[socketKey]["x-actor-ref"],
   );
-  const selectedActorState = useSelector<AnyActor, any>(
-    selectedActor,
-    (state) => state.value,
-    isEqual,
-  );
+
+  console.log("selectedActorState", selectedActor, item["x-key"]);
 
   return (
     <div>
       <LayoutGroup>
         {actorSelector}
-        {selectedActorState && (
-          <div
-            className={cn(
-              "bg-muted/10 flex flex-col rounded border p-2",
-              selectedActorState === "complete" && "border-green-400/30",
-              selectedActorState === "action_required" &&
-                "border-yellow-400/30",
-            )}
-          >
-            <div className="flex items-center justify-end">
-              {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
-              {selectedActorState === "complete" && (
-                <CheckCircle size={14} className="text-green-400" />
-              )}
-              {selectedActorState === "action_required" && (
-                <AlertCircle size={14} className="text-yellow-400" />
-              )}
-            </div>
-            {selectedActor && (
-              <div className="border p-1">
-                <InputsList actor={selectedActor} />
-              </div>
-            )}
-          </div>
-        )}
+        <InputItem key={item} itemKey={item["x-key"]} actor={selectedActor} />
       </LayoutGroup>
     </div>
   );
 };
+
+// {selectedActorState && (
+//   <div
+//     className={cn(
+//       "bg-muted/10 flex flex-col rounded border p-2",
+//       selectedActorState === "complete" && "border-green-400/30",
+//       selectedActorState === "action_required" &&
+//         "border-yellow-400/30",
+//     )}
+//   >
+//     <div className="flex items-center justify-end">
+//       {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
+//       {selectedActorState === "complete" && (
+//         <CheckCircle size={14} className="text-green-400" />
+//       )}
+//       {selectedActorState === "action_required" && (
+//         <AlertCircle size={14} className="text-yellow-400" />
+//       )}
+//     </div>
+//     {selectedActor && (
+//       <div className="border p-1">
+//         <InputsList actor={selectedActor} />
+//       </div>
+//     )}
+//   </div>
+// )}
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
@@ -128,8 +124,8 @@ const advanceInputSelector = (state: any) =>
 
 const basicInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    .pickBy((v) => !v["x-isAdvanced"])
-    .keys()
+    // .pickBy((v) => !v["x-isAdvanced"])
+    .entries()
     .value();
 
 export const InputsList = (props: {
@@ -149,11 +145,11 @@ export const InputsList = (props: {
 
 const BasicInputs = (props: { actor: AnyActor }) => {
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
-  console.log("Basic inputSockets", inputSockets);
+
   return (
     <>
-      {inputSockets?.map((item) => {
-        return <InputItem key={item} itemKey={item} actor={props.actor} />;
+      {inputSockets?.map(([key, actor]) => {
+        return <InputItem key={key} itemKey={key} actor={actor} />;
       })}
     </>
   );
@@ -196,54 +192,147 @@ const InputItem = ({
   actor,
 }: {
   itemKey: string;
-  actor: AnyActor;
+  actor: Actor<typeof inputSocketMachine>;
 }) => {
-  const item = useSelector(
+  const item = useSelector(actor, (state) => state.context.definition, isEqual);
+  const parentId = useSelector(
     actor,
-    (state) => state.context.inputSockets[itemKey],
+    (state) => state.context.parent.id,
+    isEqual,
   );
-  const targetActor = item["x-actor-id"]
-    ? actor.system.get(item["x-actor-id"])
-    : actor;
-  const socket = useMemo(() => getSocketByJsonSchemaType(item), [item]);
-  const handleChange = (v: any) => {
-    targetActor.send({
-      type: "SET_VALUE",
+
+  const { controller, definition } = useMemo(() => {
+    const controller = getControlBySocket({
+      actor: actor,
+      definition: item,
+    });
+    return {
+      controller,
+      definition: item,
+    };
+  }, [item]);
+
+  const hasConnectionBasic = useSelector(actor, (s) =>
+    s.matches({ basic: "connection" }),
+  );
+
+  if (hasConnectionBasic) {
+    //   console.log("HAS CONNECTION");
+    const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
+      Object.values(item["x-connection"])[0];
+
+    // console.log(connectionActors);
+    // const connectionDefinition =
+    //   connectionActor?.getSnapshot().context.definition;
+
+    if (!connectionActor) return null;
+    const targetActor = actor.system.get(
+      connectionActor.getSnapshot().context.parent.id,
+    );
+
+    return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
+  }
+
+  if (item["x-actor-type"]) {
+    console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
+
+    const parent = actor.system.get(parentId);
+    const targetActor = parent.getSnapshot().context.inputs[item["x-key"]];
+    console.log("TARGET ACTOR", parent, targetActor, parentId, item["x-key"]);
+    // return null;
+    return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
+  }
+
+  return (
+    <SocketController actor={actor} socket={item} socketKey={itemKey}>
+      <ControlWrapper control={controller} definition={definition} />
+    </SocketController>
+  );
+};
+
+const ActorInputItem = ({
+  targetActor,
+  socketActor,
+}: {
+  targetActor: AnyActor;
+  socketActor: Actor<typeof inputSocketMachine>;
+}) => {
+  const handleToggleSocket = (val: boolean) => {
+    socketActor.send({
+      type: "UPDATE_SOCKET",
       params: {
-        values: {
-          [item["x-key"]]: v,
-        },
+        "x-showSocket": val,
       },
     });
   };
-  const controller = useMemo(
-    () =>
-      getControlBySocket({
-        socket,
-        actor: targetActor,
-        selector: (snapshot) => snapshot.context.inputs[item["x-key"]],
-        definitionSelector: (snapshot) =>
-          snapshot.context.inputSockets[item["x-key"]],
-        onChange: handleChange,
-        definition: item,
-      }),
-    [item, item.format],
-  );
+  const handleToggleController = (val: boolean) => {
+    socketActor.send({
+      type: "UPDATE_SOCKET",
+      params: {
+        "x-showController": val,
+      },
+    });
+  };
+  const socket = useSelector(socketActor, (state) => state.context.definition);
 
   return (
-    <SocketController actor={actor} socket={item}>
-      <ControlWrapper control={controller} definition={item} />
-    </SocketController>
+    <div className="m-2 rounded border">
+      <div className="m-2 ml-0 flex w-full flex-row items-center p-1 ">
+        <div className="flex w-full flex-1 flex-row items-center space-x-1">
+          <Toggle
+            onPressedChange={handleToggleSocket}
+            pressed={socket["x-showSocket"]}
+            size={"sm"}
+            // disabled={hasConnection}
+          >
+            {socket["x-showSocket"] ? (
+              <CircleDot className="h-4 w-4" />
+            ) : (
+              <Circle className="h-4 w-4" />
+            )}
+          </Toggle>
+          <div
+            className="flex w-full flex-1 cursor-pointer flex-col"
+            onClick={() => handleToggleController(!socket["x-showController"])}
+          >
+            <Label>{socket.title || socket.name}</Label>
+            <p className={cn("text-muted-foreground text-[0.8rem]")}>
+              {socket?.description}
+            </p>
+          </div>
+        </div>
+        <div>
+          <Toggle
+            variant={"default"}
+            size={"sm"}
+            onPressedChange={handleToggleController}
+          >
+            {socket["x-showController"] ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Toggle>
+        </div>
+      </div>
+      {socket["x-showController"] && (
+        <div className="bg-muted/20   m-1">
+          <InputsList actor={targetActor} showAdvanced={true} />
+        </div>
+      )}
+    </div>
   );
 };
 
 const SocketController = ({
   actor,
   socket,
+  socketKey,
   children,
 }: {
-  actor: AnyActor;
+  actor: Actor<typeof inputSocketMachine | typeof outputSocketMachine>;
   socket: JSONSocket;
+  socketKey: string;
   children: React.ReactNode;
 }) => {
   const hasConnection = useMemo(() => {
@@ -255,11 +344,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socket["x-key"],
-        side: "input",
-        socket: {
-          "x-showSocket": val,
-        },
+        "x-showSocket": val,
       },
     });
   };
@@ -267,11 +352,7 @@ const SocketController = ({
     actor.send({
       type: "UPDATE_SOCKET",
       params: {
-        name: socket["x-key"],
-        side: "input",
-        socket: {
-          "x-showControl": val,
-        },
+        "x-showController": val,
       },
     });
   };
@@ -281,8 +362,12 @@ const SocketController = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       exit={{ opacity: 0 }}
+      data-socket-key={socketKey}
+      data-socket-value-key={socket["x-key"]}
+      data-socket-type={socket["x-type"]}
+      data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
-        "mb-2 flex flex-row space-x-1 p-2",
+        "m-2 mb-2 flex flex-row space-x-1 p-2",
         hasConnection && "bg-muted/30 rounded border",
       )}
     >

@@ -82,7 +82,6 @@ export class Wordpress extends BaseNode<typeof WordpressMachine> {
         },
       },
     });
-    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
 

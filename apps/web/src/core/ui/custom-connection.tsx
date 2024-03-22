@@ -8,30 +8,31 @@ import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useSelector } from "@xstate/react";
-import { get } from "lodash-es";
 
 const { useConnection } = Presets.classic;
 
 const useConnectionSync = (props: { data: Connection }) => {
-  const sourceValue = useSelector(props.data?.sourceNode?.actor, (state) =>
-    state ? state?.context?.outputs[props.data.sourceOutput] : null,
-  );
-  const sourceId = props.data?.sourceNode?.actor?.id;
-  const targetActorRefId = useSelector(props.data?.targetNode?.actor, (state) =>
-    get(
-      state,
-      ["context", "inputSockets", props.data.targetInput, "x-actor-ref-id"],
-      null,
-    ),
-  );
+  const sourceValue = useSelector(props.data?.sourceActor, (state) => {
+    if (!state) {
+      return null;
+    }
+    if (
+      props.data.targetDefinition["x-compatible"]?.includes(
+        props.data.sourceDefinition.type,
+      )
+    ) {
+      return props.data.sourceActor;
+    }
+    return state?.context?.outputs[props.data.sourceDefinition["x-key"]];
+  });
 
-  const targetValue = useSelector(props.data?.targetNode?.actor, (state) =>
-    state ? state?.context?.inputs[props.data.targetInput] : null,
+  const targetValue = useSelector(props.data?.targetActor, (state) =>
+    state ? state?.context?.inputs[props.data.targetDefinition["x-key"]] : null,
   );
 
   const inSync = React.useMemo(() => {
-    return sourceValue === targetValue || sourceId === targetActorRefId;
-  }, [sourceValue, targetValue, sourceId, targetActorRefId]);
+    return sourceValue === targetValue;
+  }, [sourceValue, targetValue]);
   return inSync;
 };
 
@@ -64,29 +65,40 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
       }
     >
       {path && (
-        <motion.path
-          d={path}
-          animate={inSync ? "sync" : "inSync"}
-          variants={{
-            sync: { pathLength: 1, pathSpacing: 0.2 },
-            inSync: {
-              pathLength: [0, 0.4, 0.8],
-              pathSpacing: [0.2, 0.4],
-              transition: {
-                duration: 0.2,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatType: "loop",
-                repeatDelay: 0.1,
+        <g>
+          <motion.path
+            d={path}
+            className={cn(
+              "stroke-muted-foreground dark:stroke-muted-foreground/60 pointer-events-auto fill-none stroke-[6px]",
+              // sourceConfig &&
+              //   `stroke-${sourceConfig.connection}-400 dark:stroke-${sourceConfig.connection}-400`,
+            )}
+          />
+          <motion.path
+            d={path}
+            animate={inSync ? "sync" : "inSync"}
+            variants={{
+              sync: { pathLength: 1, pathSpacing: 0.2 },
+              inSync: {
+                pathLength: [0.1, 0.4, 0.8],
+                pathSpacing: [0.2, 0.4],
+                transition: {
+                  duration: 0.4,
+                  ease: "easeInOut",
+                  repeat: 1,
+                  repeatType: "loop",
+                  repeatDelay: 0.1,
+                },
               },
-            },
-          }}
-          className={cn(
-            "stroke-primary dark:stroke-primary/60 pointer-events-auto fill-none stroke-[5px]",
-            sourceConfig &&
-              `stroke-${sourceConfig.connection}-400 dark:stroke-${sourceConfig.connection}-400/60`,
-          )}
-        />
+            }}
+            className={cn(
+              "z-1 pointer-events-auto fill-none stroke-[4px]",
+              sourceConfig &&
+                inSync &&
+                `stroke-${sourceConfig.connection}-400 dark:stroke-${sourceConfig.connection}-400/60`,
+            )}
+          />
+        </g>
       )}
     </motion.svg>
   );

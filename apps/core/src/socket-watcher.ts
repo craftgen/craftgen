@@ -25,6 +25,7 @@ export const socketWatcher = fromObservable(
     const connectionsMap = new Map<ActorId, Set<string>>();
     const updateConnections = (state: SnapshotFrom<AnyActor>, key: string) => {
       const connections = state.context.outputSockets[key]["x-connection"];
+
       if (!connections) {
         return;
       }
@@ -33,7 +34,7 @@ export const socketWatcher = fromObservable(
 
         const target = system.get(t);
         if (!target) {
-          console.error("Target not found", t);
+          // console.error("Target not found", t);
           continue;
         }
         target.send({
@@ -52,12 +53,17 @@ export const socketWatcher = fromObservable(
       return of({});
     }
 
-    const nodeEvents = from(input.self as any);
+    const actor = system.get(input.self.id);
+    const nodeEvents = from(actor);
 
     nodeEvents
       .pipe(
         filter((state) => {
-          return isNil(state.context.parent);
+          const moduleNode = system.get("editor");
+
+          const parentId = get(state, ["context", "parent", "id"]);
+
+          return moduleNode.id === parentId;
         }),
         debounceTime(1000),
         switchMap((state) => {
@@ -83,15 +89,21 @@ export const socketWatcher = fromObservable(
             string,
             JSONSocket
           >;
+          const rootModuleId = system.get("editor").id;
           const openOutputs = Object.entries(outputSockets)
             .filter(([key, socket]) => {
               return socket["x-showSocket"];
             })
             .filter(([key, socket]) => {
               const connections = get(socket, ["x-connection"], {});
-              if (Object.values(connections).length === 0) {
+              const connectionKeys = Object.keys(connections).filter(
+                (k) => k !== rootModuleId,
+              );
+
+              if (connectionKeys.length === 0) {
                 return true;
               }
+
               return false;
             })
             .map(([key, socket]) => socket);
@@ -101,8 +113,10 @@ export const socketWatcher = fromObservable(
         distinctUntilChanged(isEqual),
       )
       .subscribe((event) => {
-        const module = system.get("editor");
-        module.send({
+        console.log("SET_INPUT_OUTPUT", event);
+        const editorModule = system.get("editor");
+
+        editorModule.send({
           type: "SET_INPUT_OUTPUT",
           params: {
             id: input.self.id,
@@ -148,7 +162,7 @@ export const socketWatcher = fromObservable(
               }
               const target = system.get(t);
               if (!target) {
-                console.error("Target not found", t);
+                // console.error("Target not found", t);
                 continue;
               }
               if (!connectionsMap.get(t)!.has(key)) {

@@ -1,4 +1,4 @@
-import { has, merge } from "lodash-es";
+import { has } from "lodash-es";
 import dedent from "ts-dedent";
 import { createMachine, enqueueActions } from "xstate";
 
@@ -11,7 +11,8 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
+import { createId } from "@paralleldrive/cuid2";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -21,7 +22,6 @@ const inputSockets = {
     type: "string" as const,
     default: "https://api.example.com/v1",
     description: "The base URL for the API",
-    required: true,
   }),
   APIKey: generateSocket({
     "x-key": "APIKey",
@@ -29,7 +29,6 @@ const inputSockets = {
     title: "API Key",
     type: "string" as const,
     description: "The API key for the API",
-    required: true,
     format: "secret",
   }),
   headers: generateSocket({
@@ -42,24 +41,11 @@ const inputSockets = {
     default: {
       "Content-Type": "application/json",
     },
-    required: true,
     "x-isAdvanced": true,
   }),
 };
 
 const outputSockets = {
-  NodeApiConfiguration: generateSocket({
-    "x-key": "NodeApiConfiguration",
-    name: "api" as const,
-    title: "Api Configuration",
-    type: "NodeApiConfiguration" as const,
-    description: dedent`
-    Api configuration
-    `,
-    required: true,
-    isMultiple: false,
-    "x-showSocket": true,
-  }),
   config: generateSocket({
     "x-key": "config",
     name: "config" as const,
@@ -98,38 +84,13 @@ export const ApiConfigurationMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgEMAHASwFoBjLDAMxKgFcAnAgFxOvxCK1hPc5IQAD0QBGAEzoAnuInIFyIA */
     id: "api-configuration",
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        const inputKey = key as keyof typeof inputSockets;
-        if (socket.default) {
-          defaultInputs[inputKey] = socket.default as any;
-        } else {
-          defaultInputs[inputKey] = undefined;
-        }
-      }
-      return merge<typeof input, any>(
-        {
-          name: "API Configuration",
-          description: "API Configuration",
-          inputs: {
-            ...defaultInputs,
-          },
-          outputs: {
-            config: {
-              ...defaultInputs,
-            },
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-        },
-        input,
-      );
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "API Configuration",
+        description: "API Configuration",
+        inputSockets,
+        outputSockets,
+      }),
     entry: enqueueActions(({ enqueue, self }) => {
       enqueue("initialize");
       enqueue("updateOutput");
@@ -144,9 +105,19 @@ export const ApiConfigurationMachine = createMachine(
         | {
             type: "adjustMaxCompletionTokens";
           };
-      events: {
-        type: "UPDATE_OUTPUTS";
-      };
+      events:
+        | {
+            type: "UPDATE_OUTPUTS";
+          }
+        | {
+            type: "COMPUTE";
+          }
+        | {
+            type: "RESULT";
+            params: {
+              inputs: {};
+            };
+          };
       actors: None;
       guards: None;
     }>,
@@ -162,27 +133,52 @@ export const ApiConfigurationMachine = createMachine(
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
-          enqueue("updateOutput");
-
-          if (check(({ event }) => has(event.params.values, "APIKey"))) {
-            enqueue.assign({
-              inputs: ({ context, event }) => {
-                const headers = { ...context.inputs.headers } as any;
-                if (event.params.values["APIKey"] === "") {
-                  delete headers.Authorization;
-                } else {
-                  headers.Authorization = `Bearer ${event.params.values["APIKey"]}`;
-                }
-
-                return {
-                  ...context.inputs,
-                  headers: {
-                    ...headers,
-                  },
-                };
-              },
-            });
+          // enqueue("updateOutput");
+          // enqueue.raise({
+          //   type: "COMPUTE",
+          // });
+        }),
+      },
+      COMPUTE: {
+        actions: enqueueActions(({ enqueue, context, self }) => {
+          console.log("COMPUTE API Configuration", context);
+          const valueId = `value_${createId()}`;
+          enqueue.spawnChild("computeActorInputs", {
+            id: valueId,
+            input: {
+              value: context,
+              targets: [self.id],
+            },
+            systemId: valueId,
+            syncSnapshot: false,
+          });
+        }),
+      },
+      RESULT: {
+        actions: enqueueActions(({ enqueue, event, check }) => {
+          console.log("RESULT API Configuration", event);
+          const headers = { ...event.params.inputs.headers } as any;
+          if (
+            event.params.inputs["APIKey"] === "" ||
+            event.params.inputs["APIKey"] === undefined
+          ) {
+            delete headers.Authorization;
+          } else {
+            headers.Authorization = `Bearer ${event.params.inputs["APIKey"]}`;
           }
+
+          enqueue.assign({
+            outputs: ({ event }) => {
+              return {
+                baseUrl: event.params.inputs.baseUrl,
+                headers,
+                config: {
+                  ...event.params.inputs,
+                  headers,
+                },
+              };
+            },
+          });
         }),
       },
       UPDATE_SOCKET: {
@@ -232,6 +228,5 @@ export class NodeApiConfiguration extends BaseNode<
 
   constructor(di: DiContainer, data: ApiConfigurationNode) {
     super("NodeApiConfiguration", di, data, ApiConfigurationMachine, {});
-    this.setup();
   }
 }

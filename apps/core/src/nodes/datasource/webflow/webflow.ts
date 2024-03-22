@@ -82,7 +82,6 @@ export class Webflow extends BaseNode<typeof WebflowMachine> {
         },
       },
     });
-    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
 

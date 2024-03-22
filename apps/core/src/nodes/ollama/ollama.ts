@@ -1,16 +1,20 @@
 import ky from "ky";
-import { merge } from "lodash-es";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OllamaChatModelSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, enqueueActions, fromPromise } from "xstate";
+import {
+  ActorRefFrom,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -19,6 +23,8 @@ import type {
   ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
+import { inputSocketMachine } from "../../input-socket";
+import { ApiConfigurationMachine } from "../apiConfiguration";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -148,7 +154,7 @@ const inputSockets = {
   apiConfiguration: generateSocket({
     "x-key": "apiConfiguration",
     name: "api" as const,
-    title: "API",
+    title: "API Configuration",
     type: "NodeApiConfiguration",
     description: dedent`
     Api configuration for Ollama
@@ -433,6 +439,7 @@ const inputSockets = {
     required: false,
     default: undefined,
     isMultiple: false,
+    format: "expression",
     "x-controller": "code",
     "x-language": "handlebars",
     "x-showSocket": false,
@@ -447,6 +454,7 @@ const inputSockets = {
     required: false,
     default: undefined,
     isMultiple: false,
+    format: "expression",
     "x-language": "handlebars",
     "x-showSocket": false,
     "x-isAdvanced": true,
@@ -474,37 +482,20 @@ export const OllamaModelMachine = createMachine(
     entry: enqueueActions(({ enqueue }) => {
       enqueue("initialize");
     }),
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        if (socket.default) {
-          defaultInputs[key as any] = socket.default;
-        } else {
-          defaultInputs[key as any] = undefined;
-        }
-      }
-      return merge<typeof input, any>(
-        {
-          name: "Ollama Model",
-          description: "Ollama Model configuration",
-          inputs: {
-            ...defaultInputs,
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-          outputs: {},
-        },
-        input,
-      );
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Ollama Model",
+        description: "Ollama Model configuration",
+        inputSockets,
+        outputSockets,
+      }),
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
         model?: ShowResponse & { name: string };
+        childs: {
+          apiConfiguration: ActorRefFrom<typeof ApiConfigurationMachine>;
+        };
       };
       actions: {
         type: "updateOutput";
@@ -558,12 +549,16 @@ export const OllamaModelMachine = createMachine(
           src: "getModels",
           onDone: {
             actions: enqueueActions(({ enqueue, event }) => {
-              enqueue.raise({
-                type: "UPDATE_SOCKET",
-                params: {
-                  name: "model",
-                  side: "input",
-                  socket: {
+              enqueue.sendTo(
+                ({ context, system }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("model"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                {
+                  type: "UPDATE_SOCKET",
+                  params: {
                     allOf: [
                       {
                         enum: [
@@ -575,7 +570,7 @@ export const OllamaModelMachine = createMachine(
                     ],
                   },
                 },
-              });
+              );
             }),
           },
           onError: {
@@ -607,20 +602,43 @@ export const OllamaModelMachine = createMachine(
           }),
           onDone: {
             target: "#ollama-model.complete",
-            actions: assign({
-              model: ({ event, context }) => {
-                return {
-                  ...event.output,
-                  name: context.inputs.model,
-                };
-              },
-              inputs: ({ context, event }) => {
-                return {
-                  ...context.inputs,
-                  modelfile: event.output.modelfile,
-                  template: event.output.template,
-                };
-              },
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue.assign({
+                model: ({ event, context }) => {
+                  return {
+                    ...event.output,
+                    name: context.inputs.model,
+                  };
+                },
+              });
+              enqueue.sendTo(
+                ({ system, context }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("modelfile"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                ({ event }) => ({
+                  type: "SET_VALUE",
+                  params: {
+                    value: event.output.modelfile,
+                  },
+                }),
+              );
+              enqueue.sendTo(
+                ({ system, context }) =>
+                  system.get(
+                    Object.keys(context.inputSockets).find((k) =>
+                      k.endsWith("template"),
+                    ),
+                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                ({ event }) => ({
+                  type: "SET_VALUE",
+                  params: {
+                    value: event.output.template,
+                  },
+                }),
+              );
             }),
           },
           onError: {
@@ -628,9 +646,6 @@ export const OllamaModelMachine = createMachine(
             target: "action_required",
           },
         },
-        // after: {
-        //   1000: "idle",
-        // },
       },
       error: {
         on: {
@@ -681,7 +696,6 @@ export const OllamaModelMachine = createMachine(
           },
           SET_VALUE: {
             actions: ["setValue", "updateOutput"],
-            // target: "action_required",
           },
         },
       },
@@ -744,6 +758,5 @@ export class NodeOllama extends BaseNode<typeof OllamaModelMachine> {
 
   constructor(di: DiContainer, data: OllamaModelNode) {
     super("NodeOllama", di, data, OllamaModelMachine, {});
-    this.setup();
   }
 }

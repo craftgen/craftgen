@@ -10,7 +10,6 @@ import {
   Loader2,
   Play,
   Undo2,
-  Wrench,
 } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
@@ -54,8 +53,7 @@ import type { ReteStoreInstance } from "../store";
 import "react-resizable/css/styles.css";
 
 import { useState } from "react";
-import { isEqual, isNil } from "lodash-es";
-import { observer } from "mobx-react-lite";
+import { get, isEqual, isNil } from "lodash-es";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
 
@@ -70,7 +68,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AnyActorRef } from "xstate";
-import { useCraftStore } from "../use-store";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -195,7 +192,7 @@ export const Node = (props: Props<Schemes>) => {
   Drag.useNoDrag(ref2);
 
   const stateValue = useSelector(
-    props.data.actor,
+    props.data.nodeActor,
     (state) => state.value,
     isEqual,
   );
@@ -428,7 +425,7 @@ export const Node = (props: Props<Schemes>) => {
                 </CardContent>
                 <Drag.NoDrag>
                   <CardFooter className="mx-2 my-2 mt-auto flex flex-col  rounded p-1 px-2 ">
-                    <NodeOutput id={props.data.id} actor={props.data.actor} />
+                    {/* <NodeOutput id={props.data.id} actor={props.data.actor} /> */}
                     <NodeIdBadge id={props.data.id} />
                   </CardFooter>
                 </Drag.NoDrag>
@@ -473,22 +470,30 @@ const NodeOutputs = ({
   emit: RenderEmit<Schemes>;
 }) => {
   const outputSockets = useSelector(
-    node.actor,
+    node.nodeActor,
     (state) =>
-      Object.entries(state.context.outputSockets)
-        .filter(([, v]) => v["x-showSocket"])
-        .map(([key, input]) => key) as string[],
-    isEqual,
+      Object.entries(
+        Object.values(state.context.actors)
+          .map((actor) => actor.outputSockets)
+          .reduce((acc, val) => ({ ...acc, ...val }), {}) || {},
+      ).filter(([key, socket]) => node.outputs[key]),
+    (a, b) =>
+      isEqual(
+        a.map(([k, v]) => k),
+        b.map(([k, v]) => k),
+      ),
   );
 
   return (
     <div>
       {/* Outputs */}
-      {outputSockets.map((key) => (
+      {outputSockets.map(([key, socketActor]) => (
         <RenderOutput
           key={`output-${node.id}-${key}`}
           emit={emit}
           outputKey={key}
+          actor={socketActor}
+          output={node.outputs[key]}
           id={node.id}
         />
       ))}
@@ -504,22 +509,30 @@ const NodeInputs = ({
   emit: RenderEmit<Schemes>;
 }) => {
   const inputSockets = useSelector(
-    node.actor,
+    node.nodeActor,
     (state) =>
-      Object.entries(state.context.inputSockets)
-        .filter(([, v]) => v["x-showSocket"])
-        .map(([key, input]) => key) as string[],
-    isEqual,
+      Object.entries(
+        Object.values(state.context.actors)
+          .map((actor) => actor.inputSockets)
+          .reduce((acc, val) => ({ ...acc, ...val }), {}) || {},
+      ).filter(([key, socket]) => node.inputs[key]),
+    (a, b) =>
+      isEqual(
+        a.map(([k, v]) => k),
+        b.map(([k, v]) => k),
+      ),
   );
 
   return (
     <div>
       {/* Inputs */}
-      {inputSockets.map((key) => (
+      {inputSockets?.map(([key, socketActor]) => (
         <RenderInput
           key={`input-${node.id}-${key}`}
           emit={emit}
           inputKey={key}
+          input={node.inputs[key]}
+          actor={socketActor}
           id={node.id}
         />
       ))}
@@ -609,50 +622,66 @@ const ResizeHandle = React.forwardRef<any>((props: any, ref: any) => {
 });
 ResizeHandle.displayName = "ResizeHandle";
 
-const RenderInput: React.FC<any> = ({ emit, id, inputKey }) => {
-  const di = useCraftStore((state) => state.di);
-  const node = di?.editor.getNode(id);
-  const input = node?.inputs[inputKey];
+const RenderInput: React.FC<any> = ({ emit, id, inputKey, actor, input }) => {
+  const isVisible = useSelector(
+    actor,
+    (state) => get(state, ["context", "definition", "x-showSocket"], false),
+    isEqual,
+  );
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div
       className="flex select-none items-center text-left "
       data-testid={`input-${inputKey}`}
     >
-      {input && (
-        <RefSocket
-          name="input-socket"
-          emit={emit}
-          side="input"
-          socketKey={inputKey}
-          nodeId={id}
-          payload={{ socket: input.socket, input } as any}
-        />
-      )}
+      <RefSocket
+        name="input-socket"
+        emit={emit}
+        side="input"
+        socketKey={inputKey}
+        nodeId={id}
+        payload={{ socket: input?.socket, input } as any}
+      />
     </div>
   );
 };
 
-const RenderOutput: React.FC<any> = ({ emit, id, outputKey }) => {
-  const di = useCraftStore((state) => state.di);
-  const node = di?.editor.getNode(id);
-  const output = node?.outputs[outputKey];
+const RenderOutput: React.FC<any> = ({
+  emit,
+  id,
+  outputKey,
+  actor,
+  output,
+}) => {
+  const isVisible = useSelector(
+    actor,
+    (state) => get(state, ["context", "definition", "x-showSocket"], false),
+    isEqual,
+  );
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div
       className="flex select-none items-center justify-end text-right"
       data-testid={`output-${outputKey}`}
     >
-      {output && (
+      {
         <RefSocket
           name="output-socket"
           side="output"
           emit={emit}
           socketKey={outputKey}
           nodeId={id}
-          payload={{ socket: output?.socket!, output } as any}
+          payload={{ socket: output?.socket, output } as any}
         />
-      )}
+      }
     </div>
   );
 };

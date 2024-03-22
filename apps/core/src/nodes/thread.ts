@@ -1,5 +1,4 @@
 import { createId } from "@paralleldrive/cuid2";
-import { merge } from "lodash-es";
 import type { ChatMessage } from "modelfusion";
 import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import type { PromiseActorLogic } from "xstate";
@@ -14,9 +13,10 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
 import { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
+import { isNil } from "lodash";
 
 export enum ThreadActions {
   addMessage = "addMessage",
@@ -34,8 +34,8 @@ const inputSockets = {
   //   "x-event": "ADD_MESSAGE",
   // }),
   messages: generateSocket({
-    name: "Thread",
-    description: "Thread of messages",
+    name: "messages",
+    description: "Array of messages",
     "x-showSocket": false,
     "x-key": "messages",
     type: "array",
@@ -59,7 +59,7 @@ const outputSockets = {
     type: "NodeThread",
     "x-controller": "thread",
     isMultiple: true,
-    "x-key": "thread",
+    "x-key": "self",
     "x-showSocket": true,
   }),
   messages: generateSocket({
@@ -67,7 +67,7 @@ const outputSockets = {
     type: "array",
     isMultiple: true,
     "x-key": "thread",
-    "x-showSocket": false,
+    "x-showSocket": true,
   }),
 };
 
@@ -106,29 +106,14 @@ export const ThreadMachine = createMachine(
     entry: enqueueActions(({ enqueue, context }) => {
       enqueue("initialize");
     }),
-    context: ({ input }) =>
-      merge<typeof input, any>(
-        {
-          name: "Thread",
-          description: "Thread of messages",
-          inputs: {
-            messages: [],
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputs: {
-            messages: [],
-            thread: {
-              name: "Thread",
-              description: "Thread of messages",
-              schema: {},
-            },
-          },
-          outputSockets: { ...outputSockets },
-        },
-        input,
-      ),
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Thread",
+        description: "Thread of messages",
+        inputSockets,
+        outputSockets,
+      }),
+
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets> & {
         inputs: {
@@ -183,14 +168,14 @@ export const ThreadMachine = createMachine(
       INITIALIZE: {
         actions: ["initialize"],
       },
+      SET_OUTPUT: {
+        actions: ["setOutput"],
+      },
     },
     states: {
       idle: {
         entry: ["updateOutput"],
         on: {
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               enqueue({
@@ -224,28 +209,21 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.run]: {
-            guard: {
-              type: "hasConnection",
-              params: {
-                port: "output",
-                key: "onRun",
-              },
+            guard: ({ context }) => {
+              return !isNil(context.outputs.onRun);
             },
-            actions: {
-              type: "triggerSuccessors",
-              params: {
-                port: "onRun",
-              },
-            },
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue({
+                type: "triggerSuccessors",
+                params: {
+                  port: "onRun",
+                },
+              });
+            }),
           },
-
           [ThreadMachineEvents.addAndRunMessage]: {
-            guard: {
-              type: "hasConnection",
-              params: {
-                port: "output",
-                key: "onRun",
-              },
+            guard: ({ context }) => {
+              return !isNil(context.outputs.onRun);
             },
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
@@ -279,6 +257,7 @@ export const ThreadMachine = createMachine(
         enqueue.assign({
           outputs: ({ context }) => {
             return {
+              ...context.outputs,
               messages: context.inputs.messages,
             };
           },
@@ -326,6 +305,5 @@ export class NodeThread extends BaseNode<typeof ThreadMachine> {
 
   constructor(di: DiContainer, data: NodeThreadData) {
     super("NodeThread", di, data, ThreadMachine, {});
-    this.setup();
   }
 }

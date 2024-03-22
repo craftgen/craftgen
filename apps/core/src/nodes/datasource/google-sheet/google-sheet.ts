@@ -322,7 +322,6 @@ export class GoogleSheet extends BaseNode<typeof GoogleSheetMachine> {
         }),
       },
     });
-    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
 

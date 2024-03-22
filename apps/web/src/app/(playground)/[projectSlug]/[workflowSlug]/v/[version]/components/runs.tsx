@@ -16,7 +16,7 @@ export const Runs = ({ node }: { node: NodeProps }) => {
       .filter(([key, child]) => key.startsWith("call"))
       .filter(
         ([key, child]) =>
-          child.getSnapshot().context.parent.id === node.actor.id,
+          child.getSnapshot().context?.parent?.id === node.actor.id,
       )
       .map(([key, child]) => child),
   );

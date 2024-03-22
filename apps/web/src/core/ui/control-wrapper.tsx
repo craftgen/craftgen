@@ -1,6 +1,7 @@
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import { useRef } from "react";
 import { getControl } from "../control";
+import { ControlContainer } from "./control-container";
 
 export const ControlWrapper: React.FC<{
   control: any;
@@ -19,7 +20,12 @@ export const ControlWrapper: React.FC<{
         className="flex flex-1 flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <ControlElement data={control} />
+        <ControlContainer
+          id={control?.id || "something"}
+          definition={definition}
+        >
+          <ControlElement data={control} />
+        </ControlContainer>
       </div>
     </>
   );

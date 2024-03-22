@@ -10,7 +10,7 @@ import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -178,34 +178,13 @@ export const OpenaiModelMachine = createMachine(
     entry: enqueueActions(({ enqueue, context }) => {
       enqueue("initialize");
     }),
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        const inputKey = key as keyof typeof inputSockets;
-        if (socket.default) {
-          defaultInputs[inputKey] = socket.default as any;
-        } else {
-          defaultInputs[inputKey] = undefined;
-        }
-      }
-      return merge<typeof input, any>(
-        {
-          name: "OpenAI Model",
-          description: "OpenAI Model",
-          inputs: {
-            ...defaultInputs,
-          },
-          outputs: {},
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-        },
-        input,
-      );
-    },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "OpenAI Model",
+        description: "OpenAI Model",
+        inputSockets,
+        outputSockets,
+      }),
     on: {
       ASSIGN_CHILD: {
         actions: enqueueActions(({ enqueue }) => {
@@ -338,6 +317,5 @@ export class NodeOpenAI extends BaseNode<typeof OpenaiModelMachine> {
 
   constructor(di: DiContainer, data: OpenaiModelNode) {
     super("NodeOpenAI", di, data, OpenaiModelMachine, {});
-    this.setup();
   }
 }

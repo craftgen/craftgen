@@ -23,9 +23,9 @@ export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="justify-start" size="sm">
-          <Icons.key className="mr-2 h-4 w-4" />
-          Secret
+        <Button variant="ghost" className="justify-start" size="sm">
+          <Icons.key className="h-4 w-4 mr-2" />
+          <p className="text-xs text-muted-foreground">Secret</p>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0" side="right" align="start">

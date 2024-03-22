@@ -1,4 +1,4 @@
-import { merge } from "lodash-es";
+import { merge, set } from "lodash-es";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
@@ -7,6 +7,8 @@ import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
 import { BaseNode } from "../base";
 import type { ParsedNode } from "../base";
+import { spawnInputSockets } from "../../input-socket";
+import { spawnOutputSockets } from "../../output-socket";
 
 const inputSockets = {
   value: generateSocket({
@@ -35,8 +37,8 @@ const outputSockets = {
 const NumberMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
   id: "textNode",
-  context: ({ input }) =>
-    merge<typeof input, any>(
+  context: ({ input, spawn, self }) => {
+    const config = merge<typeof input, any>(
       {
         name: "Number",
         description: "Node for handling numbers",
@@ -54,7 +56,24 @@ const NumberMachine = createMachine({
         },
       },
       input,
-    ),
+    );
+
+    const spawnedInputSockets = spawnInputSockets({
+      spawn,
+      self,
+      inputSockets: config.inputSockets as any,
+    });
+    const spawnedOutputSockets = spawnOutputSockets({
+      spawn,
+      self,
+      outputSockets: config.outputSockets as any,
+    });
+
+    set(config, "inputSockets", spawnedInputSockets);
+    set(config, "outputSockets", spawnedOutputSockets);
+
+    return config;
+  },
   initial: "complete",
   types: {} as BaseMachineTypes<{
     input: {
@@ -138,6 +157,5 @@ export class NodeNumber extends BaseNode<typeof NumberMachine> {
 
   constructor(di: DiContainer, data: NumberData) {
     super("NodeNumber", di, data, NumberMachine, {});
-    this.setup();
   }
 }

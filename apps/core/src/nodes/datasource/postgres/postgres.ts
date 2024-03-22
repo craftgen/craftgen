@@ -78,7 +78,6 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
         },
       },
     });
-    this.setup();
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
 

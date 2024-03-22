@@ -32,9 +32,9 @@ export const credentialsRouter = createTRPCRouter({
               eq(token.project_id, project?.id),
               input?.provider ? eq(token.provider, input.provider) : sql`true`,
             ),
-          columns: {
-            value: false,
-          },
+          // columns: {
+          //   value: true,
+          // },
         });
       });
     }),

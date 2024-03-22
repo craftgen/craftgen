@@ -1,3 +1,6 @@
+"use client";
+
+import { useSelector } from "@xstate/react";
 import JsonView from "react18-json-view";
 
 import "react18-json-view/src/style.css";
@@ -9,6 +12,22 @@ export const JSONView: React.FC<Parameters<typeof JsonView>[0]> = (props) => {
     <JsonView
       {...props}
       displaySize="collapsed"
+      customizeNode={(params) => {
+        return match(params.node)
+          .with(
+            {
+              src: P.string,
+            },
+            () => {
+              const state = useSelector(params.node, (state) => ({
+                state: state.value,
+                context: state.context,
+              }));
+              return <JSONView src={state} />;
+            },
+          )
+          .otherwise(() => ({}));
+      }}
       collapsed={(params) => {
         return match(params)
           .with(

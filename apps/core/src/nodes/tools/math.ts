@@ -360,6 +360,5 @@ export class NodeMath extends BaseNode<typeof NodeMathMachine> {
   constructor(di: DiContainer, data: NodeMathData) {
     super("NodeMath", di, data, NodeMathMachine, {});
     this.description = data.description || NodeMath.description;
-    this.setup();
   }
 }

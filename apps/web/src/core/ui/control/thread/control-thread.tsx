@@ -13,15 +13,16 @@ import { InputSection } from "./input-section";
 import { Content } from "./shared";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
-  // console.log(props.data.id, { props });
-  if (!props.data.actor) {
-    return null;
-  }
-  // return null;
-  const actor = props.data.actor;
-
-  const messages = useSelector(props.data.actor, props.data.selector);
-  const state = useSelector(props.data.actor, (state) => state);
+  const { definition, parent } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
+  const actor = props.data?.actor.system.get(parent.id);
+  const state = useSelector(actor, (state) => state);
+  const messages = useSelector(
+    actor,
+    (snap) => snap.context.inputs[definition["x-key"]],
+  );
 
   const handleAdd = (value: string) => {
     actor.send({

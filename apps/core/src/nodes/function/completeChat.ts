@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { get, isNil, merge } from "lodash-es";
+import { get, isNil, isNull, merge } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   ChatMessage,
@@ -35,7 +35,7 @@ import type { AnyActorRef } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -81,11 +81,11 @@ const inputSockets = {
     isMultiple: false,
     default: true,
   }),
-  messages: generateSocket({
-    name: "Messages",
+  thread: generateSocket({
+    name: "Thread",
     description: "Thread of messages",
     "x-showSocket": true,
-    "x-key": "messages",
+    "x-key": "thread",
     type: "array",
     allOf: [
       {
@@ -107,7 +107,6 @@ const inputSockets = {
       },
     },
     isMultiple: false,
-    default: [],
   }),
   llm: generateSocket({
     "x-key": "llm",
@@ -536,9 +535,37 @@ const completeChatMachineRun = setup({
       input,
     );
   },
-
-  initial: "in_progress",
+  initial: "prepare",
   states: {
+    prepare: {
+      entry: enqueueActions(({ enqueue, context, self }) => {
+        const inputSockets = Object.values(context.inputSockets);
+        for (const socket of inputSockets) {
+          enqueue.sendTo(socket, {
+            type: "COMPUTE",
+            params: {
+              targets: [self.id],
+            },
+          });
+        }
+      }),
+      on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("SET VALUE ON EXECUTION", event);
+            enqueue("setValue");
+          }),
+        },
+      },
+      always: [
+        {
+          guard: ({ context }) => {
+            return Object.values(context.inputs).every((t) => !isNull(t));
+          },
+          target: "in_progress",
+        },
+      ],
+    },
     in_progress: {
       on: {
         TOOL_REQUEST: {
@@ -739,42 +766,13 @@ const CompleteChatMachine = createMachine({
   entry: enqueueActions(({ enqueue }) => {
     enqueue("initialize");
   }),
-  context: ({ input }) => {
-    const defaultInputs: (typeof input)["inputs"] = {};
-    for (const [key, socket] of Object.entries(inputSockets)) {
-      if (socket.default) {
-        defaultInputs[key as any] = socket.default;
-      } else {
-        defaultInputs[key as any] = undefined;
-      }
-    }
-
-    return merge<typeof input, any>(
-      {
-        inputs: {
-          RUN: undefined,
-          system: "",
-          messages: [],
-          llm: null,
-          tools: {},
-          ...defaultInputs,
-        },
-        runs: {},
-        outputs: {
-          onDone: undefined,
-          result: {},
-          messages: [],
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    );
-  },
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Complete Chat",
+      description: "Creates response to a chat message using the model",
+      inputSockets,
+      outputSockets,
+    }),
   on: {
     ASSIGN_CHILD: {
       actions: enqueueActions(({ enqueue }) => {
@@ -831,9 +829,6 @@ const CompleteChatMachine = createMachine({
   states: {
     idle: {
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         RESULT: {
           actions: enqueueActions(({ enqueue, event, check }) => {
             console.log("RESULT @@", event);
@@ -881,7 +876,6 @@ const CompleteChatMachine = createMachine({
             });
           }),
         },
-
         RUN: {
           guard: ({ context, event }) => {
             return (
@@ -989,6 +983,5 @@ export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
         }),
       },
     });
-    this.setup();
   }
 }

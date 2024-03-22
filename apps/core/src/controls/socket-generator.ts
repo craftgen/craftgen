@@ -18,7 +18,6 @@ export interface SocketGeneratorControlOptions {
   };
   onChange: (data: SocketGeneratorControlData) => void;
 }
-
 export type JSONSocket = z.infer<typeof socketSchema> & JSONSchema;
 export type JSONSocketTypes = JSONSocketPrimitiveTypeKeys | NodeTypes;
 
@@ -98,6 +97,7 @@ export const socketSchema = z
 
     "x-showSocket": z.boolean().default(true),
     "x-showController": z.boolean().default(true),
+    
     "x-isAdvanced": z.boolean().default(false),
     "x-key": z.string(),
     "x-event": z.string().optional(),
@@ -120,6 +120,7 @@ export const socketSchema = z
     // code editor related:
     "x-libraries": z.array(z.string()).optional(),
     "x-language": z.string().optional(),
+    "x-canChangeFormat": z.boolean().default(true).optional(),
   })
   .superRefine((params, ctx) => {
     if (params.type === "trigger" && params["x-event"] === undefined) {
@@ -156,7 +157,7 @@ export const generateSocket = <
     type: socket.type as TypeOfSocket,
     "x-key": socket["x-key"] as T,
   };
-  return res;
+  return res as JSONSocket;
 };
 
 export type SocketGeneratorControlData = z.infer<typeof formOnSubmitSchema>;

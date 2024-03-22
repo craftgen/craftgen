@@ -1,17 +1,11 @@
 import type { OpenAIChatMessage } from "modelfusion";
 
 import type { ThreadMessage } from "openai/resources/beta/threads/messages/messages.mjs";
-import type {
-  Actor,
-  ActorRefFrom,
-  AnyActor,
-  AnyActorRef,
-  SnapshotFrom,
-} from "xstate";
+import type { ActorRefFrom } from "xstate";
 
-import type { ThreadMachine } from "../nodes/thread";
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
+import { inputSocketMachine } from "../input-socket";
 
 export interface ThreadControlOptions {}
 
@@ -27,16 +21,14 @@ export interface Message {
 }
 
 export class ThreadControl<
-  T extends AnyActorRef = AnyActorRef,
+  T extends ActorRefFrom<typeof inputSocketMachine> = ActorRefFrom<
+    typeof inputSocketMachine
+  >,
 > extends BaseControl {
   __type = "thread";
 
   constructor(
-    public actor:
-      | Actor<typeof ThreadMachine>
-      | ActorRefFrom<typeof ThreadMachine>,
-    public selector: (snapshot: SnapshotFrom<T>) => Message[],
-    public options: ThreadControlOptions,
+    public actor: T,
     public definition: JSONSocket,
   ) {
     super(50, definition, actor);

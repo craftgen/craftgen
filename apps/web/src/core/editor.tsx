@@ -82,6 +82,7 @@ export async function createHeadlessEditor(params: {
       },
     },
     content: {
+      context: params.workflow.context,
       nodes: params.workflow.nodes,
       edges: params.workflow.edges,
       contexts: params.workflow.contexts,
@@ -136,6 +137,7 @@ export async function createEditor(params: {
       },
     },
     content: {
+      context: params.workflow.context,
       nodes: params.workflow.nodes,
       edges: params.workflow.edges,
       contexts: params.workflow.contexts,

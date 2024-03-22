@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NodeProps } from "@seocraft/core/src/types";
 import { useSelector } from "@xstate/react";
 import Markdown from "react-markdown";
-import { renderFieldValueBaseOnSocketType } from "../playground";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
@@ -27,8 +26,7 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
 
         <TabsContent value="controls" className="h-full ">
           <div className="flex h-full flex-col gap-4 overflow-hidden ">
-            <ScrollArea className="w-full">
-              {/* <DynamicInputsForm inputs={node.inputs} /> */}
+            <ScrollArea className="w-full object-contain">
               <InputsList actor={node.actor} />
               <Separator />
               <Runs node={node} />
@@ -55,7 +53,7 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
 };
 
 const ActorDebug = (props: { actor: AnyActor }) => {
-  const state = useSelector(props.actor, (state) => state);
+  const state = useSelector(props.actor, (state) => state.context);
   return (
     <div className="flex h-full flex-col gap-4 overflow-hidden ">
       <ScrollArea className="w-full">

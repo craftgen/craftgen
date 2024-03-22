@@ -16,7 +16,7 @@ import { NumberControl } from "./controls/number";
 import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
-import type { JSONSocket } from "./controls/socket-generator";
+import type { JSONSocket, socketSchema } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 import type { Message } from "./controls/thread.control";
 import { ThreadControl } from "./controls/thread.control";
@@ -24,6 +24,9 @@ import type { NodeTypes } from "./types";
 import { nodeTypes } from "./types";
 import { JsCdnController } from "./controls/js-cdn";
 import { JSONSchema } from "openai/lib/jsonschema.mjs";
+import def from "ajv/dist/vocabularies/discriminator";
+import { z } from "zod";
+import { SecretController } from "./controls/secret";
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;
@@ -206,442 +209,446 @@ export const getSocketByJsonSchemaType = (schema: JSONSocket) => {
 };
 
 export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
-  socket,
   actor,
-  selector,
-  definitionSelector,
-  onChange,
   definition,
 }: {
-  socket: Socket;
   actor: T;
-  selector: (emitted: SnapshotFrom<T>) => any;
-  definitionSelector: (emitted: SnapshotFrom<T>) => JSONSocket;
-  onChange: (v: any) => void;
-  definition: JSONSocket & JSONSchema;
+  definition: JSONSocket;
 }) => {
-  return match([socket, definition])
+  return match(definition as z.infer<typeof socketSchema>)
     .with(
-      [
-        P.any,
-        {
-          "x-actor-ref": P.any,
-        },
-      ],
+      {
+        type: "string",
+        format: "expression",
+      },
+      (def) => {
+        return new CodeControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "string",
+        format: "secret",
+      },
+      (def) => {
+        return new SecretController(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "string",
+        "x-controller": "code",
+        "x-language": P.string,
+        "x-canChangeFormat": false,
+      },
+      (def) => {
+        return new CodeControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "array",
+        "x-controller": "js-cdn",
+      },
       () => {
-        return new NodeControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
+        return new JsCdnController(actor, definition);
       },
     )
     .with(
-      [
-        {
-          name: "trigger",
-        },
-        {
-          type: "trigger",
-          "x-event": P.string,
-        },
-      ],
+      {
+        type: "object",
+      },
+      (def) => {
+        return new JsonControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "string",
+        "x-controller": "combobox",
+        allOf: P.array({ enum: P.array(P.string) }),
+      },
+      (def) => {
+        return new ComboboxControl(actor, def);
+      },
+    )
+    .with(
+      {
+        "x-controller": "select",
+        allOf: P.array({ enum: P.array(P.any) }),
+      },
+      (def) => {
+        return new SelectControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "integer",
+      },
+      {
+        type: "number",
+      },
+      (definition) => {
+        return new NumberControl(actor, definition);
+      },
+    )
+    .with(
+      {
+        type: "boolean",
+      },
       () => {
-        return new ButtonControl(
-          actor,
-          selector,
-          {
-            onClick: () =>
-              actor.send({
-                type: definition["x-event"]!,
-              }),
-          },
-          definition,
-        );
+        return new BooleanControl(actor, definition);
       },
     )
     .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          "x-controller": "textarea",
-        },
-      ],
+      {
+        type: "array",
+        "x-controller": "thread",
+      },
+      (def) => {
+        return new ThreadControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "string",
+      },
+      (def) => {
+        return new InputControl(actor, def);
+      },
+    )
+    .with(
+      {
+        type: "trigger",
+        "x-event": P.string,
+      },
       () => {
-        return new TextareControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
+        return new ButtonControl(actor, definition);
       },
     )
     .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          "x-controller": "select",
-        },
-      ],
-      [
-        {
-          name: "number",
-        },
-        {
-          "x-controller": "select",
-        },
-      ],
-      [
-        {
-          name: "integer",
-        },
-        {
-          "x-controller": "select",
-        },
-      ],
-      [
-        {
-          name: P.any,
-        },
-        {
-          "x-controller": "select",
-        },
-      ],
-      () => {
-        return new SelectControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-            placeholder:
-              definition?.title ?? definition?.description ?? "Select value",
-            values:
-              (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
-                return {
-                  key: v,
-                  value: v,
-                };
-              }) || [],
-          },
-          definition,
-        );
+      {
+        type: "integer",
+        maximum: P.number,
+        minimum: P.number,
+      },
+      {
+        type: "number",
+        maximum: P.number,
+        minimum: P.number.gte(0),
+      },
+      (def) => {
+        return new SliderControl(actor, def);
       },
     )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          "x-controller": "combobox",
-          allOf: P.array({ enum: P.array(P.string) }),
-        },
-      ],
-      () => {
-        return new ComboboxControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-            values: definition?.allOf?.[0]?.enum?.map((v: any) => {
-              return {
-                key: v,
-                value: v,
-              };
-            }),
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          format: "uri",
-        },
-      ],
-      () => {
-        return new FileControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          "x-controller": "code",
-          "x-language": P.string,
-        },
-      ],
-      () => {
-        return new CodeControl(
-          actor,
-          selector,
-          definitionSelector,
-          {
-            change: onChange,
-            language: definition["x-language"],
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          "x-controller": "openai-thread-control",
-        },
-      ],
-      () => {
-        return new OpenAIThreadControl(actor, selector, {}, definition);
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          format: "expression",
-        },
-      ],
-      () => {
-        return new CodeControl(
-          actor,
-          selector,
-          definitionSelector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        {
-          format: "secret",
-        },
-      ],
-      () => {
-        return new InputControl(
-          actor,
-          selector,
-          definitionSelector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "string",
-        },
-        P._,
-      ],
-      () => {
-        return new InputControl(
-          actor,
-          selector,
-          definitionSelector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "integer",
-        },
-        {
-          maximum: P.number,
-          minimum: P.number,
-        },
-      ],
-      [
-        {
-          name: "number",
-        },
-        {
-          maximum: P.number,
-          minimum: P.number.gte(0),
-        },
-      ],
-      ([_, def]) => {
-        return new SliderControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-            max: def.maximum,
-            min: def.minimum,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "integer",
-        },
-        P._,
-      ],
-      [
-        {
-          name: "number",
-        },
-        P._,
-      ],
-      () => {
-        return new NumberControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-            max: definition?.maximum,
-            min: definition?.minimum,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "boolean",
-        },
-        {},
-      ],
-      () => {
-        return new BooleanControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "date",
-        },
-        {},
-      ],
-      () => {
-        return new DateControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "array",
-        },
-        {
-          "x-controller": "js-cdn",
-        },
-      ],
-      () => {
-        return new JsCdnController(
-          actor,
-          selector,
-          {
-            onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "array",
-        },
-        {
-          "x-controller": "thread",
-        },
-      ],
-      () => {
-        return new ThreadControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .with(
-      [
-        {
-          name: "thread",
-        },
-        {
-          "x-controller": "thread",
-        },
-      ],
-      () => {
-        return new ThreadControl(
-          actor,
-          selector,
-          {
-            change: onChange,
-          },
-          definition,
-        );
-      },
-    )
-    .otherwise(() => {
-      return new JsonControl(
-        actor,
-        selector,
-        {
-          change: onChange,
-        },
-        definition,
-      );
+    .otherwise((def) => {
+      return new JsonControl(actor, def);
     });
+  // return (
+  //   match(definition)
+  //     .with(
+  //       {
+  //         "x-actor-ref": P.any,
+  //       },
+  //       () => {
+  //         return new NodeControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "trigger",
+  //         "x-event": P.string,
+  //       },
+  //       () => {
+  //         return new ButtonControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             onClick: () =>
+  //               actor.send({
+  //                 type: definition["x-event"]!,
+  //               }),
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         "x-controller": "textarea",
+  //       },
+  //       () => {
+  //         return new TextareControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         "x-controller": "select",
+  //       },
+  //       () => {
+  //         return new SelectControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //             placeholder:
+  //               definition?.title ?? definition?.description ?? "Select value",
+  //             values:
+  //               (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
+  //                 return {
+  //                   key: v,
+  //                   value: v,
+  //                 };
+  //               }) || [],
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         "x-controller": "combobox",
+  //         allOf: P.array({ enum: P.array(P.string) }),
+  //       },
+  //       () => {
+  //         return new ComboboxControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //             values: definition?.allOf?.[0]?.enum?.map((v: any) => {
+  //               return {
+  //                 key: v,
+  //                 value: v,
+  //               };
+  //             }),
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         format: "uri",
+  //       },
+  //       () => {
+  //         return new FileControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         "x-controller": "openai-thread-control",
+  //       },
+  //       () => {
+  //         return new OpenAIThreadControl(actor, selector, {}, definition);
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         format: "expression",
+  //       },
+  //       () => {
+  //         return new CodeControl(
+  //           actor,
+  //           selector,
+  //           definitionSelector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         format: "secret",
+  //       },
+  //       () => {
+  //         return new InputControl(
+  //           actor,
+  //           selector,
+  //           definitionSelector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //       },
+  //       () => {
+  //         return new InputControl(
+  //           actor,
+  //           selector,
+  //           definitionSelector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     // .with(
+  //     //   {
+  //     //     type: "integer",
+  //     //     maximum: P.number,
+  //     //     minimum: P.number,
+  //     //   },
+  //     //   {
+  //     //     type: "number",
+  //     //     maximum: P.number,
+  //     //     minimum: P.number.gte(0),
+  //     //   },
+  //     //   (def) => {
+  //     //     return new SliderControl(
+  //     //       actor,
+  //     //       selector,
+  //     //       {
+  //     //         change: onChange,
+  //     //         max: def.maximum,
+  //     //         min: def.minimum,
+  //     //       },
+  //     //       definition,
+  //     //     );
+  //     //   },
+  //     // )
+  //     .with(
+  //       {
+  //         type: "integer",
+  //       },
+  //       {
+  //         type: "number",
+  //       },
+  //       (definition) => {
+  //         return new NumberControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //             max: definition?.maximum,
+  //             min: definition?.minimum,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "boolean",
+  //       },
+  //       () => {
+  //         return new BooleanControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "string",
+  //         format: "date",
+  //       },
+  //       () => {
+  //         return new DateControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "array",
+  //         "x-controller": "js-cdn",
+  //       },
+  //       () => {
+  //         return new JsCdnController(
+  //           actor,
+  //           selector,
+  //           {
+  //             onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "array",
+  //         "x-controller": "thread",
+  //       },
+  //       () => {
+  //         return new ThreadControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .with(
+  //       {
+  //         type: "thread",
+  //         "x-controller": "thread",
+  //       },
+  //       () => {
+  //         return new ThreadControl(
+  //           actor,
+  //           selector,
+  //           {
+  //             change: onChange,
+  //           },
+  //           definition,
+  //         );
+  //       },
+  //     )
+  //     .otherwise(() => {
+  //       return new JsonControl(
+  //         actor,
+  //         selector,
+  //         {
+  //           change: onChange,
+  //         },
+  //         definition,
+  //       );
+  //     })
+  // );
 };
