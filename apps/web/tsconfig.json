@@ -10,6 +10,11 @@
     "plugins": [
       {
         "name": "next"
+      },
+      {
+        "name": "@0no-co/graphqlsp",
+        "schema": "http://craftgen.local/graphql",
+        "tadaOutputLocation": "./src/wordpress-graphql.d.ts"
       }
     ],
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"

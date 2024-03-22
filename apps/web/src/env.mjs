@@ -18,6 +18,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().min(1),
 
     TELEGRAM_BOT_TOKEN: z.string().min(1),
+
+    WORDPRESS_API_URL: z.string().url(),
   },
   /*
    * Environment variables available on the client (and server).
@@ -50,5 +52,6 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    WORDPRESS_API_URL: process.env.WORDPRESS_API_URL,
   },
 });

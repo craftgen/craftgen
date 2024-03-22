@@ -121,6 +121,7 @@
     "@udecode/slate": "^22.0.2",
     "@uiw/codemirror-theme-github": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
+    "@urql/core": "^4.3.0",
     "@vercel/analytics": "^1.1.2",
     "@vercel/speed-insights": "^1.0.8",
     "@xstate/react": "4.1.0",
@@ -141,6 +142,7 @@
     "geist": "^1.0.0",
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
+    "gql.tada": "^1.4.0",
     "json-schema-to-jsdoc": "^1.1.0",
     "kbar": "0.1.0-beta.43",
     "lodash": "^4.17.21",
@@ -211,6 +213,7 @@
     "zustand": "^4.3.9"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.7.0",
     "@acme/eslint-config": "^0.2.0",
     "@acme/prettier-config": "^0.1.0",
     "@acme/tailwind-config": "^0.1.0",

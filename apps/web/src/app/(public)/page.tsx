@@ -59,9 +59,9 @@ export default function Home() {
         </div>
         <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-40 lg:flex lg:px-8 lg:pt-40">
           <div className="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pt-8">
-            <h1 className="font-sans text-4xl  font-black tracking-tighter  md:text-6xl">
+            {/* <h1 className="font-sans text-4xl  font-black tracking-tighter  md:text-6xl">
               CraftGen
-            </h1>
+            </h1> */}
             <div className="mt-24 sm:mt-32 lg:mt-16">
               <a href="#" className="inline-flex space-x-6">
                 <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-sm font-semibold leading-6 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
