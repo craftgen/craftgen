@@ -40,7 +40,13 @@ const BlogPostsQuery = graphql(`
 `);
 
 const BlogListPage = async ({ params }: { params: { slug: string[] } }) => {
-  const posts = await client.query(BlogPostsQuery, {});
+  const posts = await client.query(
+    BlogPostsQuery,
+    {},
+    {
+      requestPolicy: "cache-and-network",
+    },
+  );
   return (
     <div>
       <BlogList posts={posts.data?.posts?.nodes} />

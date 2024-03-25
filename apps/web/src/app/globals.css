@@ -56,7 +56,9 @@
   body {
     @apply bg-background text-foreground font-sans;
 
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
   p {
     @apply font-sans;
@@ -67,9 +69,21 @@
   }
 
   [data-slate-editor] {
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-      BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
-      sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol,
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      Segoe UI,
+      Roboto,
+      Helvetica Neue,
+      Arial,
+      Noto Sans,
+      sans-serif,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      Segoe UI Symbol,
       "Noto Color Emoji";
   }
 
@@ -94,7 +108,7 @@
   }
 
   .step:before {
-    @apply absolute inline-flex h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-muted text-center -indent-px font-mono text-base font-medium;
+    @apply border-background bg-muted absolute inline-flex h-9 w-9 items-center justify-center rounded-full border-4 text-center -indent-px font-mono text-base font-medium;
     @apply ml-[-50px] mt-[-4px];
     content: counter(step);
   }
@@ -115,5 +129,521 @@
       ),
       rgba(40, 5, 117, 0.12);
     box-shadow: inset 0 0 12px #bf97ff3d;
+  }
+}
+
+@layer components {
+  /* links */
+  .editor-styles-wrapper
+    a:not(.wp-block-button__link):not(.wp-block-navigation-item__content):not(
+      .wp-block-social-link-anchor
+    ):not(.wp-block-table-of-contents__entry),
+  .wp-site-blocks
+    a:not(.wp-block-button__link):not(.wp-block-navigation-item__content):not(
+      .wp-block-social-link-anchor
+    ):not(.wp-block-table-of-contents__entry) {
+    @apply text-accent no-underline;
+  }
+  .editor-styles-wrapper
+    a:not(.wp-block-button__link):not(.wp-block-navigation-item__content):not(
+      .wp-block-social-link-anchor
+    ):hover,
+  .wp-site-blocks
+    a:not(.wp-block-button__link):not(.wp-block-navigation-item__content):not(
+      .wp-block-social-link-anchor
+    ):hover {
+    @apply text-accent underline;
+  }
+
+  /* buttons */
+  button:not(.components-button),
+  .wp-site-blocks:not(.is-root-container) button {
+  }
+
+  /* CORE BLOCKS */
+
+  /* headings */
+  h1.wp-block-heading,
+  h1.wp-block-post-title.editor-post-title,
+  .wp-site-blocks h1,
+  h2.wp-block-heading,
+  .wp-site-blocks h2,
+  h3.wp-block-heading,
+  .wp-site-blocks h3,
+  h4.wp-block-heading,
+  .wp-site-blocks h4,
+  h5.wp-block-heading,
+  .wp-site-blocks h5,
+  h6.wp-block-heading,
+  .wp-site-blocks h6,
+  h1.wp-block-post-title,
+  h2.wp-block-post-title,
+  h3.wp-block-post-title,
+  h4.wp-block-post-title,
+  h5.wp-block-post-title,
+  h6.wp-block-post-title {
+    @apply font-mono text-primary dark:text-secondary;
+  }
+
+  /* Until I find a better way, need this to account for text in dark sections that remain dark after toggling dark mode off */
+  /* The reason for this issue is that I haven't found a way to style these tags on the frontend without using the .wp-site-blocks selector. If I don't use it, it styles all h tags in the backend outside of the editor as well... */
+  .wp-site-blocks .dark h1 {
+    @apply from-secondary via-secondary to-accent bg-gradient-to-b bg-clip-text text-transparent;
+  }
+  .wp-site-blocks .dark h2,
+  .wp-site-blocks .dark h4,
+  .wp-site-blocks .dark h5,
+  .wp-site-blocks .dark h6 {
+    @apply text-secondary;
+  }
+
+  /* page & post titles */
+  h1.wp-block-post-title.editor-post-title {
+    @apply font-extrabold;
+  }
+
+  /* h1 */
+  h1.wp-block-heading,
+  .wp-site-blocks h1,
+  h1.wp-block-post-title:not(.editor-post-title) {
+    @apply dark:from-secondary dark:via-secondary dark:to-accent pb-2 text-7xl font-extrabold leading-none tracking-tight dark:bg-gradient-to-b dark:bg-clip-text dark:text-transparent sm:text-4xl;
+  }
+
+  /* h2 */
+  h2.wp-block-heading,
+  .wp-site-blocks h2 {
+    @apply text-4xl font-extrabold leading-tight tracking-tight;
+  }
+
+  /* h3 */
+  h3.wp-block-heading,
+  .wp-site-blocks h3 {
+    @apply text-lg;
+  }
+
+  /* h4 */
+  h4.wp-block-heading,
+  .wp-site-blocks h4 {
+    @apply text-lg;
+  }
+
+  /* h5 */
+  h5.wp-block-heading,
+  .wp-site-blocks h5 {
+    @apply text-base;
+  }
+
+  /* h6 */
+  h6.wp-block-heading,
+  .wp-site-blocks h6 {
+    @apply text-sm;
+  }
+
+  /* paragraph block */
+  p.wp-block-paragraph,
+  .wp-site-blocks p {
+  }
+
+  /* image block */
+  .wp-block-image {
+    @apply dark:shadow-accent shadow-accent/30 rounded-2xl shadow-2xl;
+  }
+  .wp-block-image img {
+    @apply dark:shadow-primary shadow-primary/10 rounded-2xl border border-neutral-100 shadow-lg dark:border-neutral-800;
+  }
+  .single-pattern .wp-block-image,
+  .post-type-pattern .wp-block-image {
+    @apply shadow-none;
+  }
+  .single-pattern .wp-block-image img,
+  .post-type-pattern .wp-block-image img {
+    @apply border-0 shadow-none;
+  }
+
+  /* gallery block */
+  .wp-block-gallery {
+  }
+
+  /* list block */
+  .wp-block-list {
+  }
+
+  /* quote block */
+  .wp-block-quote {
+  }
+
+  /* archives block */
+  .wp-block-archives {
+  }
+
+  /* audio block */
+  .wp-block-audio {
+  }
+
+  /* button block */
+  .wp-block-button {
+    @apply font-accent bg-accent shadow-inset rounded-lg hover:bg-opacity-90;
+  }
+  .wp-block-button__link {
+    @apply bg-transparent px-5 py-3 font-bold !important;
+  }
+  .is-style-outline.wp-block-button {
+    @apply hover:shadow-accent/30 dark:text-secondary dark:hover:shadow-accent [&>*]:hover:shadow-primary/10 [&>*:hover]:ring-accent [&>*]:dark:hover:shadow-primary [&>*:hover]:dark:ring-accent bg-transparent shadow-none hover:shadow-2xl [&>*:hover]:ring-1 [&>*:hover]:dark:ring-1 [&>*]:rounded-lg [&>*]:border-0 [&>*]:ring-1 [&>*]:ring-neutral-200 [&>*]:hover:shadow-lg [&>*]:dark:border-neutral-800 [&>*]:dark:ring-1 [&>*]:dark:ring-neutral-800 [&>*]:dark:hover:shadow-lg;
+  }
+  .is-style-outline .wp-block-button__link {
+    @apply text-text dark:text-secondary hover:shadow-primary/10 dark:hover:shadow-primary border-0 shadow-none hover:shadow-lg !important;
+  }
+
+  /* buttons block */
+  .wp-block-buttons {
+  }
+
+  /* calendar block */
+  .wp-block-calendar {
+  }
+
+  /* categories block */
+  .wp-block-categories {
+  }
+
+  /* freeform block */
+  .wp-block-freeform {
+  }
+
+  /* code block */
+  .wp-block-code {
+    @apply text-text my-12 rounded-2xl border border-neutral-200 bg-neutral-100 p-6 dark:border-neutral-700 dark:bg-neutral-800;
+  }
+
+  /* column block */
+  .wp-block-column {
+  }
+  .wp-block-column > :first-child {
+    @apply mt-0;
+  }
+  .wp-block-column > :last-child {
+    @apply mb-0;
+  }
+
+  /* columns block */
+  .wp-block-columns {
+    @apply gap-x-6;
+  }
+
+  /* cover block */
+  .wp-block-cover {
+  }
+
+  /* embed block */
+  .wp-block-embed {
+  }
+
+  /* file block */
+  .wp-block-file {
+  }
+
+  /* group block */
+  .wp-block-group {
+  }
+
+  /* html block */
+  .wp-block-html {
+  }
+
+  /* latest comments block */
+  .wp-block-latest-comments {
+  }
+
+  /* latest posts block */
+  .wp-block-latest-posts {
+  }
+
+  /* media text block */
+  .wp-block-media-text {
+  }
+
+  /* missing block */
+  .wp-block-missing {
+  }
+
+  /* more block */
+  .wp-block-more {
+  }
+
+  /* nextpage block */
+  .wp-block-nextpage {
+  }
+
+  /* page list block */
+  .wp-block-page-list {
+  }
+
+  /* pattern block */
+  .wp-block-pattern {
+  }
+
+  /* preformatted block */
+  .wp-block-preformatted {
+  }
+
+  /* pullquote block */
+  .wp-block-pullquote {
+  }
+
+  /* block block */
+  .wp-block {
+  }
+
+  /* rss block */
+  .wp-block-rss {
+  }
+
+  /* search block */
+  .wp-block-search {
+  }
+
+  /* separator block */
+  .wp-block-separator {
+  }
+
+  /* shortcode block */
+  .wp-block-shortcode {
+  }
+
+  /* social link block */
+  .wp-block-social-link {
+  }
+
+  /* social links block */
+  .wp-block-social-links {
+  }
+
+  /* spacer block */
+  .wp-block-spacer {
+  }
+
+  /* table block */
+  .wp-block-table {
+    @apply m-0 border-collapse;
+  }
+  .wp-block-table td {
+    @apply border-0;
+  }
+  .wp-block-table tr {
+    @apply border-t border-neutral-200 dark:border-neutral-800;
+  }
+  .wp-block-table tr:last-child {
+    @apply border-b border-neutral-200 dark:border-neutral-800;
+  }
+
+  /* table of contents block */
+  .wp-block-table-of-contents {
+    @apply [&_a]:text-text [&_a:hover]:dark:text-secondary [&_a:hover]:text-primary [&_a:hover]:translate-x-2 [&_a]:inline-flex [&_a]:whitespace-normal [&_a]:text-sm [&_a]:no-underline [&_a]:transition-transform [&_li>a]:no-underline [&_li]:space-y-2 [&_ol:first-child]:pl-0 [&_ol]:my-0 [&_ol]:list-none [&_ol]:space-y-2 [&_ol]:pl-4;
+  }
+
+  /* tag cloud block */
+  .wp-block-tag-cloud {
+  }
+
+  /* text columns block */
+  .wp-block-text-columns {
+  }
+
+  /* verse block */
+  .wp-block-verse {
+  }
+
+  /* video block */
+  .wp-block-video {
+  }
+
+  /* navigation block */
+  .wp-block-navigation {
+  }
+
+  /* navigation link block */
+  .wp-block-navigation-link a {
+  }
+
+  /* navigation block item label */
+  .wp-block-navigation-item__label {
+    @apply whitespace-nowrap;
+  }
+
+  /* navigation submenu block */
+  .wp-block-navigation-submenu {
+  }
+
+  /* site logo block */
+  .wp-site-logo {
+  }
+
+  /* site title block */
+  .wp-site-title {
+  }
+
+  /* site tagline block */
+  .wp-site-tagline {
+  }
+
+  /* query block */
+  .wp-block-query {
+  }
+
+  /* template part block */
+  .wp-block-template-part {
+  }
+
+  /* post title block */
+  .wp-block-post-title {
+  }
+
+  /* post excerpt block */
+  .wp-block-post-excerpt {
+  }
+
+  /* post featured-image block */
+  .wp-block-post-featured-image img {
+    @apply rounded-2xl;
+  }
+
+  /* post content block */
+  .wp-block-post-content {
+  }
+
+  /* post author block */
+  .wp-block-post-author {
+  }
+
+  /* post date block */
+  .wp-block-post-date {
+  }
+
+  /* post terms block */
+  .wp-block-post-terms {
+  }
+
+  /* post navigation-link block */
+  .wp-block-post-navigation-link {
+  }
+
+  /* post template block */
+  .wp-block-post-template {
+  }
+
+  /* query pagination block */
+  .wp-block-query-pagination {
+  }
+
+  /* query pagination-next block */
+  .wp-block-query-pagination-next {
+  }
+
+  /* query pagination-numbers block */
+  .wp-block-query-pagination-numbers {
+  }
+
+  /* query pagination-previous block */
+  .wp-block-query-pagination-previous {
+  }
+
+  /* post comments block */
+  .wp-block-post-comments {
+  }
+
+  /* loginout block */
+  .wp-block-loginout {
+  }
+
+  /* term description block */
+  .wp-block-term-description {
+  }
+
+  /* query title block */
+  .wp-block-query-title {
+  }
+
+  /* post author-name block */
+  .wp-block-post-author-name {
+  }
+
+  /* post author-biography block */
+  .wp-block-post-author-biography {
+  }
+
+  /* home link block */
+  .wp-block-home-link {
+  }
+
+  /* comment author-avatar block */
+  .wp-block-comment-author-avatar {
+  }
+
+  /* comment author-name block */
+  .wp-block-comment-author-name {
+  }
+
+  /* comment content block */
+  .wp-block-comment-content {
+  }
+
+  /* comment date block */
+  .wp-block-comment-date {
+  }
+
+  /* comment edit-link block */
+  .wp-block-comment-edit-link {
+  }
+
+  /* comment reply-link block */
+  .wp-block-comment-reply-link {
+  }
+
+  /* comment template block */
+  .wp-block-comment-template {
+  }
+
+  /* comments query-loop block */
+  .wp-block-comments-query-loop {
+  }
+
+  /* comments pagination block */
+  .wp-block-comments-pagination {
+  }
+
+  /* comments pagination-next block */
+  .wp-block-comments-pagination-next {
+  }
+
+  /* comments pagination-numbers block */
+  .wp-block-comments-pagination-numbers {
+  }
+
+  /* comments pagination-previous block */
+  .wp-block-comments-pagination-previous {
+  }
+
+  /* navigation area block */
+  .wp-block-navigation-area {
+  }
+
+  /* post comment block */
+  .wp-block-post-comment {
+  }
+
+  /* post comments-count block */
+  .wp-block-post-comments-count {
+  }
+
+  /* post comments-form block */
+  .wp-block-post-comments-form {
+  }
+
+  /* post comments-link block */
+  .wp-block-post-comments-link {
+  }
+
+  /* read more block */
+  .wp-block-read-more {
   }
 }
