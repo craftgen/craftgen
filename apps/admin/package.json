@@ -1,0 +1,18 @@
+{
+  "name": "@craftgen/admin",
+  "version": "1.0.0",
+  "description": "admin for craftgen",
+  "scripts": {
+    "start": "npx directus start"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "directus": "^10.10.4",
+    "directus-extension-computed-interface": "^1.9.0",
+    "directus-extension-upsert": "^1.0.5",
+    "directus-extension-wpslug-interface": "^1.1.0",
+    "pg": "^8.11.3"
+  }
+}
