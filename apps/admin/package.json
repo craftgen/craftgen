@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "pnpm with-env directus start",
     "start": "pnpm with-env:prod directus start",
-    "create-snapshot": "npx directus schema snapshot ./snapshots/\"$(date \"+%F\")\"-snapshot-\"$(date \"+%s\")\".yaml",
+    "create-snapshot": "pnpm with-env directus schema snapshot ./snapshots/\"$(date \"+%F\")\"-snapshot-\"$(date \"+%s\")\".yaml",
     "with-env": "dotenv -e ../.env --",
     "with-env:prod": "dotenv -e ../.env.prod --"
   },
@@ -18,7 +18,6 @@
     "directus-extension-upsert": "^1.0.5",
     "directus-extension-wpslug-interface": "^1.1.0",
     "pg": "^8.11.3"
-
   },
   "devDependencies": {
     "dotenv-cli": "^7.2.1"
