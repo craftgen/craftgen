@@ -4,7 +4,8 @@
   "description": "admin for craftgen",
   "scripts": {
     "dev": "pnpm with-env directus start",
-    "start": "pnpm with-env:prod directus start",
+    "start": "pnpm directus start",
+    "start:prod": "pnpm with-env:prod directus start",
     "create-snapshot": "pnpm with-env directus schema snapshot ./snapshots/\"$(date \"+%F\")\"-snapshot-\"$(date \"+%s\")\".yaml",
     "with-env": "dotenv -e ../.env --",
     "with-env:prod": "dotenv -e ../.env.prod --"
