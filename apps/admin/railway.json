@@ -19,6 +19,6 @@
         }
     },
     "deploy": {
-        "startCommand": "npx directus bootstrap && npx directus start"
+        "startCommand": "pnpm start:admin"
     }
 }

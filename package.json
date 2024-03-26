@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "start:admin": "turbo run start --workspace=apps/admin",
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
