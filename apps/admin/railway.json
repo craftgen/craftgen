@@ -20,6 +20,6 @@
         }
     },
     "deploy": {
-        "startCommand": "pnpm start"
+        "startCommand": "pnpm start:admin"
     }
 }
