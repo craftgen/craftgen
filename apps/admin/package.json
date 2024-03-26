@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "admin for craftgen",
   "scripts": {
-    "start": "npx directus start"
+    "dev": "pnpm with-env directus start",
+    "start": "pnpm with-env:prod directus start",
+    "create-snapshot": "npx directus schema snapshot ./snapshots/\"$(date \"+%F\")\"-snapshot-\"$(date \"+%s\")\".yaml",
+    "with-env": "dotenv -e ../.env --",
+    "with-env:prod": "dotenv -e ../.env.prod --"
   },
   "engines": {
     "node": ">=18"
@@ -14,5 +18,9 @@
     "directus-extension-upsert": "^1.0.5",
     "directus-extension-wpslug-interface": "^1.1.0",
     "pg": "^8.11.3"
+
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.2.1"
   }
 }

@@ -47,6 +47,10 @@ importers:
       pg:
         specifier: ^8.11.3
         version: 8.11.3
+    devDependencies:
+      dotenv-cli:
+        specifier: ^7.2.1
+        version: 7.3.0
 
   apps/api:
     dependencies:
