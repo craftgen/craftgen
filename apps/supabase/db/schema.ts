@@ -12,6 +12,7 @@ import {
   timestamp,
   unique,
   uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
@@ -547,3 +548,36 @@ export const projectMemberRelations = relations(projectMembers, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+
+export const languages = pgTable("languages", {
+	code: varchar("code", { length: 255 }).primaryKey().notNull(),
+	name: varchar("name", { length: 255 }),
+	direction: varchar("direction", { length: 255 }).default('ltr'),
+});
+
+export const integrationsTranslations = pgTable("integrations_translations", {
+	id: serial("id").primaryKey().notNull(),
+	integrationsId: integer("integrations_id").references(() => integrations.id, { onDelete: "set null" } ),
+	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
+	name: varchar("name", { length: 255 }),
+	description: text("description"),
+	slug: varchar("slug", { length: 255 }),
+	content: text("content"),
+});
+
+export const integrations = pgTable("integrations", {
+	id: serial("id").primaryKey().notNull(),
+	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
+	sort: integer("sort"),
+	userCreated: uuid("user_created").references(() => directusUsers.id),
+	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
+	userUpdated: uuid("user_updated").references(() => directusUsers.id),
+	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
+	slug: varchar("slug", { length: 255 }),
+},
+(table) => {
+	return {
+		integrationsSlugUnique: unique("integrations_slug_unique").on(table.slug),
+	}
+});

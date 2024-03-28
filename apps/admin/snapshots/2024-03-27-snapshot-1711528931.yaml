@@ -1,0 +1,4928 @@
+version: 1
+directus: 10.10.4
+vendor: postgres
+collections:
+  - collection: case_study
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collapse: open
+      collection: case_study
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: sort
+      translations: null
+      unarchive_value: draft
+      versioning: false
+    schema:
+      name: case_study
+  - collection: case_study_translations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: case_study_translations
+      color: null
+      display_template: null
+      group: null
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: case_study_translations
+  - collection: context
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: context
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: context
+  - collection: integration
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collapse: open
+      collection: integration
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: sort
+      translations: null
+      unarchive_value: draft
+      versioning: false
+    schema:
+      name: integration
+  - collection: integration_translations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: integration_translations
+      color: null
+      display_template: null
+      group: null
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: integration_translations
+  - collection: languages
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: languages
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: languages
+  - collection: node_execution_data
+    meta: null
+    schema:
+      name: node_execution_data
+  - collection: project
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: project
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: project
+  - collection: project_api_key
+    meta: null
+    schema:
+      name: project_api_key
+  - collection: project_members
+    meta: null
+    schema:
+      name: project_members
+  - collection: project_variable
+    meta: null
+    schema:
+      name: project_variable
+  - collection: provider
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collapse: open
+      collection: provider
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: sort
+      translations: null
+      unarchive_value: draft
+      versioning: false
+    schema:
+      name: provider
+  - collection: provider_translations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: provider_translations
+      color: null
+      display_template: null
+      group: null
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: provider_translations
+  - collection: user
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: user
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: user
+  - collection: waitlist
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: waitlist
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: pace
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: waitlist
+  - collection: workflow
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: workflow
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: workflow
+  - collection: workflow_edge
+    meta: null
+    schema:
+      name: workflow_edge
+  - collection: workflow_execution
+    meta: null
+    schema:
+      name: workflow_execution
+  - collection: workflow_execution_step
+    meta: null
+    schema:
+      name: workflow_execution_step
+  - collection: workflow_node
+    meta: null
+    schema:
+      name: workflow_node
+  - collection: workflow_version
+    meta: null
+    schema:
+      name: workflow_version
+fields:
+  - collection: case_study
+    field: id
+    type: uuid
+    meta:
+      collection: case_study
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 1
+      special:
+        - uuid
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: case_study
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study
+    field: status
+    type: string
+    meta:
+      collection: case_study
+      conditions: null
+      display: labels
+      display_options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+            foreground: var(--theme--primary)
+            background: var(--theme--primary-background)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+            foreground: var(--theme--foreground)
+            background: var(--theme--background-normal)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+            foreground: var(--theme--warning)
+            background: var(--theme--warning-background)
+        showAsDot: true
+      field: status
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: status
+      table: case_study
+      data_type: character varying
+      default_value: draft
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study
+    field: sort
+    type: integer
+    meta:
+      collection: case_study
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: sort
+      table: case_study
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study
+    field: user_created
+    type: uuid
+    meta:
+      collection: case_study
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 4
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: case_study
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: case_study
+    field: date_created
+    type: timestamp
+    meta:
+      collection: case_study
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_created
+      table: case_study
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study
+    field: user_updated
+    type: uuid
+    meta:
+      collection: case_study
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 6
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: case_study
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: case_study
+    field: date_updated
+    type: timestamp
+    meta:
+      collection: case_study
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 7
+      special:
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_updated
+      table: case_study
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study
+    field: translations
+    type: alias
+    meta:
+      collection: case_study
+      conditions: null
+      display: null
+      display_options: null
+      field: translations
+      group: null
+      hidden: false
+      interface: translations
+      note: null
+      options:
+        defaultLanguage: en
+        languageField: name
+      readonly: false
+      required: false
+      sort: 8
+      special:
+        - translations
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: case_study_translations
+    field: id
+    type: integer
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: case_study_translations
+      data_type: integer
+      default_value: nextval('case_study_translations_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study_translations
+    field: case_study_id
+    type: uuid
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: case_study_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: case_study_id
+      table: case_study_translations
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: case_study
+      foreign_key_column: id
+  - collection: case_study_translations
+    field: languages_code
+    type: string
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: languages_code
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: languages_code
+      table: case_study_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: languages
+      foreign_key_column: code
+  - collection: case_study_translations
+    field: title
+    type: string
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: title
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: title
+      table: case_study_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study_translations
+    field: excerpt
+    type: text
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: excerpt
+      group: null
+      hidden: false
+      interface: input-multiline
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: excerpt
+      table: case_study_translations
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: case_study_translations
+    field: content
+    type: text
+    meta:
+      collection: case_study_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: content
+      group: null
+      hidden: false
+      interface: input-rich-text-md
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: content
+      table: case_study_translations
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: context
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: context
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: context
+    field: previous_context_id
+    type: text
+    meta: null
+    schema:
+      name: previous_context_id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: context
+    field: type
+    type: text
+    meta: null
+    schema:
+      name: type
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: context
+    field: state
+    type: json
+    meta: null
+    schema:
+      name: state
+      table: context
+      data_type: json
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: context
+    field: workflow_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow
+      foreign_key_column: id
+  - collection: context
+    field: workflow_version_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_version_id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+  - collection: context
+    field: parent_id
+    type: text
+    meta: null
+    schema:
+      name: parent_id
+      table: context
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: context
+      foreign_key_column: id
+  - collection: integration
+    field: id
+    type: uuid
+    meta:
+      collection: integration
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 1
+      special:
+        - uuid
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: integration
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration
+    field: status
+    type: string
+    meta:
+      collection: integration
+      conditions: null
+      display: labels
+      display_options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+            foreground: var(--theme--primary)
+            background: var(--theme--primary-background)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+            foreground: var(--theme--foreground)
+            background: var(--theme--background-normal)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+            foreground: var(--theme--warning)
+            background: var(--theme--warning-background)
+        showAsDot: true
+      field: status
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: status
+      table: integration
+      data_type: character varying
+      default_value: draft
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration
+    field: sort
+    type: integer
+    meta:
+      collection: integration
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: sort
+      table: integration
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration
+    field: user_created
+    type: uuid
+    meta:
+      collection: integration
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: integration
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: integration
+    field: date_created
+    type: timestamp
+    meta:
+      collection: integration
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 6
+      special:
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_created
+      table: integration
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration
+    field: user_updated
+    type: uuid
+    meta:
+      collection: integration
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 7
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: integration
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: integration
+    field: date_updated
+    type: timestamp
+    meta:
+      collection: integration
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 8
+      special:
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_updated
+      table: integration
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration
+    field: translations
+    type: alias
+    meta:
+      collection: integration
+      conditions: null
+      display: null
+      display_options: null
+      field: translations
+      group: null
+      hidden: false
+      interface: translations
+      note: null
+      options:
+        defaultLanguage: en
+        languageField: name
+      readonly: false
+      required: false
+      sort: 9
+      special:
+        - translations
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: integration
+    field: slug
+    type: string
+    meta:
+      collection: integration
+      conditions: null
+      display: null
+      display_options: null
+      field: slug
+      group: null
+      hidden: false
+      interface: extension-wpslug
+      note: null
+      options:
+        template: '{{translations.name}}'
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: slug
+      table: integration
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration_translations
+    field: id
+    type: integer
+    meta:
+      collection: integration_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: integration_translations
+      data_type: integer
+      default_value: nextval('integration_translations_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration_translations
+    field: integration_id
+    type: uuid
+    meta:
+      collection: integration_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: integration_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: integration_id
+      table: integration_translations
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: integration
+      foreign_key_column: id
+  - collection: integration_translations
+    field: languages_code
+    type: string
+    meta:
+      collection: integration_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: languages_code
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: languages_code
+      table: integration_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: languages
+      foreign_key_column: code
+  - collection: integration_translations
+    field: name
+    type: string
+    meta:
+      collection: integration_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: integration_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration_translations
+    field: description
+    type: text
+    meta:
+      collection: integration_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input-multiline
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: description
+      table: integration_translations
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: languages
+    field: code
+    type: string
+    meta:
+      collection: languages
+      conditions: null
+      display: null
+      display_options: null
+      field: code
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: code
+      table: languages
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: languages
+    field: name
+    type: string
+    meta:
+      collection: languages
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: languages
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: languages
+    field: direction
+    type: string
+    meta:
+      collection: languages
+      conditions: null
+      display: labels
+      display_options:
+        choices:
+          - text: $t:left_to_right
+            value: ltr
+          - text: $t:right_to_left
+            value: rtl
+        format: false
+      field: direction
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: $t:left_to_right
+            value: ltr
+          - text: $t:right_to_left
+            value: rtl
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: direction
+      table: languages
+      data_type: character varying
+      default_value: ltr
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: workflow_execution_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_execution_id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_execution
+      foreign_key_column: id
+  - collection: node_execution_data
+    field: context_id
+    type: text
+    meta: null
+    schema:
+      name: context_id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: context
+      foreign_key_column: id
+  - collection: node_execution_data
+    field: state
+    type: json
+    meta: null
+    schema:
+      name: state
+      table: node_execution_data
+      data_type: json
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: workflow_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow
+      foreign_key_column: id
+  - collection: node_execution_data
+    field: workflow_version_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_version_id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+  - collection: node_execution_data
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: node_execution_data
+    field: type
+    type: text
+    meta: null
+    schema:
+      name: type
+      table: node_execution_data
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: created_at
+    type: dateTime
+    meta: null
+    schema:
+      name: created_at
+      table: node_execution_data
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: updated_at
+    type: dateTime
+    meta: null
+    schema:
+      name: updated_at
+      table: node_execution_data
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: completed_at
+    type: dateTime
+    meta: null
+    schema:
+      name: completed_at
+      table: node_execution_data
+      data_type: timestamp without time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: node_execution_data
+    field: duration
+    type: integer
+    meta: null
+    schema:
+      name: duration
+      table: node_execution_data
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: project
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: name
+    type: text
+    meta: null
+    schema:
+      name: name
+      table: project
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: site
+    type: text
+    meta: null
+    schema:
+      name: site
+      table: project
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: true
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: slug
+    type: text
+    meta: null
+    schema:
+      name: slug
+      table: project
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: personal
+    type: boolean
+    meta: null
+    schema:
+      name: personal
+      table: project
+      data_type: boolean
+      default_value: false
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project
+    field: stripe_account_id
+    type: text
+    meta: null
+    schema:
+      name: stripe_account_id
+      table: project
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_api_key
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: project_api_key
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_api_key
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: project_api_key
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: project_api_key
+    field: name
+    type: text
+    meta: null
+    schema:
+      name: name
+      table: project_api_key
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_api_key
+    field: key
+    type: text
+    meta: null
+    schema:
+      name: key
+      table: project_api_key
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_members
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: project_members
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_members
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: project_members
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: project_members
+    field: user_id
+    type: uuid
+    meta: null
+    schema:
+      name: user_id
+      table: project_members
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: user
+      foreign_key_column: id
+  - collection: project_members
+    field: member_role
+    type: unknown
+    meta: null
+    schema:
+      name: member_role
+      table: project_members
+      data_type: member_role
+      default_value: viewer
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: project_variable
+    field: key
+    type: text
+    meta: null
+    schema:
+      name: key
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: value
+    type: text
+    meta: null
+    schema:
+      name: value
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: is_system
+    type: boolean
+    meta: null
+    schema:
+      name: is_system
+      table: project_variable
+      data_type: boolean
+      default_value: false
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: refresh_token
+    type: text
+    meta: null
+    schema:
+      name: refresh_token
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: provider
+    type: text
+    meta: null
+    schema:
+      name: provider
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
+    field: default
+    type: boolean
+    meta: null
+    schema:
+      name: default
+      table: project_variable
+      data_type: boolean
+      default_value: false
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: id
+    type: uuid
+    meta:
+      collection: provider
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 1
+      special:
+        - uuid
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: provider
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: status
+    type: string
+    meta:
+      collection: provider
+      conditions: null
+      display: labels
+      display_options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+            foreground: var(--theme--primary)
+            background: var(--theme--primary-background)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+            foreground: var(--theme--foreground)
+            background: var(--theme--background-normal)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+            foreground: var(--theme--warning)
+            background: var(--theme--warning-background)
+        showAsDot: true
+      field: status
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: $t:published
+            value: published
+            color: var(--theme--primary)
+          - text: $t:draft
+            value: draft
+            color: var(--theme--foreground)
+          - text: $t:archived
+            value: archived
+            color: var(--theme--warning)
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: status
+      table: provider
+      data_type: character varying
+      default_value: draft
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: sort
+    type: integer
+    meta:
+      collection: provider
+      conditions: null
+      display: null
+      display_options: null
+      field: sort
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: sort
+      table: provider
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: user_created
+    type: uuid
+    meta:
+      collection: provider
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 4
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: provider
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: provider
+    field: date_created
+    type: timestamp
+    meta:
+      collection: provider
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_created
+      table: provider
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: user_updated
+    type: uuid
+    meta:
+      collection: provider
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 6
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: provider
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: provider
+    field: date_updated
+    type: timestamp
+    meta:
+      collection: provider
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 7
+      special:
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_updated
+      table: provider
+      data_type: timestamp with time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: slug
+    type: string
+    meta:
+      collection: provider
+      conditions: null
+      display: null
+      display_options: null
+      field: slug
+      group: null
+      hidden: false
+      interface: extension-wpslug
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: slug
+      table: provider
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: icon
+    type: string
+    meta:
+      collection: provider
+      conditions: null
+      display: raw
+      display_options: null
+      field: icon
+      group: null
+      hidden: false
+      interface: select-icon
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 9
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: icon
+      table: provider
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider
+    field: translations
+    type: alias
+    meta:
+      collection: provider
+      conditions: null
+      display: null
+      display_options: null
+      field: translations
+      group: null
+      hidden: false
+      interface: translations
+      note: null
+      options:
+        defaultLanguage: en
+        languageField: name
+      readonly: false
+      required: false
+      sort: 10
+      special:
+        - translations
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: provider_translations
+    field: id
+    type: integer
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: provider_translations
+      data_type: integer
+      default_value: nextval('provider_translations_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider_translations
+    field: provider_id
+    type: uuid
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: provider_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: provider_id
+      table: provider_translations
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: provider
+      foreign_key_column: id
+  - collection: provider_translations
+    field: languages_code
+    type: string
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: languages_code
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: languages_code
+      table: provider_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: languages
+      foreign_key_column: code
+  - collection: provider_translations
+    field: name
+    type: string
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: provider_translations
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider_translations
+    field: summary
+    type: text
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: summary
+      group: null
+      hidden: false
+      interface: input-rich-text-md
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: summary
+      table: provider_translations
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: provider_translations
+    field: description
+    type: text
+    meta:
+      collection: provider_translations
+      conditions: null
+      display: null
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input-rich-text-md
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: description
+      table: provider_translations
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: id
+    type: uuid
+    meta: null
+    schema:
+      name: id
+      table: user
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: full_name
+    type: text
+    meta: null
+    schema:
+      name: full_name
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: username
+    type: text
+    meta: null
+    schema:
+      name: username
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: true
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: email
+    type: text
+    meta: null
+    schema:
+      name: email
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: avatar_url
+    type: text
+    meta: null
+    schema:
+      name: avatar_url
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: google_scopes
+    type: unknown
+    meta: null
+    schema:
+      name: google_scopes
+      table: user
+      data_type: text[]
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: google_access_token
+    type: text
+    meta: null
+    schema:
+      name: google_access_token
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: google_refresh_token
+    type: text
+    meta: null
+    schema:
+      name: google_refresh_token
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
+    field: created_at
+    type: dateTime
+    meta: null
+    schema:
+      name: created_at
+      table: user
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: waitlist
+    field: email
+    type: text
+    meta:
+      collection: waitlist
+      conditions: null
+      display: null
+      display_options: null
+      field: email
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: email
+      table: waitlist
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: waitlist
+    field: id
+    type: uuid
+    meta: null
+    schema:
+      name: id
+      table: waitlist
+      data_type: uuid
+      default_value: gen_random_uuid()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: waitlist
+    field: created_at
+    type: dateTime
+    meta: null
+    schema:
+      name: created_at
+      table: waitlist
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: waitlist
+    field: platforms
+    type: unknown
+    meta: null
+    schema:
+      name: platforms
+      table: waitlist
+      data_type: text[]
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: project_id
+    type: text
+    meta:
+      collection: workflow
+      conditions: null
+      display: null
+      display_options: null
+      field: project_id
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: project_id
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: workflow
+    field: description
+    type: text
+    meta:
+      collection: workflow
+      conditions: null
+      display: null
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: input-rich-text-md
+      note: null
+      options:
+        customSyntax: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: description
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: project_slug
+    type: text
+    meta: null
+    schema:
+      name: project_slug
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: name
+    type: text
+    meta: null
+    schema:
+      name: name
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: slug
+    type: text
+    meta: null
+    schema:
+      name: slug
+      table: workflow
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: public
+    type: boolean
+    meta: null
+    schema:
+      name: public
+      table: workflow
+      data_type: boolean
+      default_value: false
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: layout
+    type: json
+    meta: null
+    schema:
+      name: layout
+      table: workflow
+      data_type: json
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: created_at
+    type: dateTime
+    meta: null
+    schema:
+      name: created_at
+      table: workflow
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: updated_at
+    type: dateTime
+    meta: null
+    schema:
+      name: updated_at
+      table: workflow
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: published_at
+    type: dateTime
+    meta: null
+    schema:
+      name: published_at
+      table: workflow
+      data_type: timestamp without time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow
+    field: featured
+    type: boolean
+    meta: null
+    schema:
+      name: featured
+      table: workflow
+      data_type: boolean
+      default_value: false
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: workflow_execution
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: workflow_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_id
+      table: workflow_execution
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow
+      foreign_key_column: id
+  - collection: workflow_execution
+    field: workflow_version_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_version_id
+      table: workflow_execution
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+  - collection: workflow_execution
+    field: status
+    type: text
+    meta: null
+    schema:
+      name: status
+      table: workflow_execution
+      data_type: text
+      default_value: active
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: timestamp
+    type: dateTime
+    meta: null
+    schema:
+      name: timestamp
+      table: workflow_execution
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: updated_at
+    type: dateTime
+    meta: null
+    schema:
+      name: updated_at
+      table: workflow_execution
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: completed_at
+    type: dateTime
+    meta: null
+    schema:
+      name: completed_at
+      table: workflow_execution
+      data_type: timestamp without time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: duration
+    type: integer
+    meta: null
+    schema:
+      name: duration
+      table: workflow_execution
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution
+    field: entry_node_id
+    type: text
+    meta: null
+    schema:
+      name: entry_node_id
+      table: workflow_execution
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+  - collection: workflow_execution
+    field: exit_node_id
+    type: text
+    meta: null
+    schema:
+      name: exit_node_id
+      table: workflow_execution
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+  - collection: workflow_execution_step
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: workflow_execution_step
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_execution_step
+    field: workflow_execution_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_execution_id
+      table: workflow_execution_step
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_execution
+      foreign_key_column: id
+  - collection: workflow_execution_step
+    field: source_node_id
+    type: text
+    meta: null
+    schema:
+      name: source_node_id
+      table: workflow_execution_step
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: node_execution_data
+      foreign_key_column: id
+  - collection: workflow_execution_step
+    field: target_node_id
+    type: text
+    meta: null
+    schema:
+      name: target_node_id
+      table: workflow_execution_step
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: node_execution_data
+      foreign_key_column: id
+  - collection: workflow_execution_step
+    field: created_at
+    type: dateTime
+    meta: null
+    schema:
+      name: created_at
+      table: workflow_execution_step
+      data_type: timestamp without time zone
+      default_value: now()
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: workflow_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_id
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow
+      foreign_key_column: id
+  - collection: workflow_node
+    field: workflow_version_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_version_id
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+  - collection: workflow_node
+    field: context_id
+    type: text
+    meta: null
+    schema:
+      name: context_id
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: context
+      foreign_key_column: id
+  - collection: workflow_node
+    field: position
+    type: json
+    meta: null
+    schema:
+      name: position
+      table: workflow_node
+      data_type: json
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: width
+    type: integer
+    meta: null
+    schema:
+      name: width
+      table: workflow_node
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: height
+    type: integer
+    meta: null
+    schema:
+      name: height
+      table: workflow_node
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: label
+    type: text
+    meta: null
+    schema:
+      name: label
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: color
+    type: text
+    meta: null
+    schema:
+      name: color
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: type
+    type: text
+    meta: null
+    schema:
+      name: type
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_node
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: workflow_node
+    field: description
+    type: text
+    meta: null
+    schema:
+      name: description
+      table: workflow_node
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: id
+    type: text
+    meta: null
+    schema:
+      name: id
+      table: workflow_version
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: workflow_id
+    type: text
+    meta: null
+    schema:
+      name: workflow_id
+      table: workflow_version
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: workflow
+      foreign_key_column: id
+  - collection: workflow_version
+    field: previous_workflow_version_id
+    type: text
+    meta: null
+    schema:
+      name: previous_workflow_version_id
+      table: workflow_version
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: version
+    type: integer
+    meta: null
+    schema:
+      name: version
+      table: workflow_version
+      data_type: integer
+      default_value: 0
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: published_at
+    type: dateTime
+    meta: null
+    schema:
+      name: published_at
+      table: workflow_version
+      data_type: timestamp without time zone
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: change_log
+    type: text
+    meta: null
+    schema:
+      name: change_log
+      table: workflow_version
+      data_type: text
+      default_value: Workin in progress
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: workflow_version
+    field: project_id
+    type: text
+    meta: null
+    schema:
+      name: project_id
+      table: workflow_version
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: workflow_version
+    field: context_id
+    type: text
+    meta: null
+    schema:
+      name: context_id
+      table: workflow_version
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: context
+      foreign_key_column: id
+relations:
+  - collection: case_study
+    field: user_created
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: case_study
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: case_study
+      column: user_created
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: case_study_user_created_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: case_study
+    field: user_updated
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: case_study
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: case_study
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: case_study_user_updated_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: case_study_translations
+    field: languages_code
+    related_collection: languages
+    meta:
+      junction_field: case_study_id
+      many_collection: case_study_translations
+      many_field: languages_code
+      one_allowed_collections: null
+      one_collection: languages
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: case_study_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      constraint_name: case_study_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: case_study_translations
+    field: case_study_id
+    related_collection: case_study
+    meta:
+      junction_field: languages_code
+      many_collection: case_study_translations
+      many_field: case_study_id
+      one_allowed_collections: null
+      one_collection: case_study
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: translations
+      sort_field: null
+    schema:
+      table: case_study_translations
+      column: case_study_id
+      foreign_key_table: case_study
+      foreign_key_column: id
+      constraint_name: case_study_translations_case_study_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: context
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: context
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: context_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: context
+    field: parent_id
+    related_collection: context
+    meta: null
+    schema:
+      table: context
+      column: parent_id
+      foreign_key_table: context
+      foreign_key_column: id
+      constraint_name: context_parent_id_context_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: context
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: context
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: context_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: context
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: context
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: context_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: integration
+    field: user_created
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: integration
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: integration
+      column: user_created
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: integration_user_created_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: integration
+    field: user_updated
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: integration
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: integration
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: integration_user_updated_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: integration_translations
+    field: languages_code
+    related_collection: languages
+    meta:
+      junction_field: integration_id
+      many_collection: integration_translations
+      many_field: languages_code
+      one_allowed_collections: null
+      one_collection: languages
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: integration_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      constraint_name: integration_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: integration_translations
+    field: integration_id
+    related_collection: integration
+    meta:
+      junction_field: languages_code
+      many_collection: integration_translations
+      many_field: integration_id
+      one_allowed_collections: null
+      one_collection: integration
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: translations
+      sort_field: null
+    schema:
+      table: integration_translations
+      column: integration_id
+      foreign_key_table: integration
+      foreign_key_column: id
+      constraint_name: integration_translations_integration_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: node_execution_data
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: node_execution_data
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: node_execution_data_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: node_execution_data
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: node_execution_data_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: node_execution_data
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: node_execution_data_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: context_id
+    related_collection: context
+    meta: null
+    schema:
+      table: node_execution_data
+      column: context_id
+      foreign_key_table: context
+      foreign_key_column: id
+      constraint_name: node_execution_data_context_id_context_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: workflow_execution_id
+    related_collection: workflow_execution
+    meta: null
+    schema:
+      table: node_execution_data
+      column: workflow_execution_id
+      foreign_key_table: workflow_execution
+      foreign_key_column: id
+      constraint_name: node_execution_data_workflow_execution_id_workflow_execution_id
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: project_api_key
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: project_api_key
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: project_api_key_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: project_members
+    field: user_id
+    related_collection: user
+    meta: null
+    schema:
+      table: project_members
+      column: user_id
+      foreign_key_table: user
+      foreign_key_column: id
+      constraint_name: project_members_user_id_user_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: project_members
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: project_members
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: project_members_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: project_variable
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: project_variable
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: project_variable_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: provider
+    field: user_created
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: provider
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: provider
+      column: user_created
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: provider_user_created_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: provider
+    field: user_updated
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: provider
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: provider
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: provider_user_updated_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: provider_translations
+    field: languages_code
+    related_collection: languages
+    meta:
+      junction_field: provider_id
+      many_collection: provider_translations
+      many_field: languages_code
+      one_allowed_collections: null
+      one_collection: languages
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: provider_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      constraint_name: provider_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: provider_translations
+    field: provider_id
+    related_collection: provider
+    meta:
+      junction_field: languages_code
+      many_collection: provider_translations
+      many_field: provider_id
+      one_allowed_collections: null
+      one_collection: provider
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: translations
+      sort_field: null
+    schema:
+      table: provider_translations
+      column: provider_id
+      foreign_key_table: provider
+      foreign_key_column: id
+      constraint_name: provider_translations_provider_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: workflow
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: workflow
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: workflow_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_edge
+    field: target
+    related_collection: workflow_node
+    meta: null
+    schema:
+      table: workflow_edge
+      column: target
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+      constraint_name: workflow_edge_target_workflow_node_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_edge
+    field: source
+    related_collection: workflow_node
+    meta: null
+    schema:
+      table: workflow_edge
+      column: source
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+      constraint_name: workflow_edge_source_workflow_node_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_edge
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: workflow_edge
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: workflow_edge_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_edge
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: workflow_edge
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: workflow_edge_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_execution
+    field: exit_node_id
+    related_collection: workflow_node
+    meta: null
+    schema:
+      table: workflow_execution
+      column: exit_node_id
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+      constraint_name: workflow_execution_exit_node_id_workflow_node_id_fk
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: workflow_execution
+    field: entry_node_id
+    related_collection: workflow_node
+    meta: null
+    schema:
+      table: workflow_execution
+      column: entry_node_id
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+      constraint_name: workflow_execution_entry_node_id_workflow_node_id_fk
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: workflow_execution
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: workflow_execution
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: workflow_execution_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_execution
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: workflow_execution
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: workflow_execution_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_execution_step
+    field: target_node_id
+    related_collection: node_execution_data
+    meta: null
+    schema:
+      table: workflow_execution_step
+      column: target_node_id
+      foreign_key_table: node_execution_data
+      foreign_key_column: id
+      constraint_name: workflow_execution_step_target_node_id_node_execution_data_id_f
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_execution_step
+    field: source_node_id
+    related_collection: node_execution_data
+    meta: null
+    schema:
+      table: workflow_execution_step
+      column: source_node_id
+      foreign_key_table: node_execution_data
+      foreign_key_column: id
+      constraint_name: workflow_execution_step_source_node_id_node_execution_data_id_f
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_execution_step
+    field: workflow_execution_id
+    related_collection: workflow_execution
+    meta: null
+    schema:
+      table: workflow_execution_step
+      column: workflow_execution_id
+      foreign_key_table: workflow_execution
+      foreign_key_column: id
+      constraint_name: workflow_execution_step_workflow_execution_id_workflow_executio
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_node
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: workflow_node
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: workflow_node_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_node
+    field: context_id
+    related_collection: context
+    meta: null
+    schema:
+      table: workflow_node
+      column: context_id
+      foreign_key_table: context
+      foreign_key_column: id
+      constraint_name: workflow_node_context_id_context_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_node
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: workflow_node
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: workflow_node_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_node
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: workflow_node
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: workflow_node_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_version
+    field: context_id
+    related_collection: context
+    meta: null
+    schema:
+      table: workflow_version
+      column: context_id
+      foreign_key_table: context
+      foreign_key_column: id
+      constraint_name: workflow_version_context_id_context_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_version
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: workflow_version
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: workflow_version_project_id_project_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_version
+    field: workflow_id
+    related_collection: workflow
+    meta: null
+    schema:
+      table: workflow_version
+      column: workflow_id
+      foreign_key_table: workflow
+      foreign_key_column: id
+      constraint_name: workflow_version_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE

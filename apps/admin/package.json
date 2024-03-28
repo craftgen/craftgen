@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "pnpm with-env directus start",
     "start": "pnpm directus start",
-    "start:prod": "pnpm with-env:prod directus start",
+    "start:prod": "pnpm with-env:prod pnpm directus start",
     "create-snapshot": "pnpm with-env directus schema snapshot ./snapshots/\"$(date \"+%F\")\"-snapshot-\"$(date \"+%s\")\".yaml",
+    "apply-snapshot": "pnpm with-env:prod directus schema apply ./snapshots/current.yaml",
     "with-env": "dotenv -e ../.env --",
     "with-env:prod": "dotenv -e ../.env.prod --"
   },
