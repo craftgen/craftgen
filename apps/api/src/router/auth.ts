@@ -14,9 +14,11 @@ export const authRouter = createTRPCRouter({
         avatar_url: true,
       },
     });
+
     return {
       ...user,
       ...ctx.session,
+      currentProjectSlug: ctx.session.user?.user_metadata.currentProjectSlug,
     };
   }),
   getSecretMessage: protectedProcedure.query(() => {

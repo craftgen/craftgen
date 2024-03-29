@@ -3,6 +3,8 @@ import type { PropsWithChildren } from "react";
 import { Separator } from "@/components/ui/separator";
 
 import { SidebarNav } from "./components/sidebar-nav";
+import { api } from "@/trpc/server";
+import { redirect, useParams } from "next/navigation";
 
 const sidebarNavItems = [
   {
@@ -23,9 +25,17 @@ const sidebarNavItems = [
   },
 ];
 
-const ProjectSettingPageLayout: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
+const ProjectSettingPageLayout: React.FC<
+  PropsWithChildren<{
+    params: {
+      projectSlug: string;
+    };
+  }>
+> = async ({ children, params }) => {
+  const session = await api.auth.getSession();
+  if (!session || session?.currentProjectSlug !== params.projectSlug) {
+    redirect(`/${params.projectSlug}`);
+  }
   return (
     <>
       <div className=" space-y-6 p-10 pb-16 md:block">
