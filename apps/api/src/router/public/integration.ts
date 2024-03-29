@@ -53,10 +53,13 @@ export const integrationRouter = createTRPCRouter({
               },
             })
             .then((data) => data.map((item) => item.integrationId));
+          if (integrationIds.length === 0) {
+            return [];
+          }
           return await tx.query.integration.findMany({
             where: (integration, { and, eq, inArray }) =>
               and(
-                inArray(integration.id, integrationIds!),
+                inArray(integration.id, integrationIds),
                 eq(integration.status, "published"),
               ),
             with: {
