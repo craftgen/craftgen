@@ -4,6 +4,7 @@ import { credentialsRouter } from "./router/creadentials";
 import { googleRouter } from "./router/google";
 import { openaiRouter } from "./router/openai";
 import { projectRouter } from "./router/project";
+import { publicRouter } from "./router/public";
 import { replicateRouter } from "./router/replicate";
 import { stripeRouter } from "./router/stripe";
 import { createTRPCRouter } from "./trpc";
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   replicate: replicateRouter,
   credentials: credentialsRouter,
   stripe: stripeRouter,
+  public: publicRouter,
 });
 
 // export type definition of API

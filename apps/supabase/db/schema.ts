@@ -8,6 +8,7 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  serial,
   text,
   timestamp,
   unique,
@@ -549,35 +550,270 @@ export const projectMemberRelations = relations(projectMembers, ({ one }) => ({
   }),
 }));
 
-
 export const languages = pgTable("languages", {
-	code: varchar("code", { length: 255 }).primaryKey().notNull(),
-	name: varchar("name", { length: 255 }),
-	direction: varchar("direction", { length: 255 }).default('ltr'),
+  code: varchar("code", { length: 255 }).primaryKey().notNull(),
+  name: varchar("name", { length: 255 }),
+  direction: varchar("direction", { length: 255 }).default("ltr"),
 });
 
-export const integrationsTranslations = pgTable("integrations_translations", {
-	id: serial("id").primaryKey().notNull(),
-	integrationsId: integer("integrations_id").references(() => integrations.id, { onDelete: "set null" } ),
-	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
-	name: varchar("name", { length: 255 }),
-	description: text("description"),
-	slug: varchar("slug", { length: 255 }),
-	content: text("content"),
+export const solution = pgTable(
+  "solution",
+  {
+    id: uuid("id").primaryKey().notNull(),
+    status: varchar("status", { length: 255 }).default("draft").notNull(),
+    sort: integer("sort"),
+    userCreated: uuid("user_created").references(() => directusUsers.id),
+    dateCreated: timestamp("date_created", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    userUpdated: uuid("user_updated").references(() => directusUsers.id),
+    dateUpdated: timestamp("date_updated", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    slug: varchar("slug", { length: 255 }),
+  },
+  (table) => {
+    return {
+      solutionSlugUnique: unique("solution_slug_unique").on(table.slug),
+    };
+  },
+);
+
+export const solutionTranslations = pgTable("solution_translations", {
+  id: serial("id").primaryKey().notNull(),
+  solutionId: uuid("solution_id").references(() => solution.id, {
+    onDelete: "set null",
+  }),
+  languagesCode: varchar("languages_code", { length: 255 }).references(
+    () => languages.code,
+    { onDelete: "set null" },
+  ),
+  name: varchar("name", { length: 255 }),
+  title: text("title"),
 });
 
-export const integrations = pgTable("integrations", {
-	id: serial("id").primaryKey().notNull(),
-	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
-	sort: integer("sort"),
-	userCreated: uuid("user_created").references(() => directusUsers.id),
-	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
-	userUpdated: uuid("user_updated").references(() => directusUsers.id),
-	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
-	slug: varchar("slug", { length: 255 }),
-},
-(table) => {
-	return {
-		integrationsSlugUnique: unique("integrations_slug_unique").on(table.slug),
-	}
+export const solutionRelations = relations(solution, ({ one, many }) => ({
+  translations: many(solutionTranslations),
+}));
+
+export const solutionTranslationsRelations = relations(
+  solutionTranslations,
+  ({ one }) => ({
+    solution: one(solution, {
+      fields: [solutionTranslations.solutionId],
+      references: [solution.id],
+    }),
+    language: one(languages, {
+      fields: [solutionTranslations.languagesCode],
+      references: [languages.code],
+    }),
+  }),
+);
+
+export const integration = pgTable("integration", {
+  id: uuid("id").primaryKey().notNull(),
+  status: varchar("status", { length: 255 }).default("draft").notNull(),
+  sort: integer("sort"),
+  userCreated: uuid("user_created").references(() => directusUsers.id),
+  dateCreated: timestamp("date_created", {
+    withTimezone: true,
+    mode: "string",
+  }),
+  userUpdated: uuid("user_updated").references(() => directusUsers.id),
+  dateUpdated: timestamp("date_updated", {
+    withTimezone: true,
+    mode: "string",
+  }),
+  slug: varchar("slug", { length: 255 }),
+  featured: boolean("featured").default(false),
+  icon: varchar("icon", { length: 255 }),
 });
+
+export const integrationIntegrationCategories = pgTable(
+  "integration_integration_categories",
+  {
+    id: serial("id").primaryKey().notNull(),
+    integrationId: uuid("integration_id").references(() => integration.id, {
+      onDelete: "set null",
+    }),
+    integrationCategoriesId: uuid("integration_categories_id").references(
+      () => integrationCategories.id,
+      { onDelete: "set null" },
+    ),
+  },
+);
+
+export const integrationIntegrationCategoriesRelations = relations(
+  integrationIntegrationCategories,
+  ({ one }) => ({
+    integration: one(integration, {
+      fields: [integrationIntegrationCategories.integrationId],
+      references: [integration.id],
+    }),
+    category: one(integrationCategories, {
+      fields: [integrationIntegrationCategories.integrationCategoriesId],
+      references: [integrationCategories.id],
+    }),
+  }),
+);
+
+export const integrationCategories = pgTable("integration_categories", {
+  id: uuid("id").primaryKey().notNull(),
+  status: varchar("status", { length: 255 }).default("draft").notNull(),
+  sort: integer("sort"),
+  userCreated: uuid("user_created").references(() => directusUsers.id),
+  dateCreated: timestamp("date_created", {
+    withTimezone: true,
+    mode: "string",
+  }),
+  userUpdated: uuid("user_updated").references(() => directusUsers.id),
+  dateUpdated: timestamp("date_updated", {
+    withTimezone: true,
+    mode: "string",
+  }),
+  slug: varchar("slug", { length: 255 }),
+});
+
+export const integrationCategoriesRelations = relations(
+  integrationCategories,
+  ({ one, many }) => ({
+    translations: many(integrationCategoriesTranslations),
+  }),
+);
+
+export const integrationCategoriesTranslations = pgTable(
+  "integration_categories_translations",
+  {
+    id: serial("id").primaryKey().notNull(),
+    integrationCategoriesId: uuid("integration_categories_id").references(
+      () => integrationCategories.id,
+      { onDelete: "set null" },
+    ),
+    languagesCode: varchar("languages_code", { length: 255 }).references(
+      () => languages.code,
+      { onDelete: "set null" },
+    ),
+    name: varchar("name", { length: 255 }),
+  },
+);
+
+export const integrationCategoriesTranslationsRelations = relations(
+  integrationCategoriesTranslations,
+  ({ one }) => ({
+    category: one(integrationCategories, {
+      fields: [integrationCategoriesTranslations.integrationCategoriesId],
+      references: [integrationCategories.id],
+    }),
+    language: one(languages, {
+      fields: [integrationCategoriesTranslations.languagesCode],
+      references: [languages.code],
+    }),
+  }),
+);
+
+export const integrationTranslations = pgTable("integration_translations", {
+  id: serial("id").primaryKey().notNull(),
+  integrationId: uuid("integration_id").references(() => integration.id, {
+    onDelete: "set null",
+  }),
+  languagesCode: varchar("languages_code", { length: 255 }).references(
+    () => languages.code,
+    { onDelete: "set null" },
+  ),
+  name: varchar("name", { length: 255 }),
+  description: text("description"),
+});
+
+export const integrationRelations = relations(integration, ({ one, many }) => ({
+  translations: many(integrationTranslations),
+  integrationIntegrationCategories: many(integrationIntegrationCategories),
+}));
+
+export const integrationTranslationsRelations = relations(
+  integrationTranslations,
+  ({ one }) => ({
+    integration: one(integration, {
+      fields: [integrationTranslations.integrationId],
+      references: [integration.id],
+    }),
+    language: one(languages, {
+      fields: [integrationTranslations.languagesCode],
+      references: [languages.code],
+    }),
+  }),
+);
+
+export const integrationSolution = pgTable("integration_solution", {
+  id: serial("id").primaryKey().notNull(),
+  integrationId: uuid("integration_id").references(() => integration.id, {
+    onDelete: "set null",
+  }),
+  solutionId: uuid("solution_id").references(() => solution.id, {
+    onDelete: "set null",
+  }),
+});
+
+export const directusRoles = pgTable("directus_roles", {
+  id: uuid("id").primaryKey().notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 30 })
+    .default("supervised_user_circle")
+    .notNull(),
+  description: text("description"),
+  ipAccess: text("ip_access"),
+  enforceTfa: boolean("enforce_tfa").default(false).notNull(),
+  adminAccess: boolean("admin_access").default(false).notNull(),
+  appAccess: boolean("app_access").default(true).notNull(),
+});
+
+export const directusUsers = pgTable(
+  "directus_users",
+  {
+    id: uuid("id").primaryKey().notNull(),
+    firstName: varchar("first_name", { length: 50 }),
+    lastName: varchar("last_name", { length: 50 }),
+    email: varchar("email", { length: 128 }),
+    password: varchar("password", { length: 255 }),
+    location: varchar("location", { length: 255 }),
+    title: varchar("title", { length: 50 }),
+    description: text("description"),
+    tags: json("tags"),
+    avatar: uuid("avatar"),
+    language: varchar("language", { length: 255 }),
+    tfaSecret: varchar("tfa_secret", { length: 255 }),
+    status: varchar("status", { length: 16 }).default("active").notNull(),
+    role: uuid("role").references(() => directusRoles.id, {
+      onDelete: "set null",
+    }),
+    token: varchar("token", { length: 255 }),
+    lastAccess: timestamp("last_access", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    lastPage: varchar("last_page", { length: 255 }),
+    provider: varchar("provider", { length: 128 }).default("default").notNull(),
+    externalIdentifier: varchar("external_identifier", { length: 255 }),
+    authData: json("auth_data"),
+    emailNotifications: boolean("email_notifications").default(true),
+    appearance: varchar("appearance", { length: 255 }),
+    themeDark: varchar("theme_dark", { length: 255 }),
+    themeLight: varchar("theme_light", { length: 255 }),
+    themeLightOverrides: json("theme_light_overrides"),
+    themeDarkOverrides: json("theme_dark_overrides"),
+  },
+  (table) => {
+    return {
+      directusUsersEmailUnique: unique("directus_users_email_unique").on(
+        table.email,
+      ),
+      directusUsersTokenUnique: unique("directus_users_token_unique").on(
+        table.token,
+      ),
+      directusUsersExternalIdentifierUnique: unique(
+        "directus_users_external_identifier_unique",
+      ).on(table.externalIdentifier),
+    };
+  },
+);

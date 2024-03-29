@@ -1,0 +1,94 @@
+import { z } from "zod";
+
+import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { sql } from "@seocraft/supabase/db";
+
+export const integrationRouter = createTRPCRouter({
+  categoryList: publicProcedure
+    .input(z.object({ lang: z.string().optional().default("en") }))
+    .query(async ({ ctx }) => {
+      return ctx.db.query.integrationCategories.findMany({
+        with: {
+          translations: {
+            where: (translation, { eq }) => eq(translation.languagesCode, "en"),
+          },
+        },
+      });
+    }),
+  list: publicProcedure
+    .input(
+      z.object({
+        lang: z.string().optional().default("en"),
+        categoryId: z.string().optional(),
+        featured: z.boolean().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.integration.findMany({
+        where: (integration, { eq, and }) =>
+          and(
+            eq(integration.status, "published"),
+            // input?.solutionId
+            //   ? eq(integration.solutionId, input.solutionId)
+            //   : sql`true`,
+            input?.featured
+              ? eq(integration.featured, input.featured)
+              : sql`true`,
+          ),
+        with: {
+          translations: {
+            where: (translation, { eq }) =>
+              eq(translation.languagesCode, input.lang),
+          },
+          integrationIntegrationCategories: {
+            with: {
+              category: {
+                with: {
+                  translations: {
+                    where: (translation, { eq }) =>
+                      eq(translation.languagesCode, input.lang),
+                  },
+                },
+              },
+            },
+          },
+          // solution: {
+          //   with: {
+          //     translations: {
+          //       where: (translation, { eq }) =>
+          //         eq(translation.languagesCode, input.lang),
+          //     },
+          //   },
+          // },
+        },
+      });
+    }),
+
+  get: publicProcedure
+    .input(
+      z.object({ slug: z.string(), lang: z.string().optional().default("en") }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.integration.findFirst({
+        where: (integration, { eq, and }) =>
+          and(
+            eq(integration.slug, input.slug),
+            eq(integration.status, "published"),
+          ),
+        with: {
+          translations: {
+            where: (translation, { eq }) =>
+              eq(translation.languagesCode, input.lang),
+          },
+          // solution: {
+          //   with: {
+          //     translations: {
+          //       where: (translation, { eq }) =>
+          //         eq(translation.languagesCode, input.lang),
+          //     },
+          //   },
+          // },
+        },
+      });
+    }),
+});

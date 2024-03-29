@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, pgEnum, serial, integer, varchar, text, uuid, timestamp, boolean, unique, json, bigint, type AnyPgColumn, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, pgEnum, serial, uuid, varchar, text, unique, integer, timestamp, boolean, json, bigint, type AnyPgColumn, primaryKey } from "drizzle-orm/pg-core"
   import { sql } from "drizzle-orm"
 
 export const keyStatus = pgEnum("key_status", ['default', 'valid', 'invalid', 'expired'])
@@ -11,23 +11,24 @@ export const codeChallengeMethod = pgEnum("code_challenge_method", ['s256', 'pla
 export const memberRole = pgEnum("member_role", ['owner', 'admin', 'editor', 'viewer'])
 
 
-export const integrationsTranslations = pgTable("integrations_translations", {
+export const integrationTranslations = pgTable("integration_translations", {
 	id: serial("id").primaryKey().notNull(),
-	integrationsId: integer("integrations_id").references(() => integrations.id, { onDelete: "set null" } ),
+	integrationId: uuid("integration_id").references(() => integration.id, { onDelete: "set null" } ),
 	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
 	name: varchar("name", { length: 255 }),
 	description: text("description"),
-	slug: varchar("slug", { length: 255 }),
+});
+
+export const caseStudyTranslations = pgTable("case_study_translations", {
+	id: serial("id").primaryKey().notNull(),
+	caseStudyId: uuid("case_study_id").references(() => caseStudy.id, { onDelete: "set null" } ),
+	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
+	title: varchar("title", { length: 255 }),
+	excerpt: text("excerpt"),
 	content: text("content"),
 });
 
-export const solutionsTranslations = pgTable("solutions_translations", {
-	id: serial("id").primaryKey().notNull(),
-	solutionsId: integer("solutions_id").references(() => solutions.id, { onDelete: "set null" } ),
-	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
-});
-
-export const caseStudies = pgTable("case_studies", {
+export const solution = pgTable("solution", {
 	id: uuid("id").primaryKey().notNull(),
 	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
 	sort: integer("sort"),
@@ -35,6 +36,56 @@ export const caseStudies = pgTable("case_studies", {
 	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
 	userUpdated: uuid("user_updated").references(() => directusUsers.id),
 	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
+	slug: varchar("slug", { length: 255 }),
+},
+(table) => {
+	return {
+		solutionSlugUnique: unique("solution_slug_unique").on(table.slug),
+	}
+});
+
+export const integrationIntegrationCategories = pgTable("integration_integration_categories", {
+	id: serial("id").primaryKey().notNull(),
+	integrationId: uuid("integration_id").references(() => integration.id, { onDelete: "set null" } ),
+	integrationCategoriesId: uuid("integration_categories_id").references(() => integrationCategories.id, { onDelete: "set null" } ),
+});
+
+export const integrationCategories = pgTable("integration_categories", {
+	id: uuid("id").primaryKey().notNull(),
+	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
+	sort: integer("sort"),
+	userCreated: uuid("user_created").references(() => directusUsers.id),
+	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
+	userUpdated: uuid("user_updated").references(() => directusUsers.id),
+	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
+	slug: varchar("slug", { length: 255 }),
+});
+
+export const provider = pgTable("provider", {
+	id: uuid("id").primaryKey().notNull(),
+	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
+	sort: integer("sort"),
+	userCreated: uuid("user_created").references(() => directusUsers.id),
+	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
+	userUpdated: uuid("user_updated").references(() => directusUsers.id),
+	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
+	slug: varchar("slug", { length: 255 }),
+	icon: varchar("icon", { length: 255 }),
+});
+
+export const solutionTranslations = pgTable("solution_translations", {
+	id: serial("id").primaryKey().notNull(),
+	solutionId: uuid("solution_id").references(() => solution.id, { onDelete: "set null" } ),
+	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
+	name: varchar("name", { length: 255 }),
+	title: text("title"),
+});
+
+export const integrationCategoriesTranslations = pgTable("integration_categories_translations", {
+	id: serial("id").primaryKey().notNull(),
+	integrationCategoriesId: uuid("integration_categories_id").references(() => integrationCategories.id, { onDelete: "set null" } ),
+	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
+	name: varchar("name", { length: 255 }),
 });
 
 export const directusRoles = pgTable("directus_roles", {
@@ -630,18 +681,17 @@ export const directusExtensions = pgTable("directus_extensions", {
 	bundle: uuid("bundle"),
 });
 
-export const solutions = pgTable("solutions", {
+export const providerTranslations = pgTable("provider_translations", {
 	id: serial("id").primaryKey().notNull(),
-	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
-	sort: integer("sort"),
-	userCreated: uuid("user_created").references(() => directusUsers.id),
-	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
-	userUpdated: uuid("user_updated").references(() => directusUsers.id),
-	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
+	providerId: uuid("provider_id").references(() => provider.id, { onDelete: "set null" } ),
+	languagesCode: varchar("languages_code", { length: 255 }).references(() => languages.code, { onDelete: "set null" } ),
+	name: varchar("name", { length: 255 }),
+	summary: text("summary"),
+	description: text("description"),
 });
 
-export const integrations = pgTable("integrations", {
-	id: serial("id").primaryKey().notNull(),
+export const integration = pgTable("integration", {
+	id: uuid("id").primaryKey().notNull(),
 	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
 	sort: integer("sort"),
 	userCreated: uuid("user_created").references(() => directusUsers.id),
@@ -649,11 +699,18 @@ export const integrations = pgTable("integrations", {
 	userUpdated: uuid("user_updated").references(() => directusUsers.id),
 	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
 	slug: varchar("slug", { length: 255 }),
-},
-(table) => {
-	return {
-		integrationsSlugUnique: unique("integrations_slug_unique").on(table.slug),
-	}
+	featured: boolean("featured").default(false),
+	icon: varchar("icon", { length: 255 }),
+});
+
+export const caseStudy = pgTable("case_study", {
+	id: uuid("id").primaryKey().notNull(),
+	status: varchar("status", { length: 255 }).default('draft'::character varying).notNull(),
+	sort: integer("sort"),
+	userCreated: uuid("user_created").references(() => directusUsers.id),
+	dateCreated: timestamp("date_created", { withTimezone: true, mode: 'string' }),
+	userUpdated: uuid("user_updated").references(() => directusUsers.id),
+	dateUpdated: timestamp("date_updated", { withTimezone: true, mode: 'string' }),
 });
 
 export const languages = pgTable("languages", {

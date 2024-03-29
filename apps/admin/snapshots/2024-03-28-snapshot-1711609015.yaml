@@ -98,6 +98,30 @@ collections:
       versioning: false
     schema:
       name: integration
+  - collection: integration_solution
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: integration_solution
+      color: null
+      display_template: null
+      group: null
+      hidden: true
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: integration_solution
   - collection: integration_translations
     meta:
       accountability: all
@@ -1496,6 +1520,46 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: integration
+    field: solutionId
+    type: uuid
+    meta:
+      collection: integration
+      conditions: null
+      display: null
+      display_options: null
+      field: solutionId
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{slug}}'
+      readonly: false
+      required: false
+      sort: 11
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: solutionId
+      table: integration
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: solution
+      foreign_key_column: id
+  - collection: integration
     field: icon
     type: string
     meta:
@@ -1533,6 +1597,120 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: integration_solution
+    field: id
+    type: integer
+    meta:
+      collection: integration_solution
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: integration_solution
+      data_type: integer
+      default_value: nextval('integration_solution_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: integration_solution
+    field: integration_id
+    type: uuid
+    meta:
+      collection: integration_solution
+      conditions: null
+      display: null
+      display_options: null
+      field: integration_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: integration_id
+      table: integration_solution
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: integration
+      foreign_key_column: id
+  - collection: integration_solution
+    field: solution_id
+    type: uuid
+    meta:
+      collection: integration_solution
+      conditions: null
+      display: null
+      display_options: null
+      field: solution_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: solution_id
+      table: integration_solution
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: solution
+      foreign_key_column: id
   - collection: integration_translations
     field: id
     type: integer
@@ -3524,6 +3702,30 @@ fields:
       validation: null
       validation_message: null
       width: full
+  - collection: solution
+    field: solutions
+    type: alias
+    meta:
+      collection: solution
+      conditions: null
+      display: null
+      display_options: null
+      field: solutions
+      group: null
+      hidden: false
+      interface: list-o2m
+      note: null
+      options:
+        template: '{{slug}}'
+      readonly: false
+      required: false
+      sort: 10
+      special:
+        - o2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
   - collection: solution_translations
     field: id
     type: integer
@@ -5144,6 +5346,69 @@ relations:
       constraint_name: integration_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
+  - collection: integration
+    field: solutionId
+    related_collection: solution
+    meta:
+      junction_field: null
+      many_collection: integration
+      many_field: solutionId
+      one_allowed_collections: null
+      one_collection: solution
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: solutions
+      sort_field: null
+    schema:
+      table: integration
+      column: solutionId
+      foreign_key_table: solution
+      foreign_key_column: id
+      constraint_name: integration_solutionid_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: integration_solution
+    field: solution_id
+    related_collection: solution
+    meta:
+      junction_field: integration_id
+      many_collection: integration_solution
+      many_field: solution_id
+      one_allowed_collections: null
+      one_collection: solution
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: integration_solution
+      column: solution_id
+      foreign_key_table: solution
+      foreign_key_column: id
+      constraint_name: integration_solution_solution_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: integration_solution
+    field: integration_id
+    related_collection: integration
+    meta:
+      junction_field: solution_id
+      many_collection: integration_solution
+      many_field: integration_id
+      one_allowed_collections: null
+      one_collection: integration
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: integration_solution
+      column: integration_id
+      foreign_key_table: integration
+      foreign_key_column: id
+      constraint_name: integration_solution_integration_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
   - collection: integration_translations
     field: languages_code
     related_collection: languages
