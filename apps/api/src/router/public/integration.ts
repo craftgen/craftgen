@@ -24,44 +24,60 @@ export const integrationRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.integration.findMany({
-        where: (integration, { eq, and }) =>
-          and(
-            eq(integration.status, "published"),
-            // input?.solutionId
-            //   ? eq(integration.solutionId, input.solutionId)
-            //   : sql`true`,
-            input?.featured
-              ? eq(integration.featured, input.featured)
-              : sql`true`,
-          ),
-        with: {
-          translations: {
-            where: (translation, { eq }) =>
-              eq(translation.languagesCode, input.lang),
-          },
-          integrationIntegrationCategories: {
+      const integrations = await ctx.db.transaction(async (tx) => {
+        if (input.featured) {
+          return await tx.query.integration.findMany({
+            where: (integration, { eq, and }) =>
+              and(
+                eq(integration.featured, input.featured!),
+                eq(integration.status, "published"),
+              ),
             with: {
-              category: {
-                with: {
-                  translations: {
-                    where: (translation, { eq }) =>
-                      eq(translation.languagesCode, input.lang),
-                  },
-                },
+              translations: {
+                where: (translation, { eq }) =>
+                  eq(translation.languagesCode, input.lang),
               },
             },
+          });
+        }
+        if (input.categoryId) {
+          const integrationIds = await tx.query.integrationIntegrationCategories
+            .findMany({
+              where: (integrationIntegrationCategories, { eq }) =>
+                eq(
+                  integrationIntegrationCategories.integrationCategoriesId,
+                  input.categoryId!,
+                ),
+              columns: {
+                integrationId: true,
+              },
+            })
+            .then((data) => data.map((item) => item.integrationId));
+          return await tx.query.integration.findMany({
+            where: (integration, { and, eq, inArray }) =>
+              and(
+                inArray(integration.id, integrationIds!),
+                eq(integration.status, "published"),
+              ),
+            with: {
+              translations: {
+                where: (translation, { eq }) =>
+                  eq(translation.languagesCode, input.lang),
+              },
+            },
+          });
+        }
+        return await tx.query.integration.findMany({
+          where: (integration, { eq }) => eq(integration.status, "published"),
+          with: {
+            translations: {
+              where: (translation, { eq }) =>
+                eq(translation.languagesCode, input.lang),
+            },
           },
-          // solution: {
-          //   with: {
-          //     translations: {
-          //       where: (translation, { eq }) =>
-          //         eq(translation.languagesCode, input.lang),
-          //     },
-          //   },
-          // },
-        },
+        });
       });
+      return integrations;
     }),
 
   get: publicProcedure

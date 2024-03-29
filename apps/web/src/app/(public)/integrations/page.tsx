@@ -9,7 +9,7 @@ import * as motion from "@/components/motion";
 import { useMemo } from "react";
 import { Icons } from "@/components/icons";
 
-type SolutionList = RouterOutputs["public"]["solution"]["list"];
+type CategoryList = RouterOutputs["public"]["integration"]["categoryList"];
 
 const IntegrationsPage = async () => {
   const data = await api.public.integration.categoryList({
@@ -41,17 +41,17 @@ const IntegrationsPage = async () => {
             className="sticky top-0 col-span-1 hidden flex-col space-y-2 sm:flex"
             layout
           >
-            {data.map((solution) => (
+            {data.map((category) => (
               <IntegrationCategoryButton
-                key={solution.id}
-                solution={solution}
+                key={category.id}
+                category={category}
               />
             ))}
           </motion.div>
           <motion.div className=" max-w-4xl flex-1 space-y-10  " layout>
             <IntegrationGroup featured />
             {data.map((solution) => (
-              <IntegrationGroup key={solution.id} solution={solution} />
+              <IntegrationGroup key={solution.id} category={solution} />
             ))}
           </motion.div>
         </div>
@@ -61,9 +61,9 @@ const IntegrationsPage = async () => {
 };
 
 const IntegrationCategoryButton = ({
-  solution,
+  category: solution,
 }: {
-  solution: SolutionList[number];
+  category: CategoryList[number];
 }) => {
   return (
     <div className={"p-2"}>
@@ -79,15 +79,15 @@ const IntegrationCategoryButton = ({
 type IntegrationList = RouterOutputs["public"]["integration"]["list"];
 
 const IntegrationGroup = async ({
-  solution,
+  category,
   featured,
 }: {
-  solution?: SolutionList[number];
+  category?: CategoryList[number];
   featured?: boolean;
 }) => {
   const data = await api.public.integration.list({
     lang: "en",
-    solutionId: solution?.id,
+    categoryId: category?.id,
     featured,
   });
   return (
@@ -103,11 +103,12 @@ const IntegrationGroup = async ({
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: 0.25 }}
       className="relative flex flex-col"
-      id={solution?.slug || "featured"}
+      id={category?.slug || "featured"}
     >
+      {/* <JSONView src={data} /> */}
       <div className="p-2 ">
         <h2 className="text-2xl">
-          {solution?.translations[0].name || "Featured"}{" "}
+          {category?.translations[0].name || "Featured"}{" "}
         </h2>
       </div>
       <div className="col-span-2 grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
