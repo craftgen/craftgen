@@ -41,6 +41,7 @@ import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
 import { NodeMath } from "./nodes/tools/math";
 import { NodeReplicate } from "./nodes/replicate/replicate";
+import { NodeRestApi } from "./nodes/api/rest";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -110,6 +111,8 @@ export const nodes = {
   NodeModule: NodeModule,
 
   NodeReplicate: NodeReplicate,
+
+  NodeRestApi: NodeRestApi,
 
   // // DataSources
   // GoogleSheet: GoogleSheet,

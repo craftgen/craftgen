@@ -255,7 +255,27 @@ collections:
     schema:
       name: project_members
   - collection: project_variable
-    meta: null
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: project_variable
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
     schema:
       name: project_variable
   - collection: provider
@@ -3095,6 +3115,83 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: project_variable
+    field: project_id
+    type: text
+    meta:
+      collection: project_variable
+      conditions: null
+      display: null
+      display_options: null
+      field: project_id
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{slug}}|{{name}}'
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: project_id
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: project
+      foreign_key_column: id
+  - collection: project_variable
+    field: value
+    type: text
+    meta:
+      collection: project_variable
+      conditions: null
+      display: null
+      display_options: null
+      field: value
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: value
+      table: project_variable
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: project_variable
     field: id
     type: text
     meta: null
@@ -3115,26 +3212,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: project_variable
-    field: project_id
-    type: text
-    meta: null
-    schema:
-      name: project_id
-      table: project_variable
-      data_type: text
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: project
-      foreign_key_column: id
-  - collection: project_variable
     field: key
     type: text
     meta: null
@@ -3147,26 +3224,6 @@ fields:
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: project_variable
-    field: value
-    type: text
-    meta: null
-    schema:
-      name: value
-      table: project_variable
-      data_type: text
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
       is_unique: false
       is_primary_key: false
       is_generated: false
@@ -4441,6 +4498,44 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: user
+    field: avatar_url
+    type: text
+    meta:
+      collection: user
+      conditions: null
+      display: null
+      display_options: null
+      field: avatar_url
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: null
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: avatar_url
+      table: user
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: user
     field: id
     type: uuid
     meta: null
@@ -4513,26 +4608,6 @@ fields:
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: user
-    field: avatar_url
-    type: text
-    meta: null
-    schema:
-      name: avatar_url
-      table: user
-      data_type: text
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
       is_unique: false
       is_primary_key: false
       is_generated: false
@@ -5781,17 +5856,17 @@ relations:
       on_update: NO ACTION
       on_delete: SET NULL
   - collection: context
-    field: workflow_version_id
-    related_collection: workflow_version
+    field: workflow_id
+    related_collection: workflow
     meta: null
     schema:
       table: context
-      column: workflow_version_id
-      foreign_key_table: workflow_version
+      column: workflow_id
+      foreign_key_table: workflow
       foreign_key_column: id
-      constraint_name: context_workflow_version_id_workflow_version_id_fk
+      constraint_name: context_workflow_id_workflow_id_fk
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: CASCADE
   - collection: context
     field: parent_id
     related_collection: context
@@ -5802,18 +5877,6 @@ relations:
       foreign_key_table: context
       foreign_key_column: id
       constraint_name: context_parent_id_context_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: context
-    field: workflow_id
-    related_collection: workflow
-    meta: null
-    schema:
-      table: context
-      column: workflow_id
-      foreign_key_table: workflow
-      foreign_key_column: id
-      constraint_name: context_workflow_id_workflow_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: context
@@ -5828,6 +5891,18 @@ relations:
       constraint_name: context_project_id_project_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
+  - collection: context
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: context
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: context_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: SET NULL
   - collection: integration
     field: user_created
     related_collection: directus_users
@@ -6039,39 +6114,15 @@ relations:
       on_update: NO ACTION
       on_delete: SET NULL
   - collection: node_execution_data
-    field: project_id
-    related_collection: project
+    field: workflow_execution_id
+    related_collection: workflow_execution
     meta: null
     schema:
       table: node_execution_data
-      column: project_id
-      foreign_key_table: project
+      column: workflow_execution_id
+      foreign_key_table: workflow_execution
       foreign_key_column: id
-      constraint_name: node_execution_data_project_id_project_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: node_execution_data
-    field: workflow_version_id
-    related_collection: workflow_version
-    meta: null
-    schema:
-      table: node_execution_data
-      column: workflow_version_id
-      foreign_key_table: workflow_version
-      foreign_key_column: id
-      constraint_name: node_execution_data_workflow_version_id_workflow_version_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: node_execution_data
-    field: workflow_id
-    related_collection: workflow
-    meta: null
-    schema:
-      table: node_execution_data
-      column: workflow_id
-      foreign_key_table: workflow
-      foreign_key_column: id
-      constraint_name: node_execution_data_workflow_id_workflow_id_fk
+      constraint_name: node_execution_data_workflow_execution_id_workflow_execution_id
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: node_execution_data
@@ -6087,15 +6138,39 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: node_execution_data
-    field: workflow_execution_id
-    related_collection: workflow_execution
+    field: workflow_id
+    related_collection: workflow
     meta: null
     schema:
       table: node_execution_data
-      column: workflow_execution_id
-      foreign_key_table: workflow_execution
+      column: workflow_id
+      foreign_key_table: workflow
       foreign_key_column: id
-      constraint_name: node_execution_data_workflow_execution_id_workflow_execution_id
+      constraint_name: node_execution_data_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: node_execution_data
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: node_execution_data_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: node_execution_data
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: node_execution_data
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: node_execution_data_project_id_project_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: project_api_key
@@ -6111,18 +6186,6 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: project_members
-    field: user_id
-    related_collection: user
-    meta: null
-    schema:
-      table: project_members
-      column: user_id
-      foreign_key_table: user
-      foreign_key_column: id
-      constraint_name: project_members_user_id_user_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: project_members
     field: project_id
     related_collection: project
     meta: null
@@ -6134,6 +6197,18 @@ relations:
       constraint_name: project_members_project_id_project_id_fk
       on_update: NO ACTION
       on_delete: NO ACTION
+  - collection: project_members
+    field: user_id
+    related_collection: user
+    meta: null
+    schema:
+      table: project_members
+      column: user_id
+      foreign_key_table: user
+      foreign_key_column: id
+      constraint_name: project_members_user_id_user_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
   - collection: project_variable
     field: project_id
     related_collection: project
@@ -6327,27 +6402,15 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_edge
-    field: target
-    related_collection: workflow_node
+    field: workflow_id
+    related_collection: workflow
     meta: null
     schema:
       table: workflow_edge
-      column: target
-      foreign_key_table: workflow_node
+      column: workflow_id
+      foreign_key_table: workflow
       foreign_key_column: id
-      constraint_name: workflow_edge_target_workflow_node_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: workflow_edge
-    field: source
-    related_collection: workflow_node
-    meta: null
-    schema:
-      table: workflow_edge
-      column: source
-      foreign_key_table: workflow_node
-      foreign_key_column: id
-      constraint_name: workflow_edge_source_workflow_node_id_fk
+      constraint_name: workflow_edge_workflow_id_workflow_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_edge
@@ -6363,29 +6426,29 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_edge
-    field: workflow_id
-    related_collection: workflow
-    meta: null
-    schema:
-      table: workflow_edge
-      column: workflow_id
-      foreign_key_table: workflow
-      foreign_key_column: id
-      constraint_name: workflow_edge_workflow_id_workflow_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: workflow_execution
-    field: exit_node_id
+    field: source
     related_collection: workflow_node
     meta: null
     schema:
-      table: workflow_execution
-      column: exit_node_id
+      table: workflow_edge
+      column: source
       foreign_key_table: workflow_node
       foreign_key_column: id
-      constraint_name: workflow_execution_exit_node_id_workflow_node_id_fk
+      constraint_name: workflow_edge_source_workflow_node_id_fk
       on_update: NO ACTION
-      on_delete: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_edge
+    field: target
+    related_collection: workflow_node
+    meta: null
+    schema:
+      table: workflow_edge
+      column: target
+      foreign_key_table: workflow_node
+      foreign_key_column: id
+      constraint_name: workflow_edge_target_workflow_node_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
   - collection: workflow_execution
     field: entry_node_id
     related_collection: workflow_node
@@ -6399,17 +6462,17 @@ relations:
       on_update: NO ACTION
       on_delete: NO ACTION
   - collection: workflow_execution
-    field: workflow_version_id
-    related_collection: workflow_version
+    field: exit_node_id
+    related_collection: workflow_node
     meta: null
     schema:
       table: workflow_execution
-      column: workflow_version_id
-      foreign_key_table: workflow_version
+      column: exit_node_id
+      foreign_key_table: workflow_node
       foreign_key_column: id
-      constraint_name: workflow_execution_workflow_version_id_workflow_version_id_fk
+      constraint_name: workflow_execution_exit_node_id_workflow_node_id_fk
       on_update: NO ACTION
-      on_delete: CASCADE
+      on_delete: NO ACTION
   - collection: workflow_execution
     field: workflow_id
     related_collection: workflow
@@ -6422,16 +6485,28 @@ relations:
       constraint_name: workflow_execution_workflow_id_workflow_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
+  - collection: workflow_execution
+    field: workflow_version_id
+    related_collection: workflow_version
+    meta: null
+    schema:
+      table: workflow_execution
+      column: workflow_version_id
+      foreign_key_table: workflow_version
+      foreign_key_column: id
+      constraint_name: workflow_execution_workflow_version_id_workflow_version_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
   - collection: workflow_execution_step
-    field: target_node_id
-    related_collection: node_execution_data
+    field: workflow_execution_id
+    related_collection: workflow_execution
     meta: null
     schema:
       table: workflow_execution_step
-      column: target_node_id
-      foreign_key_table: node_execution_data
+      column: workflow_execution_id
+      foreign_key_table: workflow_execution
       foreign_key_column: id
-      constraint_name: workflow_execution_step_target_node_id_node_execution_data_id_f
+      constraint_name: workflow_execution_step_workflow_execution_id_workflow_executio
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_execution_step
@@ -6447,39 +6522,27 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_execution_step
-    field: workflow_execution_id
-    related_collection: workflow_execution
+    field: target_node_id
+    related_collection: node_execution_data
     meta: null
     schema:
       table: workflow_execution_step
-      column: workflow_execution_id
-      foreign_key_table: workflow_execution
+      column: target_node_id
+      foreign_key_table: node_execution_data
       foreign_key_column: id
-      constraint_name: workflow_execution_step_workflow_execution_id_workflow_executio
+      constraint_name: workflow_execution_step_target_node_id_node_execution_data_id_f
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_node
-    field: project_id
-    related_collection: project
+    field: workflow_id
+    related_collection: workflow
     meta: null
     schema:
       table: workflow_node
-      column: project_id
-      foreign_key_table: project
+      column: workflow_id
+      foreign_key_table: workflow
       foreign_key_column: id
-      constraint_name: workflow_node_project_id_project_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: workflow_node
-    field: context_id
-    related_collection: context
-    meta: null
-    schema:
-      table: workflow_node
-      column: context_id
-      foreign_key_table: context
-      foreign_key_column: id
-      constraint_name: workflow_node_context_id_context_id_fk
+      constraint_name: workflow_node_workflow_id_workflow_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_node
@@ -6495,39 +6558,48 @@ relations:
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_node
-    field: workflow_id
-    related_collection: workflow
+    field: context_id
+    related_collection: context
     meta: null
     schema:
       table: workflow_node
-      column: workflow_id
-      foreign_key_table: workflow
+      column: context_id
+      foreign_key_table: context
       foreign_key_column: id
-      constraint_name: workflow_node_workflow_id_workflow_id_fk
+      constraint_name: workflow_node_context_id_context_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_node
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: workflow_node
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: workflow_node_project_id_project_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_version
     field: context_id
     related_collection: context
-    meta: null
+    meta:
+      junction_field: null
+      many_collection: workflow_version
+      many_field: context_id
+      one_allowed_collections: null
+      one_collection: context
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
     schema:
       table: workflow_version
       column: context_id
       foreign_key_table: context
       foreign_key_column: id
-      constraint_name: workflow_version_context_id_context_id_fk
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: workflow_version
-    field: project_id
-    related_collection: project
-    meta: null
-    schema:
-      table: workflow_version
-      column: project_id
-      foreign_key_table: project
-      foreign_key_column: id
-      constraint_name: workflow_version_project_id_project_id_fk
+      constraint_name: workflow_version_context_id_foreign
       on_update: NO ACTION
       on_delete: CASCADE
   - collection: workflow_version
@@ -6540,5 +6612,17 @@ relations:
       foreign_key_table: workflow
       foreign_key_column: id
       constraint_name: workflow_version_workflow_id_workflow_id_fk
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: workflow_version
+    field: project_id
+    related_collection: project
+    meta: null
+    schema:
+      table: workflow_version
+      column: project_id
+      foreign_key_table: project
+      foreign_key_column: id
+      constraint_name: workflow_version_project_id_project_id_fk
       on_update: NO ACTION
       on_delete: CASCADE
