@@ -46,20 +46,20 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
         >
           Blog
         </Link>
-        <Link
+        {/* <Link
           onClick={() => setOpen(false)}
           href="/features"
           className=" flex  items-center font-semibold leading-6"
         >
           Features
-        </Link>
-        {/* <Link
+        </Link> */}
+        <Link
           onClick={() => setOpen(false)}
-          href="/pricing"
+          href="/integrations"
           className=" flex  items-center font-semibold leading-6"
         >
-          Pricing
-        </Link> */}
+          Integrations
+        </Link>
         {/* <SessionButton onClick={() => setOpen(false)} session={session} /> */}
       </DialogContent>
     </Dialog>
@@ -111,18 +111,18 @@ export const NavBar = ({ session }: { session: Session | null }) => {
           >
             Blog
           </Link>
-          <Link
+          {/* <Link
             href="/features"
             className=" flex items-center text-lg font-semibold leading-6"
           >
             Features
-          </Link>
-          {/* <Link
-            href="/pricing"
+          </Link> */}
+          <Link
+            href="/integrations"
             className=" flex items-center text-lg font-semibold leading-6"
           >
-            Pricing
-          </Link> */}
+            Integrations
+          </Link>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {/* <SessionButton session={session} /> */}

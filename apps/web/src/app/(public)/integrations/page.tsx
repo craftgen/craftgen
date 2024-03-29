@@ -34,7 +34,6 @@ const IntegrationsPage = async () => {
           </div>
         </div>
       </div>
-      <JSONView src={data} />
       <div className="mx-auto w-full max-w-6xl ">
         <div className="relative m-auto flex gap-8 p-4">
           <motion.div
