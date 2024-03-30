@@ -26,7 +26,7 @@ import type {
 import type { GuardArgs } from "xstate/guards";
 
 import type { BaseControl } from "../controls/base";
-import { generateSocket, type JSONSocket } from "../controls/socket-generator";
+import { type JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
 import { slugify } from "../lib/string";
 import { getSocketByJsonSchemaType } from "../sockets";

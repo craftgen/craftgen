@@ -10,9 +10,11 @@ import type { JSONSocket } from "../../controls/socket-generator";
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
 import { Editor } from "../../editor";
+import { spawnInputSockets } from "../../input-socket";
+import { spawnOutputSockets } from "../../output-socket";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -42,29 +44,22 @@ const replicateMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QCcwAcA2BLAxgQwBcwA6LAOywIGIIB7Mk8gN1oGsTVNdDGKCFmtfASz0A2gAYAupKmJQaWrEqiy8kAA9EAJgAc24voBsugMxGA7JdMWArEdsAaEAE9EARgCcnw9pvv9W20LCwAWfQBfCOdObGFeSioAZQBRABUAfQA1AEEAGQBVFNl1RWURenUtBHdtIwNTAO8jCTMJC31nNxr3CUNTU3tdTxDQ0aiY9DieUggMMGT07PyikqQQMpVK9er3Sx89C1MJT3r3d1DtLo9Q92JQ09DTW8CLP1MJkFjuIln5qgASgUAHJrBRKLZqHaIIyNYgSPaeUKhEzmc5XVyIXR3UzabSedy2PbuUxmYafb7xYjIACuZAoZCgxAgYCIyAAtuQwEkCDwqGCNhCKlDQNUjJ5dMRtO4wrYJNLgo9rjUEaFiEYHINQrYUY0nhSpj8OHSGUyWWzOQweXyxO45OtNsKqjCJVKZdr5bULErMQhPANiETjhdsW1cQauFTafTyGbWWAOVzrUR+dp7eDyqpnTUnrYpWEjg4JHLWkZlednuqznY9VqPtEvoaoybY8z44mrbyU2JTOnBZntqKXZLpbLPYqjKFlboierWt6Wtog9oI9NftHTW2LUmuwsxKE+46s9CEOKR+65QqF1PfUZasRzp4-JOkdqLKujdSW4ziARkFgoBgZAaHoXgWHYakmxmDdWz-ACgIEMgWGEVRZAFI9B00RBGlMeFdDecwJXaJdPCcX19EleUngeUkLEJCQjA-ZsYx-ODAITKgE2QWhkGITBCAAMx49lIMjaDvyZNiEMEFDxGkdChWPIcc0GfMxnMOUS10MtfRJOV1TsGUKysUkmPElimRwAALMAcFYWMQIYUgkLYDgoPXCTiGs2z7MZRDkMIVD5OkUpFMw3YEQOCUZV0WLvCCDFugsdpDHw7UlyCUIJEGMyPIs4hYF5ZAREZKgNEKmY8AEtkAApegkCQAEoqEpczNwq4rYwUgcRSwlUvClaKOji0i8XLVUq1sLUdVhC560mMS8s3NBuJwOBlFK8rd2IKrauOJqWvc418pWoR1q6kKHTC3qIoG-FsWG4ZRsSxB-QMKxeh1DonjozxcuO9qaRwNbIEgflLozSFszmvNgnUostJ07pah1B8dXiiQ3xaUJ-uILieMWTJckKYoIf7KGTyCctbDse4Hm0cI7wRLxGIbVrfnx4CgVBMmMJumEXpzXQ+gvfEdXOHVbCiBsyFoFl4HWdmwFCnrswAWncZU1aMeEGr1-W9bo3HyEoFWKeUsZlWlO5ego4WUWRJd3zZo6-mVq7VcpgaLiJU47GlXELCt25iBCCXcSJKa3mdha1wB2MzadE8HmVBLQ-OI5bGGGmQl0XGYJ-c0E0tbld0TpS+rlHXtUaJcxjefFpwee49gZjpTCffQY8bRb49Y-92OQcvwteoPyKyqVpWREkGNsf1Wdjz8C8smy7ITj3zb62psvuJ3s41aURmVN4fHFZE5RGScZyll3e6-fKOpKqBh-5hBYruYbbnxFoTM8caSWIAMOorR2iWGRH9W+cd77LVWudRkL9szaT6IMQ4rQJTDEFp4Vo8ISRHAatKdoYR86eVgEDEGLIIAIJPLUDUODxR4hGOcWKphyxLgMPoPwYtwH1Hmj3KBy9iACTwFgeYlCN5J2UkgwBQR8JoLioLXQzdMoykxlgrKDNiH5XwGQNaoiqGSJaNI1Bwx5HKiZvCZ4TNSIjGCAvPhn4cC0HZJgeM+it5zwsC3BENMvDnExoLWo956GEiXGePSuNOZuN2PUTxxw55YNGJjMI1MGqBksL0f0vR8QjGlhEIAA */
   id: "replicate",
   initial: "init",
-  context: ({ input }) =>
-    merge<typeof input, any>(
-      {
-        settings: {
-          loaded: false,
-          model: {
-            model_name: "",
-            owner: "",
-            version_id: "",
-          },
-          run: null,
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Replicate Model",
+      description: "Replicate Model Configuration",
+      inputSockets,
+      outputSockets,
+      settings: {
+        loaded: false,
+        model: {
+          model_name: "",
+          owner: "",
+          version_id: "",
         },
-        inputs: {},
-        inputSockets: {
-          ...inputSockets, // Otherwise this causes a closure error.
-        },
-        outputs: {},
-        outputSockets: {
-          ...outputSockets, // Otherwise this causes a closure error.
-        },
+        run: null,
       },
-      input,
-    ),
+    }),
   types: {} as BaseMachineTypes<{
     input: {
       settings?: {
@@ -125,28 +120,9 @@ const replicateMachine = createMachine({
         }),
         onDone: {
           target: "idle",
-          actions: [
-            assign({
-              outputSockets: ({ event }) => {
-                const Output =
-                  event.output.openapi_schema.components.schemas.Output;
-                return match(Output).otherwise(() => {
-                  return {
-                    onDone: outputSockets.onDone,
-                    result: {
-                      ...Output,
-                      name: "result",
-                      isMultiple: true,
-                      required: true,
-                      default: [],
-                      "x-key": "result",
-                      "x-showSocket": true,
-                    },
-                  };
-                });
-              },
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
               settings: ({ event, context }) => {
-                console.log("event", event);
                 const { id, ...rest } = event.output;
                 return {
                   ...context.settings,
@@ -157,7 +133,9 @@ const replicateMachine = createMachine({
                   },
                 };
               },
-              inputSockets: ({ event }) => {
+            });
+            enqueue.assign({
+              inputSockets: ({ event, context, spawn, self }) => {
                 const Input = event.output.schema.definitions.Input;
                 const keys = Object.entries(Input.properties);
                 const modelSockets = keys
@@ -201,13 +179,47 @@ const replicateMachine = createMachine({
                     },
                     {} as Record<string, JSONSocket>,
                   );
+
+                console.log("modelSockets", modelSockets);
+
+                const spawnedModelSockets = spawnInputSockets({
+                  spawn,
+                  self,
+                  inputSockets: modelSockets,
+                });
+
                 return {
-                  ...inputSockets,
-                  ...modelSockets,
+                  ...context.inputSockets,
+                  ...spawnedModelSockets,
                 };
               },
-            }),
-          ],
+            });
+            enqueue.assign({
+              outputSockets: ({ event, context, spawn, self }) => {
+                const Output =
+                  event.output.openapi_schema.components.schemas.Output;
+                const spawnedModelSockets = spawnOutputSockets({
+                  spawn,
+                  self,
+                  outputSockets: {
+                    result: {
+                      ...Output,
+                      name: "result",
+                      isMultiple: true,
+                      required: true,
+                      default: [],
+                      "x-key": "result",
+                      "x-showSocket": true,
+                    },
+                  },
+                });
+                return {
+                  ...context.outputSockets,
+                  ...spawnedModelSockets,
+                };
+              },
+            });
+          }),
         },
       },
     },
@@ -226,9 +238,6 @@ const replicateMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
       },
     },
     idle: {
@@ -238,9 +247,6 @@ const replicateMachine = createMachine({
         },
         RUN: {
           target: "running",
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
         },
       },
     },
@@ -493,8 +499,8 @@ export class NodeReplicate extends BaseNode<typeof replicateMachine> {
       // },
     });
 
-    this.setup();
-    this.updateLabel();
+    // this.setup();
+    // this.updateLabel();
   }
 
   private updateLabel() {
