@@ -14,8 +14,9 @@ import { searchOrgsMeta } from "@/actions/search-orgs-meta";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { api } from "@/trpc/react";
-import { useRegisterReplicateActions } from "./replicate-actions";
 import * as FlexLayout from "flexlayout-react";
+
+import { useRegisterReplicateActions } from "./replicate-actions";
 
 export const useRegisterPlaygroundActions = ({
   di,
@@ -41,7 +42,6 @@ export const useRegisterPlaygroundActions = ({
     api.openai.assistant.create.useMutation();
 
   useRegisterReplicateActions({ di, layout });
-
   const actions = useMemo(() => {
     const res = [];
     res.push({
@@ -94,6 +94,7 @@ export const useRegisterPlaygroundActions = ({
       ...(nodes
         .filter((n) => n.nodeType !== "NodeModule")
         .filter((n) => n.nodeType !== "NodeReplicate")
+        .filter((n) => n.nodeType !== "NodeRestApi")
         .map((node) => ({
           id: node.nodeType,
           name: node.label,
@@ -105,6 +106,46 @@ export const useRegisterPlaygroundActions = ({
           },
           icon: node.icon as any,
         })) as Action[]),
+    );
+    res.push(
+      {
+        id: "API",
+        name: "API",
+        keywords: "openapi, api, rest",
+        subtitle: "Add Rest API to your workflow",
+      },
+      {
+        id: "NodeRestApi-fromOpenAPI",
+        name: "Rest API from OpenAPI spec",
+        keywords: "rest api from openapi spec",
+        subtitle: "Add Rest API to your workflow",
+        parent: "API",
+        perform: async () => {
+          console.log("di", di);
+          // await di?.addNode("NodeRestApi");
+        },
+      },
+      {
+        id: "NodeRestApi",
+        name: "Rest API",
+        keywords: "rest api",
+        subtitle: "Add Rest API to your workflow",
+        parent: "API",
+        perform: async () => {
+          console.log("di", di);
+          await di?.addNode("NodeRestApi");
+        },
+      },
+      {
+        id: "NodeGraphqlApi",
+        name: "GraphQL API",
+        keywords: "graphql api",
+        subtitle: "Add GraphQL API to your workflow",
+        parent: "API",
+        perform: async () => {
+          await di?.addNode("NodeGraphqlApi");
+        },
+      },
     );
     return res;
   }, [nodes]);

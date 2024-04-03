@@ -122,6 +122,7 @@ export type BaseEventTypes =
         executionNodeId?: string;
         sender?: AnyActorRef;
         values?: Record<string, any>;
+        inputs?: Record<string, any>;
       };
     }
   | {

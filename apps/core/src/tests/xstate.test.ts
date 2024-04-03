@@ -1,26 +1,101 @@
 import { expect, test } from "bun:test";
-import { assign, createActor, createMachine } from "xstate";
+import { fromPairs, isNull } from "lodash";
+import {
+  assign,
+  createActor,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+} from "xstate";
 
 test("always", async () => {
-  const ma = createMachine({
+  const ma = setup({
+    actors: {
+      ff: fromPromise(async () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("done");
+          }, 1000);
+        });
+      }),
+      co: setup({
+        types: {
+          input: {} as {
+            source: string;
+            value: number
+          } 
+        },
+        actors: {
+          compute: fromPromise(async () => {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve("done");
+              }, 1000);
+            });
+          }),
+        },
+      }).createMachine({
+        states: {
+          computing: {
+            entry: enqueueActions(({ enqueue }) => {
+              const inputSockets = Object.values(context.inputSockets);
+              for (const input of inputSockets) {
+                enqueue.sendTo(({context, system}) => system.get(input), ({context}) => ({
+                  type: "RUN",
+                  params: {
+                    value: context.value,
+                  },
+                }))
+              }
+            }),
+            on: {
+        SET_VALUE: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("SET VALUE ON EXECUTION", event);
+            enqueue("setValue");
+          }),
+        },
+            },
+            always: [{
+          guard: ({ context }) => {
+            return Object.values(context.inputs).every((t) => !isNull(t));
+          },
+          target: "done",
+            }]
+          },
+          done: {
+            entry: enqueueActions(({ enqueue }) => {
+              enqueue.sendTo(({context, system}) => system.get(context.source), ({context}) => ({
+                type: "RUN",
+                params: {
+                  value: context.value,
+                },
+              }))
+            })
+          }
+        }
+      })
+    },
+  }).createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAYgG0AGAXUVAAcB7WXAF1wf1pAA9EAWABwA6AJwBmAGwCArAEYJsgOwVFigDQgAnolkAmAL6GN+BhDhc0WPISJdGzNhy68EAWlkbtCEbKG7FYnx8uro+0gJiFAb6GpY4BMRCuBAANmB2TKzsnEg8iBIUQhQSYrLSkSKhArqeOorC0iIl4YoSumIdKkYgcdaJAE4Arvj4BFAZDtnO-OpaiO2KRTIifKW6ZQFihoZAA */
     initial: "idle",
-    context: {
-      text: "121",
-    },
-    always: {
-      guard: ({ context }) => {
-        if (context.text === "123") {
-          return false;
-        }
-        return true;
-      },
-      actions: assign({
-        text: "123",
-      }),
-    } as unknown as any,
     states: {
-      idle: {},
+      idle: {
+        on: {
+          COMPUTE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue.spawnChild("co");
+            }),
+          },
+          EXECUTE: {
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue("ff");
+            }),
+          },
+          }
+        },
+      },
     },
   });
 

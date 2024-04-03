@@ -42,6 +42,7 @@ import { IteratorNode } from "./nodes/tools/iterator";
 import { NodeMath } from "./nodes/tools/math";
 import { NodeReplicate } from "./nodes/replicate/replicate";
 import { NodeRestApi } from "./nodes/api/rest";
+import { NodeHttpRequest } from "./nodes/api/http-request";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -112,6 +113,7 @@ export const nodes = {
 
   NodeReplicate: NodeReplicate,
 
+  NodeHttpRequest: NodeHttpRequest,
   NodeRestApi: NodeRestApi,
 
   // // DataSources

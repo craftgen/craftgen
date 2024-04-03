@@ -95,7 +95,6 @@ export function CustomNode(props: Props<Schemes>) {
 }
 
 export const Node = (props: Props<Schemes>) => {
-  console.log(props);
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);
   const controls = Object.entries(props.data.controls);

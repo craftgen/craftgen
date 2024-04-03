@@ -144,6 +144,7 @@ export const InputsList = (props: {
 };
 
 const BasicInputs = (props: { actor: AnyActor }) => {
+  console.log("BASIC ACTOR", { actor: props.actor });
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
 
   return (
@@ -200,7 +201,6 @@ const InputItem = ({
     (state) => state.context.parent.id,
     isEqual,
   );
-
   const { controller, definition } = useMemo(() => {
     const controller = getControlBySocket({
       actor: actor,
@@ -233,13 +233,23 @@ const InputItem = ({
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 
-  if (item["x-actor-type"]) {
-    console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
+  // if (item["x-actor-type"]) {
+  //   console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
 
-    const parent = actor.system.get(parentId);
-    const targetActor = parent.getSnapshot().context.inputs[item["x-key"]];
-    console.log("TARGET ACTOR", parent, targetActor, parentId, item["x-key"]);
-    // return null;
+  //   const parent = actor.system.get(parentId);
+  //   const targetActor = parent.getSnapshot().context.inputs[item["x-key"]];
+  //   console.log("TARGET ACTOR", parent, targetActor, parentId, item["x-key"]);
+  //   return <div>CONTROLLED BY ACTOR</div>;
+  //   return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
+  // }
+
+  const hasConnectionActor = useSelector(actor, (s) =>
+    s.matches({ actor: "connection" }),
+  );
+
+  if (hasConnectionActor) {
+    const targetActor = useSelector(actor, (state) => state.context.value);
+    console.log("HAS CONNECTION ACTOR", targetActor);
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 

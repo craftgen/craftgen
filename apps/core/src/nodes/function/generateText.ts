@@ -44,6 +44,9 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "RUN",
     "x-event": "RUN",
+    // "x-event-param-socket-keys": ["llm", "system", "instruction"],
+    
+    "x-event-param-socket-keys": ["instruction"],
   }),
   instruction: generateSocket({
     name: "instruction" as const,
@@ -474,50 +477,91 @@ const GenerateTextMachine = createMachine({
             ({ context }) => context.inputs.instruction !== "",
             ({ context }) => context.inputs.llm !== null,
           ]),
-          actions: enqueueActions(({ enqueue, check, context }) => {
-            if (check(({ event }) => !isNil(event.params?.values))) {
-              enqueue(({ event }) => ({
-                type: "setValue",
-                params: {
-                  values: event.params?.values!,
-                },
-              }));
-            }
-            const runId = `call-${createId()}`;
+          actions: enqueueActions(
+            ({ enqueue, check, context, self, event }) => {
+              // if (check(({ event }) => !isNil(event.params?.values))) {
+              //   enqueue(({ event }) => ({
+              //     type: "setValue",
+              //     params: {
+              //       values: event.params?.values!,
+              //     },
+              //   }));
+              // }
 
-            // const sockets = Object.values(context.inputSockets);
-            // for (const socket of sockets) {
-            //   enqueue.sendTo(socket, {
-            //     type: "COMPUTE",
-            //   });
-            // }
+              const triggerSocket = context.inputSockets[
+                `${self.id}:input:RUN`
+              ] as unknown as ActorRefFrom<typeof inputSocketMachine>;
 
-            enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
-              ({ system }) => system.get("editor"),
-              ({ self, context }) => ({
-                type: "SPAWN",
-                params: {
-                  id: runId,
-                  parentId: self.id,
-                  machineId: "NodeGenerateText.run",
-                  systemId: runId,
-                  input: {
-                    inputs: {
-                      ...context,
-                      // llm: context.inputSockets.llm,
-                      // system: context.inputs.system!,
-                      // instruction: context.inputs.instruction!,
-                    },
-                    senders: [{ id: self.id }],
-                    parent: {
-                      id: self.id,
-                    },
+              const eventDefinition =
+                triggerSocket.getSnapshot().context.definition;
+
+              const payload = {
+                ...eventDefinition["x-event-param-socket-keys"].reduce(
+                  (acc, key) => {
+                    acc[key] = null;
+                    return acc;
                   },
-                  syncSnapshot: true,
-                },
-              }),
-            );
-          }),
+                  {},
+                ),
+                ...(event?.params?.values ? event.params.values : {}),
+                ...(event?.params?.inputs ? event.params.inputs : {}),
+              };
+
+              if (Object.values(payload).some((v) => isNull(v))) {
+                console.log("COMPUTING EVENT", payload);
+                const childId = `compute-${createId()}`;
+                enqueue.spawnChild("computeEvent", {
+                  input: {
+                    inputSockets: context.inputSockets,
+                    inputs: payload,
+                    event: "RUN",
+                    parent: self,
+                  },
+                  systemId: childId,
+                  id: childId,
+                });
+                // Return to wait for the compute event to finish
+                return;
+              }
+
+              console.log("RUNNING", payload);
+
+              const runId = `call-${createId()}`;
+
+              // const sockets = Object.values(context.inputSockets);
+              // for (const socket of sockets) {
+              //   enqueue.sendTo(socket, {
+              //     type: "COMPUTE",
+              //   });
+              // }
+
+              enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
+                ({ system }) => system.get("editor"),
+                ({ self, context }) => ({
+                  type: "SPAWN",
+                  params: {
+                    id: runId,
+                    parentId: self.id,
+                    machineId: "NodeGenerateText.run",
+                    systemId: runId,
+                    input: {
+                      inputs: {
+                        ...context,
+                        // llm: context.inputSockets.llm,
+                        // system: context.inputs.system!,
+                        // instruction: context.inputs.instruction!,
+                      },
+                      senders: [{ id: self.id }],
+                      parent: {
+                        id: self.id,
+                      },
+                    },
+                    syncSnapshot: true,
+                  },
+                }),
+              );
+            },
+          ),
         },
       },
     },

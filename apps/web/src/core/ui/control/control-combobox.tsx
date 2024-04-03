@@ -28,7 +28,7 @@ export function ComboboxControlComponent(props: { data: ComboboxControl }) {
 
   const value = useSelector(valueActor, (snap) => snap.context.value);
   const [open, setOpen] = useState(false);
-  const values = useMemo(() => {
+  const values = useMemo<{ key: string; value: string }[]>(() => {
     return definition?.allOf?.[0]?.enum?.map((v: any) => {
       return {
         key: v,
@@ -54,8 +54,8 @@ export function ComboboxControlComponent(props: { data: ComboboxControl }) {
           className="w-full justify-between"
         >
           {value
-            ? values.find((entry) => entry.key === value)?.value
-            : "Select framework..."}
+            ? values.find((entry) => entry.value === value)?.value
+            : `Select ${definition["title"]}`}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

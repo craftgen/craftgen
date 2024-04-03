@@ -64,6 +64,12 @@ export const outputSocketMachine = setup({
           params: Partial<JSONSocket>;
         }
       | {
+          type: "ADD_CONNECTION";
+          params: {
+            [key: string]: string;
+          };
+        }
+      | {
           type: "TRIGGER";
         },
   },
@@ -279,6 +285,19 @@ export const outputSocketMachine = setup({
           definition: ({ context, event }) => ({
             ...context.definition,
             ...event.params,
+          }),
+        });
+      }),
+    },
+    ADD_CONNECTION: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        enqueue.assign({
+          definition: ({ context }) => ({
+            ...context.definition,
+            "x-connection": {
+              ...context.definition["x-connection"],
+              ...event.params,
+            },
           }),
         });
       }),

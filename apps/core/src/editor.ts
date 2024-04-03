@@ -83,6 +83,7 @@ import { RouterInputs } from "@seocraft/api";
 import { inputSocketMachine } from "./input-socket";
 import { outputSocketMachine } from "./output-socket";
 import { valueActorMachine } from "./value-actor";
+import { ComputeEventMachine } from "./compute-event";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -396,22 +397,74 @@ export const EditorMachine = setup({
         SPAWN: {
           description:
             "Spawn a node actor and inline actors. (a.k.a nested actors)",
-          actions: enqueueActions(({ enqueue, event }) => {
+          actions: enqueueActions(({ enqueue, event, system }) => {
             console.log("SPANWING", event);
             enqueue.assign({
-              actors: ({ spawn, context, system }) => {
+              actors: ({ spawn, context }) => {
                 const actor = spawn(event.params.machineId, {
                   input: event.params.input,
                   id: event.params.id,
                   syncSnapshot: true,
                   systemId: event.params.systemId,
                 });
+
                 return {
                   ...context.actors,
                   [event.params.id]: actor,
                 };
               },
             });
+
+            const port = get(event.params.input, ["parent", "port"]);
+            if (port) {
+              const parentId = get(event.params.input, ["parent", "id"]);
+              /**
+               * INPUT PART,
+               */
+              const sourcePort = system.get(port);
+              const definition = sourcePort.getSnapshot().context.definition;
+
+              const actorConf = get(definition, [
+                "x-actor-config",
+                event.params.machineId!,
+              ]) as ActorConfig;
+
+              console.log("CHILD ACTOR GOT CONFIG", {
+                sourcePort,
+                definition,
+                actorConf,
+              });
+
+              for (const [source, target] of Object.entries(
+                actorConf.internal,
+              )) {
+                console.log("SENDING OUT", source, target);
+                const targetId = `${parentId}:input:${target}`;
+                const sourceId = `${event.params.id}:output:${source}`;
+                enqueue.sendTo(
+                  ({ system }) => {
+                    return system.get(sourceId);
+                  },
+                  {
+                    type: "ADD_CONNECTION",
+                    params: {
+                      [targetId]: "NECOLA",
+                    },
+                  },
+                );
+                enqueue.sendTo(
+                  ({ system }) => {
+                    return system.get(targetId);
+                  },
+                  {
+                    type: "ADD_CONNECTION",
+                    params: {
+                      [sourceId]: "NECOLA",
+                    },
+                  },
+                );
+              }
+            }
           }),
         },
       },
@@ -672,8 +725,8 @@ export class Editor<
           system.get(event.params.port) as ActorRefFrom<
             typeof inputSocketMachine
           >,
-        ({ self }) => ({
-          type: "SET_VALUE",
+        ({ event }) => ({
+          type: "ASSIGN_ACTOR",
           params: {
             value: event.params.actor,
           },
@@ -1105,6 +1158,7 @@ export class Editor<
       types: {
         input: {} as {
           value: ContextFrom<AnyActor>;
+          event: string;
           targets: string[];
           parent: ActorRefFrom<typeof inputSocketMachine>;
         },
@@ -1256,6 +1310,7 @@ export class Editor<
         }),
         output: outputSocketMachine,
         value: valueActorMachine,
+        computeEvent: ComputeEventMachine,
         ...Object.keys(this.machines).reduce(
           (acc, k) => {
             if (acc[k]) {
@@ -1267,6 +1322,7 @@ export class Editor<
                 actors: {
                   socketWatcher,
                   computeActorInputs,
+                  computeEvent: ComputeEventMachine,
                   input: inputSocketMachine.provide({
                     actors: {
                       computeValue,
@@ -1361,13 +1417,6 @@ export class Editor<
     const nodeClass = nodeMeta.class;
     let nodeActor = this.actor?.system.get(node.contextId);
     if (node.type === "NodeModule") {
-      // console.log(
-      //   "EDITOR ACTOR",
-      //   this.actor,
-      //   this.actor?.getSnapshot(),
-      //   this.actor?.getPersistedSnapshot(),
-      // );
-
       const snap = this.actor?.getPersistedSnapshot();
 
       this.actor?.stop();
@@ -1460,7 +1509,9 @@ export class Editor<
     });
 
     await newNode.setup();
-    await this.editor.addNode(newNode);
+
+    const res = await this.editor.addNode(newNode);
+    console.log("NODE ADDED", res);
 
     await this?.area?.translate(newNode.id, {
       x: this.cursorPosition.x,
@@ -1684,8 +1735,8 @@ export class Editor<
   }
 
   public async setup() {
-    this.editor.use(this.engine);
-    this.editor.use(this.dataFlow);
+    // this.editor.use(this.engine);
+    // this.editor.use(this.dataFlow);
 
     await this.setupEnv();
 
@@ -2132,7 +2183,7 @@ export class Editor<
         .with({ type: "nodecreated" }, async ({ data }) => {
           console.log("nodecreated", { data });
           const size = data.size;
-          await queue.add(() => {
+          await queue.add(async () => {
             const actor = data.actor;
             const snap = {
               src: actor.src,
@@ -2141,7 +2192,7 @@ export class Editor<
               snapshot: actor.getSnapshot().toJSON(),
             };
 
-            this.api.trpc.craft.node.upsert.mutate({
+            await this.api.trpc.craft.node.upsert.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
               projectId: this.projectId,

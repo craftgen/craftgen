@@ -48,9 +48,21 @@ export const inputSocketMachine = setup({
           params: Partial<JSONSocket>;
         }
       | {
+          type: "ADD_CONNECTION";
+          params: {
+            [key: string]: string;
+          };
+        }
+      | {
           type: "SET_VALUE";
           params: {
             value: any;
+          };
+        }
+      | {
+          type: "ASSIGN_ACTOR";
+          params: {
+            value: AnyActorRef;
           };
         }
       | {
@@ -65,7 +77,7 @@ export const inputSocketMachine = setup({
       | {
           type: "COMPUTE";
           params?: {
-            value: any;
+            value?: any;
             targets?: string[];
           };
         }
@@ -166,6 +178,37 @@ export const inputSocketMachine = setup({
         });
       }),
     },
+
+    ADD_CONNECTION: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        enqueue.assign({
+          definition: ({ context }) => ({
+            ...context.definition,
+            "x-connection": {
+              ...context.definition["x-connection"],
+              ...event.params,
+            },
+          }),
+        });
+      }),
+    },
+
+    REMOVE_CONNECTION: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        enqueue.assign({
+          definition: ({ context }) => {
+            const connections = { ...context.definition["x-connection"] };
+            Object.keys(event.params).forEach((key) => {
+              delete connections[key];
+            });
+            return {
+              ...context.definition,
+              "x-connection": connections,
+            };
+          },
+        });
+      }),
+    },
   },
   initial: "determine",
   states: {
@@ -240,28 +283,12 @@ export const inputSocketMachine = setup({
             }),
             onSnapshot: {
               actions: enqueueActions(({ enqueue, event, context, check }) => {
-                console.log(
-                  "SNAPSHOT",
-                  context.definition["x-key"],
-                  event.snapshot.context,
-                );
                 enqueue.raise({
                   type: "COMPUTE",
                   params: {
                     value: event.snapshot.context,
                   },
                 });
-                // enqueue.sendTo(
-                //   ({ system, context }) => system.get(context.parent.id),
-                //   ({ event, context }) => ({
-                //     type: "SET_VALUE",
-                //     params: {
-                //       values: {
-                //         [context.definition["x-key"]]: event.snapshot.context,
-                //       },
-                //     },
-                //   }),
-                // );
               }),
             },
           },
@@ -271,15 +298,6 @@ export const inputSocketMachine = setup({
                 const value =
                   event?.params?.value ||
                   context.value?.getSnapshot().context.value;
-                console.log("COMPUTE", event, {
-                  value,
-                  definition: context.definition,
-                  targets: [
-                    context.parent.id,
-                    ...(event?.params?.targets || []),
-                  ],
-                  parent: self,
-                });
 
                 enqueue.spawnChild("computeValue", {
                   input: {
@@ -297,7 +315,6 @@ export const inputSocketMachine = setup({
             },
             RESULT: {
               actions: enqueueActions(({ enqueue, event }) => {
-                console.log("INPUT SOCKET GOT RESULT", event);
                 event.params.targets.forEach((target) => {
                   enqueue.sendTo(
                     ({ system }) => system.get(target),
@@ -375,26 +392,26 @@ export const inputSocketMachine = setup({
     actor: {
       initial: "initialize",
       on: {
-        SET_VALUE: {
-          target: "#InputSocketMachine.actor.ready",
-          actions: enqueueActions(({ enqueue, event }) => {
-            console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
-            enqueue.assign({
-              value: event.params.value,
-            });
-            enqueue.sendTo(
-              ({ system, context }) => system.get(context.parent.id),
-              ({ event, context }) => ({
-                type: "SET_VALUE",
-                params: {
-                  values: {
-                    [context.definition["x-key"]]: event.params.value,
-                  },
-                },
-              }),
-            );
-          }),
-        },
+      //   SET_VALUE: {
+      //     target: "#InputSocketMachine.actor.ready",
+      //     actions: enqueueActions(({ enqueue, event }) => {
+      //       console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
+      //       enqueue.assign({
+      //         value: event.params.value,
+      //       });
+      //       // enqueue.sendTo(
+      //       //   ({ system, context }) => system.get(context.parent.id),
+      //       //   ({ event, context }) => ({
+      //       //     type: "SET_VALUE",
+      //       //     params: {
+      //       //       values: {
+      //       //         [context.definition["x-key"]]: event.params.value,
+      //       //       },
+      //       //     },
+      //       //   }),
+      //       // );
+      //     }),
+      //   },
       },
       states: {
         connection: {
@@ -445,17 +462,40 @@ export const inputSocketMachine = setup({
                 Object.values(get(context, ["definition", "x-connection"], {}))
                   .length > 0,
               target: "#InputSocketMachine.actor.connection",
+              actions: enqueueActions(({ enqueue }) => {
+                console.log("MOVING TO CONNECTION");
+              }),
             },
           ],
           on: {
             COMPUTE: {
               actions: enqueueActions(({ enqueue, event, context }) => {
-                console.log("COMPUTE", context, event);
+                console.log("ACTOR COMPUTE", context, event);
+                enqueue.sendTo(context.value, {
+                  type: "COMPUTE",
+                  params: {
+                    targets: [context.parent.id],
+                  },
+                });
               }),
             },
           },
         },
         initialize: {
+          on: {
+            ASSIGN_ACTOR: {
+              target: "#InputSocketMachine.actor.ready",
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log(
+                  "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
+                  event,
+                );
+                enqueue.assign({
+                  value: event.params.value,
+                });
+              }),
+            },
+          },
           entry: enqueueActions(({ enqueue, context }) => {
             console.log("ACTOR TYPE", context);
             const actorId = createId("context", context.parent.id);
@@ -480,12 +520,6 @@ export const inputSocketMachine = setup({
                 },
               }),
             );
-            enqueue.assign({
-              value: {
-                id: actorId,
-                xstate$$type: 1,
-              },
-            });
           }),
         },
       },

@@ -25,6 +25,7 @@ import type {
 import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
+import { createId } from "@paralleldrive/cuid2";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -696,6 +697,34 @@ export const OllamaModelMachine = createMachine(
           },
           SET_VALUE: {
             actions: ["setValue", "updateOutput"],
+          },
+          COMPUTE: {
+            actions: enqueueActions(({ enqueue, context, self }) => {
+              const valueId = `value_${createId()}`;
+              enqueue.spawnChild("computeActorInputs", {
+                id: valueId,
+                input: {
+                  value: context,
+                  targets: [self.id],
+                },
+                systemId: valueId,
+                syncSnapshot: false,
+              });
+            }),
+          },
+          RESULT: {
+            actions: enqueueActions(({ enqueue, event }) => {
+              enqueue.assign({
+                outputs: ({ event }) => {
+                  return {
+                    ...event.params.inputs,
+                    config: {
+                      ...event.params.inputs,
+                    },
+                  };
+                },
+              });
+            }),
           },
         },
       },
