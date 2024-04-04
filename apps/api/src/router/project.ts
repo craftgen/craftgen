@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { desc, eq } from "@seocraft/supabase/db";
-
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 
