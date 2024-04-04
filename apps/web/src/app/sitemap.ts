@@ -3,8 +3,10 @@ import { MetadataRoute } from "next";
 import { api } from "@/trpc/server";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const integrations = await api.public.integration.list({});
-  const projects = await api.project.all();
+  const [integrations, projects] = await Promise.all([
+    api.public.integration.list({}),
+    api.project.all(),
+  ]);
   const modules = await Promise.all(
     projects.map(async (project) => {
       return await api.craft.module.list({
