@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 
 import { api } from "@/trpc/server";
 import { WorkflowInput } from "./components/workflow-input";
+import { db } from "@seocraft/supabase/db";
 
 interface Props {
   params: {
@@ -23,6 +24,30 @@ export async function generateMetadata(
   return {
     title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
   };
+}
+
+export async function generateStaticParams({
+  params,
+}: {
+  params: {
+    projectSlug: string;
+  };
+}) {
+  const modules = await db.query.project.findFirst({
+    where: (project, { eq }) => eq(project.slug, params.projectSlug),
+    columns: {},
+    with: {
+      workflows: {
+        columns: {
+          slug: true,
+        },
+      },
+    },
+  });
+  return modules?.workflows.map((module) => ({
+    projectSlug: params.projectSlug,
+    workflowSlug: module.slug,
+  }));
 }
 
 const PlaygroundPage: React.FC<Props> = async (props) => {

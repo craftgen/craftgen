@@ -7,6 +7,14 @@ import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 
+export async function generateStaticParams() {
+  const projects = await api.project.all();
+
+  return projects.map((project) => ({
+    projectSlug: project.slug,
+  }));
+}
+
 const ProjectPage = async ({
   params,
 }: {

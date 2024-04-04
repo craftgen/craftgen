@@ -9,6 +9,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { api } from "@/trpc/server";
 
+export async function generateStaticParams() {
+  const integrations = await api.public.integration.list({
+    lang: "en",
+  });
+
+  return integrations.map((integration) => ({
+    slug: integration.slug,
+  }));
+}
+
 const IntegrationPage: React.FC = async ({
   params,
 }: {

@@ -1,18 +1,12 @@
 import { MetadataRoute } from "next";
-import { api } from "@/trpc/server";
+import sitemaps from "./sitemap-index.xml/route";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const projects = await api.project.all();
   return {
     rules: {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: [
-      "https://craftgen.ai/sitemap.xml",
-      ...projects.map(
-        (project) => `https://craftgen.ai/projects/sitemap/${project.id}.xml`,
-      ),
-    ],
+    sitemap: [...(await sitemaps()).map((sitemap) => sitemap.url)],
   };
 }
