@@ -1,8 +1,13 @@
 import { BASE_URL } from "@/lib/constants";
-import { api } from "@/trpc/server";
+import { db } from "@seocraft/supabase/db";
 
 export async function GET(req: Request) {
-  const [integrations] = await Promise.all([api.public.integration.list({})]);
+  const integrations = await db.query.integration.findMany({
+    columns: {
+      slug: true,
+      dateUpdated: true,
+    },
+  });
   const publicPages = [
     ...integrations.map((integration) => ({
       url: `${BASE_URL}/integration/${integration.slug}`,
