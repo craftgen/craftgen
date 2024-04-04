@@ -11,7 +11,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     sitemap: [
       "https://craftgen.ai/sitemap.xml",
       ...projects.map(
-        (project) => `https://craftgen.ai/projects/${project.id}.xml`,
+        (project) => `https://craftgen.ai/projects/sitemap/${project.id}.xml`,
       ),
     ],
   };

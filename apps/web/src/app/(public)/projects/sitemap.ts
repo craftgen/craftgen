@@ -9,7 +9,7 @@ export async function generateSitemaps() {
       id: true,
     },
   });
-  return [{ id: 0 }, ...projects.map((project) => ({ id: project.id }))];
+  return [...projects.map((project) => ({ id: project.id }))];
 }
 
 export default async function sitemap({
@@ -17,12 +17,14 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
+  console.log("GENERETING SITEMAP", id);
   const project = await db.query.project.findFirst({
     where: (p, { eq }) => eq(p.id, id),
     columns: {
       slug: true,
     },
   });
+  console.log({ project });
   if (!project) {
     return [];
   }
