@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import sitemaps from "./sitemap-index.xml/route";
+import { sitemaps } from "./sitemap-index.xml/route";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
@@ -7,6 +7,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: [...(await sitemaps()).map((sitemap) => sitemap.url)],
+    sitemap: [...sitemaps.map((sitemap) => sitemap.url)],
   };
 }

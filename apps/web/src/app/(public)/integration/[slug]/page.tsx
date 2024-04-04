@@ -8,10 +8,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { api } from "@/trpc/server";
+import { db } from "@seocraft/supabase/db";
+
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const integrations = await api.public.integration.list({
-    lang: "en",
+  const integrations = await db.query.integration.findMany({
+    columns: {
+      slug: true,
+    },
   });
 
   return integrations.map((integration) => ({

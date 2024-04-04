@@ -4,6 +4,8 @@ import { api } from "@/trpc/server";
 import { WorkflowInput } from "./components/workflow-input";
 import { db } from "@seocraft/supabase/db";
 
+export const dynamicParams = true;
+
 interface Props {
   params: {
     projectSlug: string;
@@ -26,16 +28,11 @@ export async function generateMetadata(
   };
 }
 
-export async function generateStaticParams({
-  params,
-}: {
-  params: {
-    projectSlug: string;
-  };
-}) {
-  const modules = await db.query.project.findFirst({
-    where: (project, { eq }) => eq(project.slug, params.projectSlug),
-    columns: {},
+export async function generateStaticParams() {
+  const projects = await db.query.project.findMany({
+    columns: {
+      slug: true,
+    },
     with: {
       workflows: {
         columns: {
@@ -44,10 +41,16 @@ export async function generateStaticParams({
       },
     },
   });
-  return modules?.workflows.map((module) => ({
-    projectSlug: params.projectSlug,
-    workflowSlug: module.slug,
-  }));
+  const paths = projects
+    ?.map((project) => {
+      return project.workflows.map((workflow) => ({
+        projectSlug: project.slug,
+        workflowSlug: workflow.slug,
+      }));
+    })
+    .flat();
+  console.log(paths);
+  return paths;
 }
 
 const PlaygroundPage: React.FC<Props> = async (props) => {

@@ -6,10 +6,17 @@ import { ProjectNavbar } from "./project-navbar";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { db } from "@seocraft/supabase/db";
 
+export const dynamicParams = true;
 export async function generateStaticParams() {
-  const projects = await api.project.all();
+  const projects = await db.query.project.findMany({
+    columns: {
+      slug: true,
+    },
+  });
 
+  console.log(projects);
   return projects.map((project) => ({
     projectSlug: project.slug,
   }));
