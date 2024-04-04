@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/card";
 import { db } from "@seocraft/supabase/db";
 
 export const dynamicParams = true;
+export const revalidate = 300; 
+
 export async function generateStaticParams() {
   const projects = await db.query.project.findMany({
     columns: {
@@ -16,7 +18,6 @@ export async function generateStaticParams() {
     },
   });
 
-  console.log(projects);
   return projects.map((project) => ({
     projectSlug: project.slug,
   }));

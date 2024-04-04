@@ -17,8 +17,8 @@ export async function GET(req: Request) {
     },
   });
   const publicPages = [
-    ...workflows.map((project) => ({
-      url: `${BASE_URL}/${project.slug}/${project.project.slug}`,
+    ...workflows.map((workflow) => ({
+      url: `${BASE_URL}/${workflow.project.slug}/${workflow.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.5,

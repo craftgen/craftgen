@@ -5,7 +5,7 @@ export const sitemaps = [
     url: `${BASE_URL}/sitemap-public.xml`,
   },
   {
-    url: `${BASE_URL}/integration/sitemap.xml`,
+    url: `${BASE_URL}/integrations/sitemap.xml`,
   },
   {
     url: `${BASE_URL}/projects/sitemap.xml`,

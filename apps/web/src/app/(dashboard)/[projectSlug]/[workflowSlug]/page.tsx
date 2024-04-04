@@ -5,6 +5,7 @@ import { WorkflowInput } from "./components/workflow-input";
 import { db } from "@seocraft/supabase/db";
 
 export const dynamicParams = true;
+export const revalidate = 300;
 
 interface Props {
   params: {
@@ -49,7 +50,6 @@ export async function generateStaticParams() {
       }));
     })
     .flat();
-  console.log(paths);
   return paths;
 }
 

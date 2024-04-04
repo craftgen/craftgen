@@ -11,6 +11,7 @@ import { api } from "@/trpc/server";
 import { db } from "@seocraft/supabase/db";
 
 export const dynamicParams = true;
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   const integrations = await db.query.integration.findMany({
