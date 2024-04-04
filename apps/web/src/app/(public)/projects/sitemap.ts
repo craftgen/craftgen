@@ -1,10 +1,14 @@
 import { BASE_URL } from "@/lib/constants";
 import { MetadataRoute } from "next";
-import { api } from "@/trpc/server";
+import { db } from "@seocraft/supabase/db";
 
 export async function generateSitemaps() {
   // Fetch the total number of products and calculate the number of sitemaps needed
-  const projects = await api.project.all();
+  const projects = await db.query.project.findMany({
+    columns: {
+      id: true,
+    },
+  });
   return [{ id: 0 }, ...projects.map((project) => ({ id: project.id }))];
 }
 
@@ -13,16 +17,35 @@ export default async function sitemap({
 }: {
   id: string;
 }): Promise<MetadataRoute.Sitemap> {
-  const project = await api.project.byId({ id });
-  const modules = await api.craft.module.list({
-    projectId: id,
+  const project = await db.query.project.findFirst({
+    where: (p, { eq }) => eq(p.id, id),
+    columns: {
+      slug: true,
+    },
+  });
+  if (!project) {
+    return [];
+  }
+
+  const modules = await db.query.workflow.findMany({
+    where: (workflow, { eq }) => eq(workflow.projectId, id),
+    columns: {
+      slug: true,
+    },
+    // with: {
+    //   versions: {
+    //     columns: {
+    //       version: true,
+    //     },
+    //   },
+    // },
   });
 
   return [
     ...(project
       ? [
           {
-            url: `${BASE_URL}/${project?.slug}`,
+            url: `${BASE_URL}/${project.slug}`,
             lastModified: new Date(),
             changeFrequency: "daily" as const,
             priority: 1,
@@ -30,7 +53,7 @@ export default async function sitemap({
         ]
       : []),
     ...modules.map((module) => ({
-      url: `${BASE_URL}/${module.project.slug}/${module.slug}`,
+      url: `${BASE_URL}/${project.slug}/${module.slug}`,
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.5,
