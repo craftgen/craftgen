@@ -3,18 +3,7 @@ import { MetadataRoute } from "next";
 import { api } from "@/trpc/server";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [integrations, projects] = await Promise.all([
-    api.public.integration.list({}),
-    api.project.all(),
-  ]);
-  const modules = await Promise.all(
-    projects.map(async (project) => {
-      return await api.craft.module.list({
-        projectId: project.id,
-      });
-    }),
-  );
-  const publicModules = modules.flat();
+  const [integrations] = await Promise.all([api.public.integration.list({})]);
 
   return [
     {
@@ -46,24 +35,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE_URL}/integration/${integration.slug}`,
       lastModified: integration.dateUpdated!,
       changeFrequency: "weekly" as const,
-      priority: 0.5,
-    })),
-    {
-      url: `${BASE_URL}/solutions`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.5,
-    },
-    ...projects.map((project) => ({
-      url: `${BASE_URL}/${project.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.5,
-    })),
-    ...publicModules.map((module) => ({
-      url: `${BASE_URL}/${module.project.slug}/${module.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
       priority: 0.5,
     })),
   ];
