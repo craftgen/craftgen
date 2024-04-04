@@ -11,7 +11,9 @@ export async function GET(req: Request) {
   const publicPages = [
     ...integrations.map((integration) => ({
       url: `${BASE_URL}/integration/${integration.slug}`,
-      lastModified: integration.dateUpdated!,
+      lastModified: new Date(
+        integration.dateUpdated || new Date(),
+      ).toISOString(),
       changeFrequency: "weekly" as const,
       priority: 0.5,
     })),
