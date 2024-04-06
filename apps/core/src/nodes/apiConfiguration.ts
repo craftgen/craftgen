@@ -52,7 +52,7 @@ const outputSockets = {
     title: "Config",
     type: "object",
     description: dedent`
-    Ollama config
+    Api configuration object
     `,
     required: true,
     isMultiple: false,
@@ -133,7 +133,7 @@ export const ApiConfigurationMachine = createMachine(
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
-          // enqueue("updateOutput");
+
           // enqueue.raise({
           //   type: "COMPUTE",
           // });

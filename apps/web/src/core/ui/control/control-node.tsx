@@ -196,11 +196,6 @@ const InputItem = ({
   actor: Actor<typeof inputSocketMachine>;
 }) => {
   const item = useSelector(actor, (state) => state.context.definition, isEqual);
-  const parentId = useSelector(
-    actor,
-    (state) => state.context.parent.id,
-    isEqual,
-  );
   const { controller, definition } = useMemo(() => {
     const controller = getControlBySocket({
       actor: actor,
@@ -216,6 +211,10 @@ const InputItem = ({
     s.matches({ basic: "connection" }),
   );
 
+  const hasConnectionActor = useSelector(actor, (s) =>
+    s.matches({ actor: "connection" }),
+  );
+
   if (hasConnectionBasic) {
     //   console.log("HAS CONNECTION");
     const connectionActor: ActorRefFrom<typeof outputSocketMachine> =
@@ -229,27 +228,16 @@ const InputItem = ({
     const targetActor = actor.system.get(
       connectionActor.getSnapshot().context.parent.id,
     );
+    if (!targetActor) return null;
 
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 
-  // if (item["x-actor-type"]) {
-  //   console.log("ACTOR TYPE INPUTS", item["x-actor-type"], item);
-
-  //   const parent = actor.system.get(parentId);
-  //   const targetActor = parent.getSnapshot().context.inputs[item["x-key"]];
-  //   console.log("TARGET ACTOR", parent, targetActor, parentId, item["x-key"]);
-  //   return <div>CONTROLLED BY ACTOR</div>;
-  //   return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
-  // }
-
-  const hasConnectionActor = useSelector(actor, (s) =>
-    s.matches({ actor: "connection" }),
-  );
-
   if (hasConnectionActor) {
-    const targetActor = useSelector(actor, (state) => state.context.value);
-    console.log("HAS CONNECTION ACTOR", targetActor);
+    // const targetActor = useSelector(actor, (state) => state.context.value);
+    const targetActor = actor.getSnapshot().context.value;
+    // console.log("HAS CONNECTION ACTOR", targetActor);
+    if (!targetActor) return null;
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }
 

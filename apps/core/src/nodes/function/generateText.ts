@@ -45,7 +45,7 @@ const inputSockets = {
     "x-key": "RUN",
     "x-event": "RUN",
     // "x-event-param-socket-keys": ["llm", "system", "instruction"],
-    
+
     "x-event-param-socket-keys": ["instruction"],
   }),
   instruction: generateSocket({

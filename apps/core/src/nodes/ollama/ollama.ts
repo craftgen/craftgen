@@ -466,7 +466,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "NodeOllama",
+    type: "object",
     description: dedent`
     Ollama config
     `,
@@ -700,6 +700,7 @@ export const OllamaModelMachine = createMachine(
           },
           COMPUTE: {
             actions: enqueueActions(({ enqueue, context, self }) => {
+              console.log("COMPUTE OLLAMA CONFIG", context);
               const valueId = `value_${createId()}`;
               enqueue.spawnChild("computeActorInputs", {
                 id: valueId,

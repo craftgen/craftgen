@@ -391,28 +391,6 @@ export const inputSocketMachine = setup({
     },
     actor: {
       initial: "initialize",
-      on: {
-      //   SET_VALUE: {
-      //     target: "#InputSocketMachine.actor.ready",
-      //     actions: enqueueActions(({ enqueue, event }) => {
-      //       console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
-      //       enqueue.assign({
-      //         value: event.params.value,
-      //       });
-      //       // enqueue.sendTo(
-      //       //   ({ system, context }) => system.get(context.parent.id),
-      //       //   ({ event, context }) => ({
-      //       //     type: "SET_VALUE",
-      //       //     params: {
-      //       //       values: {
-      //       //         [context.definition["x-key"]]: event.params.value,
-      //       //       },
-      //       //     },
-      //       //   }),
-      //       // );
-      //     }),
-      //   },
-      },
       states: {
         connection: {
           always: [
@@ -437,6 +415,18 @@ export const inputSocketMachine = setup({
             },
           ],
           on: {
+            ASSIGN_ACTOR: {
+              target: "#InputSocketMachine.actor.ready",
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log(
+                  "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
+                  event,
+                );
+                enqueue.assign({
+                  value: event.params.value,
+                });
+              }),
+            },
             SET_VALUE: {
               actions: enqueueActions(({ enqueue, event }) => {
                 console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
@@ -453,6 +443,7 @@ export const inputSocketMachine = setup({
                 );
               }),
             },
+            COMPUTE: {},
           },
         },
         ready: {
