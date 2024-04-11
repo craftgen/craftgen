@@ -6,7 +6,6 @@ import { useEffect, useRef } from "react";
 import { useHeadlessEditor } from "@/core/editor";
 import { createCraftStore } from "@/core/store";
 import { CraftContext } from "@/core/use-store";
-import { InspectorNode } from "@/app/(playground)/[projectSlug]/[workflowSlug]/v/[version]/components/inspector-node";
 import { InputsList } from "@/core/ui/control/control-node";
 
 export const WorkflowInput: React.FC<{
@@ -52,11 +51,11 @@ export const WorkflowSimple = (props: {
     },
     store: store.current,
   });
-  console.log(editor);
   useEffect(() => {
     (window as any).Editor = editor;
   }, [editor]);
   if (!editor) return <div>Loading...</div>;
+  console.log(editor);
   return (
     <CraftContext.Provider value={store?.current}>
       {editor.actor && <InputsList actor={editor.actor} />}

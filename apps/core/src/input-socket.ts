@@ -138,7 +138,7 @@ export const inputSocketMachine = setup({
     ),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IATAA4AjADojATgAsB2QFYTAZksmD9gGwAaEAE9EbgC+gT5oWHhEpBTU9IxmEGRgAE4AtgzMcopIICpqGlo6+ggmAOz2ZnZOztYmsk4GBiV1Pv7Fpmb2liUe9o5utSbW9sGhGDgEJGRUtOnxianpTNImWcqq6pra2UWl5ZXVtfWNzX6GBh5mriWWRiWDRk4lTvZOIyBh45FTMbMARpRqQhLBQ6XIbArbRCWAwtAKyaxOMxlEwogyuWRuIxvD4RSbRGZxf6Asx0CAAG2YuCkAgAalwADIsPiZUHrfJbUBFaw2S5GewYx5GDwokweEqwhA2WQVEpGazCoVPayyDzYsa4qLTWJgMxEuiEMyELSMQjsphUni0hlMlnZMHswqGOpmDxWWyNaEeDzWKwSmxGF0uG4eAw1WpetXhCaan6EgH6w3GsCmzbA1Y5NmbR0IJwIpElZVGOqWIMhiW1fmXSwl6Hym6layRz54rWzajYfBJc3UumM5kgu2ZiGcxAhywdZUq2Wu6soiX8gwu6zWbrXBpuR5NjXfAk69udxOoE1mi1Wvu2tZ5LOQ4qyBxmJwPEyWGey4ww04IBHlOW2e4opxZCMLEQnedVox3bUzH3JJD2PVMLwzK9hz0RArERDwSwLJ4XgMUojAlZdrEuXN4WFSw6icXNhlAnEIPxKCYLMJIwEoCBfDTVlkI5VCEHQl0sNsO931uedniROp7G6KwS1kGxglA1B8ASeBsjor4GPSLjwR4ooAFprD9YjGhXGohncEpugMLd6NbOIEmwZI0kYbSHRvFdyz5S4PVdIt7GXFwQNGKMNLsnU9UIVzrxHL9DM-PlF0sXp-KMOxZVFIKwJCltY3C+MDVJCkopQrkpKRew5WFb1ZEaVLvE-WplQ6XCao3cMbNC3LdXyuDkzcy8dOzOxyhub9lxsKjvXq1pGoDVwV3OblXRKazaPAzrd2g01O2K3TEAq8x-LvMUhRkudP1zAN7DwwCUUcWVuUbNbspjTamKNI8+uipDBpvWpZBKF10uMTobGrAjPxeC4USsXopwB2wOpyt7ttgli2NaAb+t465ER9F5oQeflfPndwOkeJwQwMR8MQBpHXsY1GSVQDZKDJOgAC8wF27MxwnY7pzOkwJQ8AHLmfRxnnfN8FMCIA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IALAA4AbADoA7AEYArCasmTFmwCYTdkwBoQAT0QvZAGYzWRMXG1kAThtIwNdAk0iAXyTvNCw8IlIKanpGJi4ODgFRYQA5Mr5RHmRyuUUkEBU1DS0dfQRjWTMbIwNAhIt+q0iLI28-BCtZCx7AqzcrAwMrKyNA9ZS0jBwCEjIqWgZmACU+cmEANUFSiqqauoUdZvVNbUaOgxMDM3XI0MCLhcI3cE0QCy2IHSuyyB1yxzMDAyZh4JxYfCY9WeqlebQ+4KMVjMJiCUX+RgpY1iYKmkXcllCQPcqwssgMFkh0My+xyR0YiJ22DMADEuAAZXAYrGNF6td6gDprIkkwJk2QUoxUwI0gKrMwuTVfZxWQLWDmpKGCvbZQ55MBmQhaRiEOVmGiUWCiJ1gF1vTFPGU4uXtfwbfVfTUmOKRSKRmw6hw2Mx0lwGNmuSJKzlW2G8u0O72+rRmVD4L2oZ1y-0NZRBt4hhAuMOpkyR6Oxiyg3z+YFEmz9FYp9UGGyBbMZa1wvn22C5swQMhgABOAFtjtXsS16-jG7YzCC+gZwrIIjEaUsbETAv0SQsTyO3OOYTzbQjZzz54vV+vpFYa006zxBV-BPfc6UPY9T0ic9nB+NwEl6NwoKMJ9uRteF+XfbJP2wZc13yaQXH-WVt2A3ckwPZZIJPaDuwQaIXDMeZO3VAFVQsMcLS5Sc8zfOdsCXOgoBgJcN0DLcgL0QxZD7f4whcCwLH+dltToqwhiJTsEKMJCaJMVCeNfTD+ME4TlwLCsfSrVFkAAcVsvgTmlWsJPlKSEFHYJNWvaYIjCewXHPKNuhjU1rFkA0o1GAzcyMmcTKEkSLMrP1nIA1yGycH5FMJE1CUcWxaMmdS7EsMYAkzGwIkzfSuJzF8MPij8ACMPToQgxJc3E3M+PUYkZBSlLZCxUxpWJIl+dSSSMNiZhsGKGunMwsLIMxWrUQhEQgAAbZhSnINgWH4NKSMkjojFK+Z1WcWQTwU-saUPEIwn6AZRgu5YFvQpaVqFdb2q23amDOXAWDFGQAy64Md1McwIoGHSWQCcIaSGIw5jvS8xjGGYvqnfNfrWtrNroHa9oACS4MoHIEYVhBOcheBOwCesQJSfgiwkgTpBY03GOj3EYmMY07aJRlCFC6onWLGuWud-pJsmmElHgBEucV0WZjKYdcZMR1VSrUziCwaSq2YIzRoYARcZIpefb6Cfl4nkqsv0VbVjW+C17qG1HCi02CxllkiQK6J0ibhou2xbtcPHeOMlrncdSyi1QTr0p9ndW2ysZVg2Bx7F6Mb+1+QE1hjElvhGOO4rlj9qGwfAlxd1OClwXA7LKAQuGqenvehsiquCU01lMXsYjPNSmwmmaSSiftvmsAwa9lwmG6bluq3d9WxU1yGM4H9y026EdFI0gIZqic9U2ymT+kzQ0ghXn653X5vk5SrQmH2w7jv307WadCCL8JsAcVhjBJPGNSIwfhhBkiqWMNtojP0dvXF0G8P6uy-v3Ui7kh5MWsBSMIqwJ5FXBAMJMAwOJsgqp2UcKC+JoMbs3JcYBKAQB8N-YQB0jpe3-izBsHFZh+VNCeW6JowjX16CEIYzh-ieWiLVbY0tFqoOwm-MwrD2GcJwWdRA9h0bhCjPYOIVVVih2KksdGiljAGH+EsDYikGEJ3Ueg5uDBXiUG2nQAAXswLg7dO7d17k5fh2tB6jgIaPYhhVJ7FSPOYBIfxw6dhtikC0pYFzwEaNxGW05NyZzIgAWhGDqOxPRYjOBsb0KMXxnH2iRDgAph8Og23PJqdGAU7EjU7A4+pApkSonRM03BrToi-FHNMHSFCgj82KqMIk6wgTzFsKYSp-TGlClFBKPgIy9EIEUueOkE0BjLJIWs00-TMGpz2YAtpdEAhjF+K2VkUcbAjUiMvO2aF8YImua6d0npCyHwAQ2OIjE7GtguhEL4vMvAPPUoxdU4d5JkiUZaFRDs-nAreCWMsOLJKgp3IchFiQegUg2LMwYdTvmGVXrmW5DZ7mTAGOYF5xhEiEiPPQ2leS1GrQXLhb8jBGXEpNnRMWyY+hKSttyps-TCYCUSsuUVZE4jBH6vJRSykOLnn7F5GMhIQ5sk+bjXlqjGHYSVWZdxZNVXuSpCEA0CwbZdPVDBeYPRwgjBGNGS86LckWpcata1SV-m4KJYPPcfQAQjCbE4IEHq+zeszLECeDgFVOw2vajoCQNVySBNq4ao06JHmCLnFsqwoX2HNMo+2vzg1-WdqTXaObECEiTBdRSt4IgzU+WNZYFSEj2BHSHUwmbE4bU3hGgRO5XCdoDvMEOgxE0Sptj0IaMqRgxECLbOtPz45NVccwttCBWVmAHFQw0-RV3FVCMqXKo5bpRGjBO49GCCVuUjUfCKvwuZLHVDzB6alrxJibG4GYlcnAUjfatDRWiOGnucOYVktT2TRCXWQqYcROk0QUuyNw1hOL7rpS-JhG8PEaC8b4sAp6Ng-Evaaa9gILHggSSEf4gJYwjyI+kpIQA */
   id: "InputSocketMachine",
   context: ({ input, spawn }) => {
     const value = match(input.definition)
@@ -192,7 +192,6 @@ export const inputSocketMachine = setup({
         });
       }),
     },
-
     REMOVE_CONNECTION: {
       actions: enqueueActions(({ enqueue, event }) => {
         enqueue.assign({
@@ -210,308 +209,420 @@ export const inputSocketMachine = setup({
       }),
     },
   },
-  initial: "determine",
+  type: "parallel",
   states: {
-    determine: {
-      always: [
-        {
-          guard: ({ context }) => !isNil(context.definition["x-actor-type"]),
-          target: "#InputSocketMachine.actor.initialize",
-        },
-        {
-          guard: ({ context }) => context.definition["type"] === "trigger",
-          target: "#InputSocketMachine.trigger",
-        },
-        {
-          guard: ({ context }) => isNil(context.definition["x-actor-type"]),
-          target: "#InputSocketMachine.basic",
-        },
-      ],
-    },
-    trigger: {
-      initial: "idle",
-      always: [
-        {
-          guard: ({ context }) =>
-            Object.values(get(context, ["definition", "x-connection"], {}))
-              .length > 0,
-          target: "#InputSocketMachine.trigger.connection",
-        },
-      ],
+    input: {
+      initial: "FALSE",
       states: {
-        idle: {},
-        connection: {
+        TRUE: {
+          entry: enqueueActions(({ enqueue }) => {
+            enqueue.sendTo(
+              ({ system }) => system.get("editor"),
+              ({ self }) => ({
+                type: "ADD_INPUT_SOCKET",
+                params: {
+                  socket: self,
+                },
+              }),
+            );
+          }),
           always: [
             {
               guard: ({ context }) =>
+                !context.definition["x-showSocket"] ||
                 Object.values(get(context, ["definition", "x-connection"], {}))
-                  .length === 0,
-              target: "#InputSocketMachine.trigger.idle",
+                  .length > 0,
+              target: "#InputSocketMachine.input.FALSE",
             },
           ],
-          on: {
-            TRIGGER: {
-              actions: enqueueActions(({ enqueue }) => {
-                enqueue.sendTo(
-                  ({ system, context }) => system.get(context.parent.id),
-                  ({ context }) => ({
-                    type: context.definition["x-event"],
-                  }),
-                );
+        },
+        FALSE: {
+          entry: enqueueActions(({ enqueue }) => {
+            enqueue.sendTo(
+              ({ system }) => system.get("editor"),
+              ({ self }) => ({
+                type: "REMOVE_INPUT_SOCKET",
+                params: {
+                  id: self.id,
+                },
               }),
+            );
+          }),
+          always: [
+            {
+              guard: ({ context }) =>
+                context.definition["x-showSocket"] &&
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length === 0,
+              target: "#InputSocketMachine.input.TRUE",
             },
-          },
+          ],
         },
       },
     },
-    basic: {
-      initial: "idle",
-      always: [
-        {
-          guard: ({ context }) =>
-            Object.values(get(context, ["definition", "x-connection"], {}))
-              .length > 0,
-          target: "#InputSocketMachine.basic.connection",
-        },
-      ],
+    connection: {
+      initial: "noConnection",
       states: {
-        idle: {
-          invoke: {
-            src: "valueWatcher",
-            input: ({ context, self }) => ({
-              ...context,
-            }),
-            onSnapshot: {
-              actions: enqueueActions(({ enqueue, event, context, check }) => {
-                enqueue.raise({
-                  type: "COMPUTE",
-                  params: {
-                    value: event.snapshot.context,
-                  },
-                });
-              }),
-            },
-          },
-          on: {
-            COMPUTE: {
-              actions: enqueueActions(({ enqueue, event, context, self }) => {
-                const value =
-                  event?.params?.value ||
-                  context.value?.getSnapshot().context.value;
-
-                enqueue.spawnChild("computeValue", {
-                  input: {
-                    value,
-                    definition: context.definition,
-                    targets: [
-                      context.parent.id,
-                      ...(event?.params?.targets || []),
-                    ],
-                    parent: self,
-                  },
-                  syncSnapshot: false,
-                });
-              }),
-            },
-            RESULT: {
-              actions: enqueueActions(({ enqueue, event }) => {
-                event.params.targets.forEach((target) => {
-                  enqueue.sendTo(
-                    ({ system }) => system.get(target),
-                    ({ event, context }) => ({
-                      type: "SET_VALUE",
-                      params: {
-                        values: {
-                          [context.definition["x-key"]]: event.params.value,
-                        },
-                      },
-                    }),
-                  );
-                });
-              }),
-            },
-            CHANGE_FORMAT: {
-              guard: ({ context }) =>
-                get(context, ["definition", "x-canChangeFormat"], true),
-              actions: enqueueActions(({ enqueue }) => {
-                enqueue.assign({
-                  definition: ({ context, event }) => ({
-                    ...context.definition,
-                    format: event.params.value,
-                  }),
-                });
-              }),
-            },
-            SET_VALUE: {
-              /**
-               * We are setting the value of the valueActor here.
-               */
-              actions: enqueueActions(({ enqueue, event }) => {
-                enqueue.sendTo(
-                  ({ context }) => context.value,
-                  ({ event }) => ({
-                    type: "SET_VALUE",
-                    params: {
-                      value: event.params.value,
-                    },
-                  }),
-                );
-              }),
-            },
-          },
-        },
-        connection: {
+        hasConnection: {
           always: [
             {
               guard: ({ context }) =>
                 Object.values(get(context, ["definition", "x-connection"], {}))
                   .length === 0,
-              target: "#InputSocketMachine.basic.idle",
+              target: "#InputSocketMachine.connection.noConnection",
             },
           ],
-          on: {
-            SET_VALUE: {
-              actions: enqueueActions(({ enqueue, event }) => {
-                enqueue.sendTo(
-                  ({ system, context }) => system.get(context.parent.id),
-                  ({ event, context }) => ({
-                    type: "SET_VALUE",
-                    params: {
-                      values: {
-                        [context.definition["x-key"]]: event.params.value,
-                      },
-                    },
-                  }),
-                );
-              }),
-            },
-          },
         },
-      },
-    },
-    actor: {
-      initial: "initialize",
-      states: {
-        connection: {
-          always: [
-            {
-              guard: ({ context }) =>
-                Object.values(get(context, ["definition", "x-connection"], {}))
-                  .length === 0,
-              target: "#InputSocketMachine.actor.ready",
-              actions: enqueueActions(({ enqueue }) => {
-                enqueue.sendTo(
-                  ({ system, context }) => system.get(context.parent.id),
-                  ({ context }) => ({
-                    type: "SET_VALUE",
-                    params: {
-                      values: {
-                        [context.definition["x-key"]]: context.value,
-                      },
-                    },
-                  }),
-                );
-              }),
-            },
-          ],
-          on: {
-            ASSIGN_ACTOR: {
-              target: "#InputSocketMachine.actor.ready",
-              actions: enqueueActions(({ enqueue, event }) => {
-                console.log(
-                  "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
-                  event,
-                );
-                enqueue.assign({
-                  value: event.params.value,
-                });
-              }),
-            },
-            SET_VALUE: {
-              actions: enqueueActions(({ enqueue, event }) => {
-                console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
-                enqueue.sendTo(
-                  ({ system, context }) => system.get(context.parent.id),
-                  ({ event, context }) => ({
-                    type: "SET_VALUE",
-                    params: {
-                      values: {
-                        [context.definition["x-key"]]: event.params.value,
-                      },
-                    },
-                  }),
-                );
-              }),
-            },
-            COMPUTE: {},
-          },
-        },
-        ready: {
+        noConnection: {
           always: [
             {
               guard: ({ context }) =>
                 Object.values(get(context, ["definition", "x-connection"], {}))
                   .length > 0,
-              target: "#InputSocketMachine.actor.connection",
-              actions: enqueueActions(({ enqueue }) => {
-                console.log("MOVING TO CONNECTION");
-              }),
+              target: "#InputSocketMachine.connection.hasConnection",
             },
           ],
-          on: {
-            COMPUTE: {
-              actions: enqueueActions(({ enqueue, event, context }) => {
-                console.log("ACTOR COMPUTE", context, event);
-                enqueue.sendTo(context.value, {
-                  type: "COMPUTE",
-                  params: {
-                    targets: [context.parent.id],
-                  },
-                });
-              }),
+        },
+      },
+    },
+    socket: {
+      initial: "determine",
+      states: {
+        determine: {
+          always: [
+            {
+              guard: ({ context }) =>
+                !isNil(context.definition["x-actor-type"]),
+              target: "#InputSocketMachine.socket.actor.initialize",
+            },
+            {
+              guard: ({ context }) => context.definition["type"] === "trigger",
+              target: "#InputSocketMachine.socket.trigger",
+            },
+            {
+              guard: ({ context }) => isNil(context.definition["x-actor-type"]),
+              target: "#InputSocketMachine.socket.basic",
+            },
+          ],
+        },
+        trigger: {
+          initial: "idle",
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length > 0,
+              target: "#InputSocketMachine.socket.trigger.connection",
+            },
+          ],
+          states: {
+            idle: {},
+            connection: {
+              always: [
+                {
+                  guard: ({ context }) =>
+                    Object.values(
+                      get(context, ["definition", "x-connection"], {}),
+                    ).length === 0,
+                  target: "#InputSocketMachine.socket.trigger.idle",
+                },
+              ],
+              on: {
+                TRIGGER: {
+                  actions: enqueueActions(({ enqueue }) => {
+                    enqueue.sendTo(
+                      ({ system, context }) => system.get(context.parent.id),
+                      ({ context }) => ({
+                        type: context.definition["x-event"],
+                      }),
+                    );
+                  }),
+                },
+              },
             },
           },
         },
-        initialize: {
-          on: {
-            ASSIGN_ACTOR: {
-              target: "#InputSocketMachine.actor.ready",
-              actions: enqueueActions(({ enqueue, event }) => {
-                console.log(
-                  "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
-                  event,
+        basic: {
+          initial: "idle",
+          always: [
+            {
+              guard: ({ context }) =>
+                Object.values(get(context, ["definition", "x-connection"], {}))
+                  .length > 0,
+              target: "#InputSocketMachine.socket.basic.connection",
+            },
+          ],
+          entry: enqueueActions(({ enqueue, check }) => {
+            if (check(({ context }) => context.definition["x-showSocket"])) {
+              enqueue.sendTo(
+                ({ system }) => system.get("editor"),
+                ({ self }) => ({
+                  type: "ADD_INPUT_SOCKET",
+                  params: {
+                    socket: self,
+                  },
+                }),
+              );
+            }
+          }),
+          states: {
+            idle: {
+              invoke: {
+                src: "valueWatcher",
+                input: ({ context, self }) => ({
+                  ...context,
+                }),
+                onSnapshot: {
+                  actions: enqueueActions(
+                    ({ enqueue, event, context, check }) => {
+                      enqueue.raise({
+                        type: "COMPUTE",
+                        params: {
+                          value: event.snapshot.context,
+                        },
+                      });
+                    },
+                  ),
+                },
+              },
+              on: {
+                COMPUTE: {
+                  actions: enqueueActions(
+                    ({ enqueue, event, context, self }) => {
+                      const value =
+                        event?.params?.value ||
+                        context.value?.getSnapshot().context.value;
+
+                      enqueue.spawnChild("computeValue", {
+                        input: {
+                          value,
+                          definition: context.definition,
+                          targets: [
+                            context.parent.id,
+                            ...(event?.params?.targets || []),
+                          ],
+                          parent: self,
+                        },
+                        syncSnapshot: false,
+                      });
+                    },
+                  ),
+                },
+                RESULT: {
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    event.params.targets.forEach((target) => {
+                      enqueue.sendTo(
+                        ({ system }) => system.get(target),
+                        ({ event, context }) => ({
+                          type: "SET_VALUE",
+                          params: {
+                            values: {
+                              [context.definition["x-key"]]: event.params.value,
+                            },
+                          },
+                        }),
+                      );
+                    });
+                  }),
+                },
+                CHANGE_FORMAT: {
+                  guard: ({ context }) =>
+                    get(context, ["definition", "x-canChangeFormat"], true),
+                  actions: enqueueActions(({ enqueue }) => {
+                    enqueue.assign({
+                      definition: ({ context, event }) => ({
+                        ...context.definition,
+                        format: event.params.value,
+                      }),
+                    });
+                  }),
+                },
+                SET_VALUE: {
+                  /**
+                   * We are setting the value of the valueActor here.
+                   */
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    enqueue.sendTo(
+                      ({ context }) => context.value,
+                      ({ event }) => ({
+                        type: "SET_VALUE",
+                        params: {
+                          value: event.params.value,
+                        },
+                      }),
+                    );
+                  }),
+                },
+              },
+            },
+            connection: {
+              always: [
+                {
+                  guard: ({ context }) =>
+                    Object.values(
+                      get(context, ["definition", "x-connection"], {}),
+                    ).length === 0,
+                  target: "#InputSocketMachine.socket.basic.idle",
+                },
+              ],
+              entry: enqueueActions(({ enqueue }) => {
+                enqueue.sendTo(
+                  ({ system }) => system.get("editor"),
+                  ({ self }) => ({
+                    type: "REMOVE_INPUT_SOCKET",
+                    params: {
+                      id: self.id,
+                    },
+                  }),
                 );
-                enqueue.assign({
-                  value: event.params.value,
-                });
+              }),
+              on: {
+                SET_VALUE: {
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    enqueue.sendTo(
+                      ({ system, context }) => system.get(context.parent.id),
+                      ({ event, context }) => ({
+                        type: "SET_VALUE",
+                        params: {
+                          values: {
+                            [context.definition["x-key"]]: event.params.value,
+                          },
+                        },
+                      }),
+                    );
+                  }),
+                },
+              },
+            },
+          },
+        },
+        actor: {
+          initial: "initialize",
+          states: {
+            connection: {
+              always: [
+                {
+                  guard: ({ context }) =>
+                    Object.values(
+                      get(context, ["definition", "x-connection"], {}),
+                    ).length === 0,
+                  target: "#InputSocketMachine.socket.actor.ready",
+                  actions: enqueueActions(({ enqueue }) => {
+                    enqueue.sendTo(
+                      ({ system, context }) => system.get(context.parent.id),
+                      ({ context }) => ({
+                        type: "SET_VALUE",
+                        params: {
+                          values: {
+                            [context.definition["x-key"]]: context.value,
+                          },
+                        },
+                      }),
+                    );
+                  }),
+                },
+              ],
+              on: {
+                ASSIGN_ACTOR: {
+                  target: "#InputSocketMachine.socket.actor.ready",
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    console.log(
+                      "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
+                      event,
+                    );
+                    enqueue.assign({
+                      value: event.params.value,
+                    });
+                  }),
+                },
+                SET_VALUE: {
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
+                    enqueue.sendTo(
+                      ({ system, context }) => system.get(context.parent.id),
+                      ({ event, context }) => ({
+                        type: "SET_VALUE",
+                        params: {
+                          values: {
+                            [context.definition["x-key"]]: event.params.value,
+                          },
+                        },
+                      }),
+                    );
+                  }),
+                },
+                COMPUTE: {},
+              },
+            },
+            ready: {
+              always: [
+                {
+                  guard: ({ context }) =>
+                    Object.values(
+                      get(context, ["definition", "x-connection"], {}),
+                    ).length > 0,
+                  target: "#InputSocketMachine.socket.actor.connection",
+                  actions: enqueueActions(({ enqueue }) => {
+                    console.log("MOVING TO CONNECTION");
+                  }),
+                },
+              ],
+              on: {
+                COMPUTE: {
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    console.log("ACTOR COMPUTE", context, event);
+                    enqueue.sendTo(context.value, {
+                      type: "COMPUTE",
+                      params: {
+                        targets: [context.parent.id],
+                      },
+                    });
+                  }),
+                },
+              },
+            },
+            initialize: {
+              on: {
+                ASSIGN_ACTOR: {
+                  target: "#InputSocketMachine.socket.actor.ready",
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    console.log(
+                      "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
+                      event,
+                    );
+                    enqueue.assign({
+                      value: event.params.value,
+                    });
+                  }),
+                },
+              },
+              entry: enqueueActions(({ enqueue, context }) => {
+                console.log("ACTOR TYPE", context);
+                const actorId = createId("context", context.parent.id);
+                enqueue.sendTo(
+                  ({ system }) => system.get("editor"),
+                  ({ self, context }) => ({
+                    type: "SPAWN",
+                    params: {
+                      parent: context.parent.id,
+                      id: actorId,
+                      machineId: context.definition["x-actor-type"],
+                      systemId: actorId,
+                      input: {
+                        inputs: {
+                          ...(context.definition.default as any),
+                        },
+                        parent: {
+                          id: context.parent.id,
+                          port: self.id,
+                        },
+                      } as any,
+                    },
+                  }),
+                );
               }),
             },
           },
-          entry: enqueueActions(({ enqueue, context }) => {
-            console.log("ACTOR TYPE", context);
-            const actorId = createId("context", context.parent.id);
-            enqueue.sendTo(
-              ({ system }) => system.get("editor"),
-              ({ self, context }) => ({
-                type: "SPAWN",
-                params: {
-                  parent: context.parent.id,
-                  id: actorId,
-                  machineId: context.definition["x-actor-type"],
-                  systemId: actorId,
-                  input: {
-                    inputs: {
-                      ...(context.definition.default as any),
-                    },
-                    parent: {
-                      id: context.parent.id,
-                      port: self.id,
-                    },
-                  } as any,
-                },
-              }),
-            );
-          }),
         },
       },
     },

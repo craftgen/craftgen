@@ -140,6 +140,17 @@ export const outputSocketMachine = setup({
   initial: "idle",
   states: {
     idle: {
+      entry: enqueueActions(({ enqueue }) => {
+        enqueue.sendTo(
+          ({ system }) => system.get("editor"),
+          ({ self }) => ({
+            type: "ADD_OUTPUT_SOCKET",
+            params: {
+              socket: self,
+            },
+          }),
+        );
+      }),
       always: [
         {
           target: "hasConnection",
@@ -153,6 +164,17 @@ export const outputSocketMachine = setup({
       ],
     },
     hasConnection: {
+      entry: enqueueActions(({ enqueue }) => {
+        enqueue.sendTo(
+          ({ system }) => system.get("editor"),
+          ({ self }) => ({
+            type: "REMOVE_OUTPUT_SOCKET",
+            params: {
+              id: self.id,
+            },
+          }),
+        );
+      }),
       initial: "determine",
       always: [
         {

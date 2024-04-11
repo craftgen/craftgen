@@ -208,11 +208,11 @@ const InputItem = ({
   }, [item]);
 
   const hasConnectionBasic = useSelector(actor, (s) =>
-    s.matches({ basic: "connection" }),
+    s.matches({ socket: { basic: "connection" } }),
   );
 
   const hasConnectionActor = useSelector(actor, (s) =>
-    s.matches({ actor: "connection" }),
+    s.matches({ socket: { actor: "connection" } }),
   );
 
   if (hasConnectionBasic) {

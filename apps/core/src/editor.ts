@@ -8,6 +8,8 @@ import {
   isNil,
   isNull,
   merge,
+  omit,
+  omitBy,
   set,
 } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
@@ -148,22 +150,41 @@ export const EditorMachine = setup({
             id: string;
           };
         }
+      // | {
+      //     type: "SET_INPUT_OUTPUT";
+      //     params: {
+      //       id: string;
+      //       inputs: JSONSocket[];
+      //       outputs: JSONSocket[];
+      //     };
+      //   }
       | {
-          type: "SET_INPUT_OUTPUT";
+          type: "ADD_INPUT_SOCKET";
+          params: {
+            socket: ActorRefFrom<typeof inputSocketMachine>;
+          };
+        }
+      | {
+          type: "REMOVE_INPUT_SOCKET";
           params: {
             id: string;
-            inputs: JSONSocket[];
-            outputs: JSONSocket[];
           };
+        }
+      | {
+          type: "ADD_OUTPUT_SOCKET";
+          params: {
+            socket: ActorRefFrom<typeof outputSocketMachine>;
+          };
+        }
+      | {
+          type: "REMOVE_OUTPUT_SOCKET";
+          params: {
+            id: string;
+          };
+        }
+      | {
+          type: "INITIALIZE";
         },
-    actions: {} as {
-      type: "setInputOutput";
-      params: {
-        id: string;
-        inputs: JSONSocket[];
-        outputs: JSONSocket[];
-      };
-    },
   },
   actions: {
     setInputOutput: enqueueActions(
@@ -341,9 +362,9 @@ export const EditorMachine = setup({
     enqueue("initialize");
   }),
   on: {
-    SET_INPUT_OUTPUT: {
-      actions: ["setInputOutput"],
-    },
+    // SET_INPUT_OUTPUT: {
+    //   actions: ["setInputOutput"],
+    // },
     UPDATE_SOCKET: {
       actions: ["updateSocket"],
     },
@@ -358,9 +379,47 @@ export const EditorMachine = setup({
     error: {},
     idle: {
       on: {
+        ADD_INPUT_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              inputSockets: ({ context, event }) => ({
+                ...context.inputSockets,
+                [event.params.socket.id]: event.params.socket,
+              }),
+            });
+          }),
+        },
+        REMOVE_INPUT_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              inputSockets: ({ context, event }) => {
+                return omit(context.inputSockets, event.params.id);
+              },
+            });
+          }),
+        },
+        ADD_OUTPUT_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputSockets: ({ context, event }) => ({
+                ...context.outputSockets,
+                [event.params.socket.id]: event.params.socket,
+              }),
+            });
+          }),
+        },
+        REMOVE_OUTPUT_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              outputSockets: ({ context, event }) => {
+                return omit(context.outputSockets, event.params.id);
+              },
+            });
+          }),
+        },
         DESTROY: {
           description: "Destroy a node actor",
-          actions: enqueueActions(({ enqueue, system, event }) => {
+          actions: enqueueActions(({ enqueue, system, event, check }) => {
             const actor: AnyActor = system.get(event.params.id);
             if (!actor) {
               console.log("CAN NOT FIND THE ACTOR", event.params.id);
@@ -392,6 +451,38 @@ export const EditorMachine = setup({
                 return actors;
               },
             });
+            if (
+              check(({ context }) =>
+                Object.keys(context.inputSockets).some((k) =>
+                  k.startsWith(event.params.id),
+                ),
+              )
+            ) {
+              enqueue.assign({
+                inputSockets: ({ context }) => {
+                  const keys = Object.keys(context.inputSockets).filter((k) =>
+                    k.startsWith(event.params.id),
+                  );
+                  return omit(context.inputSockets, keys);
+                },
+              });
+            }
+            if (
+              check(({ context }) =>
+                Object.keys(context.outputSockets).some((k) =>
+                  k.startsWith(event.params.id),
+                ),
+              )
+            ) {
+              enqueue.assign({
+                outputSockets: ({ context }) => {
+                  const keys = Object.keys(context.outputSockets).filter((k) =>
+                    k.startsWith(event.params.id),
+                  );
+                  return omit(context.outputSockets, keys);
+                },
+              });
+            }
           }),
         },
         SPAWN: {
@@ -739,104 +830,6 @@ export class Editor<
           [event.params.actor.src]: event.params.actor,
         }),
       });
-
-      // const childSnap = event.params.actor.getSnapshot();
-      // enqueue.assign({
-      //   inputSockets: ({ context, system, event }) => ({
-      //     ...context.inputSockets,
-      //     ...childSnap.context.inputSockets,
-      //   }),
-      // });
-
-      return;
-      enqueue.assign({
-        inputSockets: ({ context, system, event }) => {
-          assertEvent(event, "ASSIGN_CHILD");
-          console.log("ASSIGN CHILD", event);
-          const port = event.params.port;
-          const socket = context.inputSockets[port];
-          const actorType = event.params.actor.src as string;
-          const isChildActorSelected =
-            context.inputSockets[port]["x-actor-ref-id"] ===
-              event.params.actor.id ||
-            isNil(context.inputSockets[port]["x-actor-ref-id"]);
-
-          const childSnap = event.params.actor.getSnapshot();
-          const childSockets = Object.entries(childSnap.context.inputSockets)
-            .map(([key, value]) => {
-              return {
-                [`${event.params.actor.id}-${key}`]: {
-                  "x-actor-ref": event.params.actor,
-                  "x-actor-ref-id": event.params.actor.id,
-                  "x-actor-ref-type": actorType,
-                  "x-actor-type": actorType,
-                  ...value,
-                },
-              };
-            })
-            .reduce((acc, value) => {
-              return { ...acc, ...value };
-            });
-
-          return {
-            ...context.inputSockets,
-            // [port]: {
-            //   ...socket,
-            //   ...(isChildActorSelected && {
-            //     "x-actor-type": actorType,
-            //     "x-actor-ref": event.params.actor,
-            //     "x-actor-ref-id": event.params.actor.id,
-            //     "x-actor-ref-type": actorType,
-            //   }),
-            //   "x-actor-config": {
-            //     ...socket["x-actor-config"],
-            //     [actorType]: {
-            //       ...socket["x-actor-config"][actorType],
-            //       actor: event.params.actor,
-            //       actorId: event.params.actor.id,
-            //     },
-            //   },
-            // } as Partial<JSONSocket>,
-            ...childSockets,
-          } as Record<string, JSONSocket>;
-        },
-      });
-
-      const socket = context.inputSockets[event.params.port] as JSONSocket;
-      const conf = get(socket, [
-        "x-actor-config",
-        event.params.actor.src as string,
-      ]);
-      if (!conf) {
-        console.error("Missing config for", {
-          socket,
-          src: event.params.actor.src,
-          context,
-          event,
-        });
-        return;
-      }
-
-      for (const [key, value] of Object.entries(conf?.internal)) {
-        enqueue.sendTo(event.params.actor, ({ context, self }) => {
-          return {
-            type: "UPDATE_SOCKET",
-            params: {
-              name: key,
-              side: "output",
-              socket: {
-                "x-connection": {
-                  ...socket["x-connection"],
-                  [self.id]: {
-                    key: value,
-                    // actorRef: self,
-                  },
-                } as ConnectionConfigRecord,
-              },
-            },
-          };
-        });
-      }
     }),
     spawnRun: enqueueActions(({ enqueue }) => {
       enqueue.assign(({ context }, params) => {
@@ -845,40 +838,31 @@ export class Editor<
           ...context,
         };
       });
-      // enqueue.sendTo(this.actor?.ref!, ({ context,  }, params) => {
-      //   console.log("SPAWN RUN", context, params);
-      //   return {
-      //     type: "SPAWN",
-      //     params: {
-      //       parent: self.id,
-      //       id: this.createId("context"),
-      //       machineId: "run",
-      //       systemId: this.createId("context"),
-      //       input: {
-      //         inputs: {
-      //           ...context.inputs,
-      //         },
-      //         parent: {
-      //           id: self.id,
-      //           port: "run",
-      //         },
-      //       },
-      //     },
-      //   };
-      // });
     }),
-    initialize: enqueueActions(({ enqueue, check, system, self }) => {
+    initialize: enqueueActions(({ enqueue, context, system, self }) => {
       enqueue("assignParent");
-      // enqueue("spawnInputActors");
-      // if (check(() => !system.get(`${self.id}-socketWatcher`))) {
-      //   enqueue.spawnChild("socketWatcher", {
-      //     id: `${self.id}-socketWatcher`,
-      //     input: {
-      //       self,
-      //     },
-      //     syncSnapshot: false,
-      //   });
-      // }
+      for (const [key, value] of Object.entries(context.inputSockets)) {
+        if (isNil(value)) {
+          console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
+          enqueue.assign({
+            inputSockets: ({ context, system }) => ({
+              ...context.inputSockets,
+              [key]: system.get(key),
+            }),
+          });
+        }
+      }
+      for (const [key, value] of Object.entries(context.outputSockets)) {
+        if (isNil(value)) {
+          console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
+          enqueue.assign({
+            outputSockets: ({ context, system }) => ({
+              ...context.outputSockets,
+              [key]: system.get(key),
+            }),
+          });
+        }
+      }
     }),
     spawnInputActors: enqueueActions(({ enqueue, context, system, self }) => {
       for (const [key, value] of Object.entries<
@@ -1732,6 +1716,9 @@ export class Editor<
         });
       }
     }
+    this.actor.send({
+      type: "INITIALIZE",
+    });
   }
 
   public async setup() {

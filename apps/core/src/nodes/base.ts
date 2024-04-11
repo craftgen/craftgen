@@ -8,11 +8,9 @@ import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
   ActorRefFrom,
-  AnyActor,
   AnyActorLogic,
   AnyActorRef,
   AnyStateMachine,
-  ContextFactory,
   ContextFrom,
   InputFrom,
   MachineImplementationsFrom,
