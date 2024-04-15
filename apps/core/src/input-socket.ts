@@ -551,7 +551,26 @@ export const inputSocketMachine = setup({
                     );
                   }),
                 },
-                COMPUTE: {},
+                COMPUTE: {
+                  actions: enqueueActions(({ enqueue, context, event }) => {
+                    console.log(
+                      "ACTOR INPUT COMPUTE CALLED",
+                      context.definition["x-connection"],
+                      event,
+                    );
+                    for (const key of Object.keys(
+                      context.definition["x-connection"] || {},
+                    )) {
+                      console.log("CALLING COMPUTE");
+                      enqueue.sendTo(({ system }) => system.get(key), {
+                        type: "COMPUTE",
+                        params: {
+                          targets: [...event.params?.targets],
+                        },
+                      });
+                    }
+                  }),
+                },
               },
             },
             ready: {
