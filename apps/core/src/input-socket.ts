@@ -375,6 +375,7 @@ export const inputSocketMachine = setup({
                 onSnapshot: {
                   actions: enqueueActions(
                     ({ enqueue, event, context, check }) => {
+                      console.log("INPUT SOCKET VALUE CHANGED");
                       enqueue.raise({
                         type: "COMPUTE",
                         params: {
@@ -392,7 +393,7 @@ export const inputSocketMachine = setup({
                       const value =
                         event?.params?.value ||
                         context.value?.getSnapshot().context.value;
-
+                      console.log("COMPUTE BASIC", value, event, context);
                       enqueue.spawnChild("computeValue", {
                         input: {
                           value,
@@ -410,15 +411,20 @@ export const inputSocketMachine = setup({
                 },
                 RESULT: {
                   actions: enqueueActions(({ enqueue, event }) => {
+                    console.log("RESULT BASIC", event);
                     event.params.targets.forEach((target) => {
                       enqueue.sendTo(
                         ({ system }) => system.get(target),
-                        ({ event, context }) => ({
+                        ({ event, context, self }) => ({
                           type: "SET_VALUE",
                           params: {
                             values: {
                               [context.definition["x-key"]]: event.params.value,
                             },
+                          },
+                          origin: {
+                            type: "inputsocket.basic",
+                            id: self.id,
                           },
                         }),
                       );
@@ -481,11 +487,15 @@ export const inputSocketMachine = setup({
                   actions: enqueueActions(({ enqueue, event }) => {
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
-                      ({ event, context }) => ({
+                      ({ event, context, self }) => ({
                         type: "SET_VALUE",
                         params: {
                           values: {
                             [context.definition["x-key"]]: event.params.value,
+                          },
+                          origin: {
+                            type: "inputsocket.connection",
+                            id: self.id,
                           },
                         },
                       }),
@@ -510,12 +520,16 @@ export const inputSocketMachine = setup({
                   actions: enqueueActions(({ enqueue }) => {
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
-                      ({ context }) => ({
+                      ({ context, self }) => ({
                         type: "SET_VALUE",
                         params: {
                           values: {
                             [context.definition["x-key"]]: context.value,
                           },
+                        },
+                        origin: {
+                          type: "inputsocket.actor.connection",
+                          id: self.id,
                         },
                       }),
                     );
@@ -540,12 +554,16 @@ export const inputSocketMachine = setup({
                     console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
-                      ({ event, context }) => ({
+                      ({ event, context, self }) => ({
                         type: "SET_VALUE",
                         params: {
                           values: {
                             [context.definition["x-key"]]: event.params.value,
                           },
+                        },
+                        origin: {
+                          type: "inputsocket.actor.connection",
+                          id: self.id,
                         },
                       }),
                     );
@@ -558,16 +576,19 @@ export const inputSocketMachine = setup({
                       context.definition["x-connection"],
                       event,
                     );
-                    for (const key of Object.keys(
+                    for (const outputSocketKey of Object.keys(
                       context.definition["x-connection"] || {},
                     )) {
                       console.log("CALLING COMPUTE");
-                      enqueue.sendTo(({ system }) => system.get(key), {
-                        type: "COMPUTE",
-                        params: {
-                          targets: [...event.params?.targets],
+                      enqueue.sendTo(
+                        ({ system }) => system.get(outputSocketKey),
+                        {
+                          type: "COMPUTE",
+                          params: {
+                            targets: [...event.params?.targets],
+                          },
                         },
-                      });
+                      );
                     }
                   }),
                 },

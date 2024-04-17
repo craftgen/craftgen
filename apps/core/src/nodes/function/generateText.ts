@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, isNull, merge, set } from "lodash-es";
+import { isNil, isNull, merge, set, omit } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -268,40 +268,22 @@ const generateTextCall = setup({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
   initial: "prepare",
   context: ({ input }) => {
-    console.log("INPUT", input);
+    console.log("INPUT FOR EXECUTION", input);
     return {
       ...input,
-      ...input.inputs,
+      // ...input.inputs,
       inputs: {
         // llm: computeExecutionValue(input.inputs.inputs.llm),
-        llm: null,
-        system: null,
-        instruction: null,
+        // llm: null,
+        // system: null,
+        // instruction: null,
+        ...input.inputs,
       },
       outputs: null,
     };
   },
   states: {
     prepare: {
-      entry: enqueueActions(({ enqueue, context, self }) => {
-        const inputSockets = Object.values(context.inputSockets);
-        for (const socket of inputSockets) {
-          enqueue.sendTo(socket, {
-            type: "COMPUTE",
-            params: {
-              targets: [self.id],
-            },
-          });
-        }
-      }),
-      on: {
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue, context, event }) => {
-            console.log("SET VALUE ON EXECUTION", event);
-            enqueue("setValue");
-          }),
-        },
-      },
       always: [
         {
           guard: ({ context }) => {
@@ -404,6 +386,7 @@ const GenerateTextMachine = createMachine({
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
     context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
       runs: Record<string, AnyActorRef>;
+      computes: Record<string, AnyActorRef>;
     };
     actions: None;
     events: {
@@ -428,13 +411,49 @@ const GenerateTextMachine = createMachine({
       }),
     },
     SET_VALUE: {
-      actions: enqueueActions(({ enqueue }) => {
+      actions: enqueueActions(({ enqueue, context }) => {
         enqueue("setValue");
+        for (const [computeKey, computeValue] of Object.entries(
+          context.computes,
+        )) {
+          if (computeValue.getSnapshot().status !== "done") {
+            enqueue.sendTo(
+              ({ system }) => system.get(computeKey),
+              ({ event, self }) => ({
+                type: "SET_VALUE",
+                params: {
+                  values: event.params.values,
+                },
+                origin: {
+                  type: "generateText",
+                  id: self.id,
+                  target: computeKey,
+                },
+              }),
+            );
+          }
+        }
       }),
     },
   },
   states: {
     idle: {
+      always: [
+        {
+          guard: ({ context }) => {
+            return Object.values(context.computes).some(
+              (s) => s.state === "done",
+            );
+          },
+          actions: enqueueActions(({ enqueue, context }) => {
+            enqueue.assign({
+              computes: ({ context }) => {
+                return omit(context.computes, (v) => v.state === "done");
+              },
+            });
+          }),
+        },
+      ],
       on: {
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
@@ -473,10 +492,10 @@ const GenerateTextMachine = createMachine({
           }),
         },
         RUN: {
-          guard: and([
-            ({ context }) => context.inputs.instruction !== "",
-            ({ context }) => context.inputs.llm !== null,
-          ]),
+          // guard: and([
+          //   ({ context }) => context.inputs.instruction !== "",
+          //   ({ context }) => context.inputs.llm !== null,
+          // ]),
           actions: enqueueActions(
             ({ enqueue, check, context, self, event }) => {
               // if (check(({ event }) => !isNil(event.params?.values))) {
@@ -487,44 +506,70 @@ const GenerateTextMachine = createMachine({
               //     },
               //   }));
               // }
+              console.log("RUNNING BEFORE", event);
+              if (event?.origin?.type !== "compute-event") {
+                const triggerSocket = context.inputSockets[
+                  `${self.id}:input:RUN`
+                ] as unknown as ActorRefFrom<typeof inputSocketMachine>;
 
-              const triggerSocket = context.inputSockets[
-                `${self.id}:input:RUN`
-              ] as unknown as ActorRefFrom<typeof inputSocketMachine>;
+                const eventDefinition =
+                  triggerSocket.getSnapshot().context.definition;
 
-              const eventDefinition =
-                triggerSocket.getSnapshot().context.definition;
+                const payload = {
+                  ...eventDefinition["x-event-param-socket-keys"].reduce(
+                    (acc, key) => {
+                      acc[key] = null;
+                      return acc;
+                    },
+                    {},
+                  ),
+                  ...(event?.params?.values ? event.params.values : {}),
+                  ...(event?.params?.inputs ? event.params.inputs : {}),
+                };
 
-              const payload = {
-                ...eventDefinition["x-event-param-socket-keys"].reduce(
-                  (acc, key) => {
-                    acc[key] = null;
-                    return acc;
-                  },
-                  {},
-                ),
-                ...(event?.params?.values ? event.params.values : {}),
-                ...(event?.params?.inputs ? event.params.inputs : {}),
-              };
+                if (Object.values(payload).some((v) => isNull(v))) {
+                  console.log("COMPUTING EVENT", payload);
+                  const childId = `compute-${createId()}`;
+                  // enqueue.spawnChild("computeEvent", {
+                  //   input: {
+                  //     inputSockets: context.inputSockets,
+                  //     inputs: payload,
+                  //     event: "RUN",
+                  //     parent: self,
+                  //   },
+                  //   systemId: childId,
+                  //   id: childId,
+                  // });
 
-              if (Object.values(payload).some((v) => isNull(v))) {
-                console.log("COMPUTING EVENT", payload);
-                const childId = `compute-${createId()}`;
-                enqueue.spawnChild("computeEvent", {
-                  input: {
-                    inputSockets: context.inputSockets,
-                    inputs: payload,
-                    event: "RUN",
-                    parent: self,
-                  },
-                  systemId: childId,
-                  id: childId,
-                });
-                // Return to wait for the compute event to finish
-                return;
+                  enqueue.assign({
+                    computes: ({ spawn, context }) => {
+                      return {
+                        ...context.computes,
+                        [childId]: spawn("computeEvent", {
+                          input: {
+                            inputSockets: context.inputSockets,
+                            inputs: payload,
+                            event: "RUN",
+                            parent: self,
+                          },
+                          systemId: childId,
+                          id: childId,
+                        }),
+                      };
+                    },
+                  });
+                  // Return to wait for the compute event to finish
+                  console.log("TRIGGER A COMPUTE EVENT");
+                  return;
+                }
               }
+              enqueue.assign({
+                computes: ({ context }) => {
+                  return omit(context.computes, event.origin.id);
+                },
+              });
 
-              console.log("RUNNING", payload);
+              console.log("RUNNING", event);
 
               const runId = `call-${createId()}`;
 
@@ -546,10 +591,7 @@ const GenerateTextMachine = createMachine({
                     systemId: runId,
                     input: {
                       inputs: {
-                        ...context,
-                        // llm: context.inputSockets.llm,
-                        // system: context.inputs.system!,
-                        // instruction: context.inputs.instruction!,
+                        ...event.params.inputs,
                       },
                       senders: [{ id: self.id }],
                       parent: {

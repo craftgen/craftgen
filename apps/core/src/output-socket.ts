@@ -71,6 +71,12 @@ export const outputSocketMachine = setup({
         }
       | {
           type: "TRIGGER";
+        }
+      | {
+          type: "COMPUTE";
+          params: {
+            targets: string[];
+          };
         },
   },
   actors: {
@@ -278,10 +284,10 @@ export const outputSocketMachine = setup({
                   ["definition", "x-connection"],
                   {},
                 );
-                for (const key of Object.keys(connections)) {
+                for (const inputSocketKey of Object.keys(connections)) {
                   enqueue.sendTo(
                     ({ system }) =>
-                      system.get(key) as ActorRefFrom<
+                      system.get(inputSocketKey) as ActorRefFrom<
                         typeof inputSocketMachine
                       >,
                     ({ event }) => ({
@@ -292,6 +298,26 @@ export const outputSocketMachine = setup({
                     }),
                   );
                 }
+              }),
+            },
+          },
+          on: {
+            COMPUTE: {
+              actions: enqueueActions(({ enqueue, context, event }) => {
+                console.log(
+                  "OUTPUT SOCKET CALLED A COMPUTE EVENT",
+                  context,
+                  event,
+                );
+                enqueue.sendTo(
+                  ({ context, system }) => system.get(context.parent.id),
+                  ({ event }) => ({
+                    type: "COMPUTE",
+                    params: {
+                      targets: [...event.params.targets],
+                    },
+                  }),
+                );
               }),
             },
           },

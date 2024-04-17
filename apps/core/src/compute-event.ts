@@ -3,7 +3,6 @@ import {
   type ActorRefFrom,
   enqueueActions,
   assign,
-  fromPromise,
   AnyActorRef,
 } from "xstate";
 import { inputSocketMachine } from "./input-socket";
@@ -37,7 +36,7 @@ export const ComputeEventMachine = setup({
         params: { values: Record<string, any> },
       ) => {
         const values = event.params?.values || params?.values;
-        console.log("SET VALUE", { values, self });
+        console.log("COMPUTE EVENT SET VALUE", values);
         return {
           ...context.inputs,
           ...values,
@@ -67,6 +66,7 @@ export const ComputeEventMachine = setup({
         ...inputs,
         ...input.inputs,
       },
+      parent: input.parent,
     };
   },
   initial: "computing",
@@ -107,10 +107,14 @@ export const ComputeEventMachine = setup({
         console.log("DONE COMPUTING EVENT", context);
         enqueue.sendTo(
           ({ context }) => context.parent,
-          ({ context }) => ({
+          ({ context, self }) => ({
             type: context.event,
             params: {
               inputs: context.inputs,
+            },
+            origin: {
+              type: "compute-event",
+              id: self.id,
             },
           }),
         );

@@ -139,6 +139,10 @@ export class Connection<
       params: {
         value: this.sourceValue,
       },
+      origin: {
+        type: "connection",
+        id: this.id,
+      },
     });
 
     this.sourceSocketActor.send({

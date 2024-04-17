@@ -1092,7 +1092,13 @@ export class Editor<
         params: { values: Record<string, any> },
       ) => {
         const values = event.params?.values || params?.values;
-        console.log("SET VALUE", { values, self });
+        console.log("SET VALUE", {
+          values,
+          origin: event?.origin || "unknown",
+          src: self.src,
+          id: self.id,
+        });
+        // debugger;
 
         // TODO:
         // Object.keys(context.inputs).forEach((key) => {
@@ -1729,7 +1735,7 @@ export class Editor<
 
     const snapshot = this.createInitialSnapshot();
 
-    // this.inspector = createBrowserInspector({ autoStart: false });
+    // this.inspector = createBrowserInspector({ autoStart: true });
     this.actor = this.createActor(snapshot);
 
     this.setupEventHandling();

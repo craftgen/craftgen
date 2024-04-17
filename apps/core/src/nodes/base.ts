@@ -393,6 +393,7 @@ export const NodeContextFactory = <
     {
       name,
       description,
+      computes: {},
       inputs: {
         ...defaultInputs,
       },

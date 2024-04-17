@@ -295,6 +295,9 @@ importers:
       worker-loader:
         specifier: ^3.0.8
         version: 3.0.8(webpack@5.90.1)
+      workerpool:
+        specifier: ^9.1.1
+        version: 9.1.1
       xstate:
         specifier: 5.10.0
         version: 5.10.0
@@ -28809,6 +28812,10 @@ packages:
       '@cloudflare/workerd-linux-arm64': 1.20240404.0
       '@cloudflare/workerd-windows-64': 1.20240404.0
     dev: true
+
+  /workerpool@9.1.1:
+    resolution: {integrity: sha512-EFoFTSEo9m4V4wNrwzVRjxnf/E/oBpOzcI/R5CIugJhl9RsCiq525rszo4AtqcjQQoqFdu2E3H82AnbtpaQHvg==}
+    dev: false
 
   /wrangler@3.48.0:
     resolution: {integrity: sha512-Wv7JS6FyX1j9HkaM6WL3fmTzBMAYc4hPSyZCuxuH55hkJDX/7ts+YAgsaN1U8rKoDrV3FVSgBfI9TyqP9iuM8Q==}

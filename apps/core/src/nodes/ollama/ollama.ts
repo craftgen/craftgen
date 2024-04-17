@@ -699,8 +699,8 @@ export const OllamaModelMachine = createMachine(
             actions: ["setValue", "updateOutput"],
           },
           COMPUTE: {
-            actions: enqueueActions(({ enqueue, context, self }) => {
-              console.log("COMPUTE OLLAMA CONFIG", context);
+            actions: enqueueActions(({ enqueue, context, self, event }) => {
+              console.log("COMPUTE OLLAMA CONFIG", context, event);
               const valueId = `value_${createId()}`;
               enqueue.spawnChild("computeActorInputs", {
                 id: valueId,
