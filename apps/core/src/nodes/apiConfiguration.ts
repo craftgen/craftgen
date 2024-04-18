@@ -206,25 +206,7 @@ export const ApiConfigurationMachine = createMachine(
             },
           });
 
-          for (const [outputSocketKey, outputSocketActor] of Object.entries(
-            context.outputSockets,
-          )) {
-            const outputKey =
-              outputSocketActor.getSnapshot().context.definition["x-key"];
-            console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
-            enqueue.sendTo(
-              ({ system }) =>
-                system.get(outputSocketKey) as ActorRefFrom<
-                  typeof outputSocketMachine
-                >,
-              ({ context }) => ({
-                type: "RESOLVE",
-                params: {
-                  value: context.outputs[outputKey],
-                },
-              }),
-            );
-          }
+          enqueue("resolveOutputSockets");
         }),
       },
       UPDATE_SOCKET: {

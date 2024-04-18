@@ -231,6 +231,9 @@ export type BaseActionTypes =
       type: "spawnInputActors";
     }
   | {
+      type: "resolveOutputSockets";
+    }
+  | {
       type: "spawnRun";
       params: {
         id: string;

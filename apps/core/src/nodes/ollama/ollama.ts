@@ -683,17 +683,6 @@ export const OllamaModelMachine = createMachine(
           },
           COMPUTE: {
             actions: enqueueActions(({ enqueue, context, self, event }) => {
-              // console.log("COMPUTE EVENT OLLAMA CONFIG", context, event);
-              // const valueId = `value_${createId()}`;
-              // enqueue.spawnChild("computeActorInputs", {
-              //   id: valueId,
-              //   input: {
-              //     value: context,
-              //     targets: [self.id],
-              //   },
-              //   systemId: valueId,
-              //   syncSnapshot: false,
-              // });
               const childId = `compute-${createId()}`;
               enqueue.assign({
                 computes: ({ spawn, context }) => {
@@ -722,6 +711,7 @@ export const OllamaModelMachine = createMachine(
                   return omit(context.computes, event.origin.id);
                 },
               });
+
               enqueue.assign({
                 outputs: ({ event }) => {
                   return {
@@ -735,25 +725,7 @@ export const OllamaModelMachine = createMachine(
                 },
               });
 
-              for (const [outputSocketKey, outputSocketActor] of Object.entries(
-                context.outputSockets,
-              )) {
-                const outputKey =
-                  outputSocketActor.getSnapshot().context.definition["x-key"];
-                console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
-                enqueue.sendTo(
-                  ({ system }) =>
-                    system.get(outputSocketKey) as ActorRefFrom<
-                      typeof outputSocketMachine
-                    >,
-                  ({ context }) => ({
-                    type: "RESOLVE",
-                    params: {
-                      value: context.outputs[outputKey],
-                    },
-                  }),
-                );
-              }
+              enqueue("resolveOutputSockets");
             }),
           },
         },

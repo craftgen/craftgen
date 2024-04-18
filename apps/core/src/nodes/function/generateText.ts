@@ -453,7 +453,7 @@ const GenerateTextMachine = createMachine({
             enqueue.assign({
               outputs: ({ context, event }) => ({
                 ...context.outputs,
-                result: event.params?.res,
+                ...event.params?.res.result,
               }),
             });
             enqueue({
@@ -462,8 +462,10 @@ const GenerateTextMachine = createMachine({
                 port: "onDone",
               },
             });
+            enqueue("resolveOutputSockets");
           }),
         },
+
         RUN: {
           // guard: and([
           //   ({ context }) => context.inputs.instruction !== "",
