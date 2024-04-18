@@ -1086,38 +1086,69 @@ export class Editor<
         };
       },
     }),
-    setValue: assign({
-      inputs: (
-        { context, event, self },
-        params: { values: Record<string, any> },
-      ) => {
-        const values = event.params?.values || params?.values;
-        console.log("SET VALUE", {
-          values,
-          origin: event?.origin || "unknown",
-          src: self.src,
-          id: self.id,
-        });
-        // debugger;
-
-        // TODO:
-        // Object.keys(context.inputs).forEach((key) => {
-        //   if (!context.inputSockets[key]) {
-        //     delete context.inputs[key];
-        //   }
-        // });
-        // Object.keys(values).forEach((key) => {
-        //   if (!context.inputSockets[key]) {
-        //     delete values[key];
-        //   }
-        // });
-
-        return {
-          ...context.inputs,
-          ...values,
-        };
-      },
+    setValue: enqueueActions(({ enqueue, context, event, self }, params) => {
+      const values = event.params?.values || params?.values;
+      console.log("SET VALUE", {
+        values,
+        origin: event?.origin || "unknown",
+        src: self.src,
+        id: self.id,
+      });
+      for (const [computeKey, computeValue] of Object.entries(
+        context.computes,
+      )) {
+        if (computeValue.getSnapshot().status !== "done") {
+          enqueue.sendTo(
+            ({ system }) => system.get(computeKey),
+            ({ event, self }) => ({
+              type: "SET_VALUE",
+              params: {
+                values: values,
+              },
+              origin: {
+                type: self.src,
+                id: self.id,
+                target: computeKey,
+              },
+            }),
+          );
+        }
+      }
+      enqueue.assign({
+        inputs: ({ context, event }) => {
+          return {
+            ...context.inputs,
+            ...values,
+          };
+        },
+      });
     }),
+    // setValue: assign({
+    //   inputs: (
+    //     { context, event, self },
+    //     params: { values: Record<string, any> },
+    //   ) => {
+    //     const values = event.params?.values || params?.values;
+    //     // debugger;
+
+    //     // TODO:
+    //     // Object.keys(context.inputs).forEach((key) => {
+    //     //   if (!context.inputSockets[key]) {
+    //     //     delete context.inputs[key];
+    //     //   }
+    //     // });
+    //     // Object.keys(values).forEach((key) => {
+    //     //   if (!context.inputSockets[key]) {
+    //     //     delete values[key];
+    //     //   }
+    //     // });
+
+    //     return {
+    //       ...context.inputs,
+    //       ...values,
+    //     };
+    //   },
+    // }),
   };
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {

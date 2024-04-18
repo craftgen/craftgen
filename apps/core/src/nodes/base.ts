@@ -34,6 +34,7 @@ import { createJsonSchema } from "../utils";
 import { inputSocketMachine, spawnInputSockets } from "../input-socket";
 import { outputSocketMachine, spawnOutputSockets } from "../output-socket";
 import { map, from, distinctUntilChanged, share, filter, generate } from "rxjs";
+import { ComputeEventMachine } from "../compute-event";
 
 export type ParsedNode<
   NodeType extends string,
@@ -83,6 +84,9 @@ export interface BaseContextType<
   };
   childs: {
     [key: NodeTypes]: ActorRefFrom<AnyStateMachine>;
+  };
+  computes: {
+    [key: string]: ActorRefFrom<typeof ComputeEventMachine>;
   };
   error: {
     name: string;

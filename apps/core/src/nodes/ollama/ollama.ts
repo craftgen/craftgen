@@ -5,6 +5,7 @@ import type {
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
+import { omit } from "lodash-es";
 import {
   ActorRefFrom,
   createMachine,
@@ -26,6 +27,7 @@ import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
 import { createId } from "@paralleldrive/cuid2";
+import { outputSocketMachine } from "../../output-socket";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -525,16 +527,13 @@ export const OllamaModelMachine = createMachine(
     states: {
       cors_error: {},
       action_required: {
-        entry: ["updateOutput"],
+        // entry: ["updateOutput"],
         on: {
-          UPDATE_OUTPUTS: {
-            actions: "updateOutput",
-          },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket", "updateOutput"],
-          },
+          // UPDATE_OUTPUTS: {
+          //   actions: "updateOutput",
+          // },
           SET_VALUE: {
-            actions: ["setValue", "updateOutput"],
+            actions: ["setValue"],
             reenter: true,
           },
         },
@@ -650,14 +649,8 @@ export const OllamaModelMachine = createMachine(
       },
       error: {
         on: {
-          UPDATE_OUTPUTS: {
-            actions: "updateOutput",
-          },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket", "updateOutput"],
-          },
           SET_VALUE: {
-            actions: ["setValue", "updateOutput"],
+            actions: ["setValue"],
             target: "action_required",
           },
           RETRY: {
@@ -667,17 +660,7 @@ export const OllamaModelMachine = createMachine(
       },
       complete: {
         entry: enqueueActions(({ enqueue, context }) => {
-          enqueue("updateOutput");
-          enqueue.assign({
-            outputs: ({ context, self }) => {
-              return {
-                ...context.outputs,
-                config: {
-                  ...(context.outputs.config as object),
-                },
-              };
-            },
-          });
+          enqueue.raise({ type: "COMPUTE" });
         }),
         always: [
           {
@@ -700,31 +683,77 @@ export const OllamaModelMachine = createMachine(
           },
           COMPUTE: {
             actions: enqueueActions(({ enqueue, context, self, event }) => {
-              console.log("COMPUTE OLLAMA CONFIG", context, event);
-              const valueId = `value_${createId()}`;
-              enqueue.spawnChild("computeActorInputs", {
-                id: valueId,
-                input: {
-                  value: context,
-                  targets: [self.id],
+              // console.log("COMPUTE EVENT OLLAMA CONFIG", context, event);
+              // const valueId = `value_${createId()}`;
+              // enqueue.spawnChild("computeActorInputs", {
+              //   id: valueId,
+              //   input: {
+              //     value: context,
+              //     targets: [self.id],
+              //   },
+              //   systemId: valueId,
+              //   syncSnapshot: false,
+              // });
+              const childId = `compute-${createId()}`;
+              enqueue.assign({
+                computes: ({ spawn, context }) => {
+                  return {
+                    ...context.computes,
+                    [childId]: spawn("computeEvent", {
+                      input: {
+                        inputSockets: context.inputSockets,
+                        inputs: {},
+                        event: "RESULT",
+                        parent: self,
+                      },
+                      systemId: childId,
+                      id: childId,
+                    }),
+                  };
                 },
-                systemId: valueId,
-                syncSnapshot: false,
               });
             }),
           },
           RESULT: {
-            actions: enqueueActions(({ enqueue, event }) => {
+            actions: enqueueActions(({ enqueue, context, event }) => {
+              console.log("RESULT EVENT", context, event);
+              enqueue.assign({
+                computes: ({ context, event }) => {
+                  return omit(context.computes, event.origin.id);
+                },
+              });
               enqueue.assign({
                 outputs: ({ event }) => {
                   return {
                     ...event.params.inputs,
                     config: {
+                      provider: "ollama",
                       ...event.params.inputs,
+                      template: undefined,
                     },
                   };
                 },
               });
+
+              for (const [outputSocketKey, outputSocketActor] of Object.entries(
+                context.outputSockets,
+              )) {
+                const outputKey =
+                  outputSocketActor.getSnapshot().context.definition["x-key"];
+                console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
+                enqueue.sendTo(
+                  ({ system }) =>
+                    system.get(outputSocketKey) as ActorRefFrom<
+                      typeof outputSocketMachine
+                    >,
+                  ({ context }) => ({
+                    type: "RESOLVE",
+                    params: {
+                      value: context.outputs[outputKey],
+                    },
+                  }),
+                );
+              }
             }),
           },
         },
@@ -735,24 +764,6 @@ export const OllamaModelMachine = createMachine(
     actors: {
       getModels,
       getModel,
-    },
-    actions: {
-      updateOutput: enqueueActions(({ enqueue, context }) => {
-        console.log("updateOutput", context);
-        enqueue.assign({
-          outputs: ({ context }) => {
-            return {
-              ...context.outputs,
-              config: {
-                ...(context.outputs.config as object),
-                provider: "ollama",
-                ...context.inputs,
-                template: undefined,
-              } as OllamaModelConfig,
-            };
-          },
-        });
-      }),
     },
   },
 );

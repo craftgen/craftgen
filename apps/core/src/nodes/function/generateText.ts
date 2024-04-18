@@ -128,6 +128,15 @@ const outputSockets = {
     "x-showSocket": true,
     "x-key": "result",
   }),
+  text: generateSocket({
+    name: "text" as const,
+    type: "string" as const,
+    description: "Generated text",
+    required: true,
+    isMultiple: true,
+    "x-showSocket": true,
+    "x-key": "text",
+  }),
 };
 
 interface GenerateTextInput {
@@ -413,26 +422,6 @@ const GenerateTextMachine = createMachine({
     SET_VALUE: {
       actions: enqueueActions(({ enqueue, context }) => {
         enqueue("setValue");
-        for (const [computeKey, computeValue] of Object.entries(
-          context.computes,
-        )) {
-          if (computeValue.getSnapshot().status !== "done") {
-            enqueue.sendTo(
-              ({ system }) => system.get(computeKey),
-              ({ event, self }) => ({
-                type: "SET_VALUE",
-                params: {
-                  values: event.params.values,
-                },
-                origin: {
-                  type: "generateText",
-                  id: self.id,
-                  target: computeKey,
-                },
-              }),
-            );
-          }
-        }
       }),
     },
   },

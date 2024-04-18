@@ -1,6 +1,6 @@
-import { has } from "lodash-es";
 import dedent from "ts-dedent";
-import { createMachine, enqueueActions } from "xstate";
+import { ActorRefFrom, createMachine, enqueueActions } from "xstate";
+import { omit } from "lodash-es";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
@@ -13,6 +13,7 @@ import type {
 } from "./base";
 import { BaseNode, NodeContextFactory } from "./base";
 import { createId } from "@paralleldrive/cuid2";
+import { outputSocketMachine } from "../output-socket";
 
 const inputSockets = {
   baseUrl: generateSocket({
@@ -142,21 +143,46 @@ export const ApiConfigurationMachine = createMachine(
       COMPUTE: {
         actions: enqueueActions(({ enqueue, context, self }) => {
           console.log("COMPUTE API Configuration", context);
-          const valueId = `value_${createId()}`;
-          enqueue.spawnChild("computeActorInputs", {
-            id: valueId,
-            input: {
-              value: context,
-              targets: [self.id],
+          // const valueId = `value_${createId()}`;
+          // enqueue.spawnChild("computeActorInputs", {
+          //   id: valueId,
+          //   input: {
+          //     value: context,
+          //     targets: [self.id],
+          //   },
+          //   systemId: valueId,
+          //   syncSnapshot: false,
+          // });
+          const childId = `compute-${createId()}`;
+          enqueue.assign({
+            computes: ({ spawn, context }) => {
+              return {
+                ...context.computes,
+                [childId]: spawn("computeEvent", {
+                  input: {
+                    inputSockets: context.inputSockets,
+                    inputs: {},
+                    event: "RESULT",
+                    parent: self,
+                  },
+                  systemId: childId,
+                  id: childId,
+                }),
+              };
             },
-            systemId: valueId,
-            syncSnapshot: false,
           });
         }),
       },
       RESULT: {
-        actions: enqueueActions(({ enqueue, event, check }) => {
-          console.log("RESULT API Configuration", event);
+        actions: enqueueActions(({ enqueue, event, check, context, self }) => {
+          console.log("RESULT EVENT", self.src, context, event);
+
+          enqueue.assign({
+            computes: ({ context, event }) => {
+              return omit(context.computes, event.origin.id);
+            },
+          });
+
           const headers = { ...event.params.inputs.headers } as any;
           if (
             event.params.inputs["APIKey"] === "" ||
@@ -179,6 +205,26 @@ export const ApiConfigurationMachine = createMachine(
               };
             },
           });
+
+          for (const [outputSocketKey, outputSocketActor] of Object.entries(
+            context.outputSockets,
+          )) {
+            const outputKey =
+              outputSocketActor.getSnapshot().context.definition["x-key"];
+            console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
+            enqueue.sendTo(
+              ({ system }) =>
+                system.get(outputSocketKey) as ActorRefFrom<
+                  typeof outputSocketMachine
+                >,
+              ({ context }) => ({
+                type: "RESOLVE",
+                params: {
+                  value: context.outputs[outputKey],
+                },
+              }),
+            );
+          }
         }),
       },
       UPDATE_SOCKET: {

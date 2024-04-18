@@ -79,6 +79,27 @@ export const outputSocketMachine = setup({
           };
         },
   },
+  actions: {
+    setValueForConnections: enqueueActions(
+      ({ enqueue, context }, params: { value: any }) => {
+        const connections = get(context, ["definition", "x-connection"], {});
+        for (const inputSocketKey of Object.keys(connections)) {
+          enqueue.sendTo(
+            ({ system }) =>
+              system.get(inputSocketKey) as ActorRefFrom<
+                typeof inputSocketMachine
+              >,
+            {
+              type: "SET_VALUE",
+              params: {
+                value: params.value,
+              },
+            },
+          );
+        }
+      },
+    ),
+  },
   actors: {
     stateMapper: fromObservable(
       ({
@@ -279,25 +300,12 @@ export const outputSocketMachine = setup({
             onSnapshot: {
               actions: enqueueActions(({ enqueue, event, context }) => {
                 console.log("OUTPUT WATCHER", event.snapshot.context);
-                const connections = get(
-                  context,
-                  ["definition", "x-connection"],
-                  {},
-                );
-                for (const inputSocketKey of Object.keys(connections)) {
-                  enqueue.sendTo(
-                    ({ system }) =>
-                      system.get(inputSocketKey) as ActorRefFrom<
-                        typeof inputSocketMachine
-                      >,
-                    ({ event }) => ({
-                      type: "SET_VALUE",
-                      params: {
-                        value: event.snapshot.context,
-                      },
-                    }),
-                  );
-                }
+                enqueue({
+                  type: "setValueForConnections",
+                  params: {
+                    value: event.snapshot.context,
+                  },
+                });
               }),
             },
           },
@@ -318,6 +326,17 @@ export const outputSocketMachine = setup({
                     },
                   }),
                 );
+              }),
+            },
+            RESOLVE: {
+              actions: enqueueActions(({ enqueue, event }) => {
+                console.log("RESOLVE EVENT", event);
+                enqueue({
+                  type: "setValueForConnections",
+                  params: {
+                    value: event.params.value,
+                  },
+                });
               }),
             },
           },
