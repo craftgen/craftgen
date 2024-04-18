@@ -62,7 +62,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
     {
       type: "border",
       location: "left",
-
+      minSize: 320,
       barSize: 40,
       enableDrop: false,
       children: [
@@ -92,6 +92,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
       {
         type: "row",
         weight: 20,
+        minWidth: 280,
         children: [
           {
             type: "tabset",
@@ -110,6 +111,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
       {
         type: "tabset",
         weight: 80,
+        minWidth: 280,
         children: [
           {
             type: "tab",

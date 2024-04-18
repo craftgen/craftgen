@@ -8,6 +8,8 @@ import {
   Lock,
   Play,
   Shrink,
+  Command,
+  PlusIcon,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
@@ -28,6 +30,7 @@ import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click 
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
 import { useRegisterPlaygroundActions } from "./actions";
+import { useKBar } from "kbar";
 
 export type ComponentRegistry = Map<
   HTMLElement,
@@ -111,9 +114,30 @@ const ComposerUI = (props: {
       [] as { element: HTMLElement; component: ReactNode }[],
     );
   }, [map]);
+  const k = useKBar();
 
   return (
     <div className="h-full w-full">
+      <div className="absolute left-1 top-1 z-50 flex">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={"outline"}
+              className="group cursor-pointer"
+              onClick={k.query.toggle}
+              size="sm"
+            >
+              <PlusIcon className="h-4 w-4 group-hover:hidden " />
+              <div className="hidden group-hover:flex ">
+                {/* <Command className="mr-2 h-4 w-4 " />
+                <span>+ K</span> */}
+                <span className="hidden group-hover:block">Add Node </span>
+              </div>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Add Node</TooltipContent>
+        </Tooltip>
+      </div>
       <div className="absolute right-1 top-1 z-50 flex ">
         {props.workflow.readonly && props.workflow.version?.publishedAt && (
           <Tooltip>
