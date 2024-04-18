@@ -438,22 +438,6 @@ const GenerateTextMachine = createMachine({
   },
   states: {
     idle: {
-      always: [
-        {
-          guard: ({ context }) => {
-            return Object.values(context.computes).some(
-              (s) => s.state === "done",
-            );
-          },
-          actions: enqueueActions(({ enqueue, context }) => {
-            enqueue.assign({
-              computes: ({ context }) => {
-                return omit(context.computes, (v) => v.state === "done");
-              },
-            });
-          }),
-        },
-      ],
       on: {
         UPDATE_SOCKET: {
           actions: ["updateSocket"],
