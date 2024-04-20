@@ -77,6 +77,12 @@ export const outputSocketMachine = setup({
           params: {
             targets: string[];
           };
+        }
+      | {
+          type: "RESOLVE";
+          params: {
+            values: any;
+          };
         },
   },
   actions: {

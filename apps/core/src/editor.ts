@@ -1084,25 +1084,36 @@ export class Editor<
         };
       },
     }),
-    resolveOutputSockets: enqueueActions(({ enqueue, context }) => {
-      for (const [outputSocketKey, outputSocketActor] of Object.entries(
+    resolveOutputSockets: enqueueActions(({ enqueue, context, system }) => {
+      for (const outputSocketKey of Object.keys(
         context.outputSockets,
       )) {
-        const outputKey =
-          outputSocketActor.getSnapshot().context.definition["x-key"];
-        console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
-        enqueue.sendTo(
-          ({ system }) =>
-            system.get(outputSocketKey) as ActorRefFrom<
-              typeof outputSocketMachine
-            >,
-          ({ context }) => ({
-            type: "RESOLVE",
-            params: {
-              value: context.outputs[outputKey],
-            },
-          }),
-        );
+        const outputSocketActor = system.get(outputSocketKey);
+        if (!outputSocketActor) { 
+          console.error("OUTPUT RESOLVE EVENT KEY CANNOT FOUND", outputSocketKey, outputSocketActor)
+          continue; 
+        }
+
+        const definition = outputSocketActor.getSnapshot().context.definition;
+        const outputKey = definition["x-key"];
+        const hasConnection =
+          Object.values(definition["x-connection"] || {}).length > 0;
+
+        if (hasConnection) {
+          console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
+          enqueue.sendTo(
+            ({ system }) =>
+              system.get(outputSocketKey) as ActorRefFrom<
+                typeof outputSocketMachine
+              >,
+            ({ context }) => ({
+              type: "RESOLVE",
+              params: {
+                value: context.outputs[outputKey],
+              },
+            }),
+          );
+        }
       }
     }),
     removeComputation: enqueueActions(({ enqueue }) => {

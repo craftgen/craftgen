@@ -375,7 +375,6 @@ export const inputSocketMachine = setup({
                 onSnapshot: {
                   actions: enqueueActions(
                     ({ enqueue, event, context, check }) => {
-                      console.log("INPUT SOCKET VALUE CHANGED");
                       enqueue.raise({
                         type: "COMPUTE",
                         params: {
@@ -393,7 +392,7 @@ export const inputSocketMachine = setup({
                       const value =
                         event?.params?.value ||
                         context.value?.getSnapshot().context.value;
-                      console.log("COMPUTE BASIC", value, event, context);
+                      // console.log("COMPUTE BASIC", value, event, context);
                       enqueue.spawnChild("computeValue", {
                         input: {
                           value,

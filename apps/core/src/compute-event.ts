@@ -90,7 +90,6 @@ export const ComputeEventMachine = setup({
       on: {
         SET_VALUE: {
           actions: enqueueActions(({ enqueue, context, event }) => {
-            console.log("SET VALUE ON EXECUTION", event);
             enqueue("setValue");
           }),
         },
