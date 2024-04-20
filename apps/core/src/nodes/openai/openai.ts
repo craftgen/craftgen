@@ -1,4 +1,3 @@
-import { merge } from "lodash-es";
 import { OPENAI_CHAT_MODELS } from "modelfusion";
 import type {
   BaseUrlPartsApiConfigurationOptions,
@@ -18,6 +17,7 @@ import type {
   None,
   ParsedNode,
 } from "../base";
+import { createId } from "@paralleldrive/cuid2";
 
 const inputSockets = {
   apiConfiguration: generateSocket({
@@ -157,7 +157,7 @@ const outputSockets = {
     "x-key": "config",
     name: "config" as const,
     title: "Config",
-    type: "NodeOpenAI",
+    type: "object",
     description: dedent`
     Ollama config
     `,
@@ -223,21 +223,52 @@ export const OpenaiModelMachine = createMachine(
       complete: {
         entry: ["updateOutput"],
         on: {
-          UPDATE_OUTPUTS: {
-            actions: ["updateOutput"],
-          },
-          UPDATE_SOCKET: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("updateSocket");
-              enqueue("updateOutput");
-            }),
-          },
           SET_VALUE: {
             actions: enqueueActions(({ enqueue }) => {
               enqueue("setValue");
-              enqueue("updateOutput");
             }),
             reenter: true,
+          },
+          RESULT: {
+            actions: enqueueActions(({ enqueue, context, event }) => {
+              console.log("RESULT EVENT", context, event);
+              enqueue("removeComputation");
+              enqueue.assign({
+                outputs: ({ event }) => {
+                  return {
+                    ...event.params.inputs,
+                    config: {
+                      provider: "openai",
+                      ...event.params.inputs,
+                    } as OpenAIModelConfig,
+                  };
+                },
+              });
+
+              enqueue("resolveOutputSockets");
+            }),
+          },
+          COMPUTE: {
+            actions: enqueueActions(({ enqueue, self }) => {
+              const childId = `compute-${createId()}`;
+              enqueue.assign({
+                computes: ({ spawn, context }) => {
+                  return {
+                    ...context.computes,
+                    [childId]: spawn("computeEvent", {
+                      input: {
+                        inputSockets: context.inputSockets,
+                        inputs: {},
+                        event: "RESULT",
+                        parent: self,
+                      },
+                      systemId: childId,
+                      id: childId,
+                    }),
+                  };
+                },
+              });
+            }),
           },
         },
       },
@@ -262,28 +293,6 @@ export const OpenaiModelMachine = createMachine(
           }
           return context.inputSockets;
         },
-      }),
-      updateOutput: enqueueActions(({ enqueue, context }) => {
-        console.log("updateOutput", context);
-        enqueue.assign({
-          outputs: ({ context }) => {
-            const api = {
-              baseUrl: "https://api.openai.com/v1",
-              headers: {
-                Authorization:
-                  "Bearer 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",
-              },
-            } as BaseUrlPartsApiConfigurationOptions;
-            return {
-              ...context.outputs,
-              config: {
-                provider: "openai",
-                apiConfiguration: api,
-                ...context.inputs,
-              } as OpenAIModelConfig,
-            };
-          },
-        });
       }),
     },
   },

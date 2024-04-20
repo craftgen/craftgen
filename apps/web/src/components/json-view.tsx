@@ -20,7 +20,6 @@ export const JSONView: React.FC<Parameters<typeof JsonView>[0]> = (props) => {
             },
             () => {
               const state = useSelector(params.node, (state) => ({
-                // childs: state.children,
                 state: state.value,
                 context: state.context,
               }));

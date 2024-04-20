@@ -122,6 +122,17 @@ export const ApiConfigurationMachine = createMachine(
       actors: None;
       guards: None;
     }>,
+    invoke: {
+      src: "actorWatcher",
+      input: ({ self, context }) => ({
+        actor: self,
+        stateSelectorPath: "context.inputs",
+        event: "COMPUTE",
+      }),
+      onSnapshot: (state) => {
+        console.log("SNAPSHOT", state);
+      },
+    },
     on: {
       ASSIGN_CHILD: {
         actions: enqueueActions(({ enqueue }) => {
@@ -134,10 +145,6 @@ export const ApiConfigurationMachine = createMachine(
       SET_VALUE: {
         actions: enqueueActions(({ enqueue, event, check }) => {
           enqueue("setValue");
-
-          // enqueue.raise({
-          //   type: "COMPUTE",
-          // });
         }),
       },
       COMPUTE: {
@@ -155,13 +162,15 @@ export const ApiConfigurationMachine = createMachine(
           // });
           const childId = `compute-${createId()}`;
           enqueue.assign({
-            computes: ({ spawn, context }) => {
+            computes: ({ spawn, context, event }) => {
               return {
                 ...context.computes,
                 [childId]: spawn("computeEvent", {
                   input: {
                     inputSockets: context.inputSockets,
-                    inputs: {},
+                    inputs: {
+                      ...event.params.inputs,
+                    },
                     event: "RESULT",
                     parent: self,
                   },

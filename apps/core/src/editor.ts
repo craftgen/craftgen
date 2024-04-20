@@ -61,11 +61,7 @@ import type {
 } from "./plugins/reactPlugin";
 import type { Socket } from "./sockets";
 import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
-import {
-  ActorConfig,
-  ConnectionConfigRecord,
-  JSONSocket,
-} from "./controls/socket-generator";
+import { ActorConfig, JSONSocket } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
 import {
   BehaviorSubject,
@@ -86,6 +82,7 @@ import { inputSocketMachine } from "./input-socket";
 import { outputSocketMachine } from "./output-socket";
 import { valueActorMachine } from "./value-actor";
 import { ComputeEventMachine } from "./compute-event";
+import { actorWatcher } from "./actor-watcher";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -1107,6 +1104,14 @@ export class Editor<
         );
       }
     }),
+    removeComputation: enqueueActions(({ enqueue }) => {
+      enqueue.stopChild(event.origin.id);
+      enqueue.assign({
+        computes: ({ context, event }) => {
+          return omit(context.computes, event.origin.id);
+        },
+      });
+    }),
     setValue: enqueueActions(({ enqueue, context, event, self }, params) => {
       const values = event.params?.values || params?.values;
       console.log("SET VALUE", {
@@ -1345,6 +1350,7 @@ export class Editor<
       actors: {
         socketWatcher,
         computeActorInputs,
+        actorWatcher,
         input: inputSocketMachine.provide({
           actors: {
             computeValue,
@@ -1365,6 +1371,7 @@ export class Editor<
                   socketWatcher,
                   computeActorInputs,
                   computeEvent: ComputeEventMachine,
+                  actorWatcher,
                   input: inputSocketMachine.provide({
                     actors: {
                       computeValue,

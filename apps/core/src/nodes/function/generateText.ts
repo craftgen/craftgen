@@ -11,14 +11,7 @@ import dedent from "ts-dedent";
 import { P, match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import type { ActorRefFrom, AnyActorRef, OutputFrom } from "xstate";
-import {
-  Actor,
-  and,
-  createMachine,
-  enqueueActions,
-  fromPromise,
-  setup,
-} from "xstate";
+import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -193,6 +186,7 @@ const generateTextActor = fromPromise(
           const model = ollama
             .CompletionTextGenerator({
               ...llm,
+              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
             })
             .withInstructionPrompt();
           const res = await generateText({

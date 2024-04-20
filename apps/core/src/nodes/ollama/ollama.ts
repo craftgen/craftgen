@@ -27,7 +27,6 @@ import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
 import { createId } from "@paralleldrive/cuid2";
-import { outputSocketMachine } from "../../output-socket";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -500,10 +499,7 @@ export const OllamaModelMachine = createMachine(
           apiConfiguration: ActorRefFrom<typeof ApiConfigurationMachine>;
         };
       };
-      actions: {
-        type: "updateOutput";
-      };
-      // actions: None;
+      actions: None;
       events: {
         type: "UPDATE_OUTPUTS";
       };
@@ -527,11 +523,7 @@ export const OllamaModelMachine = createMachine(
     states: {
       cors_error: {},
       action_required: {
-        // entry: ["updateOutput"],
         on: {
-          // UPDATE_OUTPUTS: {
-          //   actions: "updateOutput",
-          // },
           SET_VALUE: {
             actions: ["setValue"],
             reenter: true,
@@ -659,6 +651,17 @@ export const OllamaModelMachine = createMachine(
         },
       },
       complete: {
+        invoke: {
+          src: "actorWatcher",
+          input: ({ self, context }) => ({
+            actor: self,
+            stateSelectorPath: "context.inputs",
+            event: "COMPUTE",
+          }),
+          onSnapshot: (state) => {
+            console.log("SNAPSHOT", state);
+          },
+        },
         entry: enqueueActions(({ enqueue, context }) => {
           enqueue.raise({ type: "COMPUTE" });
         }),
@@ -672,14 +675,10 @@ export const OllamaModelMachine = createMachine(
           },
         ],
         on: {
-          UPDATE_OUTPUTS: {
-            actions: "updateOutput",
-          },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket", "updateOutput"],
-          },
           SET_VALUE: {
-            actions: ["setValue", "updateOutput"],
+            actions: enqueueActions(({ enqueue, context }) => {
+              enqueue("setValue");
+            }),
           },
           COMPUTE: {
             actions: enqueueActions(({ enqueue, context, self, event }) => {

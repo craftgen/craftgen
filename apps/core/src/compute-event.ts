@@ -72,16 +72,19 @@ export const ComputeEventMachine = setup({
   initial: "computing",
   states: {
     computing: {
-      entry: enqueueActions(({ context, enqueue }) => {
+      entry: enqueueActions(({ context, enqueue, check }) => {
         console.log("EVENT COMPUTER", context);
         const inputSockets = Object.values(context.inputSockets);
         for (const socket of inputSockets) {
-          enqueue.sendTo(socket, ({ self }) => ({
-            type: "COMPUTE",
-            params: {
-              targets: [self.id],
-            },
-          }));
+          const inputKey = socket.getSnapshot().context.definition["x-key"];
+          if (check(({ context }) => isNull(context.inputs[inputKey]))) {
+            enqueue.sendTo(socket, ({ self }) => ({
+              type: "COMPUTE",
+              params: {
+                targets: [self.id],
+              },
+            }));
+          }
         }
       }),
       on: {

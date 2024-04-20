@@ -28,7 +28,8 @@ export function SecretControlComponent(props: { data: SecretController }) {
     (snap) => snap.context,
   );
 
-  const value = useSelector(valueActor, (snap) => snap.context.value);
+  const key = useSelector(valueActor, (snap) => snap.context.value);
+
   const [open, setOpen] = useState(false);
   const { data: values } = api.credentials.list.useQuery(
     {},
@@ -36,11 +37,15 @@ export function SecretControlComponent(props: { data: SecretController }) {
       initialData: [],
     },
   );
+  const value = useMemo(() => {
+    return values?.find((entry) => entry.key === key)?.id;
+  }, [key, values]);
+
   const handleChange = (val: string) => {
     props.data.actor.send({
       type: "SET_VALUE",
       params: {
-        value: val,
+        value: values.find((entry) => entry.id === val)?.key,
       },
     });
   };
@@ -58,7 +63,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
             className="w-full justify-between"
           >
             {value
-              ? values && values.find((entry) => entry.key === value)?.key
+              ? values && values.find((entry) => entry.id === value)?.key
               : "Select Secret"}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -75,7 +80,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
                 values.map((entry) => (
                   <CommandItem
                     key={entry.key}
-                    value={entry.key}
+                    value={entry.id}
                     onSelect={(currentValue) => {
                       handleChange(currentValue === value ? "" : currentValue);
                       setOpen(false);
@@ -85,7 +90,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        value === entry.value ? "opacity-100" : "opacity-0",
+                        value === entry.id ? "opacity-100" : "opacity-0",
                       )}
                     />
                   </CommandItem>
