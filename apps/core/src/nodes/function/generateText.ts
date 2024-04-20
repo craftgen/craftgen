@@ -271,15 +271,9 @@ const generateTextCall = setup({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOgIH0AHAJwHspq5YBiCWws-AN1oGswSaLHkKkKNeo1iwEBHpnQAXXOwDaABgC6GzYlCVasXMvZ6QAD0QAmdQA4SANgAs6hwGY3ARk-qnbu24ANCAAnoi2niRuVlYAnJ4OAKxODlZuyQC+GcFCOATEnFR0DEzMYNR01CSUADZKAGa01KiCGHmihRIl0rLctAom+Do6ZgZGg2aWCDb2zq4e3r7+tkGh1mkkTlaetrZ2tk6eVu5ZOW0iBeWVzABKAKIAKjcAmiNIIGPGKviT6w4kiQA7Opop5AZ5EnZErErMEwggwW4AbF3IlbLF4vF0okstkQPhaBA4GZchciKNDF9TO8pgBaBxwxD004gUn5MT4IqSJgU8bfX4ILaMhHqSK2QGxXZOJy2JKJVIOFlsjqYWioWpgRRgXlUn40xAeQEA6GxdSJY7qS17QHCnyRFIRUVeSUQjxK87skhXJo6ib6hCG40Ys0Wq3qG1rBEREgHaFWRJHByxQG2XEZIA */
   initial: "prepare",
   context: ({ input }) => {
-    console.log("INPUT FOR EXECUTION", input);
     return {
       ...input,
-      // ...input.inputs,
       inputs: {
-        // llm: computeExecutionValue(input.inputs.inputs.llm),
-        // llm: null,
-        // system: null,
-        // instruction: null,
         ...input.inputs,
       },
       outputs: null,
@@ -422,9 +416,6 @@ const GenerateTextMachine = createMachine({
   states: {
     idle: {
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         RESET: {
           guard: ({ context }) => {
             return context.runs && Object.keys(context.runs).length > 0;

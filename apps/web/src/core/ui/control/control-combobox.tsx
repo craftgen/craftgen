@@ -53,7 +53,6 @@ export function ComboboxControlComponent(props: { data: ComboboxControl }) {
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value}
           {value
             ? values.find((entry) => entry.value === value)?.value
             : `Select ${definition["title"]}`}
