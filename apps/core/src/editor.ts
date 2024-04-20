@@ -4,6 +4,7 @@ import {
   cloneDeep,
   difference,
   get,
+  has,
   isEqual,
   isNil,
   isNull,
@@ -1308,6 +1309,12 @@ export class Editor<
           if (input.definition.format === "secret") {
             return this.variables.get(input.value);
           } else if (input.definition.format === "expression") {
+            const expressionRegex = /\$\{(.+?)\}/g;
+            const hasExpression = expressionRegex.exec(input.value);
+            if (isNull(hasExpression)) {
+              return input.value;
+            }
+
             const { start } = await import("./worker/main");
             const worker = await start();
 
