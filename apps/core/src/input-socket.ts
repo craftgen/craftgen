@@ -410,7 +410,6 @@ export const inputSocketMachine = setup({
                 },
                 RESULT: {
                   actions: enqueueActions(({ enqueue, event }) => {
-                    console.log("RESULT BASIC", event);
                     event.params.targets.forEach((target) => {
                       enqueue.sendTo(
                         ({ system }) => system.get(target),

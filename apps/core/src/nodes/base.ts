@@ -110,6 +110,10 @@ export type BaseEventTypes =
       params: {
         values: Record<string, any>;
       };
+      origin: {
+        id: string;
+        type: string;
+      };
     }
   | {
       type: "SET_OUTPUT";
@@ -125,6 +129,10 @@ export type BaseEventTypes =
         sender?: AnyActorRef;
         values?: Record<string, any>;
         inputs?: Record<string, any>;
+      };
+      origin: {
+        id: string;
+        type: string;
       };
     }
   | {
@@ -213,6 +221,12 @@ export type BaseActionTypes =
     }
   | {
       type: "resolveOutputSockets";
+    }
+  | {
+      type: "computeEvent";
+      params: {
+        event: string;
+      };
     }
   | {
       type: "removeComputation";

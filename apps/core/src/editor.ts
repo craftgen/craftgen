@@ -951,15 +951,54 @@ export class Editor<
         }
       }
     }),
-    removeComputation: enqueueActions(({ enqueue }) => {
-      enqueue.stopChild(event.origin.id);
+
+    removeComputation: enqueueActions(({ enqueue, event, self }) => {
+      enqueue.stopChild(event?.origin?.id);
       enqueue.assign({
         computes: ({ context, event }) => {
           return omit(context.computes, event.origin.id);
         },
       });
     }),
+
+    computeEvent: enqueueActions(
+      ({ enqueue, context, event, self }, params: { event: string }) => {
+        console.log("COMPUTE_EVENT ACTION", {
+          input: {
+            inputSockets: context.inputSockets,
+            inputs: {
+              ...get(event, "params.inputs", {}),
+            },
+            event: params.event,
+            parent: self,
+          },
+        });
+        const childId = this.createId("compute");
+        enqueue.assign({
+          computes: ({ spawn, context, event }) => {
+            return {
+              ...context.computes,
+              [childId]: spawn("computeEvent", {
+                input: {
+                  inputSockets: context.inputSockets,
+                  inputs: {
+                    ...get(event, "params.inputs", {}),
+                  },
+                  event: params.event,
+                  parent: self,
+                },
+                syncSnapshot: false,
+                systemId: childId,
+                id: childId,
+              }),
+            };
+          },
+        });
+      },
+    ),
+
     setValue: enqueueActions(({ enqueue, context, event, self }, params) => {
+      assertEvent(event, "SET_VALUE");
       const values = event.params?.values || params?.values;
       console.log("SET VALUE", {
         values,
@@ -996,32 +1035,6 @@ export class Editor<
         },
       });
     }),
-    // setValue: assign({
-    //   inputs: (
-    //     { context, event, self },
-    //     params: { values: Record<string, any> },
-    //   ) => {
-    //     const values = event.params?.values || params?.values;
-    //     // debugger;
-
-    //     // TODO:
-    //     // Object.keys(context.inputs).forEach((key) => {
-    //     //   if (!context.inputSockets[key]) {
-    //     //     delete context.inputs[key];
-    //     //   }
-    //     // });
-    //     // Object.keys(values).forEach((key) => {
-    //     //   if (!context.inputSockets[key]) {
-    //     //     delete values[key];
-    //     //   }
-    //     // });
-
-    //     return {
-    //       ...context.inputs,
-    //       ...values,
-    //     };
-    //   },
-    // }),
   };
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
@@ -1301,7 +1314,7 @@ export class Editor<
     this.handlers = props.config.on || {};
   }
 
-  public createId(prefix: "node" | "conn" | "context" | "state") {
+  public createId(prefix: "node" | "conn" | "context" | "state" | "compute") {
     const createId = init({
       length: 10,
       fingerprint: this.workflowId,
@@ -1544,8 +1557,8 @@ export class Editor<
 
           if (inspectionEvent.event.type.startsWith("xstate.done.actor")) {
             const actor = inspectionEvent.actorRef;
-            console.log("DONE ACTOR", actor.src);
             if (actor.src !== "computeValue") {
+              console.log("DONE ACTOR", actor.src);
               const snapshot = {
                 src: actor?.src,
                 syncSnapshot: true,
@@ -1572,6 +1585,7 @@ export class Editor<
           }
 
           if (event.type.startsWith("xstate.snapshot")) {
+            // console.log("ACTOR SNAPSHOT", inspectionEvent);
             const contextId = event.type.split("xstate.snapshot.")[1];
             const actor = this.actor.system.get(contextId);
 
@@ -1592,6 +1606,14 @@ export class Editor<
               "context.parent.id",
               parentId,
             ) as any;
+
+            actorSnapshot = set(
+              actorSnapshot,
+              "children",
+              omitBy(actorSnapshot.children, (children) => {
+                return children.snapshot.status === "done"; // remove done children.
+              }),
+            );
 
             const snapshot = {
               src: actor?.src,

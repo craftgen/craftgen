@@ -658,9 +658,6 @@ export const OllamaModelMachine = createMachine(
             stateSelectorPath: "context.inputs",
             event: "COMPUTE",
           }),
-          onSnapshot: (state) => {
-            console.log("SNAPSHOT", state);
-          },
         },
         entry: enqueueActions(({ enqueue, context }) => {
           enqueue.raise({ type: "COMPUTE" });

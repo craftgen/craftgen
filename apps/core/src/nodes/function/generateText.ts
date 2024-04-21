@@ -456,32 +456,42 @@ const GenerateTextMachine = createMachine({
           actions: enqueueActions(
             ({ enqueue, check, context, self, event }) => {
               console.log("RUNNING BEFORE", event);
-              if (event?.origin?.type !== "compute-event") {
-                const childId = `compute-${createId()}`;
-
-                enqueue.assign({
-                  computes: ({ spawn, context }) => {
-                    return {
-                      ...context.computes,
-                      [childId]: spawn("computeEvent", {
-                        input: {
-                          inputSockets: context.inputSockets,
-                          inputs: {
-                            ...get(event, "params.inputs", {}),
-                          },
-                          event: "RUN",
-                          parent: self,
-                        },
-                        systemId: childId,
-                        id: childId,
-                      }),
-                    };
+              if (check(({ event }) => event.origin.type !== "compute-event")) {
+                enqueue({
+                  type: "computeEvent",
+                  params: {
+                    event: event.type,
                   },
                 });
-                // Return to wait for the compute event to finish
-                console.log("TRIGGER A COMPUTE EVENT");
                 return;
               }
+
+              // if (event?.origin?.type !== "compute-event") {
+              //   const childId = `compute-${createId()}`;
+
+              //   enqueue.assign({
+              //     computes: ({ spawn, context }) => {
+              //       return {
+              //         ...context.computes,
+              //         [childId]: spawn("computeEvent", {
+              //           input: {
+              //             inputSockets: context.inputSockets,
+              //             inputs: {
+              //               ...get(event, "params.inputs", {}),
+              //             },
+              //             event: "RUN",
+              //             parent: self,
+              //           },
+              //           systemId: childId,
+              //           id: childId,
+              //         }),
+              //       };
+              //     },
+              //   });
+              //   // Return to wait for the compute event to finish
+              //   console.log("TRIGGER A COMPUTE EVENT");
+              //   return;
+              // }
 
               enqueue({
                 type: "removeComputation",

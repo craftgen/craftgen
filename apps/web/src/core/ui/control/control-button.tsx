@@ -18,6 +18,10 @@ export function CustomButton(props: { data: ButtonControl }) {
   const handleSendEvent = () => {
     targetActor.send({
       type: definition["x-event"],
+      origin: {
+        id: props.data.id,
+        type: "input-socket-button",
+      },
     });
   };
 
