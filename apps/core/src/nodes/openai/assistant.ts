@@ -245,10 +245,6 @@ export const OpenAIAssistantMachine = createMachine({
         RELOAD: {
           target: "reloading",
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-          target: "editing",
-        },
         SET_VALUE: {
           actions: ["setValue"],
           target: "editing",
@@ -300,9 +296,6 @@ export const OpenAIAssistantMachine = createMachine({
           actions: "setValue",
           target: "editing", // self-loop to reset the timer
           reenter: true,
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
         },
       },
       after: {

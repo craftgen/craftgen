@@ -4,7 +4,6 @@ import {
   BaseUrlApiConfiguration,
   generateObject,
   jsonObjectPrompt,
-  jsonToolCallPrompt,
   ollama,
   openai,
   ToolCallError,
@@ -19,7 +18,7 @@ import { and, createMachine, enqueueActions, fromPromise, setup } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { Tool } from "../../sockets";
 import type { DiContainer } from "../../types";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -155,35 +154,13 @@ const outputSockets = {
 
 const GenerateObjectMachine = createMachine({
   id: "generate-object",
-  context: ({ input }) => {
-    const defaultInputs: (typeof input)["inputs"] = {};
-    for (const [key, socket] of Object.entries(inputSockets)) {
-      if (socket.default) {
-        defaultInputs[key as any] = socket.default;
-      } else {
-        defaultInputs[key as any] = undefined;
-      }
-    }
-    return merge<typeof input, any>(
-      {
-        name: "GenerateObject",
-        description: "Generate Object",
-        inputs: {
-          ...defaultInputs,
-        },
-        outputs: {
-          result: "",
-        },
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-      },
-      input,
-    );
-  },
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "GenerateObject",
+      description: "Generate Object base on the schema",
+      inputSockets,
+      outputSockets,
+    }),
   entry: enqueueActions(({ enqueue }) => {
     enqueue("initialize");
   }),
@@ -221,7 +198,7 @@ const GenerateObjectMachine = createMachine({
             enqueue.assign({
               outputs: ({ context, event }) => ({
                 ...context.outputs,
-                result: event.params?.res,
+                result: event.params?.res.result,
               }),
             });
             enqueue({
@@ -230,6 +207,8 @@ const GenerateObjectMachine = createMachine({
                 port: "onDone",
               },
             });
+
+            enqueue("resolveOutputSockets");
           }),
         },
         RESET: {
@@ -286,9 +265,6 @@ const GenerateObjectMachine = createMachine({
               }),
             );
           }),
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
         },
       },
     },

@@ -56,9 +56,6 @@ const StartNodeMachine = createMachine({
         RUN: {
           target: "complete",
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
       },
     },
     complete: {

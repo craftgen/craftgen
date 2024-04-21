@@ -159,14 +159,6 @@ export type BaseEventTypes =
       type: "RESET";
     }
   | {
-      type: "UPDATE_SOCKET";
-      params: {
-        name: string;
-        side: "input" | "output";
-        socket: Partial<JSONSocket>;
-      };
-    }
-  | {
       type: "INITIALIZE";
     }
   | {
@@ -188,14 +180,6 @@ export type BaseActionTypes =
       type: "setValue";
       params?: {
         values: Record<string, any>;
-      };
-    }
-  | {
-      type: "updateSocket";
-      params?: {
-        name: string;
-        side: "input" | "output";
-        socket: Partial<JSONSocket>;
       };
     }
   | {
@@ -228,19 +212,10 @@ export type BaseActionTypes =
       type: "assignParent";
     }
   | {
-      type: "spawnInputActors";
-    }
-  | {
       type: "resolveOutputSockets";
     }
   | {
-      type: "spawnRun";
-      params: {
-        id: string;
-        machineId: string;
-        input: any;
-        systemId: string;
-      };
+      type: "removeComputation";
     }
   | {
       type: "setupInternalActorConnections";

@@ -97,11 +97,6 @@ const composeObjectMachine = createMachine(
       idle: {
         // entry: ["updateAncestors"],
         on: {
-          UPDATE_SOCKET: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("updateSocket");
-            }),
-          },
           CONFIG_CHANGE: {
             target: "editing",
           },

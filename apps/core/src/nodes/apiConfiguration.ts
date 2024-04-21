@@ -204,9 +204,6 @@ export const ApiConfigurationMachine = createMachine(
           enqueue("resolveOutputSockets");
         }),
       },
-      UPDATE_SOCKET: {
-        actions: "updateSocket",
-      },
     },
   },
   {

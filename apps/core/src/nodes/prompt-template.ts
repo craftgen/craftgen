@@ -146,9 +146,6 @@ const PromptTemplateNodeMachine = createMachine(
           // change: {
           //   target: "typing",
           // },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
           SET_VALUE: {
             actions: ["setValue"],
             target: "complete",

@@ -319,9 +319,6 @@ export const NodeMathMachine = createMachine(
           SET_VALUE: {
             actions: ["setValue"],
           },
-          UPDATE_SOCKET: {
-            actions: ["updateSocket"],
-          },
         },
       },
     },

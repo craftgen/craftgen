@@ -180,9 +180,6 @@ export const OpenAIThreadMachine = createMachine({
         SET_VALUE: {
           actions: ["setValue"],
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
       },
     },
     ready: {
@@ -206,9 +203,6 @@ export const OpenAIThreadMachine = createMachine({
               }),
             }),
           ],
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
         },
       },
     },

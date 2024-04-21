@@ -287,21 +287,6 @@ export const EditorMachine = setup({
               },
             });
           }
-          // enqueue.sendTo(actor, ({ self }) => ({
-          //   type: "UPDATE_SOCKET",
-          //   params: {
-          //     side: "output",
-          //     name: output["x-key"],
-          //     socket: {
-          //       "x-connection": {
-          //         ...socket["x-connection"],
-          //         [self.id]: {
-          //           key: key,
-          //         },
-          //       } as ConnectionConfigRecord,
-          //     },
-          //   },
-          // }));
 
           return key;
         });
@@ -360,12 +345,6 @@ export const EditorMachine = setup({
     enqueue("initialize");
   }),
   on: {
-    // SET_INPUT_OUTPUT: {
-    //   actions: ["setInputOutput"],
-    // },
-    UPDATE_SOCKET: {
-      actions: ["updateSocket"],
-    },
     INITIALIZE: {
       actions: ["initialize"],
     },
@@ -829,14 +808,7 @@ export class Editor<
         }),
       });
     }),
-    spawnRun: enqueueActions(({ enqueue }) => {
-      enqueue.assign(({ context }, params) => {
-        console.log("LOGOOG", params);
-        return {
-          ...context,
-        };
-      });
-    }),
+
     initialize: enqueueActions(({ enqueue, context, system, self }) => {
       enqueue("assignParent");
       for (const [key, value] of Object.entries(context.inputSockets)) {
@@ -859,119 +831,6 @@ export class Editor<
               [key]: system.get(key),
             }),
           });
-        }
-      }
-    }),
-    spawnInputActors: enqueueActions(({ enqueue, context, system, self }) => {
-      for (const [key, value] of Object.entries<
-        ActorRefFrom<typeof inputSocketMachine>
-      >(context.inputSockets)) {
-        if (isNil(value["x-actor-type"])) {
-          // skip if no actor type.
-          continue;
-        }
-        console.log("@@@@", "SPAWNING INPUT ACTORS", value["x-actor-type"]);
-
-        if (isNil(value["x-actor-ref"])) {
-          // actor not spawned yet.
-
-          if (
-            value["x-actor-ref-id"] &&
-            value["x-actor-ref-type"] === value["x-actor-type"]
-          ) {
-            // actor id exists but not the actor. link it.
-            const actorRef = system.get(value["x-actor-ref-id"]!);
-            if (!actorRef) {
-              console.error("ACTOR NOT FOUND", value["x-actor-ref-id"]);
-            }
-            enqueue.assign({
-              inputSockets: ({ context }) => {
-                return {
-                  ...context.inputSockets,
-                  [key]: {
-                    ...context.inputSockets[key],
-                    "x-actor-ref": actorRef,
-                  },
-                };
-              },
-            });
-          } else {
-            const actorId = this.createId("context");
-            enqueue.sendTo(this.actor?.ref, ({ self }) => ({
-              type: "SPAWN",
-              params: {
-                parent: self.id,
-                id: actorId,
-                machineId: value["x-actor-type"]!,
-                systemId: actorId,
-                input: {
-                  inputs: {
-                    ...(value.default as any),
-                  },
-                  parent: {
-                    id: self.id,
-                    port: key,
-                  },
-                } as any,
-              },
-            }));
-          }
-        } else {
-          if (value["x-actor-type"] !== value["x-actor-ref-type"]) {
-            // actor type changed;
-            console.log("ACTOR TYPE CHANGED", {
-              before: value["x-actor-ref-type"],
-              after: value["x-actor-type"],
-            });
-
-            const actorConf = get(value, [
-              "x-actor-config",
-              value["x-actor-type"],
-            ]) as ActorConfig;
-            console.log("ACTOR CONF", actorConf);
-            if (!actorConf) {
-              throw new Error("Missing actor conf");
-            }
-
-            if (actorConf.actor) {
-              console.log("EXISTING ACTOR REF", actorConf.actor);
-              // actor already spawned;
-              enqueue.assign({
-                inputSockets: ({ context }) => {
-                  return {
-                    ...context.inputSockets,
-                    [key]: {
-                      ...context.inputSockets[key],
-                      "x-actor-ref": actorConf.actor,
-                      "x-actor-ref-id": actorConf.actor?.id,
-                      "x-actor-ref-type": actorConf.actor?.src,
-                    },
-                  };
-                },
-              });
-            } else {
-              console.log("ACTOR DIDN'T SPAWNED YET");
-              const actorId = this.createId("context");
-              enqueue.sendTo(this.actor?.ref, ({ self }) => ({
-                type: "SPAWN",
-                params: {
-                  parent: self.id,
-                  id: actorId,
-                  machineId: value["x-actor-type"]!,
-                  systemId: actorId,
-                  input: {
-                    inputs: {
-                      ...(value.default as any),
-                    },
-                    parent: {
-                      id: self.id,
-                      port: key,
-                    },
-                  } as any,
-                },
-              }));
-            }
-          }
         }
       }
     }),
@@ -1043,32 +902,6 @@ export class Editor<
     //     });
     //   }
     // },
-    updateSocket: assign({
-      inputSockets: ({ context, event }) => {
-        if (event.params.side === "input") {
-          return {
-            ...context.inputSockets,
-            [event.params.name]: {
-              ...context.inputSockets[event.params.name],
-              ...event.params.socket,
-            },
-          };
-        }
-        return context.inputSockets;
-      },
-      outputSockets: ({ context, event }) => {
-        if (event.params.side === "output") {
-          return {
-            ...context.outputSockets,
-            [event.params.name]: {
-              ...context.outputSockets[event.params.name],
-              ...event.params.socket,
-            },
-          };
-        }
-        return context.outputSockets;
-      },
-    }),
     setOutput: assign({
       outputs: (
         { context, event },
@@ -1085,13 +918,15 @@ export class Editor<
       },
     }),
     resolveOutputSockets: enqueueActions(({ enqueue, context, system }) => {
-      for (const outputSocketKey of Object.keys(
-        context.outputSockets,
-      )) {
+      for (const outputSocketKey of Object.keys(context.outputSockets)) {
         const outputSocketActor = system.get(outputSocketKey);
-        if (!outputSocketActor) { 
-          console.error("OUTPUT RESOLVE EVENT KEY CANNOT FOUND", outputSocketKey, outputSocketActor)
-          continue; 
+        if (!outputSocketActor) {
+          console.error(
+            "OUTPUT RESOLVE EVENT KEY CANNOT FOUND",
+            outputSocketKey,
+            outputSocketActor,
+          );
+          continue;
         }
 
         const definition = outputSocketActor.getSnapshot().context.definition;

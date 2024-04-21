@@ -277,7 +277,7 @@ const ActorInputItem = ({
   return (
     <div
       className={cn(
-        "m-2 rounded border bg-muted/20",
+        "bg-muted/20 m-2 rounded border",
         targetActorState === "action_required" && "border-yellow-300/40",
       )}
     >

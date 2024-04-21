@@ -171,9 +171,6 @@ export const IteratorNodeMachine = createMachine({
             enqueue("setOutputs");
           }),
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         NEXT: {
           actions: "incrementIndex",
           guard: "hasNext",
@@ -200,9 +197,6 @@ export const IteratorNodeMachine = createMachine({
             enqueue("setOutputs");
           }),
         },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         PREV: {
           actions: ["decrementIndex", "setOutputs"],
           reenter: true,
@@ -226,9 +220,6 @@ export const IteratorNodeMachine = createMachine({
             enqueue("setValue");
             enqueue("setOutputs");
           }),
-        },
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
         },
         PREV: {
           target: "progress",

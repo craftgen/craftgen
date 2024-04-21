@@ -103,9 +103,6 @@ const NumberMachine = createMachine({
         10: "complete",
       },
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         SET_VALUE: {
           target: "typing",
           reenter: true,
@@ -123,9 +120,6 @@ const NumberMachine = createMachine({
         }),
       ],
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         SET_VALUE: {
           target: "typing",
           actions: ["setValue"],

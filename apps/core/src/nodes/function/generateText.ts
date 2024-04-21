@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, isNull, merge, set, omit } from "lodash-es";
+import { isNil, isNull, merge, set, omit, get } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -37,9 +37,6 @@ const inputSockets = {
     "x-showSocket": true,
     "x-key": "RUN",
     "x-event": "RUN",
-    // "x-event-param-socket-keys": ["llm", "system", "instruction"],
-
-    "x-event-param-socket-keys": ["instruction"],
   }),
   instruction: generateSocket({
     name: "instruction" as const,
@@ -458,75 +455,36 @@ const GenerateTextMachine = createMachine({
           // ]),
           actions: enqueueActions(
             ({ enqueue, check, context, self, event }) => {
-              // if (check(({ event }) => !isNil(event.params?.values))) {
-              //   enqueue(({ event }) => ({
-              //     type: "setValue",
-              //     params: {
-              //       values: event.params?.values!,
-              //     },
-              //   }));
-              // }
               console.log("RUNNING BEFORE", event);
               if (event?.origin?.type !== "compute-event") {
-                const triggerSocket = context.inputSockets[
-                  `${self.id}:input:RUN`
-                ] as unknown as ActorRefFrom<typeof inputSocketMachine>;
+                const childId = `compute-${createId()}`;
 
-                const eventDefinition =
-                  triggerSocket.getSnapshot().context.definition;
-
-                const payload = {
-                  ...eventDefinition["x-event-param-socket-keys"].reduce(
-                    (acc, key) => {
-                      acc[key] = null;
-                      return acc;
-                    },
-                    {},
-                  ),
-                  ...(event?.params?.values ? event.params.values : {}),
-                  ...(event?.params?.inputs ? event.params.inputs : {}),
-                };
-
-                if (Object.values(payload).some((v) => isNull(v))) {
-                  console.log("COMPUTING EVENT", payload);
-                  const childId = `compute-${createId()}`;
-                  // enqueue.spawnChild("computeEvent", {
-                  //   input: {
-                  //     inputSockets: context.inputSockets,
-                  //     inputs: payload,
-                  //     event: "RUN",
-                  //     parent: self,
-                  //   },
-                  //   systemId: childId,
-                  //   id: childId,
-                  // });
-
-                  enqueue.assign({
-                    computes: ({ spawn, context }) => {
-                      return {
-                        ...context.computes,
-                        [childId]: spawn("computeEvent", {
-                          input: {
-                            inputSockets: context.inputSockets,
-                            inputs: payload,
-                            event: "RUN",
-                            parent: self,
+                enqueue.assign({
+                  computes: ({ spawn, context }) => {
+                    return {
+                      ...context.computes,
+                      [childId]: spawn("computeEvent", {
+                        input: {
+                          inputSockets: context.inputSockets,
+                          inputs: {
+                            ...get(event, "params.inputs", {}),
                           },
-                          systemId: childId,
-                          id: childId,
-                        }),
-                      };
-                    },
-                  });
-                  // Return to wait for the compute event to finish
-                  console.log("TRIGGER A COMPUTE EVENT");
-                  return;
-                }
+                          event: "RUN",
+                          parent: self,
+                        },
+                        systemId: childId,
+                        id: childId,
+                      }),
+                    };
+                  },
+                });
+                // Return to wait for the compute event to finish
+                console.log("TRIGGER A COMPUTE EVENT");
+                return;
               }
-              enqueue.assign({
-                computes: ({ context }) => {
-                  return omit(context.computes, event.origin.id);
-                },
+
+              enqueue({
+                type: "removeComputation",
               });
 
               console.log("RUNNING", event);

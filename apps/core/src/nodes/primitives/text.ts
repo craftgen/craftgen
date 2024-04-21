@@ -100,9 +100,6 @@ const TextNodeMachine = createMachine({
         }),
       ],
       on: {
-        UPDATE_SOCKET: {
-          actions: ["updateSocket"],
-        },
         SET_VALUE: {
           target: "typing",
           actions: ["setValue"],
