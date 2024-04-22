@@ -677,24 +677,13 @@ export const OllamaModelMachine = createMachine(
               enqueue("setValue");
             }),
           },
+
           COMPUTE: {
             actions: enqueueActions(({ enqueue, context, self, event }) => {
-              const childId = `compute-${createId()}`;
-              enqueue.assign({
-                computes: ({ spawn, context }) => {
-                  return {
-                    ...context.computes,
-                    [childId]: spawn("computeEvent", {
-                      input: {
-                        inputSockets: context.inputSockets,
-                        inputs: {},
-                        event: "RESULT",
-                        parent: self,
-                      },
-                      systemId: childId,
-                      id: childId,
-                    }),
-                  };
+              enqueue({
+                type: "computeEvent",
+                params: {
+                  event: "RESULT",
                 },
               });
             }),
@@ -702,10 +691,9 @@ export const OllamaModelMachine = createMachine(
           RESULT: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               console.log("RESULT EVENT", context, event);
-              enqueue.assign({
-                computes: ({ context, event }) => {
-                  return omit(context.computes, event.origin.id);
-                },
+
+              enqueue({
+                type: "removeComputation",
               });
 
               enqueue.assign({

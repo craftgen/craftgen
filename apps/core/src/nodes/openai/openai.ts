@@ -125,7 +125,7 @@ const inputSockets = {
     Used to set the initial state for the random number generator in the model.
     Providing a specific seed value ensures consistent outputs for the same inputs across different runs - useful for testing and reproducibility.
       A \`null\` value (or not setting it) results in varied, non-repeatable outputs each time.`,
-    default: null,
+    // default: undefined,
     required: false,
     isMultiple: false,
     "x-showSocket": false,
@@ -214,14 +214,18 @@ export const OpenaiModelMachine = createMachine(
       guards: None;
     }>,
     initial: "complete",
-    after: {
-      100: {
-        actions: "updateOutput",
+    invoke: [
+      {
+        src: "actorWatcher",
+        input: ({ self, context }) => ({
+          actor: self,
+          stateSelectorPath: "context.inputs",
+          event: "COMPUTE",
+        }),
       },
-    },
+    ],
     states: {
       complete: {
-        entry: ["updateOutput"],
         on: {
           SET_VALUE: {
             actions: enqueueActions(({ enqueue }) => {
@@ -233,6 +237,7 @@ export const OpenaiModelMachine = createMachine(
             actions: enqueueActions(({ enqueue, context, event }) => {
               console.log("RESULT EVENT", context, event);
               enqueue("removeComputation");
+
               enqueue.assign({
                 outputs: ({ event }) => {
                   return {
@@ -250,22 +255,10 @@ export const OpenaiModelMachine = createMachine(
           },
           COMPUTE: {
             actions: enqueueActions(({ enqueue, self }) => {
-              const childId = `compute-${createId()}`;
-              enqueue.assign({
-                computes: ({ spawn, context }) => {
-                  return {
-                    ...context.computes,
-                    [childId]: spawn("computeEvent", {
-                      input: {
-                        inputSockets: context.inputSockets,
-                        inputs: {},
-                        event: "RESULT",
-                        parent: self,
-                      },
-                      systemId: childId,
-                      id: childId,
-                    }),
-                  };
+              enqueue({
+                type: "computeEvent",
+                params: {
+                  event: "RESULT",
                 },
               });
             }),

@@ -410,23 +410,23 @@ export const inputSocketMachine = setup({
                 },
                 RESULT: {
                   actions: enqueueActions(({ enqueue, event }) => {
-                    event.params.targets.forEach((target) => {
-                      enqueue.sendTo(
-                        ({ system }) => system.get(target),
-                        ({ event, context, self }) => ({
-                          type: "SET_VALUE",
-                          params: {
-                            values: {
-                              [context.definition["x-key"]]: event.params.value,
-                            },
+                    // event.params.targets.forEach((target) => {
+                    // });
+                    enqueue.sendTo(
+                      ({ context, system }) => system.get(context.parent.id),
+                      ({ event, context, self }) => ({
+                        type: "SET_VALUE",
+                        params: {
+                          values: {
+                            [context.definition["x-key"]]: event.params.value,
                           },
-                          origin: {
-                            type: "inputsocket.basic",
-                            id: self.id,
-                          },
-                        }),
-                      );
-                    });
+                        },
+                        origin: {
+                          type: "inputsocket.basic",
+                          id: self.id,
+                        },
+                      }),
+                    );
                   }),
                 },
                 CHANGE_FORMAT: {

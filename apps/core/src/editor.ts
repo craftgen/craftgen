@@ -834,26 +834,6 @@ export class Editor<
         }
       }
     }),
-    triggerSuccessors: enqueueActions(
-      (
-        { enqueue },
-        params: {
-          port: string;
-        },
-      ) => {
-        enqueue.sendTo(
-          ({ context, system }) =>
-            system.get(
-              Object.keys(context.outputSockets).find((k) =>
-                k.endsWith(params.port),
-              ),
-            ),
-          {
-            type: "TRIGGER",
-          },
-        );
-      },
-    ),
     // triggerSuccessors: async (
     //   action: ActionArgs<any, any, any>,
     //   params: {
@@ -917,6 +897,26 @@ export class Editor<
         };
       },
     }),
+    triggerSuccessors: enqueueActions(
+      (
+        { enqueue },
+        params: {
+          port: string;
+        },
+      ) => {
+        enqueue.sendTo(
+          ({ context, system }) =>
+            system.get(
+              Object.keys(context.outputSockets).find((k) =>
+                k.endsWith(params.port),
+              ),
+            ),
+          {
+            type: "TRIGGER",
+          },
+        );
+      },
+    ),
     resolveOutputSockets: enqueueActions(({ enqueue, context, system }) => {
       for (const outputSocketKey of Object.keys(context.outputSockets)) {
         const outputSocketActor = system.get(outputSocketKey);
@@ -1000,19 +1000,13 @@ export class Editor<
     setValue: enqueueActions(({ enqueue, context, event, self }, params) => {
       assertEvent(event, "SET_VALUE");
       const values = event.params?.values || params?.values;
-      console.log("SET VALUE", {
-        values,
-        origin: event?.origin || "unknown",
-        src: self.src,
-        id: self.id,
-      });
       for (const [computeKey, computeValue] of Object.entries(
         context.computes,
       )) {
         if (computeValue.getSnapshot().status !== "done") {
           enqueue.sendTo(
             ({ system }) => system.get(computeKey),
-            ({ event, self }) => ({
+            ({ self }) => ({
               type: "SET_VALUE",
               params: {
                 values: values,

@@ -245,10 +245,14 @@ const generateTextCall = setup({
     },
     context: {} as {
       inputs: GenerateTextInput;
-      outputs: null | {
-        ok: boolean;
-        result: OutputFrom<typeof generateTextActor> | ToolCallError;
-      };
+      outputs:
+        | null
+        | (OutputFrom<typeof generateTextActor> & {
+            ok: true;
+          })
+        | (ToolCallError & {
+            ok: false;
+          });
       senders: {
         id: string;
       }[];
@@ -298,7 +302,7 @@ const generateTextCall = setup({
           actions: enqueueActions(({ enqueue, context }) => {
             enqueue.assign({
               outputs: ({ event }) => ({
-                result: event.output,
+                ...event.output,
                 ok: true,
               }),
             });
@@ -322,7 +326,7 @@ const generateTextCall = setup({
             console.log("ERROR", event);
             enqueue.assign({
               outputs: ({ event }) => ({
-                result: new ToolCallError({
+                ...new ToolCallError({
                   toolCall: {
                     id: self.id,
                     name: "GenerateText",
@@ -330,7 +334,7 @@ const generateTextCall = setup({
                   },
                   cause: event.error,
                   message: (event.error as Error).message,
-                }),
+                }).toJSON(),
                 ok: false,
               }),
             });
@@ -435,7 +439,7 @@ const GenerateTextMachine = createMachine({
             enqueue.assign({
               outputs: ({ context, event }) => ({
                 ...context.outputs,
-                ...event.params?.res.result,
+                ...event.params?.res,
               }),
             });
             enqueue({
@@ -455,7 +459,6 @@ const GenerateTextMachine = createMachine({
           // ]),
           actions: enqueueActions(
             ({ enqueue, check, context, self, event }) => {
-              console.log("RUNNING BEFORE", event);
               if (check(({ event }) => event.origin.type !== "compute-event")) {
                 enqueue({
                   type: "computeEvent",
@@ -465,49 +468,11 @@ const GenerateTextMachine = createMachine({
                 });
                 return;
               }
-
-              // if (event?.origin?.type !== "compute-event") {
-              //   const childId = `compute-${createId()}`;
-
-              //   enqueue.assign({
-              //     computes: ({ spawn, context }) => {
-              //       return {
-              //         ...context.computes,
-              //         [childId]: spawn("computeEvent", {
-              //           input: {
-              //             inputSockets: context.inputSockets,
-              //             inputs: {
-              //               ...get(event, "params.inputs", {}),
-              //             },
-              //             event: "RUN",
-              //             parent: self,
-              //           },
-              //           systemId: childId,
-              //           id: childId,
-              //         }),
-              //       };
-              //     },
-              //   });
-              //   // Return to wait for the compute event to finish
-              //   console.log("TRIGGER A COMPUTE EVENT");
-              //   return;
-              // }
-
               enqueue({
                 type: "removeComputation",
               });
 
-              console.log("RUNNING", event);
-
               const runId = `call-${createId()}`;
-
-              // const sockets = Object.values(context.inputSockets);
-              // for (const socket of sockets) {
-              //   enqueue.sendTo(socket, {
-              //     type: "COMPUTE",
-              //   });
-              // }
-
               enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
                 ({ system }) => system.get("editor"),
                 ({ self, context }) => ({

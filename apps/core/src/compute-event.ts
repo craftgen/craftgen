@@ -36,7 +36,6 @@ export const ComputeEventMachine = setup({
         params: { values: Record<string, any> },
       ) => {
         const values = event.params?.values || params?.values;
-        console.log("COMPUTE EVENT SET VALUE", values);
         return {
           ...context.inputs,
           ...values,
