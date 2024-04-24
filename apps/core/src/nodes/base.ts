@@ -136,6 +136,20 @@ export type BaseEventTypes =
       };
     }
   | {
+      type: "ADD_SOCKET";
+      params: {
+        side: "input" | "output";
+        definition: JSONSocket;
+      };
+    }
+  | {
+      type: "REMOVE_SOCKET";
+      params: {
+        side: "input" | "output";
+        id: string;
+      };
+    }
+  | {
       type: "SPAWN";
       params: {
         parentId?: string;
@@ -212,6 +226,18 @@ export type BaseActionTypes =
     }
   | {
       type: "assignChild";
+    }
+  | {
+      type: "addSocket";
+      params: {
+        definition: JSONSocket;
+      };
+    }
+  | {
+      type: "removeSocket";
+      params: {
+        id: string;
+      };
     }
   | {
       type: "initialize";

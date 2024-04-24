@@ -834,6 +834,109 @@ export class Editor<
         }
       }
     }),
+
+    addSocket: enqueueActions(({ enqueue, check, event }) => {
+      match(event)
+        .with(
+          {
+            type: "ADD_SOCKET",
+            params: { side: "input" },
+          },
+          (event) => {
+            enqueue.assign({
+              inputSockets: ({ context, spawn, self }) => {
+                const socketKey = `${self.id}:input:${event.params.definition["x-key"]}`;
+                const socket = spawn("input", {
+                  input: {
+                    definition: {
+                      ...event.params.definition,
+                      "x-showSocket": true,
+                      "x-userGenerated": true,
+                    },
+                    parent: self,
+                  },
+                  id: socketKey,
+                  syncSnapshot: true,
+                  systemId: socketKey,
+                });
+                return {
+                  ...context.inputSockets,
+                  [socketKey]: socket,
+                };
+              },
+            });
+          },
+        )
+        .with(
+          {
+            type: "ADD_SOCKET",
+            params: {
+              side: "output",
+            },
+          },
+          (event) => {
+            enqueue.assign({
+              outputSockets: ({ context, spawn, self }) => {
+                const socketKey = `${self.id}:output:${event.params.definition["x-key"]}`;
+                const socket = spawn("output", {
+                  input: {
+                    definition: {
+                      type: "string",
+                      "x-showSocket": true,
+                      "x-userGenerated": true,
+                    },
+                    parent: self,
+                  },
+                  id: socketKey,
+                  syncSnapshot: true,
+                  systemId: socketKey,
+                });
+                return {
+                  ...context.outputSockets,
+                  [socketKey]: socket,
+                };
+              },
+            });
+          },
+        )
+        .run();
+    }),
+
+    removeSocket: enqueueActions(({ enqueue, check, event }) => {
+      console.log("REMOVE SOCKET", event);
+      enqueue.stopChild(event.params.id);
+      match(event)
+        .with(
+          {
+            type: "REMOVE_SOCKET",
+            params: { side: "input" },
+          },
+          (event) => {
+            enqueue.assign({
+              inputSockets: ({ context }) => {
+                return omit(context.inputSockets, event.params.id);
+              },
+            });
+          },
+        )
+        .with(
+          {
+            type: "REMOVE_SOCKET",
+            params: {
+              side: "output",
+            },
+          },
+          (event) => {
+            enqueue.assign({
+              outputSockets: ({ context }) => {
+                return omit(context.outputSockets, event.params.id);
+              },
+            });
+          },
+        )
+        .run();
+    }),
+
     // triggerSuccessors: async (
     //   action: ActionArgs<any, any, any>,
     //   params: {

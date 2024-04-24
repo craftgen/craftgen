@@ -13,8 +13,9 @@ import { slugify } from "../../lib/string";
 import type { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
 import type { BaseMachineTypes, None } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
+import { createId } from "@paralleldrive/cuid2";
 
 const outputSockets = {
   object: generateSocket({
@@ -39,27 +40,13 @@ const composeObjectMachine = createMachine(
   {
     id: "composeObject",
     initial: "idle",
-    context: ({ input }) =>
-      merge<typeof input, any>(
-        {
-          name: "new_object",
-          description: "object description",
-          inputs: {},
-          outputs: {
-            schema: {
-              name: "new_object",
-              description: "object description",
-
-              schema: createJsonSchema({}),
-            },
-          },
-          inputSockets: {},
-          outputSockets: {
-            ...outputSockets,
-          },
-        },
-        input,
-      ),
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "new_object",
+        description: "object description",
+        inputSockets: {},
+        outputSockets,
+      }),
     types: {} as BaseMachineTypes<{
       input: {
         name: string;
@@ -93,6 +80,14 @@ const composeObjectMachine = createMachine(
         schema: JSONSchemaDefinition;
       };
     }>,
+    on: {
+      ADD_SOCKET: {
+        actions: "addSocket",
+      },
+      REMOVE_SOCKET: {
+        actions: "removeSocket",
+      },
+    },
     states: {
       idle: {
         // entry: ["updateAncestors"],
@@ -210,34 +205,34 @@ export class NodeComposeObject extends BaseNode<typeof composeObjectMachine> {
     });
 
     this.setup();
-    const state = this.actor.getSnapshot();
-    const inputGenerator = new SocketGeneratorControl(
-      this.actor,
-      (s) => s.context.inputSockets,
-      {
-        connectionType: "input",
-        name: "Input Sockets",
-        ignored: ["trigger"],
-        tooltip: "Add input sockets",
-        initial: {
-          name: state.context.name,
-          description: state.context.description,
-        },
-        onChange: ({ sockets, name, description }) => {
-          const schema = createJsonSchema(sockets);
-          this.setLabel(name);
-          this.actor.send({
-            type: "CONFIG_CHANGE",
-            name,
-            description: description || "",
-            inputSockets: sockets,
-            schema,
-          });
-        },
-      },
-    );
+    // const state = this.actor.getSnapshot();
+    // const inputGenerator = new SocketGeneratorControl(
+    //   this.actor,
+    //   (s) => s.context.inputSockets,
+    //   {
+    //     connectionType: "input",
+    //     name: "Input Sockets",
+    //     ignored: ["trigger"],
+    //     tooltip: "Add input sockets",
+    //     initial: {
+    //       name: state.context.name,
+    //       description: state.context.description,
+    //     },
+    //     onChange: ({ sockets, name, description }) => {
+    //       const schema = createJsonSchema(sockets);
+    //       this.setLabel(name);
+    //       this.actor.send({
+    //         type: "CONFIG_CHANGE",
+    //         name,
+    //         description: description || "",
+    //         inputSockets: sockets,
+    //         schema,
+    //       });
+    //     },
+    //   },
+    // );
 
-    this.addControl("inputGenerator", inputGenerator);
-    this.setLabel(this.snap.context.name || NodeComposeObject.label);
+    // this.addControl("inputGenerator", inputGenerator);
+    // this.setLabel(this.snap.context.name || NodeComposeObject.label);
   }
 }

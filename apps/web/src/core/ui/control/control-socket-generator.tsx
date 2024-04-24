@@ -1,12 +1,14 @@
-import { useSelector } from "@xstate/react";
+import { useActor, useSelector } from "@xstate/react";
 import { Trash2Icon, X } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type * as z from "zod";
 
-import type {
+import {
   formSchema,
   JSONSocket,
   SocketGeneratorControl,
+  socketSchema,
 } from "@seocraft/core/src/controls/socket-generator";
 import { types } from "@seocraft/core/src/sockets";
 
@@ -40,8 +42,344 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import _ from "lodash";
-import { useMemo } from "react";
+import _, { isEqual, pick } from "lodash";
+import { useEffect, useMemo } from "react";
+import { AnyActor, enqueueActions, setup } from "xstate";
+
+export const SocketTypes = {
+  text: {
+    name: "Text Input",
+    icon: "text",
+    definition: {
+      type: "string",
+    },
+  },
+  long_text: {
+    name: "Long Text",
+    icon: "paragraph",
+    definition: {
+      type: "string",
+      "x-component": "textarea",
+    },
+  },
+  api_key: {
+    name: "API Key",
+    icon: "key",
+    definition: {
+      type: "string",
+      format: "secret",
+    },
+  },
+  expression: {
+    name: "Expression",
+    icon: "code",
+    definition: {
+      type: "string",
+      format: "expression",
+    },
+  },
+  select: {
+    name: "Select",
+    icon: "select",
+    definition: {
+      type: "string",
+      "x-component": "select",
+      allOf: [
+        {
+          type: "string",
+          enum: [],
+        },
+      ],
+    },
+  },
+  boolean: {
+    name: "Boolean",
+    icon: "toggle",
+    definition: {
+      type: "boolean",
+    },
+  },
+  number: {
+    name: "Number",
+    icon: "number",
+    definition: {
+      type: "number",
+    },
+  },
+  array: {
+    name: "Array",
+    icon: "array",
+    definition: {
+      type: "array",
+    },
+  },
+  object: {
+    name: "Object",
+    icon: "object",
+    definition: {
+      type: "object",
+    },
+  },
+  file_value: {
+    name: "File",
+    icon: "file",
+    definition: {
+      type: "string",
+      "x-component": "file",
+    },
+  },
+  file_url: {
+    name: "File URL",
+    icon: "file",
+    definition: {
+      type: "string",
+      "x-component": "file",
+    },
+  },
+};
+
+const socketCreator = setup({
+  types: {} as {
+    input: {
+      actor: AnyActor;
+    };
+    context: {
+      type: keyof typeof SocketTypes | null;
+      definition: JSONSocket;
+      target: AnyActor;
+    };
+  },
+}).createMachine({
+  context: ({ input }) => ({
+    type: null,
+    definition: {},
+    target: input.actor,
+  }),
+  initial: "select_type",
+  states: {
+    select_type: {
+      on: {
+        SELECT_TYPE: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              type: ({ event }) => event.params.type,
+              definition: ({ event }) => ({
+                ...SocketTypes[event.params.type].definition,
+                "x-userDefined": true,
+                "x-key": event.params.type,
+              }),
+            });
+          }),
+          target: "details",
+        },
+      },
+    },
+    details: {
+      on: {
+        UPDATE_SOCKET: {
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              definition: ({ context, event }) => ({
+                ...context.defintion,
+                ...event.params.definition,
+              }),
+            });
+          }),
+        },
+        SELECT_TYPE: {
+          target: "select_type",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue.assign({
+              definition: ({ context }) => {
+                return pick(context.definition, ["name, description"]);
+              },
+            });
+          }),
+        },
+        CREATE: {
+          actions: enqueueActions(({ context }) => {
+            context.target.send({
+              type: "ADD_SOCKET",
+              params: {
+                side: "input",
+                definition: context.definition,
+              },
+            });
+          }),
+        },
+      },
+    },
+  },
+});
+
+export const SocketGenerator = (props: { actor: AnyActor }) => {
+  const sockets = Object.entries(SocketTypes);
+  const [state, send] = useActor(socketCreator, {
+    input: { actor: props.actor },
+  });
+  const otherKeys = useSelector(
+    props.actor,
+    (state) =>
+      Object.keys(state.context.inputSockets).map((key) => key.split(":")[2]),
+    isEqual,
+  );
+  const form = useForm<z.infer<typeof socketSchema>>({
+    values: state.context.definition,
+    mode: "onBlur",
+    resolver: zodResolver(
+      socketSchema.refine(
+        async (val) => {
+          return !otherKeys.includes(val["x-key"]);
+          // const val = await checkSlugAvailable({
+          //   slug,
+          //   projectId: project?.id!,
+          // });
+          // return val;
+        },
+        {
+          message:
+            "Variable name is not available. there's another field with the same name.",
+          path: ["x-key"],
+        },
+      ) as any, //TODO: fix this
+      {},
+      {
+        mode: "async",
+      },
+    ),
+    defaultValues: {
+      "x-key": String(+new Date()),
+    },
+  });
+  const name = form.watch("name", "");
+  // useEffect(() => {
+  //   if (!form.getFieldState("x-key").isTouched) {
+  //     console.log("SETTING KEY", slugify(name, "_"));
+  //     form.setValue("description", slugify(name, "_"), {
+  //       shouldValidate: true,
+  //     });
+  //   }
+  // }, [name]);
+
+  const onSubmit = (data?: z.infer<typeof socketSchema>) => {
+    send({
+      type: "UPDATE_SOCKET",
+      params: {
+        definition: data,
+      },
+    });
+  };
+
+  const handleSave = () => {
+    form.trigger().then((valid) => {
+      if (valid) {
+        send({ type: "CREATE" });
+      }
+    });
+  };
+
+  return (
+    <div>
+      <h1>SOCKET</h1>
+      {state.matches("select_type") && (
+        <div className="grid grid-cols-3 gap-4 p-4">
+          {sockets.map(([key, socket]) => {
+            return (
+              <div
+                onClick={() =>
+                  send({ type: "SELECT_TYPE", params: { type: key } })
+                }
+                className="bg-muted flex flex-col items-center justify-center rounded border p-1 shadow"
+              >
+                <span>{socket.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {state.matches("details") && (
+        <Form {...form}>
+          <form
+            onChange={form.handleSubmit(onSubmit)}
+            className="flex h-full flex-col p-4"
+          >
+            <FormField
+              control={form.control}
+              name={`name`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter title for input"
+                      {...field}
+                      autoComplete="false"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`description`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter description to help user or agent understand input..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`required`}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Required</FormLabel>
+                    <FormDescription>Make this field required.</FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`x-key`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Variable Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter title for input"
+                      {...field}
+                      autoComplete="false"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      )}
+      <Button disabled={!form.formState.isValid} onClick={handleSave}>
+        Save
+      </Button>
+    </div>
+  );
+};
 
 export function SocketGeneratorControlComponent(props: {
   data: SocketGeneratorControl;

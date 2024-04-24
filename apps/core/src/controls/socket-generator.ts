@@ -97,6 +97,7 @@ export const socketSchema = z
 
     "x-showSocket": z.boolean().default(true),
     "x-showController": z.boolean().default(true),
+    "x-userDefined": z.boolean().default(false),
 
     "x-isAdvanced": z.boolean().default(false),
     "x-key": z.string(),

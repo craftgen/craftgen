@@ -20,6 +20,7 @@ import {
   BehaviorSubject,
   startWith,
 } from "rxjs";
+import { contextMenu } from "./plugins/reactPlugin/presets";
 
 function createId(prefix: "context" | "value", parentId: string) {
   const createId = init({
@@ -46,6 +47,9 @@ export const inputSocketMachine = setup({
       | {
           type: "UPDATE_SOCKET";
           params: Partial<JSONSocket>;
+        }
+      | {
+          type: "DELETE";
         }
       | {
           type: "ADD_CONNECTION";
@@ -168,6 +172,21 @@ export const inputSocketMachine = setup({
     };
   },
   on: {
+    DELETE: {
+      guard: ({ context }) => context.definition["x-userDefined"] || false,
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue.sendTo(
+          ({ context, system }) => system.get(context.parent.id),
+          ({ self }) => ({
+            type: "REMOVE_SOCKET",
+            params: {
+              side: "input",
+              id: self.id,
+            },
+          }),
+        );
+      }),
+    },
     UPDATE_SOCKET: {
       actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({

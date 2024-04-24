@@ -20,6 +20,18 @@ import { ControlWrapper } from "@/core/ui/control-wrapper";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { Label } from "@/components/ui/label";
 import { outputSocketMachine } from "@seocraft/core/src/output-socket";
+import { SocketGenerator } from "./control-socket-generator";
+import { Badge, Divider } from "@tremor/react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   const socketKey = useMemo(() => {
@@ -132,14 +144,41 @@ export const InputsList = (props: {
   actor: AnyActor;
   showAdvanced?: boolean;
 }) => {
+  const [showSocketGenerator, setShowSocketGenerator] = useState(false);
+  const canAddSocket = useSelector(props.actor, (state) => {
+    return state.can({
+      type: "ADD_SOCKET",
+    });
+  });
   return (
-    <LayoutGroup>
-      <BasicInputs actor={props.actor} />
-      <AdvanceInputs
-        actor={props.actor}
-        showAdvanced={props.showAdvanced || false}
-      />
-    </LayoutGroup>
+    <div>
+      <LayoutGroup>
+        <BasicInputs actor={props.actor} />
+        <AdvanceInputs
+          actor={props.actor}
+          showAdvanced={props.showAdvanced || false}
+        />
+        {showSocketGenerator && (
+          <div>
+            <Button onClick={() => setShowSocketGenerator(false)}>
+              Cancel
+            </Button>
+            <SocketGenerator actor={props.actor} />
+          </div>
+        )}
+        {canAddSocket && (
+          <Divider>
+            <Button
+              onClick={() => setShowSocketGenerator(true)}
+              variant={"ghost"}
+              size={"sm"}
+            >
+              Add Socket
+            </Button>
+          </Divider>
+        )}
+      </LayoutGroup>
+    </div>
   );
 };
 
@@ -365,6 +404,26 @@ const SocketController = ({
       },
     });
   };
+
+  const handleClone = () => {
+    console.log("CLONE");
+  };
+  const handleDelete = () => {
+    actor.send({
+      type: "DELETE",
+    });
+  };
+  const handleEdit = () => {};
+  const canDelete = useSelector(
+    actor,
+    (state) => {
+      return state.can({
+        type: "DELETE",
+      });
+    },
+    isEqual,
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -376,11 +435,11 @@ const SocketController = ({
       data-socket-type={socket["x-type"]}
       data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
-        "m-2 mb-2 flex flex-row space-x-1 p-2",
+        "m-2 mb-2 flex flex-row space-x-1  p-2",
         hasConnection && "bg-muted/30 rounded border",
       )}
     >
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1 ">
         <Toggle
           onPressedChange={handleToggleSocket}
           pressed={socket["x-showSocket"]}
@@ -407,7 +466,42 @@ const SocketController = ({
           </Toggle>
         )}
       </div>
-      {children}
+      <div className="relative w-full">
+        <div className="absolute right-0 top-0 flex space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
+              >
+                <DotsHorizontalIcon className="text-muted-foreground h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[160px]">
+              <DropdownMenuItem onSelect={() => handleEdit()}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleClone()}>
+                Make a copy
+              </DropdownMenuItem>
+              <DropdownMenuItem>Favorite</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleDelete} disabled={!canDelete}>
+                Delete
+                <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        {children}
+        <div className="space-x-4 py-1">
+          <Badge size={"xs"}>{socket["x-key"]}</Badge>
+          <Badge size={"xs"} color={"green"} icon={"template"}>
+            {socket["type"]}
+          </Badge>
+        </div>
+      </div>
     </motion.div>
   );
 };
