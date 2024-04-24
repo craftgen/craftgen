@@ -2,6 +2,7 @@ import { useSelector } from "@xstate/react";
 import { useTheme } from "next-themes";
 import { usePreviousDistinct } from "react-use";
 import "./custom-input.css";
+import dedent from "ts-dedent";
 
 require("tern/plugin/doc_comment");
 import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
@@ -45,6 +46,7 @@ import jsdoc from "json-schema-to-jsdoc";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { JSONSchema } from "openai/lib/jsonschema";
 import { difference, get, isEqual } from "lodash-es";
+import { match } from "ts-pattern";
 
 const secretMatcher = new MatchDecorator({
   regexp: /\(?await\s+getSecret\("(.+?)"\)\)?/g,
@@ -115,7 +117,10 @@ const CMExtensions = [
   indentationMarkers(),
 ];
 
-const cdnPackageCompletions = (ternServer: tern.Server) => {
+const cdnPackageCompletions = (
+  ternServer: tern.Server,
+  mode: "expression" | "full" = "full",
+) => {
   async function autocompleteProvider(context: CompletionContext) {
     let before = context.matchBefore(/\w+/);
     let completions = await getAutocompletion(
@@ -139,9 +144,9 @@ const cdnPackageCompletions = (ternServer: tern.Server) => {
       title: "Inputs",
       type: "object",
       properties: {
-        // name: { type: "string", description: "A person's name" },
-        // age: { type: "integer", description: "A person's age" },
-        // school: { type: "number", description: "A person's age" },
+        name: { type: "string", description: "A person's name" },
+        age: { type: "integer", description: "A person's age" },
+        school: { type: "number", description: "A person's age" },
       },
       required: [],
     };
@@ -157,11 +162,21 @@ const cdnPackageCompletions = (ternServer: tern.Server) => {
       file: "temp.js",
     };
 
+    const fileContent = match(mode)
+      .with("full", () => jsdoc + code)
+      .with("expression", () => {
+        return dedent`${jsdoc}
+      async function(context: Context) { return \`${code}\` };
+      `;
+      })
+      .run();
+
+    console.log(fileContent);
     const file: tern.File = {
       type: "full",
       name: "temp.js",
       // TODO: Pass correct inputs and their types.
-      text: jsdoc + code,
+      text: fileContent,
     } as any;
 
     return new Promise<Completion[]>((resolve, reject) => {
@@ -186,6 +201,7 @@ const cdnPackageCompletions = (ternServer: tern.Server) => {
       });
     });
   }
+
   const cdnPackageCompletions = javascriptLanguage.data.of({
     autocomplete: autocompleteProvider,
   });
@@ -274,7 +290,10 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   }
 
   const extensions = useMemo(() => {
-    return [...CMExtensions, cdnPackageCompletions(ternServer)];
+    return [
+      ...CMExtensions,
+      cdnPackageCompletions(ternServer, definition.format),
+    ];
   }, [ternServer]);
   const editorContainer = useRef<HTMLDivElement | null>(null);
   const { setContainer, view } = useCodeMirror({
@@ -365,7 +384,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
 function generateSignatureJSDOC(schema: JSONSchema) {
   const typedef = jsdoc(schema);
 
-  return `\
+  return dedent`
 ${typedef}
 
 /**
@@ -375,7 +394,7 @@ ${typedef}
 
 /**
  * @param {Context} context
- */\n`;
+ */`;
 }
 
 // Got from tern.js for CM5

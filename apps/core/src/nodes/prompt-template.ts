@@ -7,7 +7,7 @@ import { generateSocket } from "../controls/socket-generator";
 import type { MappedType } from "../sockets";
 import type { DiContainer } from "../types";
 import type { BaseMachineTypes, None, ParsedNode } from "./base";
-import { BaseNode } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
 
 const inputSockets = {
   "x-template": generateSocket({
@@ -28,35 +28,41 @@ const PromptTemplateNodeMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgWhzGwBsBDQgOgEsJiwBiCdAOzGuYDd0BrNtLXASLIylGnQRVO6AMbkqLANoAGALorViFOlhUcC5lpAAPRAGYzADgoBGAJw2ALMoDsANgBMby3a8uANCAAnogeHsoU3o7hLpb2zo4uHgC+yYH82PiEJORs4gxgqBioFCLkAGboqJilGJlCOWK0YJLScvpKahpGyDp6BkamCACsysMU7mbKZo42Hj5jHsOBIQiOPhQW9nZmbsqesZaOqel1gtllTXT0MgAWpMww3Uggvbodhi9Do+OT07PzOyLZbBULKCJJOyWZSOMx+KHDNwnV5nLLCUR5Zr0ADKAFEACoAfQAagBBAAyAFVcc9tO8Bl9zGYXJsrMNHKMOR5YQFQQg5o4KMNLF4bHCbG4XBKkWkUQI0Y1MdcAEqUgBytNefQ+g0QPwmbimMzmC2GSxWet2FBFynm80SYpsyIy53RuQoqAArsxmFIoIwWHlpLxavKGpc2F6fX7Wlx2gYNJq3v0WLqRmMDUaAabzXzDR4KL4bJYXC5HI4ofYnbKXQqIx7vb7HvRCsVSqJKtVQ-ULhiG9HHrHZPJOuo1D1tQzQEM4uMgZ5Dco7JLLGYQatDXZrU4wrFpnsZacw733Tggsg-Td7o8wEnJ6nGfyPKWKF5dmbwnZEpZLBaEG5hQNPYXGFDxxTMZ1UXDPszwvZtjFgHB3VIcpCFQAAKGxwQASnoWtoNPc8-TvekH2nRAbEollmUorD1hcOE3EcP84godZEWGOwXH2ZklggmsoJPShWyqK8HieccXmTHVH1o6ipUomES0Y5i8wlQtYScKZlEsNwJX4o8ezdYSilEvEiTJKkaUkukU0+ciEFnQt9jfJcVzXP9xTYsthUREtnzMOxIOPYy2BkAQ6EIMSbxIuy0xsWJCycMZOL00CbD-Fxl1fUtmWGJxdPcFIBJCxUKHCkgwCi8ySQpalYpkhyEusBxnGGVKbHSzzi0LHymIAxEORmYKjLKiqRCqhhVQ1GytVI+yTAoxLWpS5dOpFDK+TCAt-K48EzTsYYGP42VmHQCA4B6QTQonea0zwNw-zwOc7Fet73teo6RtdMr8luuLHzhQU3AOJjRi-XZNtWMwetictdJLZSkmGb66z7KMmygf7GsW-8K2tMZXpmXKnFUjdOs2BL8u8ECnF8VGCMoWC-WxqdcbmKUhSo4sxQdKFMs461JU8VcF3LBmhLYETUFZsjca4mxInZBWmMcQ0QL-TizA07jEkOYVbQl0LyoiybZYWoZoj-ADFeZEUgfcaJLBR1JkiAA */
     id: "prompt-template",
-    initial: "complete",
-    context: ({ input }) =>
-      merge<typeof input, any>(
-        {
-          name: "Prompt Template",
-          description: "Template for user prompts",
-          inputs: {
-            template: "",
-          },
-          inputSockets,
-          outputs: {
-            value: "",
-          },
-          settings: {
-            variables: [],
-          },
-          outputSockets: {
-            value: generateSocket({
-              name: "value",
-              type: "string",
-              description: "Result of template",
-              required: true,
-              "x-showSocket": true,
-              "x-key": "value",
-            }),
-          },
+    context: (ctx) =>
+      NodeContextFactory(ctx, {
+        name: "Prompt Template",
+        description: "Template for user prompts",
+        inputSockets,
+        outputSockets: {
+          value: generateSocket({
+            name: "value",
+            type: "string",
+            description: "Result of template",
+            required: true,
+            "x-showSocket": true,
+            "x-key": "value",
+          }),
         },
-        input,
-      ),
+      }),
+
+    // context: ({ input }) =>
+    //   merge<typeof input, any>(
+    //     {
+    //       name: "Prompt Template",
+    //       description: "Template for user prompts",
+    //       inputs: {
+    //         template: "",
+    //       },
+    //       inputSockets,
+    //       outputs: {
+    //         value: "",
+    //       },
+    //       settings: {
+    //         variables: [],
+    //       },
+    //     },
+    //     input,
+    //   ),
     types: {} as BaseMachineTypes<{
       input: {
         settings: {
@@ -80,6 +86,7 @@ const PromptTemplateNodeMachine = createMachine(
       guards: None;
       actors: None;
     }>,
+    initial: "idle",
     entry: enqueueActions(({ enqueue }) => {
       enqueue("initialize");
     }),
@@ -94,80 +101,91 @@ const PromptTemplateNodeMachine = createMachine(
           enqueue("initialize");
         }),
       },
+      ADD_SOCKET: {
+        actions: "addSocket",
+      },
+      REMOVE_SOCKET: {
+        actions: "removeSocket",
+      },
+      SET_VALUE: {
+        actions: enqueueActions(({ enqueue }) => {
+          enqueue("setValue");
+        }),
+      },
     },
     states: {
-      complete: {
-        invoke: {
-          src: "parse",
-          input: ({ context }) => ({
-            template: context.inputs["x-template"],
-            inputs: context.inputs,
-          }),
-          onError: {
-            target: "error",
-            actions: ["setError"],
-          },
-          onDone: {
-            actions: assign({
-              settings: ({ context, event }) => ({
-                ...context.settings,
-                variables: event.output.variables,
-              }),
-              inputSockets: ({ context, event }) => {
-                const sockets = event.output.variables
-                  .filter((item: string) => item.length > 0)
-                  .map((item: string) => {
-                    return generateSocket({
-                      name: item,
-                      title: item,
-                      type: "string",
-                      description: "variable",
-                      required: true,
-                      "x-compatible": ["any"],
-                      "x-key": item,
-                      "x-showSocket": true,
-                      "x-isAdvanced": false,
-                    });
-                  })
-                  .reduce((prev: any, curr: any) => {
-                    prev[curr.name] = curr;
-                    return prev;
-                  }, {});
-                return {
-                  "x-template": context.inputSockets["x-template"],
-                  ...sockets,
-                };
-              },
-              outputs: ({ event }) => ({ value: event.output.rendered }),
-            }),
-          },
-        },
-        on: {
-          // change: {
-          //   target: "typing",
-          // },
-          SET_VALUE: {
-            actions: ["setValue"],
-            target: "complete",
-            reenter: true,
-          },
-        },
-      },
-      error: {
-        exit: () => {
-          assign({
-            error: null,
-          });
-        },
-        on: {
-          SET_VALUE: {
-            target: "complete",
-            actions: ["setValue"],
-          },
-        },
-      },
+      idle: {},
+      // complete: {
+      //   invoke: {
+      //     src: "parse",
+      //     input: ({ context }) => ({
+      //       template: context.inputs["x-template"],
+      //       inputs: context.inputs,
+      //     }),
+      //     onError: {
+      //       target: "error",
+      //       actions: ["setError"],
+      //     },
+      //     onDone: {
+      //       actions: assign({
+      //         settings: ({ context, event }) => ({
+      //           ...context.settings,
+      //           variables: event.output.variables,
+      //         }),
+      //         inputSockets: ({ context, event }) => {
+      //           const sockets = event.output.variables
+      //             .filter((item: string) => item.length > 0)
+      //             .map((item: string) => {
+      //               return generateSocket({
+      //                 name: item,
+      //                 title: item,
+      //                 type: "string",
+      //                 description: "variable",
+      //                 required: true,
+      //                 "x-compatible": ["any"],
+      //                 "x-key": item,
+      //                 "x-showSocket": true,
+      //                 "x-isAdvanced": false,
+      //               });
+      //             })
+      //             .reduce((prev: any, curr: any) => {
+      //               prev[curr.name] = curr;
+      //               return prev;
+      //             }, {});
+      //           return {
+      //             "x-template": context.inputSockets["x-template"],
+      //             ...sockets,
+      //           };
+      //         },
+      //         outputs: ({ event }) => ({ value: event.output.rendered }),
+      //       }),
+      //     },
+      //   },
+      //   on: {
+      //     // change: {
+      //     //   target: "typing",
+      //     // },
+      //     SET_VALUE: {
+      //       actions: ["setValue"],
+      //       target: "complete",
+      //       reenter: true,
+      //     },
+      //   },
+      // },
+      // error: {
+      //   exit: () => {
+      //     assign({
+      //       error: null,
+      //     });
+      //   },
+      //   on: {
+      //     SET_VALUE: {
+      //       target: "complete",
+      //       actions: ["setValue"],
+      //     },
+      //   },
+      // },
     },
-    output: ({ context }) => context.outputs,
   },
   {
     actors: {

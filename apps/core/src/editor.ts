@@ -1256,12 +1256,9 @@ export class Editor<
           parent: ActorRefFrom<typeof inputSocketMachine>;
         },
       },
-    }).createMachine({
-      /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgVwC5gDUBDAG2zAGIJUA7MAOllyP3rSz0NPIG0AGALqJQmVLACWucbWEgAHogAsi+gEYAnOoBMqgOxaArAA4AzOoBsJrYoA0IAJ6JVWgL5u7NVBDiz2OfMRkYLKiElIySPJOunaOCKqqfPSKBibOfOqKuuppBopubkA */
-      id: "computeValue",
-      context: ({ input }) => input,
-      invoke: {
-        src: fromPromise(async ({ input }) => {
+      actors: {
+        compute: fromPromise(async ({ input, system }) => {
+          console.log("COMPUTE INPUT", input);
           if (input.definition.format === "secret") {
             return this.variables.get(input.value);
           } else if (input.definition.format === "expression") {
@@ -1277,9 +1274,19 @@ export class Editor<
             // for (const lib of input.libraries) {
             //   await worker.postoffice.installLibrary(lib);
             // }
+            const inputSocket = input?.parent || system.get(input.parent.id);
+            const parentNode = system.get(
+              inputSocket.getSnapshot().context.parent.id,
+            );
+            const parent = parentNode.getSnapshot().context;
+
+            console.log("RRR", parent);
+
             const result = await worker.postoffice.sendScript(
-              `() => \`${input.value}\``,
-              {},
+              `(context) => \`${input.value}\``,
+              {
+                ...parent.inputs,
+              },
             );
             worker.destroy();
             console.log("RRR", result);
@@ -1288,6 +1295,13 @@ export class Editor<
             return input.value;
           }
         }),
+      },
+    }).createMachine({
+      /** @xstate-layout N4IgpgJg5mDOIC5QGMD2BbADgVwC5gDUBDAG2zAGIJUA7MAOllyP3rSz0NPIG0AGALqJQmVLACWucbWEgAHogAsi+gEYAnOoBMqgOxaArAA4AzOoBsJrYoA0IAJ6JVWgL5u7NVBDiz2OfMRkYLKiElIySPJOunaOCKqqfPSKBibOfOqKuuppBopubkA */
+      id: "computeValue",
+      context: ({ input }) => input,
+      invoke: {
+        src: "compute",
         input: ({ context }) => context,
         onDone: {
           actions: enqueueActions(({ enqueue, event, context }) => {
