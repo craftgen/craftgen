@@ -168,6 +168,9 @@ export type BaseEventTypes =
       };
     }
   | {
+      type: "COMPUTE";
+    }
+  | {
       type: "RESULT";
       params: {
         id: string; // Call id

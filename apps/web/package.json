@@ -153,7 +153,7 @@
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.295.0",
     "mobx-react-lite": "^4.0.5",
-    "modelfusion": "^0.136.0",
+    "modelfusion": "^0.137.0",
     "moment-timezone": "^0.5.45",
     "next": "14.1.0",
     "next-contentlayer": "^0.3.4",

@@ -2,7 +2,13 @@ import { useMemo, useState } from "react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
 import _, { omit, get, isNil, isEqual } from "lodash-es";
-import { ChevronDown, ChevronRight, Circle, CircleDot } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  CircleDot,
+  Type,
+} from "lucide-react";
 import { Actor, ActorRefFrom, AnyActor, AnyActorRef } from "xstate";
 
 import { NodeControl } from "@seocraft/core/src/controls/node";
@@ -10,6 +16,7 @@ import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
+  useSocketConfig,
 } from "@seocraft/core/src/sockets";
 
 import { cn } from "@/lib/utils";
@@ -21,7 +28,8 @@ import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { Label } from "@/components/ui/label";
 import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 import { SocketGenerator } from "./control-socket-generator";
-import { Badge, Divider } from "@tremor/react";
+import { Divider } from "@tremor/react";
+import { Badge } from "@/components/ui/badge";
 
 import {
   DropdownMenu,
@@ -427,6 +435,7 @@ const SocketController = ({
     isEqual,
   );
   const parentId = useSelector(actor, (state) => state.context.parent.id);
+  const config = useSocketConfig(socket.type);
 
   return (
     <motion.div
@@ -506,9 +515,21 @@ const SocketController = ({
           />
         )}
         {children}
-        <div className="space-x-4 py-1">
-          <Badge size={"xs"}>{socket["x-key"]}</Badge>
-          <Badge size={"xs"} color={"green"} icon={"template"}>
+        <div className="flex items-center space-x-2 py-1">
+          <Badge
+            className="rounded-md bg-green-400/40 text-green-500"
+            variant={"outline"}
+          >
+            {socket["x-key"]}
+          </Badge>
+          <Badge
+            variant={"outline"}
+            className={cn(
+              "border-1 rounded-md border border-opacity-60 bg-opacity-30",
+              config?.badge,
+            )}
+          >
+            <Type className="mr-2 h-3 w-3" />
             {socket["type"]}
           </Badge>
         </div>

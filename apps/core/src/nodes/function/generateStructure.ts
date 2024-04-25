@@ -227,14 +227,18 @@ const GenerateObjectMachine = createMachine({
             ({ context }) => !isNil(context.inputs.llm),
           ]),
           actions: enqueueActions(({ enqueue, check, event }) => {
-            if (check(({ event }) => !isNil(event.params?.values))) {
+            if (check(({ event }) => event.origin.type !== "compute-event")) {
               enqueue({
-                type: "setValue",
+                type: "computeEvent",
                 params: {
-                  values: event.params?.values!,
+                  event: event.type,
                 },
               });
+              return;
             }
+            enqueue({
+              type: "removeComputation",
+            });
             const runId = `call-${createId()}`;
             enqueue.sendTo(
               ({ system }) => system.get("editor"),
@@ -247,13 +251,14 @@ const GenerateObjectMachine = createMachine({
                   systemId: runId,
                   input: {
                     inputs: {
-                      llm: context.inputs.llm! as
-                        | OpenAIModelConfig
-                        | OllamaModelConfig,
-                      method: context.inputs.method!,
-                      system: context.inputs.system,
-                      instruction: context.inputs.instruction,
-                      schema: context.inputs.schema,
+                      ...event.params?.inputs,
+                      // llm: context.inputs.llm! as
+                      //   | OpenAIModelConfig
+                      //   | OllamaModelConfig,
+                      // method: context.inputs.method!,
+                      // system: context.inputs.system,
+                      // instruction: context.inputs.instruction,
+                      // schema: context.inputs.schema,
                     },
                     senders: [{ id: self.id }],
                     parent: {
@@ -283,6 +288,7 @@ interface GenerateStructureInput {
 
 const generateStructureActor = fromPromise(
   async ({ input }: { input: GenerateStructureInput }) => {
+    console.log("GENERATE_STRUCTURE_ACTOR", { input });
     const model = match([input.llm, input.method])
       .with(
         [
@@ -293,20 +299,21 @@ const generateStructureActor = fromPromise(
         ],
         ([config]) => {
           const model = ollama
-            .ChatTextGenerator({
+            .CompletionTextGenerator({
               ...config,
               api: new BaseUrlApiConfiguration(config.apiConfiguration),
+              stream: false,
             })
             .asObjectGenerationModel(
               jsonObjectPrompt.instruction({
-                schemaPrefix: "schema",
+                schemaPrefix: `"""\nschema\n`,
+                schemaSuffix: `"""\nparameter\n`,
               }),
             );
           return () =>
             generateObject({
               model,
-              schema: new UncheckedSchema(input.schema.parameters),
-
+              schema: new UncheckedSchema(input.schema),
               prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
@@ -338,7 +345,7 @@ const generateStructureActor = fromPromise(
           return () =>
             generateObject({
               model,
-              schema: new UncheckedSchema(input.schema.parameters),
+              schema: new UncheckedSchema(input.schema),
               prompt: {
                 system: input.system,
                 instruction: input?.instruction || "",
@@ -378,6 +385,7 @@ const generateStructureActor = fromPromise(
         },
       )
       .run();
+    console.log("MODEL", model);
     const structure = await model();
 
     return structure;

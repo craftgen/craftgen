@@ -1,4 +1,4 @@
-import { merge } from "lodash-es";
+import { merge, set } from "lodash-es";
 import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
@@ -36,144 +36,127 @@ const outputSockets = {
   }),
 };
 
-const composeObjectMachine = createMachine(
-  {
-    id: "composeObject",
-    initial: "idle",
-    context: (ctx) =>
-      NodeContextFactory(ctx, {
-        name: "new_object",
-        description: "object description",
-        inputSockets: {},
-        outputSockets,
-      }),
-    types: {} as BaseMachineTypes<{
-      input: {
-        name: string;
-        description?: string;
-      };
-      context: {
-        name: string;
-        description: string;
-        schema: JSONSchemaDefinition;
-      };
-      actors: None;
-      guards: None;
-      actions:
-        | {
-            type: "updateConfig";
-            params?: {
-              name: string;
-              description: string;
-              inputSockets: JSONSocket[];
-              schema: object;
-            };
-          }
-        | {
-            type: "updateOutputObject";
+const composeObjectMachine = createMachine({
+  id: "composeObject",
+  initial: "idle",
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "new_object",
+      description: "object description",
+      inputSockets: {},
+      outputSockets,
+    }),
+  types: {} as BaseMachineTypes<{
+    input: {
+      name: string;
+      description?: string;
+    };
+    context: {
+      name: string;
+      description: string;
+      schema: JSONSchemaDefinition;
+    };
+    actors: None;
+    guards: None;
+    actions:
+      | {
+          type: "updateConfig";
+          params?: {
+            name: string;
+            description: string;
+            inputSockets: JSONSocket[];
+            schema: object;
           };
-      events: {
-        type: "CONFIG_CHANGE";
-        name: string;
-        description: string;
-        inputSockets: JSONSocket[];
-        schema: JSONSchemaDefinition;
-      };
-    }>,
-    on: {
-      ADD_SOCKET: {
-        actions: "addSocket",
-      },
-      REMOVE_SOCKET: {
-        actions: "removeSocket",
-      },
+        }
+      | {
+          type: "updateOutputObject";
+        };
+    events: {
+      type: "CONFIG_CHANGE";
+      name: string;
+      description: string;
+      inputSockets: JSONSocket[];
+      schema: JSONSchemaDefinition;
+    };
+  }>,
+  on: {
+    ADD_SOCKET: {
+      actions: "addSocket",
     },
-    states: {
-      idle: {
-        // entry: ["updateAncestors"],
-        on: {
-          CONFIG_CHANGE: {
-            target: "editing",
-          },
-          SET_VALUE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("setValue");
-              enqueue("updateOutputObject");
-            }),
-          },
-        },
-      },
-      editing: {
-        entry: ["updateConfig"],
-        on: {
-          CONFIG_CHANGE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("updateConfig");
-              enqueue("updateOutputObject");
-            }),
-            target: "editing",
-            reenter: true,
-          },
-          SET_VALUE: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue("setValue");
-              enqueue("updateOutputObject");
-            }),
-          },
-        },
-        after: {
-          100: "idle",
-        },
-      },
+    REMOVE_SOCKET: {
+      actions: "removeSocket",
+    },
+    SET_VALUE: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("setValue");
+      }),
     },
   },
-  {
-    actions: {
-      updateOutputObject: assign({
-        outputs: ({ context }) => ({
-          ...context.outputs,
-          object: context.inputs,
-        }),
+  invoke: [
+    {
+      src: "actorWatcher",
+      input: ({ self }) => ({
+        actor: self,
+        stateSelectorPath: "context.inputs",
+        event: "COMPUTE",
       }),
-      updateConfig: assign({
-        inputSockets: ({ event }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => inputSockets)
-            .run(),
-        name: ({ event }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
-            .run(),
-        description: ({ event }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
-            .run(),
-        schema: ({ event }: any) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
-            .run(),
-        outputs: ({ context, event }) =>
-          match(event)
-            .with(
-              {
-                type: "CONFIG_CHANGE",
-                name: P.string,
-                description: P.string,
+    },
+  ],
+  states: {
+    idle: {
+      on: {
+        CONFIG_CHANGE: {
+          actions: "updateConfig",
+        },
+        COMPUTE: {
+          actions: enqueueActions(({ enqueue, context, self, event }) => {
+            enqueue({
+              type: "computeEvent",
+              params: {
+                event: "RESULT",
               },
-              ({ schema }) => ({
-                object: context.inputs,
-                schema: {
-                  name: slugify(event.name, "_"),
-                  description: event.description,
-                  parameters: schema,
+            });
+          }),
+        },
+        RESULT: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            console.log("RESULT EVENT", context, event);
+
+            enqueue({
+              type: "removeComputation",
+            });
+
+            const schema = createJsonSchema(
+              Object.values(context.inputSockets).reduce(
+                (prev, inputSocketActor) => {
+                  const socket = inputSocketActor.getSnapshot();
+                  const definition = socket.context.definition;
+                  console.log("PP", prev, definition);
+                  set(prev, definition["x-key"], definition);
+                  return prev;
                 },
-              }),
-            )
-            .run(),
-      }),
+                {} as Record<string, any>,
+              ),
+            );
+
+            enqueue.assign({
+              outputs: ({ event }) => {
+                return {
+                  schema,
+                  object: {
+                    ...event.params.inputs,
+                  },
+                };
+              },
+            });
+
+            enqueue("resolveOutputSockets");
+          }),
+        },
+      },
     },
   },
-);
+});
 
 export type ComposeObjectData = ParsedNode<
   "NodeComposeObject",
@@ -205,34 +188,5 @@ export class NodeComposeObject extends BaseNode<typeof composeObjectMachine> {
     });
 
     this.setup();
-    // const state = this.actor.getSnapshot();
-    // const inputGenerator = new SocketGeneratorControl(
-    //   this.actor,
-    //   (s) => s.context.inputSockets,
-    //   {
-    //     connectionType: "input",
-    //     name: "Input Sockets",
-    //     ignored: ["trigger"],
-    //     tooltip: "Add input sockets",
-    //     initial: {
-    //       name: state.context.name,
-    //       description: state.context.description,
-    //     },
-    //     onChange: ({ sockets, name, description }) => {
-    //       const schema = createJsonSchema(sockets);
-    //       this.setLabel(name);
-    //       this.actor.send({
-    //         type: "CONFIG_CHANGE",
-    //         name,
-    //         description: description || "",
-    //         inputSockets: sockets,
-    //         schema,
-    //       });
-    //     },
-    //   },
-    // );
-
-    // this.addControl("inputGenerator", inputGenerator);
-    // this.setLabel(this.snap.context.name || NodeComposeObject.label);
   }
 }

@@ -135,39 +135,6 @@ interface GenerateTextInput {
   instruction: string;
 }
 
-const computeExecutionValue = (actorRef: AnyActorRef) => {
-  const state = actorRef.getSnapshot();
-  const value: Record<string, any> = {};
-
-  for (const [key, outputValue] of Object.entries(
-    state.context.outputs.config,
-  )) {
-    console.log("OUTPUT VALUE", key, outputValue);
-    match(outputValue)
-      .with(
-        {
-          src: P.string.startsWith("Node"),
-        },
-        (_, actorRef: AnyActorRef) => {
-          value[key] = computeExecutionValue(actorRef);
-        },
-      )
-      .with(
-        {
-          src: P.string.startsWith("value"),
-        },
-        (val) => {
-          value[key] = val.getSnapshot().context.value;
-        },
-      )
-      .otherwise((val) => {
-        value[key] = val;
-      });
-  }
-
-  return value;
-};
-
 const generateTextActor = fromPromise(
   async ({ input }: { input: GenerateTextInput }) => {
     console.log("INPUT", input);
@@ -203,14 +170,14 @@ const generateTextActor = fromPromise(
             provider: "openai",
           },
         },
-        ({ llm }) => {
+        async ({ llm }) => {
           const model = openai
             .ChatTextGenerator({
               ...llm,
               api: new BaseUrlApiConfiguration(llm.apiConfiguration),
             })
             .withInstructionPrompt();
-          const res = generateText({
+          const res = await generateText({
             model,
             prompt: {
               system: input.system,
