@@ -123,6 +123,8 @@ export const socketSchema = z
     "x-libraries": z.array(z.string()).optional(),
     "x-language": z.string().optional(),
     "x-canChangeFormat": z.boolean().default(true).optional(),
+
+    allOf: z.array(z.custom<JSONSchema>()).optional(),
   })
   .superRefine((params, ctx) => {
     if (params.type === "trigger" && params["x-event"] === undefined) {

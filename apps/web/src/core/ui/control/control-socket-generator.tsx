@@ -29,6 +29,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -42,8 +43,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import _, { isEqual, pick, isNil } from "lodash";
-import { useEffect, useMemo } from "react";
+import _, { isEqual, pick, isNil, get, set } from "lodash";
+import { use, useEffect, useMemo } from "react";
 import { ActorRefFrom, AnyActor, enqueueActions, setup } from "xstate";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { outputSocketMachine } from "@seocraft/core/src/output-socket";
@@ -61,7 +62,7 @@ export const SocketTypes = {
     icon: "paragraph",
     definition: {
       type: "string",
-      "x-component": "textarea",
+      "x-controller": "textarea",
     },
   },
   api_key: {
@@ -85,7 +86,7 @@ export const SocketTypes = {
     icon: "select",
     definition: {
       type: "string",
-      "x-component": "select",
+      "x-controller": "select",
       allOf: [
         {
           type: "string",
@@ -127,7 +128,7 @@ export const SocketTypes = {
     icon: "file",
     definition: {
       type: "string",
-      "x-component": "file",
+      "x-controller": "file",
     },
   },
   file_url: {
@@ -135,7 +136,7 @@ export const SocketTypes = {
     icon: "file",
     definition: {
       type: "string",
-      "x-component": "file",
+      "x-controller": "file",
     },
   },
 };
@@ -162,8 +163,8 @@ const socketCreator = setup({
     if (input.socketActor) {
       const state = input.socketActor.getSnapshot();
       return {
-        type: "text",
-        definition: state.context.definition,
+        type: "existing",
+        definition: normalizeSelectValues(state.context.definition),
         target: input.actor,
         socketActor: input.socketActor,
       };
@@ -249,6 +250,19 @@ const socketCreator = setup({
     },
   },
 });
+const normalizeSelectValues = (definition: JSONSocket): JSONSocket => {
+  const dd = { ...definition };
+  const selectValues = get(definition, "allOf[0].enum", []);
+  console.log("SELECT VALUES:", selectValues);
+  if (selectValues) {
+    return set(
+      dd,
+      "allOf[0].enum",
+      selectValues.map((m: any) => ({ value: m })),
+    );
+  }
+  return dd;
+};
 
 export const SocketGenerator = (props: {
   actor: AnyActor;
@@ -267,6 +281,7 @@ export const SocketGenerator = (props: {
       Object.keys(state.context.inputSockets).map((key) => key.split(":")[2]),
     isEqual,
   );
+
   const form = useForm<z.infer<typeof socketSchema>>({
     values: state.context.definition,
     mode: "onBlur",
@@ -277,11 +292,6 @@ export const SocketGenerator = (props: {
             return !otherKeys.includes(val["x-key"]);
           }
           return true;
-          // const val = await checkSlugAvailable({
-          //   slug,
-          //   projectId: project?.id!,
-          // });
-          // return val;
         },
         {
           message:
@@ -295,7 +305,6 @@ export const SocketGenerator = (props: {
       },
     ),
     defaultValues: {
-      // "x-key": String(+new Date()),
       ...state.context.definition,
       "x-userDefined": true,
       "x-showSocket": true,
@@ -308,13 +317,26 @@ export const SocketGenerator = (props: {
       form.setValue("x-key", slugify(name, "_"));
     }
   }, [name]);
+  const formValues = form.watch();
+  useEffect(() => {
+    console.log("FORM: ", formValues);
+  }, [formValues]);
 
   const onSubmit = (data?: z.infer<typeof socketSchema>) => {
     console.log({ data });
+    let definition: any = data;
+    const selectValues = get(data, "allOf[0].enum", []);
+    if (selectValues.length > 0) {
+      definition = set(
+        definition,
+        "allOf[0].enum",
+        selectValues.map((m: { value: any }) => m.value),
+      );
+    }
     send({
       type: "UPDATE_SOCKET",
       params: {
-        definition: data,
+        definition,
       },
     });
     send({ type: "SUBMIT" });
@@ -396,6 +418,7 @@ export const SocketGenerator = (props: {
                 </FormItem>
               )}
             />
+            {state.context.type === "select" && <FieldOptionGenerator />}
             <FormField
               control={form.control}
               name={`x-key`}
@@ -434,6 +457,64 @@ export const SocketGenerator = (props: {
           </form>
         </Form>
       )}
+    </div>
+  );
+};
+
+const FieldOptionGenerator = (props: {}) => {
+  const { control } = useFormContext(); // retrieve all hook methods
+  const path = "allOf[0].enum";
+
+  const { fields, append, remove, swap, move, insert } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "allOf[0].enum", // unique name for your Field Array
+  });
+  const handleAppend = () => {
+    append({
+      value: "",
+    });
+  };
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <div>
+        <FormLabel>Options</FormLabel>
+        <FormDescription>
+          Add options for the user or AI agent to select from.
+        </FormDescription>
+      </div>
+      <div className="flex flex-col space-y-2">
+        {fields.map((field, index) => (
+          <div className="flex w-full">
+            <FormField
+              control={control}
+              name={`${path}.${index}.value`}
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <Input
+                      placeholder="Give option for the user or AI agent."
+                      {...field}
+                      autoComplete="false"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button
+              onClick={() => remove(index)}
+              variant="icon"
+              size="sm"
+              type="button"
+            >
+              <X />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <Button type="button" onClick={handleAppend}>
+        Add Option
+      </Button>
     </div>
   );
 };
@@ -717,109 +798,3 @@ export function SocketGeneratorControlComponent(props: {
     </Form>
   );
 }
-
-const FieldItem: React.FC<{
-  index: number;
-  handleRemove: (index: number) => void;
-}> = ({ index, handleRemove }) => {
-  const form = useFormContext();
-  console.log(form);
-  return (
-    <div
-      key={`field.${index}`}
-      className="@container relative mb-4 flex flex-col rounded border p-2 shadow"
-    >
-      <div className="absolute right-2 top-2">
-        <Button
-          type={"button"}
-          variant={"ghost"}
-          onClick={() => handleRemove(index)}
-        >
-          <X />
-        </Button>
-      </div>
-      <div className="@lg:grid-cols-3 @md:grid-cols-2 grid grid-cols-1 gap-2">
-        <FormField
-          control={form.control}
-          name={`sockets.${index}.name`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="craftgen" {...field} autoComplete="false" />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name={`sockets.${index}.type`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger className="min-w-fit">
-                    <SelectValue placeholder="Select type for field" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {types?.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>This is type for field.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name={`sockets.${index}.description`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input placeholder="Description for the field" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name={`sockets.${index}.required`}
-          render={({ field }) => (
-            <FormItem className="flex items-center space-y-0">
-              <FormControl>
-                <Checkbox
-                  className="mx-4"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormLabel>Required</FormLabel>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-    </div>
-  );
-};
