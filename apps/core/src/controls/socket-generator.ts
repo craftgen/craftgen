@@ -100,7 +100,7 @@ export const socketSchema = z
     "x-userDefined": z.boolean().default(false),
 
     "x-isAdvanced": z.boolean().default(false),
-    "x-key": z.string(),
+    "x-key": z.string().nonempty(),
     "x-event": z.string().optional(),
     "x-event-param-socket-keys": z.array(z.string()).optional(),
 

@@ -20,7 +20,6 @@ import {
   BehaviorSubject,
   startWith,
 } from "rxjs";
-import { contextMenu } from "./plugins/reactPlugin/presets";
 
 function createId(prefix: "context" | "value", parentId: string) {
   const createId = init({
@@ -187,6 +186,7 @@ export const inputSocketMachine = setup({
         );
       }),
     },
+
     UPDATE_SOCKET: {
       actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({

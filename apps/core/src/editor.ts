@@ -851,7 +851,6 @@ export class Editor<
                     definition: {
                       ...event.params.definition,
                       "x-showSocket": true,
-                      "x-userGenerated": true,
                     },
                     parent: self,
                   },
@@ -881,9 +880,8 @@ export class Editor<
                 const socket = spawn("output", {
                   input: {
                     definition: {
-                      type: "string",
+                      ...event.params.definition,
                       "x-showSocket": true,
-                      "x-userGenerated": true,
                     },
                     parent: self,
                   },

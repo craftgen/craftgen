@@ -42,9 +42,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import _, { isEqual, pick } from "lodash";
+import _, { isEqual, pick, isNil } from "lodash";
 import { useEffect, useMemo } from "react";
-import { AnyActor, enqueueActions, setup } from "xstate";
+import { ActorRefFrom, AnyActor, enqueueActions, setup } from "xstate";
+import { inputSocketMachine } from "@seocraft/core/src/input-socket";
+import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 
 export const SocketTypes = {
   text: {
@@ -142,19 +144,36 @@ const socketCreator = setup({
   types: {} as {
     input: {
       actor: AnyActor;
+      socketActor?: ActorRefFrom<
+        typeof inputSocketMachine | typeof outputSocketMachine
+      >;
     };
     context: {
       type: keyof typeof SocketTypes | null;
       definition: JSONSocket;
       target: AnyActor;
+      socketActor?: ActorRefFrom<
+        typeof inputSocketMachine | typeof outputSocketMachine
+      >;
     };
   },
 }).createMachine({
-  context: ({ input }) => ({
-    type: null,
-    definition: {},
-    target: input.actor,
-  }),
+  context: ({ input }) => {
+    if (input.socketActor) {
+      const state = input.socketActor.getSnapshot();
+      return {
+        type: "text",
+        definition: state.context.definition,
+        target: input.actor,
+        socketActor: input.socketActor,
+      };
+    }
+    return {
+      type: null,
+      definition: {},
+      target: input.actor,
+    };
+  },
   initial: "select_type",
   states: {
     select_type: {
@@ -173,6 +192,12 @@ const socketCreator = setup({
           target: "details",
         },
       },
+      always: [
+        {
+          guard: ({ context }) => context.type !== null,
+          target: "details",
+        },
+      ],
     },
     details: {
       on: {
@@ -196,15 +221,28 @@ const socketCreator = setup({
             });
           }),
         },
-        CREATE: {
-          actions: enqueueActions(({ context }) => {
-            context.target.send({
-              type: "ADD_SOCKET",
-              params: {
-                side: "input",
-                definition: context.definition,
-              },
-            });
+        SUBMIT: {
+          actions: enqueueActions(({ context, check, enqueue }) => {
+            if (check(({ context }) => isNil(context.socketActor))) {
+              enqueue.sendTo(
+                ({ context }) => context.target,
+                ({ context }) => ({
+                  type: "ADD_SOCKET",
+                  params: {
+                    side: "input",
+                    definition: context.definition,
+                  },
+                }),
+              );
+            } else {
+              enqueue.sendTo(
+                ({ context }) => context.socketActor,
+                ({ context }) => ({
+                  type: "UPDATE_SOCKET",
+                  params: context.definition,
+                }),
+              );
+            }
           }),
         },
       },
@@ -212,10 +250,16 @@ const socketCreator = setup({
   },
 });
 
-export const SocketGenerator = (props: { actor: AnyActor }) => {
+export const SocketGenerator = (props: {
+  actor: AnyActor;
+  hideGenerator: () => void;
+  socketActor?:
+    | ActorRefFrom<typeof inputSocketMachine>
+    | ActorRefFrom<typeof outputSocketMachine>;
+}) => {
   const sockets = Object.entries(SocketTypes);
   const [state, send] = useActor(socketCreator, {
-    input: { actor: props.actor },
+    input: { actor: props.actor, socketActor: props.socketActor },
   });
   const otherKeys = useSelector(
     props.actor,
@@ -229,7 +273,10 @@ export const SocketGenerator = (props: { actor: AnyActor }) => {
     resolver: zodResolver(
       socketSchema.refine(
         async (val) => {
-          return !otherKeys.includes(val["x-key"]);
+          if (!props.socketActor) {
+            return !otherKeys.includes(val["x-key"]);
+          }
+          return true;
           // const val = await checkSlugAvailable({
           //   slug,
           //   projectId: project?.id!,
@@ -248,39 +295,34 @@ export const SocketGenerator = (props: { actor: AnyActor }) => {
       },
     ),
     defaultValues: {
-      "x-key": String(+new Date()),
+      // "x-key": String(+new Date()),
+      ...state.context.definition,
+      "x-userDefined": true,
+      "x-showSocket": true,
     },
   });
   const name = form.watch("name", "");
-  // useEffect(() => {
-  //   if (!form.getFieldState("x-key").isTouched) {
-  //     console.log("SETTING KEY", slugify(name, "_"));
-  //     form.setValue("description", slugify(name, "_"), {
-  //       shouldValidate: true,
-  //     });
-  //   }
-  // }, [name]);
+  useEffect(() => {
+    if (!form.getFieldState("x-key").isTouched && !props.socketActor) {
+      console.log("SETTING KEY", slugify(name, "_"));
+      form.setValue("x-key", slugify(name, "_"));
+    }
+  }, [name]);
 
   const onSubmit = (data?: z.infer<typeof socketSchema>) => {
+    console.log({ data });
     send({
       type: "UPDATE_SOCKET",
       params: {
         definition: data,
       },
     });
-  };
-
-  const handleSave = () => {
-    form.trigger().then((valid) => {
-      if (valid) {
-        send({ type: "CREATE" });
-      }
-    });
+    send({ type: "SUBMIT" });
+    props.hideGenerator();
   };
 
   return (
-    <div>
-      <h1>SOCKET</h1>
+    <div className="bg-muted/20 w-full rounded border p-1">
       {state.matches("select_type") && (
         <div className="grid grid-cols-3 gap-4 p-4">
           {sockets.map(([key, socket]) => {
@@ -300,8 +342,8 @@ export const SocketGenerator = (props: { actor: AnyActor }) => {
       {state.matches("details") && (
         <Form {...form}>
           <form
-            onChange={form.handleSubmit(onSubmit)}
-            className="flex h-full flex-col p-4"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex h-full flex-col"
           >
             <FormField
               control={form.control}
@@ -357,6 +399,7 @@ export const SocketGenerator = (props: { actor: AnyActor }) => {
             <FormField
               control={form.control}
               name={`x-key`}
+              disabled={!!props.socketActor}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
@@ -367,16 +410,30 @@ export const SocketGenerator = (props: { actor: AnyActor }) => {
                       autoComplete="false"
                     />
                   </FormControl>
+                  {!!props.socketActor && (
+                    <FormDescription>
+                      You can't change the variable name of an existing field.
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <Button
+                type="button"
+                onClick={() => props.hideGenerator()}
+                variant={"destructive"}
+              >
+                Cancel
+              </Button>
+              <Button disabled={!form.formState.isValid} type="submit">
+                Save
+              </Button>
+            </div>
           </form>
         </Form>
       )}
-      <Button disabled={!form.formState.isValid} onClick={handleSave}>
-        Save
-      </Button>
     </div>
   );
 };

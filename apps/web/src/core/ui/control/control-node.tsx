@@ -159,11 +159,11 @@ export const InputsList = (props: {
           showAdvanced={props.showAdvanced || false}
         />
         {showSocketGenerator && (
-          <div>
-            <Button onClick={() => setShowSocketGenerator(false)}>
-              Cancel
-            </Button>
-            <SocketGenerator actor={props.actor} />
+          <div className="flex w-full p-4">
+            <SocketGenerator
+              actor={props.actor}
+              hideGenerator={() => setShowSocketGenerator(false)}
+            />
           </div>
         )}
         {canAddSocket && (
@@ -378,7 +378,7 @@ const SocketController = ({
   socketKey,
   children,
 }: {
-  actor: Actor<typeof inputSocketMachine | typeof outputSocketMachine>;
+  actor: ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine>;
   socket: JSONSocket;
   socketKey: string;
   children: React.ReactNode;
@@ -413,7 +413,10 @@ const SocketController = ({
       type: "DELETE",
     });
   };
-  const handleEdit = () => {};
+  const [showEdit, setShowEdit] = useState(false);
+  const handleEdit = () => {
+    setShowEdit(true);
+  };
   const canDelete = useSelector(
     actor,
     (state) => {
@@ -423,6 +426,7 @@ const SocketController = ({
     },
     isEqual,
   );
+  const parentId = useSelector(actor, (state) => state.context.parent.id);
 
   return (
     <motion.div
@@ -494,6 +498,13 @@ const SocketController = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {showEdit && (
+          <SocketGenerator
+            actor={actor.system.get(parentId)}
+            hideGenerator={() => setShowEdit(false)}
+            socketActor={actor}
+          />
+        )}
         {children}
         <div className="space-x-4 py-1">
           <Badge size={"xs"}>{socket["x-key"]}</Badge>
