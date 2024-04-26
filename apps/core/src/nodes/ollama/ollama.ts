@@ -5,7 +5,6 @@ import type {
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import { omit } from "lodash-es";
 import {
   ActorRefFrom,
   createMachine,
@@ -26,7 +25,6 @@ import type {
 import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
-import { createId } from "@paralleldrive/cuid2";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {

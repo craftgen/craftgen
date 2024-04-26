@@ -127,7 +127,9 @@ export class Connection<
       type: "UPDATE_SOCKET",
       params: {
         "x-connection": {
-          ...this.targetDefinition?.["x-connection"],
+          ...(this.targetDefinition["isMultiple"]
+            ? this.targetDefinition["x-connection"]
+            : {}),
           [this.sourceSocketActor.id]: this.sourceSocketActor.ref,
         } as ConnectionConfigRecord,
       },

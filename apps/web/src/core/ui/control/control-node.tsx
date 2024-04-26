@@ -262,6 +262,12 @@ const InputItem = ({
     s.matches({ socket: { actor: "connection" } }),
   );
 
+  console.log({
+    hasConnectionBasic,
+    hasConnectionActor,
+    item,
+  });
+
   if (hasConnectionBasic) {
     //   console.log("HAS CONNECTION");
     const connectionActor: ActorRefFrom<typeof outputSocketMachine> =

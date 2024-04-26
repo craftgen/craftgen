@@ -30,10 +30,11 @@ const inputSockets = {
     "x-key": "apiConfiguration",
     name: "api" as const,
     title: "API",
-    type: "NodeApiConfiguration",
+    type: "object",
     description: dedent`
     Api configuration
     `,
+    "x-compatible": ["NodeApiConfiguration"],
     required: true,
     default: {
       baseUrl: "https://api.openai.com/v1",
