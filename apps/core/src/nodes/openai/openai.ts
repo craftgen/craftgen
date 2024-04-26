@@ -1,4 +1,4 @@
-import { OPENAI_CHAT_MODELS } from "modelfusion";
+// import { OpenAIChatModel } from "modelfusion";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OpenAIChatSettings,
@@ -17,7 +17,6 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import { createId } from "@paralleldrive/cuid2";
 
 const inputSockets = {
   apiConfiguration: generateSocket({
@@ -53,12 +52,12 @@ const inputSockets = {
     type: "string" as const,
     allOf: [
       {
-        enum: Object.keys(OPENAI_CHAT_MODELS),
+        enum: Object.keys(OpenAIChatModelType),
         type: "string" as const,
       },
     ],
     "x-controller": "select",
-    default: "gpt-3.5-turbo-1106",
+    default: "gpt-3.5-turbo",
     description: dedent`
     The model to use for complation of chat. You can see available models
     `,

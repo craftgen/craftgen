@@ -22,7 +22,7 @@
     "@types/lodash-es": "^4.17.8",
     "date-fns": "^2.30.0",
     "lodash-es": "^4.17.21",
-    "openai": "^4.16.1",
+    "openai": "^4.38.5",
     "replicate": "^0.22.0",
     "stripe": "^14.18.0",
     "superjson": "1.13.1",
