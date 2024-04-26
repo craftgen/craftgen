@@ -1,11 +1,16 @@
-// import { OpenAIChatModel } from "modelfusion";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OpenAIChatSettings,
 } from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, enqueueActions } from "xstate";
+import {
+  ActorRefFrom,
+  assign,
+  createMachine,
+  enqueueActions,
+  fromPromise,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -17,6 +22,8 @@ import type {
   None,
   ParsedNode,
 } from "../base";
+import { inputSocketMachine } from "../../input-socket";
+import ky from "ky";
 
 const inputSockets = {
   apiConfiguration: generateSocket({
@@ -52,11 +59,11 @@ const inputSockets = {
     type: "string" as const,
     allOf: [
       {
-        enum: Object.keys(OpenAIChatModelType),
+        enum: ["gpt-3.5-turbo", "gpt-4-turbo"],
         type: "string" as const,
       },
     ],
-    "x-controller": "select",
+    // "x-controller": "select",
     default: "gpt-3.5-turbo",
     description: dedent`
     The model to use for complation of chat. You can see available models
@@ -171,6 +178,30 @@ export type OpenAIModelConfig = OpenAIChatSettings & {
   apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
+const getModels = fromPromise(
+  async ({
+    input,
+  }: {
+    input: {
+      apiConfiguration: {
+        baseUrl: string;
+        APIKey: string;
+      };
+    };
+  }) => {
+    console.log("GETTING MODELS", input);
+    const models = await ky
+      .get(`${input.apiConfiguration.baseUrl}/models`, {
+        headers: {
+          Authorization: `Bearer ${input.apiConfiguration.APIKey}`,
+        },
+      })
+      .json();
+    console.log("MODELS", models);
+    return models;
+  },
+);
+
 export const OpenaiModelMachine = createMachine(
   {
     id: "openai-model",
@@ -213,18 +244,56 @@ export const OpenaiModelMachine = createMachine(
       guards: None;
     }>,
     initial: "complete",
-    invoke: [
-      {
-        src: "actorWatcher",
-        input: ({ self, context }) => ({
-          actor: self,
-          stateSelectorPath: "context.inputs",
-          event: "COMPUTE",
-        }),
-      },
-    ],
     states: {
+      fetching_models: {
+        invoke: [
+          {
+            src: "getModels",
+            input: ({ context }) => ({
+              ...context.outputs,
+            }),
+            onDone: {
+              target: "complete",
+              actions: enqueueActions(({ enqueue, event }) => {
+                enqueue.sendTo(
+                  ({ context, system }) =>
+                    system.get(
+                      Object.keys(context.inputSockets).find((k) =>
+                        k.endsWith("model"),
+                      ),
+                    ) as ActorRefFrom<typeof inputSocketMachine>,
+                  {
+                    type: "UPDATE_SOCKET",
+                    params: {
+                      allOf: [
+                        {
+                          enum: [
+                            ...event.output.map((model: any) => model.name),
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                );
+              }),
+            },
+            onError: {
+              target: "complete",
+            },
+          },
+        ],
+      },
       complete: {
+        invoke: [
+          {
+            src: "actorWatcher",
+            input: ({ self, context }) => ({
+              actor: self,
+              stateSelectorPath: "context.inputs",
+              event: "COMPUTE",
+            }),
+          },
+        ],
         on: {
           SET_VALUE: {
             actions: enqueueActions(({ enqueue }) => {
@@ -233,7 +302,7 @@ export const OpenaiModelMachine = createMachine(
             reenter: true,
           },
           RESULT: {
-            actions: enqueueActions(({ enqueue, context, event }) => {
+            actions: enqueueActions(({ enqueue, context, event, check }) => {
               console.log("RESULT EVENT", context, event);
               enqueue("removeComputation");
 
@@ -286,6 +355,9 @@ export const OpenaiModelMachine = createMachine(
           return context.inputSockets;
         },
       }),
+    },
+    actors: {
+      getModels,
     },
   },
 );
