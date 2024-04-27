@@ -172,10 +172,8 @@ export const ApiConfigurationMachine = createMachine(
         actions: enqueueActions(({ enqueue, event, check, context, self }) => {
           console.log("RESULT EVENT", self.src, context, event);
 
-          enqueue.assign({
-            computes: ({ context, event }) => {
-              return omit(context.computes, event.origin.id);
-            },
+          enqueue({
+            type: "removeComputation",
           });
 
           const headers = { ...event.params.inputs.headers } as any;

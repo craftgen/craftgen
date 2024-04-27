@@ -1,6 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
 import type { ChatMessage } from "modelfusion";
-import type { MessageCreateParams } from "openai/resources/beta/threads/messages/messages.mjs";
 import type { PromiseActorLogic } from "xstate";
 import { assign, createMachine, enqueueActions } from "xstate";
 import dedent from "ts-dedent";
@@ -54,19 +53,11 @@ const outputSockets = {
     "x-showSocket": true,
     "x-event": "RUN",
   }),
-  thread: generateSocket({
-    name: "Thread",
-    type: "NodeThread",
-    "x-controller": "thread",
-    isMultiple: true,
-    "x-key": "self",
-    "x-showSocket": true,
-  }),
   messages: generateSocket({
     name: "messages",
     type: "array",
     isMultiple: true,
-    "x-key": "thread",
+    "x-key": "messages",
     "x-showSocket": true,
   }),
 };
@@ -142,7 +133,7 @@ export const ThreadMachine = createMachine(
               any,
               {
                 threadId: string;
-                params: MessageCreateParams;
+                params: any;
               }
             >;
           }
@@ -168,14 +159,62 @@ export const ThreadMachine = createMachine(
       INITIALIZE: {
         actions: ["initialize"],
       },
-      SET_OUTPUT: {
-        actions: ["setOutput"],
+      SET_VALUE: {
+        actions: ["setValue"],
       },
+    },
+    invoke: {
+      src: "actorWatcher",
+      input: ({ self, context }) => ({
+        actor: self,
+        stateSelectorPath: "context.inputs",
+        event: "COMPUTE",
+      }),
     },
     states: {
       idle: {
         entry: ["updateOutput"],
         on: {
+          COMPUTE: {
+            actions: enqueueActions(({ enqueue, self }) => {
+              const childId = `compute-${createId()}`;
+              enqueue.assign({
+                computes: ({ spawn, context, event }) => {
+                  return {
+                    ...context.computes,
+                    [childId]: spawn("computeEvent", {
+                      input: {
+                        inputSockets: context.inputSockets,
+                        inputs: {
+                          ...event?.params?.inputs,
+                        },
+                        event: "RESULT",
+                        parent: self,
+                      },
+                      systemId: childId,
+                      id: childId,
+                    }),
+                  };
+                },
+              });
+            }),
+          },
+          RESULT: {
+            actions: enqueueActions(({ enqueue, context }) => {
+              enqueue({
+                type: "removeComputation",
+              });
+              enqueue.assign({
+                outputs: ({ event }) => {
+                  return {
+                    messages: event.params.inputs.messages,
+                  };
+                },
+              });
+              enqueue("resolveOutputSockets");
+            }),
+          },
+
           [ThreadMachineEvents.addMessage]: {
             actions: enqueueActions(({ enqueue, context, event }) => {
               enqueue({
@@ -184,28 +223,30 @@ export const ThreadMachine = createMachine(
                   ...event.params,
                 },
               });
-              enqueue({
-                type: "updateOutput",
+              enqueue.raise({
+                type: "COMPUTE",
               });
             }),
-            reenter: true,
           },
 
           [ThreadMachineEvents.clearThread]: {
-            actions: enqueueActions(({ enqueue }) => {
-              enqueue.assign({
-                inputs: ({ context }) => {
-                  return {
-                    ...context.inputs,
-                    messages: [],
-                  };
-                },
-              });
-              enqueue({
-                type: "updateOutput",
+            actions: enqueueActions(({ enqueue, context }) => {
+              const messagesSocketId = Object.keys(context.inputSockets).find(
+                (k) => k.endsWith("messages"),
+              );
+              enqueue.sendTo(
+                ({ system }) => system.get(messagesSocketId),
+                ({ context }) => ({
+                  type: "SET_VALUE",
+                  params: {
+                    value: [],
+                  },
+                }),
+              );
+              enqueue.raise({
+                type: "COMPUTE",
               });
             }),
-            reenter: true,
           },
 
           [ThreadMachineEvents.run]: {
@@ -252,31 +293,36 @@ export const ThreadMachine = createMachine(
   },
   {
     actions: {
-      updateOutput: enqueueActions(({ enqueue, event, context, check }) => {
-        console.log("UPDATE OUTPUTS", event, context);
+      addMessage: enqueueActions(({ enqueue, context, event }) => {
+        const id = event.params.id || `message_${createId()}`;
         enqueue.assign({
-          outputs: ({ context }) => {
+          inputs: ({ context }) => {
             return {
-              ...context.outputs,
-              messages: context.inputs.messages,
+              ...context.inputs,
+              messages: [
+                ...context.inputs.messages,
+                {
+                  id,
+                  ...event.params,
+                },
+              ],
             };
           },
         });
-      }),
-      addMessage: assign({
-        inputs: ({ context, event }, params) => {
-          const id = params?.id || `message_${createId()}`;
-          return {
-            ...context.inputs,
-            messages: [
-              ...context.inputs.messages,
-              {
-                id,
-                ...params,
-              },
-            ],
-          };
-        },
+
+        const messagesSocketId = Object.keys(context.inputSockets).find((k) =>
+          k.endsWith("messages"),
+        );
+
+        enqueue.sendTo(
+          ({ system }) => system.get(messagesSocketId),
+          ({ context }) => ({
+            type: "SET_VALUE",
+            params: {
+              value: [...context.inputs.messages],
+            },
+          }),
+        );
       }),
     },
   },

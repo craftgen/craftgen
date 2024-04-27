@@ -81,11 +81,11 @@ const inputSockets = {
     isMultiple: false,
     default: true,
   }),
-  thread: generateSocket({
-    name: "Thread",
+  messages: generateSocket({
+    name: "Messages",
     description: "Thread of messages",
     "x-showSocket": true,
-    "x-key": "thread",
+    "x-key": "messages",
     type: "array",
     allOf: [
       {
@@ -93,8 +93,9 @@ const inputSockets = {
         type: "string" as const,
       },
     ],
-    "x-controller": "select",
-    "x-actor-type": "NodeThread",
+    default: [],
+    // "x-controller": "select",
+    // "x-actor-type": "NodeThread",
     "x-actor-config": {
       NodeThread: {
         connections: {
@@ -535,37 +536,8 @@ const completeChatMachineRun = setup({
       input,
     );
   },
-  initial: "prepare",
+  initial: "in_progress",
   states: {
-    prepare: {
-      entry: enqueueActions(({ enqueue, context, self }) => {
-        const inputSockets = Object.values(context.inputSockets);
-        for (const socket of inputSockets) {
-          enqueue.sendTo(socket, {
-            type: "COMPUTE",
-            params: {
-              targets: [self.id],
-            },
-          });
-        }
-      }),
-      on: {
-        SET_VALUE: {
-          actions: enqueueActions(({ enqueue, context, event }) => {
-            console.log("SET VALUE ON EXECUTION", event);
-            enqueue("setValue");
-          }),
-        },
-      },
-      always: [
-        {
-          guard: ({ context }) => {
-            return Object.values(context.inputs).every((t) => !isNull(t));
-          },
-          target: "in_progress",
-        },
-      ],
-    },
     in_progress: {
       on: {
         TOOL_REQUEST: {
@@ -858,12 +830,15 @@ const CompleteChatMachine = createMachine({
                 }),
               );
             }
+
             enqueue({
               type: "triggerSuccessors",
               params: {
                 port: "onDone",
               },
             });
+
+            enqueue("resolveOutputSockets");
           }),
         },
         RESET: {
@@ -878,20 +853,25 @@ const CompleteChatMachine = createMachine({
         },
         RUN: {
           guard: ({ context, event }) => {
-            return (
-              (context.inputs.messages || []).length > 0 ||
-              !isNil(event.params?.values)
-            );
+            return true;
+            // return (
+            //   (context.inputs.messages || []).length > 0 ||
+            //   !isNil(event.params?.values)
+            // );
           },
           actions: enqueueActions(({ enqueue, check, event }) => {
-            if (check(({ event }) => !isNil(event.params?.values))) {
+            if (check(({ event }) => event.origin.type !== "compute-event")) {
               enqueue({
-                type: "setValue",
+                type: "computeEvent",
                 params: {
-                  values: event.params?.values!,
+                  event: event.type,
                 },
               });
+              return;
             }
+            enqueue({
+              type: "removeComputation",
+            });
             const runId = `call-${createId()}`;
             enqueue.sendTo(
               ({ system }) => system.get("editor"),
@@ -908,38 +888,39 @@ const CompleteChatMachine = createMachine({
                       id: self.id,
                     },
                     inputs: {
-                      llm: context.inputs.llm! as
-                        | OpenAIModelConfig
-                        | OllamaModelConfig,
-                      system: context.inputs.system!,
-                      messages: context.inputs.messages?.map(
-                        ({ id, ...rest }) => {
-                          return rest;
-                        },
-                      ) as OpenAIChatMessage[],
-                      tools: Object.entries(context.inputs.tools)
-                        .map(([key, t]) => {
-                          const { nodeID } = extractGroupsFromToolName(key);
-                          const actorRef = get(context.inputSockets.tools, [
-                            "x-connection",
-                            nodeID,
-                            "actorRef",
-                          ]) as AnyActorRef;
-                          console.log("ACTOR REF", actorRef);
-                          return {
-                            key,
-                            actorRef,
-                            def: {
-                              name: t.name,
-                              description: t.description,
-                              parameters: new UncheckedSchema(t.parameters),
-                            },
-                          };
-                        })
-                        .reduce((acc, { key, ...rest }) => {
-                          acc[key] = rest;
-                          return acc;
-                        }, {}),
+                      ...event.params.inputs,
+                      // llm: context.inputs.llm! as
+                      //   | OpenAIModelConfig
+                      //   | OllamaModelConfig,
+                      // system: context.inputs.system!,
+                      // messages: context.inputs.messages?.map(
+                      //   ({ id, ...rest }) => {
+                      //     return rest;
+                      //   },
+                      // ) as OpenAIChatMessage[],
+                      // tools: Object.entries(context.inputs.tools)
+                      //   .map(([key, t]) => {
+                      //     const { nodeID } = extractGroupsFromToolName(key);
+                      //     const actorRef = get(context.inputSockets.tools, [
+                      //       "x-connection",
+                      //       nodeID,
+                      //       "actorRef",
+                      //     ]) as AnyActorRef;
+                      //     console.log("ACTOR REF", actorRef);
+                      //     return {
+                      //       key,
+                      //       actorRef,
+                      //       def: {
+                      //         name: t.name,
+                      //         description: t.description,
+                      //         parameters: new UncheckedSchema(t.parameters),
+                      //       },
+                      //     };
+                      //   })
+                      //   .reduce((acc, { key, ...rest }) => {
+                      //     acc[key] = rest;
+                      //     return acc;
+                      //   }, {}),
                     },
                   },
                 },

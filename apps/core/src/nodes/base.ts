@@ -169,6 +169,9 @@ export type BaseEventTypes =
     }
   | {
       type: "COMPUTE";
+      params?: {
+        inputs?: Record<string, any>;
+      };
     }
   | {
       type: "RESULT";

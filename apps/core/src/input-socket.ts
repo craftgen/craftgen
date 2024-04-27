@@ -351,8 +351,12 @@ export const inputSocketMachine = setup({
                   actions: enqueueActions(({ enqueue }) => {
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
-                      ({ context }) => ({
+                      ({ context, self }) => ({
                         type: context.definition["x-event"],
+                        origin: {
+                          id: self.id,
+                          type: self.src,
+                        },
                       }),
                     );
                   }),
