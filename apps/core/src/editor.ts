@@ -4,7 +4,6 @@ import {
   cloneDeep,
   difference,
   get,
-  has,
   isEqual,
   isNil,
   isNull,
@@ -148,14 +147,6 @@ export const EditorMachine = setup({
             id: string;
           };
         }
-      // | {
-      //     type: "SET_INPUT_OUTPUT";
-      //     params: {
-      //       id: string;
-      //       inputs: JSONSocket[];
-      //       outputs: JSONSocket[];
-      //     };
-      //   }
       | {
           type: "ADD_INPUT_SOCKET";
           params: {
@@ -808,6 +799,12 @@ export class Editor<
         }),
       });
     }),
+
+    // /**
+    //  * Assign the actor to the parent actor. base on the config.
+    //  */
+    // assignComponent: enqueueActions(({ enqueue, event }) => {
+    // }),
 
     initialize: enqueueActions(({ enqueue, context, system, self }) => {
       enqueue("assignParent");

@@ -429,8 +429,6 @@ export const inputSocketMachine = setup({
                 },
                 RESULT: {
                   actions: enqueueActions(({ enqueue, event }) => {
-                    // event.params.targets.forEach((target) => {
-                    // });
                     enqueue.sendTo(
                       ({ context, system }) => system.get(context.parent.id),
                       ({ event, context, self }) => ({

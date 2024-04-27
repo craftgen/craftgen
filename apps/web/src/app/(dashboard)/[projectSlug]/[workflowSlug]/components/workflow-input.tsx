@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { useHeadlessEditor } from "@/core/editor";
 import { createCraftStore } from "@/core/store";
 import { CraftContext } from "@/core/use-store";
-import { InputsList } from "@/core/ui/control/control-node";
+import { InputsList, OutputList } from "@/core/ui/control/control-node";
 
 export const WorkflowInput: React.FC<{
   projectSlug: string;
@@ -58,7 +58,10 @@ export const WorkflowSimple = (props: {
   console.log(editor);
   return (
     <CraftContext.Provider value={store?.current}>
-      {editor.actor && <InputsList actor={editor.actor} />}
+      <div className="grid grid-cols-2 gap-4">
+        {editor.actor && <InputsList actor={editor.actor} />}
+        {editor.actor && <OutputList actor={editor.actor} />}
+      </div>
     </CraftContext.Provider>
   );
 };

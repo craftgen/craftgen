@@ -129,6 +129,7 @@ export const Node = (props: Props<Schemes>) => {
     await di?.editor.addNode(node);
     await di?.area?.translate(node.id, di?.area?.area.pointer);
   }, []);
+
   const triggerNode = async () => {
     await di.runSync({
       inputId: props.data.id,

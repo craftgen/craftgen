@@ -166,6 +166,7 @@ export class Connection<
               this.targetDefinition["x-connection"],
               this.sourceSocketActor.id,
             ),
+            // [innerActor.id]: "ORIGINAL",
           } as ConnectionConfigRecord,
         },
       });

@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { JSONView } from "@/components/json-view";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   const socketKey = useMemo(() => {
@@ -190,6 +191,45 @@ export const InputsList = (props: {
   );
 };
 
+export const OutputList = (props: { actor: AnyActor }) => {
+  const outputSockets = useSelector(
+    props.actor,
+    (state) => {
+      return Object.values(state.context.outputSockets);
+    },
+    isEqual,
+  );
+
+  return (
+    <div>
+      Outputs
+      {outputSockets.length === 0 && <div>No Outputs</div>}
+      {outputSockets.map((actor) => {
+        return <OutputSocketItem key={actor.id} actor={actor} />;
+      })}
+    </div>
+  );
+};
+
+export const OutputSocketItem = (props: {
+  actor: ActorRefFrom<typeof outputSocketMachine>;
+}) => {
+  const { key, parentId } = useSelector(props.actor, (state) => ({
+    key: state.context.definition["x-key"],
+    parentId: state.context.parent.id,
+  }));
+  const value = useSelector(
+    props.actor.system.get(parentId),
+    (state) => state.context.outputs[key],
+  );
+  return (
+    <div>
+      <div>{key}</div>
+      <JSONView src={value} />
+    </div>
+  );
+};
+
 const BasicInputs = (props: { actor: AnyActor }) => {
   console.log("BASIC ACTOR", { actor: props.actor });
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
@@ -262,11 +302,13 @@ const InputItem = ({
     s.matches({ socket: { actor: "connection" } }),
   );
 
-  console.log({
-    hasConnectionBasic,
-    hasConnectionActor,
-    item,
-  });
+  if (hasConnectionActor) {
+    console.log({
+      hasConnectionBasic,
+      hasConnectionActor,
+      item,
+    });
+  }
 
   if (hasConnectionBasic) {
     //   console.log("HAS CONNECTION");
@@ -287,6 +329,27 @@ const InputItem = ({
   }
 
   if (hasConnectionActor) {
+    const connectionActorId: ActorRefFrom<typeof outputSocketMachine> =
+      Object.keys(item["x-connection"])[0];
+
+    console.log("HAS CONNECTION ACTOR 1", connectionActorId);
+    const outputSocketActor = actor.system.get(connectionActorId);
+    console.log("HAS CONNECTION ACTOR 2", outputSocketActor);
+    if (!outputSocketActor) return null;
+
+    const connectionTargetActor = actor.system.get(
+      outputSocketActor.getSnapshot().context.parent.id,
+    );
+    console.log("HAS CONNECTION ACTOR 3", connectionTargetActor);
+
+    if (connectionTargetActor) {
+      return (
+        <ActorInputItem
+          targetActor={connectionTargetActor}
+          socketActor={actor}
+        />
+      );
+    }
     // const targetActor = useSelector(actor, (state) => state.context.value);
     const targetActor = actor.getSnapshot().context.value;
     // console.log("HAS CONNECTION ACTOR", targetActor);
