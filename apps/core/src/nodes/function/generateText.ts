@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, isNull, merge, set, omit, get } from "lodash-es";
+import { isNull } from "lodash-es";
 import {
   BaseUrlApiConfiguration,
   generateText,
@@ -8,7 +8,7 @@ import {
   ToolCallError,
 } from "modelfusion";
 import dedent from "ts-dedent";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import type { ActorRefFrom, AnyActorRef, OutputFrom } from "xstate";
 import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
@@ -25,7 +25,6 @@ import type {
 } from "../base";
 import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";
-import { inputSocketMachine } from "../../input-socket";
 
 const inputSockets = {
   RUN: generateSocket({

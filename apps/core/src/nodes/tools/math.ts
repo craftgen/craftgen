@@ -1,16 +1,10 @@
 import { createId } from "@paralleldrive/cuid2";
-import { isNil, merge } from "lodash-es";
+import { merge } from "lodash-es";
 import * as mathjs from "mathjs";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import type { AnyActorRef } from "xstate";
-import {
-  assertEvent,
-  createMachine,
-  enqueueActions,
-  fromPromise,
-  setup,
-} from "xstate";
+import type { ActorRefFrom, AnyActorRef } from "xstate";
+import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -21,7 +15,7 @@ import type {
   None,
   ParsedNode,
 } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 
 const inputSockets = {
   RUN: generateSocket({
@@ -139,13 +133,16 @@ const RunMathMachine = setup({
                 }),
               });
               for (const sender of context.senders!) {
-                enqueue.sendTo(sender, ({ context }) => ({
-                  type: "TOOL_RESULT",
-                  params: {
-                    id: self.id,
-                    res: context.outputs,
-                  },
-                }));
+                enqueue.sendTo(
+                  ({ system }) => system.get(sender.id),
+                  ({ context }) => ({
+                    type: "RESULT",
+                    params: {
+                      id: self.id,
+                      res: context.outputs,
+                    },
+                  }),
+                );
               }
             },
           ),
@@ -155,8 +152,8 @@ const RunMathMachine = setup({
           actions: enqueueActions(
             ({ enqueue, check, context, event, self }) => {
               for (const sender of context.senders!) {
-                enqueue.sendTo(sender, {
-                  type: "TOOL_RESULT",
+                enqueue.sendTo(({ system }) => system.get(sender.id), {
+                  type: "RESULT",
                   params: {
                     id: self.id,
                     res: {
@@ -179,156 +176,128 @@ const RunMathMachine = setup({
   output: ({ context }) => context.outputs,
 });
 
-export const NodeMathMachine = createMachine(
-  {
-    id: "NodeMath",
-    context: ({ input }) => {
-      const defaultInputs: (typeof input)["inputs"] = {};
-      for (const [key, socket] of Object.entries(inputSockets)) {
-        if (socket.default) {
-          defaultInputs[key as any] = socket.default;
-        } else {
-          defaultInputs[key as any] = undefined;
-        }
-      }
-
-      return merge<Partial<typeof input>, any>(
-        {
-          inputs: {
-            ...defaultInputs,
-          },
-          inputSockets: {
-            ...inputSockets,
-          },
-          outputSockets: {
-            ...outputSockets,
-          },
-          outputs: {
-            result: null,
-          },
-          runs: {},
-        },
-        input,
-      );
-    },
-    types: {} as BaseMachineTypes<{
-      input: BaseInputType<typeof inputSockets, typeof outputSockets>;
-      context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
-        runs: Record<string, AnyActorRef>;
-      };
-      actions: None;
-      actors: {
-        src: "Run";
-        logic: typeof RunMathMachine;
-      };
-      guards: None;
-      events: {
-        type: "TOOL_RESULT";
-        params: {
-          id: string; // Call ID.
-          res: {
-            result: any;
-            ok: boolean;
-          };
+export const NodeMathMachine = createMachine({
+  id: "NodeMath",
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Math",
+      description: dedent`
+        A tool for evaluating mathematical expressions. Example expressions:
+        '1.2 * (2 + 4.5)', '12.7 cm to inch', 'sin(45 deg) ^ 2'.`,
+      inputSockets,
+      outputSockets,
+    }),
+  types: {} as BaseMachineTypes<{
+    input: BaseInputType<typeof inputSockets, typeof outputSockets>;
+    context: BaseContextType<typeof inputSockets, typeof outputSockets> & {
+      runs: Record<string, AnyActorRef>;
+    };
+    actions: None;
+    actors: {
+      src: "Run";
+      logic: typeof RunMathMachine;
+    };
+    guards: None;
+    events: {
+      type: "TOOL_RESULT";
+      params: {
+        id: string; // Call ID.
+        res: {
+          result: any;
+          ok: boolean;
         };
       };
-    }>,
-    initial: "idle",
-    states: {
-      idle: {
-        on: {
-          TOOL_RESULT: {
-            actions: enqueueActions(({ enqueue, check, self, event }) => {
-              console.log("TOOL_RESULT", event);
-              assertEvent(event, "TOOL_RESULT");
-              enqueue.assign({
-                outputs: ({ context, event }) => ({
-                  ...context.outputs,
-                  result: event.params.res.result,
-                }),
-              });
-            }),
+    };
+  }>,
+  initial: "idle",
+  on: {
+    SET_VALUE: {
+      actions: ["setValue"],
+    },
+  },
+  states: {
+    idle: {
+      on: {
+        RESULT: {
+          actions: enqueueActions(({ enqueue, check, self, event }) => {
+            console.log("RESULT", event);
+            // assertEvent(event, "TOOL_RESULT");
+            enqueue.assign({
+              outputs: ({ context, event }) => ({
+                ...context.outputs,
+                result: event.params.res.result,
+              }),
+            });
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "onDone",
+              },
+            });
+            enqueue("resolveOutputSockets");
+          }),
+        },
+        RESET: {
+          guard: ({ context }) => {
+            return context.runs && Object.keys(context.runs).length > 0;
           },
-          RESET: {
-            guard: ({ context }) => {
-              return context.runs && Object.keys(context.runs).length > 0;
-            },
-            actions: enqueueActions(({ enqueue, context, self }) => {
-              Object.values(context.runs).map((run) => {
-                enqueue.stopChild(run);
+          actions: enqueueActions(({ enqueue, context, self }) => {
+            Object.values(context.runs).map((run) => {
+              enqueue.stopChild(run);
+            });
+            enqueue.assign({
+              runs: {},
+              outputs: ({ context }) => ({
+                ...context.outputs,
+                result: null,
+              }),
+            });
+          }),
+        },
+        RUN: {
+          actions: enqueueActions(({ enqueue, check, event, context }) => {
+            if (check(({ event }) => event.origin.type !== "compute-event")) {
+              enqueue({
+                type: "computeEvent",
+                params: {
+                  event: event.type,
+                },
               });
-              enqueue.assign({
-                runs: {},
-                outputs: ({ context }) => ({
-                  ...context.outputs,
-                  result: null,
-                }),
-              });
-            }),
-          },
-          RUN: {
-            actions: enqueueActions(({ enqueue, check, event, context }) => {
-              if (
-                check(({ event }) => {
-                  return !isNil(event.params?.values);
-                })
-              ) {
-                enqueue({
-                  type: "setValue",
-                  params: {
-                    values: event.params?.values!,
+              return;
+            }
+            enqueue({
+              type: "removeComputation",
+            });
+
+            const runId = `call-${createId()}`;
+            enqueue.sendTo<ActorRefFrom<typeof RunMathMachine>>(
+              ({ system }) => system.get("editor"),
+              ({ self, context }) => ({
+                type: "SPAWN",
+                params: {
+                  id: runId,
+                  parentId: self.id,
+                  machineId: "NodeMath.run",
+                  systemId: runId,
+                  input: {
+                    inputs: {
+                      ...event.params.inputs,
+                    },
+                    senders: [{ id: self.id }],
+                    parent: {
+                      id: self.id,
+                    },
                   },
-                });
-              }
-              if (check(({ event }) => !isNil(event.params))) {
-                enqueue.assign({
-                  runs: ({ context, spawn, self }) => ({
-                    ...context.runs,
-                    [event.params?.executionNodeId!]: spawn("Run", {
-                      id: event.params?.executionNodeId,
-                      input: {
-                        inputs: {
-                          expression: event.params?.values?.expression,
-                        },
-                        senders: [self, event.params?.sender],
-                      },
-                      syncSnapshot: true,
-                    }),
-                  }),
-                });
-              } else {
-                const runId = `call-${createId()}`;
-                enqueue.assign({
-                  runs: ({ context, spawn, self }) => ({
-                    ...context.runs,
-                    [runId]: spawn("Run", {
-                      id: runId,
-                      input: {
-                        inputs: {
-                          expression: context?.inputs.expression,
-                        },
-                        senders: [self],
-                      },
-                      syncSnapshot: true,
-                    }),
-                  }),
-                });
-              }
-            }),
-          },
-          SET_VALUE: {
-            actions: ["setValue"],
-          },
+                  syncSnapshot: true,
+                },
+              }),
+            );
+          }),
         },
       },
     },
   },
-  {
-    actors: {
-      Run: RunMathMachine,
-    },
-  },
-);
+});
 
 export type NodeMathData = ParsedNode<"NodeMath", typeof NodeMathMachine>;
 
@@ -352,6 +321,7 @@ export class NodeMath extends BaseNode<typeof NodeMathMachine> {
 
   static machines = {
     NodeMath: NodeMathMachine,
+    "NodeMath.run": RunMathMachine,
   };
 
   constructor(di: DiContainer, data: NodeMathData) {
