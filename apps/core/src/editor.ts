@@ -1929,28 +1929,26 @@ export class Editor<
     } = await import("rete-connection-plugin");
     const self = this;
     const connection = new ConnectionPlugin<Scheme, AreaExtra<Scheme>>();
-    // connection.addPreset(ConnectionPresets.classic.setup());
-    connection.addPreset(
-      () =>
-        new ClassicFlow({
-          makeConnection(from, to, context) {
-            const [source, target] = getSourceTarget(from, to) || [null, null];
-            const { editor } = context;
-            if (source && target) {
-              editor.addConnection(
-                new Connection(
-                  editor.getNode(source.nodeId),
-                  source.key as never,
-                  editor.getNode(target.nodeId),
-                  target.key as never,
-                  self,
-                ) as any,
-              );
-              return true; // ensure that the connection has been successfully added
-            }
-          },
-        }),
-    );
+    connection.addPreset(({ nodeId, side, key }) => {
+      return new ClassicFlow({
+        makeConnection(from, to, context) {
+          const [source, target] = getSourceTarget(from, to) || [null, null];
+          const { editor } = context;
+          if (source && target) {
+            editor.addConnection(
+              new Connection(
+                editor.getNode(source.nodeId),
+                source.key as never,
+                editor.getNode(target.nodeId),
+                target.key as never,
+                self,
+              ) as any,
+            );
+            return true; // ensure that the connection has been successfully added
+          }
+        },
+      });
+    });
 
     this.editor.use(this.area);
     this.area.use(connection);

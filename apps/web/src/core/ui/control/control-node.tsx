@@ -332,15 +332,12 @@ const InputItem = ({
     const connectionActorId: ActorRefFrom<typeof outputSocketMachine> =
       Object.keys(item["x-connection"])[0];
 
-    console.log("HAS CONNECTION ACTOR 1", connectionActorId);
     const outputSocketActor = actor.system.get(connectionActorId);
-    console.log("HAS CONNECTION ACTOR 2", outputSocketActor);
     if (!outputSocketActor) return null;
 
     const connectionTargetActor = actor.system.get(
       outputSocketActor.getSnapshot().context.parent.id,
     );
-    console.log("HAS CONNECTION ACTOR 3", connectionTargetActor);
 
     if (connectionTargetActor) {
       return (
@@ -352,7 +349,6 @@ const InputItem = ({
     }
     // const targetActor = useSelector(actor, (state) => state.context.value);
     const targetActor = actor.getSnapshot().context.value;
-    // console.log("HAS CONNECTION ACTOR", targetActor);
     if (!targetActor) return null;
     return <ActorInputItem targetActor={targetActor} socketActor={actor} />;
   }

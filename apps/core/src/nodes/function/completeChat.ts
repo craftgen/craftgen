@@ -149,19 +149,6 @@ const inputSockets = {
     "x-showSocket": true,
     isMultiple: false,
   }),
-  tools: generateSocket({
-    "x-key": "tools",
-    name: "Tools",
-    title: "Tools",
-    type: "tool",
-    description: dedent`
-    The tools agent to use. 
-    `,
-    "x-showSocket": false,
-    "x-isAdvanced": true,
-    isMultiple: true,
-    default: [],
-  }),
 };
 
 const outputSockets = {
@@ -174,6 +161,20 @@ const outputSockets = {
     "x-showSocket": true,
     "x-key": "onDone",
     "x-event": "onDone",
+  }),
+  tools: generateSocket({
+    "x-key": "tools",
+    name: "Tools",
+    title: "Tools",
+    type: "trigger",
+    description: dedent`
+    The tools agent to use. 
+    `,
+    "x-event": "RUN",
+    "x-showSocket": true,
+    "x-isAdvanced": true,
+    isMultiple: true,
+    default: [],
   }),
   messages: generateSocket({
     name: "messages",
