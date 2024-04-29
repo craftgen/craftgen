@@ -12,10 +12,9 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode, NodeContextFactory, getSocket } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
 import { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
-import { isNil } from "lodash";
 
 export enum ThreadActions {
   addMessage = "addMessage",

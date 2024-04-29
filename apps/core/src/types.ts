@@ -32,7 +32,7 @@ import { NodeModule } from "./nodes/io/module";
 import { NodeComposeObject } from "./nodes/object/composeObject";
 import { NodeOpenAI } from "./nodes/openai/openai";
 import { NodeNumber } from "./nodes/primitives/number";
-import { NodePromptTemplateData } from "./nodes/prompt-template";
+import { NodePromptTemplate } from "./nodes/prompt-template";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature

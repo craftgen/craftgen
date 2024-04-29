@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
-import type { AnyActorRef, SnapshotFrom } from "xstate";
+import type { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
@@ -23,10 +23,31 @@ import { ThreadControl } from "./controls/thread.control";
 import type { NodeTypes } from "./types";
 import { nodeTypes } from "./types";
 import { JsCdnController } from "./controls/js-cdn";
-import { JSONSchema } from "openai/lib/jsonschema.mjs";
+import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import def from "ajv/dist/vocabularies/discriminator";
 import { z } from "zod";
 import { SecretController } from "./controls/secret";
+import { inputSocketMachine } from "./input-socket";
+import { outputSocketMachine } from "./output-socket";
+
+export const getSocket = ({
+  sockets,
+  key,
+}: {
+  sockets: Record<
+    string,
+    ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine>
+  >;
+  key: string;
+}): ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine> => {
+  return Object.entries(sockets).find(([socketId, socket]) =>
+    socketId.endsWith(key),
+  )?.[1] as ActorRefFrom<
+    typeof inputSocketMachine | typeof outputSocketMachine
+  >;
+};
+
+
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;

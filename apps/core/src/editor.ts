@@ -46,7 +46,6 @@ import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
 import {
-  getSocket,
   type BaseMachine,
   type BaseNode,
   type HasConnectionGuardParams,
@@ -60,7 +59,7 @@ import type {
   ReactArea2D,
   ReactPlugin,
 } from "./plugins/reactPlugin";
-import type { Socket } from "./sockets";
+import { type Socket, getSocket } from "./sockets";
 import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 import { ActorConfig, JSONSocket } from "./controls/socket-generator";
 import { GuardArgs } from "xstate/guards";
@@ -1408,6 +1407,7 @@ export class Editor<
       setExecutionId: action,
     });
 
+    console.log("SETTING UP EDITOR", { NODES: props.config.nodes });
     Object.entries(props.config.nodes).forEach(([key, value]) => {
       this.nodeMeta.set(key, {
         nodeType: key,

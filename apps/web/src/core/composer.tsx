@@ -8,10 +8,8 @@ import {
   Lock,
   Play,
   Shrink,
-  Command,
   PlusIcon,
 } from "lucide-react";
-import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
 
 import { useRegistry, useRete } from "@seocraft/core/src/plugins/reactPlugin";

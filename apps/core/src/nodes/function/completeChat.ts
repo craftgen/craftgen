@@ -37,7 +37,7 @@ import type { AnyActorRef } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory, getSocket } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -48,6 +48,7 @@ import type {
 import type { OllamaModelConfig } from "../ollama/ollama";
 import { ThreadMachineEvents } from "../thread";
 import type { OpenAIModelConfig } from "../openai/openai";
+import { getSocket } from "../../sockets";
 
 const inputSockets = {
   RUN: generateSocket({

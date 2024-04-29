@@ -1,7 +1,10 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
 import { api } from "@/trpc/server";
-import { WorkflowInput } from "./components/workflow-input";
+import dynamic from "next/dynamic";
+const WorkflowInput = dynamic(() =>
+  import("@/core/workflow-input").then((mod) => mod.WorkflowInput),
+);
 import { db } from "@seocraft/supabase/db";
 
 export const dynamicParams = true;
