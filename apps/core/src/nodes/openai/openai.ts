@@ -238,9 +238,7 @@ export const OpenaiModelMachine = createMachine(
         | {
             type: "adjustMaxCompletionTokens";
           };
-      events: {
-        type: "UPDATE_OUTPUTS";
-      };
+      events: None;
       actors: None;
       guards: None;
     }>,

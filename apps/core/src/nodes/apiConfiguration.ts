@@ -108,9 +108,6 @@ export const ApiConfigurationMachine = createMachine(
           };
       events:
         | {
-            type: "UPDATE_OUTPUTS";
-          }
-        | {
             type: "COMPUTE";
           }
         | {

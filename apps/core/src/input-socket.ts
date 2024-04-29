@@ -4,6 +4,7 @@ import {
   Spawner,
   enqueueActions,
   fromObservable,
+  sendTo,
   setup,
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
@@ -141,7 +142,7 @@ export const inputSocketMachine = setup({
     ),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAVQAUARAQQBUBRAPq4A8gGEA0nx4BtAAwBdRKHT5YdbHXyolIAB6IALAA4AbADoA7AEYArCasmTFmwCYTdkwBoQAT0QvZAGYzWRMXG1kAThtIwNdAk0iAXyTvNCw8IlIKanpGJi4ODgFRYQA5Mr5RHmRyuUUkEBU1DS0dfQRjWTMbIwNAhIt+q0iLI28-BCtZCx7AqzcrAwMrKyNA9ZS0jBwCEjIqWgZmACU+cmEANUFSiqqauoUdZvVNbUaOgxMDM3XI0MCLhcI3cE0QCy2IHSuyyB1yxzMDAyZh4JxYfCY9WeqlebQ+4KMVjMJiCUX+RgpY1iYKmkXcllCQPcqwssgMFkh0My+xyR0YiJ22DMADEuAAZXAYrGNF6td6gDprIkkwJk2QUoxUwI0gKrMwuTVfZxWQLWDmpKGCvbZQ55MBmQhaRiEOVmGiUWCiJ1gF1vTFPGU4uXtfwbfVfTUmOKRSKRmw6hw2Mx0lwGNmuSJKzlW2G8u0O72+rRmVD4L2oZ1y-0NZRBt4hhAuMOpkyR6Oxiyg3z+YFEmz9FYp9UGGyBbMZa1wvn22C5swQMhgABOAFtjtXsS16-jG7YzCC+gZwrIIjEaUsbETAv0SQsTyO3OOYTzbQjZzz54vV+vpFYa006zxBV-BPfc6UPY9T0ic9nB+NwEl6NwoKMJ9uRteF+XfbJP2wZc13yaQXH-WVt2A3ckwPZZIJPaDuwQaIXDMeZO3VAFVQsMcLS5Sc8zfOdsCXOgoBgJcN0DLcgL0QxZD7f4whcCwLH+dltToqwhiJTsEKMJCaJMVCeNfTD+ME4TlwLCsfSrVFkAAcVsvgTmlWsJPlKSEFHYJNWvaYIjCewXHPKNuhjU1rFkA0o1GAzcyMmcTKEkSLMrP1nIA1yGycH5FMJE1CUcWxaMmdS7EsMYAkzGwIkzfSuJzF8MPij8ACMPToQgxJc3E3M+PUYkZBSlLZCxUxpWJIl+dSSSMNiZhsGKGunMwsLIMxWrUQhEQgAAbZhSnINgWH4NKSMkjojFK+Z1WcWQTwU-saUPEIwn6AZRgu5YFvQpaVqFdb2q23amDOXAWDFGQAy64Md1McwIoGHSWQCcIaSGIw5jvS8xjGGYvqnfNfrWtrNroHa9oACS4MoHIEYVhBOcheBOwCesQJSfgiwkgTpBY03GOj3EYmMY07aJRlCFC6onWLGuWud-pJsmmElHgBEucV0WZjKYdcZMR1VSrUziCwaSq2YIzRoYARcZIpefb6Cfl4nkqsv0VbVjW+C17qG1HCi02CxllkiQK6J0ibhou2xbtcPHeOMlrncdSyi1QTr0p9ndW2ysZVg2Bx7F6Mb+1+QE1hjElvhGOO4rlj9qGwfAlxd1OClwXA7LKAQuGqenvehsiquCU01lMXsYjPNSmwmmaSSiftvmsAwa9lwmG6bluq3d9WxU1yGM4H9y026EdFI0gIZqic9U2ymT+kzQ0ghXn653X5vk5SrQmH2w7jv307WadCCL8JsAcVhjBJPGNSIwfhhBkiqWMNtojP0dvXF0G8P6uy-v3Ui7kh5MWsBSMIqwJ5FXBAMJMAwOJsgqp2UcKC+JoMbs3JcYBKAQB8N-YQB0jpe3-izBsHFZh+VNCeW6JowjX16CEIYzh-ieWiLVbY0tFqoOwm-MwrD2GcJwWdRA9h0bhCjPYOIVVVih2KksdGiljAGH+EsDYikGEJ3Ueg5uDBXiUG2nQAAXswLg7dO7d17k5fh2tB6jgIaPYhhVJ7FSPOYBIfxw6dhtikC0pYFzwEaNxGW05NyZzIgAWhGDqOxPRYjOBsb0KMXxnH2iRDgAph8Og23PJqdGAU7EjU7A4+pApkSonRM03BrToi-FHNMHSFCgj82KqMIk6wgTzFsKYSp-TGlClFBKPgIy9EIEUueOkE0BjLJIWs00-TMGpz2YAtpdEAhjF+K2VkUcbAjUiMvO2aF8YImua6d0npCyHwAQ2OIjE7GtguhEL4vMvAPPUoxdU4d5JkiUZaFRDs-nAreCWMsOLJKgp3IchFiQegUg2LMwYdTvmGVXrmW5DZ7mTAGOYF5xhEiEiPPQ2leS1GrQXLhb8jBGXEpNnRMWyY+hKSttyps-TCYCUSsuUVZE4jBH6vJRSykOLnn7F5GMhIQ5sk+bjXlqjGHYSVWZdxZNVXuSpCEA0CwbZdPVDBeYPRwgjBGNGS86LckWpcata1SV-m4KJYPPcfQAQjCbE4IEHq+zeszLECeDgFVOw2vajoCQNVySBNq4ao06JHmCLnFsqwoX2HNMo+2vzg1-WdqTXaObECEiTBdRSt4IgzU+WNZYFSEj2BHSHUwmbE4bU3hGgRO5XCdoDvMEOgxE0Sptj0IaMqRgxECLbOtPz45NVccwttCBWVmAHFQw0-RV3FVCMqXKo5bpRGjBO49GCCVuUjUfCKvwuZLHVDzB6alrxJibG4GYlcnAUjfatDRWiOGnucOYVktT2TRCXWQqYcROk0QUuyNw1hOL7rpS-JhG8PEaC8b4sAp6Ng-Evaaa9gILHggSSEf4gJYwjyI+kpIQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEkB2AHArgFwMoHsBjAazGwFkBDQgCwEtUwBiAEQFEAZNgFTYG0ADAF1EodPlh1sdfKlEgAHogAsATgEA6AMwBWVcoCMADgDsB5YYE6ANCACeiLQIPa9WkyaMA2LwCYdyv4AvkG2aFh4RKQU1PSMTACqAAosAIK8APq4APIAwgDSPIIiSCDiktKy8koIyqYaygJ+Zuq+AmbKJrYOCG3KGup+OgaqBgJGWl7GIWEYOAQkZFS0DMypLCwZudkAcjtsudzIu8Xy5VIycqU1dS6+JloWqjomwzq+3YhjRg06Wgb+Z4BYwGGYgcLzKJLWKrJgAJTY5GyADU2FtdvtDscdqdSudKldQDcvDoNO8Hl52qMfJSuvYvr4wRDIosYitGBoGBENNw4Qk2ExcWIJBcqtdEL5GgM-gYtL4jKp3ICjJ9egJfKoNAqrKMjJ1-E0mXMWdFlnEwJzjRoAGKpDi4AVCsoignVCVS57-OUKpV6FX0tWvLXqAIk75-I0RBammEcwiyRiEAkaGiUWC5BNgJOXQXCM4uy5u3paH7+Ty+SbykmTf09XyS3waeuNBVqExeEyM0Lg43R6Hsi3x1CJ5OofAZ4dZgm5krCiqF8XF0svIwVvzeP5eWsS+WlyUCCwGKb3ZSRyGss2rDSwKHYDQQMhgABOAFtYU78QuiRKDKTfGN9AsTwDysD4A1-PQNDMMZ-gmPVDC7WYo1vS8ORvVl70fV93wMWdnXnMVvzVP8AIsTojBA95VWMOpgyaQ9RgCQIzxNftzWvW9MOwZ833iPhfDwz9CMUH8SIEQDyMosCejGHQvCg8YNTqLxRmCbtmT7Nl2PQ6INGwJ86CgGAnxnfMCMJETanVDQDy3dt9CMTdJWoiZ5K0EMjDg-xhkQntkIvWMLR0sg9IMoznw0IcRxzXlkAAcTitg4Q-AthJqd5GwmPotxGIwj23BADBMKVlHcP4Kw8ZTT3U3sUMCjiMP0wzjMizNs1kUy8VSiyahJRsK0POSnEc-wXNKjQvEaPRPFXXwOxMFjNNQoLOIAIzTOhCE6udRR6lQARs5Q7JUuonOUaiD36NpVwclSATqRa6oHBrdPWyRCE5CAABtmG2cgkgSXgUvMotHJMCatwEARJnc945VVfRwY7YxPLyjtlB0IxHoC57grvN7Ns+n74TYXAEg4bhgd20GO20bwKLUZw7tUVVHLuYx2yrWV7gWmr-JjXG1o2j66G+36AAlUh2RKMmtbI4XIdIqddRcTGebRXiaKYUecOkelefp2yGlSdXE3mkPPAXtKF96ieYB1uAyZE7X5ZWv0sxz+icTpvZDZwDFVEkfn+fwAJ0A9qWxq2rzxjQCY+qKpxzB2nZd-g8y6kHFz+UlV0CDHVGKhyEblMlPICdtirUUqo7YmObcJxP2tQbb8Opxct1JOydEx9RtVKi7II1I9Jn99wvC0WutPrjDqGwfAn1aydm6YVJcFweKdgyVJDnlt20sQHutC1N5KTK3QvGox55PaPKXnE9zZSn5aXpCueF6X6KOpT52OFdjOdoqyIo0TQHQJhODlB2dyV9hgNA1Kucwph1RymfvVWO79F5N2nH9AGQMAFtyAZZRo-Rb4AmcFodyFhRrgX8P0QuHZhiPB1B4VBgtZ5Jg-lgnM+89oICPifX8Z9XgX2olQskXoSyOSytVC2rFp5oU4hgjQT4wCUAgHYJgODAbp0Et1IsDwfiBGMP+QI-4FQs3ApMfoDMPCqFUPcSkEY+aWzrgo9h89F4qLURonhRYpg-AeKVcw-56z2JsDQgIGh7qqB8LZExOhWHW3cR-BgFxKBfToAALzWOvTe29d7JXwUJXh-C2ZyWhsIuS1E-j9DqBjDUgx1TyhCN2McD54ClA0k9c0Zl25EQALQjFVI8H4eUDQln-B2CsiSrxchwL0whNQNTUX0I2dyTQ9AZRCTMjkcy7y8n5As92NRdBd0aJNZw0M-AUPCXWCpTYKyrj0I0f47wdkWj2TaO0DojkHwQB4VUbRHhQUeYCF5v5fJdJxuxLhwlilFmWQGf8kTOwlk7GrCZjx3mfyTrIFMaYJxfwsvCxcuhGz6D+MNEsPcxiXyRZKH4PdirGEmIqLcMi-IuPkYONqo5xy8vdiSoiAL6VHRsi8Qwrk2V6mxXjX5vDEU9FKm5AE4dOyGEMLoWVnEHzcWwoweV+i9ZfHomXChhgfB1PVNqxqYVjKGtJZE2ypgTqOUrOdcCfUBjjyhqBICXgbW6SauFReosfoOuFT4AY-57HykaEXCxMk9QuG1JSfwFZRhHkDSFYNLVYXEr0dnI8UFHglkMJjUqkwxopsaemx+WbnFyJfrHeOEbLJWMOsdByZ1VRwy1Kq2l2sAhY0bUtNBDcRZizbTUPK4NDBqzsY5RUeoLpqCiZKVQ9MOw+AeNm-GwscXN2nYfOaJbDxtD8IqZwF1gUHiPBjTswIA2ju6TPXSGDj0IAofJBU8FzAUNME86iR55JDGhkqAwRUXh7o0Eo-Nn6XmuAgpDYq37jWFXqVqVcCoR6PDqJPF90K31vw4Z41R6jP2vHBhMTGj63j5VEVGssMSjz2KZqCQj0c3HvtI5aNJGTsmfrLcGP9lbAPUJkjUhoUw709wZQCFpQQgA */
   id: "InputSocketMachine",
   context: ({ input, spawn }) => {
     const value = match(input.definition)
@@ -609,6 +610,34 @@ export const inputSocketMachine = setup({
                         },
                       );
                     }
+                  }),
+                },
+                "FORWARD.*": {
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    console.log(
+                      "INPUT SOCKET EVENT WILD CARD",
+                      event.type,
+                      context,
+                      {
+                        ...event,
+                        type: event.type.replace("FORWARD.", ""),
+                      },
+                    );
+                    enqueue.sendTo(
+                      ({ context, system }) => {
+                        const targetId = Object.keys(
+                          context.definition["x-connection"],
+                        )[0].split(":")[0];
+                        console.log("TARGET ID", targetId);
+                        const target = system.get(targetId);
+                        console.log("TARGET", target);
+                        return target;
+                      },
+                      {
+                        ...event,
+                        type: event.type.replace("FORWARD.", ""),
+                      },
+                    );
                   }),
                 },
               },

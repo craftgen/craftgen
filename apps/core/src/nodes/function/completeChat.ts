@@ -1,15 +1,17 @@
 import { createId } from "@paralleldrive/cuid2";
 import { get, isNil, isNull, merge } from "lodash-es";
-import {
-  BaseUrlApiConfiguration,
-  ChatMessage,
-  generateText,
-  generateToolCalls,
-  ollama,
-  openai,
-  trimChatPrompt,
-  UncheckedSchema,
-} from "modelfusion";
+import { experimental_generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+// import {
+//   BaseUrlApiConfiguration,
+//   ChatMessage,
+//   generateText,
+//   generateToolCalls,
+//   ollama,
+//   openai,
+//   trimChatPrompt,
+//   UncheckedSchema,
+// } from "modelfusion";
 import type {
   ChatPrompt,
   OllamaChatMessage,
@@ -35,7 +37,7 @@ import type { AnyActorRef } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
 import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory } from "../base";
+import { BaseNode, NodeContextFactory, getSocket } from "../base";
 import type {
   BaseContextType,
   BaseInputType,
@@ -95,7 +97,7 @@ const inputSockets = {
     ],
     default: [],
     // "x-controller": "select",
-    // "x-actor-type": "NodeThread",
+    "x-actor-type": "NodeThread",
     "x-actor-config": {
       NodeThread: {
         connections: {
@@ -218,33 +220,21 @@ export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
     }
 );
 
-const standardizeMessage = (message: OutputFrom<typeof completeChatActor>) =>
-  match(message)
-    .with(
-      {
-        value: {
-          text: P.string,
-        },
-      },
-      (m) => {
-        return ChatMessage.assistant({
-          text: m.value.text,
-          toolResults: null,
-        });
-      },
-    )
+const standardizeMessage = (message: OutputFrom<typeof completeChatActor>) => {
+  return match(message)
     .with(
       {
         text: P.string,
       },
       (m) => {
-        return ChatMessage.assistant({
-          text: m.text,
-          toolResults: null,
-        });
+        return {
+          role: "assistant",
+          content: m.text,
+        };
       },
     )
     .run();
+};
 
 export type OpenAICompleteChatData = ParsedNode<
   "NodeCompleteChat",
@@ -291,147 +281,171 @@ const completeChatActor = fromPromise(
     console.log("INPUT", input);
 
     const result = await match(input)
+      // .with(
+      //   {
+      //     llm: {
+      //       provider: "ollama",
+      //     },
+      //   },
+      //   async ({ llm }) => {
+      //     const model = ollama.ChatTextGenerator({
+      //       ...llm,
+      //     });
+
+      //     const res = await generateText({
+      //       model,
+      //       prompt: [
+      //         ...(input.system
+      //           ? [
+      //               {
+      //                 role: "system" as const,
+      //                 content: input.system,
+      //               },
+      //             ]
+      //           : []),
+      //         ...(simplyfyMessages(input.messages) as OllamaChatMessage[]),
+      //       ],
+      //       fullResponse: true,
+      //     });
+      //     return res;
+      //   },
+      // )
+      // .with(
+      //   {
+      //     llm: {
+      //       provider: "openai",
+      //     },
+      //     tools: P.when((t) => Object.keys(t).length > 0),
+      //     toolCalls: P.when((t) => Object.keys(t).length === 0),
+      //   },
+      //   async ({ llm, tools, toolCalls }) => {
+      //     console.log("REQUESTING tool call from the API.");
+      //     const model = openai
+      //       .ChatTextGenerator({
+      //         ...llm,
+      //         api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+      //       })
+      //       .withChatPrompt();
+
+      //     const chat: ChatPrompt = {
+      //       system: input.system,
+      //       messages: input.messages as ChatMessage[],
+      //     };
+
+      //     const res = await generateToolCalls({
+      //       model,
+      //       tools,
+      //       prompt: await trimChatPrompt({
+      //         model: model,
+      //         prompt: chat,
+      //       }),
+      //       fullResponse: true,
+      //     });
+      //     return res;
+      //   },
+      // )
+      // .with(
+      //   {
+      //     llm: {
+      //       provider: "openai",
+      //     },
+      //     tools: P.when((t) => Object.keys(t).length > 0),
+      //     toolCalls: P.when((t) => Object.keys(t).length > 0),
+      //   },
+      //   async ({ llm, tools, toolCalls }) => {
+      //     console.log("PASSING THE TOOL CALL RESULTS TO API.");
+      //     const model = openai
+      //       .ChatTextGenerator({
+      //         ...llm,
+      //         api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+      //       })
+      //       .withChatPrompt();
+
+      //     const toolCallResponses: OpenAIChatMessage[] = [];
+
+      //     if (Object.keys(toolCalls).length > 0) {
+      //       toolCallResponses.push(
+      //         openai.ChatMessage.assistant(null, {
+      //           toolCalls: Object.values(toolCalls).map((t) => t.toolCall),
+      //         }),
+      //       );
+      //       Object.values(toolCalls).forEach((toolCall) => {
+      //         toolCallResponses.push(
+      //           openai.ChatMessage.tool({
+      //             toolCallId: toolCall.toolCall.id,
+      //             content: toolCall.result,
+      //           }),
+      //         );
+      //       });
+      //     }
+
+      //     const chat: ChatPrompt = {
+      //       system: input.system,
+      //       messages: input.messages as ChatMessage[],
+      //     };
+
+      //     const res = await generateToolCalls({
+      //       model,
+      //       tools,
+      //       prompt: await trimChatPrompt({
+      //         model: model,
+      //         prompt: chat,
+      //       }),
+      //       fullResponse: true,
+      //     });
+      //     return res;
+      //   },
+      // )
       .with(
         {
           llm: {
-            provider: "ollama",
+            provider: "openai",
           },
         },
         async ({ llm }) => {
-          const model = ollama.ChatTextGenerator({
-            ...llm,
+          const openai = createOpenAI({
+            // custom settings
+            baseURL: input.llm.apiConfiguration.baseUrl,
+            apiKey: input.llm.apiConfiguration.APIKey,
+          }).chat(input.llm.model, {
+            logitBias: {
+              "50256": -100, //  to prevent the <|endoftext|> token from being generated.
+            },
           });
 
-          const res = await generateText({
-            model,
-            prompt: [
-              ...(input.system
-                ? [
-                    {
-                      role: "system" as const,
-                      content: input.system,
-                    },
-                  ]
-                : []),
-              ...(simplyfyMessages(input.messages) as OllamaChatMessage[]),
-            ],
-            fullResponse: true,
+          console.log("OPENAI", openai);
+          console.log("INPUT", {
+            ...input.llm,
+            model: openai,
+            system: input.system,
+            messages: input.messages,
+          });
+          const res = await experimental_generateText({
+            ...input.llm,
+            model: openai,
+            system: input.system,
+            messages: input.messages,
           });
           return res;
-        },
-      )
-      .with(
-        {
-          llm: {
-            provider: "openai",
-          },
-          tools: P.when((t) => Object.keys(t).length > 0),
-          toolCalls: P.when((t) => Object.keys(t).length === 0),
-        },
-        async ({ llm, tools, toolCalls }) => {
-          console.log("REQUESTING tool call from the API.");
-          const model = openai
-            .ChatTextGenerator({
-              ...llm,
-              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-            })
-            .withChatPrompt();
+          // const model = openai
+          //   .ChatTextGenerator({
+          //     ...llm,
+          //     api: new BaseUrlApiConfiguration(llm.apiConfiguration),
+          //   })
+          //   .withChatPrompt();
 
-          const chat: ChatPrompt = {
-            system: input.system,
-            messages: input.messages as ChatMessage[],
-          };
-
-          const res = await generateToolCalls({
-            model,
-            tools,
-            prompt: await trimChatPrompt({
-              model: model,
-              prompt: chat,
-            }),
-            fullResponse: true,
-          });
-          return res;
-        },
-      )
-      .with(
-        {
-          llm: {
-            provider: "openai",
-          },
-          tools: P.when((t) => Object.keys(t).length > 0),
-          toolCalls: P.when((t) => Object.keys(t).length > 0),
-        },
-        async ({ llm, tools, toolCalls }) => {
-          console.log("PASSING THE TOOL CALL RESULTS TO API.");
-          const model = openai
-            .ChatTextGenerator({
-              ...llm,
-              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-            })
-            .withChatPrompt();
-
-          const toolCallResponses: OpenAIChatMessage[] = [];
-
-          if (Object.keys(toolCalls).length > 0) {
-            toolCallResponses.push(
-              openai.ChatMessage.assistant(null, {
-                toolCalls: Object.values(toolCalls).map((t) => t.toolCall),
-              }),
-            );
-            Object.values(toolCalls).forEach((toolCall) => {
-              toolCallResponses.push(
-                openai.ChatMessage.tool({
-                  toolCallId: toolCall.toolCall.id,
-                  content: toolCall.result,
-                }),
-              );
-            });
-          }
-
-          const chat: ChatPrompt = {
-            system: input.system,
-            messages: input.messages as ChatMessage[],
-          };
-
-          const res = await generateToolCalls({
-            model,
-            tools,
-            prompt: await trimChatPrompt({
-              model: model,
-              prompt: chat,
-            }),
-            fullResponse: true,
-          });
-          return res;
-        },
-      )
-      .with(
-        {
-          llm: {
-            provider: "openai",
-          },
-        },
-        async ({ llm }) => {
-          const model = openai
-            .ChatTextGenerator({
-              ...llm,
-              api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-            })
-            .withChatPrompt();
-
-          const chat: ChatPrompt = {
-            system: input.system,
-            messages: input.messages as ChatMessage[],
-          };
-          const res = await generateText({
-            model,
-            prompt: await trimChatPrompt({
-              model: model,
-              prompt: chat,
-            }),
-            fullResponse: true,
-          });
+          // const chat: ChatPrompt = {
+          //   system: input.system,
+          //   messages: input.messages as ChatMessage[],
+          // };
+          // const res = await generateText({
+          //   model,
+          //   prompt: await trimChatPrompt({
+          //     model: model,
+          //     prompt: chat,
+          //   }),
+          //   fullResponse: true,
+          // });
 
           return res;
         },
@@ -498,7 +512,7 @@ const completeChatMachineRun = setup({
         toolCalls: Record<string, ToolCallInstance<string, any, any>>;
       };
       outputs: {
-        result: string | ChatMessage;
+        result: string;
       };
       parent: {
         id: string;
@@ -765,13 +779,9 @@ const CompleteChatMachine = createMachine({
   types: {} as BaseMachineTypes<{
     input: BaseInputType<typeof inputSockets, typeof outputSockets>;
     context: BaseContextType<typeof inputSockets, typeof outputSockets>;
-    actions:
-      | {
-          type: "adjustMaxCompletionTokens";
-        }
-      | {
-          type: "updateOutputMessages";
-        };
+    actions: {
+      type: "adjustMaxCompletionTokens";
+    };
     events:
       | {
           type: "TOOL_REQUEST";
@@ -802,12 +812,12 @@ const CompleteChatMachine = createMachine({
     idle: {
       on: {
         RESULT: {
-          actions: enqueueActions(({ enqueue, event, check }) => {
+          actions: enqueueActions(({ enqueue, event, check, context }) => {
             console.log("RESULT @@", event);
             enqueue.assign({
               outputs: ({ context, event }) => ({
                 ...context.outputs,
-                result: event.params?.res,
+                result: event.params?.res.result,
                 messages: [
                   ...context.inputs.messages!,
                   {
@@ -820,9 +830,13 @@ const CompleteChatMachine = createMachine({
             });
             if (check(({ context }) => !!context.inputs.append)) {
               enqueue.sendTo(
-                ({ context }) => context.inputSockets.messages["x-actor-ref"],
-                ({ context, event }) => ({
-                  type: ThreadMachineEvents.addMessage,
+                ({ context }) =>
+                  getSocket({
+                    key: "messages",
+                    sockets: context.inputSockets,
+                  }),
+                ({ event }) => ({
+                  type: `FORWARD.${ThreadMachineEvents.addMessage}`,
                   params: {
                     id: event.params.id,
                     ...standardizeMessage(event.params.res.result),
@@ -952,17 +966,5 @@ export class NodeCompleteChat extends BaseNode<typeof CompleteChatMachine> {
 
   constructor(di: DiContainer, data: OpenAICompleteChatData) {
     super("NodeCompleteChat", di, data, CompleteChatMachine, {});
-    this.extendMachine({
-      actions: {
-        updateOutputMessages: assign({
-          outputs: ({ context }) => {
-            return {
-              ...context.outputs,
-              messages: context.inputs.thread,
-            };
-          },
-        }),
-      },
-    });
   }
 }

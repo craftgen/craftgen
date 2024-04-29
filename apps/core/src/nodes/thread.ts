@@ -12,7 +12,7 @@ import type {
   None,
   ParsedNode,
 } from "./base";
-import { BaseNode, NodeContextFactory } from "./base";
+import { BaseNode, NodeContextFactory, getSocket } from "./base";
 import { DiContainer } from "../types";
 import { SetOptional } from "type-fest";
 import { isNil } from "lodash";
@@ -68,7 +68,6 @@ export enum ThreadMachineEvents {
   addMessage = `${THREAD}.ADD_MESSAGE`,
   addAndRunMessage = `${THREAD}.ADD_AND_RUN_MESSAGE`,
   clearThread = `${THREAD}.CLEAR_THREAD`,
-  updateOutputs = `UPDATE_OUTPUTS`,
   run = `${THREAD}.ON_RUN`,
 }
 
@@ -83,9 +82,6 @@ export type ThreadMachineEvent =
     }
   | {
       type: ThreadMachineEvents.clearThread;
-    }
-  | {
-      type: ThreadMachineEvents.updateOutputs;
     }
   | {
       type: ThreadMachineEvents.run;
@@ -117,14 +113,10 @@ export const ThreadMachine = createMachine(
           messages: ChatMessage & { id: string }[];
         };
       };
-      actions:
-        | {
-            type: "updateOutput";
-          }
-        | {
-            type: "addMessage";
-            params: ChatMessage;
-          };
+      actions: {
+        type: "addMessage";
+        params: ChatMessage;
+      };
       events: ThreadMachineEvent;
       actors:
         | {
@@ -153,9 +145,6 @@ export const ThreadMachine = createMachine(
     }>,
     initial: "idle",
     on: {
-      [ThreadMachineEvents.updateOutputs]: {
-        actions: ["updateOutput"],
-      },
       INITIALIZE: {
         actions: ["initialize"],
       },
@@ -173,10 +162,10 @@ export const ThreadMachine = createMachine(
     },
     states: {
       idle: {
-        entry: ["updateOutput"],
         on: {
           COMPUTE: {
             actions: enqueueActions(({ enqueue, self }) => {
+              console.log("THREAD COMPUTE");
               const childId = `compute-${createId()}`;
               enqueue.assign({
                 computes: ({ spawn, context, event }) => {
@@ -250,8 +239,12 @@ export const ThreadMachine = createMachine(
           },
 
           [ThreadMachineEvents.run]: {
-            guard: ({ context }) => {
-              return !isNil(context.outputs.onRun);
+            guard: {
+              type: "hasConnection",
+              params: {
+                port: "output",
+                key: "onRun",
+              },
             },
             actions: enqueueActions(({ enqueue }) => {
               enqueue({
@@ -263,8 +256,12 @@ export const ThreadMachine = createMachine(
             }),
           },
           [ThreadMachineEvents.addAndRunMessage]: {
-            guard: ({ context }) => {
-              return !isNil(context.outputs.onRun);
+            guard: {
+              type: "hasConnection",
+              params: {
+                port: "output",
+                key: "onRun",
+              },
             },
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue({
@@ -273,8 +270,8 @@ export const ThreadMachine = createMachine(
                   ...event.params,
                 },
               });
-              enqueue({
-                type: "updateOutput",
+              enqueue.raise({
+                type: "COMPUTE",
               });
               enqueue.raise(
                 {

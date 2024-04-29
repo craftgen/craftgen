@@ -7,6 +7,7 @@ import type { MergeDeep } from "type-fest";
 import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
+  ActorRef,
   ActorRefFrom,
   AnyActorLogic,
   AnyActorRef,
@@ -58,6 +59,22 @@ export interface BaseInputType<
   outputs?: MappedType<O>;
   outputSockets?: O;
 }
+export const getSocket = ({
+  sockets,
+  key,
+}: {
+  sockets: Record<
+    string,
+    ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine>
+  >;
+  key: string;
+}): ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine> => {
+  return Object.entries(sockets).find(([socketId, socket]) =>
+    socketId.endsWith(key),
+  )?.[1] as ActorRefFrom<
+    typeof inputSocketMachine | typeof outputSocketMachine
+  >;
+};
 
 export interface BaseContextType<
   I extends Record<string, ActorRefFrom<typeof inputSocketMachine>> = Record<

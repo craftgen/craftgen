@@ -498,9 +498,7 @@ export const OllamaModelMachine = createMachine(
         };
       };
       actions: None;
-      events: {
-        type: "UPDATE_OUTPUTS";
-      };
+      events: None;
       actors: {
         src: "getModels";
         logic: typeof getModels;

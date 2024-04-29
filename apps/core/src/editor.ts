@@ -45,11 +45,12 @@ import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
-import type {
-  BaseMachine,
-  BaseNode,
-  HasConnectionGuardParams,
-  ParsedNode,
+import {
+  getSocket,
+  type BaseMachine,
+  type BaseNode,
+  type HasConnectionGuardParams,
+  type ParsedNode,
 } from "./nodes/base";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
@@ -698,11 +699,17 @@ export class Editor<
             port: "input",
           },
           () => {
+            const socket = getSocket({
+              sockets: context.inputSockets,
+              key: params.key,
+            });
+            const socketSnap = socket.getSnapshot();
             const connections = get(
-              context.inputSockets,
-              [params.key, "x-connection"],
+              socketSnap,
+              ["context", "definition", "x-connection"],
               {},
             );
+
             return Object.values(connections).length > 0;
           },
         )
@@ -711,11 +718,17 @@ export class Editor<
             port: "output",
           },
           () => {
+            const socket = getSocket({
+              sockets: context.outputSockets,
+              key: params.key,
+            });
+            const socketSnap = socket.getSnapshot();
             const connections = get(
-              context.outputSockets,
-              [params.key, "x-connection"],
+              socketSnap,
+              ["context", "definition", "x-connection"],
               {},
             );
+
             return Object.values(connections).length > 0;
           },
         )
