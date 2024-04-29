@@ -1,7 +1,7 @@
 import { get, isString, merge, set } from "lodash-es";
 import * as Sqrl from "squirrelly";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise, enqueueActions } from "xstate";
+import { createMachine, fromPromise, enqueueActions } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { MappedType } from "../sockets";
@@ -251,20 +251,22 @@ const renderFunc = ({
   return rendered;
 };
 
-export type PromptTemplateNode = ParsedNode<
+export type NodePromptTemplateData = ParsedNode<
   "NodePromptTemplate",
   typeof PromptTemplateNodeMachine
 >;
 
-export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
+export class NodePromptTemplate extends BaseNode<
+  typeof PromptTemplateNodeMachine
+> {
   static nodeType = "PromptTemplate" as const;
   static label = "Prompt Template";
   static description = "Template for user prompts";
   static icon = "text-select";
 
   static parse(
-    params: SetOptional<PromptTemplateNode, "type">,
-  ): PromptTemplateNode {
+    params: SetOptional<NodePromptTemplateData, "type">,
+  ): NodePromptTemplateData {
     return {
       ...params,
       type: "NodePromptTemplate",
@@ -275,7 +277,7 @@ export class PromptTemplate extends BaseNode<typeof PromptTemplateNodeMachine> {
     NodePromptTemplate: PromptTemplateNodeMachine,
   };
 
-  constructor(di: DiContainer, data: PromptTemplateNode) {
+  constructor(di: DiContainer, data: NodePromptTemplateData) {
     super("NodePromptTemplate", di, data, PromptTemplateNodeMachine, {});
   }
 }

@@ -8,26 +8,6 @@ import type { AppRouter } from "@seocraft/api";
 
 import type { Editor } from ".";
 import type { Connection } from "./connection/connection";
-import {
-  NodeComposeObject,
-  GoogleSheet,
-  InputNode,
-  Log,
-  NodeModule,
-  OutputNode,
-  Postgres,
-  PromptTemplate,
-  Replicate,
-  Shopify,
-  Start,
-  NodeText,
-  Webflow,
-  Wordpress,
-  NodeJavascriptCodeInterpreter,
-  NodeNumber,
-  NodeOpenAI,
-  NodeOllama,
-} from "./nodes";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
@@ -43,6 +23,16 @@ import { NodeMath } from "./nodes/tools/math";
 import { NodeReplicate } from "./nodes/replicate/replicate";
 import { NodeRestApi } from "./nodes/api/rest";
 import { NodeHttpRequest } from "./nodes/api/http-request";
+import { NodeOllama } from "./nodes/ollama/ollama";
+import { Start } from "./nodes/start";
+import { Log } from "./nodes/log";
+import { NodeText } from "./nodes/primitives/text";
+import { NodeJavascriptCodeInterpreter } from "./nodes/interpreter/js";
+import { NodeModule } from "./nodes/io/module";
+import { NodeComposeObject } from "./nodes/object/composeObject";
+import { NodeOpenAI } from "./nodes/openai/openai";
+import { NodeNumber } from "./nodes/primitives/number";
+import { NodePromptTemplateData } from "./nodes/prompt-template";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -82,7 +72,7 @@ export const nodes = {
   NodeLog: Log,
   NodeText: NodeText,
   NodeNumber: NodeNumber,
-  NodePromptTemplate: PromptTemplate,
+  NodePromptTemplate: NodePromptTemplate,
   NodeThread: NodeThread,
 
   // Tools

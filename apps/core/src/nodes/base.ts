@@ -7,7 +7,6 @@ import type { MergeDeep } from "type-fest";
 import { createActor, enqueueActions, setup, waitFor } from "xstate";
 import type {
   Actor,
-  ActorRef,
   ActorRefFrom,
   AnyActorLogic,
   AnyActorRef,
