@@ -21,6 +21,8 @@ import {
   BehaviorSubject,
   startWith,
 } from "rxjs";
+import { actorWatcher } from "./actor-watcher";
+import { inputJsonWatcher } from "./input-output-json-schema-watcher";
 
 function createId(prefix: "context" | "value", parentId: string) {
   const createId = init({
@@ -95,6 +97,7 @@ export const inputSocketMachine = setup({
   },
   actors: {
     value: valueActorMachine,
+    inputJsonWatcher: inputJsonWatcher,
     valueWatcher: fromObservable(
       ({
         input,
@@ -335,6 +338,19 @@ export const inputSocketMachine = setup({
               target: "#InputSocketMachine.socket.trigger.connection",
             },
           ],
+          invoke: {
+            src: "inputJsonWatcher",
+            input: ({ context, self }) => ({
+              actor: context.parent,
+              triggerSocket: self,
+              // event: "TRIGGER",
+            }),
+            // onSnapshot: {
+            //   actions: enqueueActions(({ enqueue, event }) => {
+            //     console.log("INPUT JSON WATCHER", event);
+            //   }),
+            // },
+          },
           states: {
             idle: {},
             connection: {

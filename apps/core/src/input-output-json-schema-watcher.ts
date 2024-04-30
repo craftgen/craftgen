@@ -1,0 +1,124 @@
+import {
+  BehaviorSubject,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  from,
+  map,
+  of,
+  startWith,
+  switchMap,
+  tap,
+} from "rxjs";
+import { P, match } from "ts-pattern";
+import { ActorRefFrom, AnyActor, SnapshotFrom, fromObservable } from "xstate";
+import { inputSocketMachine } from "./input-socket";
+import { createJsonSchema } from "./utils";
+import { get, isEqual } from "lodash";
+
+export const inputJsonWatcher = fromObservable(
+  ({
+    input,
+    system,
+  }: {
+    input: {
+      actor: any;
+      triggerSocket: any;
+    };
+    system: any;
+  }) => {
+    console.log("LISTENING Actor INPUTS", input);
+    const actor: AnyActor = match(input.actor)
+      .with(
+        {
+          src: P.string,
+        },
+        (value) => {
+          return value as AnyActor;
+        },
+      )
+      .with(
+        {
+          id: P.string,
+        },
+        (value) => {
+          return system.get(value.id);
+        },
+      )
+      .run();
+
+    const inputSockets = new BehaviorSubject(actor.getSnapshot());
+
+    const inputObservables = from(actor).pipe(
+      startWith(inputSockets.value), // Start with the snapshot { a: xstateActor , b: xstateActor }
+      switchMap(
+        (state) => of(state.context.inputSockets as Record<string, any>),
+        // state.context.inputSockets as Record<
+        //   string,
+        //   ActorRefFrom<typeof inputSocketMachine>
+        // >,
+      ),
+      // debounceTime(1000),
+      tap((inputSockets) => {
+        console.log("Input Sockets", inputSockets);
+      }),
+
+      switchMap(
+        (
+          inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>,
+        ) => {
+          console.log("Input Sockets changed", inputSockets);
+          // Create an object of observables from xstateActorRefs
+
+          const observablesFromActors = Object.keys(inputSockets).reduce(
+            (acc, key) => {
+              const initialSnapshotSubject = new BehaviorSubject(
+                inputSockets[key].getSnapshot(),
+              );
+              acc[key] = from(inputSockets[key]).pipe(
+                startWith(initialSnapshotSubject.value), // Start with the snapshot
+                map((state) => state.context.definition),
+                distinctUntilChanged(isEqual),
+              );
+              return acc;
+            },
+            {},
+          );
+
+          // Combine the latest values using combineLatest
+          const latestCombination = combineLatest(observablesFromActors).pipe(
+            // debounceTime(1000),
+            tap((combinedValues) => {
+              console.log("Combined values", combinedValues);
+            }),
+            distinctUntilChanged(isEqual),
+            map((combinedValues) => {
+              const filteredValues = Object.keys(combinedValues).reduce(
+                (acc, key) => {
+                  if (get(combinedValues, [key, "x-showSocket"])) {
+                    const inputKey = get(combinedValues, [key, "x-key"]);
+                    // Check if property exists and is truthy
+                    acc[inputKey] = combinedValues[key];
+                  }
+                  return acc;
+                },
+                {},
+              );
+              // Transform the combinedValues into your desired JSON object format
+              // ... your transformation logic here
+              return createJsonSchema(filteredValues);
+            }),
+          );
+
+          return latestCombination;
+        },
+      ),
+      tap((inputValues) => {
+        console.log("Input values", inputValues);
+      }),
+    );
+
+    // Subscribe to the final observable
+    return inputObservables;
+  },
+);
