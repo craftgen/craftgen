@@ -343,13 +343,7 @@ export const inputSocketMachine = setup({
             input: ({ context, self }) => ({
               actor: context.parent,
               triggerSocket: self,
-              // event: "TRIGGER",
             }),
-            // onSnapshot: {
-            //   actions: enqueueActions(({ enqueue, event }) => {
-            //     console.log("INPUT JSON WATCHER", event);
-            //   }),
-            // },
           },
           states: {
             idle: {},

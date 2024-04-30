@@ -14,7 +14,7 @@ import { P, match } from "ts-pattern";
 import { ActorRefFrom, AnyActor, SnapshotFrom, fromObservable } from "xstate";
 import { inputSocketMachine } from "./input-socket";
 import { createJsonSchema } from "./utils";
-import { get, isEqual } from "lodash";
+import { get, isEqual, omit } from "lodash";
 
 export const inputJsonWatcher = fromObservable(
   ({
@@ -47,22 +47,39 @@ export const inputJsonWatcher = fromObservable(
       )
       .run();
 
+    const triggerSocket: ActorRefFrom<typeof inputSocketMachine> = match(
+      input.triggerSocket,
+    )
+      .with(
+        {
+          src: P.string,
+        },
+        (value) => {
+          return value;
+        },
+      )
+      .with(
+        {
+          id: P.string,
+        },
+        (value) => {
+          return system.get(value.id);
+        },
+      )
+      .run();
+
     const inputSockets = new BehaviorSubject(actor.getSnapshot());
 
     const inputObservables = from(actor).pipe(
       startWith(inputSockets.value), // Start with the snapshot { a: xstateActor , b: xstateActor }
-      switchMap(
-        (state) => of(state.context.inputSockets as Record<string, any>),
-        // state.context.inputSockets as Record<
-        //   string,
-        //   ActorRefFrom<typeof inputSocketMachine>
-        // >,
+      switchMap((state) =>
+        of(omit(state.context.inputSockets, [triggerSocket.id])),
       ),
-      // debounceTime(1000),
+      distinctUntilChanged(isEqual),
+      debounceTime(100),
       tap((inputSockets) => {
         console.log("Input Sockets", inputSockets);
       }),
-
       switchMap(
         (
           inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>,
@@ -117,6 +134,15 @@ export const inputJsonWatcher = fromObservable(
         console.log("Input values", inputValues);
       }),
     );
+
+    inputObservables.subscribe((inputSchema) => {
+      triggerSocket.send({
+        type: "UPDATE_SOCKET",
+        params: {
+          schema: inputSchema,
+        },
+      });
+    });
 
     // Subscribe to the final observable
     return inputObservables;
