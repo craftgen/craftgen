@@ -256,6 +256,8 @@ export const NodeMathMachine = createMachine({
         },
         RUN: {
           actions: enqueueActions(({ enqueue, check, event, context }) => {
+            // debugger;
+            console.log("MATH RUN EVENT", event);
             if (check(({ event }) => event.origin.type !== "compute-event")) {
               enqueue({
                 type: "computeEvent",

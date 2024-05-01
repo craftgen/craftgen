@@ -164,8 +164,8 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2
       ai:
-        specifier: ^3.0.34
-        version: 3.0.34(react@18.2.0)(solid-js@1.8.17)(svelte@4.0.1)(vue@3.4.21)(zod@3.21.4)
+        specifier: ^3.1.0
+        version: 3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.0.1)(vue@3.4.21)(zod@3.21.4)
       ajv:
         specifier: ^8.12.0
         version: 8.12.0
@@ -1313,8 +1313,31 @@ packages:
       zod: 3.21.4
     dev: false
 
+  /@ai-sdk/provider-utils@0.0.5(zod@3.21.4):
+    resolution: {integrity: sha512-VVy9eQS+vS2j6cqTEQ9htMHz2nW/HFAkDXLvNFPoi1pZkviknJZEzb+DZUna6Od+jBf/TVA0HZwYnyGDaeI9cQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+    dependencies:
+      '@ai-sdk/provider': 0.0.3
+      eventsource-parser: 1.1.2
+      nanoid: 3.3.6
+      secure-json-parse: 2.7.0
+      zod: 3.21.4
+    dev: false
+
   /@ai-sdk/provider@0.0.2:
     resolution: {integrity: sha512-LDRx7TFWjuuW1V8bGCMvOk4ap5gNGeSxa6w65Y+pHskiLRk/nn+Z2xzMy1JjCTksUblu0i/plai4bOLgqkxJHA==}
+    engines: {node: '>=18'}
+    dependencies:
+      json-schema: 0.4.0
+    dev: false
+
+  /@ai-sdk/provider@0.0.3:
+    resolution: {integrity: sha512-0B8P6VZpJ6F9yS9BpmJBYSqIaIfeRtL5tD5SP+qgR8y0pPwalIbRMUFiLz9YUT6g70MJsCLpm/2/fX3cfAYCJw==}
     engines: {node: '>=18'}
     dependencies:
       json-schema: 0.4.0
@@ -13548,8 +13571,8 @@ packages:
       indent-string: 4.0.0
     dev: false
 
-  /ai@3.0.34(react@18.2.0)(solid-js@1.8.17)(svelte@4.0.1)(vue@3.4.21)(zod@3.21.4):
-    resolution: {integrity: sha512-8kYya4BVOn99K4mcxkAViDAqMcT2MICgf/rdIKvZ8PJgjBTM/7JphL5ZHT+Q/NsT9QP1FWQcfZXsSL5UDdPHwA==}
+  /ai@3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.0.1)(vue@3.4.21)(zod@3.21.4):
+    resolution: {integrity: sha512-U4XVA+Oh7a/s7uOQTAawWzDgwZehCk869TsF/3eNkBprq/ScJGRF2iUsYAx0ZULQlok5wLvtfrrK1iT6my2B7g==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18.2.0
@@ -13569,8 +13592,8 @@ packages:
       zod:
         optional: true
     dependencies:
-      '@ai-sdk/provider': 0.0.2
-      '@ai-sdk/provider-utils': 0.0.4(zod@3.21.4)
+      '@ai-sdk/provider': 0.0.3
+      '@ai-sdk/provider-utils': 0.0.5(zod@3.21.4)
       eventsource-parser: 1.1.2
       json-schema: 0.4.0
       jsondiffpatch: 0.6.0

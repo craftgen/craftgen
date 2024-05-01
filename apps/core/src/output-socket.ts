@@ -240,18 +240,7 @@ export const outputSocketMachine = setup({
           ],
         },
         trigger: {
-          exit: enqueueActions(({ enqueue }) => {
-            enqueue.sendTo(
-              ({ context, system }) => system.get(context.parent.id),
-              ({ context }) => ({
-                type: "SET_OUTPUT",
-                params: {
-                  key: context.definition["x-key"],
-                  value: undefined,
-                },
-              }),
-            );
-          }),
+          exit: enqueueActions(({ enqueue }) => {}),
           on: {
             TRIGGER: {
               actions: enqueueActions(({ enqueue, context }) => {
@@ -271,27 +260,6 @@ export const outputSocketMachine = setup({
                     },
                   );
                 }
-              }),
-            },
-          },
-          invoke: {
-            src: "stateMapper",
-            input: ({ self }) => ({
-              self,
-            }),
-            onSnapshot: {
-              actions: enqueueActions(({ enqueue, event }) => {
-                console.log("TRIGGER WATCHER", event);
-                enqueue.sendTo(
-                  ({ context, system }) => system.get(context.parent.id),
-                  ({ event, context }) => ({
-                    type: "SET_OUTPUT",
-                    params: {
-                      key: context.definition["x-key"],
-                      value: event.snapshot.context,
-                    },
-                  }),
-                );
               }),
             },
           },

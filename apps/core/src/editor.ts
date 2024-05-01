@@ -1073,7 +1073,7 @@ export class Editor<
 
     computeEvent: enqueueActions(
       ({ enqueue, context, event, self }, params: { event: string }) => {
-        console.log("COMPUTE_EVENT ACTION", {
+        console.log("COMPUTE_EVENT ACTION", event, {
           input: {
             inputSockets: context.inputSockets,
             inputs: {

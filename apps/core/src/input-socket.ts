@@ -4,7 +4,6 @@ import {
   Spawner,
   enqueueActions,
   fromObservable,
-  sendTo,
   setup,
 } from "xstate";
 import { JSONSocket } from "./controls/socket-generator";
@@ -21,7 +20,6 @@ import {
   BehaviorSubject,
   startWith,
 } from "rxjs";
-import { actorWatcher } from "./actor-watcher";
 import { inputJsonWatcher } from "./input-output-json-schema-watcher";
 
 function createId(prefix: "context" | "value", parentId: string) {
@@ -359,11 +357,17 @@ export const inputSocketMachine = setup({
               ],
               on: {
                 TRIGGER: {
-                  actions: enqueueActions(({ enqueue }) => {
+                  actions: enqueueActions(({ enqueue, event, self }) => {
+                    console.log("TRIGGER EVENT", self.id, event);
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
-                      ({ context, self }) => ({
+                      ({ context, event }) => ({
                         type: context.definition["x-event"],
+                        params: {
+                          inputs: {
+                            ...get(event, "params.inputs", {}),
+                          },
+                        },
                         origin: {
                           id: self.id,
                           type: self.src,
