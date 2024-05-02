@@ -16,6 +16,8 @@ export const ComputeEventMachine = setup({
   types: {
     input: {} as {
       inputs: Record<string, any>;
+      senders?: string[];
+      callId?: string;
       inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
       event: string;
       parent: AnyActorRef;
@@ -24,6 +26,8 @@ export const ComputeEventMachine = setup({
       inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>;
       event: string;
       inputs: Record<string, any>;
+      senders: string[];
+      callId?: string;
     },
     output: {} as {
       inputs: Record<string, any>;
@@ -46,6 +50,7 @@ export const ComputeEventMachine = setup({
 }).createMachine({
   id: "computeEvent",
   context: ({ input }) => {
+    console.log("COMPUTE EVENT INPUT", input);
     const inputs = Object.values(input.inputSockets).reduce(
       (acc, socket) => {
         const definition = socket.getSnapshot().context.definition;
@@ -65,6 +70,8 @@ export const ComputeEventMachine = setup({
         ...inputs,
         ...input.inputs,
       },
+      senders: input.senders,
+      callId: input.callId,
       parent: input.parent,
     };
   },
@@ -112,6 +119,8 @@ export const ComputeEventMachine = setup({
             type: context.event,
             params: {
               inputs: context.inputs,
+              senders: context.senders,
+              callId: context.callId,
             },
             origin: {
               type: "compute-event",

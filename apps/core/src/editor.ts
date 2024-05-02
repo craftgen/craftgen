@@ -1079,6 +1079,8 @@ export class Editor<
             inputs: {
               ...get(event, "params.inputs", {}),
             },
+            senders: get(event, "params.senders"),
+            callId: get(event, "params.callId"),
             event: params.event,
             parent: self,
           },
@@ -1094,6 +1096,8 @@ export class Editor<
                   inputs: {
                     ...get(event, "params.inputs", {}),
                   },
+                  senders: get(event, "params.senders"),
+                  callId: get(event, "params.callId"),
                   event: params.event,
                   parent: self,
                 },

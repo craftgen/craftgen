@@ -367,6 +367,8 @@ export const inputSocketMachine = setup({
                           inputs: {
                             ...get(event, "params.inputs", {}),
                           },
+                          senders: [...get(event, "params.senders", [])],
+                          callId: get(event, "params.callId"),
                         },
                         origin: {
                           id: self.id,

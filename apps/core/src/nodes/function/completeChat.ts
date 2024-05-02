@@ -1,6 +1,13 @@
 import { createId } from "@paralleldrive/cuid2";
 import { get, isNil, isNull, merge } from "lodash-es";
-import { generateText, type ToolCallPart } from "ai";
+import {
+  CoreAssistantMessage,
+  CoreTool,
+  CoreToolMessage,
+  generateText,
+  type ToolCallPart,
+  type ToolResultPart,
+} from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 // import {
 //   BaseUrlApiConfiguration,
@@ -12,12 +19,12 @@ import { createOpenAI } from "@ai-sdk/openai";
 //   trimChatPrompt,
 //   UncheckedSchema,
 // } from "modelfusion";
-import type {
-  ToolCall,
-  ToolCallError,
-  ToolCallResult,
-  ToolDefinition,
-} from "modelfusion";
+// import type {
+//   ToolCall,
+//   ToolCallError,
+//   ToolCallResult,
+//   ToolDefinition,
+// } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
 import type { OutputFrom, SnapshotFrom } from "xstate";
@@ -204,18 +211,37 @@ const outputSockets = {
   }),
 };
 
-export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
-  tool: NAME;
-  toolCall: ToolCall<NAME, PARAMETERS>;
-  args: PARAMETERS;
+// export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
+//   tool: NAME;
+//   toolCall: ToolCall<NAME, PARAMETERS>;
+//   args: PARAMETERS;
+// } & (
+//   | {
+//       ok: true;
+//       result: RETURN_TYPE;
+//     }
+//   | {
+//       ok: false;
+//       result: ToolCallError;
+//     }
+//   | {
+//       ok: null;
+//       result: null;
+//     }
+// );
+
+export type ToolResultObject = {
+  toolCallId: string;
+  toolName: string;
+  args: any;
 } & (
   | {
       ok: true;
-      result: RETURN_TYPE;
+      result: any;
     }
   | {
       ok: false;
-      result: ToolCallError;
+      result: Error;
     }
   | {
       ok: null;
@@ -248,8 +274,8 @@ interface CompleteChatInput {
   llm: OpenAIModelConfig | OllamaModelConfig;
   system: string;
   messages: Omit<Message, "id">[];
-  tools: ToolDefinition<string, any>[];
-  toolCalls: Record<string, ToolCallInstance<string, any, any>>;
+  tools: CoreTool;
+  toolCalls: Record<string, ToolResultObject>;
 }
 
 const simplyfyMessages = (messages: CompleteChatInput["messages"]) =>
@@ -347,58 +373,83 @@ const completeChatActor = fromPromise(
       //     return res;
       //   },
       // )
-      // .with(
-      //   {
-      //     llm: {
-      //       provider: "openai",
-      //     },
-      //     tools: P.when((t) => Object.keys(t).length > 0),
-      //     toolCalls: P.when((t) => Object.keys(t).length > 0),
-      //   },
-      //   async ({ llm, tools, toolCalls }) => {
-      //     console.log("PASSING THE TOOL CALL RESULTS TO API.");
-      //     const model = openai
-      //       .ChatTextGenerator({
-      //         ...llm,
-      //         api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-      //       })
-      //       .withChatPrompt();
+      .with(
+        {
+          llm: {
+            provider: "openai",
+          },
+          tools: P.when((t) => Object.keys(t).length > 0),
+          toolCalls: P.when((t) => Object.keys(t).length > 0),
+        },
+        async ({ llm, toolCalls }) => {
+          const openai = createOpenAI({
+            // custom settings
+            baseURL: input.llm.apiConfiguration.baseUrl,
+            apiKey: input.llm.apiConfiguration.APIKey,
+          }).chat(input.llm.model, {
+            logitBias: {
+              "50256": -100, //  to prevent the <|endoftext|> token from being generated.
+            },
+          });
 
-      //     const toolCallResponses: OpenAIChatMessage[] = [];
-
-      //     if (Object.keys(toolCalls).length > 0) {
-      //       toolCallResponses.push(
-      //         openai.ChatMessage.assistant(null, {
-      //           toolCalls: Object.values(toolCalls).map((t) => t.toolCall),
-      //         }),
-      //       );
-      //       Object.values(toolCalls).forEach((toolCall) => {
-      //         toolCallResponses.push(
-      //           openai.ChatMessage.tool({
-      //             toolCallId: toolCall.toolCall.id,
-      //             content: toolCall.result,
-      //           }),
-      //         );
-      //       });
-      //     }
-
-      //     const chat: ChatPrompt = {
-      //       system: input.system,
-      //       messages: input.messages as ChatMessage[],
-      //     };
-
-      //     const res = await generateToolCalls({
-      //       model,
-      //       tools,
-      //       prompt: await trimChatPrompt({
-      //         model: model,
-      //         prompt: chat,
-      //       }),
-      //       fullResponse: true,
-      //     });
-      //     return res;
-      //   },
-      // )
+          const tools = Object.entries(input.tools).reduce((acc, [key, t]) => {
+            acc[key] = {
+              ...t,
+              parameters: turnJSONSchemaToZodSchema(t.parameters), // TODO: temp fix
+            };
+            return acc;
+          }, {});
+          console.log("PASSING THE TOOL CALL RESULTS TO API.");
+          const toolCallResponses = [];
+          if (Object.keys(toolCalls).length > 0) {
+            toolCallResponses.push({
+              role: "assistant",
+              content: [
+                ...Object.values(toolCalls).map(
+                  (t) =>
+                    ({
+                      type: "tool-call",
+                      toolName: t.toolName,
+                      toolCallId: t.toolCallId,
+                      args: t.args,
+                    }) as ToolCallPart,
+                ),
+              ],
+            } as CoreAssistantMessage);
+            toolCallResponses.push({
+              role: "tool",
+              content: [
+                ...Object.values(toolCalls).map(
+                  (t) =>
+                    ({
+                      type: "tool-result",
+                      toolCallId: t.toolCallId,
+                      toolName: t.toolName,
+                      result: t.result,
+                      ok: t.ok,
+                      isError: t.ok === false,
+                    }) as ToolResultPart,
+                ),
+              ],
+            } as CoreToolMessage);
+          }
+          console.log("INPUT TOOL RESPONSES", {
+            ...input.llm,
+            model: openai,
+            tools: tools,
+            system: input.system,
+            messages: input.messages.concat(toolCallResponses),
+          });
+          const res = await generateText({
+            ...input.llm,
+            model: openai,
+            tools: tools,
+            system: input.system,
+            messages: input.messages.concat(toolCallResponses),
+          });
+          return res;
+        },
+      )
       .with(
         {
           llm: {
@@ -415,8 +466,6 @@ const completeChatActor = fromPromise(
               "50256": -100, //  to prevent the <|endoftext|> token from being generated.
             },
           });
-
-          console.log("OPENAI", openai);
 
           const tools = Object.entries(input.tools).reduce((acc, [key, t]) => {
             acc[key] = {
@@ -442,25 +491,6 @@ const completeChatActor = fromPromise(
             messages: input.messages,
           });
           return res;
-          // const model = openai
-          //   .ChatTextGenerator({
-          //     ...llm,
-          //     api: new BaseUrlApiConfiguration(llm.apiConfiguration),
-          //   })
-          //   .withChatPrompt();
-
-          // const chat: ChatPrompt = {
-          //   system: input.system,
-          //   messages: input.messages as ChatMessage[],
-          // };
-          // const res = await generateText({
-          //   model,
-          //   prompt: await trimChatPrompt({
-          //     model: model,
-          //     prompt: chat,
-          //   }),
-          //   fullResponse: true,
-          // });
         },
       )
       .run();
@@ -519,10 +549,10 @@ const completeChatMachineRun = setup({
           string,
           {
             actorRef: AnyActorRef;
-            def: ToolDefinition<string, any>[];
+            def: CoreTool;
           }
         >;
-        toolCalls: Record<string, ToolCallPart>;
+        toolCalls: Record<string, ToolResultObject>;
       };
       outputs: {
         result: string;
@@ -540,7 +570,7 @@ const completeChatMachineRun = setup({
           type: "TOOL_RESULT";
           params: {
             id: string;
-            res: ToolCallResult<string, any, any>;
+            res: ToolResultPart;
           };
         }
       | {
@@ -636,16 +666,16 @@ const completeChatMachineRun = setup({
         assertEvent(event, "TOOL_REQUEST");
         const toolCalls = event.params.reduce(
           (acc, toolCall) => {
-            acc[toolCall.id] = {
-              tool: toolCall.name,
+            acc[toolCall.toolCallId] = {
+              toolCallId: toolCall.toolCallId,
+              toolName: toolCall.toolName,
               args: toolCall.args,
               result: null,
               ok: null,
-              toolCall,
             };
             return acc;
           },
-          {} as Record<string, ToolCallInstance<string, any, any>>,
+          {} as Record<string, ToolResultObject>,
         );
         enqueue.assign({
           inputs: ({ context }) => {
@@ -684,7 +714,7 @@ const completeChatMachineRun = setup({
                     id: self.id,
                   },
                 ],
-                executionNodeId: toolCall.id,
+                callId: toolCall.toolCallId,
                 inputs: {
                   ...args,
                 },
@@ -692,7 +722,6 @@ const completeChatMachineRun = setup({
             }),
           );
         }
-        console.log("REQUIRES ACTION", event);
       }),
       always: [
         {
@@ -706,7 +735,7 @@ const completeChatMachineRun = setup({
         },
       ],
       on: {
-        TOOL_RESULT: {
+        RESULT: {
           // HANDLE RESPONSES FROM TOOLS.
           actions: enqueueActions(({ enqueue, event, context }) => {
             console.log("GOT TOOL RESULT", { event });
