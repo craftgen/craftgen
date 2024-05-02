@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "../../trpc";
-import { sql } from "@seocraft/supabase/db";
 
 export const integrationRouter = createTRPCRouter({
   categoryList: publicProcedure

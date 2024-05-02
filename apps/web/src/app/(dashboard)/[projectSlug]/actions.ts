@@ -3,7 +3,6 @@
 import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { format, sub } from "date-fns";
-import { z } from "zod";
 
 import {
   and,
@@ -11,9 +10,7 @@ import {
   eq,
   project,
   projectMembers,
-  variable,
   workflow,
-  workflowVersion,
 } from "@seocraft/supabase/db";
 
 import { getDrive, getWebmaster } from "@/lib/google/auth";

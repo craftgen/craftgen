@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -9,8 +9,10 @@ import {
   PlusCircledIcon,
 } from "@radix-ui/react-icons";
 import type { PopoverTriggerProps } from "@radix-ui/react-popover";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import useSWR from "swr";
+import {
+  Session,
+  createClientComponentClient,
+} from "@supabase/auth-helpers-nextjs";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -42,18 +44,24 @@ import { api } from "@/trpc/react";
 
 import { NewProjectForm } from "../project/new/new-project-form";
 
-type TeamSwitcherProps = PopoverTriggerProps;
+type TeamSwitcherProps = PopoverTriggerProps & { session?: Session };
 
 interface Team {
   label: string;
   value: string;
 }
 
-export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
+export const TeamSwitcher = ({ className, session }: TeamSwitcherProps) => {
   const { data, isLoading } = api.project.userProjects.useQuery();
   const params = useParams();
   const router = useRouter();
   const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    if (session?.user.user_metadata.currentProjectSlug !== params.projectSlug) {
+      handleChange(params.projectSlug as string);
+    }
+  }, [session?.user?.user_metadata.currentProjectSlug]);
 
   const handleChange = async (value: string) => {
     if (value !== params.projectSlug) {
@@ -63,6 +71,7 @@ export const TeamSwitcher = ({ className }: TeamSwitcherProps) => {
       router.push(`/${value}`);
     }
   };
+
   const [open, setOpen] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const groups = useMemo(() => {

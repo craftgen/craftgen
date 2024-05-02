@@ -5,7 +5,6 @@ import { assign, createMachine, fromPromise } from "xstate";
 
 import type { RouterInputs, RouterOutputs } from "@seocraft/api";
 
-import { SWRSelectControl } from "../../../controls/swr-select";
 import type { DiContainer } from "../../../types";
 import type { BaseMachineTypes, ParsedNode } from "../../base";
 import { BaseNode } from "../../base";
@@ -28,7 +27,7 @@ export const GoogleSearchConsoleMachine = createMachine({
             title: "Start Date",
             name: "startDate",
             type: "date",
-            'x-key': 'startDate',
+            "x-key": "startDate",
             description: "Start Date",
             required: true,
             isMultiple: false,
@@ -42,8 +41,7 @@ export const GoogleSearchConsoleMachine = createMachine({
             isMultiple: false,
           }),
         },
-        outputs: {
-        },
+        outputs: {},
         outputSockets: {
           GoogleSearchConsole: generateSocket({
             name: "result",
@@ -60,7 +58,7 @@ export const GoogleSearchConsoleMachine = createMachine({
             required: true,
             "x-showSocket": true,
             "x-key": "result",
-          })
+          }),
         },
         error: null,
       },

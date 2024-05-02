@@ -121,7 +121,9 @@ export const RestApiMachine = createMachine(
   {
     actors: {
       getOpenAPIspec: fromPromise(async ({ input }) => {
-        return await ky.get(`localhost:8055/server/specs/oas`).json();
+        return await ky
+          .get(`https://craftgen-admin.fly.dev/server/specs/oas`)
+          .json();
       }),
     },
   },

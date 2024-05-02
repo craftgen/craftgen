@@ -30,7 +30,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
           </div>
           {session && (
             <>
-              {params.projectSlug && <TeamSwitcher />}
+              {params.projectSlug && <TeamSwitcher session={session} />}
               {params.workflowSlug && (
                 <>
                   <Slash className="text-muted-foreground mx-2 h-4 w-4 -rotate-12" />
