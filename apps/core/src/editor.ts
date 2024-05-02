@@ -1377,7 +1377,7 @@ export class Editor<
                 },
               });
             } else if (typeof machine === "function") {
-              const [main, child] = k.split(".");
+              const [main, child] = k.split(":");
               acc[main] = acc[main].provide({
                 actors: {
                   [child]: machine({ di: this }),

@@ -343,6 +343,34 @@ export const inputSocketMachine = setup({
               triggerSocket: self,
             }),
           },
+          on: {
+            TRIGGER: {
+              actions: enqueueActions(({ enqueue, event, self }) => {
+                console.log("TRIGGER EVENT", self.id, event);
+                enqueue.sendTo(
+                  ({ system, context }) => system.get(context.parent.id),
+                  ({ context, event }) => ({
+                    type: context.definition["x-event"],
+                    params: {
+                      inputs: {
+                        ...get(event, "params.inputs", {}),
+                      },
+                      senders: [
+                        ...get(event, "params.senders", [
+                          { id: context.parent.id },
+                        ]),
+                      ],
+                      callId: get(event, "params.callId"),
+                    },
+                    origin: {
+                      id: self.id,
+                      type: self.src,
+                    },
+                  }),
+                );
+              }),
+            },
+          },
           states: {
             idle: {},
             connection: {
@@ -355,30 +383,6 @@ export const inputSocketMachine = setup({
                   target: "#InputSocketMachine.socket.trigger.idle",
                 },
               ],
-              on: {
-                TRIGGER: {
-                  actions: enqueueActions(({ enqueue, event, self }) => {
-                    console.log("TRIGGER EVENT", self.id, event);
-                    enqueue.sendTo(
-                      ({ system, context }) => system.get(context.parent.id),
-                      ({ context, event }) => ({
-                        type: context.definition["x-event"],
-                        params: {
-                          inputs: {
-                            ...get(event, "params.inputs", {}),
-                          },
-                          senders: [...get(event, "params.senders", [])],
-                          callId: get(event, "params.callId"),
-                        },
-                        origin: {
-                          id: self.id,
-                          type: self.src,
-                        },
-                      }),
-                    );
-                  }),
-                },
-              },
             },
           },
         },

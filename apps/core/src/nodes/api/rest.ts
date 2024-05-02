@@ -32,16 +32,7 @@ const inputSockets = {
       },
     },
   }),
-  generateFromOpenAPI: generateSocket({
-    name: "generateFromOpenAPI",
-    type: "trigger",
-    description: "Generate from OpenAPI",
-    required: false,
-    isMultiple: false,
-    "x-showSocket": true,
-    "x-event": "GENERATE_OPENAPI",
-    "x-key": "generateFromOpenAPI",
-  }),
+  
   path: generateSocket({
     name: "path",
     type: "string",
@@ -97,24 +88,7 @@ export const RestApiMachine = createMachine(
     initial: "idle",
     states: {
       idle: {
-        on: {
-          GENERATE_OPENAPI: {},
-        },
-      },
-      generatingOpenAPI: {
-        invoke: {
-          src: "getOpenAPIspec",
-          input: ({ context }) => {
-            return {
-              baseUrl: context,
-            };
-          },
-          onDone: {
-            actions: enqueueActions(({ enqueue, event }) => {
-              console.log("event");
-            }),
-          },
-        },
+        on: {},
       },
     },
   },

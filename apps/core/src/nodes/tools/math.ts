@@ -285,7 +285,7 @@ export const NodeMathMachine = createMachine({
                     inputs: {
                       ...event.params.inputs,
                     },
-                    senders: [...event.params.senders, { id: self.id }],
+                    senders: [...event.params.senders ],
                     parent: {
                       id: self.id,
                     },

@@ -193,6 +193,7 @@ export const useRegisterReplicateActions = ({
                       model: {
                         model_name: model?.name,
                         owner: model?.owner,
+                        description: model?.description,
                         version_id: model.latest_version?.id,
                       },
                     },
