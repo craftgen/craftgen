@@ -269,6 +269,7 @@ const generateTextCall = setup({
             enqueue.assign({
               outputs: ({ event }) => ({
                 ...event.output,
+                result: event.output.text,
                 ok: true,
               }),
             });
@@ -438,7 +439,7 @@ const GenerateTextMachine = createMachine({
                 type: "removeComputation",
               });
 
-              const runId = `call-${createId()}`;
+              const runId = event.params.callId || `call-${createId()}`;
               enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
                 ({ system }) => system.get("editor"),
                 ({ self, context }) => ({
@@ -452,7 +453,7 @@ const GenerateTextMachine = createMachine({
                       inputs: {
                         ...event.params.inputs,
                       },
-                      senders: [{ id: self.id }],
+                      senders: [...event.params.senders, { id: self.id }],
                       parent: {
                         id: self.id,
                       },
