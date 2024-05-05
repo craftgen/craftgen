@@ -939,7 +939,7 @@ const CompleteChatMachine = createMachine({
               }).getSnapshot() as SnapshotFrom<typeof outputSocketMachine>;
 
               const tools = Object.keys(
-                toolsSocket.context.definition["x-connection"],
+                get(toolsSocket, ["context", "definition", "x-connection"], {}),
               )
                 .map((targetTriggerSocketKey: string) => {
                   const targetTrigger = system.get(targetTriggerSocketKey);
