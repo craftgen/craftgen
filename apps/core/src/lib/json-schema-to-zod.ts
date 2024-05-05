@@ -94,6 +94,7 @@ export const turnJSONSchemaToZodSchema = (schema: any) => {
           }
         }
         break;
+      case "integer":
       case "number":
         zodSchema[key] = property.nullable ? z.number().nullable() : z.number();
         if (property.description)
@@ -131,7 +132,7 @@ export const turnJSONSchemaToZodSchema = (schema: any) => {
           zodSchema[key] = zodSchema[key].max(property.maxItems);
         break;
       default:
-        throw new Error(`Unsupported type: ${property.type}`);
+        throw new Error(`Unsupported Zod type: ${property.type}`);
     }
   });
 
