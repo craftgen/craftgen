@@ -68,7 +68,7 @@
     "rete-scopes-plugin": "^2.0.0",
     "rete-structures": "^2.0.0",
     "rxjs": "^7.8.1",
-    "squirrelly": "^9.0.0",
+    "slugify": "^1.6.6",
     "styled-components": "^5.3.6",
     "tailwind-styled-components": "^2.2.0",
     "tern": "^0.24.3",

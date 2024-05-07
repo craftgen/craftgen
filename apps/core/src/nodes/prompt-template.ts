@@ -1,5 +1,4 @@
 import { get, isString, merge, set } from "lodash-es";
-import * as Sqrl from "squirrelly";
 import type { SetOptional } from "type-fest";
 import { createMachine, fromPromise, enqueueActions } from "xstate";
 
@@ -187,34 +186,34 @@ const PromptTemplateNodeMachine = createMachine(
       // },
     },
   },
-  {
-    actors: {
-      parse: fromPromise(async ({ input }) => {
-        let variables: any[] = [];
-        variables = Sqrl.parse(input.template, {
-          ...Sqrl.defaultConfig,
-          useWith: true,
-        })
-          .filter((item) => !isString(item))
-          .map((item) => {
-            return (item as any).c; // TODO:TYPE
-          });
-        try {
-          const rendered = renderFunc({ input });
-          return {
-            variables,
-            rendered,
-          };
-        } catch (e) {
-          console.log(e);
-          return {
-            variables,
-            rendered: input.template,
-          };
-        }
-      }),
-    },
-  },
+  // {
+  //   actors: {
+  //     parse: fromPromise(async ({ input }) => {
+  //       let variables: any[] = [];
+  //       variables = Sqrl.parse(input.template, {
+  //         ...Sqrl.defaultConfig,
+  //         useWith: true,
+  //       })
+  //         .filter((item) => !isString(item))
+  //         .map((item) => {
+  //           return (item as any).c; // TODO:TYPE
+  //         });
+  //       try {
+  //         const rendered = renderFunc({ input });
+  //         return {
+  //           variables,
+  //           rendered,
+  //         };
+  //       } catch (e) {
+  //         console.log(e);
+  //         return {
+  //           variables,
+  //           rendered: input.template,
+  //         };
+  //       }
+  //     }),
+  //   },
+  // },
 );
 
 const renderFunc = ({
