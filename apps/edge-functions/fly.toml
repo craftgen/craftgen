@@ -1,0 +1,47 @@
+# fly.toml file generated for supa-edge-demo on 2023-04-11T09:48:10+10:00
+
+app = "edge-functions"
+kill_signal = "SIGINT"
+kill_timeout = 5
+primary_region = "syd"
+processes = []
+
+[env]
+
+[experimental]
+  auto_rollback = true
+
+[[services]]
+  internal_port = 9000
+  processes = ["app"]
+  protocol = "tcp"
+  script_checks = []
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.http_checks]]
+    grace_period = "5s"
+    interval = 10000
+    method = "get"
+    path = "/_internal/health"
+    protocol = "http"
+    restart_limit = 0
+    timeout = 2000
+    tls_skip_verify = true
+
+  [[services.ports]]
+    force_https = false
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    grace_period = "1s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "2s"
