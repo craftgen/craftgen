@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ES2021"
+    ]
+  }
+}

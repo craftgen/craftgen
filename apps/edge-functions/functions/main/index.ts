@@ -1,4 +1,6 @@
 // TODO: Add separate worker per session
+import { STATUS_CODE } from "https://deno.land/std/http/status.ts";
+
 
 Deno.serve(async (req: Request) => {
 	const url = new URL(req.url);
