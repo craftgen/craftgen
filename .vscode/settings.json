@@ -15,5 +15,5 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "deno.enable": true
+  "deno.enable": false
 }
