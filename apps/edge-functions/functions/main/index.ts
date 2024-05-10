@@ -1,65 +1,153 @@
-// TODO: Add separate worker per session
 import { STATUS_CODE } from "https://deno.land/std/http/status.ts";
 
+console.log("main function started");
 
 Deno.serve(async (req: Request) => {
-	const url = new URL(req.url);
-	const { pathname } = url;
+  const headers = new Headers({
+    "Content-Type": "application/json",
+  });
 
-	if (pathname === '/_internal/health') {
-		return new Response(
-			JSON.stringify({ 'message': 'ok' }),
-			{ status: 200, headers: { 'Content-Type': 'application/json' } },
-		);
-	}
+  const url = new URL(req.url);
+  const { pathname } = url;
 
-	if (pathname === '/_internal/metric') {
-		const metric = await EdgeRuntime.getRuntimeMetrics();
-		return Response.json(metric);
-	}
+  // handle health checks
+  if (pathname === "/_internal/health") {
+    return new Response(JSON.stringify({ message: "ok" }), {
+      status: STATUS_CODE.OK,
+      headers,
+    });
+  }
 
-	const createWorker = async () => {
-		return await EdgeRuntime.userWorkers.create({
-			cpuTimeHardLimitMs: 20_000,
-			cpuTimeSoftLimitMs: 10_000,
-			envVars: [],
-			forceCreate: false,
-			importMapPath: null,
-			memoryLimitMb: 100,
-			netAccessDisabled: true,
-			noModuleCache: false,
-			servicePath: "/home/deno/functions/worker",
-			workerTimeoutMs: 10_000,
-		});
-	};
+  if (pathname === "/_internal/metric") {
+    const metric = await EdgeRuntime.getRuntimeMetrics();
+    return Response.json(metric);
+  }
 
-	const callWorker = async () => {
-		try {
-			const worker = await createWorker();
-			const controller = new AbortController();
+  // NOTE: You can test WebSocket in the main worker by uncommenting below.
+  // if (pathname === '/_internal/ws') {
+  // 	const upgrade = req.headers.get("upgrade") || "";
 
-			const signal = controller.signal;
+  // 	if (upgrade.toLowerCase() != "websocket") {
+  // 		return new Response("request isn't trying to upgrade to websocket.");
+  // 	}
 
-			//setTimeout(() => controller.abort(), 10_000);
+  // 	const { socket, response } = Deno.upgradeWebSocket(req);
 
-			return await worker.fetch(req, { signal });
-		} catch (e) {
-			console.error(e);
+  // 	socket.onopen = () => console.log("socket opened");
+  // 	socket.onmessage = (e) => {
+  // 		console.log("socket message:", e.data);
+  // 		socket.send(new Date().toString());
+  // 	};
 
-			if (e instanceof Deno.errors.WorkerRequestCancelled) {
-				console.log('cancelled!');
-			}
+  // 	socket.onerror = e => console.log("socket errored:", e.message);
+  // 	socket.onclose = () => console.log("socket closed");
 
-			const error = { msg: e.toString() };
+  // 	return response; // 101 (Switching Protocols)
+  // }
 
-			return new Response(
-				JSON.stringify(error),
-				{ status: 500, headers: { 'Content-Type': 'application/json' } },
-			);
-		}
-	};
+  const path_parts = pathname.split("/");
+  const service_name = path_parts[1];
 
-	return callWorker();
+  if (!service_name || service_name === "") {
+    const error = { msg: "missing function name in request" };
+    return new Response(JSON.stringify(error), {
+      status: STATUS_CODE.BadRequest,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const servicePath = `/home/deno/functions/${service_name}`;
+  // console.error(`serving the request with ${servicePath}`);
+
+  const createWorker = async () => {
+    const memoryLimitMb = 150;
+    const workerTimeoutMs = 5 * 60 * 1000;
+    const noModuleCache = false;
+
+    // you can provide an import map inline
+    // const inlineImportMap = {
+    //   imports: {
+    //     "std/": "https://deno.land/std@0.131.0/",
+    //     "cors": "./examples/_shared/cors.ts"
+    //   }
+    // }
+
+    // const importMapPath = `data:${encodeURIComponent(JSON.stringify(importMap))}?${encodeURIComponent('/home/deno/functions/test')}`;
+    const importMapPath = null;
+    const envVarsObj = Deno.env.toObject();
+    const envVars = Object.keys(envVarsObj).map((k) => [k, envVarsObj[k]]);
+    const forceCreate = false;
+    const netAccessDisabled = false;
+
+    // load source from an eszip
+    //const maybeEszip = await Deno.readFile('./bin.eszip');
+    //const maybeEntrypoint = 'file:///src/index.ts';
+
+    // const maybeEntrypoint = 'file:///src/index.ts';
+    // or load module source from an inline module
+    // const maybeModuleCode = 'Deno.serve((req) => new Response("Hello from Module Code"));';
+    //
+    const cpuTimeSoftLimitMs = 10000;
+    const cpuTimeHardLimitMs = 20000;
+
+    return await EdgeRuntime.userWorkers.create({
+      servicePath,
+      memoryLimitMb,
+      workerTimeoutMs,
+      noModuleCache,
+      importMapPath,
+      envVars,
+      forceCreate,
+      netAccessDisabled,
+      cpuTimeSoftLimitMs,
+      cpuTimeHardLimitMs,
+      // maybeEszip,
+      // maybeEntrypoint,
+      // maybeModuleCode,
+    });
+  };
+
+  const callWorker = async () => {
+    try {
+      // If a worker for the given service path already exists,
+      // it will be reused by default.
+      // Update forceCreate option in createWorker to force create a new worker for each request.
+      const worker = await createWorker();
+      const controller = new AbortController();
+
+      const signal = controller.signal;
+      // Optional: abort the request after a timeout
+      //setTimeout(() => controller.abort(), 2 * 60 * 1000);
+
+      return await worker.fetch(req, { signal });
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof Deno.errors.WorkerRequestCancelled) {
+        headers.append("Connection", "close");
+
+        // XXX(Nyannyacha): I can't think right now how to re-poll
+        // inside the worker pool without exposing the error to the
+        // surface.
+
+        // It is satisfied when the supervisor that handled the original
+        // request terminated due to reaches such as CPU time limit or
+        // Wall-clock limit.
+        //
+        // The current request to the worker has been canceled due to
+        // some internal reasons. We should repoll the worker and call
+        // `fetch` again.
+
+        // return await callWorker();
+      }
+
+      const error = { msg: e.toString() };
+      return new Response(JSON.stringify(error), {
+        status: STATUS_CODE.InternalServerError,
+        headers,
+      });
+    }
+  };
+
+  return callWorker();
 });
-
-console.log('code evaluator service started');

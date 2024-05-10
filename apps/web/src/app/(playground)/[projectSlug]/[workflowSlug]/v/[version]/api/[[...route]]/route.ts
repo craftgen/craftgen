@@ -1,21 +1,68 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
-// import { api } from "@/trpc/server";
+import { api } from "@/trpc/server";
+import { Editor } from "@seocraft/core";
+import { nodes } from "@seocraft/core/src/types";
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 console.log("RUNNING HONO");
 
 const app = new Hono().basePath("/:project/:workflow/v/:version/api");
 
 app.get("/schema", async (c) => {
-  // const meta = await api.craft.module.meta({
-  //   projectSlug: c.req.param("project"),
-  //   workflowSlug: c.req.param("workflow"),
-  //   version: Number(c.req.param("version")),
+  const workflow = await api.craft.module.get({
+    projectSlug: c.req.param("project"),
+    workflowSlug: c.req.param("workflow"),
+    version: Number(c.req.param("version")),
+  });
+  // const workflow = await db.query.workflow.findFirst({
+  //   where: (w, { and, eq }) =>
+  //     and(
+  //       eq(w.slug, c.req.param("workflow")),
+  //       eq(w.projectSlug, c.req.param("project")),
+  //     ),
+  //   with: {
+  //     versions: {
+  //       where: (v, { eq }) => eq(v.version, Number(c.req.param("version"))),
+  //     },
+  //   },
   // });
+  const params = {
+    workflow,
+    api: {
+      trpc: api,
+    },
+  };
+
+  console.log("API", api)
+
+  const di = new Editor({
+    config: {
+      nodes,
+      meta: {
+        projectId: params.workflow.projectId,
+        workflowId: params.workflow.id,
+        workflowVersionId: params.workflow.version.id,
+        executionId: params.workflow?.execution?.id,
+      },
+      api: {
+        trpc: api!,
+      },
+    },
+    content: {
+      context: params.workflow.context,
+      nodes: params.workflow.nodes,
+      edges: params.workflow.edges,
+      contexts: params.workflow.contexts,
+    },
+  });
+
+  await di.setup();
+  console.log("DI", di);
   return c.json({
-    meta: {v: 1},
+    meta: { v: 1 },
+    workflow,
   });
 });
 

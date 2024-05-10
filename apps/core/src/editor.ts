@@ -1594,6 +1594,8 @@ export class Editor<
   }
 
   public async setupEnv() {
+    console.log("THIS API", this.api.trpc)
+    return;
     const creds = await this.api.trpc.credentials.list.query({
       // projectId: this.projectId,
     });
