@@ -354,7 +354,7 @@ importers:
   apps/desktop:
     dependencies:
       '@tauri-apps/api':
-        specifier: '>=2.0.0-beta.0'
+        specifier: 2.0.0-beta.11
         version: 2.0.0-beta.11
       '@tauri-apps/plugin-shell':
         specifier: '>=2.0.0-beta.0'

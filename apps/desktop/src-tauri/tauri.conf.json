@@ -1,14 +1,15 @@
 {
   "productName": "desktop",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.craftgen.dev",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
-  "app": {"windows": [
+  "app": {
+    "windows": [
       {
         "title": "desktop",
         "width": 800,
@@ -28,6 +29,12 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "resources": [
+      "functions/*"
+    ],
+    "externalBin": [
+      "binaries/edge-runtime"
     ]
   }
 }

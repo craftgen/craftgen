@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "path:default",
     "event:default",
@@ -12,6 +14,39 @@
     "resources:default",
     "menu:default",
     "tray:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "args": [],
+          "cmd": "",
+          "name": "binaries/welcome",
+          "sidecar": true
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+
+          "args": [
+            "start",
+            "--main-service",
+            {
+              "validator": "\\S+"
+            },
+            "--event-worker",
+            {
+              "validator": "\\S+"
+            }
+          ],
+          "cmd": "echo $APPDATA",
+          "name": "binaries/edge-runtime",
+          "sidecar": true
+        }
+      ]
+    },
     "shell:allow-open"
   ]
 }

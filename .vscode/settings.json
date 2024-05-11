@@ -7,7 +7,7 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "deno.enable": true,
+  "deno.enable": false,
   "deno.enablePaths": ["./apps/edge-functions"],
   "deno.importMap": "./apps/edge-functions/functions/import_map.json"
 
