@@ -2,25 +2,27 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { Command } from "@tauri-apps/plugin-shell";
 import { resolveResource } from "@tauri-apps/api/path";
+import { invoke } from "@tauri-apps/api/core";
 
 function App() {
   // const command = Command.sidecar("binaries/welcome");
   const [res, setRes] = useState<string[]>([]);
+  const callFuncOnRust = async () => {
+    invoke("start_edge_runtime").then(() => console.log("Completed!"));
+  };
   const callFunc = async () => {
     const SERVICE_BASE_DIR = await resolveResource("functions");
     const mainService = `${SERVICE_BASE_DIR}/main`;
     const eventWorker = `${SERVICE_BASE_DIR}/event`;
-    const command = Command.sidecar("binaries/edge-runtime", [
-      "start",
-      "--main-service",
-      mainService,
-      "--event-worker",
-      eventWorker,
-    ], {
-      env: {
-        SERVICE_BASE_DIR
-      }
-    });
+    const command = Command.sidecar(
+      "binaries/edge-runtime",
+      ["start", "--main-service", mainService, "--event-worker", eventWorker],
+      {
+        env: {
+          SERVICE_BASE_DIR,
+        },
+      },
+    );
 
     const edgeRunner = await command.spawn();
     command.stdout.addListener("data", (line) => {
@@ -52,7 +54,7 @@ function App() {
       {JSON.stringify(res)}
       {path}
 
-      <button onClick={callFunc}>Hello</button>
+      <button onClick={callFuncOnRust}>Hello</button>
     </div>
   );
 }
