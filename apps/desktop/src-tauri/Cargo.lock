@@ -851,6 +851,8 @@ dependencies = [
  "tauri-plugin-autostart",
  "tauri-plugin-notification",
  "tauri-plugin-shell",
+ "tauri-plugin-store",
+ "tokio",
 ]
 
 [[package]]
@@ -3684,6 +3686,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-store"
+version = "2.0.0-beta.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f378253a5b593a4c08fab0b6e6e05b58cd2d4caf9ccca532e18c98c25790d5df"
+dependencies = [
+ "dunce",
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+ "thiserror",
+]
+
+[[package]]
 name = "tauri-runtime"
 version = "2.0.0-beta.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3898,9 +3915,23 @@ dependencies = [
  "libc",
  "mio",
  "num_cpus",
+ "parking_lot",
  "pin-project-lite",
+ "signal-hook-registry",
  "socket2",
+ "tokio-macros",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.61",
 ]
 
 [[package]]

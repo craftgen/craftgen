@@ -9,7 +9,10 @@
   },
   "deno.enable": false,
   "deno.enablePaths": ["./apps/edge-functions"],
-  "deno.importMap": "./apps/edge-functions/functions/import_map.json"
+  // "deno.importMap": "./apps/edge-functions/functions/import_map.json"
+  "rust-analyzer.linkedProjects": [
+    "./apps/desktop/src-tauri/Cargo.toml",
+  ],
 
 
 }

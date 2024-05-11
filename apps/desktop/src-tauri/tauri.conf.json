@@ -1,5 +1,5 @@
 {
-  "productName": "desktop",
+  "productName": "craftgen",
   "version": "0.0.0",
   "identifier": "com.craftgen.dev",
   "build": {
@@ -11,7 +11,8 @@
   "app": {
     "windows": [
       {
-        "title": "desktop",
+        "visible": false,
+        "title": "craftgen",
         "width": 800,
         "height": 600
       }

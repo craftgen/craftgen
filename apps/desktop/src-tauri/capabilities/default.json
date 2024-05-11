@@ -48,6 +48,7 @@
     },
     "shell:allow-open",
     "autostart:default",
-    "notification:default"
+    "notification:default",
+    "store:default"
   ]
 }

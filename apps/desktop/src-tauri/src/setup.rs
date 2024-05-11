@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{error::Error};
+use std::error::Error;
 use tauri::{App, Manager};
 // use tokio::sync::Mutex;
 

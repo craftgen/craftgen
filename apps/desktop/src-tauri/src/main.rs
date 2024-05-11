@@ -7,16 +7,15 @@
 use tauri_plugin_autostart::MacosLauncher;
 
 mod cmd;
+mod runtime;
 mod setup;
 mod tray;
 use clap::Parser;
-use log::{debug};
-
+use log::debug;
 
 
 #[cfg(target_os = "macos")]
 mod dock;
-
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -26,39 +25,29 @@ struct Args {
     minimized: bool,
 }
 
+#[derive(Debug)]
+struct AppState {
+    sidecar_handle: Option<tauri_plugin_shell::process::CommandChild>,
+}
 
 fn main() {
     debug!("init");
 
-    // let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-    // let hide = CustomMenuItem::new("hide".to_string(), "Hide");
-    // let tray_menu = SystemTrayMenu::new()
-    //     .add_item(quit)
-    //     .add_native_item(SystemTrayMenuItem::Separator)
-    //     .add_item(hide);
-
-    //     let tray = SystemTray::new().with_menu(tray_menu);
-
-
-    
     tauri::Builder::default()
+        .manage(AppState { sidecar_handle: None })
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec!["--minimized"]),
         ))
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![cmd::greet, cmd::start_edge_runtime])
+        .invoke_handler(tauri::generate_handler![
+            cmd::greet,
+            cmd::start_edge_runtime
+        ])
         .setup(setup::setup)
-        // .on_window_event(move |event| match event.event() {
-        //     WindowEvent::Destroyed => {
-        //         // tx.send(-1).expect("[Error] sending msg.");
-        //         println!("[Event] App closed, shutting down API...");
-        //     },
-        //     _ => {}
-        // })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(runtime::on_run_event);
 }
-
-
