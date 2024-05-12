@@ -1,15 +1,39 @@
 interface requestPayload {
-	code: string;
-	context: object;
+  code: string;
+  context: object;
 }
 
 Deno.serve(async (req: Request) => {
-	const { code, context }: requestPayload = await req.json();
+  const { code, context }: requestPayload = await req.json();
 
-	const result = (new Function(...Object.keys(context), `return (${code});`))(...Object.values(context));
+  const evalll = new Function(...Object.keys(context), `return (${code});`);
 
-	return new Response(
-		JSON.stringify(result),
-		{ headers: { 'Content-Type': 'application/json', 'Connection': 'keep-alive' } },
-	);
+  try {
+    const result = await evalll(...Object.values(context));
+    return new Response(
+      JSON.stringify({
+        result,
+        ok: true,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Connection: "keep-alive",
+        },
+      },
+    );
+  } catch (e) {
+		return new Response(
+			JSON.stringify({
+				result: e.message,
+				ok: false,
+			}),
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Connection: "keep-alive",
+				},
+			},
+		);
+  }
 });

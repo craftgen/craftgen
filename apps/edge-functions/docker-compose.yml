@@ -8,3 +8,5 @@ services:
         target: /home/deno/functions
     ports:
       - "8000:9000"
+    environment:
+      - SERVICE_BASE_DIR=/home/deno/functions/

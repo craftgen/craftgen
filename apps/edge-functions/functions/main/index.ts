@@ -56,8 +56,11 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  const servicePath = `/home/deno/functions/${service_name}`;
-  // console.error(`serving the request with ${servicePath}`);
+  const serviceBaseDir = Deno.env.get("SERVICE_BASE_DIR")!;
+
+  const servicePath = `${serviceBaseDir}/${service_name}`;
+  // const servicePath = `/home/deno/functions/${service_name}`;
+  console.error(`serving the request with ${servicePath}`);
 
   const createWorker = async () => {
     const memoryLimitMb = 150;
