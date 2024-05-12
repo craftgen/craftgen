@@ -13,6 +13,7 @@
   "rust-analyzer.linkedProjects": [
     "./apps/desktop/src-tauri/Cargo.toml",
   ],
+  "deno.enable": true,
 
 
 }

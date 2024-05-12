@@ -8,7 +8,7 @@ function App() {
   // const command = Command.sidecar("binaries/welcome");
   const [res, setRes] = useState<string[]>([]);
   const callFuncOnRust = async () => {
-    open("https://localhost:3000");
+    open("http://localhost:3000");
     invoke("start_edge_runtime").then(() => console.log("Completed!"));
   };
   useEffect(() => {

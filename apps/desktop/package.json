@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "copy-functions": "cp -r ../edge-functions/functions src-tauri/functions"
+    "copy-functions": "cp -r ../edge-functions/functions ./src-tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "2.0.0-beta.11",

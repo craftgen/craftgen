@@ -6,6 +6,9 @@ services:
       - type: bind
         source: ./functions
         target: /home/deno/functions
+      - type: bind
+        source: ../core
+        target: /home/deno/core
     ports:
       - "8000:9000"
     environment:
