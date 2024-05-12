@@ -124,7 +124,7 @@ Deno.serve(async (req: Request) => {
 
       return await worker.fetch(req, { signal });
     } catch (e) {
-      console.error(e);
+      console.error("THE ERROR:", e);
 
       if (e instanceof Deno.errors.WorkerRequestCancelled) {
         headers.append("Connection", "close");

@@ -7,16 +7,16 @@ for await (const data of eventManager) {
     switch (data.event_type) {
       case "Log":
         if (data.event.level === "Error") {
-          console.error(data.event.msg);
+          console.error("[EM]", data.event.msg);
         } else {
-          console.log(data.event.msg);
+          console.log("[EM]", data.event.msg);
         }
         break;
       case "UncaughtException":
-        console.error(data.event.exception);
+        console.error("[EM]", data.event.exception);
         break;
       default:
-        console.log(data);
+        console.log("[EM]", data);
     }
   }
 }

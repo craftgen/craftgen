@@ -6,9 +6,8 @@ interface requestPayload {
 Deno.serve(async (req: Request) => {
   const { code, context }: requestPayload = await req.json();
 
-  const evalll = new Function(...Object.keys(context), `return (${code});`);
-
   try {
+    const evalll = new Function(...Object.keys(context), `return (${code});`);
     const result = await evalll(...Object.values(context));
     return new Response(
       JSON.stringify({
