@@ -11,5 +11,7 @@ services:
         target: /home/deno/core
     ports:
       - "8000:9000"
+    network_mode: host
     environment:
       - SERVICE_BASE_DIR=/home/deno/functions/
+  
