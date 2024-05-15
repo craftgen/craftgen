@@ -38,6 +38,10 @@ import {
   AnyActorRef,
   ActorRefFrom,
   fromPromise,
+  ActorLogicFrom,
+  EventFrom,
+  AnyActorLogic,
+  waitFor,
 } from "xstate";
 import { createBrowserInspector } from "@statelyai/inspect";
 
@@ -75,6 +79,8 @@ import {
   groupBy,
   mergeMap,
   scan,
+  tap,
+  delay,
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 import { RouterInputs } from "@seocraft/api";
@@ -132,8 +138,20 @@ export const EditorMachine = setup({
       | {
           type: "SPAWN";
           params: {
-            parentId?: string;
             id: string;
+            parentId?: string;
+            systemId: string;
+            machineId: string;
+            input: Record<string, any> & {
+              parent?: string;
+            };
+          };
+        }
+      | {
+          type: "SPAWN_RUN";
+          params: {
+            id: string;
+            parentId?: string;
             systemId: string;
             machineId: string;
             input: Record<string, any> & {
@@ -327,6 +345,7 @@ export const EditorMachine = setup({
         inputs: {},
         outputs: {},
         actors: [],
+        runs: [],
       },
       input,
     );
@@ -451,6 +470,27 @@ export const EditorMachine = setup({
                 },
               });
             }
+          }),
+        },
+        SPAWN_RUN: {
+          description: "Spawn a run actor ",
+          actions: enqueueActions(({ enqueue, event, system }) => {
+            console.log("SPAWNING RUN", event);
+            enqueue.assign({
+              runs: ({ spawn, context }) => {
+                const actor = spawn(event.params.machineId, {
+                  input: event.params.input,
+                  id: event.params.id,
+                  syncSnapshot: true,
+                  systemId: event.params.systemId,
+                });
+
+                return {
+                  ...context.runs,
+                  [event.params.id]: actor,
+                };
+              },
+            });
           }),
         },
         SPAWN: {
@@ -1269,7 +1309,6 @@ export class Editor<
       },
       actors: {
         compute: fromPromise(async ({ input, system }) => {
-          console.log("COMPUTE INPUT", input);
           if (input.definition.format === "secret") {
             return this.variables.get(input.value);
           } else if (input.definition.format === "expression") {
@@ -1594,8 +1633,8 @@ export class Editor<
   }
 
   public async setupEnv() {
-    console.log("THIS API", this.api.trpc)
-    return;
+    console.log("THIS API", this.api.trpc);
+    // return;
     const creds = await this.api.trpc.credentials.list.query({
       // projectId: this.projectId,
     });
@@ -1652,8 +1691,76 @@ export class Editor<
     return snapshot;
   }
 
+  public headless = false;
+
+  public toggleHeadless() {
+    this.headless = !this.headless;
+  }
+
+  public runEvents = new Subject<{
+    executionId: string | undefined;
+    timestamp: number;
+    event: EventFrom<typeof EditorMachine, "SPAWN">;
+  }>();
+
+  setupExternalEvents() {
+    this.runEvents
+      .pipe(
+        tap(async ({ event }) => {
+          console.log("EXTERNAL", event);
+        }),
+        delay(10000),
+      )
+      .subscribe({
+        next: async ({event}) => {
+          const actor = createActor(this.machines[event.params.machineId], {
+            input: event.params.input,
+            id: event.params.id,
+            systemId: event.params.id,
+          })
+          console.log("ACTOR CREATED", actor)
+          actor.start();
+          actor.subscribe((event) => {
+            console.log("RUN EVENT", event)
+          })
+          await waitFor(actor, (s) => s.matches("done"));
+          console.log("ACTOR DONE", actor)
+
+          // this.actor?.send(event.event);
+        },
+      });
+
+  }
+
+  public initialEventId?: string;
+
+  withExternalEvents(actorLogic: ActorLogicFrom<typeof EditorMachine>) {
+    const enhancedLogic = {
+      ...actorLogic,
+      transition: (state, event, actorCtx) => {
+        // console.log("🕷️ State:", state, "Event:", event);
+        if (this.headless) {
+          if (event.type === "SPAWN_RUN") {
+            let e = event as EventFrom<typeof EditorMachine, "SPAWN_RUN">;
+            if (this.initialEventId !== e.params.id) {
+              this.runEvents.next({
+                executionId: this.executionId,
+                event,
+                timestamp: +new Date(),
+              });
+              return state;
+            }
+          }
+        }
+        return actorLogic.transition(state, event, actorCtx);
+      },
+    };
+
+    return enhancedLogic as unknown as AnyActorLogic;
+  }
+
   private createActor(snapshot: SnapshotFrom<typeof EditorMachine>) {
-    return createActor(withLogging(this.machine), {
+    return createActor(this.withExternalEvents(this.machine), {
       id: this.content.context?.id,
       systemId: "editor", // ROOT ACTOR.
       inspect: (inspectionEvent) => {
@@ -1798,6 +1905,7 @@ export class Editor<
     this.actor = this.createActor(snapshot);
 
     this.setupEventHandling();
+    this.setupExternalEvents();
     await this.import(this.content);
     this.actor.start();
     this.initializeChildrens(snapshot.children);

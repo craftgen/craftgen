@@ -59,7 +59,6 @@ export interface BaseInputType<
   outputSockets?: O;
 }
 
-
 export interface BaseContextType<
   I extends Record<string, ActorRefFrom<typeof inputSocketMachine>> = Record<
     string,
@@ -419,6 +418,7 @@ export const NodeContextFactory = <
   }
 
   const config = merge(
+    {},
     {
       name,
       description,

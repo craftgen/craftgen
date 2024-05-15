@@ -243,7 +243,7 @@ const GenerateObjectMachine = createMachine({
             enqueue.sendTo(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({
-                type: "SPAWN",
+                type: "SPAWN_RUN",
                 params: {
                   id: runId,
                   parentId: self.id,

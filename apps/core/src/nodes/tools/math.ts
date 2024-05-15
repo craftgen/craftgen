@@ -275,7 +275,7 @@ export const NodeMathMachine = createMachine({
             enqueue.sendTo<ActorRefFrom<typeof RunMathMachine>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({
-                type: "SPAWN",
+                type: "SPAWN_RUN",
                 params: {
                   id: runId,
                   parentId: self.id,

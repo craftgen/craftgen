@@ -443,7 +443,7 @@ const GenerateTextMachine = createMachine({
               enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
                 ({ system }) => system.get("editor"),
                 ({ self, context }) => ({
-                  type: "SPAWN",
+                  type: "SPAWN_RUN",
                   params: {
                     id: runId,
                     parentId: self.id,
