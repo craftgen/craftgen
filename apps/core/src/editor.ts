@@ -1695,6 +1695,7 @@ export class Editor<
 
   public toggleHeadless() {
     this.headless = !this.headless;
+    console.log("Headless mode is ", this.headless ? "enabled" : "disabled");
   }
 
   public runEvents = new Subject<{
@@ -1712,24 +1713,26 @@ export class Editor<
         delay(10000),
       )
       .subscribe({
-        next: async ({event}) => {
-          const actor = createActor(this.machines[event.params.machineId], {
-            input: event.params.input,
-            id: event.params.id,
-            systemId: event.params.id,
-          })
-          console.log("ACTOR CREATED", actor)
-          actor.start();
-          actor.subscribe((event) => {
-            console.log("RUN EVENT", event)
-          })
-          await waitFor(actor, (s) => s.matches("done"));
-          console.log("ACTOR DONE", actor)
+        next: async ({ event }) => {
+          console.log("PASSING THE  EVENT");
+          this.actor?.send(event);
+
+          // const actor = createActor(this.machines[event.params.machineId], {
+          //   input: event.params.input,
+          //   id: event.params.id,
+          //   systemId: event.params.id,
+          // });
+          // console.log("ACTOR CREATED", actor);
+          // actor.start();
+          // actor.subscribe((event) => {
+          //   console.log("RUN EVENT", event);
+          // });
+          // await waitFor(actor, (s) => s.matches("done"));
+          // console.log("ACTOR DONE", actor);
 
           // this.actor?.send(event.event);
         },
       });
-
   }
 
   public initialEventId?: string;
@@ -1748,6 +1751,7 @@ export class Editor<
                 event,
                 timestamp: +new Date(),
               });
+              this.initialEventId = e.params.id;
               return state;
             }
           }
