@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Session } from "@supabase/auth-helpers-nextjs";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { ModeToggle } from "@/components/theme-toggle";
+import { StarCount } from "@/components/marketing/github-star-count";
+import { ExternalLinkIcon } from "lucide-react";
 
 const MenuDropdown = ({ session }: { session: Session | null }) => {
   const [open, setOpen] = useState(false);
@@ -46,13 +49,14 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
         >
           Blog
         </Link>
-        {/* <Link
+        <Link
           onClick={() => setOpen(false)}
           href="/features"
           className=" flex  items-center font-semibold leading-6"
         >
-          Features
-        </Link> */}
+          Roadmap
+          <ExternalLinkIcon />
+        </Link>
         <Link
           onClick={() => setOpen(false)}
           href="/integrations"
@@ -86,14 +90,16 @@ export const NavBar = ({ session }: { session: Session | null }) => {
         className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
         aria-label="Global"
       >
-        <div className="flex flex-row lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5">
+        <div className="flex flex-row items-center  lg:flex-1">
+          <Link href="/" className="-m-1.5 mr-4 p-1.5">
             <span className="sr-only">Craftgen</span>
             {/* <Logo className={"h-12 w-12"} /> */}
             <h1 className="font-sans text-2xl  font-black tracking-tighter  md:text-5xl">
               CraftGen
             </h1>
           </Link>
+
+          <StarCount />
         </div>
 
         <MenuDropdown session={session} />
@@ -123,9 +129,18 @@ export const NavBar = ({ session }: { session: Session | null }) => {
           >
             Integrations
           </Link>
+          <Link
+            href="https://github.com/orgs/craftgen/projects/1/views/2"
+            target="_blank"
+            className=" flex  items-center font-semibold leading-6"
+          >
+            Roadmap
+            <ExternalLinkIcon className="h-4 w-4" />
+          </Link>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {/* <SessionButton session={session} /> */}
+          <ModeToggle />
         </div>
       </nav>
     </>

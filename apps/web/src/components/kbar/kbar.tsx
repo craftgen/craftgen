@@ -61,9 +61,9 @@ export const KBarCore = () => {
   return (
     <KBarPortal>
       <KBarPositioner className="min-w-xl bg-background/60 fixed inset-0 z-30 box-border flex w-full items-start  justify-center py-4 pb-4 pt-[14vh]">
-        <KBarAnimator className="bg-background/80 z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded-xl border bg-clip-padding  shadow-lg backdrop-blur-sm backdrop-filter">
+        <KBarAnimator className="bg-background/80 z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded border bg-clip-padding  shadow-lg backdrop-blur-sm backdrop-filter">
           <div className="flex items-center justify-between">
-            <KBarSearch className="bg-background  w-full px-4 py-3 outline-none " />
+            <KBarSearch className="bg-background  w-full px-4 py-2 outline-none " />
             <div className="pointer-events-none flex h-4 w-24 select-none items-center justify-center">
               <span className="text-muted flex items-center p-1 text-sm">
                 <Command className="mr-1 h-4 w-4" />

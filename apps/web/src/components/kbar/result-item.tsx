@@ -11,7 +11,7 @@ export const ResultItem = React.forwardRef<
     <div
       className={cn(
         " aria-selected:bg-accent aria-selected:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        active && "bg-muted-foreground/10  rounded-2xl bg-opacity-20",
+        active && "bg-muted-foreground/10  rounded bg-opacity-20",
       )}
       ref={ref}
     >

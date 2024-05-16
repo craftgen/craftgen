@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { addToWaitlist } from "../action";
+import NumberTicker from "@/components/ui/number-ticket";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -63,17 +64,27 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <div>
             <DialogHeader>
               <DialogTitle className="text-4xl">YESS!</DialogTitle>
-              <DialogDescription className="py-2 leading-relaxed">
-                Will be the first to experience our launch! Stay in the loop by
-                following us on{" "}
-                <a
-                  href="https://twitter.com/seocraftai"
-                  target="_blank"
-                  className="text-primary cursor-pointer font-bold"
-                  rel="noreferrer"
-                >
-                  @seocraftai
-                </a>
+              <DialogDescription className="space-y-2 py-2 leading-relaxed">
+                <p>
+                  Thanks for joining the CraftGen waitlist! You're one step
+                  closer to unlocking the power of AI.
+                </p>
+                <p>
+                  We'll keep you updated with exclusive previews, launch news,
+                  and early access opportunities.
+                </p>
+                <p>
+                  In the meantime, connect with fellow AI enthusiasts and stay
+                  in the loop by joining our
+                  <a
+                    href="/discord"
+                    target="_blank"
+                    className="text-primary cursor-pointer font-bold"
+                  >
+                    {" "}
+                    Discord community.{" "}
+                  </a>
+                </p>
                 .
               </DialogDescription>
             </DialogHeader>
@@ -84,28 +95,25 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
               height={500}
             />
             <p className="py-4">
-              Ready for more? Join our{" "}
+              Ready for more? Spread the news on{" "}
               <a
-                href="/discord"
+                href="https://twitter.com/intent/tweet?text=%40craftgenai%20rocks%20check%20it%20out%20%F0%9F%91%89&url=craftgen.ai"
                 target="_blank"
                 className="text-primary cursor-pointer font-bold"
               >
-                Discord community
+                Twitter / X
               </a>{" "}
-              <b>now!</b>
+              now!
             </p>
             <Confettis />
           </div>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl">
-                Grab Your Early Access Pass
-              </DialogTitle>
+              <DialogTitle className="text-2xl">Join the waitlist</DialogTitle>
               <DialogDescription>
-                Join our priority waitlist to be among the first to experience
-                our game-changing content crafting tool, currently in private
-                beta.
+                Join our waitlist to be among the first to experience the power
+                of AI.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
