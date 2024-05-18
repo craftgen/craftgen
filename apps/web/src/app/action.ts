@@ -16,6 +16,11 @@ export const addToWaitlist = async (params: {
     .returning();
   const messageText = `*\\#Craftgen*\nNew user: \`${params.email}\``; // Replace `params.email` with the email of the new user
 
+  await sendTGMessage({ message: messageText });
+  return User;
+};
+
+export const sendTGMessage = async (params: { message: string }) => {
   await fetch(
     `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
     {
@@ -25,7 +30,7 @@ export const addToWaitlist = async (params: {
       },
       body: JSON.stringify({
         chat_id: "-1002025278887",
-        text: messageText,
+        text: params.message,
         parse_mode: "MarkdownV2",
       }),
     },
@@ -33,5 +38,4 @@ export const addToWaitlist = async (params: {
     .then((response) => response.json())
     .then((data) => console.log(data))
     .catch((error) => console.error("Error:", error));
-  return User;
 };
