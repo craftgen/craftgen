@@ -14,7 +14,8 @@ export const addToWaitlist = async (params: {
     })
     .onConflictDoNothing()
     .returning();
-  const messageText = `*\\#SEOCRAFT*\nNew user: \`${params.email}\``; // Replace `params.email` with the email of the new user
+  const messageText = `*\\#Craftgen*\nNew user: \`${params.email}\``; // Replace `params.email` with the email of the new user
+
   await fetch(
     `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
     {
@@ -23,7 +24,7 @@ export const addToWaitlist = async (params: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chat_id: -990898182,
+        chat_id: "-1002025278887",
         text: messageText,
         parse_mode: "MarkdownV2",
       }),
