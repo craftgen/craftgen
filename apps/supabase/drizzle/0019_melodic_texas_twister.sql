@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_execution" ADD COLUMN "state" json;

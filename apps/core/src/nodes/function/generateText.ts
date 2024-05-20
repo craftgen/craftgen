@@ -439,7 +439,7 @@ const GenerateTextMachine = createMachine({
                 type: "removeComputation",
               });
 
-              const runId = event.params.callId || `call-${createId()}`;
+              const runId = event.params.callId || `call_${createId()}`;
               enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
                 ({ system }) => system.get("editor"),
                 ({ self, context }) => ({

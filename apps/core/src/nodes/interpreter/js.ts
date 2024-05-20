@@ -295,7 +295,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
         on: {
           RUN: {
             actions: enqueueActions(({ enqueue, context, system }) => {
-              const runId = `call-${createId()}`;
+              const runId = `call_${createId()}`;
               enqueue.sendTo(system.get("editor"), ({ self }) => ({
                 type: "SPAWN_RUN",
                 params: {

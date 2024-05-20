@@ -239,7 +239,7 @@ const GenerateObjectMachine = createMachine({
             enqueue({
               type: "removeComputation",
             });
-            const runId = `call-${createId()}`;
+            const runId = `call_${createId()}`;
             enqueue.sendTo(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({

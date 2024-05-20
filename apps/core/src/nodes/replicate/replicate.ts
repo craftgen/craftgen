@@ -489,7 +489,7 @@ const replicateMachine = createMachine({
             enqueue({
               type: "removeComputation",
             });
-            const runId = event.params.callId || `call-${createId()}`;
+            const runId = event.params.callId || `call_${createId()}`;
             enqueue.sendTo<ActorRefFrom<typeof replicatePredicateMachine>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({

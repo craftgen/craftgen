@@ -931,7 +931,7 @@ const CompleteChatMachine = createMachine({
               enqueue({
                 type: "removeComputation",
               });
-              const runId = `call-${createId()}`;
+              const runId = `call_${createId()}`;
 
               const toolsSocket = getSocket({
                 sockets: context.outputSockets,

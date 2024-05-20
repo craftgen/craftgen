@@ -118,12 +118,9 @@ export const craftNodeRouter = createTRPCRouter({
                   input.workflowVersionId,
                 ),
                 or(
+                  eq(schema.workflowExecution.entryContextId, input.data.id),
                   eq(
-                    schema.workflowExecution.entryWorkflowNodeId,
-                    input.data.id,
-                  ),
-                  eq(
-                    schema.workflowExecution.exitWorkflowNodeId,
+                    schema.workflowExecution.currentContextId,
                     input.data.id,
                   ),
                 ),

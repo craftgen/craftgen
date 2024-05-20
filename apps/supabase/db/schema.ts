@@ -327,7 +327,7 @@ export const workflowNode = pgTable("workflow_node", {
 });
 
 export const workflowExecution = pgTable("workflow_execution", {
-  id: text("id").$defaultFn(createIdWithPrefix("execution")).primaryKey(),
+  id: text("id").$defaultFn(createIdWithPrefix("exec")).primaryKey(),
   workflowId: text("workflow_id")
     .notNull()
     .references(() => workflow.id, {
@@ -342,10 +342,9 @@ export const workflowExecution = pgTable("workflow_execution", {
     .$type<"active" | "done" | "error" | "stopped">()
     .default("active")
     .notNull(),
-  entryWorkflowNodeId: text("entry_node_id")
-    .references(() => workflowNode.id)
-    .notNull(),
-  exitWorkflowNodeId: text("exit_node_id").references(() => workflowNode.id),
+  state: json("state").$type<z.infer<typeof shapeOfState>>(),
+  entryContextId: text("entry_context_id").references(() => context.id),
+  currentContextId: text("current_context_id").references(() => context.id),
   startedAt: timestamp("timestamp").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
@@ -363,13 +362,13 @@ export const workflowExecutionRelations = relations(
       fields: [workflowExecution.workflowVersionId],
       references: [workflowVersion.id],
     }),
-    steps: many(workflowExecutionStep),
+    steps: many(workflowExecutionEvent),
     executionData: many(nodeExecutionData),
   }),
 );
 
-export const workflowExecutionStep = pgTable("workflow_execution_step", {
-  id: text("id").$defaultFn(createIdWithPrefix("execution_step")).primaryKey(),
+export const workflowExecutionEvent = pgTable("workflow_execution_event", {
+  id: text("id").$defaultFn(createIdWithPrefix("exec_event")).primaryKey(),
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecution.id, { onDelete: "cascade" }),
@@ -379,14 +378,33 @@ export const workflowExecutionStep = pgTable("workflow_execution_step", {
   target_node_execution_data_id: text("target_node_id")
     .notNull()
     .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
+
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const workflowExecutionEventRelations = relations(
+  workflowExecutionEvent,
+  ({ one }) => ({
+    execution: one(workflowExecution, {
+      fields: [workflowExecutionEvent.workflowExecutionId],
+      references: [workflowExecution.id],
+    }),
+    sourceNodeExecutionData: one(nodeExecutionData, {
+      fields: [workflowExecutionEvent.source_node_execution_data_id],
+      references: [nodeExecutionData.id],
+    }),
+    targetNodeExecutionData: one(nodeExecutionData, {
+      fields: [workflowExecutionEvent.target_node_execution_data_id],
+      references: [nodeExecutionData.id],
+    }),
+  }),
+);
+
 /**
  * This is used for storing the execution data for the nodes in the workflow
  */
 export const nodeExecutionData = pgTable("node_execution_data", {
-  id: text("id").$defaultFn(createIdWithPrefix("node_execution")).primaryKey(),
-
+  id: text("id").$defaultFn(createIdWithPrefix("call_")).primaryKey(),
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecution.id, { onDelete: "cascade" }),
@@ -428,24 +446,6 @@ export const nodeExecutionDataRelations = relations(
     workflowExecution: one(workflowExecution, {
       fields: [nodeExecutionData.workflowExecutionId],
       references: [workflowExecution.id],
-    }),
-  }),
-);
-
-export const workflowExecutionStepRelations = relations(
-  workflowExecutionStep,
-  ({ one }) => ({
-    execution: one(workflowExecution, {
-      fields: [workflowExecutionStep.workflowExecutionId],
-      references: [workflowExecution.id],
-    }),
-    sourceNodeExecutionData: one(nodeExecutionData, {
-      fields: [workflowExecutionStep.source_node_execution_data_id],
-      references: [nodeExecutionData.id],
-    }),
-    targetNodeExecutionData: one(nodeExecutionData, {
-      fields: [workflowExecutionStep.target_node_execution_data_id],
-      references: [nodeExecutionData.id],
     }),
   }),
 );

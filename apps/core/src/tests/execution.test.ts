@@ -152,12 +152,12 @@ test("Setup Input outputs", async () => {
   expect(outputNode).toBeDefined();
   expect(outputNode.inputs.value?.label).toBe("value");
 
-  await di.run({
-    inputId: "node_Input",
-    inputs: {
-      title: "Hello",
-    },
-  });
+  // await di.run({
+  //   inputId: "node_Input",
+  //   inputs: {
+  //     title: "Hello",
+  //   },
+  // });
 
   expect(inputNode.snap.status).toBe("done");
   expect(promptTemplate.snap.status).toBe("done");

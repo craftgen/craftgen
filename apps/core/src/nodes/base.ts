@@ -1113,10 +1113,10 @@ export abstract class BaseNode<
       const socket = targetNode.snap.context.inputSockets[conn.key];
       console.log("TRIGGERING", targetNode.id, socket["x-event"]);
       // TODO: we might able to send events directly in here.
-      await this.di.runSync({
-        inputId: targetNode.id,
-        event: socket["x-event"],
-      });
+      // await this.di.runSync({
+      //   inputId: targetNode.id,
+      //   event: socket["x-event"],
+      // });
     }
   }
 
