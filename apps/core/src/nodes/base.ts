@@ -359,12 +359,13 @@ const NodeMachine = setup({
 }).createMachine({
   id: "node",
   context: ({ input }) => ({
+    inputSockets: {},
+    outputSockets: {},
     actors: {},
   }),
   on: {
     SET_INPUT_OUTPUT: {
-      actions: enqueueActions(({ enqueue, event }) => {
-        console.log("SETTING INPUT OUTPUT", event);
+      actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({
           actors: ({ event, context }) => {
             const { actorId, sockets } = event.params;
@@ -439,7 +440,6 @@ export const NodeContextFactory = <
     },
     ctx.input,
   );
-
 
   const hasParentActor = get(ctx, "input.parent.port");
   if (hasParentActor) {
@@ -736,7 +736,6 @@ export abstract class BaseNode<
     await process(snap);
 
     this.nodeActor.subscribe((state) => {
-      console.log("NODE STATE", state.context);
       let inputSockets = {};
       let outputSockets = {};
       for (const [key, value] of Object.entries(state.context.actors)) {
@@ -756,7 +755,6 @@ export abstract class BaseNode<
   }
 
   public setupActor(actor: Actor<BaseMachine>) {
-    console.log("SETTING UP THE ACTOR", actor);
     if (!actor) {
       return;
     }
@@ -901,8 +899,6 @@ export abstract class BaseNode<
   async updateInputs(
     inputSockets: Record<string, Actor<typeof inputSocketMachine>>,
   ) {
-    console.log("UPDATING INPUTS", inputSockets);
-
     /**
      * CLEAN up inputs
      */

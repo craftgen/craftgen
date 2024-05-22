@@ -55,7 +55,6 @@ export const WorkflowSimple = (props: {
     (window as any).Editor = editor;
   }, [editor]);
   if (!editor) return <div>Loading...</div>;
-  console.log(editor);
   return (
     <CraftContext.Provider value={store?.current}>
       <div className="grid grid-cols-2 gap-4">

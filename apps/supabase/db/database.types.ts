@@ -2501,38 +2501,40 @@ export interface Database {
       workflow_execution_event: {
         Row: {
           created_at: string
+          event: Json | null
           id: string
-          source_node_id: string
-          target_node_id: string
+          run_id: string | null
+          source_context_id: string | null
+          status: string
+          type: string
           workflow_execution_id: string
         }
         Insert: {
           created_at?: string
+          event?: Json | null
           id: string
-          source_node_id: string
-          target_node_id: string
+          run_id?: string | null
+          source_context_id?: string | null
+          status?: string
+          type: string
           workflow_execution_id: string
         }
         Update: {
           created_at?: string
+          event?: Json | null
           id?: string
-          source_node_id?: string
-          target_node_id?: string
+          run_id?: string | null
+          source_context_id?: string | null
+          status?: string
+          type?: string
           workflow_execution_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "workflow_execution_event_source_node_id_node_execution_data_id_"
-            columns: ["source_node_id"]
+            foreignKeyName: "workflow_execution_event_source_context_id_context_id_fk"
+            columns: ["source_context_id"]
             isOneToOne: false
-            referencedRelation: "node_execution_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workflow_execution_event_target_node_id_node_execution_data_id_"
-            columns: ["target_node_id"]
-            isOneToOne: false
-            referencedRelation: "node_execution_data"
+            referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {

@@ -80,6 +80,7 @@ export async function createHeadlessEditor(params: {
       api: {
         trpc: params.api.trpc!,
       },
+      readonly: true,
     },
     content: {
       context: params.workflow.context,

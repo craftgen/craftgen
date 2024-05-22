@@ -81,18 +81,22 @@ export const craftExecutionRouter = createTRPCRouter({
   setEvent: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
-        event: z.string(),
+        executionId: z.string(),
+        type: z.string(),
+        event: z.string().transform((val) => JSON.parse(val)),
+        runId: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return await ctx.db
         .insert(schema.workflowExecutionEvent)
         .values({
-          id: input.id,
+          workflowExecutionId: input.executionId,
+          type: input.type,
+          run_id: input.runId,
+          source_context_id: input.event.parentId,
           event: input.event,
         })
-        .where(eq(schema.workflowExecution.id, input.id))
         .returning();
     }),
   create: protectedProcedure

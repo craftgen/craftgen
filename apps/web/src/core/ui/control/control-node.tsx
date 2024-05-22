@@ -231,7 +231,6 @@ export const OutputSocketItem = (props: {
 };
 
 const BasicInputs = (props: { actor: AnyActor }) => {
-  console.log("BASIC ACTOR", { actor: props.actor });
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
 
   return (

@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_execution_event" RENAME COLUMN "state" TO "event";

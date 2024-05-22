@@ -302,7 +302,6 @@ export const OpenaiModelMachine = createMachine(
           },
           RESULT: {
             actions: enqueueActions(({ enqueue, context, event, check }) => {
-              console.log("RESULT EVENT", context, event);
               enqueue("removeComputation");
 
               enqueue.assign({

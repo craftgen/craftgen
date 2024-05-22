@@ -580,10 +580,6 @@ export const inputSocketMachine = setup({
                 ASSIGN_ACTOR: {
                   target: "#InputSocketMachine.socket.actor.ready",
                   actions: enqueueActions(({ enqueue, event }) => {
-                    console.log(
-                      "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
-                      event,
-                    );
                     enqueue.assign({
                       value: event.params.value,
                     });
@@ -591,7 +587,6 @@ export const inputSocketMachine = setup({
                 },
                 SET_VALUE: {
                   actions: enqueueActions(({ enqueue, event }) => {
-                    console.log("ACTOR INPUT SOCKET SET VALUE CALLED", event);
                     enqueue.sendTo(
                       ({ system, context }) => system.get(context.parent.id),
                       ({ event, context, self }) => ({
@@ -671,7 +666,7 @@ export const inputSocketMachine = setup({
                     ).length > 0,
                   target: "#InputSocketMachine.socket.actor.connection",
                   actions: enqueueActions(({ enqueue }) => {
-                    console.log("MOVING TO CONNECTION");
+                    // console.log("MOVING TO CONNECTION");
                   }),
                 },
               ],
@@ -694,10 +689,6 @@ export const inputSocketMachine = setup({
                 ASSIGN_ACTOR: {
                   target: "#InputSocketMachine.socket.actor.ready",
                   actions: enqueueActions(({ enqueue, event }) => {
-                    console.log(
-                      "ACTOR INPUT SOCKET SET VALUE CALLED ON INITIALIZE",
-                      event,
-                    );
                     enqueue.assign({
                       value: event.params.value,
                     });

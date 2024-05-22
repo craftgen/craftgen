@@ -368,17 +368,15 @@ export const workflowExecutionRelations = relations(
 );
 
 export const workflowExecutionEvent = pgTable("workflow_execution_event", {
-  id: text("id").$defaultFn(createIdWithPrefix("exec_event")).primaryKey(),
+  id: text("id").$defaultFn(createIdWithPrefix("event")).primaryKey(),
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecution.id, { onDelete: "cascade" }),
-  source_node_execution_data_id: text("source_node_id")
-    .notNull()
-    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
-  target_node_execution_data_id: text("target_node_id")
-    .notNull()
-    .references(() => nodeExecutionData.id, { onDelete: "cascade" }),
-
+  run_id: text("run_id"),
+  source_context_id: text("source_context_id").references(() => context.id),
+  type: text("type").notNull(),
+  status: text("status").notNull().default("queued"),
+  event: json("event"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -389,19 +387,19 @@ export const workflowExecutionEventRelations = relations(
       fields: [workflowExecutionEvent.workflowExecutionId],
       references: [workflowExecution.id],
     }),
-    sourceNodeExecutionData: one(nodeExecutionData, {
-      fields: [workflowExecutionEvent.source_node_execution_data_id],
-      references: [nodeExecutionData.id],
-    }),
-    targetNodeExecutionData: one(nodeExecutionData, {
-      fields: [workflowExecutionEvent.target_node_execution_data_id],
-      references: [nodeExecutionData.id],
-    }),
+    // sourceNodeExecutionData: one(nodeExecutionData, {
+    //   fields: [workflowExecutionEvent.source_node_execution_data_id],
+    //   references: [nodeExecutionData.id],
+    // }),
+    // targetNodeExecutionData: one(nodeExecutionData, {
+    //   fields: [workflowExecutionEvent.target_node_execution_data_id],
+    //   references: [nodeExecutionData.id],
+    // }),
   }),
 );
 
 /**
- * This is used for storing the execution data for the nodes in the workflow
+ * This is used for storing the execution data in the workflow
  */
 export const nodeExecutionData = pgTable("node_execution_data", {
   id: text("id").$defaultFn(createIdWithPrefix("call_")).primaryKey(),

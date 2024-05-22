@@ -50,7 +50,6 @@ export const ComputeEventMachine = setup({
 }).createMachine({
   id: "computeEvent",
   context: ({ input }) => {
-    console.log("COMPUTE EVENT INPUT", input);
     const inputs = Object.values(input.inputSockets).reduce(
       (acc, socket) => {
         const definition = socket.getSnapshot().context.definition;
@@ -79,7 +78,6 @@ export const ComputeEventMachine = setup({
   states: {
     computing: {
       entry: enqueueActions(({ context, enqueue, check }) => {
-        console.log("EVENT COMPUTER", context);
         const inputSockets = Object.values(context.inputSockets);
         for (const socket of inputSockets) {
           const inputKey = socket.getSnapshot().context.definition["x-key"];
@@ -112,7 +110,6 @@ export const ComputeEventMachine = setup({
     done: {
       type: "final",
       entry: enqueueActions(({ enqueue, context }) => {
-        console.log("DONE COMPUTING EVENT", context);
         enqueue.sendTo(
           ({ context }) => context.parent,
           ({ context, self }) => ({

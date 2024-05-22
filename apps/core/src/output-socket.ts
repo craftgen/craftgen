@@ -141,12 +141,12 @@ export const outputSocketMachine = setup({
         system: any;
       }) => {
         const parentNodeActor = system.get(input.parent.id) as AnyActor;
-        console.log("PARENT NODE OF OUTPUT SOCKET", parentNodeActor);
+        // console.log("PARENT NODE OF OUTPUT SOCKET", parentNodeActor);
 
         const initialSnapshotSubject = new BehaviorSubject(
           parentNodeActor.getSnapshot(),
         );
-        console.log("INITIAL SNAPSHOT", initialSnapshotSubject.value);
+        // console.log("INITIAL SNAPSHOT", initialSnapshotSubject.value);
 
         // return of({});
 
@@ -273,7 +273,6 @@ export const outputSocketMachine = setup({
             }),
             onSnapshot: {
               actions: enqueueActions(({ enqueue, event, context }) => {
-                console.log("OUTPUT WATCHER", event.snapshot.context);
                 enqueue({
                   type: "setValueForConnections",
                   params: {
@@ -286,11 +285,6 @@ export const outputSocketMachine = setup({
           on: {
             COMPUTE: {
               actions: enqueueActions(({ enqueue, context, event }) => {
-                console.log(
-                  "OUTPUT SOCKET CALLED A COMPUTE EVENT",
-                  context,
-                  event,
-                );
                 enqueue.sendTo(
                   ({ context, system }) => system.get(context.parent.id),
                   ({ event }) => ({
@@ -304,7 +298,6 @@ export const outputSocketMachine = setup({
             },
             RESOLVE: {
               actions: enqueueActions(({ enqueue, event }) => {
-                console.log("RESOLVE EVENT", event);
                 enqueue({
                   type: "setValueForConnections",
                   params: {
