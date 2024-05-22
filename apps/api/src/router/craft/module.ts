@@ -276,6 +276,7 @@ export const craftModuleRouter = createTRPCRouter({
         workflowSlug: z.string(),
         projectSlug: z.string(),
         version: z.number().optional(),
+        executionId: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -364,10 +365,19 @@ export const craftModuleRouter = createTRPCRouter({
         });
       }
 
+      let execution;
+      if (input.executionId) {
+        execution = await ctx.db.query.workflowExecution.findFirst({
+          where: (workflowExecution, { eq }) =>
+            eq(workflowExecution.id, input.executionId!),
+        });
+      }
+
       return {
         ...workflow,
         version,
         readonly,
+        execution,
       };
     }),
 

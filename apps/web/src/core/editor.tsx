@@ -137,7 +137,7 @@ export async function createEditor(params: {
       },
     },
     content: {
-      context: params.workflow.context,
+      context: params.workflow?.execution || params.workflow.context,
       nodes: params.workflow.nodes,
       edges: params.workflow.edges,
       contexts: params.workflow.contexts,

@@ -1693,7 +1693,7 @@ export class Editor<
         tap(async ({ event }) => {
           console.log("EXTERNAL", event);
         }),
-        switchMap(async (params) => {
+        concatMap(async (params) => {
           if (isNil(params.executionId)) {
             const newExecutionId = await this.createExecution(
               params.event.params.parentId,
@@ -1706,7 +1706,11 @@ export class Editor<
           }
           return params;
         }),
-        delay(10000),
+        // delay(10000),
+        concatMap(async (params) => {
+          // await this.api.trpc.craft.execution.
+          return params;
+        }),
       )
       .subscribe({
         next: async ({ event }) => {
@@ -1720,8 +1724,6 @@ export class Editor<
       });
   }
 
-  public initialEventId?: string;
-
   withExternalEvents(actorLogic: ActorLogicFrom<typeof EditorMachine>) {
     const enhancedLogic = {
       ...actorLogic,
@@ -1731,15 +1733,12 @@ export class Editor<
           const isPersisted = get(event, "persisted", false);
           if (event.type === "SPAWN_RUN" && !isPersisted) {
             let e = event as EventFrom<typeof EditorMachine, "SPAWN_RUN">;
-            if (this.initialEventId !== e.params.id) {
-              this.runEvents.next({
-                executionId: this.executionId,
-                event,
-                timestamp: +new Date(),
-              });
-              this.initialEventId = e.params.id;
-              return state;
-            }
+            this.runEvents.next({
+              executionId: this.executionId,
+              event,
+              timestamp: +new Date(),
+            });
+            return state;
           }
         }
         return actorLogic.transition(state, event, actorCtx);
@@ -1807,8 +1806,6 @@ export class Editor<
             // console.log("EVENT did not SENT FOR", inspectionEvent);
             return;
           }
-
-          console.log("RUN EVENT", event);
 
           if (event.type.startsWith("xstate.snapshot")) {
             // console.log("ACTOR SNAPSHOT", inspectionEvent);
@@ -1924,9 +1921,6 @@ export class Editor<
         tap(async (event) => {
           console.log("RUN EVENT", event);
         }),
-        filter((event) => {
-          return event.state.src.endsWith(".run");
-        }),
       )
       .subscribe(async (event) => {
         const execution = await this.api.trpc.craft.execution.setState.mutate({
@@ -1943,13 +1937,10 @@ export class Editor<
 
     $executionEvents
       .pipe(
-        tap(async (event) => {
-          console.log("EXECUTION EVENT", event);
-        }),
         filter((event) => {
           return event.state.src === "NodeModule";
         }),
-        // bufferTime(500),
+        debounceTime(500),
       )
       .subscribe({
         next: async (event) => {
@@ -2568,9 +2559,9 @@ export class Editor<
   public reset() {
     this.setExecutionId(undefined);
     this.setSelectedNodeId(null);
-    this.editor.getNodes().forEach((n) => {
-      n.reset();
-    });
+    // this.editor.getNodes().forEach((n) => {
+    //   n.reset();
+    // });
   }
 
   private handleAreaEvents() {

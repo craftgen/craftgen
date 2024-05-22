@@ -193,7 +193,7 @@ export const Node = (props: Props<Schemes>) => {
   Drag.useNoDrag(ref2);
 
   const stateValue = useSelector(
-    props.data.nodeActor,
+    props.data.actor,
     (state) => state.value,
     isEqual,
   );
@@ -329,17 +329,6 @@ export const Node = (props: Props<Schemes>) => {
                     )}
                   </div>
                   <div className="flex">
-                    {props.data.snap.value === "complete" && (
-                      <Drag.NoDrag>
-                        <Button
-                          variant={"ghost"}
-                          size={"icon"}
-                          onClick={() => props.data.reset()}
-                        >
-                          <Undo2 size={14} />
-                        </Button>
-                      </Drag.NoDrag>
-                    )}
                     <Button
                       ref={ref2}
                       onClick={triggerNode}
@@ -347,6 +336,7 @@ export const Node = (props: Props<Schemes>) => {
                       variant={"ghost"}
                       size="icon"
                     >
+                      {/* {JSON.stringify(stateValue, null, 2)} */}
                       {stateValue === "editing" && (
                         <Cog
                           className="text-muted-foreground animate-spin"

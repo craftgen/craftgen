@@ -28,6 +28,7 @@ const PlaygroundPage = async (props: {
       projectSlug: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,
       version: Number(props.params.version),
+      executionId: props.searchParams.execution,
     });
     const {
       data: { session },

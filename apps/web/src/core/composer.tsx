@@ -47,7 +47,7 @@ export const Composer: React.FC<{
       projectSlug: workflowMeta.project.slug,
       version: workflowMeta.version?.version!,
       workflowSlug: workflowMeta.slug,
-      // executionId: workflow?.execution?.id,
+      executionId: workflowMeta.execution?.id,
     },
     {
       refetchOnWindowFocus: false,
@@ -55,6 +55,7 @@ export const Composer: React.FC<{
   );
 
   if (isLoading) return <div> Loading </div>;
+  // return null;
   // return (
   //   <div>
   //     <pre>{JSON.stringify(latestWorkflow, null, 2)}</pre>
@@ -166,11 +167,7 @@ const ComposerUI = (props: {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  // size="icon"
-                  onClick={() => di?.setUI()}
-                >
+                <Button variant={"outline"} onClick={() => di?.setUI()}>
                   {false && (
                     <Loader2
                       size={14}
