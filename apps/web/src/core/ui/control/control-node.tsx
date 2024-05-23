@@ -47,7 +47,6 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
   }, [props.data.actor.src, props.data.definition["x-key"]]);
 
-
   const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
     (state) => state.context.inputSockets[socketKey] as JSONSocket,
@@ -138,13 +137,19 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    .pickBy((v) => get(v, "x-isAdvanced", false))
-    .keys()
+    .pickBy((v) => {
+      const definition = v.getSnapshot().context.definition;
+      return get(definition, "x-isAdvanced", false);
+    })
+    .entries()
     .value();
 
 const basicInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    // .pickBy((v) => !v["x-isAdvanced"])
+    .pickBy((v) => {
+      const definition = v.getSnapshot().context.definition;
+      return !get(definition, "x-isAdvanced", false);
+    })
     .entries()
     .value();
 
@@ -248,6 +253,10 @@ const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
     advanceInputSelector,
     _.isEqual,
   );
+  console.log("ADVANCE", {
+    inputSockets,
+    props,
+  });
   return (
     <>
       {inputSockets.length > 0 && (
@@ -264,8 +273,8 @@ const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
       )}
       {showAdvanced && (
         <motion.div layout>
-          {inputSockets?.map((item) => {
-            return <InputItem key={item} itemKey={item} actor={props.actor} />;
+          {inputSockets?.map(([key, actor]) => {
+            return <InputItem key={key} itemKey={key} actor={actor} />;
           })}
         </motion.div>
       )}
