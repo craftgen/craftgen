@@ -200,7 +200,7 @@ const ComposerUI = (props: {
           <>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={"outline"} size="icon" onClick={handleReset}>
+                <Button variant={"outline"} size="sm" onClick={handleReset} className="border-r-0 rounded-r-none glass">
                   <ChevronLeftCircle size={14} />
                 </Button>
               </TooltipTrigger>
@@ -208,7 +208,7 @@ const ComposerUI = (props: {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={"outline"} onClick={handleCopyExecutionId}>
+                <Button variant={"outline"} size='sm' onClick={handleCopyExecutionId} className="border-l-0 rounded-l-none glass">
                   {false && (
                     <Loader2
                       size={14}
