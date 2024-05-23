@@ -47,7 +47,6 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
   }, [props.data.actor.src, props.data.definition["x-key"]]);
 
-  console.log("NODE CONTROLLER SOCKET", socketKey);
 
   const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
@@ -99,7 +98,7 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     (state) => state.context.inputSockets[socketKey]["x-actor-ref"],
   );
 
-  console.log("selectedActorState", selectedActor, item["x-key"]);
+  // console.log("selectedActorState", selectedActor, item["x-key"]);
 
   return (
     <div>
@@ -302,11 +301,11 @@ const InputItem = ({
   );
 
   if (hasConnectionActor) {
-    console.log({
-      hasConnectionBasic,
-      hasConnectionActor,
-      item,
-    });
+    // console.log({
+    //   hasConnectionBasic,
+    //   hasConnectionActor,
+    //   item,
+    // });
   }
 
   if (hasConnectionBasic) {

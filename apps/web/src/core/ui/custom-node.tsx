@@ -131,9 +131,10 @@ export const Node = (props: Props<Schemes>) => {
   }, []);
 
   const triggerNode = async () => {
-    await di.runSync({
-      inputId: props.data.id,
-    });
+    alert("Triggering node");
+    // await di.runSync({
+    //   inputId: props.data.id,
+    // });
   };
 
   const pinNode = React.useCallback(async () => {
@@ -194,7 +195,7 @@ export const Node = (props: Props<Schemes>) => {
 
   const stateValue = useSelector(
     props.data.actor,
-    (state) => state.value,
+    (state) => state?.value,
     isEqual,
   );
 

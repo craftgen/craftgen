@@ -2,7 +2,7 @@
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { ThemeMinimal, ThemeSupa } from "@supabase/auth-ui-shared";
 import { useTheme } from "next-themes";
 
 import type { Database } from "@seocraft/supabase/db/database.types";
@@ -18,6 +18,14 @@ export const LoginForm = () => {
       supabaseClient={supabase}
       appearance={{
         theme: ThemeSupa,
+        variables: {
+          default: {
+            colors: {
+              brand: "#000",
+              brandAccent: "#222",
+            },
+          },
+        },
       }}
       theme={theme}
       redirectTo={`${BASE_URL}/api/auth/callback`}
