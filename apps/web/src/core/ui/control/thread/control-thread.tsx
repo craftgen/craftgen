@@ -11,6 +11,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { InputSection } from "./input-section";
 import { Content } from "./shared";
+import { CheckSquare, Copy } from "lucide-react";
+import { useCopyToClipboard } from "react-use";
+import React from "react";
+import { cn } from "@/lib/utils";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   const { definition, parent } = useSelector(
@@ -100,9 +104,34 @@ const Messages = (props: { messages: Message[] }) => {
 };
 
 const MessageItem = ({ message }: { message: Message }) => {
+  const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
+  const [copied, setCopied] = React.useState(false);
+  const handleCopy = () => {
+    copyToClipboard(message.content);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 1000);
+  };
+
   return (
     <div>
-      <div className="font-bold">{message.role}</div>
+      <div className="flex items-center justify-between">
+        <div className="font-bold capitalize">{message.role}</div>
+        <div>
+          <Button
+            variant={"ghost"}
+            onClick={handleCopy}
+            className={cn(copied && "hover:text-green-500")}
+          >
+            {copied ? (
+              <CheckSquare className="ml-1  h-4 w-4 animate-ping" />
+            ) : (
+              <Copy className="ml-1  h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
       <div className="p-2">
         <Content content={message.content} />
       </div>
