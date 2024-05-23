@@ -215,6 +215,7 @@ const replicatePredicateMachine = setup({}).createMachine({
     failed: {},
     canceled: {},
     complete: {
+      type: "final",
       entry: enqueueActions(({ enqueue, context }) => {
         for (const sender of context.senders) {
           enqueue.sendTo(

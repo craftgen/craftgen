@@ -60,12 +60,12 @@ const inputSockets = {
     type: "string" as const,
     allOf: [
       {
-        enum: ["gpt-3.5-turbo", "gpt-4-turbo"],
+        enum: ["gpt-3.5-turbo", "gpt-4-turbo", "gpt-4o"],
         type: "string" as const,
       },
     ],
     // "x-controller": "select",
-    default: "gpt-3.5-turbo",
+    default: "gpt-4o",
     description: dedent`
     The model to use for complation of chat. You can see available models
     `,

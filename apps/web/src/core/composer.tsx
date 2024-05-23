@@ -1,6 +1,12 @@
 "use client";
 
-import { ReactElement, ReactNode, useEffect, useMemo } from "react";
+import {
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -29,6 +35,9 @@ import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
 import { useRegisterPlaygroundActions } from "./actions";
 import { useKBar } from "kbar";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCopyToClipboard } from "react-use";
+import { BASE_URL } from "@/lib/constants";
 
 export type ComponentRegistry = Map<
   HTMLElement,
@@ -88,9 +97,6 @@ const ComposerUI = (props: {
 
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
-  const handleReset = () => {
-    di?.reset();
-  };
 
   useRegisterPlaygroundActions({ di, layout });
 
@@ -114,6 +120,41 @@ const ComposerUI = (props: {
     );
   }, [map]);
   const k = useKBar();
+  const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleCopyExecutionId = () => {
+    if (di?.executionId) {
+      copyToClipboard(
+        `${BASE_URL}${pathname}?${createQueryString(
+          "execution",
+          di.executionId,
+        )}`,
+      );
+      router.push(
+        `${pathname}?${createQueryString("execution", di.executionId)}`,
+      );
+    }
+  };
+  const handleReset = () => {
+    // di?.reset();
+    router.push(`${pathname}?${createQueryString("execution", null)}`);
+  };
+  const createQueryString = useCallback(
+    (name: string, value: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === null) {
+        params.delete(name);
+      } else {
+        params.set(name, value);
+      }
+
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   return (
     <div className="h-full w-full">
@@ -167,7 +208,7 @@ const ComposerUI = (props: {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={"outline"} onClick={() => di?.setUI()}>
+                <Button variant={"outline"} onClick={handleCopyExecutionId}>
                   {false && (
                     <Loader2
                       size={14}
@@ -180,26 +221,6 @@ const ComposerUI = (props: {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>The Execution: Current </TooltipContent>
-            </Tooltip>
-          </>
-        )}
-        {!di?.executionId && (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  onClick={() => di?.createExecution()}
-                >
-                  <Play size={14} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <>
-                  <Play size={14} />
-                  Create a Execution
-                </>
-              </TooltipContent>
             </Tooltip>
           </>
         )}
