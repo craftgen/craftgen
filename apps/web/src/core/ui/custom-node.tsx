@@ -106,6 +106,11 @@ export const Node = (props: Props<Schemes>) => {
   sortByIndex(controls);
 
   const deleteNode = React.useCallback(async () => {
+    if (di.executionId) {
+      alert("Cannot delete node in execution");
+      return;
+    }
+
     const connections =
       di?.editor.getConnections().filter((c) => {
         return c.source === props.data.id || c.target === props.data.id;
