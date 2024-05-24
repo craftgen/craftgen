@@ -1,5 +1,4 @@
 import { init } from "@paralleldrive/cuid2";
-import Ajv from "ajv";
 import {
   cloneDeep,
   difference,
@@ -80,7 +79,7 @@ import {
   mergeMap,
   scan,
   tap,
-  delay,
+  partition,
 } from "rxjs";
 import { socketWatcher } from "./socket-watcher";
 import { RouterInputs } from "@seocraft/api";
@@ -149,9 +148,10 @@ export const EditorMachine = setup({
         }
       | {
           type: "SPAWN_RUN";
+          persisted: boolean;
           params: {
             id: string;
-            parentId?: string;
+            parentId: string;
             systemId: string;
             machineId: string;
             input: Record<string, any> & {
@@ -830,7 +830,6 @@ export class Editor<
 
     assignChild: enqueueActions(({ enqueue, event, context, check }) => {
       assertEvent(event, "ASSIGN_CHILD");
-      console.log("ASSIGN CHILD", event);
       enqueue.sendTo(
         ({ system }) =>
           system.get(event.params.port) as ActorRefFrom<
@@ -862,7 +861,7 @@ export class Editor<
       enqueue("assignParent");
       for (const [key, value] of Object.entries(context.inputSockets)) {
         if (isNil(value)) {
-          console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
+          // console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
           enqueue.assign({
             inputSockets: ({ context, system }) => ({
               ...context.inputSockets,
@@ -873,7 +872,7 @@ export class Editor<
       }
       for (const [key, value] of Object.entries(context.outputSockets)) {
         if (isNil(value)) {
-          console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
+          // console.log("ASSIGNING PORT", self.src, key, system.get(key), value);
           enqueue.assign({
             outputSockets: ({ context, system }) => ({
               ...context.outputSockets,
@@ -1085,7 +1084,6 @@ export class Editor<
           Object.values(definition["x-connection"] || {}).length > 0;
 
         if (hasConnection) {
-          console.log("OUTPUT RESOLVE EVENT KEY", outputKey);
           enqueue.sendTo(
             ({ system }) =>
               system.get(outputSocketKey) as ActorRefFrom<
@@ -1113,18 +1111,18 @@ export class Editor<
 
     computeEvent: enqueueActions(
       ({ enqueue, context, event, self }, params: { event: string }) => {
-        console.log("COMPUTE_EVENT ACTION", event, {
-          input: {
-            inputSockets: context.inputSockets,
-            inputs: {
-              ...get(event, "params.inputs", {}),
-            },
-            senders: get(event, "params.senders"),
-            callId: get(event, "params.callId"),
-            event: params.event,
-            parent: self,
-          },
-        });
+        // console.log("COMPUTE_EVENT ACTION", event, {
+        //   input: {
+        //     inputSockets: context.inputSockets,
+        //     inputs: {
+        //       ...get(event, "params.inputs", {}),
+        //     },
+        //     senders: get(event, "params.senders"),
+        //     callId: get(event, "params.callId"),
+        //     event: params.event,
+        //     parent: self,
+        //   },
+        // });
         const childId = this.createId("compute");
         enqueue.assign({
           computes: ({ spawn, context, event }) => {
@@ -1186,6 +1184,7 @@ export class Editor<
   };
 
   constructor(props: EditorProps<NodeProps, ConnProps, Scheme, Registry>) {
+    console.log("INITIALIZE", props.config);
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
     this.projectId = props.config.meta.projectId;
@@ -1633,7 +1632,6 @@ export class Editor<
   }
 
   public async setupEnv() {
-    console.log("THIS API", this.api.trpc);
     // return;
     const creds = await this.api.trpc.credentials.list.query({
       // projectId: this.projectId,
@@ -1653,19 +1651,6 @@ export class Editor<
     if (this.content.context?.state) {
       return this.content.context.state;
     }
-    // const children: Record<string, SnapshotFrom<AnyStateMachine>> = {};
-    // this.content.contexts
-    //   .filter((c) => {
-    //     return c.id !== this.content.context.id;
-    //   })
-    //   .forEach((n: any) => {
-    //     children[n.id] = {
-    //       snapshot: n.state,
-    //       src: n.type,
-    //       systemId: n.id,
-    //       syncSnapshot: true,
-    //     };
-    //   });
     let snapshot = {
       value: "idle",
       status: "active",
@@ -1680,28 +1665,14 @@ export class Editor<
       error: undefined,
       output: undefined,
     } as any;
-    // if (this.content.context?.state) {
-    //   snapshot = {
-    //     ...snapshot,
-    //   };
-    // }
 
-    // snapshot.children = children;
-    console.log("INITIAL SNAPSHOT", snapshot);
     return snapshot;
-  }
-
-  public headless = false;
-
-  public toggleHeadless() {
-    this.headless = !this.headless;
-    console.log("Headless mode is ", this.headless ? "enabled" : "disabled");
   }
 
   public runEvents = new Subject<{
     executionId: string | undefined;
     timestamp: number;
-    event: EventFrom<typeof EditorMachine, "SPAWN">;
+    event: EventFrom<typeof EditorMachine, "SPAWN_RUN">;
   }>();
 
   setupExternalEvents() {
@@ -1710,51 +1681,55 @@ export class Editor<
         tap(async ({ event }) => {
           console.log("EXTERNAL", event);
         }),
-        delay(10000),
+        concatMap(async (params) => {
+          if (isNil(params.executionId)) {
+            const newExecutionId = await this.createExecution(
+              params.event.params.parentId,
+              params.event.params.input,
+            );
+            return {
+              ...params,
+              executionId: newExecutionId,
+            };
+          }
+          return params;
+        }),
+        // delay(10000),
+        concatMap(async (params) => {
+          await this.api.trpc.craft.execution.setEvent.mutate({
+            executionId: params.executionId!,
+            type: params.event.params.machineId,
+            runId: params.event.params.id,
+            event: JSON.stringify(params.event),
+          });
+          return params;
+        }),
       )
       .subscribe({
         next: async ({ event }) => {
           console.log("PASSING THE  EVENT");
-          this.actor?.send(event);
-
-          // const actor = createActor(this.machines[event.params.machineId], {
-          //   input: event.params.input,
-          //   id: event.params.id,
-          //   systemId: event.params.id,
-          // });
-          // console.log("ACTOR CREATED", actor);
-          // actor.start();
-          // actor.subscribe((event) => {
-          //   console.log("RUN EVENT", event);
-          // });
-          // await waitFor(actor, (s) => s.matches("done"));
-          // console.log("ACTOR DONE", actor);
-
-          // this.actor?.send(event.event);
+          this.actor?.send({
+            ...event,
+            persisted: true,
+          });
         },
       });
   }
-
-  public initialEventId?: string;
 
   withExternalEvents(actorLogic: ActorLogicFrom<typeof EditorMachine>) {
     const enhancedLogic = {
       ...actorLogic,
       transition: (state, event, actorCtx) => {
         // console.log("🕷️ State:", state, "Event:", event);
-        if (this.headless) {
-          if (event.type === "SPAWN_RUN") {
-            let e = event as EventFrom<typeof EditorMachine, "SPAWN_RUN">;
-            if (this.initialEventId !== e.params.id) {
-              this.runEvents.next({
-                executionId: this.executionId,
-                event,
-                timestamp: +new Date(),
-              });
-              this.initialEventId = e.params.id;
-              return state;
-            }
-          }
+        const isPersisted = get(event, "persisted", false);
+        if (event.type === "SPAWN_RUN" && !isPersisted) {
+          let e = event as EventFrom<typeof EditorMachine, "SPAWN_RUN">;
+          this.runEvents.next({
+            executionId: this.executionId,
+            event,
+            timestamp: +new Date(),
+          });
+          return state;
         }
         return actorLogic.transition(state, event, actorCtx);
       },
@@ -1771,6 +1746,7 @@ export class Editor<
         if (this.inspector) {
           this.inspector?.inspect?.next(inspectionEvent);
         }
+
         if (inspectionEvent.type === "@xstate.snapshot") {
           // skip editor snapshots
           if (inspectionEvent.actorRef === this.actor) {
@@ -1784,7 +1760,7 @@ export class Editor<
             this.stateEvents.next({
               executionId: this.executionId,
               state: editorSnapshot,
-              readonly: false,
+              readonly: this.readonly,
               timestamp: +new Date(),
             });
 
@@ -1794,7 +1770,7 @@ export class Editor<
           if (inspectionEvent.event.type.startsWith("xstate.done.actor")) {
             const actor = inspectionEvent.actorRef;
             if (actor.src !== "computeValue") {
-              console.log("DONE ACTOR", actor.src);
+              // console.log("DONE ACTOR", actor.src, inspectionEvent.event.type);
               const snapshot = {
                 src: actor?.src,
                 syncSnapshot: true,
@@ -1811,6 +1787,7 @@ export class Editor<
             }
           }
         }
+
         if (inspectionEvent.type === "@xstate.event") {
           const event = inspectionEvent.event;
 
@@ -1861,7 +1838,7 @@ export class Editor<
             this.stateEvents.next({
               executionId: this.executionId,
               state: snapshot,
-              readonly: false,
+              readonly: this.readonly,
               timestamp: +new Date(),
             });
           }
@@ -1920,9 +1897,55 @@ export class Editor<
   }
 
   setupEventHandling() {
-    this.stateEvents
+    const [$moduleEvents, $executionEvents] = partition(
+      this.stateEvents,
+      (event) => isNil(event.executionId),
+    );
+
+    const [$runEvents, $otherEvents] = partition($executionEvents, (event) =>
+      event.state.src.endsWith(".run"),
+    );
+
+    $runEvents
+      .pipe(
+        tap(async (event) => {
+          console.log("RUN EVENT", event);
+        }),
+      )
+      .subscribe(async (event) => {
+        const execution = await this.api.trpc.craft.execution.setState.mutate({
+          id: event.state.systemId,
+          type: event.state.src,
+          contextId: event.state.snapshot.context.parent.id,
+          workflowExecutionId: event.executionId!,
+          workflowId: this.workflowId,
+          workflowVersionId: this.workflowVersionId,
+          projectId: this.projectId,
+          state: JSON.stringify(event.state),
+        });
+      });
+
+    $executionEvents
+      .pipe(
+        filter((event) => {
+          return event.state.src === "NodeModule";
+        }),
+        debounceTime(500),
+      )
+      .subscribe({
+        next: async (event) => {
+          // console.log("EXECUTION EVENT", event);
+          await this.api.trpc.craft.execution.update.mutate({
+            id: event.executionId,
+            state: JSON.stringify(event.state),
+          });
+        },
+      });
+
+    $moduleEvents
       .pipe(
         // Group by executionNodeId
+        filter((event) => !event.readonly),
         bufferTime(500),
         filter((events) => events.length > 0),
         concatMap((events) => {
@@ -1939,7 +1962,6 @@ export class Editor<
             },
             {} as Record<string, (typeof events)[number]>,
           );
-          console.log("LATEST EVENTS", latestEventsBySystemId);
           return this.api.trpc.craft.node.setContext.mutate(
             Object.values(latestEventsBySystemId).map((event) => {
               return {
@@ -2454,15 +2476,20 @@ export class Editor<
     return this.editor.getNode(this.selectedNodeId);
   }
 
-  public async createExecution(entryNodeId?: string) {
+  public async createExecution(
+    entryContextId: string,
+    values?: Record<string, any>,
+  ) {
     if (!this.executionId) {
-      const input = entryNodeId || this.rootNodes[0]?.id;
+      const input = entryContextId;
+
       const { id } = await this.api.trpc.craft.execution.create.mutate({
+        contextId: this.actor?.id!,
         workflowId: this.workflowId,
         workflowVersionId: this.workflowVersionId,
         input: {
           id: input,
-          values: {},
+          values,
         },
         headless: false,
       });
@@ -2472,59 +2499,59 @@ export class Editor<
     return this.executionId;
   }
 
-  public async runSync(params: { inputId: string; event?: string }) {
-    console.log("runSync", params);
-    await this.createExecution(params.inputId);
-    this.engine.execute(params.inputId, params.event, this.executionId);
-  }
+  // public async runSync(params: { inputId: string; event?: string }) {
+  //   console.log("runSync", params);
+  //   await this.createExecution(params.inputId);
+  //   this.engine.execute(params.inputId, params.event, this.executionId);
+  // }
 
-  public async run(params: { inputId: string; inputs: Record<string, any> }) {
-    const inputNode = this.editor.getNode(params.inputId);
-    if (!inputNode) {
-      throw new Error(`Input node with id ${params.inputId} not found`);
-    }
-    const ajv = new Ajv();
-    const validator = ajv.compile(inputNode.inputSchema);
+  // public async run(params: { inputId: string; inputs: Record<string, any> }) {
+  //   const inputNode = this.editor.getNode(params.inputId);
+  //   if (!inputNode) {
+  //     throw new Error(`Input node with id ${params.inputId} not found`);
+  //   }
+  //   const ajv = new Ajv();
+  //   const validator = ajv.compile(inputNode.inputSchema);
 
-    const valid = validator(params.inputs);
-    if (!valid) {
-      throw new Error(
-        `Input data is not valid: ${JSON.stringify(validator.errors)}`,
-      );
-    }
-    await this.createExecution(params.inputId);
+  //   const valid = validator(params.inputs);
+  //   if (!valid) {
+  //     throw new Error(
+  //       `Input data is not valid: ${JSON.stringify(validator.errors)}`,
+  //     );
+  //   }
+  //   await this.createExecution(params.inputId);
 
-    inputNode.actor.send({
-      type: "SET_VALUE",
-      params: {
-        values: params.inputs,
-      },
-    });
+  //   inputNode.actor.send({
+  //     type: "SET_VALUE",
+  //     params: {
+  //       values: params.inputs,
+  //     },
+  //   });
 
-    this.engine.execute(inputNode.id, undefined, this.executionId);
+  //   this.engine.execute(inputNode.id, undefined, this.executionId);
 
-    const res = await new Promise((resolve, reject) => {
-      this.engine.addPipe((context) => {
-        console.log("@@@ Engine context", context);
-        if (context.type === "execution-completed") {
-          resolve(context.data.output);
-        }
-        if (context.type === "execution-failed") {
-          reject(context);
-        }
-        return context;
-      });
-    });
-    console.log("Execution completed", res);
-    return res;
-  }
+  //   const res = await new Promise((resolve, reject) => {
+  //     this.engine.addPipe((context) => {
+  //       console.log("@@@ Engine context", context);
+  //       if (context.type === "execution-completed") {
+  //         resolve(context.data.output);
+  //       }
+  //       if (context.type === "execution-failed") {
+  //         reject(context);
+  //       }
+  //       return context;
+  //     });
+  //   });
+  //   console.log("Execution completed", res);
+  //   return res;
+  // }
 
   public reset() {
     this.setExecutionId(undefined);
     this.setSelectedNodeId(null);
-    this.editor.getNodes().forEach((n) => {
-      n.reset();
-    });
+    // this.editor.getNodes().forEach((n) => {
+    //   n.reset();
+    // });
   }
 
   private handleAreaEvents() {

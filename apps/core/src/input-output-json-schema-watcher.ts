@@ -27,7 +27,7 @@ export const inputJsonWatcher = fromObservable(
     };
     system: any;
   }) => {
-    console.log("LISTENING Actor INPUTS", input);
+    // console.log("LISTENING Actor INPUTS", input);
     const actor: AnyActor = match(input.actor)
       .with(
         {
@@ -78,13 +78,13 @@ export const inputJsonWatcher = fromObservable(
       distinctUntilChanged(isEqual),
       debounceTime(100),
       tap((inputSockets) => {
-        console.log("Input Sockets", inputSockets);
+        // console.log("Input Sockets", inputSockets);
       }),
       switchMap(
         (
           inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>,
         ) => {
-          console.log("Input Sockets changed", inputSockets);
+          // console.log("Input Sockets changed", inputSockets);
           // Create an object of observables from xstateActorRefs
 
           const observablesFromActors = Object.keys(inputSockets).reduce(
@@ -106,7 +106,7 @@ export const inputJsonWatcher = fromObservable(
           const latestCombination = combineLatest(observablesFromActors).pipe(
             // debounceTime(1000),
             tap((combinedValues) => {
-              console.log("Combined values", combinedValues);
+              // console.log("Combined values", combinedValues);
             }),
             distinctUntilChanged(isEqual),
             map((combinedValues) => {
@@ -131,7 +131,7 @@ export const inputJsonWatcher = fromObservable(
         },
       ),
       tap((inputValues) => {
-        console.log("Input values", inputValues);
+        // console.log("Input values", inputValues);
       }),
     );
 

@@ -47,8 +47,6 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     return `${props.data.definition["x-actor-ref-id"]}-${props.data.definition["x-key"]}`;
   }, [props.data.actor.src, props.data.definition["x-key"]]);
 
-  console.log("NODE CONTROLLER SOCKET", socketKey);
-
   const item = useSelector<AnyActorRef, JSONSocket>(
     props.data.actor,
     (state) => state.context.inputSockets[socketKey] as JSONSocket,
@@ -99,7 +97,7 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
     (state) => state.context.inputSockets[socketKey]["x-actor-ref"],
   );
 
-  console.log("selectedActorState", selectedActor, item["x-key"]);
+  // console.log("selectedActorState", selectedActor, item["x-key"]);
 
   return (
     <div>
@@ -139,13 +137,19 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 
 const advanceInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    .pickBy((v) => get(v, "x-isAdvanced", false))
-    .keys()
+    .pickBy((v) => {
+      const definition = v.getSnapshot().context.definition;
+      return get(definition, "x-isAdvanced", false);
+    })
+    .entries()
     .value();
 
 const basicInputSelector = (state: any) =>
   _.chain(state.context.inputSockets)
-    // .pickBy((v) => !v["x-isAdvanced"])
+    .pickBy((v) => {
+      const definition = v.getSnapshot().context.definition;
+      return !get(definition, "x-isAdvanced", false);
+    })
     .entries()
     .value();
 
@@ -231,7 +235,6 @@ export const OutputSocketItem = (props: {
 };
 
 const BasicInputs = (props: { actor: AnyActor }) => {
-  console.log("BASIC ACTOR", { actor: props.actor });
   const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
 
   return (
@@ -250,6 +253,10 @@ const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
     advanceInputSelector,
     _.isEqual,
   );
+  console.log("ADVANCE", {
+    inputSockets,
+    props,
+  });
   return (
     <>
       {inputSockets.length > 0 && (
@@ -266,8 +273,8 @@ const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
       )}
       {showAdvanced && (
         <motion.div layout>
-          {inputSockets?.map((item) => {
-            return <InputItem key={item} itemKey={item} actor={props.actor} />;
+          {inputSockets?.map(([key, actor]) => {
+            return <InputItem key={key} itemKey={key} actor={actor} />;
           })}
         </motion.div>
       )}
@@ -303,11 +310,11 @@ const InputItem = ({
   );
 
   if (hasConnectionActor) {
-    console.log({
-      hasConnectionBasic,
-      hasConnectionActor,
-      item,
-    });
+    // console.log({
+    //   hasConnectionBasic,
+    //   hasConnectionActor,
+    //   item,
+    // });
   }
 
   if (hasConnectionBasic) {

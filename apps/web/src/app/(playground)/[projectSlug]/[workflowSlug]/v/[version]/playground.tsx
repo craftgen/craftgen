@@ -38,6 +38,7 @@ import { VersionHistory } from "./components/version-history";
 
 import dynamic from "next/dynamic";
 import { InspectorNode } from "./components/inspector-node";
+import { LogsTab } from "./logs/logs-tab";
 const Composer = dynamic(() =>
   import("@/core/composer").then((mod) => mod.Composer),
 );
@@ -228,7 +229,7 @@ export const Playground: React.FC<{
         if (workflow.readonly) {
           return <LoginToContinue />;
         }
-        // return <LogsTab workflow={workflow} />;
+        return <LogsTab workflow={workflow} />;
       })
       .run();
   };

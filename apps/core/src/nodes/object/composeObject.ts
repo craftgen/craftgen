@@ -120,8 +120,6 @@ const composeObjectMachine = createMachine({
         },
         RESULT: {
           actions: enqueueActions(({ enqueue, context, event }) => {
-            console.log("RESULT EVENT", context, event);
-
             enqueue({
               type: "removeComputation",
             });

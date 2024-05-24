@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
 
-import type { getWorkflow } from "@/actions/get-workflow";
 import { JSONView } from "@/components/json-view";
 import {
   Accordion,
@@ -18,19 +17,18 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import type { ResultOfAction } from "@/lib/type";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
 
 export const LogsTab: React.FC<{
-  workflow: ResultOfAction<typeof getWorkflow>;
+  workflow: RouterOutputs["craft"]["module"]["meta"];
 }> = ({ workflow }) => {
   const [autoRefresh, setAutoRefresh] = React.useState(false);
   const { data } = api.craft.execution.list.useQuery(
     {
       worfklowId: workflow.id,
-      workflowVersionId: workflow.version.id,
+      workflowVersionId: workflow.version?.id!,
     },
     {
       enabled: !!workflow,
@@ -127,13 +125,12 @@ type NodeState = Execution["executionData"][number];
 const ExecutionNodeItem: React.FC<{
   nodeData: NodeState;
 }> = ({ nodeData }) => {
-  console.log("@@", nodeData);
   return (
     <li key={nodeData.id} className="my-2 rounded border p-2">
       {nodeData?.state && (
         <ExecutionActorData
           id={nodeData.id}
-          actorData={nodeData?.state}
+          actorData={nodeData?.state.snapshot}
           type={nodeData.type}
         />
       )}

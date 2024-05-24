@@ -167,8 +167,6 @@ export const ApiConfigurationMachine = createMachine(
       },
       RESULT: {
         actions: enqueueActions(({ enqueue, event, check, context, self }) => {
-          console.log("RESULT EVENT", self.src, context, event);
-
           enqueue({
             type: "removeComputation",
           });

@@ -271,7 +271,7 @@ export const NodeMathMachine = createMachine({
               type: "removeComputation",
             });
 
-            const runId = event.params.callId || `call-${createId()}`;
+            const runId = event.params.callId || `call_${createId()}`;
             enqueue.sendTo<ActorRefFrom<typeof RunMathMachine>>(
               ({ system }) => system.get("editor"),
               ({ self, context }) => ({
@@ -285,7 +285,7 @@ export const NodeMathMachine = createMachine({
                     inputs: {
                       ...event.params.inputs,
                     },
-                    senders: [...event.params.senders ],
+                    senders: [...event.params.senders],
                     parent: {
                       id: self.id,
                     },

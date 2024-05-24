@@ -100,6 +100,395 @@ export interface Database {
           }
         ]
       }
+      directus_roles: {
+        Row: {
+          admin_access: boolean
+          app_access: boolean
+          description: string | null
+          enforce_tfa: boolean
+          icon: string
+          id: string
+          ip_access: string | null
+          name: string
+        }
+        Insert: {
+          admin_access?: boolean
+          app_access?: boolean
+          description?: string | null
+          enforce_tfa?: boolean
+          icon?: string
+          id: string
+          ip_access?: string | null
+          name: string
+        }
+        Update: {
+          admin_access?: boolean
+          app_access?: boolean
+          description?: string | null
+          enforce_tfa?: boolean
+          icon?: string
+          id?: string
+          ip_access?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      directus_users: {
+        Row: {
+          appearance: string | null
+          auth_data: Json | null
+          avatar: string | null
+          description: string | null
+          email: string | null
+          email_notifications: boolean | null
+          external_identifier: string | null
+          first_name: string | null
+          id: string
+          language: string | null
+          last_access: string | null
+          last_name: string | null
+          last_page: string | null
+          location: string | null
+          password: string | null
+          provider: string
+          role: string | null
+          status: string
+          tags: Json | null
+          tfa_secret: string | null
+          theme_dark: string | null
+          theme_dark_overrides: Json | null
+          theme_light: string | null
+          theme_light_overrides: Json | null
+          title: string | null
+          token: string | null
+        }
+        Insert: {
+          appearance?: string | null
+          auth_data?: Json | null
+          avatar?: string | null
+          description?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          external_identifier?: string | null
+          first_name?: string | null
+          id: string
+          language?: string | null
+          last_access?: string | null
+          last_name?: string | null
+          last_page?: string | null
+          location?: string | null
+          password?: string | null
+          provider?: string
+          role?: string | null
+          status?: string
+          tags?: Json | null
+          tfa_secret?: string | null
+          theme_dark?: string | null
+          theme_dark_overrides?: Json | null
+          theme_light?: string | null
+          theme_light_overrides?: Json | null
+          title?: string | null
+          token?: string | null
+        }
+        Update: {
+          appearance?: string | null
+          auth_data?: Json | null
+          avatar?: string | null
+          description?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          external_identifier?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_access?: string | null
+          last_name?: string | null
+          last_page?: string | null
+          location?: string | null
+          password?: string | null
+          provider?: string
+          role?: string | null
+          status?: string
+          tags?: Json | null
+          tfa_secret?: string | null
+          theme_dark?: string | null
+          theme_dark_overrides?: Json | null
+          theme_light?: string | null
+          theme_light_overrides?: Json | null
+          title?: string | null
+          token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directus_users_role_directus_roles_id_fk"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "directus_roles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      integration: {
+        Row: {
+          date_created: string | null
+          date_updated: string | null
+          featured: boolean | null
+          icon: string | null
+          id: string
+          slug: string | null
+          sort: number | null
+          status: string
+          user_created: string | null
+          user_updated: string | null
+        }
+        Insert: {
+          date_created?: string | null
+          date_updated?: string | null
+          featured?: boolean | null
+          icon?: string | null
+          id: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Update: {
+          date_created?: string | null
+          date_updated?: string | null
+          featured?: boolean | null
+          icon?: string | null
+          id?: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_user_created_directus_users_id_fk"
+            columns: ["user_created"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_user_updated_directus_users_id_fk"
+            columns: ["user_updated"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      integration_categories: {
+        Row: {
+          date_created: string | null
+          date_updated: string | null
+          id: string
+          slug: string | null
+          sort: number | null
+          status: string
+          user_created: string | null
+          user_updated: string | null
+        }
+        Insert: {
+          date_created?: string | null
+          date_updated?: string | null
+          id: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Update: {
+          date_created?: string | null
+          date_updated?: string | null
+          id?: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_categories_user_created_directus_users_id_fk"
+            columns: ["user_created"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_categories_user_updated_directus_users_id_fk"
+            columns: ["user_updated"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      integration_categories_translations: {
+        Row: {
+          id: number
+          integration_categories_id: string | null
+          languages_code: string | null
+          name: string | null
+        }
+        Insert: {
+          id?: number
+          integration_categories_id?: string | null
+          languages_code?: string | null
+          name?: string | null
+        }
+        Update: {
+          id?: number
+          integration_categories_id?: string | null
+          languages_code?: string | null
+          name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_categories_translations_integration_categories_id_i"
+            columns: ["integration_categories_id"]
+            isOneToOne: false
+            referencedRelation: "integration_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_categories_translations_languages_code_languages_co"
+            columns: ["languages_code"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["code"]
+          }
+        ]
+      }
+      integration_integration_categories: {
+        Row: {
+          id: number
+          integration_categories_id: string | null
+          integration_id: string | null
+        }
+        Insert: {
+          id?: number
+          integration_categories_id?: string | null
+          integration_id?: string | null
+        }
+        Update: {
+          id?: number
+          integration_categories_id?: string | null
+          integration_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_integration_categories_integration_categories_id_in"
+            columns: ["integration_categories_id"]
+            isOneToOne: false
+            referencedRelation: "integration_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_integration_categories_integration_id_integration_i"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      integration_solution: {
+        Row: {
+          id: number
+          integration_id: string | null
+          solution_id: string | null
+        }
+        Insert: {
+          id?: number
+          integration_id?: string | null
+          solution_id?: string | null
+        }
+        Update: {
+          id?: number
+          integration_id?: string | null
+          solution_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_solution_integration_id_integration_id_fk"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_solution_solution_id_solution_id_fk"
+            columns: ["solution_id"]
+            isOneToOne: false
+            referencedRelation: "solution"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      integration_translations: {
+        Row: {
+          description: string | null
+          id: number
+          integration_id: string | null
+          languages_code: string | null
+          name: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          integration_id?: string | null
+          languages_code?: string | null
+          name?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          integration_id?: string | null
+          languages_code?: string | null
+          name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_translations_integration_id_integration_id_fk"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_translations_languages_code_languages_code_fk"
+            columns: ["languages_code"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["code"]
+          }
+        ]
+      }
+      languages: {
+        Row: {
+          code: string
+          direction: string | null
+          name: string | null
+        }
+        Insert: {
+          code: string
+          direction?: string | null
+          name?: string | null
+        }
+        Update: {
+          code?: string
+          direction?: string | null
+          name?: string | null
+        }
+        Relationships: []
+      }
       node_execution_data: {
         Row: {
           completed_at: string | null
@@ -314,6 +703,93 @@ export interface Database {
           }
         ]
       }
+      solution: {
+        Row: {
+          date_created: string | null
+          date_updated: string | null
+          id: string
+          slug: string | null
+          sort: number | null
+          status: string
+          user_created: string | null
+          user_updated: string | null
+        }
+        Insert: {
+          date_created?: string | null
+          date_updated?: string | null
+          id: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Update: {
+          date_created?: string | null
+          date_updated?: string | null
+          id?: string
+          slug?: string | null
+          sort?: number | null
+          status?: string
+          user_created?: string | null
+          user_updated?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_user_created_directus_users_id_fk"
+            columns: ["user_created"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solution_user_updated_directus_users_id_fk"
+            columns: ["user_updated"]
+            isOneToOne: false
+            referencedRelation: "directus_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      solution_translations: {
+        Row: {
+          id: number
+          languages_code: string | null
+          name: string | null
+          solution_id: string | null
+          title: string | null
+        }
+        Insert: {
+          id?: number
+          languages_code?: string | null
+          name?: string | null
+          solution_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          id?: number
+          languages_code?: string | null
+          name?: string | null
+          solution_id?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_translations_languages_code_languages_code_fk"
+            columns: ["languages_code"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "solution_translations_solution_id_solution_id_fk"
+            columns: ["solution_id"]
+            isOneToOne: false
+            referencedRelation: "solution"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       user: {
         Row: {
           avatar_url: string | null
@@ -483,10 +959,11 @@ export interface Database {
       workflow_execution: {
         Row: {
           completed_at: string | null
+          current_context_id: string | null
           duration: number | null
-          entry_node_id: string
-          exit_node_id: string | null
+          entry_context_id: string | null
           id: string
+          state: Json | null
           status: string
           timestamp: string
           updated_at: string
@@ -495,10 +972,11 @@ export interface Database {
         }
         Insert: {
           completed_at?: string | null
+          current_context_id?: string | null
           duration?: number | null
-          entry_node_id: string
-          exit_node_id?: string | null
+          entry_context_id?: string | null
           id: string
+          state?: Json | null
           status?: string
           timestamp?: string
           updated_at?: string
@@ -507,10 +985,11 @@ export interface Database {
         }
         Update: {
           completed_at?: string | null
+          current_context_id?: string | null
           duration?: number | null
-          entry_node_id?: string
-          exit_node_id?: string | null
+          entry_context_id?: string | null
           id?: string
+          state?: Json | null
           status?: string
           timestamp?: string
           updated_at?: string
@@ -519,17 +998,17 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "workflow_execution_entry_node_id_workflow_node_id_fk"
-            columns: ["entry_node_id"]
+            foreignKeyName: "workflow_execution_current_context_id_context_id_fk"
+            columns: ["current_context_id"]
             isOneToOne: false
-            referencedRelation: "workflow_node"
+            referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "workflow_execution_exit_node_id_workflow_node_id_fk"
-            columns: ["exit_node_id"]
+            foreignKeyName: "workflow_execution_entry_context_id_context_id_fk"
+            columns: ["entry_context_id"]
             isOneToOne: false
-            referencedRelation: "workflow_node"
+            referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
@@ -548,45 +1027,47 @@ export interface Database {
           }
         ]
       }
-      workflow_execution_step: {
+      workflow_execution_event: {
         Row: {
           created_at: string
+          event: Json | null
           id: string
-          source_node_id: string
-          target_node_id: string
+          run_id: string | null
+          source_context_id: string | null
+          status: string
+          type: string
           workflow_execution_id: string
         }
         Insert: {
           created_at?: string
+          event?: Json | null
           id: string
-          source_node_id: string
-          target_node_id: string
+          run_id?: string | null
+          source_context_id?: string | null
+          status?: string
+          type: string
           workflow_execution_id: string
         }
         Update: {
           created_at?: string
+          event?: Json | null
           id?: string
-          source_node_id?: string
-          target_node_id?: string
+          run_id?: string | null
+          source_context_id?: string | null
+          status?: string
+          type?: string
           workflow_execution_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "workflow_execution_step_source_node_id_node_execution_data_id_f"
-            columns: ["source_node_id"]
+            foreignKeyName: "workflow_execution_event_source_context_id_context_id_fk"
+            columns: ["source_context_id"]
             isOneToOne: false
-            referencedRelation: "node_execution_data"
+            referencedRelation: "context"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "workflow_execution_step_target_node_id_node_execution_data_id_f"
-            columns: ["target_node_id"]
-            isOneToOne: false
-            referencedRelation: "node_execution_data"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workflow_execution_step_workflow_execution_id_workflow_executio"
+            foreignKeyName: "workflow_execution_event_workflow_execution_id_workflow_executi"
             columns: ["workflow_execution_id"]
             isOneToOne: false
             referencedRelation: "workflow_execution"

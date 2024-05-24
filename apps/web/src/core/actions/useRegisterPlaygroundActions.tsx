@@ -44,14 +44,14 @@ export const useRegisterPlaygroundActions = ({
   useRegisterReplicateActions({ di, layout });
   const actions = useMemo(() => {
     const res = [];
-    res.push({
-      id: "OpenAI",
-      name: "OpenAI",
-      keywords: "openai",
-      subtitle: "Add a module to your workflow",
-      section: "Nodes",
-      icon: <Icons.component className={"text-muted-foreground mr-2"} />,
-    });
+    // res.push({
+    //   id: "OpenAI",
+    //   name: "OpenAI",
+    //   keywords: "openai",
+    //   subtitle: "Add a module to your workflow",
+    //   section: "Nodes",
+    //   icon: <Icons.component className={"text-muted-foreground mr-2"} />,
+    // });
     res.push({
       id: "ModuleNode",
       name: "Module",
@@ -60,14 +60,14 @@ export const useRegisterPlaygroundActions = ({
       section: "Nodes",
       icon: <Icons.component className={"text-muted-foreground mr-2"} />,
     });
-    res.push({
-      id: "Tools",
-      name: "Tools",
-      keywords: "tool",
-      section: "Nodes",
-      subtitle: "Tools to help you build your workflow",
-      icon: <Icons.pocketKnife className={"text-muted-foreground mr-2"} />,
-    });
+    // res.push({
+    //   id: "Tools",
+    //   name: "Tools",
+    //   keywords: "tool",
+    //   section: "Nodes",
+    //   subtitle: "Tools to help you build your workflow",
+    //   icon: <Icons.pocketKnife className={"text-muted-foreground mr-2"} />,
+    // });
     res.push({
       id: "assistant",
       name: "Assistant",
@@ -310,7 +310,15 @@ export const useRegisterPlaygroundActions = ({
       ...orgActions,
       ...workflowActions,
       ...assistantActions,
-    ].filter(Boolean),
+    ]
+      .filter(Boolean)
+      .map(
+        (a) =>
+          ({
+            ...a,
+            priority: Priority.HIGH,
+          }) as Action,
+      ),
     [actions, moduleActions, orgActions, workflowActions, assistantActions],
   );
 };

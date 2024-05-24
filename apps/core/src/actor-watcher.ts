@@ -27,7 +27,6 @@ export const actorWatcher = fromObservable(
     };
     system: any;
   }) => {
-    console.log("LISTENING Actor INPUTS", input);
     const actor = match(input.actor)
       .with(
         {
@@ -59,11 +58,11 @@ export const actorWatcher = fromObservable(
     );
 
     eventStream.subscribe((inputs) => {
-      console.log("Actor inputs", inputs);
-      console.log("Actor event", {
-        type: input.event,
-        params: { inputs },
-      });
+      // console.log("Actor inputs", inputs);
+      // console.log("Actor event", {
+      //   type: input.event,
+      //   params: { inputs },
+      // });
       actor.send({
         type: input.event,
         params: { inputs },

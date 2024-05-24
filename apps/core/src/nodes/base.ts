@@ -359,12 +359,13 @@ const NodeMachine = setup({
 }).createMachine({
   id: "node",
   context: ({ input }) => ({
+    inputSockets: {},
+    outputSockets: {},
     actors: {},
   }),
   on: {
     SET_INPUT_OUTPUT: {
-      actions: enqueueActions(({ enqueue, event }) => {
-        console.log("SETTING INPUT OUTPUT", event);
+      actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({
           actors: ({ event, context }) => {
             const { actorId, sockets } = event.params;
@@ -439,19 +440,6 @@ export const NodeContextFactory = <
     },
     ctx.input,
   );
-
-  // set(
-  //   config,
-  //   ["outputSockets", `${ctx.self.id}:output:${ctx.self.src}`],
-  //   generateSocket({
-  //     name: "self",
-  //     type: ctx.self.src as NodeTypes,
-  //     isMultiple: true,
-  //     "x-order": 0,
-  //     "x-key": "self",
-  //     "x-showSocket": true,
-  //   }),
-  // );
 
   const hasParentActor = get(ctx, "input.parent.port");
   if (hasParentActor) {
@@ -748,7 +736,6 @@ export abstract class BaseNode<
     await process(snap);
 
     this.nodeActor.subscribe((state) => {
-      console.log("NODE STATE", state.context);
       let inputSockets = {};
       let outputSockets = {};
       for (const [key, value] of Object.entries(state.context.actors)) {
@@ -768,7 +755,6 @@ export abstract class BaseNode<
   }
 
   public setupActor(actor: Actor<BaseMachine>) {
-    console.log("SETTING UP THE ACTOR", actor);
     if (!actor) {
       return;
     }
@@ -853,17 +839,16 @@ export abstract class BaseNode<
   }
 
   public async reset() {
-    this.actorListeners.forEach((listener) => {
-      listener.unsubscribe();
-      this.actorListeners.delete(listener.id);
-    });
-    this.actors.forEach((actor) => {
-      actor.stop();
-      this.actors.delete(actor.id);
-    });
-
-    await this.setup();
-    this.di.area?.update("node", this.id);
+    // this.actorListeners.forEach((listener) => {
+    //   listener.unsubscribe();
+    //   this.actorListeners.delete(listener.id);
+    // });
+    // this.actors.forEach((actor) => {
+    //   actor.stop();
+    //   this.actors.delete(actor.id);
+    // });
+    // await this.setup();
+    // this.di.area?.update("node", this.id);
   }
 
   async updateOutputs(
@@ -914,8 +899,6 @@ export abstract class BaseNode<
   async updateInputs(
     inputSockets: Record<string, Actor<typeof inputSocketMachine>>,
   ) {
-    console.log("UPDATING INPUTS", inputSockets);
-
     /**
      * CLEAN up inputs
      */
@@ -969,212 +952,12 @@ export abstract class BaseNode<
     this.snap = snap;
   }
 
-  async execute(
-    input: any,
-    forward: (output: "trigger") => void,
-    executionId: string,
-  ) {
-    throw new Error("Not implemented");
-    console.log(this.identifier, "@@@", input, "execute", executionId);
-
-    const allConnections = this.di.editor
-      .getConnections()
-      .filter((c) => c.target === this.id);
-    const isInSYNC = allConnections.every((c) => c.inSync);
-    console.log("isInSYNC", isInSYNC);
-
-    if (!isInSYNC) {
-      allConnections.forEach((c) => {
-        c.sync();
-      });
-    }
-
-    console.log(this.snapshot.status);
-    if (this.snapshot.status === "done") {
-      console.log("Running same node In the single execution with new input");
-      this.executionNodeId = undefined; // reset execution node id
-      this.nodeActor = this.setupActor({
-        input: this.snapshot.context as any,
-      });
-      this.nodeActor.start();
-    }
-    const canRun = this.snapshot.can({
-      type: input,
-    });
-
-    console.log("#".repeat(40), {
-      input,
-      canRun,
-    });
-    if (canRun) {
-      this.pactor.send({
-        type: input,
-        // values: {},
-      });
-    } else {
-      this.pactor.send({
-        type: "RUN",
-        // values {},
-      });
-    }
-
-    //   this.di.engine.emit({
-    //     type: "execution-step-start",
-    //     data: {
-    //       payload: this,
-    //       executionId: executionId!,
-    //     },
-    //   });
-
-    //   // EARLY RETURN IF NODE IS COMPLETE
-    //   if (this.pactor.getSnapshot().matches("complete")) {
-    //     // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
-    //     this.di.engine.emit({
-    //       type: "execution-step-complete",
-    //       data: {
-    //         payload: this,
-    //         executionId: executionId,
-    //       },
-    //     });
-    //     if (this.outputs.trigger) {
-    //       // forward("trigger");
-    //       // if (this.di.headless) {
-    //       //   await this.triggerSuccesors(executionId);
-    //       // } else {
-    //       forward("trigger");
-    //       // }
-    //       return;
-    //     }
-    //   }
-
-    //   const inputs = await this.getInputs();
-    //   this.di.logger.log(this.identifier, "INPUTS", inputs, this.actor);
-
-    //   await waitFor(this.pactor, (state) => state.matches("idle")); // wait for the node to be idle
-
-    //   this.pactor.send({
-    //     type: "RUN",
-    //     values: inputs,
-    //   });
-
-    //   console.log("RUNNED", {
-    //     succesors: this.successorNodes,
-    //   });
-
-    //   this.pactor.subscribe({
-    //     next: (state) => {
-    //       this.di.engine.emit({
-    //         type: "execution-step-update",
-    //         data: {
-    //           payload: this,
-    //           executionId: executionId,
-    //         },
-    //       });
-    //       console.log(this.identifier, "@@@", "next", state.value, state.context);
-    //     },
-    //     complete: async () => {
-    //       // this.di.logger.log(this.identifier, "finito Execute", this.outputs);
-    //       this.di.engine.emit({
-    //         type: "execution-step-complete",
-    //         data: {
-    //           payload: this,
-    //           executionId: executionId,
-    //         },
-    //       });
-
-    //       if (this.successorNodes.length > 0) {
-    //         // if (this.di.headless) {
-    //         //   await this.triggerSuccesors(executionId);
-    //         // } else {
-    //         forward("trigger");
-    //         // }
-    //       } else {
-    //         this.di.engine.emit({
-    //           type: "execution-completed",
-    //           data: {
-    //             payload: this,
-    //             output: this.pactor.getSnapshot().output,
-    //             executionId,
-    //           },
-    //         });
-    //       }
-    //     },
-    //   });
-    //   await waitFor(this.pactor, (state) => state.matches("complete"), {
-    //     timeout: 1000 * 60 * 5,
-    //   });
-  }
-
-  async triggerSuccessors(outputSocket: JSONSocket) {
-    console.log("TRIGGERING", outputSocket);
-    const connections = outputSocket["x-connection"] || {};
-    for (const [nodeId, conn] of Object.entries(connections)) {
-      const targetNode = this.di.editor.getNode(nodeId);
-      const socket = targetNode.snap.context.inputSockets[conn.key];
-      console.log("TRIGGERING", targetNode.id, socket["x-event"]);
-      // TODO: we might able to send events directly in here.
-      await this.di.runSync({
-        inputId: targetNode.id,
-        event: socket["x-event"],
-      });
-    }
-  }
-
   get successorNodes() {
     return this.di.graph.successors(this.id).nodes();
   }
 
   get identifier() {
     return `${this.ID}-${this.id.substring(-5)}`;
-  }
-  /**
-   * @returns The outputs of the current node.
-   */
-  async data(inputs?: any) {
-    this.count++;
-    // this.di.logger.log(this.identifier, "Calling DATA", "original", inputs);
-    // inputs = await this.getInputs();
-    let state = this.pactor.getSnapshot();
-    if (
-      state.context.inputs &&
-      !isEqual(state.context.inputs, inputs) &&
-      this.ID !== "InputNode"
-    ) {
-      this.di.logger.log(
-        this.identifier,
-        "inputs are not matching computing",
-        inputs,
-        state.context.inputs,
-      );
-      await this.compute(inputs);
-    }
-    // this.di.logger.log(this.identifier, "actor in data", this.actor);
-    if (state.matches("running")) {
-      this.di.logger.log(this.identifier, "waiting for complete");
-      await waitFor(this.pactor, (state) => state.matches("complete"));
-    }
-    state = this.nodeActor.getSnapshot();
-
-    return {
-      ...state.context.outputs,
-    };
-  }
-
-  async compute(inputs: ContextFrom<Machine>["inputs"]) {
-    const inputRaw = await this.getInputs();
-    Object.entries(inputRaw).forEach(([key, value]) => {
-      if (this.snapshot.context.inputs[key] !== value) {
-        this.pactor.send({
-          type: "SET_VALUE",
-          params: {
-            values: {
-              [key]: value,
-            },
-          },
-        });
-      }
-    });
-    // this.debug.log("process", inputs);
   }
 
   get minHeightForControls(): number {

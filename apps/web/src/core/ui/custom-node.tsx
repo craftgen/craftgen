@@ -131,9 +131,10 @@ export const Node = (props: Props<Schemes>) => {
   }, []);
 
   const triggerNode = async () => {
-    await di.runSync({
-      inputId: props.data.id,
-    });
+    alert("Triggering node");
+    // await di.runSync({
+    //   inputId: props.data.id,
+    // });
   };
 
   const pinNode = React.useCallback(async () => {
@@ -193,8 +194,8 @@ export const Node = (props: Props<Schemes>) => {
   Drag.useNoDrag(ref2);
 
   const stateValue = useSelector(
-    props.data.nodeActor,
-    (state) => state.value,
+    props.data.actor,
+    (state) => state?.value,
     isEqual,
   );
 
@@ -329,17 +330,6 @@ export const Node = (props: Props<Schemes>) => {
                     )}
                   </div>
                   <div className="flex">
-                    {props.data.snap.value === "complete" && (
-                      <Drag.NoDrag>
-                        <Button
-                          variant={"ghost"}
-                          size={"icon"}
-                          onClick={() => props.data.reset()}
-                        >
-                          <Undo2 size={14} />
-                        </Button>
-                      </Drag.NoDrag>
-                    )}
                     <Button
                       ref={ref2}
                       onClick={triggerNode}
@@ -347,6 +337,7 @@ export const Node = (props: Props<Schemes>) => {
                       variant={"ghost"}
                       size="icon"
                     >
+                      {/* {JSON.stringify(stateValue, null, 2)} */}
                       {stateValue === "editing" && (
                         <Cog
                           className="text-muted-foreground animate-spin"

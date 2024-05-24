@@ -1,6 +1,12 @@
 "use client";
 
-import { ReactElement, ReactNode, useEffect, useMemo } from "react";
+import {
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   CheckCircle,
   ChevronLeftCircle,
@@ -29,6 +35,9 @@ import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
 import { useRegisterPlaygroundActions } from "./actions";
 import { useKBar } from "kbar";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCopyToClipboard } from "react-use";
+import { BASE_URL } from "@/lib/constants";
 
 export type ComponentRegistry = Map<
   HTMLElement,
@@ -47,7 +56,7 @@ export const Composer: React.FC<{
       projectSlug: workflowMeta.project.slug,
       version: workflowMeta.version?.version!,
       workflowSlug: workflowMeta.slug,
-      // executionId: workflow?.execution?.id,
+      executionId: workflowMeta.execution?.id,
     },
     {
       refetchOnWindowFocus: false,
@@ -55,6 +64,7 @@ export const Composer: React.FC<{
   );
 
   if (isLoading) return <div> Loading </div>;
+  // return null;
   // return (
   //   <div>
   //     <pre>{JSON.stringify(latestWorkflow, null, 2)}</pre>
@@ -87,9 +97,6 @@ const ComposerUI = (props: {
 
   const di = useCraftStore((state) => state.di);
   const layout = useCraftStore((state) => state.layout);
-  const handleReset = () => {
-    di?.reset();
-  };
 
   useRegisterPlaygroundActions({ di, layout });
 
@@ -113,6 +120,41 @@ const ComposerUI = (props: {
     );
   }, [map]);
   const k = useKBar();
+  const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleCopyExecutionId = () => {
+    if (di?.executionId) {
+      copyToClipboard(
+        `${BASE_URL}${pathname}?${createQueryString(
+          "execution",
+          di.executionId,
+        )}`,
+      );
+      router.push(
+        `${pathname}?${createQueryString("execution", di.executionId)}`,
+      );
+    }
+  };
+  const handleReset = () => {
+    // di?.reset();
+    router.push(`${pathname}?${createQueryString("execution", null)}`);
+  };
+  const createQueryString = useCallback(
+    (name: string, value: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === null) {
+        params.delete(name);
+      } else {
+        params.set(name, value);
+      }
+
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   return (
     <div className="h-full w-full">
@@ -158,7 +200,12 @@ const ComposerUI = (props: {
           <>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant={"outline"} size="icon" onClick={handleReset}>
+                <Button
+                  variant={"outline"}
+                  size="sm"
+                  onClick={handleReset}
+                  className="glass rounded-r-none border-r-0"
+                >
                   <ChevronLeftCircle size={14} />
                 </Button>
               </TooltipTrigger>
@@ -168,8 +215,9 @@ const ComposerUI = (props: {
               <TooltipTrigger asChild>
                 <Button
                   variant={"outline"}
-                  // size="icon"
-                  onClick={() => di?.setUI()}
+                  size="sm"
+                  onClick={handleCopyExecutionId}
+                  className="glass rounded-l-none border-l-0"
                 >
                   {false && (
                     <Loader2
@@ -183,26 +231,6 @@ const ComposerUI = (props: {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>The Execution: Current </TooltipContent>
-            </Tooltip>
-          </>
-        )}
-        {!di?.executionId && (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  onClick={() => di?.createExecution()}
-                >
-                  <Play size={14} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <>
-                  <Play size={14} />
-                  Create a Execution
-                </>
-              </TooltipContent>
             </Tooltip>
           </>
         )}

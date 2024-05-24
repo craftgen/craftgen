@@ -61,11 +61,50 @@ export const craftExecutionRouter = createTRPCRouter({
         return executionNodeState;
       });
     }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        state: z.string().transform((val) => JSON.parse(val)),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db
+        .update(schema.workflowExecution)
+        .set({
+          state: input.state.snapshot,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.workflowExecution.id, input.id))
+        .returning();
+    }),
+  setEvent: protectedProcedure
+    .input(
+      z.object({
+        executionId: z.string(),
+        type: z.string(),
+        event: z.string().transform((val) => JSON.parse(val)),
+        runId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db
+        .insert(schema.workflowExecutionEvent)
+        .values({
+          workflowExecutionId: input.executionId,
+          type: input.type,
+          run_id: input.runId,
+          source_context_id: input.event.parentId,
+          event: input.event,
+        })
+        .returning();
+    }),
   create: protectedProcedure
     .input(
       z.object({
         workflowId: z.string(),
         workflowVersionId: z.string(),
+        contextId: z.string(),
         input: z.object({
           id: z.string(),
           values: z.any(),
@@ -75,12 +114,16 @@ export const craftExecutionRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
+        const context = await tx.query.context.findFirst({
+          where: (context, { eq }) => eq(context.id, input.contextId),
+        });
         const [execution] = await tx
           .insert(schema.workflowExecution)
           .values({
             workflowId: input.workflowId,
             workflowVersionId: input.workflowVersionId,
-            entryWorkflowNodeId: input.input.id,
+            entryContextId: input.input.id,
+            state: context?.state,
           })
           .returning();
         if (!execution) {
