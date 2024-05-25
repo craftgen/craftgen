@@ -863,7 +863,7 @@ const CompleteChatMachine = createMachine({
                 ...context.outputs,
                 result: event.params?.res.result,
                 messages: [
-                  ...context.inputs.messages!,
+                  ...(context.inputs?.messages || []),
                   {
                     id: event.params.id,
                     ...standardizeMessage(event.params.res.result),

@@ -998,20 +998,6 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "workflow_execution_current_context_id_context_id_fk"
-            columns: ["current_context_id"]
-            isOneToOne: false
-            referencedRelation: "context"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workflow_execution_entry_context_id_context_id_fk"
-            columns: ["entry_context_id"]
-            isOneToOne: false
-            referencedRelation: "context"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "workflow_execution_workflow_id_workflow_id_fk"
             columns: ["workflow_id"]
             isOneToOne: false

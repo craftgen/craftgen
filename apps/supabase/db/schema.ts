@@ -343,8 +343,8 @@ export const workflowExecution = pgTable("workflow_execution", {
     .default("active")
     .notNull(),
   state: json("state").$type<z.infer<typeof shapeOfState>>(),
-  entryContextId: text("entry_context_id").references(() => context.id),
-  currentContextId: text("current_context_id").references(() => context.id),
+  entryContextId: text("entry_context_id"),
+  currentContextId: text("current_context_id"),
   startedAt: timestamp("timestamp").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),

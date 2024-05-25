@@ -19,7 +19,7 @@ import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import {
   setup,
@@ -88,6 +88,7 @@ import { outputSocketMachine } from "./output-socket";
 import { valueActorMachine } from "./value-actor";
 import { ComputeEventMachine } from "./compute-event";
 import { actorWatcher } from "./actor-watcher";
+import _ from "lodash";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 
@@ -1942,6 +1943,34 @@ export class Editor<
         },
       });
 
+    const removeInputsOutputs = (persistedSnapshot: any) => {
+      const cloneSnapshot = { ...persistedSnapshot };
+      if (Object.values(cloneSnapshot.snapshot?.children || {}).length > 0) {
+        console.log("GOT CHILD", cloneSnapshot.systemId, cloneSnapshot.src);
+        for (const [key, value] of Object.entries(
+          cloneSnapshot.snapshot.children,
+        )) {
+          console.log("CHILD", key, value);
+          cloneSnapshot.snapshot.children[key] = removeInputsOutputs(value);
+        }
+      }
+      const inputs = _.get(cloneSnapshot, "snapshot.context.inputs");
+      const outputs = _.get(cloneSnapshot, "snapshot.context.outputs");
+
+      if (inputs && outputs) {
+        // set each input/output key value to null,
+        // so that we don't store the actual values in the database.
+
+        for (const key of Object.keys(inputs)) {
+          inputs[key] = null;
+        }
+        for (const key of Object.keys(outputs)) {
+          outputs[key] = null;
+        }
+      }
+
+      return cloneSnapshot;
+    };
     $moduleEvents
       .pipe(
         // Group by executionNodeId
@@ -1962,17 +1991,34 @@ export class Editor<
             },
             {} as Record<string, (typeof events)[number]>,
           );
-          return this.api.trpc.craft.node.setContext.mutate(
-            Object.values(latestEventsBySystemId).map((event) => {
-              return {
-                contextId: event.state.systemId,
-                workflowId: this.workflowId,
-                workflowVersionId: this.workflowVersionId,
-                projectId: this.projectId,
-                context: JSON.stringify(event.state),
-              };
-            }),
+
+          const contexts = Object.values(latestEventsBySystemId).map(
+            (event) => {
+              if (event.state.systemId === this.actor?.id) {
+                const context = { ...event.state };
+
+                const sanitized = removeInputsOutputs(context);
+
+                console.log("sanitized", context, sanitized);
+                return {
+                  contextId: event.state.systemId,
+                  workflowId: this.workflowId,
+                  workflowVersionId: this.workflowVersionId,
+                  projectId: this.projectId,
+                  context: JSON.stringify(sanitized),
+                };
+              } else {
+                return {
+                  contextId: event.state.systemId,
+                  workflowId: this.workflowId,
+                  workflowVersionId: this.workflowVersionId,
+                  projectId: this.projectId,
+                  context: JSON.stringify(event.state),
+                };
+              }
+            },
           );
+          return this.api.trpc.craft.node.setContext.mutate(contexts);
         }),
         catchError((error) => {
           // Handle or log the error

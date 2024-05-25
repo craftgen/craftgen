@@ -195,7 +195,7 @@ export const ThreadMachine = createMachine(
               enqueue.assign({
                 outputs: ({ event }) => {
                   return {
-                    messages: event.params.inputs.messages,
+                    messages: event.params.inputs?.messages,
                   };
                 },
               });
@@ -296,7 +296,7 @@ export const ThreadMachine = createMachine(
             return {
               ...context.inputs,
               messages: [
-                ...context.inputs.messages,
+                ...(context.inputs?.messages || []),
                 {
                   id,
                   ...event.params,
