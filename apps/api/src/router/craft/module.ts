@@ -270,7 +270,7 @@ export const craftModuleRouter = createTRPCRouter({
         outputs,
       };
     }),
-  meta: protectedProcedure
+  meta: publicProcedure
     .input(
       z.object({
         workflowSlug: z.string(),
@@ -432,7 +432,7 @@ export const craftModuleRouter = createTRPCRouter({
         edges: contentEdges,
       };
     }),
-  get: protectedProcedure
+  get: publicProcedure
     .input(
       z.object({
         workflowSlug: z.string(),
@@ -444,14 +444,31 @@ export const craftModuleRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
-        const project = await tx.query.project.findFirst({
-          where: (project, { eq }) => eq(project.slug, input.projectSlug),
-          columns: {
-            id: true,
+        const w = await tx.query.workflow.findFirst({
+          where: (workflow, { eq, and }) =>
+            and(
+              eq(workflow.slug, input.workflowSlug),
+              eq(workflow.projectSlug, input.projectSlug),
+            ),
+          with: {
+            project: {
+              columns: {
+                id: true,
+              },
+            },
           },
         });
-        if (!project) {
-          throw new Error("Project not found");
+        if (!w) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
+        }
+        if (!w.public && !ctx.session?.user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You need to be logged in to access this workflow.",
+          });
         }
         const userId = ctx.session?.user?.id;
         let readonly = true;
@@ -461,7 +478,7 @@ export const craftModuleRouter = createTRPCRouter({
             .from(schema.projectMembers)
             .where(
               and(
-                eq(schema.projectMembers.projectId, project.id),
+                eq(schema.projectMembers.projectId, w.projectId),
                 eq(schema.projectMembers.userId, userId),
               ),
             )
@@ -473,11 +490,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
 
         const workflow = await tx.query.workflow.findFirst({
-          where: (workflow, { eq, and }) =>
-            and(
-              eq(workflow.slug, input.workflowSlug),
-              eq(workflow.projectId, project.id),
-            ),
+          where: (workflow, { eq, and }) => eq(workflow.id, w.id),
           with: {
             project: true,
             versions: {
@@ -534,7 +547,7 @@ export const craftModuleRouter = createTRPCRouter({
             },
           },
         });
-        if (!workflow) {
+        if (!w) {
           throw new Error("Playground not found");
         }
 

@@ -1633,19 +1633,17 @@ export class Editor<
   }
 
   public async setupEnv() {
-    // return;
-    const creds = await this.api.trpc.credentials.list.query({
-      // projectId: this.projectId,
-    });
-    console.log("CREDS", creds);
-    // const openai = await this.api.getAPIKey({
-    //   key: "OPENAI_API_KEY",
-    //   projectId: this.projectId,
-    // });
-    creds.forEach((c) => {
-      this.variables.set(c.key, c.value);
-    });
-    // this.variables.set("OPENAI_API_KEY", openai);
+    try {
+      const creds = await this.api.trpc.credentials.list.query({
+        // projectId: this.projectId,
+      });
+      console.log("CREDS", creds);
+      creds.forEach((c) => {
+        this.variables.set(c.key, c.value);
+      });
+    } catch (e) {
+      console.log("ERROR", e);
+    }
   }
 
   private createInitialSnapshot() {
