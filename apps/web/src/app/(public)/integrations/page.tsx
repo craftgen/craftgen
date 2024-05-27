@@ -107,7 +107,7 @@ const IntegrationGroup = async ({
       {/* <JSONView src={data} /> */}
       <div className="p-2 ">
         <h2 className="text-2xl">
-          {category?.translations[0].name || "Featured"}{" "}
+          {category?.translations[0]?.name || "Featured"}{" "}
         </h2>
       </div>
       <div className="col-span-2 grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
