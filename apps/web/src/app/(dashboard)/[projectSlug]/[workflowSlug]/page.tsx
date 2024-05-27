@@ -68,6 +68,7 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
         projectSlug={workflowMeta.projectSlug}
         workflowSlug={workflowMeta.slug}
         version={workflowMeta.version?.version!}
+        executionId={props.searchParams.execution as string}
       />
     </div>
   );

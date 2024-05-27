@@ -133,13 +133,20 @@ const ComposerUI = (props: {
           di.executionId,
         )}`,
       );
-      router.push(
-        `${pathname}?${createQueryString("execution", di.executionId)}`,
-      );
     }
   };
+
+  useEffect(() => {
+    if (di?.executionId) {
+      window.history.pushState(
+        null,
+        "",
+        `?${createQueryString("execution", di?.executionId)}`,
+      );
+    }
+  }, [di?.executionId]);
+
   const handleReset = () => {
-    // di?.reset();
     router.push(`${pathname}?${createQueryString("execution", null)}`);
   };
   const createQueryString = useCallback(
