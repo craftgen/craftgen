@@ -144,36 +144,51 @@ export const craftExecutionRouter = createTRPCRouter({
   list: protectedProcedure
     .input(z.object({ worfklowId: z.string(), workflowVersionId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const a = await ctx.db.query.workflowVersion.findFirst({
-        where: (workflowVersion, { eq }) =>
-          eq(workflowVersion.id, input.workflowVersionId),
-        with: {
-          workflow: {
-            with: {
-              project: {
-                columns: {
-                  slug: true,
+      // Check if user can access the workflow.
+      const a = await ctx.db.transaction(async (tx) => {
+        const a = await tx.query.workflowVersion.findFirst({
+          where: (workflowVersion, { eq }) =>
+            eq(workflowVersion.id, input.workflowVersionId),
+          with: {
+            workflow: {
+              with: {
+                project: {
+                  columns: {
+                    slug: true,
+                  },
                 },
               },
-            },
-            columns: {
-              slug: true,
-            },
-          },
-          executions: {
-            with: {
-              steps: true,
-              executionData: {
-                orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+              columns: {
+                slug: true,
               },
             },
-            orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+            executions: {
+              with: {
+                steps: true,
+                executionData: {
+                  orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+                },
+              },
+              orderBy: (exec, { desc }) => [desc(exec.updatedAt)],
+            },
           },
-        },
+        });
+        const member = await ctx.db.query.projectMembers.findFirst({
+          where: (projectMember, { eq, and }) =>
+            and(
+              eq(projectMember.projectId, a?.projectId!),
+              eq(projectMember.userId, ctx.session?.user?.id!),
+            ),
+        });
+        if (!member) {
+          throw new Error("User is not a member of the project");
+        }
+        if (!a) {
+          throw new Error("Workflow not found");
+        }
+        return a;
       });
-      if (!a) {
-        throw new Error("Workflow not found 5");
-      }
+
       return {
         ...a,
         executions: a?.executions.map((execution) => {
