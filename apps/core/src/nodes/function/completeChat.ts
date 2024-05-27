@@ -9,28 +9,11 @@ import {
   type ToolResultPart,
 } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-// import {
-//   BaseUrlApiConfiguration,
-//   ChatMessage,
-//   generateText,
-//   generateToolCalls,
-//   ollama,
-//   openai,
-//   trimChatPrompt,
-//   UncheckedSchema,
-// } from "modelfusion";
-// import type {
-//   ToolCall,
-//   ToolCallError,
-//   ToolCallResult,
-//   ToolDefinition,
-// } from "modelfusion";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
 import type { OutputFrom, SnapshotFrom } from "xstate";
 import {
   assertEvent,
-  assign,
   createMachine,
   enqueueActions,
   fromPromise,

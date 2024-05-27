@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Runs } from "./runs";
 import { AnyActor } from "xstate";
-import { InputsList } from "@/core/ui/control/control-node";
+import { InputsList, OutputsList } from "@/core/ui/control/control-node";
 
 export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   return (
@@ -35,15 +35,7 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
         </TabsContent>
         <TabsContent value="outputs" className="h-full">
           <ScrollArea>
-            {/* {outputs.map((output) => (
-                <div key={output.key}>
-                  <Label className="capitalize">{output.key}</Label>
-                  {renderFieldValueBaseOnSocketType(
-                    output.socket,
-                    output.value,
-                  )}
-                </div>
-              ))} */}
+            <OutputsList actor={node.actor} />
           </ScrollArea>
         </TabsContent>
       </Tabs>

@@ -153,6 +153,26 @@ const basicInputSelector = (state: any) =>
     .entries()
     .value();
 
+export const OutputsList = (props: { actor: AnyActor }) => {
+  const outputSockets = useSelector(
+    props.actor,
+    (state) => {
+      return Object.values(state.context.outputSockets);
+    },
+    isEqual,
+  );
+
+  return (
+    <div>
+      Outputs
+      {outputSockets.length === 0 && <div>No Outputs</div>}
+      {outputSockets.map((actor) => {
+        return <div>{actor.src}</div>;
+      })}
+    </div>
+  );
+};
+
 export const InputsList = (props: {
   actor: AnyActor;
   showAdvanced?: boolean;

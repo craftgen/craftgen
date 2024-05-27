@@ -33,6 +33,8 @@ import { NodeComposeObject } from "./nodes/object/composeObject";
 import { NodeOpenAI } from "./nodes/openai/openai";
 import { NodeNumber } from "./nodes/primitives/number";
 import { NodePromptTemplate } from "./nodes/prompt-template";
+import { NodeOutput } from "./nodes/io/output";
+import { NodeInput } from "./nodes/io/input.node";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature
@@ -97,8 +99,8 @@ export const nodes = {
 
   NodeComposeObject: NodeComposeObject,
 
-  // InputNode,
-  // OutputNode,
+  NodeOutput: NodeOutput,
+  NodeInput: NodeInput,
   NodeModule: NodeModule,
 
   NodeReplicate: NodeReplicate,
