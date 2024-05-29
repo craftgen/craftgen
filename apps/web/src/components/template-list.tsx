@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Star, Zap } from "lucide-react";
 
@@ -7,6 +6,7 @@ import type { ResultOf } from "@/lib/type";
 
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface Author {
   slug: string;
@@ -130,17 +130,37 @@ export const WorkflowList: React.FC<{
 export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
   workflow,
 }) => {
+  const bgList = [
+    "bg-gradient-to-r from-violet-400 to-purple-300",
+    "bg-gradient-to-r from-rose-400 to-pink-300",
+    "bg-gradient-to-r from-sky-400 to-blue-300",
+    "bg-gradient-to-r from-lime-400 to-green-300",
+    "bg-gradient-to-r from-amber-400 to-yellow-300",
+    "bg-gradient-to-r from-rose-400 to-pink-300",
+    "bg-gradient-to-r from-sky-400 to-blue-300",
+  ];
+  const randomBg = bgList[Math.floor(Math.random() * bgList.length)];
   return (
     <div className="hover:bg-muted group flex  cursor-pointer flex-col rounded-lg transition-all duration-500">
       <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
         <div className="rounded-2xl p-1  transition-all">
           <AspectRatio ratio={5 / 3}>
-            <Image
+            <div
+              className={cn(
+                "aspect- grid h-full items-center justify-center overflow-hidden rounded-lg  object-cover",
+                randomBg,
+              )}
+            >
+              <span className="font-inter text-2xl font-extrabold uppercase text-white/50 ">
+                {workflow.name}
+              </span>
+            </div>
+            {/* <Image
               className="aspect- overflow-hidden rounded-lg object-cover"
               src={`https://source.unsplash.com/random/500x300/?${workflow.name}`}
               alt={workflow.name}
               fill
-            />
+            /> */}
           </AspectRatio>
         </div>
         <div className="flex-1 p-2 ">
@@ -159,7 +179,7 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
             />
             <AvatarFallback>{workflow.project.slug}</AvatarFallback>
           </Avatar>
-          <span className="ml-2 text-sm">{workflow.project.name}</span>
+          <span className="ml-2 text-sm truncate">{workflow.project.name}</span>
         </div>
 
         <div className="flex items-center justify-center">
