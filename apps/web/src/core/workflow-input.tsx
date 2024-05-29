@@ -7,7 +7,7 @@ import { useHeadlessEditor } from "@/core/editor";
 import { createCraftStore } from "@/core/store";
 import { CraftContext } from "@/core/use-store";
 import { InputsList, OutputList } from "@/core/ui/control/control-node";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { observer } from "mobx-react-lite";
 
 export const WorkflowInput: React.FC<{
@@ -60,8 +60,6 @@ export const WorkflowSimple = observer(
       },
       store: store.current,
     });
-    const router = useRouter();
-    const pathname = usePathname();
     const searchParams = useSearchParams();
     useEffect(() => {
       (window as any).Editor = editor;

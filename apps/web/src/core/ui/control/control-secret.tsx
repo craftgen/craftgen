@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { ChangeFormat } from "./shared/change-format";
+import { useUser } from "@/app/(dashboard)/hooks/use-user";
 
 export function SecretControlComponent(props: { data: SecretController }) {
   const { definition, value: valueActor } = useSelector(
@@ -31,10 +32,12 @@ export function SecretControlComponent(props: { data: SecretController }) {
   const key = useSelector(valueActor, (snap) => snap.context.value);
 
   const [open, setOpen] = useState(false);
+  const { data: user } = useUser();
   const { data: values } = api.credentials.list.useQuery(
     {},
     {
       initialData: [],
+      enabled: !!user,
     },
   );
   const value = useMemo(() => {
@@ -60,6 +63,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            disabled={!user}
             className="w-full justify-between"
           >
             {value

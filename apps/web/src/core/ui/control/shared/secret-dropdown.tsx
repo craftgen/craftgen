@@ -1,3 +1,4 @@
+import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { Icons } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,14 +19,26 @@ import { api } from "@/trpc/react";
 import { useState } from "react";
 
 export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {
-  const { data: creds } = api.credentials.list.useQuery({});
+  const { data: user } = useUser();
+  const { data: creds } = api.credentials.list.useQuery(
+    {},
+    {
+      enabled: !!user,
+      initialData: [],
+    },
+  );
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="justify-start" size="sm">
-          <Icons.key className="h-4 w-4 mr-2" />
-          <p className="text-xs text-muted-foreground">Secret</p>
+        <Button
+          variant="ghost"
+          className="justify-start"
+          size="sm"
+          disabled={!user}
+        >
+          <Icons.key className="mr-2 h-4 w-4" />
+          <p className="text-muted-foreground text-xs">Secret</p>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0" side="right" align="start">

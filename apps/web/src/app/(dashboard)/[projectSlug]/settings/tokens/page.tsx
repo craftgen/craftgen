@@ -10,8 +10,7 @@ const TokensPage = async ({
     projectSlug: string;
   };
 }) => {
-  const project = await getProject(params.projectSlug);
-  const tokens = await api.credentials.list({ projectId: project?.id! });
+  const tokens = await api.credentials.list({});
   return (
     <div>
       <TokenList tokens={tokens} />
