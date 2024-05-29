@@ -25,6 +25,7 @@ import type {
 import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
+import { isNi } from "lodash";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
@@ -528,7 +529,7 @@ export const OllamaModelMachine = createMachine(
         always: [
           {
             guard: ({ context }) =>
-              context.inputs.model !== "" &&
+              !isNil(context.inputs.model) &&
               context.model?.name !== context.inputs.model,
             target: "loading",
           },
@@ -583,6 +584,12 @@ export const OllamaModelMachine = createMachine(
         },
       },
       loading: {
+        always: [
+          {
+            target: "action_required",
+            guard: ({ context }) => isNil(context.inputs.model),
+          },
+        ],
         invoke: {
           src: "getModel",
           input: ({ context }) => ({
@@ -630,8 +637,10 @@ export const OllamaModelMachine = createMachine(
             }),
           },
           onError: {
-            actions: ["setError"],
-            target: "action_required",
+            actions: enqueueActions(({ enqueue, event }) => {
+              console.log("ERROR", event);
+            }),
+            target: "error",
           },
         },
       },

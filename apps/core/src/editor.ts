@@ -1942,7 +1942,9 @@ export class Editor<
       });
 
     const removeInputsOutputs = (persistedSnapshot: any) => {
-      const cloneSnapshot = { ...persistedSnapshot };
+      const cloneSnapshot = {
+        ...JSON.parse(JSON.stringify(persistedSnapshot)),
+      };
       if (Object.values(cloneSnapshot.snapshot?.children || {}).length > 0) {
         console.log("GOT CHILD", cloneSnapshot.systemId, cloneSnapshot.src);
         for (const [key, value] of Object.entries(

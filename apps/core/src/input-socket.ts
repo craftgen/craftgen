@@ -22,7 +22,7 @@ import {
 } from "rxjs";
 import { inputJsonWatcher } from "./input-output-json-schema-watcher";
 
-function createId(prefix: "context" | "value", parentId: string) {
+export function createId(prefix: "context" | "value", parentId: string) {
   const createId = init({
     length: 10,
     fingerprint: parentId,

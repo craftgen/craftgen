@@ -166,10 +166,30 @@ export const OutputsList = (props: { actor: AnyActor }) => {
     <div>
       Outputs
       {outputSockets.length === 0 && <div>No Outputs</div>}
-      {outputSockets.map((actor) => {
-        return <div>{actor.src}</div>;
-      })}
+      {outputSockets.map((actor) => (
+        <OutputItem key={actor.id} actor={actor} />
+      ))}
     </div>
+  );
+};
+
+export const OutputItem = ({ actor }: { actor: AnyActor }) => {
+  const item = useSelector(actor, (state) => state.context.definition, isEqual);
+  const { controller, definition } = useMemo(() => {
+    const controller = getControlBySocket({
+      actor: actor,
+      definition: item,
+    });
+    return {
+      controller,
+      definition: item,
+    };
+  }, [item]);
+
+  return (
+    <SocketController actor={actor} socket={item} socketKey={actor.id}>
+      <ControlWrapper control={controller} definition={definition} />
+    </SocketController>
   );
 };
 

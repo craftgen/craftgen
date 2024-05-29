@@ -17,8 +17,19 @@ import {
   BehaviorSubject,
   startWith,
 } from "rxjs";
-import { get, isEqual, isNil, merge } from "lodash";
+import { get, isEqual, merge } from "lodash";
 import { inputSocketMachine } from "./input-socket";
+import { match } from "ts-pattern";
+import { init } from "@paralleldrive/cuid2";
+import { valueActorMachine } from "./value-actor";
+
+export function createId(prefix: "context" | "value", parentId: string) {
+  const createId = init({
+    length: 10,
+    fingerprint: parentId,
+  });
+  return `${prefix}_${createId()}`;
+}
 
 export const spawnOutputSockets = ({
   spawn,
@@ -50,6 +61,7 @@ export const outputSocketMachine = setup({
   types: {
     context: {} as {
       definition: JSONSocket;
+      value: any;
       parent: {
         id: string;
       };
@@ -107,6 +119,7 @@ export const outputSocketMachine = setup({
     ),
   },
   actors: {
+    value: valueActorMachine,
     stateMapper: fromObservable(
       ({
         input,
@@ -164,12 +177,60 @@ export const outputSocketMachine = setup({
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHkCuAXADhgygewGMBrMdAWQEMCALASwDswBiAVQAUARAQQBUBRAPo5kAYQDSfHgG0ADAF1EoTHli10tPPUUgAHogC0ARkMBWAHQAWAGwyAnBYsAOAOwXbj21YA0IAJ4HTGTMAZmMAJhlHFytnQzDggF8EnzQsXEIScio6RjNaCAAbZlkFJBBlVXVNbT0EQ2DzKxMokxMLeODHSJ9-BHirMxNgyNNgtw96pJSMbHR8YlJKGgYwM2oKWBFNRgIq+iYS7Qq1DS0y2vrG5sdW9uDO7r9EQ1tDMzDDGRMZSJtbZysiSmIHoeAgcG0qVm80ySxyYCOKhO1XOAR6iHs71czmC9hiXWGVmBUPSCyyy1y+SKiMqpxqiAsznRdUxzhkrkBoVsMgiFmJM1JsOyKzWGy29B2expyLOoFqYTcZisFmC8RMOLcYUBJmZhkcbxM-yawWcjnuwWVQKSQA */
   id: "OutputSocketMachine",
-  context: ({ input }) => ({
-    ...input,
-    parent: {
-      id: input.parent.id,
+  // context: ({ input }) => ({
+  //   ...input,
+  //   parent: {
+  //     id: input.parent.id,
+  //   },
+  // }),
+  context: ({ input, spawn }) => {
+    const value = match(input.definition)
+      // .with(
+      //   {
+      //     "x-actor-type": P.string.select(),
+      //   },
+      //   (type) => {
+      //     return undefined;
+      //   },
+      // )
+      .otherwise(() => {
+        const valueId = createId("value", input.parent.id);
+        return spawn("value", {
+          input: { value: input.definition.default },
+          id: valueId,
+          systemId: valueId,
+          syncSnapshot: true,
+        });
+      });
+    return {
+      ...input,
+      value,
+      parent: {
+        id: input.parent.id,
+      },
+    };
+  },
+  invoke: {
+    src: "valueWatcher",
+    input: ({ context, self }) => ({
+      self,
+      ...context,
+    }),
+    onSnapshot: {
+      actions: enqueueActions(({ enqueue, event }) => {
+        enqueue.sendTo(
+          ({ context }) =>
+            context.value as ActorRefFrom<typeof valueActorMachine>,
+          {
+            type: "SET_VALUE",
+            params: {
+              value: event.snapshot.context,
+            },
+          },
+        );
+      }),
     },
-  }),
+  },
   initial: "idle",
   states: {
     idle: {
@@ -273,6 +334,16 @@ export const outputSocketMachine = setup({
             }),
             onSnapshot: {
               actions: enqueueActions(({ enqueue, event, context }) => {
+                // enqueue.sendTo(
+                //   ({ context }) =>
+                //     context.value as ActorRefFrom<typeof valueActorMachine>,
+                //   {
+                //     type: "SET_VALUE",
+                //     params: {
+                //       value: event.snapshot.context,
+                //     },
+                //   },
+                // );
                 enqueue({
                   type: "setValueForConnections",
                   params: {
