@@ -10,12 +10,13 @@ export const JsonControlComponent = (props: { data: JsonControl }) => {
     (snap) => snap.context,
   );
 
-  const a = useSelector(valueActor, (snap) => snap.context.value);
+  const a = useSelector(valueActor, (snap) => snap?.context?.value);
   const [value, setValue] = useState(a);
 
   useEffect(() => {
     setValue(a);
   }, [a]);
+
   const handleChange = (val: { src: any }) => {
     console.log(val.src);
     setValue(val.src);

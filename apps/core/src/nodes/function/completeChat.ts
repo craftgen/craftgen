@@ -76,9 +76,9 @@ const inputSockets = {
     default: true,
   }),
   messages: generateSocket({
-    name: "Messages",
+    name: "Thread",
     description: "Thread of messages",
-    "x-showSocket": true,
+    "x-showSocket": false,
     "x-key": "messages",
     type: "array",
     allOf: [
@@ -88,7 +88,6 @@ const inputSockets = {
       },
     ],
     default: [],
-    // "x-controller": "select",
     "x-actor-type": "NodeThread",
     "x-actor-config": {
       NodeThread: {
@@ -172,12 +171,12 @@ const outputSockets = {
     type: "array",
     isMultiple: true,
     "x-key": "messages",
-    "x-showSocket": true,
+    "x-showSocket": false,
   }),
   text: generateSocket({
-    name: "text" as const,
+    name: "Text" as const,
     type: "string" as const,
-    description: "Result of the generation",
+    description: "Text result of the generation",
     required: true,
     isMultiple: true,
     "x-showSocket": true,
@@ -189,7 +188,7 @@ const outputSockets = {
     description: "Result of the generation (JSON)",
     required: true,
     isMultiple: true,
-    "x-showSocket": true,
+    "x-showSocket": false,
     "x-key": "result",
   }),
 };

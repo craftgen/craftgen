@@ -25,7 +25,7 @@ import type {
 import { OllamaNetworkError } from "./OllamaNetworkError";
 import { inputSocketMachine } from "../../input-socket";
 import { ApiConfigurationMachine } from "../apiConfiguration";
-import { isNi } from "lodash";
+import { isNil } from "lodash-es";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {
