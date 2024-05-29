@@ -503,7 +503,7 @@ export const craftModuleRouter = createTRPCRouter({
               with: {
                 executions: {
                   where: (workflowExecution, { eq }) =>
-                    input.executionId
+                    input.executionId && !readonly // if readonly, don't filter by executionId
                       ? eq(workflowExecution.id, input.executionId)
                       : sql`false`,
                   limit: 1,
@@ -513,19 +513,6 @@ export const craftModuleRouter = createTRPCRouter({
                 context: true,
                 nodes: {
                   with: {
-                    // nodeExectutions: {
-                    //   where: (nodeExecutionData, { eq }) =>
-                    //     input.executionId
-                    //       ? eq(
-                    //           nodeExecutionData.workflowExecutionId,
-                    //           input.executionId,
-                    //         )
-                    //       : sql`false`,
-                    //   limit: 1,
-                    //   orderBy: (nodeExecutionData, { desc }) => [
-                    //     desc(nodeExecutionData.createdAt),
-                    //   ],
-                    // },
                     workflowVersion: {
                       columns: {
                         version: true,

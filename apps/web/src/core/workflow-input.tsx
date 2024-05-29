@@ -9,6 +9,7 @@ import { CraftContext } from "@/core/use-store";
 import { InputsList, OutputList } from "@/core/ui/control/control-node";
 import { useSearchParams } from "next/navigation";
 import { observer } from "mobx-react-lite";
+import { isNil } from "lodash-es";
 
 export const WorkflowInput: React.FC<{
   projectSlug: string;
@@ -87,7 +88,21 @@ export const WorkflowSimple = observer(
         );
       }
     }, [editor?.executionId]);
+    useEffect(() => {
+      if (
+        (searchParams.get("execution") && isNil(props.workflow.execution)) ||
+        editor?.executionId
+      ) {
+        console.error("Invalid execution id");
+        window.history.pushState(
+          null,
+          "",
+          `?${createQueryString("execution", null)}`,
+        );
+      }
+    }, [searchParams.get("execution")]);
     if (!editor) return <div>Loading...</div>;
+
     return (
       <CraftContext.Provider value={store?.current}>
         <div className="grid grid-cols-2 gap-4">
