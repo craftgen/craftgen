@@ -3,23 +3,41 @@ import { z } from "zod";
 
 import { and, desc, eq, schema, alias } from "@seocraft/supabase/db";
 
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../../trpc";
 
 export const craftVersionRouter = createTRPCRouter({
-  list: protectedProcedure
+  list: publicProcedure
     .input(
       z.object({
         workflowId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.workflowVersion.findMany({
-        where: (workflowVersion, { eq, and }) =>
-          eq(workflowVersion.workflowId, input.workflowId),
-        orderBy: (workflowVersion) => desc(workflowVersion.version),
-        with: {
-          workflow: true,
-        },
+      return await ctx.db.transaction(async (tx) => {
+        const versions = await tx.query.workflowVersion.findMany({
+          where: (workflowVersion, { eq, and }) =>
+            eq(workflowVersion.workflowId, input.workflowId),
+          orderBy: (workflowVersion) => desc(workflowVersion.version),
+          with: {
+            workflow: true,
+          },
+        });
+        if (!ctx.session?.user?.id) {
+          const workflow = await tx.query.workflow.findFirst({
+            where: (workflow, { eq }) => eq(workflow.id, input.workflowId),
+            columns: {
+              public: true,
+            },
+          });
+          if (!workflow?.public) {
+            throw new Error("Not authorized");
+          }
+        }
+        return versions;
       });
     }),
 

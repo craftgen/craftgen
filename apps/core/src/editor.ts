@@ -1470,7 +1470,6 @@ export class Editor<
       edges: props.content?.edges || [],
       contexts: props.content?.contexts || [],
     };
-    this.validateNodes(this.content);
 
     // handlers for events which might require user attention.
     this.handlers = props.config.on || {};
@@ -1944,36 +1943,6 @@ export class Editor<
         },
       });
 
-    const removeInputsOutputs = (persistedSnapshot: any) => {
-      const cloneSnapshot = {
-        ...JSON.parse(JSON.stringify(persistedSnapshot)),
-      };
-      if (Object.values(cloneSnapshot.snapshot?.children || {}).length > 0) {
-        console.log("GOT CHILD", cloneSnapshot.systemId, cloneSnapshot.src);
-        for (const [key, value] of Object.entries(
-          cloneSnapshot.snapshot.children,
-        )) {
-          console.log("CHILD", key, value);
-          cloneSnapshot.snapshot.children[key] = removeInputsOutputs(value);
-        }
-      }
-      const inputs = _.get(cloneSnapshot, "snapshot.context.inputs");
-      const outputs = _.get(cloneSnapshot, "snapshot.context.outputs");
-
-      if (inputs && outputs) {
-        // set each input/output key value to null,
-        // so that we don't store the actual values in the database.
-
-        for (const key of Object.keys(inputs)) {
-          inputs[key] = null;
-        }
-        for (const key of Object.keys(outputs)) {
-          outputs[key] = null;
-        }
-      }
-
-      return cloneSnapshot;
-    };
     $moduleEvents
       .pipe(
         // Group by executionNodeId
@@ -2304,73 +2273,6 @@ export class Editor<
     }
   }
 
-  public validateNodes({
-    nodes,
-    edges,
-  }: {
-    nodes: NodeWithState<Registry>[];
-    edges: SetOptional<ConnProps, "id">[];
-  }) {
-    return;
-    const nodesMap = new Map<NodeId, NodeProps>();
-    for (const n of nodes) {
-      if (!this.nodeMeta.has(n.type)) {
-        throw new Error(`Node type ${String(n.type)} not registered`);
-      }
-      nodesMap.set(n.id, this.createNodeInstance(n));
-    }
-    for (const c of edges) {
-      const source = nodesMap.get(c.source);
-      if (!source)
-        throw new Error(
-          `Invalid connection:
-          (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput,
-          )}]
-          Source with id:${c.source} not found`,
-        );
-      const target = nodesMap.get(c.target);
-      if (!target) {
-        throw new Error(
-          `Invalid connection:
-          (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput,
-          )}]
-          Target with id:${c.target} not found`,
-        );
-      }
-      if (!source.outputs[c.sourceOutput]) {
-        throw new Error(
-          `Invalid connection:
-           (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-             c.targetInput,
-           )}]
-          Source Output [${String(c.sourceOutput)}] not found`,
-        );
-      }
-      if (!target.inputs[c.targetInput]) {
-        throw new Error(
-          `Invalid connection:
-          (${c.source})[${String(c.sourceOutput)}]  => (${c.target})[${String(
-            c.targetInput,
-          )}]
-          Target Input [${String(c.targetInput)}] not found`,
-        );
-      }
-
-      if (
-        source &&
-        target &&
-        source.outputs[c.sourceOutput] &&
-        target.inputs[c.targetInput]
-      ) {
-        // everything is ok
-      } else {
-        throw new Error(`Invalid connection ${JSON.stringify(c)}`);
-      }
-    }
-  }
-
   public getConnectionSockets(connection: ConnProps) {
     const source = this.editor.getNode(connection.source);
     const target = this.editor.getNode(connection.target);
@@ -2672,3 +2574,32 @@ export class Editor<
     });
   }
 }
+
+const removeInputsOutputs = (persistedSnapshot: any) => {
+  const cloneSnapshot = {
+    ...JSON.parse(JSON.stringify(persistedSnapshot)),
+  };
+  if (Object.values(cloneSnapshot.snapshot?.children || {}).length > 0) {
+    for (const [key, value] of Object.entries(
+      cloneSnapshot.snapshot.children,
+    )) {
+      cloneSnapshot.snapshot.children[key] = removeInputsOutputs(value);
+    }
+  }
+  const inputs = _.get(cloneSnapshot, "snapshot.context.inputs");
+  const outputs = _.get(cloneSnapshot, "snapshot.context.outputs");
+
+  if (inputs && outputs) {
+    // set each input/output key value to null,
+    // so that we don't store the actual values in the database.
+
+    for (const key of Object.keys(inputs)) {
+      inputs[key] = null;
+    }
+    for (const key of Object.keys(outputs)) {
+      outputs[key] = null;
+    }
+  }
+
+  return cloneSnapshot;
+};
