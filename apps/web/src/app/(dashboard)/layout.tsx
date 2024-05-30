@@ -8,7 +8,6 @@ import { Navbar } from "./navbar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
-
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const supabase = createServerComponentClient<Database>({ cookies });
   const {
@@ -21,6 +20,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <main className="flex flex-col">
       <Navbar session={session!} />
       <div className="relative mt-12 flex-1">{children}</div>
+
     </main>
   );
 };

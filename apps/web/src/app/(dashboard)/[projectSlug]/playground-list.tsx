@@ -156,6 +156,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
                 onClick={() => setOpen(true)}
                 size={"sm"}
                 className="ml-2"
+                id="create-playground-button"
                 variant={"outline"}
               >
                 <PlusIcon className="text-muted-foreground" />

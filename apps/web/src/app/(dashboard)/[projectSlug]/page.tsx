@@ -7,9 +7,10 @@ import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { db } from "@seocraft/supabase/db";
+import { Onboarding } from "@/components/onboarding";
 
 export const dynamicParams = true;
-export const revalidate = 300; 
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   const projects = await db.query.project.findMany({
@@ -68,6 +69,7 @@ const ProjectPage = async ({
           <PlaygroundList projectId={project?.id!} />
         </section>
       </div>
+      {/* <Onboarding /> */}
     </div>
   );
 };
