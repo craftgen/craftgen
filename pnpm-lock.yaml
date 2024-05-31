@@ -485,6 +485,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.24.0
         version: 6.24.0
+      '@craftgen/core':
+        specifier: npm:@jsr/craftgen__core@^0.0.2
+        version: /@jsr/craftgen__core@0.0.2
       '@faustwp/blocks':
         specifier: ^4.0.0
         version: 4.0.0(@apollo/client@3.9.9)(@faustwp/core@3.0.0)(@wordpress/style-engine@1.37.0)(next@14.2.3)(react-dom@18.2.0)(react@18.2.0)
@@ -6964,6 +6967,12 @@ packages:
 
   /@jsdevtools/ono@7.1.3:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
+    dev: false
+
+  /@jsr/craftgen__core@0.0.2:
+    resolution: {integrity: sha512-SH8/BUmzb8G/tI8umhEV59nmZ+H6pxrXTgeIqu24W/vn7uB58L/zcr/SCzCpDY6nhaSS5192ga6Z+7wqRM2R7w==, tarball: https://npm.jsr.io/~/11/@jsr/craftgen__core/0.0.2.tgz}
+    dependencies:
+      xstate: 5.13.0
     dev: false
 
   /@juggle/resize-observer@3.4.0:
@@ -32485,6 +32494,10 @@ packages:
 
   /xstate@5.10.0:
     resolution: {integrity: sha512-rn3AbPFHngLqtfFTe9KDXJ1wQX4ACDKnQyQ2ShjuKor3iVnxDSKyDL9llFLiOpaBQu+cFMKcZYlpXo5nb/q5rw==}
+    dev: false
+
+  /xstate@5.13.0:
+    resolution: {integrity: sha512-Z0om784N5u8sAzUvQJBa32jiTCIGGF/2ZsmKkerQEqeeUktAeOMK20FIHFUMywC4GcAkNksSvaeX7lwoRNXPEQ==}
     dev: false
 
   /xtend@4.0.2:

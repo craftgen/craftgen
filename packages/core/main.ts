@@ -1,4 +1,4 @@
-import { setup, assign, createActor } from "@xstate/core";
+import { setup, assign, createActor } from "xstate";
 
 export function add(a: number, b: number): number {
   return a + b;
@@ -7,7 +7,7 @@ export function add(a: number, b: number): number {
 /**
  * Counter machine that increments a count.
  */
-export const counter = setup({
+const counter = setup({
   actions: {
     setValue: assign({
       inputs: (
@@ -40,6 +40,7 @@ export const counter = setup({
     },
   },
 });
+
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {

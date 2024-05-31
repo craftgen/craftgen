@@ -7,6 +7,7 @@ import type { ColumnDef, Row } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
 import useSWR, { mutate } from "swr";
+import {counter} from '@craftgen/core'
 
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
+import { createActor } from "xstate";
 
 type Playground = RouterOutputs["craft"]["module"]["list"][number];
 
@@ -143,6 +145,22 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
     projectId: projectId,
   });
   const [isOpen, setOpen] = useState(false);
+  const actor = createActor(counter);
+  actor.start();
+  actor.subscribe((state) => {
+    console.log("STATA", state.context.count);
+  });
+  actor.send({
+    type: "INC",
+  });
+  actor.send({
+    type: "INC",
+  });
+  actor.send({
+    type: "INC",
+  });
+
+  actor.stop();
   return (
     <div className="py-4">
       <div>

@@ -26,6 +26,7 @@
     "@codemirror/commands": "^6.3.3",
     "@codemirror/lang-javascript": "^6.2.1",
     "@codemirror/view": "^6.24.0",
+    "@craftgen/core": "npm:@jsr/craftgen__core@^0.0.2",
     "@faustwp/blocks": "^4.0.0",
     "@faustwp/core": "^3.0.0",
     "@faustwp/experimental-app-router": "^0.3.0",

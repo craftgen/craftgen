@@ -1,8 +1,11 @@
 {
   "name": "@craftgen/core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "exports": "./main.ts",
   "imports": {
-    "@xstate/core": "npm:xstate@5.13.0"
+    "lodash": "npm:lodash@^4.17.21",
+    "rxjs": "npm:rxjs@^7.8.1",
+    "ts-pattern": "npm:ts-pattern@^5.1.2",
+    "xstate": "npm:xstate@5.13.0"
   }
 }
