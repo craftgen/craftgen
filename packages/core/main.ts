@@ -1,10 +1,13 @@
-import { setup, assign, createActor } from "xstate";
+import { setup, assign, createActor } from "npm:xstate";
 
 export function add(a: number, b: number): number {
   return a + b;
 }
 
-const counter = setup({
+/**
+ * Counter machine that increments a count.
+ */
+export const counter = setup({
   actions: {
     setValue: assign({
       inputs: (
