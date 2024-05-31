@@ -1,4 +1,4 @@
-import { setup, assign, createActor } from "npm:xstate";
+import { setup, assign, createActor } from "@xstate/core";
 
 export function add(a: number, b: number): number {
   return a + b;

@@ -1,8 +1,0 @@
-{
-  "name": "@craftgen/core",
-  "version": "0.1.0",
-  "exports": "./main.ts",
-  "imports": {
-    "xstate": "npm:xstate@5.13.0"
-  }
-}
