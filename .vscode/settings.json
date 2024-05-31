@@ -8,12 +8,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   // "deno.enable": true,
-  "deno.enablePaths": ["./apps/edge-functions"],
+  "deno.enablePaths": ["./apps/edge-functions", "./packages/core"],
   // "deno.importMap": "./apps/edge-functions/functions/import_map.json"
-  "rust-analyzer.linkedProjects": [
-    "./apps/desktop/src-tauri/Cargo.toml",
-  ],
-  "deno.enable": true,
-
-
+  "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"],
+  "deno.enable": true
 }
