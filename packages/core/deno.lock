@@ -2,9 +2,14 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:lodash@^4.17.21": "npm:lodash@4.17.21",
       "npm:xstate@5.13.0": "npm:xstate@5.13.0"
     },
     "npm": {
+      "lodash@4.17.21": {
+        "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==",
+        "dependencies": {}
+      },
       "xstate@5.13.0": {
         "integrity": "sha512-Z0om784N5u8sAzUvQJBa32jiTCIGGF/2ZsmKkerQEqeeUktAeOMK20FIHFUMywC4GcAkNksSvaeX7lwoRNXPEQ==",
         "dependencies": {}
@@ -14,6 +19,9 @@
   "remote": {},
   "workspace": {
     "dependencies": [
+      "npm:lodash@^4.17.21",
+      "npm:rxjs@^7.8.1",
+      "npm:ts-pattern@^5.1.2",
       "npm:xstate@5.13.0"
     ]
   }
