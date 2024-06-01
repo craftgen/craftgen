@@ -2,7 +2,7 @@
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeMinimal, ThemeSupa } from "@supabase/auth-ui-shared";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useTheme } from "next-themes";
 
 import type { Database } from "@seocraft/supabase/db/database.types";

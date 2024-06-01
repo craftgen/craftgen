@@ -2,13 +2,12 @@
 
 import type { PropsWithChildren } from "react";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Network, Slash } from "lucide-react";
 
 import { ModeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { FeedbackButton } from "./components/feedback-button";
 import { TeamSwitcher } from "./components/team-switcher";

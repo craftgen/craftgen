@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./App.css";
+// import "./App.css";
 import { open } from "@tauri-apps/plugin-shell";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -24,8 +24,8 @@ function App() {
   }, []);
   return (
     <div className="container">
-      <h1>Craftgen</h1>
-      <button onClick={callFuncOnRust}>Open Craftgen</button>
+      <h1 className="text-2xl font-bold">Craftgen</h1>
+      {/* <button onClick={callFuncOnRust}>Open Craftgen</button> */}
       {res.map((r, i) => (
         <p key={i}>{r}</p>
       ))}
