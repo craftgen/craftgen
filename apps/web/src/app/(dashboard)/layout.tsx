@@ -19,8 +19,8 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="flex flex-col">
       <Navbar session={session!} />
-      <div className="relative mt-12 flex-1 bg-gray-100 min-h-[calc(100vh-3rem)]">
-        <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white p-4 shadow">
+      <div className="relative mt-12 flex-1 bg-gray-100 dark:bg-muted min-h-[calc(100vh-3rem)]">
+        <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white dark:bg-background p-4 shadow-lg">
           {children}
         </div>
       </div>
