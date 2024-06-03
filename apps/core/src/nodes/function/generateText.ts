@@ -420,10 +420,6 @@ const GenerateTextMachine = createMachine({
         },
 
         RUN: {
-          // guard: and([
-          //   ({ context }) => context.inputs.instruction !== "",
-          //   ({ context }) => context.inputs.llm !== null,
-          // ]),
           actions: enqueueActions(
             ({ enqueue, check, context, self, event }) => {
               if (check(({ event }) => event.origin.type !== "compute-event")) {

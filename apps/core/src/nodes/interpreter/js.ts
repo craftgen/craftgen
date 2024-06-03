@@ -8,7 +8,6 @@ import {
   NodeContextFactory,
   None,
 } from "../base";
-import { match, P } from "ts-pattern";
 import {
   AnyActorRef,
   assign,
@@ -18,17 +17,11 @@ import {
   setup,
 } from "xstate";
 import { DiContainer } from "../../types";
-import { merge, omit } from "lodash-es";
-import {
-  JSONSocket,
-  SocketGeneratorControl,
-  generateSocket,
-} from "../../controls/socket-generator";
+import { merge } from "lodash-es";
+import { JSONSocket, generateSocket } from "../../controls/socket-generator";
 import { WorkerMessenger } from "../../worker/messenger";
 import { start } from "../../worker/main";
 import { createId } from "@paralleldrive/cuid2";
-import { createJsonSchema } from "../../utils";
-import { slugify } from "../../lib/string";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 
 const inputSockets = {
@@ -294,56 +287,52 @@ export const JavascriptCodeInterpreterMachine = createMachine(
       idle: {
         on: {
           RUN: {
-            actions: enqueueActions(({ enqueue, context, system }) => {
-              const runId = `call_${createId()}`;
-              enqueue.sendTo(system.get("editor"), ({ self }) => ({
-                type: "SPAWN_RUN",
-                params: {
-                  parent: self.id,
-                  id: runId,
-                  machineId: "NodeJavascriptCodeInterpreter.run",
-                  systemId: runId,
-                  input: {
-                    inputs: {
-                      code: context.inputs.logic,
-                      libraries: context.inputs.libraries,
-                      args: {
-                        inputs: _.omit(context.inputs, [
-                          "code",
-                          "libraries",
-                          "run",
-                        ]),
-                      },
+            actions: enqueueActions(
+              ({ enqueue, context, system, check, event }) => {
+                if (
+                  check(({ event }) => event.origin.type !== "compute-event")
+                ) {
+                  enqueue({
+                    type: "computeEvent",
+                    params: {
+                      event: event.type,
                     },
-                    parent: {
-                      id: self.id,
-                    },
-                  } as any,
-                },
-              }));
-            }),
-          },
-          RESET: {
-            guard: ({ context }) => {
-              return context.runs && Object.keys(context.runs).length > 0;
-            },
-            actions: enqueueActions(({ enqueue, context, system }) => {
-              Object.entries(context.runs).forEach(([runId, run]) => {
-                enqueue.sendTo(system.get("editor"), {
-                  type: "DESTROY",
+                  });
+                  return;
+                }
+
+                enqueue({
+                  type: "removeComputation",
+                });
+
+                const runId = event.params.callId || `call_${createId()}`;
+                enqueue.sendTo(system.get("editor"), ({ self }) => ({
+                  type: "SPAWN_RUN",
                   params: {
                     id: runId,
+                    parentId: self.id,
+                    machineId: "NodeJavascriptCodeInterpreter.run",
+                    systemId: runId,
+                    input: {
+                      inputs: {
+                        code: context.inputs.logic,
+                        libraries: context.inputs.libraries,
+                        args: {
+                          inputs: _.omit(context.inputs, [
+                            "code",
+                            "libraries",
+                            "run",
+                          ]),
+                        },
+                      },
+                      parent: {
+                        id: self.id,
+                      },
+                    } as any,
                   },
-                });
-              });
-              enqueue.assign({
-                runs: {},
-                outputs: ({ context }) => ({
-                  ...context.outputs,
-                  result: null,
-                }),
-              });
-            }),
+                }));
+              },
+            ),
           },
         },
       },
@@ -352,49 +341,6 @@ export const JavascriptCodeInterpreterMachine = createMachine(
   {
     actors: {
       executeJavascriptCode: executeJavascriptCodeMachine,
-    },
-    actions: {
-      updateConfig: assign({
-        inputSockets: ({ event, context }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ inputSockets }) => ({
-              ...inputSockets,
-              libraries: context.inputSockets.libraries,
-              code: context.inputSockets.code,
-              run: context.inputSockets.run,
-            }))
-            .run(),
-        name: ({ event }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ name }) => name)
-            .run(),
-        description: ({ event }) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ description }) => description)
-            .run(),
-        schema: ({ event }: any) =>
-          match(event)
-            .with({ type: "CONFIG_CHANGE" }, ({ schema }) => schema)
-            .run(),
-        outputs: ({ context, event }) =>
-          match(event)
-            .with(
-              {
-                type: "CONFIG_CHANGE",
-                name: P.string,
-                description: P.string,
-              },
-              ({ schema }) => ({
-                object: context.inputs,
-                schema: {
-                  name: slugify(event.name, "_"),
-                  description: event.description,
-                  parameters: schema,
-                },
-              }),
-            )
-            .run(),
-      }),
     },
   },
 );
@@ -423,35 +369,5 @@ export class NodeJavascriptCodeInterpreter extends BaseNode<
       {},
     );
     this.setup();
-    // const state = this.actor.getSnapshot();
-    // const inputGenerator = new SocketGeneratorControl(
-    //   this.actor,
-    //   (s) => omit(s.context.inputSockets, ["code", "run", "libraries"]),
-    //   {
-    //     connectionType: "input",
-    //     name: "Input Sockets",
-    //     ignored: ["trigger"],
-    //     tooltip: "Add input sockets",
-    //     initial: {
-    //       name: state.context.name,
-    //       description: state.context.description,
-    //     },
-    //     onChange: ({ sockets, name, description }) => {
-    //       const schema = createJsonSchema(sockets);
-    //       this.setLabel(name);
-    //       this.actor.send({
-    //         type: "CONFIG_CHANGE",
-    //         name,
-    //         description: description || "",
-    //         inputSockets: sockets,
-    //         schema,
-    //       });
-    //     },
-    //   },
-    // );
-    // this.setLabel(
-    //   this.snap.context.name || NodeJavascriptCodeInterpreter.label,
-    // );
-    // this.addControl("inputGenerator", inputGenerator);
   }
 }
