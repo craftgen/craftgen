@@ -25,7 +25,6 @@ import { NodeRestApi } from "./nodes/api/rest";
 import { NodeHttpRequest } from "./nodes/api/http-request";
 import { NodeOllama } from "./nodes/ollama/ollama";
 import { NodeStart } from "./nodes/start";
-import { Log } from "./nodes/log";
 import { NodeText } from "./nodes/primitives/text";
 import { NodeJavascriptCodeInterpreter } from "./nodes/interpreter/js";
 import { NodeModule } from "./nodes/io/module";
@@ -71,7 +70,6 @@ export interface Node {
 
 export const nodes = {
   NodeStart: NodeStart,
-  NodeLog: Log,
   NodeText: NodeText,
   NodeNumber: NodeNumber,
   NodePromptTemplate: NodePromptTemplate,
