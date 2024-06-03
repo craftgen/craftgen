@@ -1,12 +1,13 @@
 "use client";
-import { KBarProvider } from "kbar";
+import { Action, KBarProvider } from "kbar";
 
-const actions = [
+const actions: Action[] = [
   {
     id: "home",
     name: "Home",
     shortcut: ["h"],
     keywords: "home",
+    section: "Navigation",
     perform: () => (window.location.pathname = "/"),
   },
   {
@@ -14,6 +15,7 @@ const actions = [
     name: "Explore",
     shortcut: ["e"],
     keywords: "explore",
+    section: "Navigation",
     perform: () => (window.location.pathname = "explore"),
   },
   {
@@ -21,6 +23,7 @@ const actions = [
     name: "Blog",
     shortcut: ["b"],
     keywords: "writing words",
+    section: "Navigation",
     perform: () => (window.location.pathname = "blog"),
   },
 ];

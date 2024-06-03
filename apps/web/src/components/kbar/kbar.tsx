@@ -43,6 +43,7 @@ export const KBarCore = () => {
               name: "Profile",
               shortcut: ["@"],
               keywords: "profile",
+              section: "Navigation",
               perform: () => router.push(`/${currentProjectSlug}`),
             },
           ]
@@ -52,6 +53,7 @@ export const KBarCore = () => {
               name: "Login",
               shortcut: ["@"],
               keywords: "login",
+              section: "Navigation",
               perform: () => router.push(`/login`),
             },
           ]),
@@ -60,12 +62,12 @@ export const KBarCore = () => {
   );
   return (
     <KBarPortal>
-      <KBarPositioner className="min-w-xl bg-background/60 fixed inset-0 z-30 box-border flex w-full items-start  justify-center py-4 pb-4 pt-[14vh]">
-        <KBarAnimator className="bg-background/80 z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded border bg-clip-padding  shadow-lg backdrop-blur-sm backdrop-filter">
+      <KBarPositioner className="min-w-xl fixed inset-0 z-30 box-border flex w-full items-start justify-center  bg-background/60 py-4 pb-4 pt-[14vh]">
+        <KBarAnimator className="z-50 min-h-[30rem] w-full max-w-lg overflow-hidden rounded border bg-background/80 bg-clip-padding  shadow-lg backdrop-blur-sm backdrop-filter">
           <div className="flex items-center justify-between">
-            <KBarSearch className="bg-background  w-full px-4 py-2 outline-none " />
+            <KBarSearch className="w-full  bg-background px-4 py-2 outline-none " />
             <div className="pointer-events-none flex h-4 w-24 select-none items-center justify-center">
-              <span className="text-muted flex items-center p-1 text-sm">
+              <span className="flex items-center p-1 text-sm text-muted">
                 <Command className="mr-1 h-4 w-4" />
                 <span className="">+ K</span>
               </span>

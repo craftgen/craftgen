@@ -76,8 +76,8 @@ export const nodes = {
   NodeThread: NodeThread,
 
   // Tools
-  NodeIterator: IteratorNode,
-  NodeBranch: BranchNode,
+  // NodeIterator: IteratorNode,
+  // NodeBranch: BranchNode,
   NodeMath: NodeMath,
 
   // Models
@@ -97,14 +97,14 @@ export const nodes = {
 
   NodeComposeObject: NodeComposeObject,
 
-  NodeOutput: NodeOutput,
-  NodeInput: NodeInput,
+  // NodeOutput: NodeOutput,
+  // NodeInput: NodeInput,
   NodeModule: NodeModule,
 
   NodeReplicate: NodeReplicate,
 
-  NodeHttpRequest: NodeHttpRequest,
-  NodeRestApi: NodeRestApi,
+  // NodeHttpRequest: NodeHttpRequest,
+  // NodeRestApi: NodeRestApi,
 
   // // DataSources
   // GoogleSheet: GoogleSheet,
