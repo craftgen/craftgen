@@ -19,12 +19,12 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
 }) => {
   const params = useParams();
   return (
-    <div className="bg-background fixed z-50 h-12 w-full">
+    <div className="fixed z-50 h-12 w-full bg-background">
       <div className="flex w-full items-center justify-between p-1">
         <div className="flex items-center">
           <div className="mr-4 flex p-2">
-            <Link href="/explore">
-              <Network />
+            <Link href="/explore" className="font-bold">
+              CraftGen
             </Link>
           </div>
           {session && (
@@ -32,7 +32,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
               {params.projectSlug && <TeamSwitcher session={session} />}
               {params.workflowSlug && (
                 <>
-                  <Slash className="text-muted-foreground mx-2 h-4 w-4 -rotate-12" />
+                  <Slash className="mx-2 h-4 w-4 -rotate-12 text-muted-foreground" />
                   <Link href={`/${params.projectSlug}/${params.workflowSlug}`}>
                     <span>{params.workflowSlug}</span>
                   </Link>
