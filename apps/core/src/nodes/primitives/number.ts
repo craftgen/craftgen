@@ -5,7 +5,7 @@ import { assign, createMachine } from "xstate";
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
 import type { BaseMachineTypes, None } from "../base";
-import { BaseNode } from "../base";
+import { BaseNode, NodeContextFactory } from "../base";
 import type { ParsedNode } from "../base";
 import { spawnInputSockets } from "../../input-socket";
 import { spawnOutputSockets } from "../../output-socket";
@@ -36,44 +36,14 @@ const outputSockets = {
 
 const NumberMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QBcwA9kDkD2EwDoBLCAGzAGIBjACwEMA7GAbQAYBdRUAB21kOULZ6nEGkQBGAMwt8ANgCsADkXzZAFknyATOPEstAGhABPCavwB2ReK3z5FvVsmzxAX1dHUGHHnzJjXISMVHSMYKwcSCA8fAJCImIIzor44srisgCcFtpOCkamCGoW+Epasi4s2SwZUu6e6Fi4BP6BwWiwyLSo+LQAZqgATgAU8iwsAJTkXk2+rUFQESIx-ILCUYnixfhVuvJqGjXWagUSVfhamZcOFreKak4W7h4g9M3wUTM+YMu8q-EbRAAWlkpwQQMkmXwmRY0nEFiyV0UmVkWnqIC+zSIpB+URWcXWoESDzB8K0OxYqjG4nsmWs8kk6MxcwCC1+sTWCUQcMsakyzkhaQq2VJinJSgsWmKCkkNJYikZzyAA */
-  id: "textNode",
-  context: ({ input, spawn, self }) => {
-    const config = merge<typeof input, any>(
-      {
-        name: "Number",
-        description: "Node for handling numbers",
-        inputSockets: {
-          ...inputSockets,
-        },
-        outputSockets: {
-          ...outputSockets,
-        },
-        inputs: {
-          value: 0,
-        },
-        outputs: {
-          value: 0,
-        },
-      },
-      input,
-    );
-
-    const spawnedInputSockets = spawnInputSockets({
-      spawn,
-      self,
-      inputSockets: config.inputSockets as any,
-    });
-    const spawnedOutputSockets = spawnOutputSockets({
-      spawn,
-      self,
-      outputSockets: config.outputSockets as any,
-    });
-
-    set(config, "inputSockets", spawnedInputSockets);
-    set(config, "outputSockets", spawnedOutputSockets);
-
-    return config;
-  },
+  id: "numberNode",
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Text",
+      description: "Text value",
+      inputSockets,
+      outputSockets,
+    }),
   initial: "complete",
   types: {} as BaseMachineTypes<{
     input: {
