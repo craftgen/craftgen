@@ -88,7 +88,17 @@ Deno.serve(async (req: Request) => {
 
     // const maybeEntrypoint = 'file:///src/index.ts';
     // or load module source from an inline module
-    // const maybeModuleCode = 'Deno.serve((req) => new Response("Hello from Module Code"));';
+
+    const maybeModuleCode = `
+      import ollama from 'npm:ollama/browser'
+      // const response = "hello" + STATUS_CODE.Accepted 
+      const response = await ollama.chat({
+        model: 'llama2',
+        messages: [{ role: 'user', content: 'Why is the sky blue?' }],
+      })
+      console.log(response.message.content)
+
+      Deno.serve((req) => new Response(response.message.content));`;
     //
     const cpuTimeSoftLimitMs = 10000;
     const cpuTimeHardLimitMs = 20000;
@@ -106,7 +116,7 @@ Deno.serve(async (req: Request) => {
       cpuTimeHardLimitMs,
       // maybeEszip,
       // maybeEntrypoint,
-      // maybeModuleCode,
+      maybeModuleCode,
     });
   };
 
