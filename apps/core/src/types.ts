@@ -10,12 +10,12 @@ import type { Editor } from ".";
 import type { Connection } from "./connection/connection";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
-import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
+// import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { NodeCompleteChat } from "./nodes/function/completeChat";
 import { NodeGenerateStructure } from "./nodes/function/generateStructure";
 import { NodeGenerateText } from "./nodes/function/generateText";
-import { OpenAIAssistant } from "./nodes/openai/assistant";
-import { OpenAIThread } from "./nodes/openai/openai-thread";
+// import { OpenAIAssistant } from "./nodes/openai/assistant";
+// import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { NodeThread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
@@ -24,7 +24,7 @@ import { NodeReplicate } from "./nodes/replicate/replicate";
 import { NodeRestApi } from "./nodes/api/rest";
 import { NodeHttpRequest } from "./nodes/api/http-request";
 import { NodeOllama } from "./nodes/ollama/ollama";
-import { Start } from "./nodes/start";
+import { NodeStart } from "./nodes/start";
 import { Log } from "./nodes/log";
 import { NodeText } from "./nodes/primitives/text";
 import { NodeJavascriptCodeInterpreter } from "./nodes/interpreter/js";
@@ -70,7 +70,7 @@ export interface Node {
 }
 
 export const nodes = {
-  Start: Start,
+  NodeStart: NodeStart,
   NodeLog: Log,
   NodeText: NodeText,
   NodeNumber: NodeNumber,

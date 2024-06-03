@@ -33,7 +33,7 @@ export const useRegisterPlaygroundActions = ({
       return {
         ...node,
         nodeType: node.nodeType as NodeTypes,
-        icon: <Icon className={"text-muted-foreground mr-2"} />,
+        icon: <Icon className={"mr-2 text-muted-foreground"} />,
       };
     });
   }, [di?.nodeMeta]);
@@ -58,7 +58,7 @@ export const useRegisterPlaygroundActions = ({
       keywords: "module",
       subtitle: "Add a module to your workflow",
       section: "Nodes",
-      icon: <Icons.component className={"text-muted-foreground mr-2"} />,
+      icon: <Icons.component className={"mr-2 text-muted-foreground"} />,
     });
     // res.push({
     //   id: "Tools",
@@ -68,28 +68,28 @@ export const useRegisterPlaygroundActions = ({
     //   subtitle: "Tools to help you build your workflow",
     //   icon: <Icons.pocketKnife className={"text-muted-foreground mr-2"} />,
     // });
-    res.push({
-      id: "assistant",
-      name: "Assistant",
-      keywords: "assistant",
-      section: "Nodes",
-      icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
-    });
-    res.push({
-      id: "assistant-new",
-      name: "new Assistant",
-      keywords: "assistant",
-      parent: "assistant",
-      icon: <Icons.add className={"text-muted-foreground mr-2"} />,
-      perform: async () => {
-        const assistant = await createAssistant();
-        await di?.addNode("OpenAIAssistant", {
-          settings: {
-            assistant,
-          },
-        });
-      },
-    });
+    // res.push({
+    //   id: "assistant",
+    //   name: "Assistant",
+    //   keywords: "assistant",
+    //   section: "Nodes",
+    //   icon: <Icons.bot className={"mr-2 text-muted-foreground"} />,
+    // });
+    // res.push({
+    //   id: "assistant-new",
+    //   name: "new Assistant",
+    //   keywords: "assistant",
+    //   parent: "assistant",
+    //   icon: <Icons.add className={"mr-2 text-muted-foreground"} />,
+    //   perform: async () => {
+    //     const assistant = await createAssistant();
+    //     await di?.addNode("OpenAIAssistant", {
+    //       settings: {
+    //         assistant,
+    //       },
+    //     });
+    //   },
+    // });
     res.push(
       ...(nodes
         .filter((n) => n.nodeType !== "NodeModule")
@@ -101,52 +101,54 @@ export const useRegisterPlaygroundActions = ({
           // parent: node?.section ?? undefined,
           subtitle: node.description,
           section: node.section ?? "Nodes",
+          priority:
+            node.section === "Functions" ? Priority.HIGH : Priority.NORMAL,
           perform: async () => {
             await di?.addNode(node.nodeType as NodeTypes);
           },
           icon: node.icon as any,
         })) as Action[]),
     );
-    res.push(
-      {
-        id: "API",
-        name: "API",
-        keywords: "openapi, api, rest",
-        subtitle: "Add Rest API to your workflow",
-      },
-      {
-        id: "NodeRestApi-fromOpenAPI",
-        name: "Rest API from OpenAPI spec",
-        keywords: "rest api from openapi spec",
-        subtitle: "Add Rest API to your workflow",
-        parent: "API",
-        perform: async () => {
-          console.log("di", di);
-          // await di?.addNode("NodeRestApi");
-        },
-      },
-      {
-        id: "NodeRestApi",
-        name: "Rest API",
-        keywords: "rest api",
-        subtitle: "Add Rest API to your workflow",
-        parent: "API",
-        perform: async () => {
-          console.log("di", di);
-          await di?.addNode("NodeRestApi");
-        },
-      },
-      {
-        id: "NodeGraphqlApi",
-        name: "GraphQL API",
-        keywords: "graphql api",
-        subtitle: "Add GraphQL API to your workflow",
-        parent: "API",
-        perform: async () => {
-          await di?.addNode("NodeGraphqlApi");
-        },
-      },
-    );
+    // res.push(
+    //   {
+    //     id: "API",
+    //     name: "API",
+    //     keywords: "openapi, api, rest",
+    //     subtitle: "Add Rest API to your workflow",
+    //   },
+    //   {
+    //     id: "NodeRestApi-fromOpenAPI",
+    //     name: "Rest API from OpenAPI spec",
+    //     keywords: "rest api from openapi spec",
+    //     subtitle: "Add Rest API to your workflow",
+    //     parent: "API",
+    //     perform: async () => {
+    //       console.log("di", di);
+    //       // await di?.addNode("NodeRestApi");
+    //     },
+    //   },
+    //   {
+    //     id: "NodeRestApi",
+    //     name: "Rest API",
+    //     keywords: "rest api",
+    //     subtitle: "Add Rest API to your workflow",
+    //     parent: "API",
+    //     perform: async () => {
+    //       console.log("di", di);
+    //       await di?.addNode("NodeRestApi");
+    //     },
+    //   },
+    //   {
+    //     id: "NodeGraphqlApi",
+    //     name: "GraphQL API",
+    //     keywords: "graphql api",
+    //     subtitle: "Add GraphQL API to your workflow",
+    //     parent: "API",
+    //     perform: async () => {
+    //       await di?.addNode("NodeGraphqlApi");
+    //     },
+    //   },
+    // );
     return res;
   }, [nodes]);
 
@@ -221,7 +223,7 @@ export const useRegisterPlaygroundActions = ({
             id: assistant.id,
             name: assistant.name ?? assistant.id,
             parent: "assistant",
-            icon: <Icons.bot className={"text-muted-foreground mr-2"} />,
+            icon: <Icons.bot className={"mr-2 text-muted-foreground"} />,
             section: "Assistants",
             perform: async () => {
               await di?.addNode("OpenAIAssistant", {
@@ -297,7 +299,7 @@ export const useRegisterPlaygroundActions = ({
           section: "Module",
           parent: `ModuleNode`,
           priority: Priority.HIGH,
-          icon: <Icons.component className={"text-muted-foreground mr-2"} />,
+          icon: <Icons.component className={"mr-2 text-muted-foreground"} />,
         };
       }) as Action[]) || []
     );
@@ -309,7 +311,7 @@ export const useRegisterPlaygroundActions = ({
       ...moduleActions,
       ...orgActions,
       ...workflowActions,
-      ...assistantActions,
+      // ...assistantActions,
     ]
       .filter(Boolean)
       .map(
@@ -319,6 +321,12 @@ export const useRegisterPlaygroundActions = ({
             priority: Priority.HIGH,
           }) as Action,
       ),
-    [actions, moduleActions, orgActions, workflowActions, assistantActions],
+    [
+      actions,
+      moduleActions,
+      orgActions,
+      workflowActions,
+      // assistantActions
+    ],
   );
 };

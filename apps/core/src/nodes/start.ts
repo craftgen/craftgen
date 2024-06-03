@@ -1,46 +1,43 @@
-import { merge } from "lodash-es";
 import type { SetOptional } from "type-fest";
-import { createMachine } from "xstate";
+import { createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { DiContainer } from "../types";
 import type { BaseMachineTypes, None, ParsedNode } from "./base";
-import { BaseNode } from "./base";
+import { BaseNode, NodeContextFactory } from "./base";
 
 const StartNodeMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */
   id: "startNode",
-  context: ({ input }) =>
-    merge<Partial<typeof input>, any>(
-      {
-        ...input,
-        inputSockets: {
-          trigger: generateSocket({
-            name: "trigger",
-            type: "trigger",
-            description: "Trigger",
-            required: false,
-            isMultiple: true,
-            "x-showSocket": false,
-            "x-key": "trigger",
-            "x-event": "RUN",
-          }),
-        },
-        outputSockets: {
-          trigger: generateSocket({
-            name: "trigger",
-            type: "trigger",
-            description: "Trigger",
-            required: false,
-            isMultiple: true,
-            "x-showSocket": true,
-            "x-key": "trigger",
-            "x-event": "RUN",
-          }),
-        },
+  context: (ctx) =>
+    NodeContextFactory(ctx, {
+      name: "Ollama Model",
+      description: "Ollama Model configuration",
+      inputSockets: {
+        trigger: generateSocket({
+          name: "trigger",
+          type: "trigger",
+          description: "Trigger",
+          required: false,
+          isMultiple: true,
+          "x-showSocket": false,
+          "x-key": "trigger",
+          "x-event": "RUN",
+        }),
       },
-      input,
-    ),
+      outputSockets: {
+        trigger: generateSocket({
+          name: "trigger",
+          type: "trigger",
+          description: "Trigger",
+          required: false,
+          isMultiple: true,
+          "x-showSocket": true,
+          "x-key": "trigger",
+          "x-event": "RUN",
+        }),
+      },
+    }),
   types: {} as BaseMachineTypes<{
     events: None;
     actions: None;
@@ -50,30 +47,38 @@ const StartNodeMachine = createMachine({
     input: {};
   }>,
   initial: "idle",
+  on: {
+    ASSIGN_CHILD: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue("assignChild");
+      }),
+    },
+    INITIALIZE: {
+      actions: ["initialize"],
+    },
+  },
   states: {
     idle: {
       on: {
         RUN: {
-          target: "complete",
+          actions: enqueueActions(({ enqueue }) => {
+            enqueue({
+              type: "triggerSuccessors",
+              params: {
+                port: "trigger",
+              },
+            });
+          }),
         },
       },
     },
-    complete: {
-      entry: ["triggerSuccessors"],
-      always: {
-        target: "idle",
-      },
-    },
-  },
-  output: () => {
-    Date.now();
   },
 });
 
-export type StartNodeData = ParsedNode<"Start", typeof StartNodeMachine>;
+export type StartNodeData = ParsedNode<"NodeStart", typeof StartNodeMachine>;
 
-export class Start extends BaseNode<typeof StartNodeMachine> {
-  static nodeType = "Start" as const;
+export class NodeStart extends BaseNode<typeof StartNodeMachine> {
+  static nodeType = "NodeStart" as const;
   static label = "Start";
   static description = "Start node of the workflow";
   static icon = "power";
@@ -81,7 +86,7 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
   static parse(params: SetOptional<StartNodeData, "type">): StartNodeData {
     return {
       ...params,
-      type: "Start",
+      type: "NodeStart",
     };
   }
 
@@ -90,6 +95,6 @@ export class Start extends BaseNode<typeof StartNodeMachine> {
   };
 
   constructor(di: DiContainer, data: StartNodeData) {
-    super("Start", di, data, StartNodeMachine, {});
+    super("NodeStart", di, data, StartNodeMachine, {});
   }
 }

@@ -6,8 +6,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
-import useSWR, { mutate } from "swr";
-import {counter} from '@craftgen/core'
+import { mutate } from "swr";
 
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,6 @@ import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
-import { createActor } from "xstate";
 
 type Playground = RouterOutputs["craft"]["module"]["list"][number];
 
@@ -90,14 +88,12 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
   });
   const handleDelete = async () => {
     await deleteWorkflow({ workflowId: row.original.id });
-    mutate(`/api/project/${project?.id}/playgrounds`);
   };
   const handleClone = async () => {
     const res = await clonePlayground({
       playgroundId: row.original.id,
       targetProjectId: project?.id!,
     });
-    mutate(`/api/project/${project?.id}/playgrounds`);
   };
 
   return (
@@ -106,7 +102,7 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
+            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
           >
             <DotsHorizontalIcon className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
@@ -145,22 +141,7 @@ export const PlaygroundList: React.FC<{ projectId: string }> = ({
     projectId: projectId,
   });
   const [isOpen, setOpen] = useState(false);
-  const actor = createActor(counter);
-  actor.start();
-  actor.subscribe((state) => {
-    console.log("STATA", state.context.count);
-  });
-  actor.send({
-    type: "INC",
-  });
-  actor.send({
-    type: "INC",
-  });
-  actor.send({
-    type: "INC",
-  });
 
-  actor.stop();
   return (
     <div className="py-4">
       <div>
