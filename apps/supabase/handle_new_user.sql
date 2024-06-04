@@ -9,6 +9,9 @@ declare
   new_project_id uuid;
 begin
   new_username := split_part(new.email, '@', 1);
+  new_username := lower(regexp_replace(new_username, '[^a-zA-Z0-9]+', '-', 'g'));
+  new_username := regexp_replace(new_username, '-{2,}', '-', 'g');
+  new_username := regexp_replace(new_username, '(^-|-$)', '', 'g');
   
   while exists(select 1 from public.user where username = new_username) loop
     counter := counter + 1;
