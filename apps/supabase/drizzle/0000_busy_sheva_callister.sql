@@ -294,7 +294,7 @@ begin
   new_project_id := gen_random_uuid();
 
   insert into public.project (id, name, slug, personal)
-  values (new_project_id, new.raw_user_meta_data->>'full_name', new_username, true);
+  values (new_project_id, new_username, new_username, true);
 
   insert into public.project_members (id, project_id, user_id, member_role)
   values (gen_random_uuid(), new_project_id, new.id, 'owner');
