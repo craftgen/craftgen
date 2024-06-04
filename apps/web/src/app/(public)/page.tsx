@@ -26,7 +26,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center ">
       <section className="relative isolate w-full overflow-hidden">
         <svg
-          className="stroke-foreground/10 absolute inset-0 -z-10 h-full w-full [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+          className="absolute inset-0 -z-10 h-full w-full stroke-foreground/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
           aria-hidden="true"
         >
           <defs>
@@ -44,7 +44,7 @@ export default function Home() {
           <svg
             x="50%"
             y={-1}
-            className="fill-muted-foreground/10 overflow-visible"
+            className="overflow-visible fill-muted-foreground/10"
           >
             <path
               d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
@@ -80,7 +80,7 @@ export default function Home() {
                 <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-sm font-semibold leading-6 text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
                   Latest updates
                 </span>
-                <span className="text-muted-foreground inline-flex items-center space-x-2 text-sm font-medium leading-6">
+                <span className="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-muted-foreground">
                   <span>Almost shipped v0.1</span>
                   <ChevronRightIcon
                     className="h-5 w-5 text-gray-500"
@@ -89,10 +89,10 @@ export default function Home() {
                 </span>
               </a>
             </div>
-            <h1 className="text-foreground mt-10 text-4xl font-bold tracking-tight sm:text-6xl">
+            <h1 className="mt-10 text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
               Build your AI workforce.
             </h1>
-            <p className="text-muted-foreground mt-6 text-lg leading-8">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Build useful AI agents to complete tasks on autopilot. CraftGen is
               a simple, open source platform that’s packed with pre-built
               modules that can automate your work.
@@ -111,7 +111,7 @@ export default function Home() {
               </Waitlist>
               <Link
                 href="https://cal.com/necmttn/craftgen"
-                className="text-foreground text-sm font-semibold leading-6"
+                className="text-sm font-semibold leading-6 text-foreground"
                 onClick={() => {
                   posthog.capture("cta_clicked", { cta: "live_demo" });
                 }}
@@ -150,7 +150,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold md:text-5xl">
             Craft Your AI Agents
           </h1>
-          <p className="text-muted-foreground text-xl">
+          <p className="text-xl text-muted-foreground">
             See why forward-thinking businesses and creators are choosing
             CraftGen as their AI platform.
           </p>
