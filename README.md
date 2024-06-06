@@ -24,6 +24,9 @@ Craftgen.ai: Open-source AI agent platform with intuitive workflows, graph-based
 **1. Workflow**:
 Build and test powerful AI workflows on a visual canvas, leveraging all the following features and beyond.
 
+
+https://github.com/craftgen/craftgen/raw/main/apps/web/public/images/craftgen-0604.mp4
+
 **2. Comprehensive model support**:
 Seamless integration with hundreds of proprietary / open-source LLMs from dozens of inference providers and self-hosted solutions, covering GPT, Mistral, Llama3, Ollama and any OpenAI API-compatible models.
 
