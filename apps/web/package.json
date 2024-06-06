@@ -158,7 +158,7 @@
     "mobx-react-lite": "^4.0.5",
     "modelfusion": "^0.137.0",
     "moment-timezone": "^0.5.45",
-    "next": "14.2.3",
+    "next": "^14.2.3",
     "next-contentlayer": "^0.3.4",
     "next-safe-action": "^3.3.0",
     "next-themes": "^0.2.1",
