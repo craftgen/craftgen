@@ -1,74 +1,120 @@
-# Craftgen.ai
+<div align="center">
 
-Craftgen.ai is an innovative AI platform designed for both technical and non-technical users.
-It's built on a foundation of graph architecture for scalability and the Actor Model for efficient concurrent operations, tailored to both technical and non-technical users. A key aspect of Craftgen.ai is its modular AI approach, allowing users to assemble and customize AI components like building blocks to fit their specific needs.
+![Logo of Craftgen](./apps/web/public/images/github-header.png)
 
-The platform's robustness is enhanced by its event-driven architecture, ensuring reliable data processing and featuring browser web technologies for universal access. Craftgen.ai excels in dynamic tool and workflow generation, with strong offline capabilities for secure environments and plans for desktop application integration.
+![Demo](./apps/web/public/images/demo-cover.jpg)
 
-A unique and valuable feature of Craftgen.ai is its marketplace, where users can access a variety of pre-built AI solutions. This marketplace accelerates the deployment of AI tools but also fosters a community of sharing and innovation. Users can contribute to and leverage this repository of solutions, enhancing the platform's versatility and practicality.
+<h3>
+
+[Homepage](https://www.craftgen.ai/) | [Examples](https://craftgen.ai/explore) | [Discord](https://craftgen.ai/discord)
+
+</h3>
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/craftgen/craftgen)](https://github.com/craftgen/craftgen)
+<a href="https://github.com/craftgen/craftgen/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-purple" alt="License"></a>
+<a href="https://github.com/craftgen/craftgen/pulse"><img src="https://img.shields.io/github/commit-activity/m/craftgen/craftgen" alt="Commits-per-month"></a>
+<a href="https://craftgen.ai/pricing"><img src="https://img.shields.io/badge/Pricing-Free-brightgreen" alt="Pricing"></a>
+<a href="https://github.com/craftgen/craftgen/labels/%F0%9F%99%8B%20help%20wanted"><img src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue"></a>
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40craftgenai)](https://twitter.com/craftgenai)
+
+</div>
+
+Craftgen.ai: Open-source AI agent platform with intuitive workflows, graph-based solutions, agent capabilities, model management, and real-time monitoring for fast prototyping to production. Key features include:
+
+**1. Workflow**:
+Build and test powerful AI workflows on a visual canvas, leveraging all the following features and beyond.
+
+**2. Comprehensive model support**:
+Seamless integration with hundreds of proprietary / open-source LLMs from dozens of inference providers and self-hosted solutions, covering GPT, Mistral, Llama3, Ollama and any OpenAI API-compatible models.
+
+**3. Agent capabilities**:
+You can define agents based on LLM Function Calling or ReAct, and add pre-built or custom tools for the agent. Or you can create tools on demand.
+
+## What is CraftGen?
+
+Craftgen.ai is an AI platform designed for both technical and non-technical users. Built on a scalable graph architecture and the Actor Model, it allows users to customize AI components to fit their needs.
+
+The platform features an event-driven architecture for reliable data processing and universal access via web technologies. It supports dynamic tool and workflow generation, with offline capabilities for secure environments and plans for desktop integration.
 
 Craftgen.ai uses JSON schema for industry-standard alignment, enabling seamless integration with any API following the OpenAPI spec. This allows for a broad range of applications, from automating data analysis to streamlining content management.
 
 The platform is designed to bridge the gap between advanced AI technology and practical usability. It's a flexible, secure, and intuitive platform that empowers users, from developers seeking to create custom AI solutions to businesses looking to automate routine tasks. Craftgen.ai's goal is to make AI technology an integral, seamless part of everyday problem-solving and innovation, providing a platform where modular AI and a thriving marketplace converge to meet the diverse needs of its users.
 
-## Empowering Innovation with Key Features
+## Feature comparison
 
-1. **No-Code AI Agent and Workflow Builder**: Empower your creativity with our intuitive builder. Design and deploy AI solutions with ease, no extensive coding knowledge required.
+<table style="width: 100%;">
+  <tr>
+    <th align="center">Feature</th>
+    <th align="center">CraftGen</th>
+    <th align="center">LangChain</th>
+    <th align="center">Flowise</th>
+    <th align="center">OpenAI Assistants API</th>
+  </tr>
+  <tr>
+    <td align="center">Programming Approach</td>
+    <td align="center">API + App-oriented</td>
+    <td align="center">Python Code</td>
+    <td align="center">App-oriented</td>
+    <td align="center">API-oriented</td>
+  </tr>
+  <tr>
+    <td align="center">Supported LLMs</td>
+    <td align="center">Rich Variety</td>
+    <td align="center">Rich Variety</td>
+    <td align="center">Rich Variety</td>
+    <td align="center">OpenAI-only</td>
+  </tr>
+  <!-- <tr>
+    <td align="center">RAG Engine</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+  </tr> -->
+  <tr>
+    <td align="center">Agent</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+    <td align="center">✅</td>
+  </tr>
+  <tr>
+    <td align="center">Workflow</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td align="center">Observability</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td align="center">Code Interpreter</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+    <td align="center">❌</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td align="center">Local Deployment</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">✅</td>
+    <td align="center">❌</td>
+  </tr>
+</table>
 
-2. **Integrated AI Marketplace**: A vibrant ecosystem awaits you! Share your AI masterpieces or discover the next big innovation. It's collaboration and impact, redefined.
+## Staying ahead
 
-3. **Real-Time Monitoring and Analytics**: Keep a pulse on your AI's performance. Our tools offer you insights for continuous improvement, mirroring the analytics prowess of top development platforms.
+Star CraftGen on GitHub and be instantly notified of new releases.
+![](./apps/web/public/images/github-star-dark.gif)
 
-4. **Seamless Data Integration and Management**: Connect and manage your data effortlessly. Our platform's integration capabilities ensure your AI agents are both powerful and personalized.
-
-5. **Community-Driven Innovation**: Join a platform where your ideas fuel collective growth. It's not just about technology; it's about building a community of innovators and collaborators.
-
-Craftgen.ai is more than just a tool; it's a movement towards democratizing AI technology, fostering a culture of innovation and collaboration that resonates with the ethos of the most influential tech platforms today.
-
-## Before You Start
-
-**Star us on GitHub, and be instantly notified for new releases!**
-
-## Roadmap
-
-> **Warning**
+> **Note:**
 > This project is a dynamic work in progress, evolving in the open. Stay updated with our journey on Twitter [@CraftgenAI](https://twitter.com/CraftgenAI).
-
-- [x] Initial Code Release
-- [x] Authentication System Integration
-- [x] Posthog Integration Enhancement
-- [x] Upcoming: Integration with Vercel Analytics
-- [ ] Finalize credential managment.
-
-## Join the Revolution - Contribute Today!
-
-🌟 **Calling All Innovators, Dreamers, and Change-Makers!** 🌟
-
-Dive into the world of Craftgen.ai, where every contribution is a step towards revolutionizing AI. This isn't just a platform; it's a beacon for innovation, and your ideas are the fuel that propels us forward. Whether it's a small tweak or a groundbreaking feature, your input has the potential to spark transformation across the AI landscape. Join us, and be the architect of tomorrow's AI solutions!
-
-### Ways to Make an Impact
-
-1. **Code Contributions**: Got a knack for coding? Your skills could refine the very backbone of Craftgen.ai. From minor tweaks to major features, your code can make waves!
-
-2. **Workflow Wizards Unite**: Craft an AI workflow that turns heads? Share it! Your genius could be the missing piece for countless users.
-
-3. **Feedback & Ideas**: Your voice matters! Suggest, critique, and brainstorm. Every thought you share paves the way for groundbreaking enhancements.
-
-4. **Docs & Translations**: Wordsmiths and polyglots, we need you! Help us tear down language barriers and make Craftgen.ai a truly global sensation.
-
-5. **Be a Craftgen.ai Ambassador**: Spread the word! Tell your story, blog about your experience, present at meetups. You could be the hero that brings Craftgen.ai to new frontiers.
-
-### We Need Your Words – In Every Language!
-
-🌍 **Global Mission: Translate Craftgen.ai** 🌍
-
-Speak more than one language? Be the bridge! Help translate our docs and UI, and bring the power of Craftgen.ai to people around the globe. Your translations will echo in every corner of the world.
-
-### Your Guide to Contributing
-
-- Dive into our #TODO [Contribution Guidelines](link-to-contribution-guidelines). It's your roadmap to making meaningful contributions.
-- Our #TODO [Code of Conduct](link-to-code-of-conduct) is the heart of our community. Respect, inclusion, and collaboration - that's how we roll.
-- Big ideas? Start with an issue. Let's discuss and create something extraordinary!
 
 ### Stuck? Got Questions? We're Here!
 
