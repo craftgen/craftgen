@@ -2,10 +2,9 @@
 
 ![Logo of Craftgen](./apps/web/public/images/github-header.png)
 
-
 <h3>
 
-[Homepage](https://www.craftgen.ai/) | [Examples](https://craftgen.ai/explore) | [Discord](https://craftgen.ai/discord)
+[Homepage](https://craftgen.ai/) | [Examples](https://craftgen.ai/explore) | [Discord](https://craftgen.ai/discord)
 
 </h3>
 
