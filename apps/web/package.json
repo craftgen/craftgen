@@ -145,6 +145,8 @@
     "encoding": "^0.1.13",
     "flexlayout-react": "^0.7.15",
     "framer-motion": "^10.16.0",
+    "fumadocs-core": "^11.3.2",
+    "fumadocs-ui": "^11.3.2",
     "geist": "^1.0.0",
     "google-spreadsheet": "^4.0.3",
     "googleapis": "^122.0.0",
