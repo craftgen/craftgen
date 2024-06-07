@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Session } from "@supabase/auth-helpers-nextjs";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { ModeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { StarCount } from "@/components/marketing/github-star-count";
 import { ExternalLinkIcon } from "lucide-react";
 
@@ -73,74 +73,63 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
 export const NavBar = ({ session }: { session: Session | null }) => {
   return (
     <>
-      {/* {session?.user && !session?.user?.subs ? (
-        <HeaderDiscount
-          text={
-            "Use promo code FATHER2023 to get 10% discount before 18th of June!"
-          }
-        />
-      ) : (
-        <Link href="/login">
-          <HeaderDiscount
-            text={"Create free account to get 10% off before Father's Day!"}
-          />
-        </Link>
-      )} */}
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
+        className="sticky top-0 z-50 mx-auto  w-full bg-background/80 px-6 py-4 backdrop-blur-sm lg:px-8"
         aria-label="Global"
       >
-        <div className="flex flex-row items-center  lg:flex-1">
-          <Link href="/" className="-m-1.5 mr-4 p-1.5">
-            <span className="sr-only">Craftgen</span>
-            {/* <Logo className={"h-12 w-12"} /> */}
-            <h1 className="font-sans text-2xl  font-black tracking-tighter  md:text-5xl">
-              CraftGen
-            </h1>
-          </Link>
+        <div className="flex max-w-7xl  items-center justify-between">
+          <div className="flex flex-row items-center  lg:flex-1">
+            <Link href="/" className="-m-1.5 mr-4 p-1.5">
+              <span className="sr-only">Craftgen</span>
+              {/* <Logo className={"h-12 w-12"} /> */}
+              <h1 className="font-sans text-2xl  font-black tracking-tighter  md:text-5xl">
+                CraftGen
+              </h1>
+            </Link>
 
-          <StarCount />
-        </div>
+            <StarCount />
+          </div>
 
-        <MenuDropdown session={session} />
+          <MenuDropdown session={session} />
 
-        <div className="hidden lg:flex lg:gap-x-12">
-          {/* <Link
+          <div className="hidden lg:flex lg:gap-x-12">
+            {/* <Link
             href={"/about"}
             className=" flex items-center text-lg font-semibold leading-6"
           >
             About
           </Link> */}
-          <Link
-            href="/docs"
-            className=" flex items-center text-lg font-semibold leading-6"
-          >
-            Docs
-          </Link>
-          {/* <Link
+            <Link
+              href="/docs"
+              className=" flex items-center text-lg font-semibold leading-6"
+            >
+              Docs
+            </Link>
+            {/* <Link
             href="/features"
             className=" flex items-center text-lg font-semibold leading-6"
           >
             Features
           </Link> */}
-          <Link
-            href="/integrations"
-            className=" flex items-center text-lg font-semibold leading-6"
-          >
-            Integrations
-          </Link>
-          <Link
-            href="https://github.com/orgs/craftgen/projects/1/views/2"
-            target="_blank"
-            className=" flex  items-center font-semibold leading-6"
-          >
-            Roadmap
-            <ExternalLinkIcon className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {/* <SessionButton session={session} /> */}
-          <ModeToggle />
+            <Link
+              href="/integrations"
+              className=" flex items-center text-lg font-semibold leading-6"
+            >
+              Integrations
+            </Link>
+            <Link
+              href="https://github.com/orgs/craftgen/projects/1/views/2"
+              target="_blank"
+              className=" flex  items-center font-semibold leading-6"
+            >
+              Roadmap
+              <ExternalLinkIcon className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+            {/* <SessionButton session={session} /> */}
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
     </>

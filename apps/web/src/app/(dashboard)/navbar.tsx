@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Slash } from "lucide-react";
 
-import { ModeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 import { FeedbackButton } from "./components/feedback-button";
@@ -43,7 +43,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
         </div>
         <div className="flex items-center space-x-2 px-2">
           <FeedbackButton />
-          <ModeToggle />
+          <ThemeToggle />
           {session && <UserNav session={session} />}
           {!session && (
             <Link href="/login">
