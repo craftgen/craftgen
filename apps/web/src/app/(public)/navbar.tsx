@@ -44,10 +44,10 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
         </Link> */}
         <Link
           onClick={() => setOpen(false)}
-          href="/blog"
+          href="/docs"
           className=" flex  items-center font-semibold leading-6"
         >
-          Blog
+          Docs
         </Link>
         <Link
           onClick={() => setOpen(false)}
@@ -112,10 +112,10 @@ export const NavBar = ({ session }: { session: Session | null }) => {
             About
           </Link> */}
           <Link
-            href="/blog"
+            href="/docs"
             className=" flex items-center text-lg font-semibold leading-6"
           >
-            Blog
+            Docs
           </Link>
           {/* <Link
             href="/features"

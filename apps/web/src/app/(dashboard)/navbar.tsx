@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
-import { Network, Slash } from "lucide-react";
+import { Slash } from "lucide-react";
 
 import { ModeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
