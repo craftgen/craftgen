@@ -1,3 +1,5 @@
+import { createPreset } from "fumadocs-ui/tailwind-plugin";
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -243,4 +245,5 @@ module.exports = {
     require("@tailwindcss/container-queries"),
     require("@tailwindcss/typography"),
   ],
+  presets: [createPreset()],
 };

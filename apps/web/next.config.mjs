@@ -1,4 +1,11 @@
-const { withContentlayer } = require("next-contentlayer");
+import createMDX from "fumadocs-mdx/config";
+
+const withMDX = createMDX({
+  cwd: './src',
+  // rootMapPath: "./src/.map.ts",
+  // rootContentPath: "./src/content/",
+
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -78,4 +85,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withContentlayer(nextConfig);
+export default withMDX(nextConfig);
