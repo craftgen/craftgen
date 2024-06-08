@@ -74,10 +74,10 @@ export const NavBar = ({ session }: { session: Session | null }) => {
   return (
     <>
       <nav
-        className="sticky top-0 z-50 mx-auto  w-full bg-background/80 px-6 py-4 backdrop-blur-sm lg:px-8"
+        className="sticky top-0 z-50 mx-auto  w-full bg-background/80 px-6 py-4 backdrop-blur-sm lg:px-8 "
         aria-label="Global"
       >
-        <div className="flex max-w-7xl  items-center justify-between">
+        <div className="flex max-w-[90rem]  items-center justify-between  mx-auto">
           <div className="flex flex-row items-center  lg:flex-1">
             <Link href="/" className="-m-1.5 mr-4 p-1.5">
               <span className="sr-only">Craftgen</span>

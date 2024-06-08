@@ -1,10 +1,10 @@
 import createMDX from "fumadocs-mdx/config";
 
 const withMDX = createMDX({
-  cwd: './src',
-  // rootMapPath: "./src/.map.ts",
-  // rootContentPath: "./src/content/",
-
+  cwd: "./src",
+  mdxOptions: {
+    lastModifiedTime: "git",
+  },
 });
 
 /** @type {import('next').NextConfig} */

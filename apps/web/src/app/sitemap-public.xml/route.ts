@@ -1,4 +1,12 @@
 import { BASE_URL } from "@/lib/constants";
+import { getPages } from "../source";
+
+const docsPages = getPages().map((page) => ({
+  url: `${BASE_URL}${page.url}`,
+  lastModified: new Date(page.data.exports.lastModified),
+  changeFrequency: "weekly",
+  priority: 0.5,
+}));
 
 const publicPages = [
   {
@@ -19,6 +27,13 @@ const publicPages = [
     changeFrequency: "weekly",
     priority: 0.5,
   },
+  {
+    url: `${BASE_URL}/docs`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.5,
+  },
+  ...docsPages,
   // TODO:  add blog pages.
   {
     url: `${BASE_URL}/integrations`,
