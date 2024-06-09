@@ -20,7 +20,12 @@ const nextConfig = {
     serverComponentsExternalPackages: ["pg-native"],
     webpackBuildWorker: true,
   },
-  transpilePackages: ["@seocraft/core", "@seocraft/api", "@seocraft/supabase"],
+  transpilePackages: [
+    "@seocraft/core",
+    "@seocraft/api",
+    "@seocraft/supabase",
+    "@craftgen/ui",
+  ],
   images: {
     unoptimized: true,
   },
