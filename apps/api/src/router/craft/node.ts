@@ -1,7 +1,7 @@
 import { get } from "lodash-es";
 import { z } from "zod";
 
-import { and, eq, inArray, or, schema, sql } from "@seocraft/supabase/db";
+import { and, eq, or, schema, sql } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
@@ -39,7 +39,7 @@ export const craftNodeRouter = createTRPCRouter({
         // /// This is happens when user deletes the node and then tries to undo it.
         if (!contextOfTheNode) {
           // reincarnate the context
-           await tx
+          await tx
             .insert(schema.context)
             .values({
               id: input.data.contextId,
@@ -47,9 +47,9 @@ export const craftNodeRouter = createTRPCRouter({
               type: input.data.type,
               workflow_id: input.workflowId,
               workflow_version_id: input.workflowVersionId,
-              state: input.data.context ,
+              state: input.data.context,
             })
-            .onConflictDoNothing()
+            .onConflictDoNothing();
         }
 
         await tx
@@ -218,7 +218,7 @@ export const craftNodeRouter = createTRPCRouter({
               id: i.contextId,
               project_id: i.projectId,
               type: i.context.src, // src
-              state: i.context.snapshot ,
+              state: i.context.snapshot,
               workflow_id: i.workflowId,
               workflow_version_id: i.workflowVersionId,
               parent_id: get(i.context, "snapshot.context.parent.id"),
