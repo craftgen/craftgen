@@ -17,7 +17,7 @@ export default function CareersPage() {
         className="bloom subtle egg-bloom-two -top-60 right-[-400px]"
         style={{ transform: "scale(2)" }}
       />
-      <h1 className="mb-3 px-2 text-center text-4xl font-black leading-tight md:text-5xl animate-in fade-in duration-300 slide-in-from-bottom-10">
+      <h1 className="mb-3 px-2 text-center text-4xl font-black leading-tight duration-300 animate-in fade-in slide-in-from-bottom-10 md:text-5xl">
         Craft the future of AI Agents.
       </h1>
       <div className="animation-delay-1 z-30 flex flex-col items-center">
