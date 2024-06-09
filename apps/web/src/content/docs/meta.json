@@ -1,0 +1,4 @@
+{
+  "title": "Docs",
+  "pages": ["./getting-started",  "---Agents---", "./agents", "---Tools---", "tools"]
+}
