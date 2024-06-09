@@ -4,6 +4,7 @@ import { DocsPage, DocsBody } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 import { ExternalLinkIcon } from "lucide-react";
 import { Cards } from "fumadocs-ui/components/card";
+import { BASE_URL } from "@/utils/constants";
 
 export default function Page({ params }: { params: { slug?: string[] } }) {
   const page = getPage(params.slug);
@@ -89,7 +90,7 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
 
   const image = {
     alt: "Banner",
-    url: `/api/og/craftgen?${imageParams.toString()}`,
+    url: `${BASE_URL}/api/og/craftgen?${imageParams.toString()}`,
     width: 1200,
     height: 630,
   };
