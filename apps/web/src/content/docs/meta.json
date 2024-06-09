@@ -1,4 +1,4 @@
 {
   "title": "Docs",
-  "pages": ["---Get Started---", ".../getting-started",  "---Agents---", "./agents/index", ".../agents/", "---Tools---", "./tools/index"]
+  "pages": ["---Get Started---", "index", ".../getting-started",  "---Agents---", "./agents/index", ".../agents/", "---Tools---", "./tools/index"]
 }
