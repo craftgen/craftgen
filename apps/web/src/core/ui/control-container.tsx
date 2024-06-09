@@ -1,4 +1,4 @@
-import { Label } from "@/components/ui/label";
+import { Label } from "@craftgen/ui/label";
 import { cn } from "@/lib/utils";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import React from "react";

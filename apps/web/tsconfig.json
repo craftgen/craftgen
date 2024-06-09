@@ -1,7 +1,8 @@
 {
   "extends": "@acme/tsconfig/base.json",
   "compilerOptions": {
-    "lib": ["WebWorker"],
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -16,7 +17,8 @@
         "tadaOutputLocation": "./src/wordpress-graphql.d.ts"
       }
     ],
-    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "module": "esnext",
   },
   "include": [".", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

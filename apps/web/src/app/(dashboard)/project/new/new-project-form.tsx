@@ -12,8 +12,8 @@ import type * as z from "zod";
 import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { Icons } from "@/components/icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@craftgen/ui/alert";
+import { Button } from "@craftgen/ui/button";
 import {
   Form,
   FormControl,
@@ -22,15 +22,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@craftgen/ui/form";
+import { Input } from "@craftgen/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@craftgen/ui/select";
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
 import { api } from "@/trpc/react";

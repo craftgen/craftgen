@@ -4,7 +4,7 @@ import { useSelector } from "@xstate/react";
 
 import type { InputControl } from "@seocraft/core/src/controls/input.control";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@craftgen/ui/input";
 import { ChangeFormat } from "./shared/change-format";
 import { SecretDropdown } from "./shared/secret-dropdown";
 

@@ -2,7 +2,7 @@ import { DiscordLogoIcon } from "@radix-ui/react-icons";
 import { pageTree } from "../../source";
 import { DocsLayout } from "fumadocs-ui/layout";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import Link from "next/link";
 
 export default function RootDocsLayout({ children }: { children: ReactNode }) {

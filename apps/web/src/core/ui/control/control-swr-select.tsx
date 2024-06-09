@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@craftgen/ui/select";
 
 export function SWRSelectControlComponent<T extends string, Data>(props: {
   data: SWRSelectControl<T, Data>;

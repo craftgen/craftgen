@@ -6,8 +6,8 @@ import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
 
 import { Copyable } from "@/components/copyable";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@craftgen/ui/button";
+import { ScrollArea } from "@craftgen/ui/scroll-area";
 import { api } from "@/trpc/react";
 
 import { InputSection } from "./input-section";

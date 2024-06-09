@@ -7,7 +7,7 @@ import useSWR from "swr";
 import type { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
 
 import { getUser } from "@/app/(dashboard)/[projectSlug]/actions";
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 
 export function GoogleDriveControlComponent(props: {
   data: GoogleDriveControl;

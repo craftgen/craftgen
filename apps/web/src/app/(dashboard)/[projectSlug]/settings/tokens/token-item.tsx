@@ -14,8 +14,8 @@ import {
 } from "@seocraft/core/src/provider/config";
 
 import { Icon } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@craftgen/ui/badge";
+import { Button } from "@craftgen/ui/button";
 import {
   Card,
   CardContent,
@@ -23,20 +23,20 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@craftgen/ui/card";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from "@craftgen/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@craftgen/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -45,14 +45,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@craftgen/ui/form";
+import { Input } from "@craftgen/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "@craftgen/ui/popover";
+import { Separator } from "@craftgen/ui/separator";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";

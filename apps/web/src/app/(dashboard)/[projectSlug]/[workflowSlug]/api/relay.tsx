@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { sendToBackgroundViaRelay } from "@plasmohq/messaging";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 
 export const RelayTesting = () => {
   const [count, setCount] = useState(0);

@@ -1,6 +1,6 @@
 import type { ControllerRenderProps } from "react-hook-form";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@craftgen/ui/input";
 
 export const renderField = (type: string, field: ControllerRenderProps) => {
   switch (type) {

@@ -3,15 +3,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem } from "@/components/ui/form";
+import { Button } from "@craftgen/ui/button";
+import { Form, FormField, FormItem } from "@craftgen/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+} from "@craftgen/ui/popover";
+import { Textarea } from "@craftgen/ui/textarea";
+import { useToast } from "@craftgen/ui/use-toast";
 
 import { sendFeedback } from "../actions";
 

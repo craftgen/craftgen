@@ -2,7 +2,7 @@ import { useSelector } from "@xstate/react";
 
 import type { NumberControl } from "@seocraft/core/src/controls/number";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@craftgen/ui/input";
 import { useStep } from "./shared/useStep";
 
 export const NumberControlComponent = (props: { data: NumberControl }) => {

@@ -12,7 +12,7 @@ import type { NodeTypes } from "@seocraft/core/src/types";
 import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
 import { Icons } from "@/components/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/avatar";
 import { api } from "@/trpc/react";
 import * as FlexLayout from "flexlayout-react";
 

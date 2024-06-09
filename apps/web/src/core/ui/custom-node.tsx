@@ -23,15 +23,15 @@ import {
 } from "@seocraft/core/src/plugins/reactPlugin";
 import type { Schemes } from "@seocraft/core/src/types";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@craftgen/ui/badge";
+import { Button } from "@craftgen/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@craftgen/ui/card";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -43,9 +43,9 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+} from "@craftgen/ui/context-menu";
+import { Input } from "@craftgen/ui/input";
+import { Separator } from "@craftgen/ui/separator";
 import { cn } from "@/lib/utils";
 
 import type { ReteStoreInstance } from "../store";
@@ -60,13 +60,13 @@ import JsonView from "react18-json-view";
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@craftgen/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@craftgen/ui/tooltip";
 import { AnyActorRef } from "xstate";
 
 const { RefSocket, RefControl } = Presets.classic;

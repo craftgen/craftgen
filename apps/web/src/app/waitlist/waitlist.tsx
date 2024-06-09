@@ -10,25 +10,25 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Confettis } from "@/components/confetti";
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@craftgen/ui/dialog";
 import {
   Form,
   FormDescription,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@craftgen/ui/form";
+import { Input } from "@craftgen/ui/input";
 
 import { addToWaitlist } from "../action";
-import NumberTicker from "@/components/ui/number-ticket";
+import NumberTicker from "@craftgen/ui/number-ticket";
 
 const formSchema = z.object({
   email: z.string().email(),

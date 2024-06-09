@@ -5,19 +5,19 @@ import { CheckIcon } from "lucide-react";
 
 import { SecretController } from "@seocraft/core/src/controls/secret";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from "@craftgen/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@craftgen/ui/popover";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { ChangeFormat } from "./shared/change-format";

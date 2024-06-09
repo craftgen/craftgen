@@ -9,10 +9,10 @@ import { useCopyToClipboard } from "react-use";
 
 import type { RouterOutputs } from "@seocraft/api";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@craftgen/ui/badge";
+import { Button } from "@craftgen/ui/button";
+import { Separator } from "@craftgen/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@craftgen/ui/tabs";
 
 interface ModuleHeaderProps {
   workflow: RouterOutputs["craft"]["module"]["meta"];

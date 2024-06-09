@@ -10,15 +10,15 @@ import { z } from "zod";
 import type { Database } from "@seocraft/supabase/db/database.types";
 
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@craftgen/ui/button";
+import { Checkbox } from "@craftgen/ui/checkbox";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+} from "@craftgen/ui/form";
 import { BASE_URL } from "@/lib/constants";
 
 import { getGoogleScopes } from "../../actions";

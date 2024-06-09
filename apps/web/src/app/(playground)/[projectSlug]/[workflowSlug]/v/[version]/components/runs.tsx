@@ -1,8 +1,8 @@
 import { Icons } from "@/components/icons";
 import { JSONView } from "@/components/json-view";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@craftgen/ui/badge";
+import { Button } from "@craftgen/ui/button";
+import { Label } from "@craftgen/ui/label";
 import { useCraftStore } from "@/core/use-store";
 import { cn } from "@/lib/utils";
 import { NodeProps } from "@seocraft/core/src/types";

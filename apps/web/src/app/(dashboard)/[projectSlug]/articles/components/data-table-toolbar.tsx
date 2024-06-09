@@ -3,8 +3,8 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
 import type { Table } from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@craftgen/ui/button";
+import { Input } from "@craftgen/ui/input";
 
 import { useProject } from "../../hooks/use-project";
 import { priorities, statuses } from "../data/data";

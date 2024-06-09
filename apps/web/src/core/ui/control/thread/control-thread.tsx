@@ -6,8 +6,8 @@ import {
 } from "@seocraft/core/src/controls/thread.control";
 import { ThreadMachineEvents } from "@seocraft/core/src/nodes/thread";
 
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@craftgen/ui/button";
+import { ScrollArea } from "@craftgen/ui/scroll-area";
 
 import { InputSection } from "./input-section";
 import { Content } from "./shared";

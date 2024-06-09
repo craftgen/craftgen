@@ -1,5 +1,5 @@
 import { JSONView } from "@/components/json-view";
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import { api } from "@/trpc/server";
 import { RouterOutputs } from "@seocraft/api";
 import _ from "lodash";

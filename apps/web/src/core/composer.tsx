@@ -21,12 +21,12 @@ import { createPortal } from "react-dom";
 import { useRegistry, useRete } from "@seocraft/core/src/plugins/reactPlugin";
 import type { WorkflowAPI } from "@seocraft/core/src/types";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@craftgen/ui/tooltip";
 import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/shared";
 

@@ -1,7 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@craftgen/ui/badge";
 import { api } from "@/trpc/server";
 
 interface Props {

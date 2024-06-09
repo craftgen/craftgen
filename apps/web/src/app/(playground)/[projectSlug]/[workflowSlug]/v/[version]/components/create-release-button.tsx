@@ -7,8 +7,8 @@ import { RocketIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@craftgen/ui/badge";
+import { Button } from "@craftgen/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+} from "@craftgen/ui/dialog";
+import { Form, FormField, FormItem, FormLabel } from "@craftgen/ui/form";
+import { Textarea } from "@craftgen/ui/textarea";
 import { api } from "@/trpc/react";
 
 const schema = z.object({

@@ -14,8 +14,8 @@ import {
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/avatar";
+import { Button } from "@craftgen/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -24,7 +24,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "@craftgen/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -33,12 +33,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@craftgen/ui/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@craftgen/ui/popover";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 

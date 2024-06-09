@@ -5,19 +5,19 @@ import { CheckIcon } from "lucide-react";
 
 import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from "@craftgen/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@craftgen/ui/popover";
 import { cn } from "@/lib/utils";
 
 export function ComboboxControlComponent(props: { data: ComboboxControl }) {

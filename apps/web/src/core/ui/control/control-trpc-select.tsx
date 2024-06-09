@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@craftgen/ui/select";
 import { api } from "@/trpc/react";
 
 export function TrpcSelectControlComponent<T extends string, Data>(props: {

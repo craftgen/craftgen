@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { GeistMono, GeistSans } from "geist/font";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@craftgen/ui/sonner";
 
 import { TRPCReactProvider } from "@/trpc/react";
 

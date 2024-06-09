@@ -5,7 +5,7 @@ import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/pres
 import { useSocketConfig, type Socket } from "@seocraft/core/src/sockets";
 import type { Schemes } from "@seocraft/core/src/types";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@craftgen/ui/badge";
 import { cn } from "@/lib/utils";
 import { Input, Output } from "@seocraft/core/src/input-output";
 import { useSelector } from "@xstate/react";

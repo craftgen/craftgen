@@ -7,7 +7,7 @@ import type { ContextFrom } from "xstate";
 // import { ajvResolver } from "@hookform/resolvers/ajv";
 import type { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@craftgen/ui/button";
 import {
   Form,
   FormControl,
@@ -16,7 +16,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@craftgen/ui/form";
 import { renderField } from "@/core/control-utils";
 import type { RouterOutputs } from "@/trpc/shared";
 import { JSONSchema } from "openai/lib/jsonschema";

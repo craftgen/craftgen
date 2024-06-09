@@ -1,13 +1,17 @@
 {
-  "name": "@craftgen/tailwind-config",
+  "name": "@acme/tailwind-config",
   "version": "0.1.0",
   "private": true,
   "main": "index.ts",
-  "license": "MIT",
+  "type": "module",
   "files": [
     "index.ts",
     "postcss.js"
   ],
+  "exports": {
+    "./native": "./native.ts",
+    "./web": "./web.ts"
+  },
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
@@ -16,19 +20,19 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.16",
-    "postcss": "8.4.31",
-    "tailwindcss": "3.3.3",
-    "tailwindcss-animate": "^1.0.6",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-animate": "^1.0.7",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "^0.5.10"
   },
   "devDependencies": {
-    "@acme/eslint-config": "^0.2.0",
-    "@acme/prettier-config": "^0.1.0",
-    "@acme/tsconfig": "^0.1.0",
+    "@acme/eslint-config": "*",
+    "@acme/prettier-config": "*",
+    "@acme/tsconfig": "*",
     "eslint": "^8.52.0",
     "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   },
   "eslintConfig": {
     "root": true,

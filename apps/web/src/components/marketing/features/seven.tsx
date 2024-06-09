@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Marquee from "@/components/ui/marquee";
+import Marquee from "@craftgen/ui/marquee";
 import { motion, useAnimation, useInView } from "framer-motion";
 import {
   BarChart,

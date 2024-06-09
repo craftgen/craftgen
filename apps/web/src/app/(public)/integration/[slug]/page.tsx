@@ -6,7 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@craftgen/ui/breadcrumb";
 import { api } from "@/trpc/server";
 import { db } from "@seocraft/supabase/db";
 

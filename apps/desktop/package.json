@@ -33,10 +33,10 @@
     "superjson": "1.13.1"
   },
   "devDependencies": {
-    "@acme/eslint-config": "^0.2.0",
-    "@acme/prettier-config": "^0.1.0",
-    "@acme/tsconfig": "^0.1.0",
-    "@craftgen/tailwind-config": "^0.1.0",
+    "@acme/eslint-config": "*",
+    "@acme/prettier-config": "*",
+    "@acme/tsconfig": "*",
+    "@acme/tailwind-config": "*",
     "@tauri-apps/cli": ">=2.0.0-beta.0",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",
@@ -44,7 +44,7 @@
     "autoprefixer": "^10.4.19",
     "postcss": "8.4.31",
     "tailwindcss": "3.3.3",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.5",
     "vite": "^5.0.0"
   },
   "prettier": "@acme/prettier-config"

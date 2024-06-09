@@ -37,6 +37,6 @@
     "dotenv-cli": "^7.2.1",
     "drizzle-kit": "^0.20.14",
     "tsx": "^3.12.7",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   }
 }

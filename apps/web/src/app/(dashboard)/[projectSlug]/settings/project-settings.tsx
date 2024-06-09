@@ -16,8 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@craftgen/ui/alert-dialog";
+import { Button } from "@craftgen/ui/button";
 import {
   Form,
   FormControl,
@@ -26,10 +26,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@craftgen/ui/form";
+import { Input } from "@craftgen/ui/input";
+import { Label } from "@craftgen/ui/label";
+import { Separator } from "@craftgen/ui/separator";
 
 import { deleteProject, updateProject } from "../actions";
 import { useProject } from "../hooks/use-project";
