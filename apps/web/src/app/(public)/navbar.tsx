@@ -64,6 +64,12 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
         >
           Integrations
         </Link>
+        <Link
+          href="/careers"
+          className=" flex items-center text-lg font-semibold leading-6"
+        >
+          Careers
+        </Link>
         {/* <SessionButton onClick={() => setOpen(false)} session={session} /> */}
       </DialogContent>
     </Dialog>
@@ -77,7 +83,7 @@ export const NavBar = ({ session }: { session: Session | null }) => {
         className="sticky top-0 z-50 mx-auto  w-full bg-background/80 px-6 py-4 backdrop-blur-sm lg:px-8 "
         aria-label="Global"
       >
-        <div className="flex max-w-[90rem]  items-center justify-between  mx-auto">
+        <div className="mx-auto flex  max-w-[90rem] items-center  justify-between">
           <div className="flex flex-row items-center  lg:flex-1">
             <Link href="/" className="-m-1.5 mr-4 p-1.5">
               <span className="sr-only">Craftgen</span>
@@ -105,12 +111,6 @@ export const NavBar = ({ session }: { session: Session | null }) => {
             >
               Docs
             </Link>
-            {/* <Link
-            href="/features"
-            className=" flex items-center text-lg font-semibold leading-6"
-          >
-            Features
-          </Link> */}
             <Link
               href="/integrations"
               className=" flex items-center text-lg font-semibold leading-6"
@@ -124,6 +124,12 @@ export const NavBar = ({ session }: { session: Session | null }) => {
             >
               Roadmap
               <ExternalLinkIcon className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/careers"
+              className=" flex items-center text-lg font-semibold leading-6"
+            >
+              Careers
             </Link>
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
