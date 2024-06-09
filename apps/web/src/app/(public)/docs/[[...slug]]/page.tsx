@@ -5,11 +5,7 @@ import { notFound } from "next/navigation";
 import { ExternalLinkIcon } from "lucide-react";
 import { Cards } from "fumadocs-ui/components/card";
 
-export default async function Page({
-  params,
-}: {
-  params: { slug?: string[] };
-}) {
+export default function Page({ params }: { params: { slug?: string[] } }) {
   const page = getPage(params.slug);
 
   if (page == null) {
@@ -93,7 +89,7 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
 
   const image = {
     alt: "Banner",
-    url: `/api/og/${params.slug[0]}?${imageParams.toString()}`,
+    url: `/api/og/craftgen?${imageParams.toString()}`,
     width: 1200,
     height: 630,
   };
