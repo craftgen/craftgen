@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function CareersPage() {
   return (
-    <div className="container prose prose-invert relative m-auto mb-20 min-h-screen max-w-4xl p-4 pt-32 ">
+    <div className="container prose relative m-auto mb-20 min-h-screen max-w-4xl p-4 pt-32 ">
       <div
         className="bloom subtle egg-bloom-two -top-60 right-[-400px]"
         style={{ transform: "scale(2)" }}
@@ -21,7 +21,7 @@ export default function CareersPage() {
         Craft the future of AI Agents.
       </h1>
       <div className="animation-delay-1 z-30 flex flex-col items-center">
-        <p className="text-gray-350 z-40 text-center text-lg">
+        <p className="text-muted-foreground z-40 text-center text-lg">
           CraftGen is revolutionizing the way we interact with AI, creating an
           open ecosystem that empowers users to build custom AI solutions that
           streamline workflows, automate tasks, and unlock new levels of
@@ -32,7 +32,7 @@ export default function CareersPage() {
             See Open Positions
           </Button>
         </Link>
-        <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
+        <hr className="border-1 my-24 w-full dark:border-gray-200 border-gray-900 opacity-10" />
         <h2 className="mb-0 px-2 text-center text-4xl font-black leading-tight">
           Our Values
         </h2>
@@ -52,11 +52,11 @@ export default function CareersPage() {
               <h3 className="mb-1 mt-4 text-2xl font-bold leading-snug">
                 {value.title}
               </h3>
-              <p className="text-gray-350 mb-0 mt-1">{value.desc}</p>
+              <p className="text-muted-foreground mb-0 mt-1">{value.desc}</p>
             </div>
           ))}
         </div>
-        <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
+        <hr className="border-1 my-24 w-full dark:border-gray-200 border-gray-900 opacity-10" />
         <h2 className="mb-0 px-2 text-center text-4xl font-black leading-tight ">
           Perks and Benefits
         </h2>
@@ -83,7 +83,7 @@ export default function CareersPage() {
             </div>
           ))}
         </div>
-        <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
+        <hr className="border-1 my-24 w-full dark:border-gray-200 border-gray-900 opacity-10" />
         <h2
           id="open-positions"
           className="mb-0 px-2 text-center text-4xl font-black leading-tight "
@@ -91,7 +91,7 @@ export default function CareersPage() {
           Open Positions
         </h2>
         {positions.length === 0 ? (
-          <p className="text-gray-350 mt-2 text-center">
+          <p className="text-muted-foreground mt-2 text-center">
             There are no positions open at this time. Please check back later!
           </p>
         ) : (
@@ -118,14 +118,14 @@ export default function CareersPage() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-gray-350 mb-0 mt-3">{value.description}</p>
+                  <p className="text-muted-foreground mb-0 mt-3">{value.description}</p>
                 </div>
               ))}
             </div>
           </>
         )}
 
-        <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
+        <hr className="border-1 my-24 w-full dark:border-gray-200 border-gray-900 opacity-10" />
         <h2 className="mb-0 px-2 text-center text-3xl font-black ">
           How to apply?
         </h2>
@@ -134,7 +134,7 @@ export default function CareersPage() {
           <strong>careers at craftgen dot ai</strong> and we'll get back to you
           shortly!
         </p>
-        <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
+        <hr className="border-1 my-24 w-full dark:border-gray-200 border-gray-900 opacity-10" />
         <h2 className="mb-0 px-2 text-center text-3xl font-black ">
           How to Stand Out?
         </h2>
