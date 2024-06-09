@@ -126,13 +126,13 @@ export const craftModuleRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         let canAccess = false;
-        if (ctx.session?.user) {
+        if (ctx.session?.user.id) {
           // check if user member of project
-          const member = await ctx.db.query.projectMembers.findFirst({
+          const member = await tx.query.projectMembers.findFirst({
             where: (projectMember, { eq, and }) =>
               and(
                 eq(projectMember.projectId, input.projectId),
-                eq(projectMember.userId, ctx.session?.user?.id!),
+                eq(projectMember.userId, ctx.session?.user?.id),
               ),
           });
           if (member) {
@@ -141,7 +141,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
         let workflows = [];
         if (canAccess) {
-          workflows = await ctx.db.query.workflow.findMany({
+          workflows = await tx.query.workflow.findMany({
             where: (workflow, { eq, and }) =>
               and(eq(workflow.projectId, input.projectId)),
             with: {
@@ -159,7 +159,7 @@ export const craftModuleRouter = createTRPCRouter({
             },
           });
         } else {
-          workflows = await ctx.db.query.workflow.findMany({
+          workflows = await tx.query.workflow.findMany({
             where: (workflow, { eq, and }) =>
               and(
                 eq(workflow.projectId, input.projectId),
@@ -186,89 +186,6 @@ export const craftModuleRouter = createTRPCRouter({
           version: w.versions[0]!,
         }));
       });
-    }),
-  io: protectedProcedure
-    .input(
-      z.object({
-        workflowSlug: z.string(),
-        projectSlug: z.string(),
-        version: z.number(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const workflow = await ctx.db.query.workflow.findFirst({
-        where: (workflow, { eq, and }) =>
-          and(
-            eq(workflow.slug, input.workflowSlug),
-            eq(workflow.projectSlug, input.projectSlug),
-          ),
-        with: {
-          versions: {
-            where: (workflowVersion, { eq }) =>
-              eq(workflowVersion.version, input.version),
-            with: {
-              nodes: {
-                with: {
-                  context: {
-                    columns: {
-                      state: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-      const version = workflow?.versions[0];
-      if (!version) {
-        throw new Error("Version not found");
-      }
-      const contentNodes = _.chain(version.nodes)
-        .map((node) => ({
-          context: node.context,
-        }))
-        .map((node) => node.context.state.context);
-
-      const outputs = contentNodes
-        .map((context) => Object.values(context.outputSockets))
-        .flatten()
-        .filter((socket) => _.get(socket, ["x-showSocket"], false))
-        .filter(
-          (socket) =>
-            Object.entries(_.get(socket, "x-connection", {})).length === 0,
-        )
-        .reduce((acc, socket) => {
-          const key = _.get(socket, ["x-key"]);
-          return {
-            ...acc,
-            [key]: socket,
-          };
-        }, {})
-        .value();
-
-      const inputs = contentNodes
-        .map((context) => Object.values(context.inputSockets))
-        .flatten()
-        .filter((socket) => _.get(socket, ["x-showSocket"], false))
-        .filter(
-          (socket) =>
-            Object.entries(_.get(socket, "x-connection", {})).length === 0,
-        )
-        .reduce((acc, socket) => {
-          const key = _.get(socket, ["x-key"]);
-          return {
-            ...acc,
-            [key]: socket,
-          };
-        }, {})
-        .value();
-
-      return {
-        ...workflow,
-        inputs,
-        outputs,
-      };
     }),
   meta: publicProcedure
     .input(
