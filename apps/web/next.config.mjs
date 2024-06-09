@@ -1,9 +1,11 @@
 import createMDX from "fumadocs-mdx/config";
+import { remarkImage } from "fumadocs-core/mdx-plugins";
 
 const withMDX = createMDX({
   cwd: "./src",
   mdxOptions: {
     lastModifiedTime: "git",
+    remarkPlugins: [remarkImage],
   },
 });
 
