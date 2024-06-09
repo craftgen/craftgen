@@ -1,9 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
-
-
 use tauri_plugin_autostart::MacosLauncher;
 
 mod cmd;
@@ -12,7 +9,6 @@ mod setup;
 mod tray;
 use clap::Parser;
 use log::debug;
-
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -34,7 +30,10 @@ fn main() {
     debug!("init");
 
     tauri::Builder::default()
-        .manage(AppState { sidecar_handle: None })
+        .plugin(tauri_plugin_fs::init())
+        .manage(AppState {
+            sidecar_handle: None,
+        })
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(

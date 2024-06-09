@@ -49,6 +49,7 @@
     "shell:allow-open",
     "autostart:default",
     "notification:default",
-    "store:default"
+    "store:default",
+    "fs:default"
   ]
 }

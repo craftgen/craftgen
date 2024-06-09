@@ -1,10 +1,10 @@
 use crate::cmd::open_main_window;
 use crate::tray::EXIT_FLAG;
-use tauri::Manager;
 use crate::AppState;
+use tauri::Manager;
 
 #[cfg(target_os = "macos")]
-use crate::{dock, cmd};
+use crate::{cmd, dock};
 
 pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
     log::trace!("Run event: {:?}", event);
@@ -12,13 +12,13 @@ pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
         tauri::RunEvent::Ready { .. } => {
             println!("[Event] Ready");
             // let app_state = app_handle.state::<AppState>();
-            
+
             // tauri::async_runtime::spawn(async move {
             //     let handle = cmd::start_edge_runtime(app_handle.clone()).await.expect("Failed to start sidecar");
-                
+
             //     // *app_state.sidecar_handle.lock().unwrap() = Some(handle);
             //     // // Close the app handle after storing the sidecar handle
-            //     // app_handle.close().unwrap();  
+            //     // app_handle.close().unwrap();
             // });
         }
 

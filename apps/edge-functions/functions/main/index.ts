@@ -62,7 +62,14 @@ Deno.serve(async (req: Request) => {
   // const servicePath = `/home/deno/functions/${service_name}`;
   console.error(`serving the request with ${servicePath}`);
 
-  const createWorker = async () => {
+  // console.log(`Current Directory: ${Deno.cwd()}`);
+  // console.log(
+  //   `Current Directory: ${JSON.stringify(
+  //     // Deno.readDirSync("/Users/necmttn/Projects/craftgen/apps/web/src/content"),
+  //   )}`,
+  // );
+
+  const createWorker = async (params: { moduleCode?: string }) => {
     const memoryLimitMb = 150;
     const workerTimeoutMs = 5 * 60 * 1000;
     const noModuleCache = false;
@@ -79,7 +86,7 @@ Deno.serve(async (req: Request) => {
     const importMapPath = null;
     const envVarsObj = Deno.env.toObject();
     const envVars = Object.keys(envVarsObj).map((k) => [k, envVarsObj[k]]);
-    const forceCreate = false;
+    const forceCreate = true;
     const netAccessDisabled = false;
 
     // load source from an eszip
@@ -98,7 +105,8 @@ Deno.serve(async (req: Request) => {
       })
       console.log(response.message.content)
 
-      Deno.serve((req) => new Response(response.message.content));`;
+      Deno.serve((req) => new Response(response.message.content));
+      `;
     //
     const cpuTimeSoftLimitMs = 10000;
     const cpuTimeHardLimitMs = 20000;
@@ -116,7 +124,7 @@ Deno.serve(async (req: Request) => {
       cpuTimeHardLimitMs,
       // maybeEszip,
       // maybeEntrypoint,
-      maybeModuleCode,
+      maybeModuleCode: params.moduleCode,
     });
   };
 
@@ -125,7 +133,9 @@ Deno.serve(async (req: Request) => {
       // If a worker for the given service path already exists,
       // it will be reused by default.
       // Update forceCreate option in createWorker to force create a new worker for each request.
-      const worker = await createWorker();
+
+      const body =  await req.json();
+      const worker = await createWorker({ moduleCode: body.moduleCode });
       const controller = new AbortController();
 
       const signal = controller.signal;
@@ -161,6 +171,5 @@ Deno.serve(async (req: Request) => {
       });
     }
   };
-
   return callWorker();
 });
