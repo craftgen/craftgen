@@ -3,10 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { perks, positions, values } from "./data";
 import { Clock, DollarSign } from "lucide-react";
+import Link from "next/link";
 
 export const metadata = {
-  title: "Careers - Spacedrive",
-  description: "Work with us to build the future of file management.",
+  title: "Careers - CraftGen",
+  description: "Work with us to craft the future of AI Agents.",
 };
 
 export default function CareersPage() {
@@ -16,23 +17,21 @@ export default function CareersPage() {
         className="bloom subtle egg-bloom-two -top-60 right-[-400px]"
         style={{ transform: "scale(2)" }}
       />
-      <h1 className="fade-in-heading mb-3 px-2 text-center text-4xl font-black leading-tight  md:text-5xl">
+      <h1 className="mb-3 px-2 text-center text-4xl font-black leading-tight md:text-5xl animate-in fade-in duration-300 slide-in-from-bottom-10">
         Craft the future of AI Agents.
       </h1>
-      <div className="animation-delay-1 z-30 flex flex-col items-center fade-in">
+      <div className="animation-delay-1 z-30 flex flex-col items-center">
         <p className="text-gray-350 z-40 text-center text-lg">
           CraftGen is revolutionizing the way we interact with AI, creating an
           open ecosystem that empowers users to build custom AI solutions that
           streamline workflows, automate tasks, and unlock new levels of
           efficiency and creativity.
         </p>
-        <Button
-          href="#open-positions"
-          className="z-30 cursor-pointer border-0"
-          variant="secondary"
-        >
-          See Open Positions
-        </Button>
+        <Link href="#open-positions">
+          <Button className="z-30 cursor-pointer border-0" variant="secondary">
+            See Open Positions
+          </Button>
+        </Link>
         <hr className="border-1 my-24 w-full border-gray-200 opacity-10" />
         <h2 className="mb-0 px-2 text-center text-4xl font-black leading-tight">
           Our Values
@@ -139,7 +138,7 @@ export default function CareersPage() {
         <h2 className="mb-0 px-2 text-center text-3xl font-black ">
           How to Stand Out?
         </h2>
-        <p className="mt-2">
+        <p className="mt-2 text-center">
           While there are no open positions currently, skilled individuals can
           stand out by contributing to our open-source project and engaging with
           the Craftgen community through discord.
