@@ -4,10 +4,6 @@ import { api } from "@/trpc/server";
 import { Editor } from "@seocraft/core";
 import { nodes } from "@seocraft/core/src/types";
 
-// export const runtime = "edge";
-
-console.log("RUNNING HONO");
-
 const app = new Hono().basePath("/:project/:workflow/v/:version/api");
 
 app.get("/schema", async (c) => {
@@ -35,7 +31,7 @@ app.get("/schema", async (c) => {
     },
   };
 
-  console.log("API", api)
+  console.log("API", api);
 
   const di = new Editor({
     config: {
