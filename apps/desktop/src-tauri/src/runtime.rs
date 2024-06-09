@@ -1,13 +1,12 @@
 use crate::cmd::open_main_window;
 use crate::tray::EXIT_FLAG;
-use crate::AppState;
 use tauri::Manager;
 
 #[cfg(target_os = "macos")]
-use crate::{cmd, dock};
+use crate::dock;
 
 pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
-    log::trace!("Run event: {:?}", event);
+    // log::trace!("Run event: {:?}", event);
     match event {
         tauri::RunEvent::Ready { .. } => {
             println!("[Event] Ready");

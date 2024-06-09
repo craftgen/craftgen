@@ -126,13 +126,14 @@ export const craftModuleRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         let canAccess = false;
+
         if (ctx.session?.user.id) {
           // check if user member of project
           const member = await tx.query.projectMembers.findFirst({
             where: (projectMember, { eq, and }) =>
               and(
                 eq(projectMember.projectId, input.projectId),
-                eq(projectMember.userId, ctx.session?.user?.id),
+                eq(projectMember.userId, ctx.session?.user?.id!),
               ),
           });
           if (member) {
@@ -213,7 +214,7 @@ export const craftModuleRouter = createTRPCRouter({
           message: "Workflow not found",
         });
       }
-      if (!workflow.public && !ctx.session.user) {
+      if (!workflow.public && !ctx.session?.user) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "You need to be logged in to access this workflow.",
@@ -239,7 +240,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
       }
 
-      if (!workflow.public && ctx.session.user) {
+      if (!workflow.public && ctx.session?.user) {
         // check if user is a member of the project
         const [isMember] = await ctx.db
           .select()
@@ -407,7 +408,7 @@ export const craftModuleRouter = createTRPCRouter({
         }
 
         const workflow = await tx.query.workflow.findFirst({
-          where: (workflow, { eq, and }) => eq(workflow.id, w.id),
+          where: (workflow, { eq }) => eq(workflow.id, w.id),
           with: {
             project: true,
             versions: {

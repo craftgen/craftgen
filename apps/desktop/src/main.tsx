@@ -7,6 +7,7 @@ import { AuthSession } from "@supabase/supabase-js";
 // Import the generated route tree
 import { router } from "./router";
 import { supabase } from "./libs/supabase";
+import { attachConsole } from "@tauri-apps/plugin-log";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -27,6 +28,12 @@ const InnerApp = () => {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+  }, []);
+  useEffect(() => {
+    (async () => {
+      const detach = await attachConsole();
+      return detach;
+    })();
   }, []);
 
   return <RouterProvider router={router} context={{ auth: session }} />;
