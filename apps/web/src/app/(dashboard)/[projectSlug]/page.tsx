@@ -1,16 +1,38 @@
 import { api } from "@/trpc/server";
-import { getAnalytics } from "./actions";
-import { Metrics } from "./metrics";
+// import { getAnalytics } from "./actions";
+// import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
-import { ProjectNavbar } from "./project-navbar";
+// import { ProjectNavbar } from "./project-navbar";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { db } from "@seocraft/supabase/db";
-import { Onboarding } from "@/components/onboarding";
+import { Metadata, ResolvingMetadata } from "next";
+// import { Onboarding } from "@/components/onboarding";
 
 export const dynamicParams = true;
 export const revalidate = 300;
+
+interface Props {
+  params: {
+    projectSlug: string;
+  };
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const project = await api.project.bySlug({
+    projectSlug: params.projectSlug,
+  });
+
+  return {
+    title: `AI Agents by ${project?.name}`,
+    // description: `${project?.name}`,
+  };
+}
 
 export async function generateStaticParams() {
   const projects = await db.query.project.findMany({

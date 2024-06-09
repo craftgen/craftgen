@@ -29,6 +29,7 @@ export async function generateMetadata(
 
   return {
     title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
+    description: workflowMeta?.description,
   };
 }
 

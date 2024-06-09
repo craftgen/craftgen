@@ -50,6 +50,7 @@
     "autostart:default",
     "notification:default",
     "store:default",
-    "fs:default"
+    "fs:default",
+    "log:default"
   ]
 }
