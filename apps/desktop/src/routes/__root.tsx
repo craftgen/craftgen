@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthSession } from "@supabase/supabase-js";
-import { supabase } from "../libs/supabase";
 
 interface MyRouterContext {
   // The ReturnType of your useAuth hook or the value of your AuthContext
@@ -40,12 +39,3 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   ),
 });
 
-const UserNav: React.FC<{ session: AuthSession }> = ({ session }) => {
-  return (
-    <div>
-      <Link to="/profile">Profile</Link>
-      <Link to="/billing">Billing</Link>
-      <Link to="/logout">Logout</Link>
-    </div>
-  );
-};

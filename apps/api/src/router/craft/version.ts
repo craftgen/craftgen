@@ -1,7 +1,7 @@
 import _ from "lodash-es";
 import { z } from "zod";
 
-import { and, desc, eq, schema, alias } from "@seocraft/supabase/db";
+import {  and, desc, eq, schema } from "@seocraft/supabase/db";
 
 import {
   createTRPCRouter,
@@ -187,7 +187,7 @@ export const craftVersionRouter = createTRPCRouter({
                 if (!_.isNil(context.parent_id)) {
                   const parent = contextsWithChildren.get(context.parent_id);
                   if (context.parent_id !== parent.id) {
-                    changes["parent_id"] = parent.id;
+                    changes.parent_id = parent.id;
                   }
                   if (_.get(changes.state, "context.parent.id")) {
                     _.set(changes.state, "context.parent.id", parent.id);
@@ -312,7 +312,7 @@ export const craftVersionRouter = createTRPCRouter({
                   .where(eq(schema.context.id, context.id));
               }
 
-              let nodeContextId = contextsWithChildren.get(contextState.id).id;
+              const nodeContextId = contextsWithChildren.get(contextState.id).id;
 
               const [cloneNode] = await tx
                 .insert(schema.workflowNode)

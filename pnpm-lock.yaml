@@ -408,6 +408,15 @@ importers:
         specifier: 1.13.1
         version: 1.13.1
     devDependencies:
+      '@acme/eslint-config':
+        specifier: ^0.2.0
+        version: link:../../tooling/eslint
+      '@acme/prettier-config':
+        specifier: ^0.1.0
+        version: link:../../tooling/prettier
+      '@acme/tsconfig':
+        specifier: ^0.1.0
+        version: link:../../tooling/typescript
       '@craftgen/tailwind-config':
         specifier: ^0.1.0
         version: link:../../tooling/tailwind

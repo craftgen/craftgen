@@ -1,10 +1,12 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { stripe } from "../../stripe";
 import { TRPCError } from "@trpc/server";
-import { eq, schema } from "@seocraft/supabase/db";
 import { match } from "ts-pattern";
+import { z } from "zod";
+
+import { eq, schema } from "@seocraft/supabase/db";
+
 import { BASE_URL } from "../../constants";
+import { stripe } from "../../stripe";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
 export const stripeConnectRouter = createTRPCRouter({
   get: protectedProcedure

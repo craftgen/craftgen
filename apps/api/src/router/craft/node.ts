@@ -1,5 +1,6 @@
-import { z } from "zod";
 import { get } from "lodash-es";
+import { z } from "zod";
+
 import { and, eq, inArray, or, schema, sql } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
@@ -119,10 +120,7 @@ export const craftNodeRouter = createTRPCRouter({
                 ),
                 or(
                   eq(schema.workflowExecution.entryContextId, input.data.id),
-                  eq(
-                    schema.workflowExecution.currentContextId,
-                    input.data.id,
-                  ),
+                  eq(schema.workflowExecution.currentContextId, input.data.id),
                 ),
               ),
             );

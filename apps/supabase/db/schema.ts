@@ -469,7 +469,7 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
 
 export const workflowNodeRelations = relations(
   workflowNode,
-  ({ one, many }) => ({
+  ({ one}) => ({
     context: one(context, {
       // the parent Actor for controls the node itself.
       fields: [workflowNode.contextId],
@@ -490,7 +490,7 @@ export const workflowNodeRelations = relations(
   }),
 );
 
-export const contextRelations = relations(context, ({ one, many }) => ({
+export const contextRelations = relations(context, ({ one }) => ({
   project: one(project, {
     fields: [context.project_id],
     references: [project.id],
@@ -509,7 +509,7 @@ export const contextRelations = relations(context, ({ one, many }) => ({
   }),
 }));
 
-export const projectRelations = relations(project, ({ many, one }) => ({
+export const projectRelations = relations(project, ({ many }) => ({
   nodes: many(context),
   workflows: many(workflow),
   members: many(projectMembers),
@@ -592,7 +592,7 @@ export const solutionTranslations = pgTable("solution_translations", {
   title: text("title"),
 });
 
-export const solutionRelations = relations(solution, ({ one, many }) => ({
+export const solutionRelations = relations(solution, ({ many }) => ({
   translations: many(solutionTranslations),
 }));
 
@@ -676,7 +676,7 @@ export const integrationCategories = pgTable("integration_categories", {
 
 export const integrationCategoriesRelations = relations(
   integrationCategories,
-  ({ one, many }) => ({
+  ({ many }) => ({
     translations: many(integrationCategoriesTranslations),
   }),
 );
@@ -724,7 +724,7 @@ export const integrationTranslations = pgTable("integration_translations", {
   description: text("description"),
 });
 
-export const integrationRelations = relations(integration, ({ one, many }) => ({
+export const integrationRelations = relations(integration, ({ many }) => ({
   translations: many(integrationTranslations),
   integrationIntegrationCategories: many(integrationIntegrationCategories),
 }));
