@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Paperclip } from "lucide-react";
 
-import { Button } from "@craftgen/ui/button";
-import { Textarea } from "@craftgen/ui/textarea";
+import { Button } from "@craftgen/ui/components/button";
+import { Textarea } from "@craftgen/ui/components/textarea";
 
 export const InputSection: React.FC<{
   handleAdd: (value: string) => void;

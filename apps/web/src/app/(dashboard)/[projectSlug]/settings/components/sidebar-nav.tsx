@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
-import { buttonVariants } from "@craftgen/ui/button";
+import { buttonVariants } from "@craftgen/ui/components/button";
 import { cn } from "@/lib/utils";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {

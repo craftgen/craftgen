@@ -4,14 +4,14 @@ import { CalendarIcon } from "lucide-react";
 
 import { DateControl } from "@seocraft/core/src/controls/date";
 
-import { Button } from "@craftgen/ui/button";
-import { Calendar } from "@craftgen/ui/calendar";
-import { Label } from "@craftgen/ui/label";
+import { Button } from "@craftgen/ui/components/button";
+import { Calendar } from "@craftgen/ui/components/calendar";
+import { Label } from "@craftgen/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@craftgen/ui/popover";
+} from "@craftgen/ui/components/popover";
 import { cn } from "@/lib/utils";
 
 export const DateControlComponent = (props: { data: DateControl }) => {

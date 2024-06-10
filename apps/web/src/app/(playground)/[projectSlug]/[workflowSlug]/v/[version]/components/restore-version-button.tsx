@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@craftgen/ui/button";
-import { useToast } from "@craftgen/ui/use-toast";
+import { Button } from "@craftgen/ui/components/button";
+import { useToast } from "@craftgen/ui/components/use-toast";
 
 export const RestoreVersionButton = ({}) => {
   const { toast } = useToast();

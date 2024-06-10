@@ -12,8 +12,8 @@ import {
 import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
 import { nodes } from "@seocraft/core/src/types";
 
-import { Badge } from "@craftgen/ui/badge";
-import { toast } from "@craftgen/ui/use-toast";
+import { Badge } from "@craftgen/ui/components/badge";
+import { toast } from "@craftgen/ui/components/use-toast";
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { getControl } from "./control";

@@ -3,7 +3,7 @@
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Row } from "@tanstack/react-table";
 
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@craftgen/ui/dropdown-menu";
+} from "@craftgen/ui/components/dropdown-menu";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

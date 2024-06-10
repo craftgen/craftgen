@@ -7,8 +7,8 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-} from "@craftgen/ui/toast";
-import { useToast } from "@craftgen/ui/use-toast";
+} from "@craftgen/ui/components/toast";
+import { useToast } from "@craftgen/ui/components/use-toast";
 
 export function Toaster() {
   const { toasts } = useToast();

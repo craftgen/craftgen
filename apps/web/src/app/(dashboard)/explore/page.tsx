@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { WorkflowList } from "@/components/template-list";
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 
 import { getFeaturedWorkflows } from "./actions";
 import { ProjectList } from "./project-list";

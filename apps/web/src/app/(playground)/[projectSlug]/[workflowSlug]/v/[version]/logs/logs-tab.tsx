@@ -11,12 +11,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@craftgen/ui/accordion";
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
-import { Label } from "@craftgen/ui/label";
-import { Separator } from "@craftgen/ui/separator";
-import { Switch } from "@craftgen/ui/switch";
+} from "@craftgen/ui/components/accordion";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
+import { Label } from "@craftgen/ui/components/label";
+import { Separator } from "@craftgen/ui/components/separator";
+import { Switch } from "@craftgen/ui/components/switch";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";

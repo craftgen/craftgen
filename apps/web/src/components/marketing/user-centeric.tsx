@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { AnimatedBeam } from "@craftgen/ui/animated-beam";
+import { AnimatedBeam } from "@craftgen/ui/components/animated-beam";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import React, { forwardRef, useRef } from "react";
 

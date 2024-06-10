@@ -4,7 +4,7 @@ import Link from "next/link";
 // import { SessionButton } from "./session-button";
 import { useState } from "react";
 import type { Session } from "@supabase/auth-helpers-nextjs";
-import { Dialog, DialogTrigger, DialogContent } from "@craftgen/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@craftgen/ui/components/dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { StarCount } from "@/components/marketing/github-star-count";
 import { ExternalLinkIcon } from "lucide-react";

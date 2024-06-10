@@ -14,8 +14,8 @@ import {
 } from "@seocraft/core/src/provider/config";
 
 import { Icon } from "@/components/icons";
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
 import {
   Card,
   CardContent,
@@ -23,20 +23,20 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@craftgen/ui/card";
+} from "@craftgen/ui/components/card";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@craftgen/ui/command";
+} from "@craftgen/ui/components/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@craftgen/ui/dropdown-menu";
+} from "@craftgen/ui/components/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -45,14 +45,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/form";
-import { Input } from "@craftgen/ui/input";
+} from "@craftgen/ui/components/form";
+import { Input } from "@craftgen/ui/components/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@craftgen/ui/popover";
-import { Separator } from "@craftgen/ui/separator";
+} from "@craftgen/ui/components/popover";
+import { Separator } from "@craftgen/ui/components/separator";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";

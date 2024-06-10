@@ -1,4 +1,4 @@
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 import {
   Form,
   FormControl,
@@ -7,8 +7,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/form";
-import { Input } from "@craftgen/ui/input";
+} from "@craftgen/ui/components/form";
+import { Input } from "@craftgen/ui/components/input";
 import type { JsCdnController } from "@seocraft/core/src/controls/js-cdn";
 import { useSelector } from "@xstate/react";
 import { X } from "lucide-react";

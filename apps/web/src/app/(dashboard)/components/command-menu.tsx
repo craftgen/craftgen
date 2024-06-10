@@ -11,7 +11,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@craftgen/ui/command";
+} from "@craftgen/ui/components/command";
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false);

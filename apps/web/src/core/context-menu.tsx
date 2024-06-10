@@ -5,7 +5,7 @@ import { useKBar, VisualState } from "kbar";
 import type { NodeTypes } from "@seocraft/core/src/types";
 
 import { Icons } from "@/components/icons";
-import { ContextMenu, ContextMenuTrigger } from "@craftgen/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@craftgen/ui/components/context-menu";
 
 import { useCraftStore } from "./use-store";
 

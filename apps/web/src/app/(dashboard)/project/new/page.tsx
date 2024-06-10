@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from "@craftgen/ui/card";
+import { Card, CardContent, CardHeader } from "@craftgen/ui/components/card";
 
 import { NewProjectForm } from "./new-project-form";
 

@@ -20,16 +20,16 @@ import {
 } from "@seocraft/core/src/sockets";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@craftgen/ui/button";
-import { Toggle } from "@craftgen/ui/toggle";
+import { Button } from "@craftgen/ui/components/button";
+import { Toggle } from "@craftgen/ui/components/toggle";
 
 import { ControlWrapper } from "@/core/ui/control-wrapper";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
-import { Label } from "@craftgen/ui/label";
+import { Label } from "@craftgen/ui/components/label";
 import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 import { SocketGenerator } from "./control-socket-generator";
 import { Divider } from "@tremor/react";
-import { Badge } from "@craftgen/ui/badge";
+import { Badge } from "@craftgen/ui/components/badge";
 
 import {
   DropdownMenu,
@@ -38,7 +38,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@craftgen/ui/dropdown-menu";
+} from "@craftgen/ui/components/dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { JSONView } from "@/components/json-view";
 

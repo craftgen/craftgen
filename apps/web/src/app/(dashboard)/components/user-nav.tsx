@@ -8,8 +8,8 @@ import { useTheme } from "next-themes";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/avatar";
-import { Button } from "@craftgen/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
+import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -24,7 +24,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@craftgen/ui/dropdown-menu";
+} from "@craftgen/ui/components/dropdown-menu";
 
 import { useUser } from "../hooks/use-user";
 import { usePostHog } from "posthog-js/react";

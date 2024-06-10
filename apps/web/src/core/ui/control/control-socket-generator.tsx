@@ -17,10 +17,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@craftgen/ui/accordion";
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
-import { Checkbox } from "@craftgen/ui/checkbox";
+} from "@craftgen/ui/components/accordion";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
+import { Checkbox } from "@craftgen/ui/components/checkbox";
 import {
   Form,
   FormControl,
@@ -30,17 +30,17 @@ import {
   FormLabel,
   FormMessage,
   useFormField,
-} from "@craftgen/ui/form";
-import { Input } from "@craftgen/ui/input";
-import { ScrollArea } from "@craftgen/ui/scroll-area";
+} from "@craftgen/ui/components/form";
+import { Input } from "@craftgen/ui/components/input";
+import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@craftgen/ui/select";
-import { Switch } from "@craftgen/ui/switch";
+} from "@craftgen/ui/components/select";
+import { Switch } from "@craftgen/ui/components/switch";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import _, { isEqual, pick, isNil, get, set } from "lodash";

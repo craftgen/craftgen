@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePostHog } from "posthog-js/react";
 import { BentoFeatures } from "@/components/marketing/bento-features";
 import { Waitlist } from "../waitlist/waitlist";
-import ShimmerButton from "@craftgen/ui/shimmer-button";
+import ShimmerButton from "@craftgen/ui/components/shimmer-button";
 import { UserCentric } from "@/components/marketing/user-centeric";
 import { FeatureCard1 } from "@/components/marketing/features/one";
 import { FeatureCard2 } from "@/components/marketing/features/two";

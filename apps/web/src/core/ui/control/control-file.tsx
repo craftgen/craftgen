@@ -2,8 +2,8 @@ import { useSelector } from "@xstate/react";
 
 import type { FileControl } from "@seocraft/core/src/controls/file";
 
-import { Input } from "@craftgen/ui/input";
-import { Label } from "@craftgen/ui/label";
+import { Input } from "@craftgen/ui/components/input";
+import { Label } from "@craftgen/ui/components/label";
 import { cn } from "@/lib/utils";
 
 export function FileControlComponent(props: { data: FileControl }) {

@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@craftgen/ui/select";
+} from "@craftgen/ui/components/select";
 import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import { inputSocketMachine } from "@seocraft/core/src/input-socket";
 import { useSelector } from "@xstate/react";

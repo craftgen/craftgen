@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@craftgen/ui/select";
+} from "@craftgen/ui/components/select";
 import { useMemo } from "react";
 
 export function SelectControlComponent(props: { data: SelectControl }) {

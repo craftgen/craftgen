@@ -2,8 +2,8 @@ import * as React from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import type { Column } from "@tanstack/react-table";
 
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -12,13 +12,13 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@craftgen/ui/command";
+} from "@craftgen/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@craftgen/ui/popover";
-import { Separator } from "@craftgen/ui/separator";
+} from "@craftgen/ui/components/popover";
+import { Separator } from "@craftgen/ui/components/separator";
 import { cn } from "@/lib/utils";
 
 interface DataTableFacetedFilter<TData, TValue> {

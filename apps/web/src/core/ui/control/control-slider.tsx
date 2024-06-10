@@ -3,7 +3,7 @@ import { useSelector } from "@xstate/react";
 
 import type { SliderControl } from "@seocraft/core/src/controls/slider";
 
-import { Slider } from "@craftgen/ui/slider";
+import { Slider } from "@craftgen/ui/components/slider";
 import { useStep } from "./shared/useStep";
 import { ControlContainer } from "../control-container";
 

@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 
 import { LoginForm } from "./login-form";
-import { Separator } from "@craftgen/ui/separator";
+import { Separator } from "@craftgen/ui/components/separator";
 import { Icon, Icons } from "@/components/icons";
-import Marquee from "@craftgen/ui/marquee";
+import Marquee from "@craftgen/ui/components/marquee";
 import {
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from "@craftgen/ui/card";
+} from "@craftgen/ui/components/card";
 import { Card } from "@tremor/react";
 import { useMemo } from "react";
 

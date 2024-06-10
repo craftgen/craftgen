@@ -8,9 +8,9 @@ import { useDebounce } from "react-use";
 import { mutate } from "swr";
 import { z } from "zod";
 
-import { Alert, AlertDescription, AlertTitle } from "@craftgen/ui/alert";
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@craftgen/ui/components/alert";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@craftgen/ui/dialog";
+} from "@craftgen/ui/components/dialog";
 import {
   Form,
   FormControl,
@@ -27,12 +27,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/form";
-import { Input } from "@craftgen/ui/input";
-import { ScrollArea } from "@craftgen/ui/scroll-area";
-import { Switch } from "@craftgen/ui/switch";
-import { Textarea } from "@craftgen/ui/textarea";
-import { useToast } from "@craftgen/ui/use-toast";
+} from "@craftgen/ui/components/form";
+import { Input } from "@craftgen/ui/components/input";
+import { ScrollArea } from "@craftgen/ui/components/scroll-area";
+import { Switch } from "@craftgen/ui/components/switch";
+import { Textarea } from "@craftgen/ui/components/textarea";
+import { useToast } from "@craftgen/ui/components/use-toast";
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
 

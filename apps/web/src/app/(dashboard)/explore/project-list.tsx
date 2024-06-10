@@ -3,8 +3,8 @@
 import Link from "next/link";
 import useSWR from "swr";
 
-import { Badge } from "@craftgen/ui/badge";
-import { Card, CardHeader } from "@craftgen/ui/card";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Card, CardHeader } from "@craftgen/ui/components/card";
 
 import { getUserProjects } from "./actions";
 

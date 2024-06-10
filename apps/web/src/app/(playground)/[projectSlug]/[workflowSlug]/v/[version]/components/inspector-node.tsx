@@ -1,11 +1,11 @@
 import { JSONView } from "@/components/json-view";
-import { Alert, AlertTitle, AlertDescription } from "@craftgen/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@craftgen/ui/tabs";
+import { Alert, AlertTitle, AlertDescription } from "@craftgen/ui/components/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
 import { NodeProps } from "@seocraft/core/src/types";
 import { useSelector } from "@xstate/react";
 import Markdown from "react-markdown";
-import { ScrollArea } from "@craftgen/ui/scroll-area";
-import { Separator } from "@craftgen/ui/separator";
+import { ScrollArea } from "@craftgen/ui/components/scroll-area";
+import { Separator } from "@craftgen/ui/components/separator";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Runs } from "./runs";
 import { AnyActor } from "xstate";

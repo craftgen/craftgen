@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@craftgen/ui/select";
+} from "@craftgen/ui/components/select";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@seocraft/api";
 

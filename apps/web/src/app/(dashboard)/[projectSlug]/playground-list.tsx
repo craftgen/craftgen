@@ -9,7 +9,7 @@ import { PlusIcon, Rocket } from "lucide-react";
 import { mutate } from "swr";
 
 import { DataTable } from "@/components/data-table";
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@craftgen/ui/dropdown-menu";
+} from "@craftgen/ui/components/dropdown-menu";
 
 import { clonePlayground } from "./actions";
 import { useProject } from "./hooks/use-project";

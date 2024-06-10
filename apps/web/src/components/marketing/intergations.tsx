@@ -1,11 +1,11 @@
-import Marquee from "@craftgen/ui/marquee";
+import Marquee from "@craftgen/ui/components/marquee";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@craftgen/ui/card";
+} from "@craftgen/ui/components/card";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { Icons } from "../icons";

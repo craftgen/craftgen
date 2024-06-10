@@ -14,7 +14,7 @@ import {
   MenubarSubContent,
   MenubarSubTrigger,
   MenubarTrigger,
-} from "@craftgen/ui/menubar";
+} from "@craftgen/ui/components/menubar";
 
 export function MenubarDemo() {
   return (

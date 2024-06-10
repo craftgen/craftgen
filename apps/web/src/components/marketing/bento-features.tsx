@@ -1,8 +1,8 @@
-import { BentoCard, BentoGrid } from "@craftgen/ui/bento-grid";
-import Marquee from "@craftgen/ui/marquee";
+import { BentoCard, BentoGrid } from "@craftgen/ui/components/bento-grid";
+import Marquee from "@craftgen/ui/components/marquee";
 import { InputIcon } from "@radix-ui/react-icons";
-import { Calendar } from "@craftgen/ui/calendar";
-import Globe from "@craftgen/ui/globe";
+import { Calendar } from "@craftgen/ui/components/calendar";
+import Globe from "@craftgen/ui/components/globe";
 import { CalendarIcon, FileTextIcon, GlobeIcon } from "lucide-react";
 import {
   Command,
@@ -11,7 +11,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@craftgen/ui/command";
+} from "@craftgen/ui/components/command";
 import { useMemo } from "react";
 import { Icons } from "../icons";
 import {

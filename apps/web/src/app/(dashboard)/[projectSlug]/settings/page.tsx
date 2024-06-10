@@ -3,7 +3,7 @@
 import useDrivePicker from "react-google-drive-picker";
 import useSWR from "swr";
 
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 
 import { getUser } from "../actions";
 import { ProjectSettingsSection } from "./project-settings";

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from "@craftgen/ui/card";
+import { Card, CardContent, CardHeader } from "@craftgen/ui/components/card";
 import { CreateStripeConnect } from "./create-stripe-connect";
 import { api } from "@/trpc/server";
 import { isNil } from "lodash-es";

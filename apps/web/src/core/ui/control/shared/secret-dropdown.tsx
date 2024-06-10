@@ -1,7 +1,7 @@
 import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { Icons } from "@/components/icons";
-import { Badge } from "@craftgen/ui/badge";
-import { Button } from "@craftgen/ui/button";
+import { Badge } from "@craftgen/ui/components/badge";
+import { Button } from "@craftgen/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -9,12 +9,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@craftgen/ui/command";
+} from "@craftgen/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@craftgen/ui/popover";
+} from "@craftgen/ui/components/popover";
 import { api } from "@/trpc/react";
 import { useState } from "react";
 

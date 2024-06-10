@@ -1,5 +1,5 @@
 'use client';
-import { Button } from "@craftgen/ui/button";
+import { Button } from "@craftgen/ui/components/button";
 import { api } from "@/trpc/react";
 import { useProject } from "../../hooks/use-project";
 import { useUser } from "@/app/(dashboard)/hooks/use-user";

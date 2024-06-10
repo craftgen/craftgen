@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 
-import { Separator } from "@craftgen/ui/separator";
+import { Separator } from "@craftgen/ui/components/separator";
 
 import { SidebarNav } from "./components/sidebar-nav";
 import { api } from "@/trpc/server";
