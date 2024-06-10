@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect, useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
@@ -18,27 +19,26 @@ import JsonView from "react18-json-view";
 import { match, P } from "ts-pattern";
 import { useStore } from "zustand";
 
-import type { Socket } from "@seocraft/core/src/sockets";
-
-import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
-import { UserNav } from "@/app/(dashboard)/components/user-nav";
-import { TokenList } from "@/app/(dashboard)/[projectSlug]/settings/tokens/token-item";
-import { Icon, Icons } from "@/components/icons";
+import type { Socket } from "@craftgen/core/src/sockets";
 import { Button } from "@craftgen/ui/components/button";
 import { Textarea } from "@craftgen/ui/components/textarea";
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
+
+import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
+import { TokenList } from "@/app/(dashboard)/[projectSlug]/settings/tokens/token-item";
+import { UserNav } from "@/app/(dashboard)/components/user-nav";
+import { Icon, Icons } from "@/components/icons";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { CreateReleaseButton } from "./components/create-release-button";
+import { InspectorNode } from "./components/inspector-node";
 import { MenubarDemo } from "./components/menubar";
 import { RestoreVersionButton } from "./components/restore-version-button";
 import { VersionHistory } from "./components/version-history";
-
-import dynamic from "next/dynamic";
-import { InspectorNode } from "./components/inspector-node";
 import { LogsTab } from "./logs/logs-tab";
+
 const Composer = dynamic(() =>
   import("@/core/composer").then((mod) => mod.Composer),
 );
@@ -259,7 +259,7 @@ export const Playground: React.FC<{
             </div>
           </div>
           <motion.div
-            className="bg-muted/20 relative h-[calc(100vh-2.5rem)] w-full px-1 py-1 "
+            className="relative h-[calc(100vh-2.5rem)] w-full bg-muted/20 px-1 py-1 "
             layout
           >
             <FlexLayout.Layout
@@ -366,7 +366,7 @@ const InspectorWindow: React.FC<{}> = observer(({}) => {
         <InspectorNode node={selectedNode} />
       ) : (
         <div className="my-auto flex h-full w-full flex-1 flex-col items-center justify-center">
-          <div className="text-muted-foreground border-spacing-3 border  border-dashed p-4 py-6 font-sans text-xl font-bold">
+          <div className="border-spacing-3 border border-dashed  p-4 py-6 font-sans text-xl font-bold text-muted-foreground">
             Select a node to inspect
           </div>
         </div>

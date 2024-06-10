@@ -1,7 +1,10 @@
 import { useCallback } from "react";
+import def from "ajv/dist/vocabularies/discriminator";
+import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 import type { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
+import { z } from "zod";
 
 import { BooleanControl } from "./controls/boolean";
 import { ButtonControl } from "./controls/button";
@@ -10,25 +13,20 @@ import { ComboboxControl } from "./controls/combobox";
 import { DateControl } from "./controls/date";
 import { FileControl } from "./controls/file";
 import { InputControl } from "./controls/input.control";
+import { JsCdnController } from "./controls/js-cdn";
 import { JsonControl } from "./controls/json";
 import { NodeControl } from "./controls/node";
 import { NumberControl } from "./controls/number";
 import { OpenAIThreadControl } from "./controls/openai-thread.control";
+import { SecretController } from "./controls/secret";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
 import type { JSONSocket, socketSchema } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
-import type { Message } from "./controls/thread.control";
-import { ThreadControl } from "./controls/thread.control";
-import type { NodeTypes } from "./types";
-import { nodeTypes } from "./types";
-import { JsCdnController } from "./controls/js-cdn";
-import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
-import def from "ajv/dist/vocabularies/discriminator";
-import { z } from "zod";
-import { SecretController } from "./controls/secret";
+import { ThreadControl, type Message } from "./controls/thread.control";
 import { inputSocketMachine } from "./input-socket";
 import { outputSocketMachine } from "./output-socket";
+import { nodeTypes, type NodeTypes } from "./types";
 
 export const getSocket = ({
   sockets,
@@ -46,8 +44,6 @@ export const getSocket = ({
     typeof inputSocketMachine | typeof outputSocketMachine
   >;
 };
-
-
 
 export class Socket extends ClassicPreset.Socket {
   name: SocketNameType;

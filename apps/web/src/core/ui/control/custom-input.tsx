@@ -1,19 +1,17 @@
 import { useCallback } from "react";
-
 import { useSelector } from "@xstate/react";
 
-import type { InputControl } from "@seocraft/core/src/controls/input.control";
-
+import type { InputControl } from "@craftgen/core/src/controls/input.control";
 import { Input } from "@craftgen/ui/components/input";
+
 import { ChangeFormat } from "./shared/change-format";
 import { SecretDropdown } from "./shared/secret-dropdown";
 
 export function CustomInput(props: { data: InputControl }) {
-  const {
-    definition,
-    value: valueActor,
-  } = useSelector(props.data?.actor, (snap) => snap.context);
-
+  const { definition, value: valueActor } = useSelector(
+    props.data?.actor,
+    (snap) => snap.context,
+  );
 
   const value = useSelector(valueActor, (snap) => snap.context.value);
 

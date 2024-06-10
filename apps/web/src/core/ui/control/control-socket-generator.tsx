@@ -1,7 +1,10 @@
+import { use, useEffect, useMemo } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useActor, useSelector } from "@xstate/react";
+import _, { get, isEqual, isNil, pick, set } from "lodash";
 import { Trash2Icon, X } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { ActorRefFrom, AnyActor, enqueueActions, setup } from "xstate";
 import type * as z from "zod";
 
 import {
@@ -9,9 +12,10 @@ import {
   JSONSocket,
   SocketGeneratorControl,
   socketSchema,
-} from "@seocraft/core/src/controls/socket-generator";
-import { types } from "@seocraft/core/src/sockets";
-
+} from "@craftgen/core/src/controls/socket-generator";
+import { inputSocketMachine } from "@craftgen/core/src/input-socket";
+import { outputSocketMachine } from "@craftgen/core/src/output-socket";
+import { types } from "@craftgen/core/src/sockets";
 import {
   Accordion,
   AccordionContent,
@@ -41,13 +45,9 @@ import {
   SelectValue,
 } from "@craftgen/ui/components/select";
 import { Switch } from "@craftgen/ui/components/switch";
+
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import _, { isEqual, pick, isNil, get, set } from "lodash";
-import { use, useEffect, useMemo } from "react";
-import { ActorRefFrom, AnyActor, enqueueActions, setup } from "xstate";
-import { inputSocketMachine } from "@seocraft/core/src/input-socket";
-import { outputSocketMachine } from "@seocraft/core/src/output-socket";
 
 export const SocketTypes = {
   text: {
@@ -344,7 +344,7 @@ export const SocketGenerator = (props: {
   };
 
   return (
-    <div className="bg-muted/20 w-full rounded border p-1">
+    <div className="w-full rounded border bg-muted/20 p-1">
       {state.matches("select_type") && (
         <div className="grid grid-cols-3 gap-4 p-4">
           {sockets.map(([key, socket]) => {
@@ -353,7 +353,7 @@ export const SocketGenerator = (props: {
                 onClick={() =>
                   send({ type: "SELECT_TYPE", params: { type: key } })
                 }
-                className="bg-muted flex flex-col items-center justify-center rounded border p-1 shadow"
+                className="flex flex-col items-center justify-center rounded border bg-muted p-1 shadow"
               >
                 <span>{socket.name}</span>
               </div>
@@ -649,7 +649,7 @@ export function SocketGeneratorControlComponent(props: {
             }
           >
             {fields.length === 0 && (
-              <div className="text-muted-foreground flex items-center justify-center text-sm">
+              <div className="flex items-center justify-center text-sm text-muted-foreground">
                 No fields added yet
               </div>
             )}
@@ -669,9 +669,9 @@ export function SocketGeneratorControlComponent(props: {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="@container relative mb-4 flex flex-col rounded border p-2 shadow">
+                  <div className="relative mb-4 flex flex-col rounded border p-2 shadow @container">
                     <div className="absolute right-2 top-2"></div>
-                    <div className="@lg:grid-cols-3 @md:grid-cols-2 grid grid-cols-1 gap-2">
+                    <div className="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
                       {/* <FormField
                         control={form.control}
                         name={`sockets.${index}.x-key`}

@@ -1,4 +1,5 @@
 "use client";
+
 import { Action, KBarProvider } from "kbar";
 
 const actions: Action[] = [

@@ -37,11 +37,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "functions/*"
-    ],
-    "externalBin": [
-      "binaries/edge-runtime"
-    ]
+    "resources": ["functions/*"],
+    "externalBin": ["binaries/edge-runtime"]
   }
 }

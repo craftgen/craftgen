@@ -2,8 +2,7 @@ import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
 import type { DiContainer } from "../../../types";
-import type { ParsedNode } from "../../base";
-import { BaseNode } from "../../base";
+import { BaseNode, type ParsedNode } from "../../base";
 
 const PostgresMachine = createMachine({
   id: "postgres",
@@ -80,7 +79,6 @@ export class Postgres extends BaseNode<typeof PostgresMachine> {
     });
     const state = this.actor.getSnapshot();
     this.action = state.context.settings.action;
-
 
     // this.addControl(
     //   "action",

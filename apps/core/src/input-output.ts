@@ -3,9 +3,9 @@ import type { Actor, AnyActor, SnapshotFrom } from "xstate";
 
 import type { BaseControl } from "./controls/base";
 import type { JSONSocket } from "./controls/socket-generator";
-import type { Socket } from "./sockets";
 import { inputSocketMachine } from "./input-socket";
 import { outputSocketMachine } from "./output-socket";
+import type { Socket } from "./sockets";
 
 export class Input<
   T extends Actor<typeof inputSocketMachine> = Actor<typeof inputSocketMachine>,

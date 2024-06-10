@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Divider } from "@tremor/react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { omit, get, isNil, isEqual } from "lodash-es";
+import _, { get, isEqual, isNil, omit } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,
@@ -11,26 +13,17 @@ import {
 } from "lucide-react";
 import { Actor, ActorRefFrom, AnyActor, AnyActorRef } from "xstate";
 
-import { NodeControl } from "@seocraft/core/src/controls/node";
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
+import { NodeControl } from "@craftgen/core/src/controls/node";
+import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
+import { inputSocketMachine } from "@craftgen/core/src/input-socket";
+import { outputSocketMachine } from "@craftgen/core/src/output-socket";
 import {
   getControlBySocket,
   getSocketByJsonSchemaType,
   useSocketConfig,
-} from "@seocraft/core/src/sockets";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@craftgen/ui/components/button";
-import { Toggle } from "@craftgen/ui/components/toggle";
-
-import { ControlWrapper } from "@/core/ui/control-wrapper";
-import { inputSocketMachine } from "@seocraft/core/src/input-socket";
-import { Label } from "@craftgen/ui/components/label";
-import { outputSocketMachine } from "@seocraft/core/src/output-socket";
-import { SocketGenerator } from "./control-socket-generator";
-import { Divider } from "@tremor/react";
+} from "@craftgen/core/src/sockets";
 import { Badge } from "@craftgen/ui/components/badge";
-
+import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,8 +32,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@craftgen/ui/components/dropdown-menu";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Label } from "@craftgen/ui/components/label";
+import { Toggle } from "@craftgen/ui/components/toggle";
+
 import { JSONView } from "@/components/json-view";
+import { ControlWrapper } from "@/core/ui/control-wrapper";
+import { cn } from "@/lib/utils";
+
+import { SocketGenerator } from "./control-socket-generator";
 
 export const NodeControlComponent = (props: { data: NodeControl }) => {
   const socketKey = useMemo(() => {
@@ -436,7 +435,7 @@ const ActorInputItem = ({
   return (
     <div
       className={cn(
-        "bg-muted/20 m-2 rounded border",
+        "m-2 rounded border bg-muted/20",
         targetActorState === "action_required" && "border-yellow-300/40",
       )}
     >
@@ -459,7 +458,7 @@ const ActorInputItem = ({
             onClick={() => handleToggleController(!socket["x-showController"])}
           >
             <Label>{socket.title || socket.name}</Label>
-            <p className={cn("text-muted-foreground text-[0.8rem]")}>
+            <p className={cn("text-[0.8rem] text-muted-foreground")}>
               {socket?.description}
             </p>
           </div>
@@ -481,7 +480,7 @@ const ActorInputItem = ({
       {socket["x-showController"] && (
         <div
           className={cn(
-            "bg-muted/20 m-1 rounded py-1 ",
+            "m-1 rounded bg-muted/20 py-1 ",
             // targetActorState === "action_required" && "bg-yellow-300/40",
           )}
         >
@@ -561,7 +560,7 @@ const SocketController = ({
       data-socket-actor-ref-id={socket["x-actor-ref-id"]}
       className={cn(
         "m-2 mb-2 flex flex-row space-x-1  p-2",
-        hasConnection && "bg-muted/30 rounded border",
+        hasConnection && "rounded border bg-muted/30",
       )}
     >
       <div className="flex flex-col space-y-1 ">
@@ -597,9 +596,9 @@ const SocketController = ({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
+                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
               >
-                <DotsHorizontalIcon className="text-muted-foreground h-4 w-4" />
+                <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>

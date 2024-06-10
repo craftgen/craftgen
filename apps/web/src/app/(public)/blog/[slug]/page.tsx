@@ -1,8 +1,9 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { graphql } from "gql.tada";
+
 import { client } from "@/lib/urql";
-import type { Metadata, ResolvingMetadata } from "next";
 
 const PostQuery = graphql(`
   query Post($id: ID!) {
@@ -139,7 +140,7 @@ const BlogPage = async ({ params }: { params: { slug: string[] } }) => {
           className={"w-full rounded-md object-cover shadow-sm "}
         />
         <div className=" mx-auto mt-10 max-w-xl lg:max-w-3xl">
-          <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {post.data.post.title}
           </h1>
           <div className="mb-12 mt-6 flex items-center justify-between">
@@ -155,7 +156,7 @@ const BlogPage = async ({ params }: { params: { slug: string[] } }) => {
                   />
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <p className="dark:hover:text-primary hover:text-primary font-semibold text-gray-800 transition-colors duration-300 dark:text-gray-200 sm:text-lg">
+                  <p className="font-semibold text-gray-800 transition-colors duration-300 hover:text-primary dark:text-gray-200 dark:hover:text-primary sm:text-lg">
                     {author.name}
                   </p>
                   {/* <p className="truncate text-sm text-gray-600 dark:text-gray-800">
@@ -169,7 +170,7 @@ const BlogPage = async ({ params }: { params: { slug: string[] } }) => {
             </Link>
           </div>
           <article
-            className="prose-blockquote:text-primary prose prose-gray dark:prose-invert prose-blockquote:border-l-2 prose-blockquote:border-gray-900 prose-blockquote:bg-gray-100 prose-blockquote:px-8 prose-blockquote:py-3 prose-blockquote:text-lg prose-blockquote:font-medium prose-blockquote:not-italic prose-blockquote:leading-8 prose-blockquote:lg:text-xl prose-blockquote:lg:leading-9 max-w-none lg:col-span-8"
+            className="prose prose-gray max-w-none dark:prose-invert prose-blockquote:border-l-2 prose-blockquote:border-gray-900 prose-blockquote:bg-gray-100 prose-blockquote:px-8 prose-blockquote:py-3 prose-blockquote:text-lg prose-blockquote:font-medium prose-blockquote:not-italic prose-blockquote:leading-8 prose-blockquote:text-primary lg:col-span-8 prose-blockquote:lg:text-xl prose-blockquote:lg:leading-9"
             dangerouslySetInnerHTML={{ __html: post.data?.post?.content }}
           />
         </div>

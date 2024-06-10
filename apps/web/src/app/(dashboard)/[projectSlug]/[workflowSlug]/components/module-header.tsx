@@ -7,8 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Check, Copy, GitFork, Rocket, Slash, Star } from "lucide-react";
 import { useCopyToClipboard } from "react-use";
 
-import type { RouterOutputs } from "@seocraft/api";
-
+import type { RouterOutputs } from "@craftgen/api";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import { Separator } from "@craftgen/ui/components/separator";
@@ -39,7 +38,7 @@ export const ModuleHeader = ({
             >
               {workflow.project.slug}
             </Link>
-            <Slash className="text-muted-foreground -rotate-12" />
+            <Slash className="-rotate-12 text-muted-foreground" />
             <Link href={`/${workflow.project.slug}/${workflow.slug}`}>
               {workflow.name}
             </Link>
@@ -76,7 +75,7 @@ export const ModuleHeader = ({
       </div>
       <div className="space-y-2">
         <div className="flex  h-5 w-full flex-row space-x-2 text-sm">
-          <span className="bg-muted mr-2 flex items-center rounded p-1 font-mono">
+          <span className="mr-2 flex items-center rounded bg-muted p-1 font-mono">
             v{workflow.version?.version || 0}
           </span>
           <Separator orientation="vertical" />

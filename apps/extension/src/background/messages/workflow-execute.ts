@@ -1,4 +1,4 @@
-import { createHeadlessEditor } from "@seocraft/core/src"
+import { createHeadlessEditor } from "@craftgen/core/src"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 

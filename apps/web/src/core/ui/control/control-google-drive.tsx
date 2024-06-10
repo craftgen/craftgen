@@ -4,10 +4,10 @@ import useDrivePicker from "react-google-drive-picker";
 import type { CallbackDoc } from "react-google-drive-picker/dist/typeDefs";
 import useSWR from "swr";
 
-import type { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
+import type { GoogleDriveControl } from "@craftgen/core/src/controls/google-drive";
+import { Button } from "@craftgen/ui/components/button";
 
 import { getUser } from "@/app/(dashboard)/[projectSlug]/actions";
-import { Button } from "@craftgen/ui/components/button";
 
 export function GoogleDriveControlComponent(props: {
   data: GoogleDriveControl;

@@ -3,7 +3,7 @@ import type * as FlexLayout from "flexlayout-react";
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
 
-import type { DiContainer } from "@seocraft/core/src/types";
+import type { DiContainer } from "@craftgen/core/src/types";
 
 export interface ReteStore {
   workflowId: string;

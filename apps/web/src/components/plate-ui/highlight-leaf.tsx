@@ -1,6 +1,5 @@
 import React from "react";
-import type { PlateLeafProps } from "@udecode/plate-common";
-import { PlateLeaf } from "@udecode/plate-common";
+import { PlateLeaf, type PlateLeafProps } from "@udecode/plate-common";
 
 import { cn } from "@/lib/utils";
 

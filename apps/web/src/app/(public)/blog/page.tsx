@@ -1,6 +1,7 @@
 import { graphql } from "gql.tada";
-import { client } from "@/lib/urql";
+
 import BlogList from "@/components/blog-list";
+import { client } from "@/lib/urql";
 
 const BlogPostsQuery = graphql(`
   query Posts {

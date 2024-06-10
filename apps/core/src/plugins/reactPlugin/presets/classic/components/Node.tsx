@@ -12,7 +12,10 @@ import {
 import { RefControl } from "./refs/RefControl";
 import { RefSocket } from "./refs/RefSocket";
 
-interface NodeExtraData { width?: number; height?: number }
+interface NodeExtraData {
+  width?: number;
+  height?: number;
+}
 
 export const NodeStyles = styled.div<
   NodeExtraData & { selected: boolean; styles?: (props: any) => any }
@@ -106,7 +109,6 @@ export type NodeComponent<Scheme extends ClassicScheme> = (
   props: Props<Scheme>,
 ) => JSX.Element;
 
- 
 export function Node<Scheme extends ClassicScheme>(props: Props<Scheme>) {
   const inputs = Object.entries(props.data.inputs);
   const outputs = Object.entries(props.data.outputs);

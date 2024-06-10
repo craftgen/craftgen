@@ -1,5 +1,5 @@
 {
-  "name": "@seocraft/extension",
+  "name": "@craftgen/extension",
   "displayName": "Extension",
   "version": "0.0.1",
   "description": "A basic Plasmo extension.",
@@ -10,8 +10,8 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@craftgen/core": "0.1.0",
     "@plasmohq/messaging": "^0.5.0",
-    "@seocraft/core": "0.1.0",
     "plasmo": "0.83.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"

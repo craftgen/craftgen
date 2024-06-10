@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import _ from "lodash-es";
 import { z } from "zod";
 
-import { and, eq, schema, sql, workflow } from "@seocraft/supabase/db";
+import { and, eq, schema, sql, workflow } from "@craftgen/db/db";
 
 import {
   createTRPCRouter,

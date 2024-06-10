@@ -2,7 +2,7 @@
 
 import type * as FlexLayout from "flexlayout-react";
 
-import { db, eq, workflow } from "@seocraft/supabase/db";
+import { db, eq, workflow } from "@craftgen/db/db";
 
 export const updatePlaygroundLayout = async (params: {
   playgroundId: string;

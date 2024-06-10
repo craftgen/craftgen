@@ -11,7 +11,7 @@ export const RenderResults: React.FC = () => {
       items={results}
       onRender={({ item, active }) =>
         typeof item === "string" ? (
-          <div className="text-muted-foreground/90 overflow-hidden p-1 px-2 py-1.5 text-sm  ">
+          <div className="overflow-hidden p-1 px-2 py-1.5 text-sm text-muted-foreground/90  ">
             {item}
           </div>
         ) : (

@@ -2,11 +2,7 @@
 
 import { z } from "zod";
 
-import {
-  db,
-  nodeExecutionData,
-  workflowExecution,
-} from "@seocraft/supabase/db";
+import { db, nodeExecutionData, workflowExecution } from "@craftgen/db/db";
 
 import { WORKFLOW_TRIGGER } from "@/jobs/workflow-trigger";
 import { action } from "@/lib/safe-action";

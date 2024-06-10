@@ -8,7 +8,7 @@ import {
   startWith,
   switchMap,
 } from "rxjs";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AnyActor, fromObservable } from "xstate";
 
 /**

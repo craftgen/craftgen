@@ -1,8 +1,8 @@
 import type { ActorRefFrom } from "xstate";
 
+import { inputSocketMachine } from "../input-socket";
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
-import { inputSocketMachine } from "../input-socket";
 
 export interface SelectControlOptions<U extends string> {
   change: (value: U) => void;

@@ -1,13 +1,20 @@
 "use client";
-import Link from "next/link";
+
 // import { Logo } from "../logo";
 // import { SessionButton } from "./session-button";
 import { useState } from "react";
+import Link from "next/link";
 import type { Session } from "@supabase/auth-helpers-nextjs";
-import { Dialog, DialogTrigger, DialogContent } from "@craftgen/ui/components/dialog";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { StarCount } from "@/components/marketing/github-star-count";
 import { ExternalLinkIcon } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@craftgen/ui/components/dialog";
+
+import { StarCount } from "@/components/marketing/github-star-count";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const MenuDropdown = ({ session }: { session: Session | null }) => {
   const [open, setOpen] = useState(false);

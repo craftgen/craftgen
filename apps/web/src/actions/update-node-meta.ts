@@ -1,6 +1,6 @@
 "use server";
 
-import { db, eq, workflowNode } from "@seocraft/supabase/db";
+import { db, eq, workflowNode } from "@craftgen/db/db";
 
 export const updateNodeMetadata = async (input: {
   id: string;

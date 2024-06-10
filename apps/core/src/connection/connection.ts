@@ -1,14 +1,13 @@
 import type { CurveFactory } from "d3-shape";
-import type { ConnectionBase, NodeBase } from "rete";
-import { getUID } from "rete";
+import { omit } from "lodash-es";
+import { getUID, type ConnectionBase, type NodeBase } from "rete";
+import { Actor, AnyActor } from "xstate";
 
 import type { ConnectionConfigRecord } from "../controls/socket-generator";
 import type { Editor } from "../editor";
-import type { BaseMachine, BaseNode } from "../nodes/base";
-import { Actor, AnyActor } from "xstate";
-import { outputSocketMachine } from "../output-socket";
 import { inputSocketMachine } from "../input-socket";
-import { omit } from "lodash-es";
+import type { BaseMachine, BaseNode } from "../nodes/base";
+import { outputSocketMachine } from "../output-socket";
 
 type StringKeyof<T> = Extract<keyof T, string>;
 

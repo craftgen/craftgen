@@ -1,9 +1,10 @@
-import { getPage, getPages } from "@/app/source";
 import type { Metadata } from "next";
-import { DocsPage, DocsBody } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
-import { ExternalLinkIcon } from "lucide-react";
 import { Cards } from "fumadocs-ui/components/card";
+import { DocsBody, DocsPage } from "fumadocs-ui/page";
+import { ExternalLinkIcon } from "lucide-react";
+
+import { getPage, getPages } from "@/app/source";
 import { BASE_URL } from "@/utils/constants";
 
 export default function Page({ params }: { params: { slug?: string[] } }) {

@@ -5,7 +5,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useTheme } from "next-themes";
 
-import type { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@craftgen/db/db/database.types";
 
 import { BASE_URL } from "@/lib/constants";
 

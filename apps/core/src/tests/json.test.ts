@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { convertOpenAPIToJSONSchema } from "@seocraft/utils";
+import { convertOpenAPIToJSONSchema } from "@craftgen/utils";
 
 test("openapi to json schema", async () => {
   const res = await convertOpenAPIToJSONSchema(schema as any);

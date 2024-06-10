@@ -1,8 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
-import { useMemo } from "react";
 
 export const useUser = (params?: {
   fallbackData?: RouterOutputs["auth"]["getSession"];

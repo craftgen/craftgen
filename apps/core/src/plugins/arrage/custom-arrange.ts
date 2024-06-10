@@ -1,9 +1,8 @@
 import ELK from "elkjs/lib/elk.bundled.js";
-import type {
-  ExpectedSchemes} from "rete-auto-arrange-plugin";
 import {
   AutoArrangePlugin,
   Presets,
+  type ExpectedSchemes,
 } from "rete-auto-arrange-plugin";
 
 export class CustomArrange<

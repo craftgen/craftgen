@@ -1,20 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Action } from "kbar";
-import { Priority, useKBar, useRegisterActions } from "kbar";
+import * as FlexLayout from "flexlayout-react";
+import { Priority, useKBar, useRegisterActions, type Action } from "kbar";
 import { debounce } from "lodash-es";
 import useSWR from "swr";
 
-import type { Editor } from "@seocraft/core";
-import type { NodeTypes } from "@seocraft/core/src/types";
+import type { Editor } from "@craftgen/core";
+import type { NodeTypes } from "@craftgen/core/src/types";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@craftgen/ui/components/avatar";
 
 import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
 import { Icons } from "@/components/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
 import { api } from "@/trpc/react";
-import * as FlexLayout from "flexlayout-react";
 
 import { useRegisterReplicateActions } from "./replicate-actions";
 

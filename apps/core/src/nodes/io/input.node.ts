@@ -3,8 +3,13 @@ import { createMachine } from "xstate";
 
 import type { JSONSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None, ParsedNode } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 export const NodeInputMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGlgBcBDAJ0IDkcx8QAHLWAS0Kaw1oA9EBGAJnQBPXn2RjkQA */

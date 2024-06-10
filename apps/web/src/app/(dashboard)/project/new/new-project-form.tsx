@@ -1,7 +1,6 @@
 "use client";
 
-import type { PropsWithChildren } from "react";
-import { useEffect } from "react";
+import { useEffect, type PropsWithChildren } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -9,10 +8,12 @@ import { Link } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
-import type { Database } from "@seocraft/supabase/db/database.types";
-
-import { Icons } from "@/components/icons";
-import { Alert, AlertDescription, AlertTitle } from "@craftgen/ui/components/alert";
+import type { Database } from "@craftgen/db/db/database.types";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@craftgen/ui/components/alert";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Form,
@@ -31,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
+
+import { Icons } from "@/components/icons";
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
 import { api } from "@/trpc/react";

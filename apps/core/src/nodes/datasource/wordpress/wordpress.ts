@@ -5,8 +5,7 @@ import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
 import type { DiContainer } from "../../../types";
-import { BaseNode } from "../../base";
-import type { ParsedNode } from "../../base";
+import { BaseNode, type ParsedNode } from "../../base";
 
 const WordpressMachine = createMachine({
   id: "wordpress",

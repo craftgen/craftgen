@@ -1,11 +1,10 @@
 import type { OpenAIChatMessage } from "modelfusion";
-
 import type { ThreadMessage } from "openai/resources/beta/threads/messages/messages.mjs";
 import type { ActorRefFrom } from "xstate";
 
+import { inputSocketMachine } from "../input-socket";
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
-import { inputSocketMachine } from "../input-socket";
 
 export interface ThreadControlOptions {}
 

@@ -1,13 +1,20 @@
-import { BentoCard, BentoGrid } from "@craftgen/ui/components/bento-grid";
-import Marquee from "@craftgen/ui/components/marquee";
-import { Calendar } from "@craftgen/ui/components/calendar";
-import Globe from "@craftgen/ui/components/globe";
+import { useMemo } from "react";
 import {
   CalendarIcon,
   FileTextIcon,
   GlobeIcon,
   TextCursorInput,
 } from "lucide-react";
+
+import { BentoCard, BentoGrid } from "@craftgen/ui/components/bento-grid";
+import { Calendar } from "@craftgen/ui/components/calendar";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@craftgen/ui/components/card";
 import {
   Command,
   CommandEmpty,
@@ -16,16 +23,11 @@ import {
   CommandItem,
   CommandList,
 } from "@craftgen/ui/components/command";
-import { useMemo } from "react";
-import { Icons } from "../icons";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@craftgen/ui/components/card";
+import Globe from "@craftgen/ui/components/globe";
+import Marquee from "@craftgen/ui/components/marquee";
 import { Separator } from "@craftgen/ui/components/separator";
+
+import { Icons } from "../icons";
 
 const NodeCard = ({
   id,

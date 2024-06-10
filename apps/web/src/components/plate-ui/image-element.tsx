@@ -1,8 +1,15 @@
 import React from "react";
-import type { PlateElementProps, Value } from "@udecode/plate-common";
-import { PlateElement } from "@udecode/plate-common";
-import type { TImageElement } from "@udecode/plate-media";
-import { ELEMENT_IMAGE, Image, useMediaState } from "@udecode/plate-media";
+import {
+  PlateElement,
+  type PlateElementProps,
+  type Value,
+} from "@udecode/plate-common";
+import {
+  ELEMENT_IMAGE,
+  Image,
+  useMediaState,
+  type TImageElement,
+} from "@udecode/plate-media";
 import { useResizableStore } from "@udecode/plate-resizable";
 
 import { cn } from "@/lib/utils";
@@ -43,7 +50,7 @@ export function ImageElement({
               className={cn(
                 "block w-full max-w-full cursor-pointer object-cover px-0",
                 "rounded-sm",
-                focused && selected && "ring-ring ring-2 ring-offset-2",
+                focused && selected && "ring-2 ring-ring ring-offset-2",
               )}
               alt=""
               {...nodeProps}

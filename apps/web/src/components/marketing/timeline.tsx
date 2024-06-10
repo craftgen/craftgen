@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
 import { CheckIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 const steps = [
   {
@@ -71,7 +72,6 @@ const steps = [
   },
 ];
 
-
 export const Timeline = () => {
   return (
     <div className="flex flex-col items-center space-y-4 p-8">
@@ -79,7 +79,7 @@ export const Timeline = () => {
         <h1 className="text-5xl font-bold md:text-6xl">
           What's next for CraftGen?
         </h1>
-        <p className="text-muted-foreground text-xl">
+        <p className="text-xl text-muted-foreground">
           Here is a list of the features we are working on, and the progress we
           have made so far.
         </p>
@@ -98,7 +98,7 @@ export const Timeline = () => {
                 <>
                   {stepIdx !== steps.length - 1 ? (
                     <div
-                      className="bg-primary absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5"
+                      className="absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5 bg-primary"
                       aria-hidden="true"
                     />
                   ) : null}
@@ -107,7 +107,7 @@ export const Timeline = () => {
                     className="group relative flex items-start justify-center "
                   >
                     <span className="flex h-9 items-center">
-                      <span className="bg-primary group-hover:bg-primary-foreground relative z-10 flex h-8 w-8 items-center justify-center rounded-full">
+                      <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary group-hover:bg-primary-foreground">
                         <CheckIcon
                           className="h-5 w-5 text-white"
                           aria-hidden="true"
@@ -116,7 +116,7 @@ export const Timeline = () => {
                     </span>
                     <span className="ml-4 flex w-full min-w-0 flex-col rounded border p-4">
                       <span className="text-sm font-medium">{step.name}</span>
-                      <span className="text-muted-foreground text-sm">
+                      <span className="text-sm text-muted-foreground">
                         {step.description}
                       </span>
                     </span>
@@ -126,7 +126,7 @@ export const Timeline = () => {
                 <>
                   {stepIdx !== steps.length - 1 ? (
                     <div
-                      className="bg-muted absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5"
+                      className="absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5 bg-muted"
                       aria-hidden="true"
                     />
                   ) : null}

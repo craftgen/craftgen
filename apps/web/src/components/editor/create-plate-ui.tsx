@@ -14,8 +14,12 @@ import {
   ELEMENT_CODE_SYNTAX,
 } from "@udecode/plate-code-block";
 import { MARK_COMMENT } from "@udecode/plate-comments";
-import type { PlatePluginComponent } from "@udecode/plate-common";
-import { PlateElement, PlateLeaf, withProps } from "@udecode/plate-common";
+import {
+  PlateElement,
+  PlateLeaf,
+  withProps,
+  type PlatePluginComponent,
+} from "@udecode/plate-common";
 import { ELEMENT_EXCALIDRAW } from "@udecode/plate-excalidraw";
 import { MARK_SEARCH_HIGHLIGHT } from "@udecode/plate-find-replace";
 import {

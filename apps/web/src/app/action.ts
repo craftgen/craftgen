@@ -1,13 +1,14 @@
 "use server";
 
+import { db, waitlist } from "@craftgen/db/db";
+
 import { getServiceSupabase } from "@/utils/supabase";
-import { db, waitlist } from "@seocraft/supabase/db";
 
 export const addToWaitlist = async (params: {
   email: string;
   platforms?: string[];
 }) => {
-  const admin = getServiceSupabase()
+  const admin = getServiceSupabase();
 
   const User = await db
     .insert(waitlist)
@@ -21,7 +22,7 @@ export const addToWaitlist = async (params: {
 
   await sendTGMessage({ message: messageText });
 
-  await admin.auth.admin.inviteUserByEmail(params.email)
+  await admin.auth.admin.inviteUserByEmail(params.email);
 
   return User;
 };

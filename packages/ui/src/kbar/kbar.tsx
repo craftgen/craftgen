@@ -1,11 +1,11 @@
 "use client";
 
 import { KBarAnimator, KBarPortal, KBarPositioner, KBarSearch } from "kbar";
+import { Command } from "lucide-react";
 
 import { Separator } from "../components/separator";
-import { RenderResults } from "./render-results";
 import { KBarProviderWrapper } from "./provider";
-import { Command } from "lucide-react";
+import { RenderResults } from "./render-results";
 
 export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (

@@ -3,12 +3,16 @@ import type { SetOptional } from "type-fest";
 import { assign, createMachine } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
-import type { ParsedNode } from "../base";
 import { spawnInputSockets } from "../../input-socket";
 import { spawnOutputSockets } from "../../output-socket";
+import type { DiContainer } from "../../types";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 const inputSockets = {
   value: generateSocket({

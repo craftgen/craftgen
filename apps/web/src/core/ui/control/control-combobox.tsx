@@ -3,8 +3,7 @@ import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import { CheckIcon } from "lucide-react";
 
-import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
-
+import { ComboboxControl } from "@craftgen/core/src/controls/combobox";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Command,
@@ -18,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
+
 import { cn } from "@/lib/utils";
 
 export function ComboboxControlComponent(props: { data: ComboboxControl }) {

@@ -1,9 +1,9 @@
+import { isNil } from "lodash-es";
 import { z } from "zod";
 
-import { eq, sql, variable } from "@seocraft/supabase/db";
+import { eq, sql, variable } from "@craftgen/db/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { isNil } from "lodash-es";
 
 type ProviderType = "OPENAI" | "REPLICATE" | "OTHER";
 

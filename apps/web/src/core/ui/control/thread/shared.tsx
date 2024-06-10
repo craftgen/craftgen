@@ -2,7 +2,7 @@ import React from "react";
 import Markdown from "react-markdown";
 import { match, P } from "ts-pattern";
 
-import { MessageContent } from "@seocraft/core/src/controls/thread.control";
+import { MessageContent } from "@craftgen/core/src/controls/thread.control";
 
 export const TextContent: React.FC<{ content: string }> = React.memo(
   ({ content }) => {

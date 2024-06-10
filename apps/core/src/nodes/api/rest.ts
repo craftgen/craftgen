@@ -1,10 +1,11 @@
-import { createMachine, enqueueActions, fromPromise } from "xstate";
-import { BaseNode, NodeContextFactory, ParsedNode } from "../base";
-import { DiContainer } from "../../types";
-import { generateSocket } from "../../controls/socket-generator";
-import { SetOptional } from "type-fest";
-import dedent from "ts-dedent";
 import ky from "ky";
+import dedent from "ts-dedent";
+import { SetOptional } from "type-fest";
+import { createMachine, enqueueActions, fromPromise } from "xstate";
+
+import { generateSocket } from "../../controls/socket-generator";
+import { DiContainer } from "../../types";
+import { BaseNode, NodeContextFactory, ParsedNode } from "../base";
 
 const inputSockets = {
   apiConfiguration: generateSocket({
@@ -32,7 +33,7 @@ const inputSockets = {
       },
     },
   }),
-  
+
   path: generateSocket({
     name: "path",
     type: "string",

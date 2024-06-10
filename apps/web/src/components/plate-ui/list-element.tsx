@@ -1,8 +1,6 @@
 import React from "react";
-import type { PlateElementProps } from "@udecode/plate-common";
-import { PlateElement } from "@udecode/plate-common";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { PlateElement, type PlateElementProps } from "@udecode/plate-common";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 

@@ -10,19 +10,23 @@ import type {
 import type { Thread } from "openai/resources/beta/threads/threads.mjs";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { PromiseActorLogic } from "xstate";
-import { assign, createMachine, fromPromise } from "xstate";
+import {
+  assign,
+  createMachine,
+  fromPromise,
+  type PromiseActorLogic,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
-import { BaseNode } from "../base";
 
 const inputSockets = {
   threadId: generateSocket({

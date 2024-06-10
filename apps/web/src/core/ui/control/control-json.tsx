@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "@xstate/react";
 import JsonView from "react18-json-view";
 
-import { JsonControl } from "@seocraft/core/src/controls/json";
+import { JsonControl } from "@craftgen/core/src/controls/json";
 
 export const JsonControlComponent = (props: { data: JsonControl }) => {
   const { value: valueActor } = useSelector(

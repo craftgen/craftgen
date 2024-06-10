@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { uniqueId } from "lodash";
+
 import {
   EVAL_WORKER_ACTION,
   MessageType,

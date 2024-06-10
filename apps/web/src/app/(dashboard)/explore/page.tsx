@@ -2,8 +2,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { WorkflowList } from "@/components/template-list";
 import { Button } from "@craftgen/ui/components/button";
+
+import { WorkflowList } from "@/components/template-list";
 
 import { getFeaturedWorkflows } from "./actions";
 import { ProjectList } from "./project-list";

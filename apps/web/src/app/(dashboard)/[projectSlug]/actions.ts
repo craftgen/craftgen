@@ -11,7 +11,7 @@ import {
   project,
   projectMembers,
   workflow,
-} from "@seocraft/supabase/db";
+} from "@craftgen/db/db";
 
 import { getDrive, getWebmaster } from "@/lib/google/auth";
 

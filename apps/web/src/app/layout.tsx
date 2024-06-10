@@ -3,16 +3,17 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Noto_Sans } from "next/font/google";
 import { headers } from "next/headers";
-import { GeistMono, GeistSans } from "geist/font";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Toaster } from "@craftgen/ui/components/sonner";
+import { GeistMono, GeistSans } from "geist/font";
 
+import { Toaster } from "@craftgen/ui/components/sonner";
+import { KBar } from "@craftgen/ui/kbar/kbar";
+
+import { PHIdentify } from "@/components/ph-identify";
 import { TRPCReactProvider } from "@/trpc/react";
 
-import { KBar } from "@craftgen/ui/kbar/kbar";
 import { Providers } from "./providers";
-import { PHIdentify } from "@/components/ph-identify";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter-variable" });
 const notoSans = Noto_Sans({

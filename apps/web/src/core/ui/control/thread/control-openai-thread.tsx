@@ -3,11 +3,11 @@ import { useSelector } from "@xstate/react";
 import { flatten, uniqBy } from "lodash-es";
 import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
-import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
-
-import { Copyable } from "@/components/copyable";
+import { OpenAIThreadControl } from "@craftgen/core/src/controls/openai-thread.control";
 import { Button } from "@craftgen/ui/components/button";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
+
+import { Copyable } from "@/components/copyable";
 import { api } from "@/trpc/react";
 
 import { InputSection } from "./input-section";
@@ -75,7 +75,7 @@ export const OpenAIThreadControlComponent = (props: {
           <p className="text-sm font-bold">Thread</p>
           {threadId && (
             <Copyable value={threadId}>
-              <span className="text-muted-foreground ml-2">{threadId}</span>
+              <span className="ml-2 text-muted-foreground">{threadId}</span>
             </Copyable>
           )}
         </div>

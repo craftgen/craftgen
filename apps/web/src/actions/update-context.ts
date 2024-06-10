@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { context, db, eq } from "@seocraft/supabase/db";
+import { context, db, eq } from "@craftgen/db/db";
 
 import { action } from "@/lib/safe-action";
 

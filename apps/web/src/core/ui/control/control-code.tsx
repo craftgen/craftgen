@@ -1,52 +1,52 @@
 import { useSelector } from "@xstate/react";
 import { useTheme } from "next-themes";
 import { usePreviousDistinct } from "react-use";
-import "./custom-input.css";
-import dedent from "ts-dedent";
 
-require("tern/plugin/doc_comment");
-import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
-import tern from "tern";
+import "./custom-input.css";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  autocompletion,
+  Completion,
+  CompletionContext,
+  startCompletion,
+} from "@codemirror/autocomplete";
+import { indentWithTab } from "@codemirror/commands";
+import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
 import {
   Decoration,
   DecorationSet,
   EditorView,
+  keymap,
   MatchDecorator,
   ViewPlugin,
   ViewUpdate,
-  keymap,
 } from "@codemirror/view";
-import { WidgetType, useCodeMirror } from "@uiw/react-codemirror";
-import type { CodeControl } from "@seocraft/core/src/controls/code";
-import {
-  Completion,
-  CompletionContext,
-  autocompletion,
-  startCompletion,
-} from "@codemirror/autocomplete";
-import { indentWithTab } from "@codemirror/commands";
-
-import { SecretDropdown } from "./shared/secret-dropdown";
-import { ChangeFormat } from "./shared/change-format";
-
-import { javascript, javascriptLanguage } from "@codemirror/lang-javascript";
-import { vscodeKeymap } from "@replit/codemirror-vscode-keymap";
-
 import { indentationMarkers } from "@replit/codemirror-indentation-markers";
-import ecma from "@seocraft/core/src/worker/autocomplete/definitions/ecmascript.json";
-import lodash from "@seocraft/core/src/worker/autocomplete/definitions/lodash.json";
-import base64 from "@seocraft/core/src/worker/autocomplete/definitions/base64-js.json";
-import moment from "@seocraft/core/src/worker/autocomplete/definitions/moment.json";
-import forge from "@seocraft/core/src/worker/autocomplete/definitions/forge.json";
-import { start } from "@seocraft/core/src/worker/main";
-import { WorkerMessenger } from "@seocraft/core/src/worker/messenger";
-
+import { vscodeKeymap } from "@replit/codemirror-vscode-keymap";
+import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
+import { useCodeMirror, WidgetType } from "@uiw/react-codemirror";
 // @ts-ignore
 import jsdoc from "json-schema-to-jsdoc";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { JSONSchema } from "openai/lib/jsonschema";
 import { difference, get, isEqual } from "lodash-es";
+import { JSONSchema } from "openai/lib/jsonschema";
+import tern from "tern";
+import dedent from "ts-dedent";
 import { match } from "ts-pattern";
+
+import type { CodeControl } from "@craftgen/core/src/controls/code";
+import base64 from "@craftgen/core/src/worker/autocomplete/definitions/base64-js.json";
+import ecma from "@craftgen/core/src/worker/autocomplete/definitions/ecmascript.json";
+import forge from "@craftgen/core/src/worker/autocomplete/definitions/forge.json";
+import lodash from "@craftgen/core/src/worker/autocomplete/definitions/lodash.json";
+import moment from "@craftgen/core/src/worker/autocomplete/definitions/moment.json";
+import { start } from "@craftgen/core/src/worker/main";
+import { WorkerMessenger } from "@craftgen/core/src/worker/messenger";
+
+import { ChangeFormat } from "./shared/change-format";
+import { SecretDropdown } from "./shared/secret-dropdown";
+
+require("tern/plugin/doc_comment");
 
 const secretMatcher = new MatchDecorator({
   regexp: /\(?await\s+getSecret\("(.+?)"\)\)?/g,

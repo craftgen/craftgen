@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import type { PlateLeafProps } from "@udecode/plate-common";
-import { PlateLeaf } from "@udecode/plate-common";
+import { PlateLeaf, type PlateLeafProps } from "@udecode/plate-common";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +11,7 @@ export function CodeLeaf({ className, children, ...props }: PlateLeafProps) {
       asChild
       className={cn(
         "whitespace-pre-wrap",
-        "bg-muted rounded-md px-[0.3em] py-[0.2em] font-mono text-sm",
+        "rounded-md bg-muted px-[0.3em] py-[0.2em] font-mono text-sm",
         className,
       )}
       {...props}

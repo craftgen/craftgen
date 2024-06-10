@@ -2,8 +2,8 @@ import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-import { appRouter, createTRPCContext } from "@seocraft/api";
-import type { Database } from "@seocraft/supabase/db/database.types";
+import { appRouter, createTRPCContext } from "@craftgen/api";
+import type { Database } from "@craftgen/db/db/database.types";
 
 import { getServiceSupabase } from "@/utils/supabase";
 

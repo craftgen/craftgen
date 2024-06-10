@@ -1,8 +1,9 @@
-import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
-import { BaseNode, NodeContextFactory, ParsedNode } from "../base";
-import { DiContainer } from "../../types";
-import { generateSocket } from "../../controls/socket-generator";
 import ky from "ky";
+import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
+
+import { generateSocket } from "../../controls/socket-generator";
+import { DiContainer } from "../../types";
+import { BaseNode, NodeContextFactory, ParsedNode } from "../base";
 
 const inputSockets = {
   fetch: generateSocket({

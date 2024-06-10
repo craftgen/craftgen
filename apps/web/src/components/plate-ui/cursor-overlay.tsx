@@ -1,11 +1,11 @@
 import React from "react";
 import { createStore } from "@udecode/plate-common";
-import type {
-  CursorData,
-  CursorOverlayProps,
-  CursorProps,
+import {
+  CursorOverlay as CursorOverlayPrimitive,
+  type CursorData,
+  type CursorOverlayProps,
+  type CursorProps,
 } from "@udecode/plate-cursor";
-import { CursorOverlay as CursorOverlayPrimitive } from "@udecode/plate-cursor";
 
 import { cn } from "@/lib/utils";
 

@@ -2,13 +2,11 @@
 // @ts-nocheck
 
 import type { SetOptional } from "type-fest";
-import type { StateFrom } from "xstate";
-import { assign, createMachine } from "xstate";
+import { assign, createMachine, type StateFrom } from "xstate";
 
-import type { DiContainer } from "../../../types";
-import { BaseNode  } from "../../base";
-import type {ParsedNode} from "../../base";
 import { generateSocket } from "../../../controls/socket-generator";
+import type { DiContainer } from "../../../types";
+import { BaseNode, type ParsedNode } from "../../base";
 
 const ShopifyMachine = createMachine({
   id: "shopify",
@@ -18,12 +16,8 @@ const ShopifyMachine = createMachine({
       sheetId: "332471859",
       action: "getSalesTotal",
     },
-    inputs: {
-
-    },
-    outputs: {
-
-    },
+    inputs: {},
+    outputs: {},
     inputSockets: {
       endDate: generateSocket({
         name: "endDate",
@@ -41,7 +35,7 @@ const ShopifyMachine = createMachine({
         description: "Start Date",
         required: true,
         isMultiple: false,
-      })
+      }),
     },
     outputSockets: {
       result: generateSocket({
@@ -60,7 +54,7 @@ const ShopifyMachine = createMachine({
         "x-showSocket": true,
         "x-key": "Shopify",
       }),
-    }
+    },
   },
   initial: "idle",
   types: {} as {

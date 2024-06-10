@@ -1,7 +1,7 @@
 "use client";
 
-import { useInView, useMotionValue, useSpring } from "framer-motion";
 import { useEffect, useRef } from "react";
+import { useInView, useMotionValue, useSpring } from "framer-motion";
 
 export default function NumberTicker({
   value,

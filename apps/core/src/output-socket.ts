@@ -1,26 +1,27 @@
+import { init } from "@paralleldrive/cuid2";
+import { get, isEqual, merge } from "lodash";
+import {
+  BehaviorSubject,
+  debounceTime,
+  distinctUntilChanged,
+  from,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
+import { match } from "ts-pattern";
 import {
   ActorRefFrom,
   AnyActor,
   AnyActorRef,
-  Spawner,
   enqueueActions,
   fromObservable,
   setup,
+  Spawner,
 } from "xstate";
+
 import { JSONSocket } from "./controls/socket-generator";
-import {
-  distinctUntilChanged,
-  from,
-  switchMap,
-  of,
-  debounceTime,
-  BehaviorSubject,
-  startWith,
-} from "rxjs";
-import { get, isEqual, merge } from "lodash";
 import { inputSocketMachine } from "./input-socket";
-import { match } from "ts-pattern";
-import { init } from "@paralleldrive/cuid2";
 import { valueActorMachine } from "./value-actor";
 
 export function createId(prefix: "context" | "value", parentId: string) {

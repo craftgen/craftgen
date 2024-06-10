@@ -1,11 +1,9 @@
-import type { ComponentProps } from "react";
-import React from "react";
+import React, { type ComponentProps } from "react";
 import {
   Caption as CaptionPrimitive,
   CaptionTextarea as CaptionTextareaPrimitive,
 } from "@udecode/plate-caption";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 

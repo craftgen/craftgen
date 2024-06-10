@@ -20,9 +20,8 @@ import {
   Drag,
   Presets,
   type RenderEmit,
-} from "@seocraft/core/src/plugins/reactPlugin";
-import type { Schemes } from "@seocraft/core/src/types";
-
+} from "@craftgen/core/src/plugins/reactPlugin";
+import type { Schemes } from "@craftgen/core/src/types";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import {
@@ -46,6 +45,7 @@ import {
 } from "@craftgen/ui/components/context-menu";
 import { Input } from "@craftgen/ui/components/input";
 import { Separator } from "@craftgen/ui/components/separator";
+
 import { cn } from "@/lib/utils";
 
 import type { ReteStoreInstance } from "../store";
@@ -56,18 +56,24 @@ import { useState } from "react";
 import { get, isEqual, isNil } from "lodash-es";
 import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
+import { AnyActorRef } from "xstate";
 
-import { updateNodeMetadata } from "@/actions/update-node-meta";
-import { Icons } from "@/components/icons";
-import { JSONView } from "@/components/json-view";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@craftgen/ui/components/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@craftgen/ui/components/tooltip";
-import { AnyActorRef } from "xstate";
+
+import { updateNodeMetadata } from "@/actions/update-node-meta";
+import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
 
 const { RefSocket, RefControl } = Presets.classic;
 
@@ -290,7 +296,7 @@ export const Node = (props: Props<Schemes>) => {
                 height: size.height,
               }}
               className={cn(
-                "@container group rounded-lg",
+                "group rounded-lg @container",
                 selected && " border-primary",
                 "glass flex flex-1 flex-col",
                 stateValue === "loading" &&
@@ -325,7 +331,7 @@ export const Node = (props: Props<Schemes>) => {
                         >
                           {props.data.label}{" "}
                           {props.data.action ? (
-                            <span className="text-muted-foreground ml-2 text-sm">
+                            <span className="ml-2 text-sm text-muted-foreground">
                               {"/"}
                               {props.data.action}
                             </span>
@@ -345,7 +351,7 @@ export const Node = (props: Props<Schemes>) => {
                       {/* {JSON.stringify(stateValue, null, 2)} */}
                       {stateValue === "editing" && (
                         <Cog
-                          className="text-muted-foreground animate-spin"
+                          className="animate-spin text-muted-foreground"
                           size={14}
                         />
                       )}
@@ -376,7 +382,7 @@ export const Node = (props: Props<Schemes>) => {
                     className={cn(
                       "hidden",
                       size.height > props.data.minHeightForControls &&
-                        "@xs:block my-2 space-y-2",
+                        "my-2 space-y-2 @xs:block",
                     )}
                   >
                     {inputs.map(
@@ -586,7 +592,7 @@ const NodeIdBadge: React.FC<{ id: string }> = ({ id }) => {
       <TooltipTrigger>
         <Badge
           variant={"outline"}
-          className="text-muted group-hover:text-primary cursor-pointer truncate font-mono text-xs"
+          className="cursor-pointer truncate font-mono text-xs text-muted group-hover:text-primary"
           onClick={handleCopy}
         >
           {id}

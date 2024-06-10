@@ -1,13 +1,15 @@
-import { Icons } from "@/components/icons";
-import { JSONView } from "@/components/json-view";
+import { useSelector } from "@xstate/react";
+import { AnyActorRef } from "xstate";
+
+import { NodeProps } from "@craftgen/core/src/types";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import { Label } from "@craftgen/ui/components/label";
+
+import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
 import { useCraftStore } from "@/core/use-store";
 import { cn } from "@/lib/utils";
-import { NodeProps } from "@seocraft/core/src/types";
-import { useSelector } from "@xstate/react";
-import { AnyActorRef } from "xstate";
 
 export const Runs = ({ node }: { node: NodeProps }) => {
   const di = useCraftStore((state) => state.di);
@@ -58,7 +60,7 @@ const Run = ({ run }: { run: AnyActorRef }) => {
   const state = useSelector(run, (state) => state);
   console.log(state);
   return (
-    <div className="bg-muted/20 flex flex-col space-y-2 rounded border p-2">
+    <div className="flex flex-col space-y-2 rounded border bg-muted/20 p-2">
       <div className="flex flex-row items-center justify-between ">
         <div className="flex  items-center space-x-2">
           <Label>Run Id</Label>
@@ -84,13 +86,13 @@ const Run = ({ run }: { run: AnyActorRef }) => {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-muted/30 border-1 rounded p-2">
+        <div className="border-1 rounded bg-muted/30 p-2">
           <Label>Input</Label>
           <div className="p-2">
             <JSONView src={state.context.inputs} />
           </div>
         </div>
-        <div className="bg-muted/30 border-1 rounded p-2">
+        <div className="border-1 rounded bg-muted/30 p-2">
           <Label>Output</Label>
           <div className="p-2">
             <JSONView src={state.context.outputs} />

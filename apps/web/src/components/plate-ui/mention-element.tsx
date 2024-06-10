@@ -1,6 +1,10 @@
 import React, { forwardRef } from "react";
-import type { PlateElementProps, Value } from "@udecode/plate-common";
-import { getHandler, PlateElement } from "@udecode/plate-common";
+import {
+  getHandler,
+  PlateElement,
+  type PlateElementProps,
+  type Value,
+} from "@udecode/plate-common";
 import type { TMentionElement } from "@udecode/plate-mention";
 import { useFocused, useSelected } from "slate-react";
 
@@ -29,8 +33,8 @@ const MentionElement = forwardRef<
     <PlateElement
       ref={ref}
       className={cn(
-        "bg-muted inline-block cursor-pointer rounded-md px-1.5 py-0.5 align-baseline text-sm font-medium",
-        selected && focused && "ring-ring ring-2",
+        "inline-block cursor-pointer rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm font-medium",
+        selected && focused && "ring-2 ring-ring",
         element.children[0].bold === true && "font-bold",
         element.children[0].italic === true && "italic",
         element.children[0].underline === true && "underline",

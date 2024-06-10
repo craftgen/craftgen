@@ -1,6 +1,5 @@
 import { debounce } from "lodash-es";
-import type { Root} from "rete";
-import { Scope } from "rete";
+import { Scope, type Root } from "rete";
 import type { Area2D } from "rete-area-plugin";
 
 import type { ReteStoreInstance } from "../../store";

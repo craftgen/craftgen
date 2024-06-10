@@ -1,3 +1,4 @@
+import { get, isEqual, omit } from "lodash";
 import {
   BehaviorSubject,
   combineLatest,
@@ -10,11 +11,11 @@ import {
   switchMap,
   tap,
 } from "rxjs";
-import { P, match } from "ts-pattern";
-import { ActorRefFrom, AnyActor, SnapshotFrom, fromObservable } from "xstate";
+import { match, P } from "ts-pattern";
+import { ActorRefFrom, AnyActor, fromObservable, SnapshotFrom } from "xstate";
+
 import { inputSocketMachine } from "./input-socket";
 import { createJsonSchema } from "./utils";
-import { get, isEqual, omit } from "lodash";
 
 export const inputJsonWatcher = fromObservable(
   ({

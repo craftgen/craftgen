@@ -8,7 +8,11 @@ import { useDebounce } from "react-use";
 import { mutate } from "swr";
 import { z } from "zod";
 
-import { Alert, AlertDescription, AlertTitle } from "@craftgen/ui/components/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@craftgen/ui/components/alert";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import {
@@ -33,12 +37,13 @@ import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { Switch } from "@craftgen/ui/components/switch";
 import { Textarea } from "@craftgen/ui/components/textarea";
 import { useToast } from "@craftgen/ui/components/use-toast";
+
 import { slugify } from "@/lib/string";
 import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 import { checkSlugAvailable } from "./actions";
 import { useProject } from "./hooks/use-project";
-import { api } from "@/trpc/react";
 
 const formSchema = z.object({
   template: z.string().nullable(),
@@ -218,11 +223,11 @@ export const WorkflowCreateDialog: React.FC<{
                     {templates.map((template, i) => (
                       <div
                         key={template.id}
-                        className="bg-muted/80 hover:bg-muted flex aspect-square h-full cursor-pointer  flex-col rounded p-4 shadow hover:shadow-lg"
+                        className="flex aspect-square h-full cursor-pointer flex-col rounded  bg-muted/80 p-4 shadow hover:bg-muted hover:shadow-lg"
                         onClick={() => handleTemplateChange(template.id)}
                       >
                         <h5 className="text-lg font-bold">{template.name}</h5>
-                        <p className="text-secondary-foreground text-sm">
+                        <p className="text-sm text-secondary-foreground">
                           {template.description}
                         </p>
                         <div className="mt-auto self-end">

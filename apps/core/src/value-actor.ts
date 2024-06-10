@@ -1,13 +1,14 @@
-import {
-  setup,
-  enqueueActions,
-  fromObservable,
-  AnyActor,
-  ActorRefFrom,
-} from "xstate";
-import { JSONSocket } from "./controls/socket-generator";
 import { isEqual, isNil } from "lodash";
 import { debounceTime, distinctUntilChanged, from, of, switchMap } from "rxjs";
+import {
+  ActorRefFrom,
+  AnyActor,
+  enqueueActions,
+  fromObservable,
+  setup,
+} from "xstate";
+
+import { JSONSocket } from "./controls/socket-generator";
 import { inputSocketMachine } from "./input-socket";
 
 export const valueActorMachine = setup({

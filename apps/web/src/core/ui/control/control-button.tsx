@@ -1,7 +1,6 @@
 import { useSelector } from "@xstate/react";
 
-import type { ButtonControl } from "@seocraft/core/src/controls/button";
-
+import type { ButtonControl } from "@craftgen/core/src/controls/button";
 import { Button } from "@craftgen/ui/components/button";
 
 export function CustomButton(props: { data: ButtonControl }) {

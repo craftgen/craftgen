@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
+
+import { Editor } from "@craftgen/core";
+import { nodes } from "@craftgen/core/src/types";
+
 import { api } from "@/trpc/server";
-import { Editor } from "@seocraft/core";
-import { nodes } from "@seocraft/core/src/types";
 
 const app = new Hono().basePath("/:project/:workflow/v/:version/api");
 

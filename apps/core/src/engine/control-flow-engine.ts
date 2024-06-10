@@ -1,5 +1,10 @@
-import type { GetSchemes, NodeId, Root} from "rete";
-import { NodeEditor, Scope } from "rete";
+import {
+  NodeEditor,
+  Scope,
+  type GetSchemes,
+  type NodeId,
+  type Root,
+} from "rete";
 
 import { ControlFlow } from "./control-flow";
 import type { ClassicScheme } from "./types";

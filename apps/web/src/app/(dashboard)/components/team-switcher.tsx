@@ -10,11 +10,15 @@ import {
 } from "@radix-ui/react-icons";
 import type { PopoverTriggerProps } from "@radix-ui/react-popover";
 import {
-  Session,
   createClientComponentClient,
+  Session,
 } from "@supabase/auth-helpers-nextjs";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@craftgen/ui/components/avatar";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Command,
@@ -39,6 +43,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
+
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 

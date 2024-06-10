@@ -4,27 +4,29 @@
 
 import { match, P } from "ts-pattern";
 
-import { BooleanControl } from "@seocraft/core/src/controls/boolean";
-import { ButtonControl } from "@seocraft/core/src/controls/button";
-import { CodeControl } from "@seocraft/core/src/controls/code";
-import { ComboboxControl } from "@seocraft/core/src/controls/combobox";
-import { DateControl } from "@seocraft/core/src/controls/date";
-import { FileControl } from "@seocraft/core/src/controls/file";
-import { GoogleDriveControl } from "@seocraft/core/src/controls/google-drive";
-import { InputControl } from "@seocraft/core/src/controls/input.control";
-import { JsonControl } from "@seocraft/core/src/controls/json";
-import { NodeControl } from "@seocraft/core/src/controls/node";
-import { NumberControl } from "@seocraft/core/src/controls/number";
-import { OpenAIThreadControl } from "@seocraft/core/src/controls/openai-thread.control";
-import { SelectControl } from "@seocraft/core/src/controls/select";
-import { SliderControl } from "@seocraft/core/src/controls/slider";
-import { SocketGeneratorControl } from "@seocraft/core/src/controls/socket-generator";
-import { SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
-import { TableControl } from "@seocraft/core/src/controls/table";
-import { TextareControl } from "@seocraft/core/src/controls/textarea";
-import { ThreadControl } from "@seocraft/core/src/controls/thread.control";
-import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
-import type { Schemes } from "@seocraft/core/src/types";
+import { BooleanControl } from "@craftgen/core/src/controls/boolean";
+import { ButtonControl } from "@craftgen/core/src/controls/button";
+import { CodeControl } from "@craftgen/core/src/controls/code";
+import { ComboboxControl } from "@craftgen/core/src/controls/combobox";
+import { DateControl } from "@craftgen/core/src/controls/date";
+import { FileControl } from "@craftgen/core/src/controls/file";
+import { GoogleDriveControl } from "@craftgen/core/src/controls/google-drive";
+import { InputControl } from "@craftgen/core/src/controls/input.control";
+import { JsCdnController } from "@craftgen/core/src/controls/js-cdn";
+import { JsonControl } from "@craftgen/core/src/controls/json";
+import { NodeControl } from "@craftgen/core/src/controls/node";
+import { NumberControl } from "@craftgen/core/src/controls/number";
+import { OpenAIThreadControl } from "@craftgen/core/src/controls/openai-thread.control";
+import { SecretController } from "@craftgen/core/src/controls/secret";
+import { SelectControl } from "@craftgen/core/src/controls/select";
+import { SliderControl } from "@craftgen/core/src/controls/slider";
+import { SocketGeneratorControl } from "@craftgen/core/src/controls/socket-generator";
+import { SWRSelectControl } from "@craftgen/core/src/controls/swr-select";
+import { TableControl } from "@craftgen/core/src/controls/table";
+import { TextareControl } from "@craftgen/core/src/controls/textarea";
+import { ThreadControl } from "@craftgen/core/src/controls/thread.control";
+import type { ExtractPayload } from "@craftgen/core/src/plugins/reactPlugin/presets/classic/types";
+import type { Schemes } from "@craftgen/core/src/types";
 
 import { BooleanControlComponent } from "./ui/control/control-boolean";
 // Control Components
@@ -34,9 +36,11 @@ import { ComboboxControlComponent } from "./ui/control/control-combobox";
 import { DateControlComponent } from "./ui/control/control-date";
 import { FileControlComponent } from "./ui/control/control-file";
 import { GoogleDriveControlComponent } from "./ui/control/control-google-drive";
+import { JsCdnControlComponent } from "./ui/control/control-js-cdn";
 import { JsonControlComponent } from "./ui/control/control-json";
 import { NodeControlComponent } from "./ui/control/control-node";
 import { NumberControlComponent } from "./ui/control/control-number";
+import { SecretControlComponent } from "./ui/control/control-secret";
 import { SelectControlComponent } from "./ui/control/control-select";
 import { SliderControlComponenet as SliderControlComponent } from "./ui/control/control-slider";
 import { SocketGeneratorControlComponent } from "./ui/control/control-socket-generator";
@@ -46,10 +50,6 @@ import { CustomInput } from "./ui/control/custom-input";
 import { CustomTextarea } from "./ui/control/custom-textarea";
 import { OpenAIThreadControlComponent } from "./ui/control/thread/control-openai-thread";
 import { ThreadControlComponent } from "./ui/control/thread/control-thread";
-import { JsCdnController } from "@seocraft/core/src/controls/js-cdn";
-import { JsCdnControlComponent } from "./ui/control/control-js-cdn";
-import { SecretController } from "@seocraft/core/src/controls/secret";
-import { SecretControlComponent } from "./ui/control/control-secret";
 
 export const getControl = (
   data: ExtractPayload<Schemes, "control">,

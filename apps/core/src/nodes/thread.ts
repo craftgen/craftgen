@@ -1,20 +1,25 @@
 import { createId } from "@paralleldrive/cuid2";
 import type { ChatMessage } from "modelfusion";
-import type { PromiseActorLogic } from "xstate";
-import { assign, createMachine, enqueueActions } from "xstate";
 import dedent from "ts-dedent";
+import { SetOptional } from "type-fest";
+import {
+  assign,
+  createMachine,
+  enqueueActions,
+  type PromiseActorLogic,
+} from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
-} from "./base";
-import { BaseNode, NodeContextFactory } from "./base";
 import { DiContainer } from "../types";
-import { SetOptional } from "type-fest";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "./base";
 
 export enum ThreadActions {
   addMessage = "addMessage",

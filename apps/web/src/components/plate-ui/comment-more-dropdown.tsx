@@ -27,7 +27,7 @@ export function CommentMoreDropdown() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-muted-foreground h-6 p-1")}>
+        <Button variant="ghost" className={cn("h-6 p-1 text-muted-foreground")}>
           <Icons.more className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

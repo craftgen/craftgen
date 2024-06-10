@@ -1,3 +1,8 @@
+import { useSelector } from "@xstate/react";
+import { X } from "lucide-react";
+import { useFieldArray, useForm } from "react-hook-form";
+
+import type { JsCdnController } from "@craftgen/core/src/controls/js-cdn";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Form,
@@ -9,10 +14,6 @@ import {
   FormMessage,
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
-import type { JsCdnController } from "@seocraft/core/src/controls/js-cdn";
-import { useSelector } from "@xstate/react";
-import { X } from "lucide-react";
-import { useFieldArray, useForm } from "react-hook-form";
 
 export const JsCdnControlComponent = (props: { data: JsCdnController }) => {
   const { definition, value: valueActor } = useSelector(
@@ -65,13 +66,13 @@ export const JsCdnControlComponent = (props: { data: JsCdnController }) => {
         >
           <h4 className="mb-4">
             Libraries
-            <span className="text-muted-foreground ml-4 text-sm">
+            <span className="ml-4 text-sm text-muted-foreground">
               (cdn packages)
             </span>
           </h4>
 
           {fields.length === 0 && (
-            <div className="text-muted-foreground flex items-center justify-center text-sm">
+            <div className="flex items-center justify-center text-sm text-muted-foreground">
               No library added yet
             </div>
           )}
@@ -80,7 +81,7 @@ export const JsCdnControlComponent = (props: { data: JsCdnController }) => {
             <div key={field.id} className="flex items-center">
               <div
                 key={`field.${index}`}
-                className="@container relative mb-4 flex w-full flex-col rounded border px-2 py-1 shadow"
+                className="relative mb-4 flex w-full flex-col rounded border px-2 py-1 shadow @container"
               >
                 <div className="absolute right-2 top-2">
                   <Button

@@ -3,10 +3,15 @@
 import "./code-block-element.css";
 
 import React, { forwardRef } from "react";
-import type { TCodeBlockElement } from "@udecode/plate-code-block";
-import { useCodeBlockElementState } from "@udecode/plate-code-block";
-import type { PlateElementProps, Value } from "@udecode/plate-common";
-import { PlateElement } from "@udecode/plate-common";
+import {
+  useCodeBlockElementState,
+  type TCodeBlockElement,
+} from "@udecode/plate-code-block";
+import {
+  PlateElement,
+  type PlateElementProps,
+  type Value,
+} from "@udecode/plate-common";
 
 import { cn } from "@/lib/utils";
 
@@ -26,7 +31,7 @@ const CodeBlockElement = forwardRef<
       className={cn("relative py-1", state.className, className)}
       {...props}
     >
-      <pre className="bg-muted overflow-x-auto rounded-md px-6 py-8 font-mono text-sm leading-[normal] [tab-size:2]">
+      <pre className="overflow-x-auto rounded-md bg-muted px-6 py-8 font-mono text-sm leading-[normal] [tab-size:2]">
         <code>{children}</code>
       </pre>
 

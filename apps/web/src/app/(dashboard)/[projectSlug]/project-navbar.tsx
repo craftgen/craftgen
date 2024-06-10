@@ -1,11 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+
 import { useHasAccess } from "../hooks/use-user";
-import { useMemo } from "react";
 
 export const ProjectNavbar: React.FC<{}> = () => {
   const params = useParams();
@@ -39,9 +40,9 @@ export const ProjectNavbar: React.FC<{}> = () => {
           key={link.name}
           className={cn(
             "m-2 p-1 transition-all duration-200",
-            "hover:bg-primary/10 hover:rounded",
+            "hover:rounded hover:bg-primary/10",
             pathname === link.href(params?.projectSlug as string) &&
-              "border-primary border-b-2",
+              "border-b-2 border-primary",
           )}
         >
           {link.name}

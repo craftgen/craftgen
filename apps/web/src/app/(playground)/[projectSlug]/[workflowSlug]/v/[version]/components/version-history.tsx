@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { getWorkflow } from "@/actions/get-workflow";
+import { RouterOutputs } from "@craftgen/api";
 import {
   Select,
   SelectContent,
@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
+
+import type { getWorkflow } from "@/actions/get-workflow";
 import { api } from "@/trpc/react";
-import { RouterOutputs } from "@seocraft/api";
 
 export const VersionHistory: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["meta"];

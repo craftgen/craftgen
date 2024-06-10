@@ -1,13 +1,15 @@
-import { JSONView } from "@/components/json-view";
-import { Button } from "@craftgen/ui/components/button";
-import { api } from "@/trpc/server";
-import { RouterOutputs } from "@seocraft/api";
+import { useMemo } from "react";
+import Link from "next/link";
 import _ from "lodash";
 import { ExternalLink } from "lucide-react";
-import Link from "next/link";
-import * as motion from "@/components/motion";
-import { useMemo } from "react";
+
+import { RouterOutputs } from "@craftgen/api";
+import { Button } from "@craftgen/ui/components/button";
+
 import { Icons } from "@/components/icons";
+import { JSONView } from "@/components/json-view";
+import * as motion from "@/components/motion";
+import { api } from "@/trpc/server";
 
 type CategoryList = RouterOutputs["public"]["integration"]["categoryList"];
 
@@ -25,7 +27,7 @@ const IntegrationsPage = async () => {
             <h1 className="text-4xl font-bold">Integrations</h1>
           </div>
           <div>
-            <p className="text-muted-foreground max-w-xl text-sm">
+            <p className="max-w-xl text-sm text-muted-foreground">
               Connect Craftgen effortlessly with your favorite tools and
               platforms. Our integration guides ensure a smooth fusion of
               creativity, allowing you to enhance your workflow without
@@ -67,7 +69,7 @@ const IntegrationCategoryButton = ({
   return (
     <div className={"p-2"}>
       <a href={`/integrations#${solution.slug}`}>
-        <h3 className="text-muted-foreground hover:text-foreground text-lg">
+        <h3 className="text-lg text-muted-foreground hover:text-foreground">
           {solution.translations[0]?.name}
         </h3>
       </a>
@@ -139,7 +141,7 @@ const IntegrationItem = ({
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.25 }}
         className={
-          "bg-card/80 group min-h-[10rem] rounded-lg bg-clip-padding p-4 shadow-sm backdrop-blur-sm backdrop-filter transition-all hover:shadow"
+          "group min-h-[10rem] rounded-lg bg-card/80 bg-clip-padding p-4 shadow-sm backdrop-blur-sm backdrop-filter transition-all hover:shadow"
         }
       >
         <div className="flex w-full items-center justify-between">

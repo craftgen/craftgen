@@ -1,7 +1,4 @@
 {
   "title": "Get Started",
-  "pages": [
-    "./core-concepts",
-    "..."
-  ]
+  "pages": ["./core-concepts", "..."]
 }

@@ -10,8 +10,7 @@ import type { FloatingToolbarState } from "@udecode/plate-floating/dist";
 
 import { cn } from "@/lib/utils";
 
-import type { ToolbarProps } from "./toolbar";
-import { Toolbar } from "./toolbar";
+import { Toolbar, type ToolbarProps } from "./toolbar";
 
 export interface FloatingToolbarProps extends ToolbarProps {
   state?: FloatingToolbarState;
@@ -56,7 +55,7 @@ const FloatingToolbar = React.forwardRef<
       <Toolbar
         ref={ref}
         className={cn(
-          "bg-popover absolute z-50 whitespace-nowrap border px-1 opacity-100 shadow-md",
+          "absolute z-50 whitespace-nowrap border bg-popover px-1 opacity-100 shadow-md",
         )}
         {...rootProps}
         {...props}

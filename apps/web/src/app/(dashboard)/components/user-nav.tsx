@@ -5,10 +5,15 @@ import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { Session } from "@supabase/supabase-js";
 import { useTheme } from "next-themes";
+import { usePostHog } from "posthog-js/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@craftgen/ui/components/avatar";
 import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
@@ -27,7 +32,6 @@ import {
 } from "@craftgen/ui/components/dropdown-menu";
 
 import { useUser } from "../hooks/use-user";
-import { usePostHog } from "posthog-js/react";
 
 export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
   const { data: user } = useUser();
@@ -80,7 +84,7 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
             <p className="text-sm font-medium leading-none">
               @{user?.username}
             </p>
-            <p className="text-muted-foreground text-xs leading-none">
+            <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
           </div>

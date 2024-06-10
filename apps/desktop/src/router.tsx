@@ -1,6 +1,6 @@
-import { createRouter } from '@tanstack/react-router'
+import { createRouter } from "@tanstack/react-router";
 
-import { routeTree } from './routeTree.gen'
+import { routeTree } from "./routeTree.gen";
 
 export const router = createRouter({
   routeTree,
@@ -9,4 +9,4 @@ export const router = createRouter({
     // We'll be passing down the auth state from within a React component
     auth: undefined!,
   },
-})
+});

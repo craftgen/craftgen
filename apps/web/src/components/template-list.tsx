@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Star, Zap } from "lucide-react";
 
+import { AspectRatio } from "@craftgen/ui/components/aspect-ratio";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@craftgen/ui/components/avatar";
+
 import type { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
 import type { ResultOf } from "@/lib/type";
-
-import { AspectRatio } from "@craftgen/ui/components/aspect-ratio";
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
 import { cn } from "@/lib/utils";
 
 interface Author {
@@ -141,7 +145,7 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
   ];
   const randomBg = bgList[Math.floor(Math.random() * bgList.length)];
   return (
-    <div className="hover:bg-muted group flex  cursor-pointer flex-col rounded-lg transition-all duration-500">
+    <div className="group flex cursor-pointer  flex-col rounded-lg transition-all duration-500 hover:bg-muted">
       <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
         <div className="rounded-2xl p-1  transition-all">
           <AspectRatio ratio={5 / 3}>
@@ -165,13 +169,13 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
         </div>
         <div className="flex-1 p-2 ">
           <h3 className="font-semibold">{workflow.name}</h3>
-          <p className="text-muted-foreground line-clamp-3 text-sm">
+          <p className="line-clamp-3 text-sm text-muted-foreground">
             {workflow.description}
           </p>
         </div>
       </Link>
       <div className="flex items-center justify-between px-2 py-1">
-        <div className="border-primary/40 bg-muted/50 group-hover:bg-muted flex items-center rounded-full border-[1px] px-1 py-1">
+        <div className="flex items-center rounded-full border-[1px] border-primary/40 bg-muted/50 px-1 py-1 group-hover:bg-muted">
           <Avatar className="h-5 w-5">
             <AvatarImage
               src={`https://avatar.vercel.sh/${workflow.projectSlug}.png`}
@@ -179,12 +183,12 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
             />
             <AvatarFallback>{workflow.project.slug}</AvatarFallback>
           </Avatar>
-          <span className="ml-2 text-sm truncate">{workflow.project.name}</span>
+          <span className="ml-2 truncate text-sm">{workflow.project.name}</span>
         </div>
 
         <div className="flex items-center justify-center">
           <Star className="inline-block h-4 w-4" />
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             {workflow.versions[0].version}
           </span>
           {/* <span className="text-sm text-muted-foreground">
@@ -192,7 +196,7 @@ export const WorkflowItem: React.FC<{ workflow: Workflow }> = ({
             ({Math.floor(Math.random() * 1000) + 2000})
           </span> */}
           <Zap className="ml-2 inline-block h-4 w-4" />
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             {/* {workflow.usedByCount} */}(
             {Math.floor(Math.random() * 1000) + 2000})
           </span>

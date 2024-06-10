@@ -1,7 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Marquee from "@craftgen/ui/components/marquee";
+import { useEffect, useId, useRef, useState } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import {
   BarChart,
@@ -11,8 +10,11 @@ import {
   Rss,
   Shield,
 } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+
+import Marquee from "@craftgen/ui/components/marquee";
+
 import { Icon, Icons } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
 const tiles = [
   {
@@ -157,8 +159,8 @@ export function FeatureCard7() {
                 <Card key={idx} {...review} />
               ))}
             </Marquee>
-            <div className="dark:from-background pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white"></div>
-            <div className="dark:from-background pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-white"></div>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
           </div>
         </div>
         <div className="flex w-full flex-col items-start border-t border-neutral-200 p-4 dark:border-neutral-800">

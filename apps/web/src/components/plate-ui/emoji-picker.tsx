@@ -1,6 +1,5 @@
 import React from "react";
-import type { UseEmojiPickerType } from "@udecode/plate-emoji";
-import { EmojiSettings } from "@udecode/plate-emoji";
+import { EmojiSettings, type UseEmojiPickerType } from "@udecode/plate-emoji";
 
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ export function EmojiPicker({
   return (
     <div
       className={cn(
-        "bg-background flex flex-col rounded",
+        "flex flex-col rounded bg-background",
         "h-[350px] w-[316px] shadow-[rgb(15_15_15_/_5%)_0_0_0_1px,_rgb(15_15_15_/_10%)_0_3px_6px,_rgb(15_15_15_/_20%)_0_9px_24px]",
       )}
     >

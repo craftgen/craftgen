@@ -2,13 +2,13 @@ import { Playground } from "./playground";
 
 import "@/core/rete.css";
 
+import React from "react";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { TRPCError } from "@trpc/server";
 
 import { api } from "@/trpc/server";
-import React from "react";
-import { notFound } from "next/navigation";
-import { TRPCError } from "@trpc/server";
 
 const PlaygroundPage = async (props: {
   params: {

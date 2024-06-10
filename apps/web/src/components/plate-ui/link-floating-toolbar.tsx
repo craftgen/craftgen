@@ -1,7 +1,9 @@
 import React from "react";
-import type { UseVirtualFloatingOptions } from "@udecode/plate-floating";
-import { flip, offset } from "@udecode/plate-floating";
-import type { LinkFloatingToolbarState } from "@udecode/plate-link";
+import {
+  flip,
+  offset,
+  type UseVirtualFloatingOptions,
+} from "@udecode/plate-floating";
 import {
   FloatingLinkUrlInput,
   LinkOpenButton,
@@ -9,6 +11,7 @@ import {
   useFloatingLinkEditState,
   useFloatingLinkInsert,
   useFloatingLinkInsertState,
+  type LinkFloatingToolbarState,
 } from "@udecode/plate-link";
 
 import { Icons } from "@/components/icons";
@@ -68,7 +71,7 @@ export function LinkFloatingToolbar({ state }: LinkFloatingToolbarProps) {
   const input = (
     <div className="flex w-[330px] flex-col">
       <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pl-3">
+        <div className="flex items-center pl-3 text-muted-foreground">
           <Icons.link className="h-4 w-4" />
         </div>
 
@@ -81,7 +84,7 @@ export function LinkFloatingToolbar({ state }: LinkFloatingToolbarProps) {
       <Separator />
 
       <div className="flex items-center">
-        <div className="text-muted-foreground flex items-center pl-3">
+        <div className="flex items-center pl-3 text-muted-foreground">
           <Icons.text className="h-4 w-4" />
         </div>
         <input

@@ -1,9 +1,11 @@
-import { DiscordLogoIcon } from "@radix-ui/react-icons";
-import { pageTree } from "../../source";
-import { DocsLayout } from "fumadocs-ui/layout";
 import type { ReactNode } from "react";
-import { Button } from "@craftgen/ui/components/button";
 import Link from "next/link";
+import { DiscordLogoIcon } from "@radix-ui/react-icons";
+import { DocsLayout } from "fumadocs-ui/layout";
+
+import { Button } from "@craftgen/ui/components/button";
+
+import { pageTree } from "../../source";
 
 export default function RootDocsLayout({ children }: { children: ReactNode }) {
   return (
@@ -11,7 +13,7 @@ export default function RootDocsLayout({ children }: { children: ReactNode }) {
       tree={pageTree}
       sidebar={{
         banner: (
-          <div className="flex flex-col w-full">
+          <div className="flex w-full flex-col">
             <Link href="/discord">
               <Button variant={"outline"} className="w-full">
                 <DiscordLogoIcon className="mr-4" />

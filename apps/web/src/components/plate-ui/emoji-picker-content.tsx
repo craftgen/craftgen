@@ -1,7 +1,11 @@
 // @ts-nocheck
 import React, { memo, useCallback } from "react";
-import type { Emoji, GridRow, UseEmojiPickerType } from "@udecode/plate-emoji";
-import { EmojiSettings } from "@udecode/plate-emoji";
+import {
+  EmojiSettings,
+  type Emoji,
+  type GridRow,
+  type UseEmojiPickerType,
+} from "@udecode/plate-emoji";
 
 import { cn } from "@/lib/utils";
 
@@ -112,7 +116,7 @@ export function EmojiPickerContent({
             ref={section.root}
             style={{ width: getRowWidth }}
           >
-            <div className="bg-background/90 sticky -top-px z-[1] p-1 backdrop-blur-[4px]">
+            <div className="sticky -top-px z-[1] bg-background/90 p-1 backdrop-blur-[4px]">
               {i18n.categories[categoryId]}
             </div>
             <div
@@ -148,7 +152,7 @@ export function EmojiPickerContent({
   const SearchList = useCallback(() => {
     return (
       <div data-id="search" style={{ width: getRowWidth }}>
-        <div className="bg-background/90 sticky -top-px z-[1] p-1 backdrop-blur-[4px]">
+        <div className="sticky -top-px z-[1] bg-background/90 p-1 backdrop-blur-[4px]">
           {i18n.searchResult}
         </div>
         <div className="relative flex flex-wrap">

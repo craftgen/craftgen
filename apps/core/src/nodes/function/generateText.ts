@@ -10,18 +10,26 @@ import {
 import dedent from "ts-dedent";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { ActorRefFrom, AnyActorRef, OutputFrom } from "xstate";
-import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
+import {
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+  type ActorRefFrom,
+  type AnyActorRef,
+  type OutputFrom,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory } from "../base";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
 import type { OllamaModelConfig, OllamaModelMachine } from "../ollama/ollama";
 import type { OpenAIModelConfig, OpenaiModelMachine } from "../openai/openai";

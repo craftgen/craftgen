@@ -6,8 +6,11 @@ import type {
   PlateElementProps,
   TEditor,
 } from "@udecode/plate-common";
-import type { DragItemNode } from "@udecode/plate-dnd";
-import { useDraggable, useDraggableState } from "@udecode/plate-dnd";
+import {
+  useDraggable,
+  useDraggableState,
+  type DragItemNode,
+} from "@udecode/plate-dnd";
 import type { DropTargetMonitor } from "react-dnd";
 
 import { Icons } from "@/components/icons";
@@ -113,7 +116,7 @@ const Draggable = forwardRef<HTMLDivElement, DraggableProps>(
             >
               <Tooltip>
                 <TooltipTrigger ref={handleRef}>
-                  <Icons.dragHandle className="text-muted-foreground h-4 w-4" />
+                  <Icons.dragHandle className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>Drag to move</TooltipContent>
               </Tooltip>

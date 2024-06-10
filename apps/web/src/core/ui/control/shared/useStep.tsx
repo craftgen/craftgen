@@ -1,5 +1,6 @@
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import { useCallback, useMemo } from "react";
+
+import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
 
 export const useStep = (definition: JSONSocket) => {
   const decimalPlaceCount = useCallback((value: number) => {

@@ -1,13 +1,13 @@
 import * as React from "react";
+import { useSelector } from "@xstate/react";
+import { motion } from "framer-motion";
 
-import { Editor } from "@seocraft/core";
-import { Connection } from "@seocraft/core/src/connection/connection";
-import { Presets } from "@seocraft/core/src/plugins/reactPlugin";
-import { socketConfig, SocketNameType } from "@seocraft/core/src/sockets";
+import { Editor } from "@craftgen/core";
+import { Connection } from "@craftgen/core/src/connection/connection";
+import { Presets } from "@craftgen/core/src/plugins/reactPlugin";
+import { socketConfig, SocketNameType } from "@craftgen/core/src/sockets";
 
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { useSelector } from "@xstate/react";
 
 const { useConnection } = Presets.classic;
 
@@ -69,7 +69,7 @@ export function CustomConnection(props: { data: Connection; di: Editor }) {
           <motion.path
             d={path}
             className={cn(
-              "stroke-muted-foreground dark:stroke-muted-foreground/60 pointer-events-auto fill-none stroke-[6px]",
+              "pointer-events-auto fill-none stroke-muted-foreground stroke-[6px] dark:stroke-muted-foreground/60",
               // sourceConfig &&
               //   `stroke-${sourceConfig.connection}-400 dark:stroke-${sourceConfig.connection}-400`,
             )}

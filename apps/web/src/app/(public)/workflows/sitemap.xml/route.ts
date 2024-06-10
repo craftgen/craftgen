@@ -1,5 +1,6 @@
+import { db } from "@craftgen/db/db";
+
 import { BASE_URL } from "@/lib/constants";
-import { db } from "@seocraft/supabase/db";
 
 export async function GET(req: Request) {
   const workflows = await db.query.workflow.findMany({

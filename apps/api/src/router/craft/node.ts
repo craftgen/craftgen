@@ -1,7 +1,7 @@
 import { get } from "lodash-es";
 import { z } from "zod";
 
-import { and, eq, or, schema, sql } from "@seocraft/supabase/db";
+import { and, eq, or, schema, sql } from "@craftgen/db/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 

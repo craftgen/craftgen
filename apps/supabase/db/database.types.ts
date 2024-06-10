@@ -1,5 +1,5 @@
 
-> @seocraft/supabase@0.1.0 with-env /Users/necmttn/Projects/craftgen/apps/supabase
+> @craftgen/db@0.1.0 with-env /Users/necmttn/Projects/craftgen/apps/supabase
 > dotenv -e ../.env -- "supabase" "gen" "types" "typescript" "--local"
 
 export type Json =

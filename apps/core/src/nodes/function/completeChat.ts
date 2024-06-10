@@ -1,5 +1,5 @@
+import { createOpenAI } from "@ai-sdk/openai";
 import { createId } from "@paralleldrive/cuid2";
-import { get, isNil, isNull, merge } from "lodash-es";
 import {
   CoreAssistantMessage,
   CoreTool,
@@ -8,38 +8,40 @@ import {
   type ToolCallPart,
   type ToolResultPart,
 } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { get, isNil, isNull, merge } from "lodash-es";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
-import type { OutputFrom, SnapshotFrom } from "xstate";
 import {
   assertEvent,
   createMachine,
   enqueueActions,
   fromPromise,
   setup,
+  type AnyActorRef,
+  type OutputFrom,
+  type SnapshotFrom,
 } from "xstate";
-import type { AnyActorRef } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { Message } from "../../controls/thread.control";
+import { inputSocketMachine } from "../../input-socket";
+import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
+import { slugify } from "../../lib/string";
+import { outputSocketMachine } from "../../output-socket";
+import { getSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory } from "../base";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
 import type { OllamaModelConfig } from "../ollama/ollama";
-import { ThreadMachineEvents } from "../thread";
 import type { OpenAIModelConfig } from "../openai/openai";
-import { getSocket } from "../../sockets";
-import { outputSocketMachine } from "../../output-socket";
-import { inputSocketMachine } from "../../input-socket";
-import { slugify } from "../../lib/string";
-import { turnJSONSchemaToZodSchema } from "../../lib/json-schema-to-zod";
+import { ThreadMachineEvents } from "../thread";
 
 const inputSockets = {
   RUN: generateSocket({

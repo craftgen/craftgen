@@ -1,9 +1,12 @@
-import { Card, CardContent, CardHeader } from "@craftgen/ui/components/card";
-import { CreateStripeConnect } from "./create-stripe-connect";
-import { api } from "@/trpc/server";
-import { isNil } from "lodash-es";
 import { Suspense } from "react";
+import { isNil } from "lodash-es";
+
+import { Card, CardContent, CardHeader } from "@craftgen/ui/components/card";
+
+import { api } from "@/trpc/server";
+
 import { StripeAccountDetails } from "./account-details";
+import { CreateStripeConnect } from "./create-stripe-connect";
 
 const PaymentPage = async ({
   params,
@@ -32,8 +35,11 @@ const PaymentPage = async ({
             Earn money from your crafts by integrating with Stripe.
           </p>
           <Suspense fallback={<div>Loading...</div>}>
-            {isNil(project.stripeAccountId) ? <CreateStripeConnect />: <StripeAccountDetails project={project}/>}
-
+            {isNil(project.stripeAccountId) ? (
+              <CreateStripeConnect />
+            ) : (
+              <StripeAccountDetails project={project} />
+            )}
           </Suspense>
         </CardContent>
       </Card>

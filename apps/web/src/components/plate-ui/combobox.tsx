@@ -2,14 +2,6 @@
 
 import React, { useEffect } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import type {
-  ComboboxContentItemProps,
-  ComboboxContentProps,
-  ComboboxProps,
-  Data,
-  NoData,
-  TComboboxItem,
-} from "@udecode/plate-combobox";
 import {
   comboboxActions,
   useActiveComboboxStore,
@@ -18,6 +10,12 @@ import {
   useComboboxControls,
   useComboboxItem,
   useComboboxSelectors,
+  type ComboboxContentItemProps,
+  type ComboboxContentProps,
+  type ComboboxProps,
+  type Data,
+  type NoData,
+  type TComboboxItem,
 } from "@udecode/plate-combobox";
 import {
   useEventEditorSelectors,
@@ -79,7 +77,7 @@ export function ComboboxContent<TData extends Data = NoData>(
           side="bottom"
           align="start"
           className={cn(
-            "bg-popover z-[500] m-0 max-h-[288px] w-[300px] overflow-scroll rounded-md p-0 shadow-md",
+            "z-[500] m-0 max-h-[288px] w-[300px] overflow-scroll rounded-md bg-popover p-0 shadow-md",
           )}
           onOpenAutoFocus={(event) => event.preventDefault()}
         >

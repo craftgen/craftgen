@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import type { PlateElementProps } from "@udecode/plate-common";
-import { PlateElement } from "@udecode/plate-common";
+import { PlateElement, type PlateElementProps } from "@udecode/plate-common";
 
 import { cn } from "@/lib/utils";
 

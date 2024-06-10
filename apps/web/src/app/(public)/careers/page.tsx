@@ -1,9 +1,11 @@
 // import { Clock, CurrencyDollar } from '@phosphor-icons/react/dist/ssr';
 
-import { Button } from "@craftgen/ui/components/button";
-import { perks, positions, values } from "./data";
-import { Clock, DollarSign } from "lucide-react";
 import Link from "next/link";
+import { Clock, DollarSign } from "lucide-react";
+
+import { Button } from "@craftgen/ui/components/button";
+
+import { perks, positions, values } from "./data";
 
 export const metadata = {
   title: "Careers - CraftGen",

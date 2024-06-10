@@ -11,9 +11,7 @@ import {
   Provider,
   providers,
   ProviderType,
-} from "@seocraft/core/src/provider/config";
-
-import { Icon } from "@/components/icons";
+} from "@craftgen/core/src/provider/config";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import {
@@ -53,6 +51,8 @@ import {
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
 import { Separator } from "@craftgen/ui/components/separator";
+
+import { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
@@ -79,7 +79,7 @@ export const TokenList: React.FC<{
     },
   );
   return (
-    <div className="@container space-y-4 p-2">
+    <div className="space-y-4 p-2 @container">
       {tokensData && (
         <>
           <TokenListNew tokens={tokensData} />
@@ -148,7 +148,7 @@ export const TokenListNew: React.FC<{
           <CardContent>
             {fields.map((token, index) => (
               <div key={`token-${token.id}`} className="relative mb-4">
-                <div className="bg-muted/20 grid grid-cols-2 gap-4 rounded border p-2">
+                <div className="grid grid-cols-2 gap-4 rounded border bg-muted/20 p-2">
                   <FormField
                     control={form.control}
                     name={`tokens.${index}.provider`}
@@ -435,7 +435,7 @@ export const TokenItem: React.FC<{
             <span className="p-1 font-mono font-bold">{token.key}</span>
             {token.default && (
               <Badge variant={"outline"} className="bg-green-400/20">
-                <span className="text-muted-foreground font-mono text-xs">
+                <span className="font-mono text-xs text-muted-foreground">
                   Default
                 </span>
               </Badge>
@@ -457,7 +457,7 @@ export const TokenItem: React.FC<{
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
+                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
               >
                 <DotsHorizontalIcon className="h-4 w-4" />
                 <span className="sr-only">Open menu</span>
@@ -545,7 +545,7 @@ const ToggleView: React.FC<{ value: string }> = ({ value }) => {
   const [show, setShow] = useState(false);
   const toggleView = () => setShow((prev) => !prev);
   return (
-    <div className="bg-muted/50  @md:flex hidden flex-row items-center space-x-2 rounded border">
+    <div className="hidden  flex-row items-center space-x-2 rounded border bg-muted/50 @md:flex">
       <Input
         type={show ? "text" : "password"}
         className={cn(" w-auto border-none bg-transparent shadow-none")}

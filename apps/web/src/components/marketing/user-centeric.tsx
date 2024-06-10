@@ -1,9 +1,11 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { AnimatedBeam } from "@craftgen/ui/components/animated-beam";
-import { IconProps } from "@radix-ui/react-icons/dist/types";
 import React, { forwardRef, useRef } from "react";
+import { IconProps } from "@radix-ui/react-icons/dist/types";
+
+import { AnimatedBeam } from "@craftgen/ui/components/animated-beam";
+
+import { cn } from "@/lib/utils";
 
 const Circle = forwardRef<
   HTMLDivElement,
@@ -34,7 +36,7 @@ export function UserCentric() {
 
   return (
     <div
-      className="bg-background relative flex w-full max-w-[500px] items-center justify-center overflow-hidden rounded-lg border p-10 md:shadow-xl"
+      className="relative flex w-full max-w-[500px] items-center justify-center overflow-hidden rounded-lg border bg-background p-10 md:shadow-xl"
       ref={containerRef}
     >
       <div className="flex h-full w-full flex-col items-stretch justify-between gap-10">

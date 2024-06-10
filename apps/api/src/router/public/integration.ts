@@ -40,20 +40,23 @@ export const integrationRouter = createTRPCRouter({
           });
         }
         if (input.categoryId) {
-          const integrationIds = await tx.query.integrationIntegrationCategories
-            .findMany({
-              where: (integrationIntegrationCategories, { eq }) =>
-                eq(
-                  integrationIntegrationCategories.integrationCategoriesId,
-                  input.categoryId!,
-                ),
-              columns: {
-                integrationId: true,
-              },
-            })
-            .then((data) =>
-              data.map((item) => item.integrationId).filter((id) => id !== null),
-            ) as string[];
+          const integrationIds =
+            (await tx.query.integrationIntegrationCategories
+              .findMany({
+                where: (integrationIntegrationCategories, { eq }) =>
+                  eq(
+                    integrationIntegrationCategories.integrationCategoriesId,
+                    input.categoryId!,
+                  ),
+                columns: {
+                  integrationId: true,
+                },
+              })
+              .then((data) =>
+                data
+                  .map((item) => item.integrationId)
+                  .filter((id) => id !== null),
+              )) as string[];
           if (integrationIds.length === 0) {
             return [];
           }

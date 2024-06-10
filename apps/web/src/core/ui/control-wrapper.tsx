@@ -1,5 +1,7 @@
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
 import { useRef } from "react";
+
+import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
+
 import { getControl } from "../control";
 import { ControlContainer } from "./control-container";
 

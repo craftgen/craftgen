@@ -1,9 +1,9 @@
 import { useSelector } from "@xstate/react";
 
-import type { FileControl } from "@seocraft/core/src/controls/file";
-
+import type { FileControl } from "@craftgen/core/src/controls/file";
 import { Input } from "@craftgen/ui/components/input";
 import { Label } from "@craftgen/ui/components/label";
+
 import { cn } from "@/lib/utils";
 
 export function FileControlComponent(props: { data: FileControl }) {
@@ -32,7 +32,7 @@ export function FileControlComponent(props: { data: FileControl }) {
         onChange={handleChange}
       />
       {value && <img src={`${value}`} />}
-      <p className={cn("text-muted-foreground text-[0.8rem]")}>
+      <p className={cn("text-[0.8rem] text-muted-foreground")}>
         {props.data?.definition?.description}
       </p>
     </div>

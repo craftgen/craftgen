@@ -1,12 +1,13 @@
 "use client";
 
+import { ajvResolver } from "@hookform/resolvers/ajv";
 import { Play } from "lucide-react";
+import { JSONSchema } from "openai/lib/jsonschema";
 import { useForm } from "react-hook-form";
 import type { ContextFrom } from "xstate";
 
 // import { ajvResolver } from "@hookform/resolvers/ajv";
-import type { InputNodeMachine } from "@seocraft/core/src/nodes/io/input.node";
-
+import type { InputNodeMachine } from "@craftgen/core/src/nodes/io/input.node";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Form,
@@ -17,10 +18,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@craftgen/ui/components/form";
+
 import { renderField } from "@/core/control-utils";
 import type { RouterOutputs } from "@/trpc/shared";
-import { JSONSchema } from "openai/lib/jsonschema";
-import { ajvResolver } from "@hookform/resolvers/ajv";
 
 export const InputForm: React.FC<{
   workflow: RouterOutputs["craft"]["module"]["meta"];

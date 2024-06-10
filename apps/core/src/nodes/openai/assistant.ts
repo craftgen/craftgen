@@ -3,8 +3,7 @@ import dedent from "ts-dedent";
 
 import "openai/shims/web";
 
-import type { OpenAIChatModelType } from "modelfusion";
-import { OPENAI_CHAT_MODELS } from "modelfusion";
+import { OPENAI_CHAT_MODELS, type OpenAIChatModelType } from "modelfusion";
 import { OpenAI } from "openai";
 import type {
   Assistant,
@@ -17,19 +16,24 @@ import type {
 } from "openai/resources/beta/threads/runs/runs.mjs";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { PromiseActorLogic } from "xstate";
-import { assign, createMachine, fromPromise, raise } from "xstate";
+import {
+  assign,
+  createMachine,
+  fromPromise,
+  raise,
+  type PromiseActorLogic,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
-import { BaseNode } from "../base";
 
 const inputSockets = {
   threadId: generateSocket({

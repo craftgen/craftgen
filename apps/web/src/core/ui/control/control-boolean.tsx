@@ -1,9 +1,9 @@
 import { useSelector } from "@xstate/react";
 
-import type { BooleanControl } from "@seocraft/core/src/controls/boolean";
-
+import type { BooleanControl } from "@craftgen/core/src/controls/boolean";
 import { Label } from "@craftgen/ui/components/label";
 import { Switch } from "@craftgen/ui/components/switch";
+
 import { cn } from "@/lib/utils";
 
 export const BooleanControlComponent = (props: { data: BooleanControl }) => {

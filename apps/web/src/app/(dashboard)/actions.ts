@@ -3,7 +3,8 @@
 import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 
-import { db, user } from "@seocraft/supabase/db";
+import { db, user } from "@craftgen/db/db";
+
 import { sendTGMessage } from "../action";
 
 export const getUser = async () => {

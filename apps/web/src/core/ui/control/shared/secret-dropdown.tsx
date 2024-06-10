@@ -1,5 +1,5 @@
-import { useUser } from "@/app/(dashboard)/hooks/use-user";
-import { Icons } from "@/components/icons";
+import { useState } from "react";
+
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
 import {
@@ -15,8 +15,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
+
+import { useUser } from "@/app/(dashboard)/hooks/use-user";
+import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
-import { useState } from "react";
 
 export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {
   const { data: user } = useUser();
@@ -38,7 +40,7 @@ export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {
           disabled={!user}
         >
           <Icons.key className="mr-2 h-4 w-4" />
-          <p className="text-muted-foreground text-xs">Secret</p>
+          <p className="text-xs text-muted-foreground">Secret</p>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0" side="right" align="start">

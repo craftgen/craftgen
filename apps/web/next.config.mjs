@@ -1,5 +1,5 @@
-import createMDX from "fumadocs-mdx/config";
 import { remarkImage } from "fumadocs-core/mdx-plugins";
+import createMDX from "fumadocs-mdx/config";
 
 const withMDX = createMDX({
   cwd: "./src",
@@ -21,9 +21,9 @@ const nextConfig = {
     webpackBuildWorker: true,
   },
   transpilePackages: [
-    "@seocraft/core",
-    "@seocraft/api",
-    "@seocraft/supabase",
+    "@craftgen/core",
+    "@craftgen/api",
+    "@craftgen/db",
     "@craftgen/ui",
   ],
   images: {

@@ -1,5 +1,5 @@
 {
-  "name": "@seocraft/core",
+  "name": "@craftgen/core",
   "version": "0.1.0",
   "description": "",
   "main": "src/index.ts",
@@ -22,9 +22,9 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.8",
     "@apidevtools/swagger-parser": "^10.1.0",
+    "@craftgen/api": "^0.1.0",
+    "@craftgen/utils": "^0.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@seocraft/api": "^0.1.0",
-    "@seocraft/utils": "^0.1.0",
     "@statelyai/agent": "^0.0.7",
     "@statelyai/inspect": "^0.2.5",
     "@trpc/client": "11.0.0-rc.366",

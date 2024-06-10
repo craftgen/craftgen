@@ -2,15 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
-import {
-  and,
-  db,
-  eq,
-  project,
-  projectMembers,
-  user,
-} from "@seocraft/supabase/db";
-import type { Database } from "@seocraft/supabase/db/database.types";
+import { and, db, eq, project, projectMembers, user } from "@craftgen/db/db";
+import type { Database } from "@craftgen/db/db/database.types";
 
 import { BASE_URL } from "@/lib/constants";
 import PostHogClient from "@/lib/posthog";
@@ -29,7 +22,6 @@ export async function GET(request: Request) {
   const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
   const session = AuthResponse.data.session;
   const posthog = PostHogClient();
-
 
   if (scopes && session) {
     await db

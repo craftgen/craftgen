@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Trash } from "lucide-react";
 
-import { JSONView } from "@/components/json-view";
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +16,8 @@ import { Button } from "@craftgen/ui/components/button";
 import { Label } from "@craftgen/ui/components/label";
 import { Separator } from "@craftgen/ui/components/separator";
 import { Switch } from "@craftgen/ui/components/switch";
+
+import { JSONView } from "@/components/json-view";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
@@ -177,14 +178,14 @@ export const ExecutionActorData: React.FC<{
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-muted/50 rounded border p-2">
+        <div className="rounded border bg-muted/50 p-2">
           <h5 className="font-bold">Inputs</h5>
           <LogsTable record={actorData?.context?.inputs || {}} />
           {actorData?.context?.settings && (
             <LogsTable record={actorData?.context?.settings || {}} />
           )}
         </div>
-        <div className="bg-muted/50 rounded border p-2">
+        <div className="rounded border bg-muted/50 p-2">
           <h5 className="font-bold">Outputs</h5>
           <LogsTable record={actorData?.context?.outputs || {}} />
         </div>

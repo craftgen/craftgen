@@ -1,3 +1,9 @@
+import { useMemo } from "react";
+import { useSelector } from "@xstate/react";
+import { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
+
+import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
+import { inputSocketMachine } from "@craftgen/core/src/input-socket";
 import {
   Select,
   SelectContent,
@@ -5,11 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
-import { JSONSocket } from "@seocraft/core/src/controls/socket-generator";
-import { inputSocketMachine } from "@seocraft/core/src/input-socket";
-import { useSelector } from "@xstate/react";
-import { useMemo } from "react";
-import { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
 function parseValueFN(value: string) {
   const secret = /^\(?await getSecret\("([^"]+)"\)\)?$/;
@@ -56,7 +57,7 @@ export const ChangeFormat = <
         });
       }}
     >
-      <SelectTrigger className="hover:text-foreground text-muted-foreground hover:border-1 max-w-fit  border-none py-1 text-sm shadow-none">
+      <SelectTrigger className="hover:border-1 max-w-fit border-none py-1  text-sm text-muted-foreground shadow-none hover:text-foreground">
         <SelectValue placeholder="type" />
       </SelectTrigger>
       <SelectContent>

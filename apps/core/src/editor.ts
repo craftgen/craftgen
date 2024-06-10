@@ -1,4 +1,6 @@
 import { init } from "@paralleldrive/cuid2";
+import { createBrowserInspector } from "@statelyai/inspect";
+import _ from "lodash";
 import {
   cloneDeep,
   difference,
@@ -13,82 +15,80 @@ import {
 } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import PQueue from "p-queue";
-import { NodeEditor } from "rete";
-import type { GetSchemes, NodeId } from "rete";
+import { NodeEditor, type GetSchemes, type NodeId } from "rete";
 import type { Area2D, AreaExtensions, AreaPlugin } from "rete-area-plugin";
 import type { HistoryActions } from "rete-history-plugin";
 import { structures } from "rete-structures";
 import type { Structures } from "rete-structures/_types/types";
-import { P, match } from "ts-pattern";
+import {
+  BehaviorSubject,
+  bufferTime,
+  catchError,
+  concatMap,
+  debounceTime,
+  filter,
+  groupBy,
+  mergeMap,
+  of,
+  partition,
+  scan,
+  Subject,
+  tap,
+} from "rxjs";
+import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import {
-  setup,
+  Actor,
+  ActorLogicFrom,
+  ActorRefFrom,
+  AnyActorLogic,
+  AnyActorRef,
+  assertEvent,
   assign,
+  createActor,
+  enqueueActions,
+  EventFrom,
+  fromPromise,
+  MachineImplementationsFrom,
+  setup,
+  waitFor,
   type AnyActor,
   type AnyStateMachine,
   type ContextFrom,
   type InputFrom,
   type SnapshotFrom,
-  enqueueActions,
-  createActor,
-  Actor,
-  MachineImplementationsFrom,
-  assertEvent,
-  AnyActorRef,
-  ActorRefFrom,
-  fromPromise,
-  ActorLogicFrom,
-  EventFrom,
-  AnyActorLogic,
-  waitFor,
 } from "xstate";
-import { createBrowserInspector } from "@statelyai/inspect";
+import { GuardArgs } from "xstate/guards";
 
+import { RouterInputs } from "@craftgen/api";
+
+import { actorWatcher } from "./actor-watcher";
+import { ComputeEventMachine } from "./compute-event";
 import { useMagneticConnection } from "./connection";
 import { Connection } from "./connection/connection";
+import { ActorConfig, JSONSocket } from "./controls/socket-generator";
 import { createControlFlowEngine, createDataFlowEngine } from "./engine";
 import type { Input, Output } from "./input-output";
+import { inputSocketMachine } from "./input-socket";
 import {
   type BaseMachine,
   type BaseNode,
   type HasConnectionGuardParams,
   type ParsedNode,
 } from "./nodes/base";
+import { outputSocketMachine } from "./output-socket";
 import type { CustomArrange } from "./plugins/arrage/custom-arrange";
 import type { setupPanningBoundary } from "./plugins/panningBoundary";
 import type {
-  Registry as DOMRegistry,
   ClassicScheme,
+  Registry as DOMRegistry,
   ReactArea2D,
   ReactPlugin,
 } from "./plugins/reactPlugin";
-import { type Socket, getSocket } from "./sockets";
-import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
-import { ActorConfig, JSONSocket } from "./controls/socket-generator";
-import { GuardArgs } from "xstate/guards";
-import {
-  BehaviorSubject,
-  Subject,
-  bufferTime,
-  catchError,
-  concatMap,
-  debounceTime,
-  filter,
-  of,
-  groupBy,
-  mergeMap,
-  scan,
-  tap,
-  partition,
-} from "rxjs";
 import { socketWatcher } from "./socket-watcher";
-import { RouterInputs } from "@seocraft/api";
-import { inputSocketMachine } from "./input-socket";
-import { outputSocketMachine } from "./output-socket";
+import { getSocket, type Socket } from "./sockets";
+import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 import { valueActorMachine } from "./value-actor";
-import { ComputeEventMachine } from "./compute-event";
-import { actorWatcher } from "./actor-watcher";
-import _ from "lodash";
 
 export type AreaExtra<Schemes extends ClassicScheme> = ReactArea2D<Schemes>;
 

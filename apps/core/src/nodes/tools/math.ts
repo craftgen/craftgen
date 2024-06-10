@@ -3,19 +3,26 @@ import { merge } from "lodash-es";
 import * as mathjs from "mathjs";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
-import type { ActorRefFrom, AnyActorRef } from "xstate";
-import { createMachine, enqueueActions, fromPromise, setup } from "xstate";
+import {
+  createMachine,
+  enqueueActions,
+  fromPromise,
+  setup,
+  type ActorRefFrom,
+  type AnyActorRef,
+} from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
 
 const inputSockets = {
   RUN: generateSocket({

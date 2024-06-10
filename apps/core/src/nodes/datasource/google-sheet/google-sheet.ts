@@ -3,14 +3,18 @@
 
 import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import { assign, createMachine, fromPromise } from "xstate";
-import type { ContextFrom, StateFrom } from "xstate";
+import {
+  assign,
+  createMachine,
+  fromPromise,
+  type ContextFrom,
+  type StateFrom,
+} from "xstate";
 
 import { GoogleDriveControl } from "../../../controls/google-drive";
 import { SelectControl } from "../../../controls/select";
 import type { DiContainer } from "../../../types";
-import type { ParsedNode } from "../../base";
-import { BaseNode } from "../../base";
+import { BaseNode, type ParsedNode } from "../../base";
 import { addRow, getHeaders, getSheets, readRow, readRows } from "./actions";
 
 export interface CallbackDoc {

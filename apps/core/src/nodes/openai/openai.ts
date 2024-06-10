@@ -1,3 +1,4 @@
+import ky from "ky";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OpenAIChatSettings,
@@ -13,17 +14,17 @@ import {
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory } from "../base";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
-} from "../base";
 import { inputSocketMachine } from "../../input-socket";
-import ky from "ky";
+import type { DiContainer } from "../../types";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 const inputSockets = {
   apiConfiguration: generateSocket({

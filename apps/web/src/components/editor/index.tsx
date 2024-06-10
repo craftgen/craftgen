@@ -19,7 +19,6 @@ import {
   CommentsProvider,
   createCommentsPlugin,
 } from "@udecode/plate-comments";
-import type { PlateEditor } from "@udecode/plate-common";
 import {
   createPlateEditor,
   Plate,
@@ -27,6 +26,7 @@ import {
   replaceNodeChildren,
   usePlateSelectors,
   usePlateStates,
+  type PlateEditor,
 } from "@udecode/plate-common";
 import { createDndPlugin } from "@udecode/plate-dnd";
 import { createEmojiPlugin } from "@udecode/plate-emoji";
@@ -60,8 +60,9 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { v4 as uuidv4 } from "uuid";
 
-import type { MyValue } from "@/lib/plate/plate-types";
-import { createMyPlugins } from "@/lib/plate/plate-types";
+import { ScrollArea } from "@craftgen/ui/components/scroll-area";
+
+import { createMyPlugins, type MyValue } from "@/lib/plate/plate-types";
 import { cn } from "@/lib/utils";
 
 import { CommentsPopover } from "../plate-ui/comments-popover";
@@ -71,7 +72,6 @@ import { FixedToolbarButtons } from "../plate-ui/fixed-toolbar-buttons";
 import { FloatingToolbar } from "../plate-ui/floating-toolbar";
 import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
 import { TooltipProvider } from "../plate-ui/tooltip";
-import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { autoformatRules } from "./autoformatRules";
 import { createPlateUI } from "./create-plate-ui";
 import { exitBreakPlugin } from "./exit-break-plugin-options";
@@ -192,7 +192,7 @@ export const Editor: React.FC<EditorProps> = ({
   const containerRef = useRef(null);
 
   return (
-    <div className="@container relative flex h-full flex-col">
+    <div className="relative flex h-full flex-col @container">
       <TooltipProvider>
         <DndProvider backend={HTML5Backend}>
           <PlateProvider<MyValue>

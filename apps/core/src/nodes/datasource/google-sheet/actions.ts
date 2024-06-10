@@ -3,7 +3,7 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import type { Auth } from "googleapis";
 
-import type {GoogleSheetMachineSettingsContext} from "./google-sheet";
+import type { GoogleSheetMachineSettingsContext } from "./google-sheet";
 
 interface GoogleSheetServiceSettings {
   spreadsheetId: string;

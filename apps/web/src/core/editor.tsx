@@ -2,18 +2,21 @@
 
 import { ReactNode, useEffect, useRef, useState } from "react";
 
-import { Editor } from "@seocraft/core";
-import type { AreaExtra } from "@seocraft/core/src/editor";
+import { Editor } from "@craftgen/core";
+import type { AreaExtra } from "@craftgen/core/src/editor";
 import {
-  Registry,
   Presets,
   ReactPlugin,
-} from "@seocraft/core/src/plugins/reactPlugin";
-import type { Schemes, WorkflowAPI } from "@seocraft/core/src/types";
-import { nodes } from "@seocraft/core/src/types";
-
+  Registry,
+} from "@craftgen/core/src/plugins/reactPlugin";
+import {
+  nodes,
+  type Schemes,
+  type WorkflowAPI,
+} from "@craftgen/core/src/types";
 import { Badge } from "@craftgen/ui/components/badge";
 import { toast } from "@craftgen/ui/components/use-toast";
+
 import type { RouterOutputs } from "@/trpc/shared";
 
 import { getControl } from "./control";

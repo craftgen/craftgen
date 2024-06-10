@@ -1,8 +1,7 @@
-import type { Config } from "tailwindcss";
-
-import animate from "tailwindcss-animate";
-import typography from "@tailwindcss/typography";
 import containerQueries from "@tailwindcss/container-queries";
+import typography from "@tailwindcss/typography";
+import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -129,12 +128,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: '0' },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: '0' },
+          to: { height: "0" },
         },
         grid: {
           "0%": { transform: "translateY(-50%)" },
@@ -243,9 +242,5 @@ export default {
         /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
     },
   ],
-  plugins: [
-    animate,
-    containerQueries,
-    typography,
-  ],
+  plugins: [animate, containerQueries, typography],
 } satisfies Config;

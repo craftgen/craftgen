@@ -1,12 +1,15 @@
 import React from "react";
-import type { PlateElementProps, Value } from "@udecode/plate-common";
-import { PlateElement } from "@udecode/plate-common";
-import type { TMediaEmbedElement } from "@udecode/plate-media";
+import {
+  PlateElement,
+  type PlateElementProps,
+  type Value,
+} from "@udecode/plate-common";
 import {
   ELEMENT_MEDIA_EMBED,
   parseTwitterUrl,
   parseVideoUrl,
   useMediaState,
+  type TMediaEmbedElement,
 } from "@udecode/plate-media";
 import { useResizableStore } from "@udecode/plate-resizable";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
@@ -98,7 +101,7 @@ const MediaEmbedElement = React.forwardRef<
                     className={cn(
                       "absolute left-0 top-0 h-full w-full rounded-sm",
                       isVideo && "border-0",
-                      focused && selected && "ring-ring ring-2 ring-offset-2",
+                      focused && selected && "ring-2 ring-ring ring-offset-2",
                     )}
                     src={embed!.url}
                     title="embed"
@@ -114,7 +117,7 @@ const MediaEmbedElement = React.forwardRef<
                   "[&_.react-tweet-theme]:my-0",
                   !readOnly &&
                     selected &&
-                    "[&_.react-tweet-theme]:ring-ring [&_.react-tweet-theme]:ring-2 [&_.react-tweet-theme]:ring-offset-2",
+                    "[&_.react-tweet-theme]:ring-2 [&_.react-tweet-theme]:ring-ring [&_.react-tweet-theme]:ring-offset-2",
                 )}
               >
                 <Tweet id={embed!.id} />

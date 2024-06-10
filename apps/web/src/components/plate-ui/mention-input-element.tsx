@@ -1,6 +1,10 @@
 import React from "react";
-import type { PlateElementProps, Value } from "@udecode/plate-common";
-import { getHandler, PlateElement } from "@udecode/plate-common";
+import {
+  getHandler,
+  PlateElement,
+  type PlateElementProps,
+  type Value,
+} from "@udecode/plate-common";
 import type { TMentionElement } from "@udecode/plate-mention";
 import { useFocused, useSelected } from "slate-react";
 
@@ -26,8 +30,8 @@ const MentionInputElement = React.forwardRef<
       ref={ref}
       data-slate-value={element.value}
       className={cn(
-        "bg-muted inline-block rounded-md px-1.5 py-0.5 align-baseline text-sm",
-        selected && focused && "ring-ring ring-2",
+        "inline-block rounded-md bg-muted px-1.5 py-0.5 align-baseline text-sm",
+        selected && focused && "ring-2 ring-ring",
         className,
       )}
       onClick={getHandler(onClick, element)}

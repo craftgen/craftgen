@@ -1,7 +1,7 @@
+import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
 
-import { SelectControl } from "@seocraft/core/src/controls/select";
-
+import { SelectControl } from "@craftgen/core/src/controls/select";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
-import { useMemo } from "react";
 
 export function SelectControlComponent(props: { data: SelectControl }) {
   const { definition, value: valueActor } = useSelector(

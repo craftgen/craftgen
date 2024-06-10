@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import type { z } from "zod";
 
-import { db, project, projectMembers, variable } from "@seocraft/supabase/db";
+import { db, project, projectMembers, variable } from "@craftgen/db/db";
 
 import type { newProjectSchema } from "./shared";
 

@@ -1,7 +1,8 @@
 import { ActorRefFrom } from "xstate";
+
+import { inputSocketMachine } from "../input-socket";
 import { BaseControl } from "./base";
 import { JSONSocket } from "./socket-generator";
-import { inputSocketMachine } from "../input-socket";
 
 export class SecretController<
   T extends ActorRefFrom<typeof inputSocketMachine> = ActorRefFrom<

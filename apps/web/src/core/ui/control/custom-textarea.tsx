@@ -1,8 +1,8 @@
 import { useSelector } from "@xstate/react";
 
-import type { TextareControl } from "@seocraft/core/src/controls/textarea";
-
+import type { TextareControl } from "@craftgen/core/src/controls/textarea";
 import { Textarea } from "@craftgen/ui/components/textarea";
+
 import { ControlContainer } from "../control-container";
 
 export function CustomTextarea(props: { data: TextareControl }) {

@@ -1,7 +1,7 @@
 import { ModelVersion, Page } from "replicate";
 import { z } from "zod";
 
-import { convertOpenAPIToJSONSchema } from "@seocraft/utils";
+import { convertOpenAPIToJSONSchema } from "@craftgen/utils";
 
 import { createTRPCRouter, replicateProducer } from "../../trpc";
 import { replicatePredictionRouter } from "./prediction";

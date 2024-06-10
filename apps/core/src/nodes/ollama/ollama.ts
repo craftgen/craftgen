@@ -1,4 +1,5 @@
 import ky from "ky";
+import { isNil } from "lodash-es";
 import type {
   BaseUrlPartsApiConfigurationOptions,
   OllamaChatModelSettings,
@@ -13,19 +14,19 @@ import {
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
+import { inputSocketMachine } from "../../input-socket";
 import type { DiContainer } from "../../types";
-import { BaseNode, NodeContextFactory } from "../base";
-import type {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  None,
-  ParsedNode,
+import { ApiConfigurationMachine } from "../apiConfiguration";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseContextType,
+  type BaseInputType,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
 } from "../base";
 import { OllamaNetworkError } from "./OllamaNetworkError";
-import { inputSocketMachine } from "../../input-socket";
-import { ApiConfigurationMachine } from "../apiConfiguration";
-import { isNil } from "lodash-es";
 
 const isNetworkError = (error: any) => {
   if (error.message.includes("TypeError: Failed to fetch")) {

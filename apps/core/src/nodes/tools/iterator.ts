@@ -4,8 +4,12 @@ import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None, ParsedNode } from "../base";
-import { BaseNode } from "../base";
+import {
+  BaseNode,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 export const IteratorNodeMachine = createMachine({
   id: "IteratorNode",

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
-import type { SWRSelectControl } from "@seocraft/core/src/controls/swr-select";
-
+import type { SWRSelectControl } from "@craftgen/core/src/controls/swr-select";
 import {
   Select,
   SelectContent,

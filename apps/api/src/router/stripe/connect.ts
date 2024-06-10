@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { match } from "ts-pattern";
 import { z } from "zod";
 
-import { eq, schema } from "@seocraft/supabase/db";
+import { eq, schema } from "@craftgen/db/db";
 
 import { BASE_URL } from "../../constants";
 import { stripe } from "../../stripe";

@@ -1,14 +1,16 @@
 import { StrictMode, useEffect, useState } from "react";
-import ReactDOM from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
-import "./styles.css";
-import { AuthSession } from "@supabase/supabase-js";
+import ReactDOM from "react-dom/client";
 
+import "./styles.css";
+
+import { AuthSession } from "@supabase/supabase-js";
+import { attachConsole } from "@tauri-apps/plugin-log";
+
+import { supabase } from "./libs/supabase";
+import { Providers } from "./providers";
 // Import the generated route tree
 import { router } from "./router";
-import { supabase } from "./libs/supabase";
-import { attachConsole } from "@tauri-apps/plugin-log";
-import { Providers } from "./providers";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {

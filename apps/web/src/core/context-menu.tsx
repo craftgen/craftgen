@@ -1,11 +1,18 @@
-import type { PropsWithChildren } from "react";
-import React, { useMemo, useRef, useState } from "react";
+import React, {
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import { useKBar, VisualState } from "kbar";
 
-import type { NodeTypes } from "@seocraft/core/src/types";
+import type { NodeTypes } from "@craftgen/core/src/types";
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+} from "@craftgen/ui/components/context-menu";
 
 import { Icons } from "@/components/icons";
-import { ContextMenu, ContextMenuTrigger } from "@craftgen/ui/components/context-menu";
 
 import { useCraftStore } from "./use-store";
 

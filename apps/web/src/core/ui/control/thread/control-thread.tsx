@@ -1,20 +1,20 @@
+import React from "react";
 import { useSelector } from "@xstate/react";
+import { CheckSquare, Copy } from "lucide-react";
+import { useCopyToClipboard } from "react-use";
 
 import {
   Message,
   ThreadControl,
-} from "@seocraft/core/src/controls/thread.control";
-import { ThreadMachineEvents } from "@seocraft/core/src/nodes/thread";
-
+} from "@craftgen/core/src/controls/thread.control";
+import { ThreadMachineEvents } from "@craftgen/core/src/nodes/thread";
 import { Button } from "@craftgen/ui/components/button";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 
+import { cn } from "@/lib/utils";
+
 import { InputSection } from "./input-section";
 import { Content } from "./shared";
-import { CheckSquare, Copy } from "lucide-react";
-import { useCopyToClipboard } from "react-use";
-import React from "react";
-import { cn } from "@/lib/utils";
 
 export const ThreadControlComponent = (props: { data: ThreadControl }) => {
   const { definition, parent } = useSelector(

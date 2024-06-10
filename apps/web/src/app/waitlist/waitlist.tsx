@@ -1,7 +1,6 @@
 "use client";
 
-import type { PropsWithChildren } from "react";
-import { useState } from "react";
+import { useState, type PropsWithChildren } from "react";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
@@ -9,7 +8,6 @@ import { usePostHog } from "posthog-js/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Confettis } from "@/components/confetti";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Dialog,
@@ -26,9 +24,11 @@ import {
   FormMessage,
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
+import NumberTicker from "@craftgen/ui/components/number-ticket";
+
+import { Confettis } from "@/components/confetti";
 
 import { addToWaitlist } from "../action";
-import NumberTicker from "@craftgen/ui/components/number-ticket";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -79,7 +79,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                   <a
                     href="/discord"
                     target="_blank"
-                    className="text-primary cursor-pointer font-bold"
+                    className="cursor-pointer font-bold text-primary"
                   >
                     {" "}
                     Discord community.{" "}
@@ -99,7 +99,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
               <a
                 href="https://twitter.com/intent/tweet?text=%40craftgenai%20rocks%20check%20it%20out%20%F0%9F%91%89&url=craftgen.ai"
                 target="_blank"
-                className="text-primary cursor-pointer font-bold"
+                className="cursor-pointer font-bold text-primary"
               >
                 Twitter / X
               </a>{" "}

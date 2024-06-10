@@ -1,8 +1,10 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { createLazyFileRoute } from "@tanstack/react-router";
+
 import { supabase } from "../libs/supabase";
-// import type { Database } from "@seocraft/supabase/db/database.types";
+
+// import type { Database } from "@craftgen/db/db/database.types";
 
 export const Route = createLazyFileRoute("/login")({
   component: () => (

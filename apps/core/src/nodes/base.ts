@@ -2,39 +2,46 @@ import { cloneDeep, get, isEqual, isNil, merge, pickBy, set } from "lodash-es";
 import { action, computed, makeObservable, observable } from "mobx";
 import type { ToolCallError } from "modelfusion";
 import { ClassicPreset } from "rete";
+import { distinctUntilChanged, filter, from, generate, map, share } from "rxjs";
 import { match } from "ts-pattern";
 import type { MergeDeep } from "type-fest";
-import { createActor, enqueueActions, setup, waitFor } from "xstate";
-import type {
-  Actor,
-  ActorRefFrom,
-  AnyActorLogic,
-  AnyActorRef,
-  AnyStateMachine,
-  ContextFrom,
-  InputFrom,
-  MachineImplementationsFrom,
-  ProvidedActor,
-  Snapshot,
-  SnapshotFrom,
-  Spawner,
-  StateMachine,
-  Subscription,
+import {
+  createActor,
+  enqueueActions,
+  setup,
+  waitFor,
+  type Actor,
+  type ActorRefFrom,
+  type AnyActorLogic,
+  type AnyActorRef,
+  type AnyStateMachine,
+  type ContextFrom,
+  type InputFrom,
+  type MachineImplementationsFrom,
+  type ProvidedActor,
+  type Snapshot,
+  type SnapshotFrom,
+  type Spawner,
+  type StateMachine,
+  type Subscription,
 } from "xstate";
 import type { GuardArgs } from "xstate/guards";
 
+import { ComputeEventMachine } from "../compute-event";
 import type { BaseControl } from "../controls/base";
 import { type JSONSocket } from "../controls/socket-generator";
 import { Input, Output } from "../input-output";
+import { inputSocketMachine, spawnInputSockets } from "../input-socket";
 import { slugify } from "../lib/string";
-import { getSocketByJsonSchemaType } from "../sockets";
-import type { MappedType, Socket, Tool } from "../sockets";
+import { outputSocketMachine, spawnOutputSockets } from "../output-socket";
+import {
+  getSocketByJsonSchemaType,
+  type MappedType,
+  type Socket,
+  type Tool,
+} from "../sockets";
 import type { DiContainer, Node, NodeTypes } from "../types";
 import { createJsonSchema } from "../utils";
-import { inputSocketMachine, spawnInputSockets } from "../input-socket";
-import { outputSocketMachine, spawnOutputSockets } from "../output-socket";
-import { map, from, distinctUntilChanged, share, filter, generate } from "rxjs";
-import { ComputeEventMachine } from "../compute-event";
 
 export type ParsedNode<
   NodeType extends string,

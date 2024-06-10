@@ -1,7 +1,8 @@
-import { getPages } from '@/app/source';
-import { createSearchAPI } from 'fumadocs-core/search/server';
+import { createSearchAPI } from "fumadocs-core/search/server";
 
-export const { GET } = createSearchAPI('advanced', {
+import { getPages } from "@/app/source";
+
+export const { GET } = createSearchAPI("advanced", {
   indexes: getPages().map((page) => ({
     title: page.data.title,
     structuredData: page.data.exports.structuredData,

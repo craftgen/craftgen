@@ -1,10 +1,10 @@
 import React from "react";
 import type { ComboboxProps, Data, NoData } from "@udecode/plate-combobox";
 import { getPluginOptions, usePlateEditorRef } from "@udecode/plate-common";
-import type { MentionPlugin } from "@udecode/plate-mention";
 import {
   ELEMENT_MENTION,
   getMentionOnSelectItem,
+  type MentionPlugin,
 } from "@udecode/plate-mention";
 
 import { Combobox } from "./combobox";

@@ -6,8 +6,9 @@ import { useParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Slash } from "lucide-react";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@craftgen/ui/components/button";
+
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import { FeedbackButton } from "./components/feedback-button";
 import { TeamSwitcher } from "./components/team-switcher";

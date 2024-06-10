@@ -3,41 +3,41 @@
 import {
   ReactElement,
   ReactNode,
+  useCallback,
   useEffect,
   useMemo,
-  useCallback,
 } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useKBar } from "kbar";
 import {
   CheckCircle,
   ChevronLeftCircle,
   Loader2,
   Lock,
   Play,
-  Shrink,
   PlusIcon,
+  Shrink,
 } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useCopyToClipboard } from "react-use";
 
-import { useRegistry, useRete } from "@seocraft/core/src/plugins/reactPlugin";
-import type { WorkflowAPI } from "@seocraft/core/src/types";
-
+import { useRegistry, useRete } from "@craftgen/core/src/plugins/reactPlugin";
+import type { WorkflowAPI } from "@craftgen/core/src/types";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@craftgen/ui/components/tooltip";
+
+import { BASE_URL } from "@/lib/constants";
 import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/shared";
 
+import { useRegisterPlaygroundActions } from "./actions";
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";
 import { useCraftStore } from "./use-store";
-import { useRegisterPlaygroundActions } from "./actions";
-import { useKBar } from "kbar";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCopyToClipboard } from "react-use";
-import { BASE_URL } from "@/lib/constants";
 
 export type ComponentRegistry = Map<
   HTMLElement,

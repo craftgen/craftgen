@@ -1,13 +1,16 @@
+import { useEffect, useMemo, useState } from "react";
+import { formatDistance } from "date-fns";
+import * as FlexLayout from "flexlayout-react";
+import { Action, useKBar, useRegisterActions, VisualState } from "kbar";
+import { debounce, flatten, isNil } from "lodash-es";
+import { toast } from "sonner";
+
+import { Editor } from "@craftgen/core";
+
 import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
-import { Editor } from "@seocraft/core";
-import { Action, VisualState, useKBar, useRegisterActions } from "kbar";
-import { debounce, flatten, isNil } from "lodash-es";
-import { useEffect, useMemo, useState } from "react";
+
 import { extractOwnerAndName, extractOwnerAndNameAndVersion } from "./utils";
-import { formatDistance } from "date-fns";
-import { toast } from "sonner";
-import * as FlexLayout from "flexlayout-react";
 
 export const useRegisterReplicateActions = ({
   di,
@@ -88,7 +91,7 @@ export const useRegisterReplicateActions = ({
       keywords: "replicate",
       section: "Nodes",
       subtitle: "Add a model from Replicate",
-      icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+      icon: <Icons.replicate className={"mr-2 text-muted-foreground"} />,
     });
     return res;
   }, [hasReplicateKey]);
@@ -119,7 +122,7 @@ export const useRegisterReplicateActions = ({
           id: "replicate-error",
           name: "Error loading Replicate",
           parent: "replicate",
-          icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+          icon: <Icons.replicate className={"mr-2 text-muted-foreground"} />,
           section: "Replicate",
           subtitle: replicateCollections.error.message,
         },
@@ -132,7 +135,7 @@ export const useRegisterReplicateActions = ({
             id: `replicate-collection-${collection.slug}`,
             name: collection.name,
             parent: "replicate",
-            icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+            icon: <Icons.replicate className={"mr-2 text-muted-foreground"} />,
             section: "Replicate",
             subtitle: collection.description,
           }) as Action,
@@ -162,7 +165,7 @@ export const useRegisterReplicateActions = ({
               name: `${model?.owner}/${model?.name}`,
               parent: `replicate-collection-${replicateCollection?.slug}`,
               icon: (
-                <Icons.replicate className={"text-muted-foreground mr-2"} />
+                <Icons.replicate className={"mr-2 text-muted-foreground"} />
               ),
               section: `Replicate | ${replicateCollection?.name}`,
               subtitle: model.description,
@@ -172,7 +175,7 @@ export const useRegisterReplicateActions = ({
               name: `v ${model.latest_version?.id.substring(0, 8)}`,
               parent: `replicate-model-${model.owner}/${model.name}`,
               icon: (
-                <Icons.replicate className={"text-muted-foreground mr-2"} />
+                <Icons.replicate className={"mr-2 text-muted-foreground"} />
               ),
               section: `Replicate | ${model.owner} | ${model.name}`,
               subtitle: `created at: ${
@@ -254,7 +257,7 @@ export const useRegisterReplicateActions = ({
             id: `replicate-model-${replicateModel?.owner}/${replicateModel?.name}`,
             name: `${replicateModel?.owner}/${replicateModel?.name}`,
             parent: "replicate",
-            icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+            icon: <Icons.replicate className={"mr-2 text-muted-foreground"} />,
             section: `Replicate | ${replicateModel?.owner}`,
           } as Action);
         }
@@ -263,7 +266,7 @@ export const useRegisterReplicateActions = ({
           id: `replicate-model-${replicateModel?.owner}/${replicateModel?.name}:${version.id}`,
           name: `v ${version.id.substring(0, 8)}`,
           parent: `replicate-model-${replicateModel?.owner}/${replicateModel?.name}`,
-          icon: <Icons.replicate className={"text-muted-foreground mr-2"} />,
+          icon: <Icons.replicate className={"mr-2 text-muted-foreground"} />,
           section: `Replicate | ${replicateModel?.owner} | ${replicateModel?.name}`,
           subtitle: `created at: ${formatDistance(
             new Date(version.created_at),

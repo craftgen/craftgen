@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { z } from "zod";
 
-import { db } from "@seocraft/supabase/db";
+import { db } from "@craftgen/db/db";
 
 import { action } from "@/lib/safe-action";
 

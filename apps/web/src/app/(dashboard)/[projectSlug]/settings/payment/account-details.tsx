@@ -1,8 +1,9 @@
 "use client";
 
+import { RouterOutputs } from "@craftgen/api";
+
 import { JSONView } from "@/components/json-view";
 import { api } from "@/trpc/react";
-import { RouterOutputs } from "@seocraft/api";
 
 export const StripeAccountDetails = ({
   project,

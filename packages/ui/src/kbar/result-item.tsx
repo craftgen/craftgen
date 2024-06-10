@@ -10,8 +10,8 @@ export const ResultItem = React.forwardRef<
   return (
     <div
       className={cn(
-        " aria-selected:bg-accent aria-selected:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        active && "bg-muted-foreground/10  rounded bg-opacity-20",
+        " relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        active && "rounded  bg-muted-foreground/10 bg-opacity-20",
       )}
       ref={ref}
     >
@@ -23,20 +23,20 @@ export const ResultItem = React.forwardRef<
         )}
         <div className="flex flex-col">
           <span className="text-foreground">{action.name}</span>
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             {action.subtitle}
           </span>
         </div>
       </div>
       {action.shortcut?.length ? (
         <div
-          className="text-muted-foreground ml-auto text-xs tracking-widest"
+          className="ml-auto text-xs tracking-widest text-muted-foreground"
           aria-hidden
         >
           {action.shortcut.map((shortcut) => (
             <kbd
               key={shortcut}
-              className="bg-muted rounded bg-opacity-30 px-2 py-1 uppercase"
+              className="rounded bg-muted bg-opacity-30 px-2 py-1 uppercase"
             >
               {shortcut}
             </kbd>

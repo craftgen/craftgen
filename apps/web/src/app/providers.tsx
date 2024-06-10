@@ -1,8 +1,10 @@
 "use client";
 
+import { RootProvider } from "fumadocs-ui/provider";
+
 import { PHProvider } from "@/components/posthog-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { RootProvider } from "fumadocs-ui/provider";
+
 import { useRegisterKAuthActions } from "./useRegisterKAuthActions";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {

@@ -1,15 +1,27 @@
-import { JSONView } from "@/components/json-view";
-import { Alert, AlertTitle, AlertDescription } from "@craftgen/ui/components/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
-import { NodeProps } from "@seocraft/core/src/types";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import Markdown from "react-markdown";
+import { AnyActor } from "xstate";
+
+import { NodeProps } from "@craftgen/core/src/types";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@craftgen/ui/components/alert";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { Separator } from "@craftgen/ui/components/separator";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { Runs } from "./runs";
-import { AnyActor } from "xstate";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@craftgen/ui/components/tabs";
+
+import { JSONView } from "@/components/json-view";
 import { InputsList, OutputsList } from "@/core/ui/control/control-node";
+
+import { Runs } from "./runs";
 
 export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   return (

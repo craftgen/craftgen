@@ -1,27 +1,34 @@
+import { createId } from "@paralleldrive/cuid2";
 import { isNil, merge } from "lodash-es";
 import { match } from "ts-pattern";
 import type { SetOptional } from "type-fest";
-import type { ActorRefFrom, PromiseActorLogic } from "xstate";
 import {
   assign,
   createMachine,
   enqueueActions,
   fromPromise,
   setup,
+  type ActorRefFrom,
+  type PromiseActorLogic,
 } from "xstate";
 
-import type { RouterInputs, RouterOutputs } from "@seocraft/api";
+import type { RouterInputs, RouterOutputs } from "@craftgen/api";
 
-import type { JSONSocket } from "../../controls/socket-generator";
-import { generateSocket } from "../../controls/socket-generator";
-import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
-import type { ParsedNode } from "../base";
+import {
+  generateSocket,
+  type JSONSocket,
+} from "../../controls/socket-generator";
 import { Editor } from "../../editor";
 import { spawnInputSockets } from "../../input-socket";
 import { spawnOutputSockets } from "../../output-socket";
-import { createId } from "@paralleldrive/cuid2";
+import type { DiContainer } from "../../types";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 const inputSockets = {
   RUN: generateSocket({

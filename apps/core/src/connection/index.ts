@@ -1,9 +1,10 @@
-import type { ClassicPreset } from "rete";
-import { NodeEditor } from "rete";
-import type { Area2D } from "rete-area-plugin";
-import { AreaPlugin } from "rete-area-plugin";
-import type { ConnectionPlugin, SocketData } from "rete-connection-plugin";
-import { createPseudoconnection } from "rete-connection-plugin";
+import { NodeEditor, type ClassicPreset } from "rete";
+import { AreaPlugin, type Area2D } from "rete-area-plugin";
+import {
+  createPseudoconnection,
+  type ConnectionPlugin,
+  type SocketData,
+} from "rete-connection-plugin";
 import { getElementCenter } from "rete-render-utils";
 
 import type { Socket, Sockets } from "../sockets";

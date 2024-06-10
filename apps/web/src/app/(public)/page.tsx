@@ -1,24 +1,26 @@
 "use client";
 
-import { ChevronRightIcon, GithubIcon } from "lucide-react";
-
-import { Timeline } from "@/components/marketing/timeline";
 import Link from "next/link";
+import { ChevronRightIcon, GithubIcon } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
-import { BentoFeatures } from "@/components/marketing/bento-features";
-import { Waitlist } from "../waitlist/waitlist";
+
 import ShimmerButton from "@craftgen/ui/components/shimmer-button";
-import { UserCentric } from "@/components/marketing/user-centeric";
-import { FeatureCard1 } from "@/components/marketing/features/one";
-import { FeatureCard2 } from "@/components/marketing/features/two";
-import { FeatureCard3 } from "@/components/marketing/features/three";
-import { FeatureCard4 } from "@/components/marketing/features/four";
-import { FeatureCard5 } from "@/components/marketing/features/five";
-import { FeatureCard6 } from "@/components/marketing/features/six";
-import { FeatureCard9 } from "@/components/marketing/features/nine";
+
+import { BentoFeatures } from "@/components/marketing/bento-features";
 import { FeatureCard8 } from "@/components/marketing/features/eight";
-import { FeatureCard10 } from "@/components/marketing/features/ten";
+import { FeatureCard5 } from "@/components/marketing/features/five";
+import { FeatureCard4 } from "@/components/marketing/features/four";
+import { FeatureCard9 } from "@/components/marketing/features/nine";
+import { FeatureCard1 } from "@/components/marketing/features/one";
 import { FeatureCard7 } from "@/components/marketing/features/seven";
+import { FeatureCard6 } from "@/components/marketing/features/six";
+import { FeatureCard10 } from "@/components/marketing/features/ten";
+import { FeatureCard3 } from "@/components/marketing/features/three";
+import { FeatureCard2 } from "@/components/marketing/features/two";
+import { Timeline } from "@/components/marketing/timeline";
+import { UserCentric } from "@/components/marketing/user-centeric";
+
+import { Waitlist } from "../waitlist/waitlist";
 
 export default function Home() {
   const posthog = usePostHog();

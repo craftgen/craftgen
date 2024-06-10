@@ -1,5 +1,5 @@
-import { formatDistance } from "date-fns";
 import Link from "next/link";
+import { formatDistance } from "date-fns";
 
 export default function BlogList({ posts }: { posts: any[] }) {
   // return null;

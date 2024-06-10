@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+
 import { Button } from "@craftgen/ui/components/button";
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
   }, []);
   return (
     <div className="container">
-      <h1 className="text-2xl font-bold font-geist">Craftgen</h1>
+      <h1 className="font-geist text-2xl font-bold">Craftgen</h1>
       <Button onClick={callFuncOnRust}>Start Edge Runtime</Button>
       {/* {JSON.stringify(res)} */}
     </div>

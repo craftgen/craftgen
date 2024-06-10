@@ -1,4 +1,5 @@
 import { BASE_URL } from "@/lib/constants";
+
 import { getPages } from "../source";
 
 const docsPages = getPages().map((page) => ({

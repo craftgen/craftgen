@@ -8,7 +8,6 @@ export class BaseControl extends ClassicPreset.Control {
     public minHeight: number,
     public definition?: JSONSocket,
     public actor?: AnyActorRef,
-    
   ) {
     super();
   }

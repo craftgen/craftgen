@@ -1,7 +1,6 @@
 import React from "react";
 import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import { ELEMENT_BLOCKQUOTE } from "@udecode/plate-block-quote";
-import type { TElement } from "@udecode/plate-common";
 import {
   collapseSelection,
   findNode,
@@ -10,6 +9,7 @@ import {
   isCollapsed,
   toggleNodeType,
   usePlateEditorState,
+  type TElement,
 } from "@udecode/plate-common";
 import { ELEMENT_H1, ELEMENT_H2, ELEMENT_H3 } from "@udecode/plate-heading";
 import { ELEMENT_PARAGRAPH } from "@udecode/plate-paragraph";

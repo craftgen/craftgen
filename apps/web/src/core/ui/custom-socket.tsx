@@ -1,14 +1,14 @@
 import * as React from "react";
+import { useSelector } from "@xstate/react";
 import { match } from "ts-pattern";
 
-import type { ExtractPayload } from "@seocraft/core/src/plugins/reactPlugin/presets/classic/types";
-import { useSocketConfig, type Socket } from "@seocraft/core/src/sockets";
-import type { Schemes } from "@seocraft/core/src/types";
-
+import { Input, Output } from "@craftgen/core/src/input-output";
+import type { ExtractPayload } from "@craftgen/core/src/plugins/reactPlugin/presets/classic/types";
+import { useSocketConfig, type Socket } from "@craftgen/core/src/sockets";
+import type { Schemes } from "@craftgen/core/src/types";
 import { Badge } from "@craftgen/ui/components/badge";
+
 import { cn } from "@/lib/utils";
-import { Input, Output } from "@seocraft/core/src/input-output";
-import { useSelector } from "@xstate/react";
 
 export function CustomSocket<T extends Socket>(props: {
   data: {
@@ -56,7 +56,7 @@ export function CustomSocket<T extends Socket>(props: {
     <div title={props.data.socket.name}>
       <Badge
         className={cn(
-          "text-primary-foreground border-primary-foreground/50  z-10 font-mono",
+          "z-10 border-primary-foreground/50  font-mono text-primary-foreground",
           config?.badge,
           props.meta.side === "input" && "-ml-1 rounded-l-none",
           props.meta.side === "output" && "-mr-1 rounded-r-none",

@@ -5,17 +5,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
+
 // import superjson from "superjson";
 
-import type { AppRouter } from "@seocraft/api";
+import type { AppRouter } from "@craftgen/api";
 
 import { getUrl, transformer } from "./shared";
 
 export const api = createTRPCReact<AppRouter>();
 
-export function TRPCReactProvider(props: {
-  children: React.ReactNode;
-}) {
+export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   const [trpcClient] = useState(() =>

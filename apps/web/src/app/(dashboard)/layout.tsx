@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import type { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@craftgen/db/db/database.types";
 
 import { persistGoogleToken } from "./actions";
 import { Navbar } from "./navbar";
@@ -19,8 +19,8 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="flex flex-col">
       <Navbar session={session!} />
-      <div className="relative mt-12 flex-1 bg-gray-100 dark:bg-muted min-h-[calc(100vh-3rem)]">
-        <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white dark:bg-background p-4 shadow-lg">
+      <div className="relative mt-12 min-h-[calc(100vh-3rem)] flex-1 bg-gray-100 dark:bg-muted">
+        <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white p-4 shadow-lg dark:bg-background">
           {children}
         </div>
       </div>

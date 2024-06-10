@@ -1,12 +1,13 @@
+import { isNull } from "lodash";
 import {
+  AnyActorRef,
+  assign,
+  enqueueActions,
   setup,
   type ActorRefFrom,
-  enqueueActions,
-  assign,
-  AnyActorRef,
 } from "xstate";
+
 import { inputSocketMachine } from "./input-socket";
-import { isNull } from "lodash";
 
 /**
  * This is machine for computing values for the event required sockets.

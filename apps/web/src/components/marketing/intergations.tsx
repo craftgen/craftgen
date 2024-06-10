@@ -1,4 +1,5 @@
-import Marquee from "@craftgen/ui/components/marquee";
+import { useMemo } from "react";
+
 import {
   Card,
   CardContent,
@@ -6,11 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@craftgen/ui/components/card";
-import { cn } from "@/lib/utils";
-import { useMemo } from "react";
-import { Icons } from "../icons";
-import { Separator } from "@craftgen/ui/components/separator";
 import DotPattern from "@craftgen/ui/components/dot-pattern";
+import Marquee from "@craftgen/ui/components/marquee";
+import { Separator } from "@craftgen/ui/components/separator";
+
+import { cn } from "@/lib/utils";
+
+import { Icons } from "../icons";
 
 export const Integrations = () => {
   return (

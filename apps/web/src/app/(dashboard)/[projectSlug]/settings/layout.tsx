@@ -1,10 +1,11 @@
 import type { PropsWithChildren } from "react";
+import { redirect, useParams } from "next/navigation";
 
 import { Separator } from "@craftgen/ui/components/separator";
 
-import { SidebarNav } from "./components/sidebar-nav";
 import { api } from "@/trpc/server";
-import { redirect, useParams } from "next/navigation";
+
+import { SidebarNav } from "./components/sidebar-nav";
 
 const sidebarNavItems = [
   {

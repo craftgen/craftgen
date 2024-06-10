@@ -1,8 +1,7 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
-import type { Database } from "@seocraft/supabase/db/database.types";
+import type { Database } from "@craftgen/db/db/database.types";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();

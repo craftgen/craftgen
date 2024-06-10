@@ -1,11 +1,9 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
-import type { BaseSchemes, CanAssignSignal} from "rete";
-import { Scope } from "rete";
+import { Scope, type BaseSchemes, type CanAssignSignal } from "rete";
 
 import type { RenderPreset } from "./presets/types";
-import type { Renderer } from "./renderer";
-import { getRenderer } from "./renderer";
+import { getRenderer, type Renderer } from "./renderer";
 import type { Position, RenderSignal } from "./types";
 import type { Registry } from "./useRegistry";
 import { Root } from "./utils";

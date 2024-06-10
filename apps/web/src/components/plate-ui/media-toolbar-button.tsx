@@ -1,6 +1,9 @@
 import React from "react";
-import type { ELEMENT_IMAGE, ELEMENT_MEDIA_EMBED } from "@udecode/plate-media";
-import { useMediaToolbarButton } from "@udecode/plate-media";
+import {
+  useMediaToolbarButton,
+  type ELEMENT_IMAGE,
+  type ELEMENT_MEDIA_EMBED,
+} from "@udecode/plate-media";
 
 import { Icons } from "@/components/icons";
 

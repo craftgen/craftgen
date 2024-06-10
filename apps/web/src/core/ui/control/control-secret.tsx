@@ -3,8 +3,7 @@ import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import { CheckIcon } from "lucide-react";
 
-import { SecretController } from "@seocraft/core/src/controls/secret";
-
+import { SecretController } from "@craftgen/core/src/controls/secret";
 import { Button } from "@craftgen/ui/components/button";
 import {
   Command,
@@ -18,10 +17,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
+
+import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
+
 import { ChangeFormat } from "./shared/change-format";
-import { useUser } from "@/app/(dashboard)/hooks/use-user";
 
 export function SecretControlComponent(props: { data: SecretController }) {
   const { definition, value: valueActor } = useSelector(

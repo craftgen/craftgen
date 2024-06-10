@@ -8,7 +8,6 @@ import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
 import { mutate } from "swr";
 
-import { DataTable } from "@/components/data-table";
 import { Button } from "@craftgen/ui/components/button";
 import {
   DropdownMenu,
@@ -19,12 +18,14 @@ import {
   DropdownMenuTrigger,
 } from "@craftgen/ui/components/dropdown-menu";
 
+import { DataTable } from "@/components/data-table";
+import { api } from "@/trpc/react";
+import { RouterOutputs } from "@/trpc/shared";
+
 import { clonePlayground } from "./actions";
 import { useProject } from "./hooks/use-project";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
-import { api } from "@/trpc/react";
-import { RouterOutputs } from "@/trpc/shared";
 
 type Playground = RouterOutputs["craft"]["module"]["list"][number];
 

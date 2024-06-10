@@ -14,7 +14,7 @@ import Replicate from "replicate";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { and, db, eq, schema } from "@seocraft/supabase/db";
+import { and, db, eq, schema } from "@craftgen/db/db";
 
 /**
  * 1. CONTEXT

@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@seocraft/supabase/db";
+import { db } from "@craftgen/db/db";
 
 export const getWorkflowById = async (workflowId: string) => {
   return await db.query.workflow.findFirst({

@@ -1,9 +1,13 @@
-'use client';
-import { Button } from "@craftgen/ui/components/button";
-import { api } from "@/trpc/react";
-import { useProject } from "../../hooks/use-project";
-import { useUser } from "@/app/(dashboard)/hooks/use-user";
+"use client";
+
 import { useRouter } from "next/navigation";
+
+import { Button } from "@craftgen/ui/components/button";
+
+import { useUser } from "@/app/(dashboard)/hooks/use-user";
+import { api } from "@/trpc/react";
+
+import { useProject } from "../../hooks/use-project";
 
 export const CreateStripeConnect = () => {
   const { mutateAsync: createStripeConnect } =

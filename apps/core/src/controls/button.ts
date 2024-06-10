@@ -1,8 +1,8 @@
 import type { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
+import { inputSocketMachine } from "../input-socket";
 import { BaseControl } from "./base";
 import type { JSONSocket } from "./socket-generator";
-import { inputSocketMachine } from "../input-socket";
 
 export interface ButtonControlOptions {
   disabled?: boolean;

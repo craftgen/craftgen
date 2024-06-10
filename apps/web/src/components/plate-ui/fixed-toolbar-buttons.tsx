@@ -30,7 +30,7 @@ export function FixedToolbarButtons({ id }: { id: string }) {
   return (
     <div className="w-full overflow-hidden">
       <div
-        className="@container flex flex-wrap"
+        className="flex flex-wrap @container"
         style={{
           transform: "translateX(calc(-1px))",
         }}

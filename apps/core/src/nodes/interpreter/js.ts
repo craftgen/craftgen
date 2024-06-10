@@ -1,13 +1,8 @@
+import { createId } from "@paralleldrive/cuid2";
 import _ from "lodash";
+import { merge } from "lodash-es";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import dedent from "ts-dedent";
-import {
-  BaseContextType,
-  BaseInputType,
-  BaseMachineTypes,
-  BaseNode,
-  NodeContextFactory,
-  None,
-} from "../base";
 import {
   AnyActorRef,
   assign,
@@ -16,13 +11,19 @@ import {
   fromPromise,
   setup,
 } from "xstate";
+
+import { generateSocket, JSONSocket } from "../../controls/socket-generator";
 import { DiContainer } from "../../types";
-import { merge } from "lodash-es";
-import { JSONSocket, generateSocket } from "../../controls/socket-generator";
-import { WorkerMessenger } from "../../worker/messenger";
 import { start } from "../../worker/main";
-import { createId } from "@paralleldrive/cuid2";
-import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { WorkerMessenger } from "../../worker/messenger";
+import {
+  BaseContextType,
+  BaseInputType,
+  BaseMachineTypes,
+  BaseNode,
+  NodeContextFactory,
+  None,
+} from "../base";
 
 const inputSockets = {
   run: generateSocket({

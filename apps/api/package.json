@@ -1,5 +1,5 @@
 {
-  "name": "@seocraft/api",
+  "name": "@craftgen/api",
   "version": "0.1.0",
   "private": true,
   "main": "./index.ts",
@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@seocraft/supabase": "^0.1.0",
-    "@seocraft/utils": "^0.1.0",
+    "@craftgen/db": "^0.1.0",
+    "@craftgen/utils": "^0.1.0",
     "@supabase/supabase-js": "^2.39.7",
     "@trpc/client": "11.0.0-rc.366",
     "@trpc/next": "11.0.0-rc.366",

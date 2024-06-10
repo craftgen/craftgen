@@ -4,36 +4,36 @@ import type { Constructor } from "type-fest";
 import type { AnyStateMachine } from "xstate";
 import * as z from "zod";
 
-import type { AppRouter } from "@seocraft/api";
+import type { AppRouter } from "@craftgen/api";
 
 import type { Editor } from ".";
 import type { Connection } from "./connection/connection";
+import { NodeHttpRequest } from "./nodes/api/http-request";
+import { NodeRestApi } from "./nodes/api/rest";
 import { NodeApiConfiguration } from "./nodes/apiConfiguration";
 import type { BaseNode } from "./nodes/base";
 // import { GoogleSearchConsole } from "./nodes/datasource/search-console/search-console";
 import { NodeCompleteChat } from "./nodes/function/completeChat";
 import { NodeGenerateStructure } from "./nodes/function/generateStructure";
 import { NodeGenerateText } from "./nodes/function/generateText";
+import { NodeJavascriptCodeInterpreter } from "./nodes/interpreter/js";
+import { NodeInput } from "./nodes/io/input.node";
+import { NodeModule } from "./nodes/io/module";
+import { NodeOutput } from "./nodes/io/output";
+import { NodeComposeObject } from "./nodes/object/composeObject";
+import { NodeOllama } from "./nodes/ollama/ollama";
+import { NodeOpenAI } from "./nodes/openai/openai";
+import { NodeNumber } from "./nodes/primitives/number";
+import { NodeText } from "./nodes/primitives/text";
+import { NodePromptTemplate } from "./nodes/prompt-template";
+import { NodeReplicate } from "./nodes/replicate/replicate";
+import { NodeStart } from "./nodes/start";
 // import { OpenAIAssistant } from "./nodes/openai/assistant";
 // import { OpenAIThread } from "./nodes/openai/openai-thread";
 import { NodeThread } from "./nodes/thread";
 import { BranchNode } from "./nodes/tools/branch";
 import { IteratorNode } from "./nodes/tools/iterator";
 import { NodeMath } from "./nodes/tools/math";
-import { NodeReplicate } from "./nodes/replicate/replicate";
-import { NodeRestApi } from "./nodes/api/rest";
-import { NodeHttpRequest } from "./nodes/api/http-request";
-import { NodeOllama } from "./nodes/ollama/ollama";
-import { NodeStart } from "./nodes/start";
-import { NodeText } from "./nodes/primitives/text";
-import { NodeJavascriptCodeInterpreter } from "./nodes/interpreter/js";
-import { NodeModule } from "./nodes/io/module";
-import { NodeComposeObject } from "./nodes/object/composeObject";
-import { NodeOpenAI } from "./nodes/openai/openai";
-import { NodeNumber } from "./nodes/primitives/number";
-import { NodePromptTemplate } from "./nodes/prompt-template";
-import { NodeOutput } from "./nodes/io/output";
-import { NodeInput } from "./nodes/io/input.node";
 
 interface NodeTypeStatic {
   new (...args: any[]): any; // constructor signature

@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import { db } from "@craftgen/db/db";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,8 +7,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@craftgen/ui/components/breadcrumb";
+
+import { Icons } from "@/components/icons";
 import { api } from "@/trpc/server";
-import { db } from "@seocraft/supabase/db";
 
 export const dynamicParams = true;
 export const revalidate = 300;

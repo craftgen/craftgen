@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
+
 import { useUser } from "../app/(dashboard)/hooks/use-user";
 
 export const PHIdentify = () => {

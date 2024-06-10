@@ -1,21 +1,25 @@
+import { createId } from "@paralleldrive/cuid2";
 import { merge, set } from "lodash-es";
 import type { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { match, P } from "ts-pattern";
 import type { SetOptional } from "type-fest";
 import { assign, createMachine, enqueueActions } from "xstate";
 
-import type { JSONSocket } from "../../controls/socket-generator";
 import {
   generateSocket,
   SocketGeneratorControl,
+  type JSONSocket,
 } from "../../controls/socket-generator";
 import { slugify } from "../../lib/string";
 import type { DiContainer } from "../../types";
 import { createJsonSchema } from "../../utils";
-import type { BaseMachineTypes, None } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
-import type { ParsedNode } from "../base";
-import { createId } from "@paralleldrive/cuid2";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 const outputSockets = {
   object: generateSocket({

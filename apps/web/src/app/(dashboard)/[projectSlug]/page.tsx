@@ -1,13 +1,21 @@
+import { Metadata, ResolvingMetadata } from "next";
+// import { ProjectNavbar } from "./project-navbar";
+import { notFound } from "next/navigation";
+
+import { db } from "@craftgen/db/db";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@craftgen/ui/components/avatar";
+import { Card } from "@craftgen/ui/components/card";
+
 import { api } from "@/trpc/server";
+
 // import { getAnalytics } from "./actions";
 // import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
-// import { ProjectNavbar } from "./project-navbar";
-import { notFound } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
-import { Card } from "@craftgen/ui/components/card";
-import { db } from "@seocraft/supabase/db";
-import { Metadata, ResolvingMetadata } from "next";
+
 // import { Onboarding } from "@/components/onboarding";
 
 export const dynamicParams = true;
@@ -81,7 +89,7 @@ const ProjectPage = async ({
             <h1 className="font-mono text-xl font-bold leading-tight">
               {project?.name}
             </h1>
-            <h2 className="text-muted-foreground text-lg leading-tight">
+            <h2 className="text-lg leading-tight text-muted-foreground">
               {project?.slug}
             </h2>
           </Card>

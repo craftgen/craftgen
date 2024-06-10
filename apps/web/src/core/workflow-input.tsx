@@ -1,15 +1,17 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { RouterOutputs } from "@seocraft/api";
 import { useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { isNil } from "lodash-es";
+import { observer } from "mobx-react-lite";
+
+import { RouterOutputs } from "@craftgen/api";
+
 import { useHeadlessEditor } from "@/core/editor";
 import { createCraftStore } from "@/core/store";
-import { CraftContext } from "@/core/use-store";
 import { InputsList, OutputList } from "@/core/ui/control/control-node";
-import { useSearchParams } from "next/navigation";
-import { observer } from "mobx-react-lite";
-import { isNil } from "lodash-es";
+import { CraftContext } from "@/core/use-store";
+import { api } from "@/trpc/react";
 
 export const WorkflowInput: React.FC<{
   projectSlug: string;

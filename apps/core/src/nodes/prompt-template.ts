@@ -1,12 +1,17 @@
 import { get, isString, merge, set } from "lodash-es";
 import type { SetOptional } from "type-fest";
-import { createMachine, fromPromise, enqueueActions } from "xstate";
+import { createMachine, enqueueActions, fromPromise } from "xstate";
 
 import { generateSocket } from "../controls/socket-generator";
 import type { MappedType } from "../sockets";
 import type { DiContainer } from "../types";
-import type { BaseMachineTypes, None, ParsedNode } from "./base";
-import { BaseNode, NodeContextFactory } from "./base";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "./base";
 
 const inputSockets = {
   "x-template": generateSocket({

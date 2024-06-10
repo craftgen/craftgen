@@ -3,15 +3,13 @@
 import * as React from "react";
 import type { ReactNode } from "react";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 import { Separator } from "./separator";
-import type { ToggleProps } from "./toggle";
-import { toggleVariants } from "./toggle";
+import { toggleVariants, type ToggleProps } from "./toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -61,7 +59,7 @@ const ToolbarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToolbarPrimitive.Separator
     ref={ref}
-    className={cn("bg-border shrink-0", "my-1 w-[1px]", className)}
+    className={cn("shrink-0 bg-border", "my-1 w-[1px]", className)}
     {...props}
   />
 ));

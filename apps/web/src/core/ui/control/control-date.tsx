@@ -2,8 +2,7 @@ import { useSelector } from "@xstate/react";
 import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
-import { DateControl } from "@seocraft/core/src/controls/date";
-
+import { DateControl } from "@craftgen/core/src/controls/date";
 import { Button } from "@craftgen/ui/components/button";
 import { Calendar } from "@craftgen/ui/components/calendar";
 import { Label } from "@craftgen/ui/components/label";
@@ -12,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@craftgen/ui/components/popover";
+
 import { cn } from "@/lib/utils";
 
 export const DateControlComponent = (props: { data: DateControl }) => {
@@ -39,7 +39,7 @@ export const DateControlComponent = (props: { data: DateControl }) => {
             {date ? format(new Date(date), "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
-        <p className={cn("text-muted-foreground text-[0.8rem]")}>
+        <p className={cn("text-[0.8rem] text-muted-foreground")}>
           {props.data?.definition?.description}
         </p>
       </div>

@@ -1,12 +1,10 @@
 import * as React from "react";
-import type { Scope } from "rete";
-import { ClassicPreset } from "rete";
-import type {
-  SocketPositionWatcher} from "rete-render-utils";
+import { ClassicPreset, type Scope } from "rete";
 import {
   classicConnectionPath,
   getDOMSocketPosition,
-  loopConnectionPath
+  loopConnectionPath,
+  type SocketPositionWatcher,
 } from "rete-render-utils";
 
 import type { Position } from "../../types";
@@ -75,7 +73,7 @@ export function setup<
     attach(plugin) {
       positionWatcher.attach(plugin as unknown as Scope<never, [K]>);
     },
-     
+
     render(context, plugin) {
       if (context.data.type === "node") {
         const parent = plugin.parentScope();

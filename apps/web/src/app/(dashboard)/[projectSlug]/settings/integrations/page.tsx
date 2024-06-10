@@ -7,9 +7,7 @@ import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import { z } from "zod";
 
-import type { Database } from "@seocraft/supabase/db/database.types";
-
-import { Icons } from "@/components/icons";
+import type { Database } from "@craftgen/db/db/database.types";
 import { Button } from "@craftgen/ui/components/button";
 import { Checkbox } from "@craftgen/ui/components/checkbox";
 import {
@@ -19,6 +17,8 @@ import {
   FormItem,
   FormLabel,
 } from "@craftgen/ui/components/form";
+
+import { Icons } from "@/components/icons";
 import { BASE_URL } from "@/lib/constants";
 
 import { getGoogleScopes } from "../../actions";

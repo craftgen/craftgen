@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { and, eq, schema } from "@seocraft/supabase/db";
+import { and, eq, schema } from "@craftgen/db/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 

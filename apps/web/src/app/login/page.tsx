@@ -1,17 +1,19 @@
+import { useMemo } from "react";
 import type { Metadata } from "next";
+import { Card } from "@tremor/react";
 
-import { LoginForm } from "./login-form";
-import { Separator } from "@craftgen/ui/components/separator";
-import { Icon, Icons } from "@/components/icons";
-import Marquee from "@craftgen/ui/components/marquee";
 import {
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@craftgen/ui/components/card";
-import { Card } from "@tremor/react";
-import { useMemo } from "react";
+import Marquee from "@craftgen/ui/components/marquee";
+import { Separator } from "@craftgen/ui/components/separator";
+
+import { Icon, Icons } from "@/components/icons";
+
+import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
   title: "Login - craftgen.ai",
@@ -25,31 +27,36 @@ const nodes = [
     id: "ecommerceAgent",
     name: "Ecommerce Optimizer",
     icon: "shopify", // Or a more generic shopping cart icon
-    description: "Analyze sales data, predict trends, and optimize pricing & inventory for your online store.",
+    description:
+      "Analyze sales data, predict trends, and optimize pricing & inventory for your online store.",
   },
   {
     id: "contentAgent",
     name: "Content Generator",
     icon: "text", // Or a pen icon
-    description: "Generate blog posts, social media captions, or product descriptions tailored to your brand.",
+    description:
+      "Generate blog posts, social media captions, or product descriptions tailored to your brand.",
   },
   {
     id: "customerSupportAgent",
     name: "Customer Support Assistant",
     icon: "emoji",
-    description: "Answer customer inquiries, troubleshoot issues, and provide personalized recommendations.",
+    description:
+      "Answer customer inquiries, troubleshoot issues, and provide personalized recommendations.",
   },
   {
     id: "dataAnalystAgent",
     name: "Data Insights",
     icon: "search",
-    description: "Extract insights from your data, generate reports, and identify growth opportunities.",
+    description:
+      "Extract insights from your data, generate reports, and identify growth opportunities.",
   },
   {
     id: "marketingAgent",
     name: "Marketing Automation",
     icon: "newspaper",
-    description: "Automate email campaigns, social media posts, and ad targeting based on customer behavior.",
+    description:
+      "Automate email campaigns, social media posts, and ad targeting based on customer behavior.",
   },
 ];
 
@@ -68,7 +75,7 @@ const NodeCard = ({
     return Icons[icon as keyof typeof Icons];
   }, []);
   return (
-    <Card className="glass light:border-2 light:border-black flex w-56 flex-1 flex-col rounded-lg p-0 select-none">
+    <Card className="glass light:border-2 light:border-black flex w-56 flex-1 select-none flex-col rounded-lg p-0">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2">
         <div className="flex items-center space-x-2">
           <NodeIcon className="h-5 w-5" />
@@ -77,7 +84,7 @@ const NodeCard = ({
       </CardHeader>
       <Separator />
       <CardContent className="py-2">
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter></CardFooter>
     </Card>
@@ -86,7 +93,7 @@ const NodeCard = ({
 
 function LoginPage() {
   return (
-    <div className="bg-muted flex h-full min-h-screen">
+    <div className="flex h-full min-h-screen bg-muted">
       <div className=" relative hidden w-0 flex-1 p-8 lg:block">
         <div className="flex h-full flex-col rounded-3xl border bg-background">
           <div className="flex-1 p-8">
@@ -109,7 +116,7 @@ function LoginPage() {
           </div>
 
           <Separator />
-          <div className="bg-muted-foreground/10  rounded-b-3xl p-8 py-4">
+          <div className="rounded-b-3xl  bg-muted-foreground/10 p-8 py-4">
             <Icon name="quote" className="" />
             <p className="text-lg">
               Craftgen is the easiest AI Agent builder to use and doesn’t
@@ -126,7 +133,7 @@ function LoginPage() {
 
       <div className="flex h-full min-h-screen flex-1 flex-col  items-end justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="mx-auto my-auto w-full max-w-sm lg:w-96">
-          <div className="bg-background border-1 rounded-3xl p-8">
+          <div className="border-1 rounded-3xl bg-background p-8">
             <h4 className="text-lg font-bold"> Create your account</h4>
             <span className="text-muted-foreground">
               to continue to Craftgen

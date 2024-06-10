@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useSelector } from "@xstate/react";
 
-import type { SliderControl } from "@seocraft/core/src/controls/slider";
-
+import type { SliderControl } from "@craftgen/core/src/controls/slider";
 import { Slider } from "@craftgen/ui/components/slider";
-import { useStep } from "./shared/useStep";
+
 import { ControlContainer } from "../control-container";
+import { useStep } from "./shared/useStep";
 
 export function SliderControlComponenet(props: { data: SliderControl }) {
   console.log("SliderControlComponenet", props.data);
@@ -33,7 +33,7 @@ export function SliderControlComponenet(props: { data: SliderControl }) {
   }, [value, definition?.maximum]);
   return (
     <ControlContainer id={props.data.id} definition={definition}>
-      <span className="bg-muted text-muted-foreground mx-4 rounded px-2 py-1">
+      <span className="mx-4 rounded bg-muted px-2 py-1 text-muted-foreground">
         {value}
       </span>
       <Slider

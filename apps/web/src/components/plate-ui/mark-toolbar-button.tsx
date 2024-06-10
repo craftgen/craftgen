@@ -6,8 +6,7 @@ import {
   useMarkToolbarButtonState,
 } from "@udecode/plate-common";
 
-import type { ToolbarButtonProps } from "./toolbar";
-import { ToolbarButton } from "./toolbar";
+import { ToolbarButton, type ToolbarButtonProps } from "./toolbar";
 
 export interface MarkToolbarButtonProps
   extends Pick<ToolbarButtonProps, "tooltip" | "children"> {

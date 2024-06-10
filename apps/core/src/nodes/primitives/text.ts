@@ -3,9 +3,13 @@ import { assign, createMachine, enqueueActions } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
-import type { BaseMachineTypes, None } from "../base";
-import { BaseNode, NodeContextFactory } from "../base";
-import type { ParsedNode } from "../base";
+import {
+  BaseNode,
+  NodeContextFactory,
+  type BaseMachineTypes,
+  type None,
+  type ParsedNode,
+} from "../base";
 
 const inputSockets = {
   value: generateSocket({

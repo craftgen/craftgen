@@ -1,8 +1,9 @@
-import { useRegisterActions } from "kbar";
-import { useUser } from "./(dashboard)/hooks/use-user";
-import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useRegisterActions } from "kbar";
 import { isNil } from "lodash-es";
+
+import { useUser } from "./(dashboard)/hooks/use-user";
 
 export const useRegisterKAuthActions = () => {
   const { data: user } = useUser();
