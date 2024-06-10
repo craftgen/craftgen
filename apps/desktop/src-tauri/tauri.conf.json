@@ -1,5 +1,5 @@
 {
-  "productName": "craftgen",
+  "productName": "CraftGen",
   "version": "0.0.0",
   "identifier": "com.craftgen.dev",
   "build": {
@@ -21,7 +21,7 @@
       "csp": null
     },
     "trayIcon": {
-      "iconPath": "icons/32x32.png",
+      "iconPath": "icons/32.png",
       "iconAsTemplate": true
     }
   },
@@ -29,9 +29,11 @@
     "active": true,
     "targets": "all",
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
+      "icons/32.png",
+      "icons/72.png",
+      "icons/128.png",
+      "icons/256.png",
+      "icons/512.png",
       "icons/icon.icns",
       "icons/icon.ico"
     ],
