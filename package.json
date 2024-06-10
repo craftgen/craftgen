@@ -14,7 +14,7 @@
     "typecheck": "turbo typecheck"
   },
   "dependencies": {
-    "@acme/prettier-config": "^0.1.0",
+    "@acme/prettier-config": "*",
     "@manypkg/cli": "^0.21.0",
     "@turbo/gen": "^1.9.7",
     "eslint": "^8.52.0",
