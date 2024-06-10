@@ -12,10 +12,10 @@
     "copy-functions": "cp -r ../edge-functions/functions ./src-tauri"
   },
   "dependencies": {
-    "@craftgen/ui": "*",
+    "@craftgen/ui": "1.0.0",
     "@seocraft/api": "^0.1.0",
-    "@seocraft/core": "*",
-    "@seocraft/supabase": "*",
+    "@seocraft/core": "0.1.0",
+    "@seocraft/supabase": "0.1.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.39.7",
@@ -34,10 +34,10 @@
     "superjson": "1.13.1"
   },
   "devDependencies": {
-    "@acme/eslint-config": "*",
-    "@acme/prettier-config": "*",
-    "@acme/tailwind-config": "*",
-    "@acme/tsconfig": "*",
+    "@acme/eslint-config": "workspace:*",
+    "@acme/prettier-config": "workspace:*",
+    "@acme/tailwind-config": "workspace:*",
+    "@acme/tsconfig": "workspace:*",
     "@tauri-apps/cli": ">=2.0.0-beta.0",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",

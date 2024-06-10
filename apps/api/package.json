@@ -31,9 +31,9 @@
     "zod": "3.21.4"
   },
   "devDependencies": {
-    "@acme/eslint-config": "*",
-    "@acme/prettier-config": "*",
-    "@acme/tsconfig": "*",
+    "@acme/eslint-config": "workspace:*",
+    "@acme/prettier-config": "workspace:*",
+    "@acme/tsconfig": "workspace:*",
     "eslint": "^8.52.0",
     "prettier": "^3.0.3",
     "typescript": "^5.4.5"

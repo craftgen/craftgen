@@ -14,8 +14,8 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   loader: async ({ context }) => {
     console.log({
-      context
-    })
+      context,
+    });
     return { context };
   },
   component: (props) => (
@@ -34,8 +34,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       </div>
       <hr />
       <Outlet />
-      <TanStackRouterDevtools />
+      <TanStackRouterDevtools  />
     </>
   ),
 });
-

@@ -13,7 +13,7 @@
     "ui-add": "pnpm dlx shadcn-ui add && prettier src --write --list-different"
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": "./src/components/",
     "./*": [
       "./src/*.tsx",
       "./src/*.ts",
@@ -67,10 +67,10 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@acme/eslint-config": "*",
-    "@acme/prettier-config": "*",
-    "@acme/tailwind-config": "*",
-    "@acme/tsconfig": "*",
+    "@acme/eslint-config": "workspace:*",
+    "@acme/prettier-config": "workspace:*",
+    "@acme/tailwind-config": "workspace:*",
+    "@acme/tsconfig": "workspace:*",
     "@types/react": "18.2.15",
     "eslint": "^8.52.0",
     "prettier": "^3.0.3",

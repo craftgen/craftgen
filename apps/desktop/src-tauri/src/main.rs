@@ -34,7 +34,7 @@ fn main() {
             tauri_plugin_log::Builder::new()
                 .targets([
                     Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::LogDir { file_name: None }),
+                    Target::new(TargetKind::LogDir { file_name: Some("craftgen.log".to_string()) }),
                     Target::new(TargetKind::Webview),
                 ])
                 .build(),

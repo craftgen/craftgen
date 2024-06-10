@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { Button } from "@craftgen/ui/components/button";
 
 function App() {
   const callFuncOnRust = async () => {
@@ -19,7 +20,7 @@ function App() {
   return (
     <div className="container">
       <h1 className="text-2xl font-bold">Craftgen</h1>
-      <button onClick={callFuncOnRust}>Open Craftgen</button>
+      <Button onClick={callFuncOnRust}>Start Edge Runtime</Button>
       {/* {JSON.stringify(res)} */}
     </div>
   );

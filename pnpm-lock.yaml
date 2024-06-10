@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:tooling/prettier
       '@manypkg/cli':
         specifier: ^0.21.0
@@ -107,13 +107,13 @@ importers:
         version: 3.21.4
     devDependencies:
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/prettier
       '@acme/tsconfig':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/typescript
       eslint:
         specifier: ^8.52.0
@@ -318,10 +318,10 @@ importers:
         version: 4.4.5(@types/react@18.2.15)(react@18.2.0)
     devDependencies:
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/prettier
       '@types/jest':
         specifier: ^29.5.6
@@ -357,16 +357,16 @@ importers:
   apps/desktop:
     dependencies:
       '@craftgen/ui':
-        specifier: '*'
+        specifier: 1.0.0
         version: link:../../packages/ui
       '@seocraft/api':
         specifier: ^0.1.0
         version: link:../api
       '@seocraft/core':
-        specifier: '*'
+        specifier: 0.1.0
         version: link:../core
       '@seocraft/supabase':
-        specifier: '*'
+        specifier: 0.1.0
         version: link:../supabase
       '@supabase/auth-ui-react':
         specifier: ^0.4.7
@@ -418,16 +418,16 @@ importers:
         version: 1.13.1
     devDependencies:
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/prettier
       '@acme/tailwind-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/tailwind
       '@acme/tsconfig':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/typescript
       '@tauri-apps/cli':
         specifier: '>=2.0.0-beta.0'
@@ -466,7 +466,7 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0(react@18.2.0)
       '@seocraft/core':
-        specifier: '*'
+        specifier: 0.1.0
         version: link:../core
       plasmo:
         specifier: 0.83.0
@@ -564,7 +564,7 @@ importers:
         specifier: npm:@jsr/craftgen__core@^0.0.3
         version: /@jsr/craftgen__core@0.0.3
       '@craftgen/ui':
-        specifier: '*'
+        specifier: 1.0.0
         version: link:../../packages/ui
       '@faustwp/blocks':
         specifier: ^4.0.0
@@ -606,10 +606,10 @@ importers:
         specifier: ^0.1.0
         version: link:../api
       '@seocraft/core':
-        specifier: '*'
+        specifier: 0.1.0
         version: link:../core
       '@seocraft/supabase':
-        specifier: '*'
+        specifier: 0.1.0
         version: link:../supabase
       '@stripe/stripe-js':
         specifier: ^3.0.5
@@ -1081,16 +1081,16 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0(encoding@0.1.13)
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/prettier
       '@acme/tailwind-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/tailwind
       '@acme/tsconfig':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/d3-shape':
         specifier: ^3.1.3
@@ -1268,16 +1268,16 @@ importers:
         version: 1.0.7(tailwindcss@3.3.3)
     devDependencies:
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/prettier
       '@acme/tailwind-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/tailwind
       '@acme/tsconfig':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../tooling/typescript
       '@types/react':
         specifier: 18.2.15
@@ -1394,13 +1394,13 @@ importers:
         version: 1.0.7(tailwindcss@3.4.4)
     devDependencies:
       '@acme/eslint-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../eslint
       '@acme/prettier-config':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../prettier
       '@acme/tsconfig':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../typescript
       eslint:
         specifier: ^8.52.0
