@@ -11,7 +11,8 @@
     "format:fix": "turbo format --continue -- --write --cache --cache-location='node_modules/.cache/.prettiercache'",
     "lint": "turbo lint --continue -- --cache --cache-location 'node_modules/.cache/.eslintcache' && manypkg check",
     "lint:fix": "turbo lint --continue -- --fix --cache --cache-location 'node_modules/.cache/.eslintcache' && manypkg fix",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "prepare": "husky"
   },
   "dependencies": {
     "@acme/prettier-config": "workspace:*",
@@ -28,5 +29,9 @@
     "apps/*"
   ],
   "name": "noktastudio",
-  "prettier": "@acme/prettier-config"
+  "prettier": "@acme/prettier-config",
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.5"
+  }
 }
