@@ -29,6 +29,7 @@ const InnerApp = () => {
       setSession(session);
     });
   }, []);
+
   useEffect(() => {
     (async () => {
       const detach = await attachConsole();
@@ -36,7 +37,7 @@ const InnerApp = () => {
     })();
   }, []);
 
-  return <RouterProvider router={router} context={{ auth: session }} />;
+  return <RouterProvider router={router} context={{ auth: session! }} />;
 };
 
 // Render the app

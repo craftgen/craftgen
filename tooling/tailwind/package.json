@@ -2,12 +2,7 @@
   "name": "@acme/tailwind-config",
   "version": "0.1.0",
   "private": true,
-  "main": "index.ts",
   "type": "module",
-  "files": [
-    "index.ts",
-    "postcss.js"
-  ],
   "exports": {
     "./native": "./native.ts",
     "./web": "./web.ts"

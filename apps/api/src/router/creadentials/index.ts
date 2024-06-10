@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq, sql, variable } from "@seocraft/supabase/db";
 
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import { isNil } from "lodash-es";
 
 type ProviderType = "OPENAI" | "REPLICATE" | "OTHER";
 
@@ -104,7 +105,9 @@ export const credentialsRouter = createTRPCRouter({
           where: (variable, { eq, and }) =>
             and(
               eq(variable.project_id, token.project_id),
-              eq(variable.provider, token.provider),
+              !isNil(token.provider)
+                ? eq(variable.provider, token.provider)
+                : undefined,
               eq(variable.default, true),
             ),
         });

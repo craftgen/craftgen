@@ -1,13 +1,13 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
-import baseConfig from "@craftgen/tailwind-config";
+import web from "@acme/tailwind-config/web";
 
 export default {
   // We need to append the path to the UI package to the content array so that
   // those classes are included correctly.
   content: ["./src/**/*.{ts,tsx}"],
-  presets: [baseConfig],
+  presets: [web],
   theme: {
     extend: {
       fontFamily: {

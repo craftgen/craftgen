@@ -51,7 +51,9 @@ export const integrationRouter = createTRPCRouter({
                 integrationId: true,
               },
             })
-            .then((data) => data.map((item) => item.integrationId));
+            .then((data) =>
+              data.map((item) => item.integrationId).filter((id) => id !== null),
+            ) as string[];
           if (integrationIds.length === 0) {
             return [];
           }

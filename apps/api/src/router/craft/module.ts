@@ -272,11 +272,8 @@ export const craftModuleRouter = createTRPCRouter({
         });
       } else {
         version = await ctx.db.query.workflowVersion.findFirst({
-          where: (workflowVersion, { eq, and, isNotNull }) =>
-            and(
-              eq(workflowVersion.workflowId, workflow?.id),
-              // isNotNull(workflowVersion.publishedAt),
-            ),
+          where: (workflowVersion, { eq, and }) =>
+            and(eq(workflowVersion.workflowId, workflow?.id)),
           orderBy: (workflowVersion, { desc }) => [
             desc(workflowVersion.version),
           ],
