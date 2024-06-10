@@ -31,7 +31,8 @@
     "@trpc/server": "11.0.0-rc.366",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "superjson": "1.13.1"
+    "superjson": "1.13.1",
+    "unplugin-fonts": "^1.1.1"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",

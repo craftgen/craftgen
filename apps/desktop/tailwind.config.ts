@@ -6,12 +6,12 @@ import web from "@acme/tailwind-config/web";
 export default {
   // We need to append the path to the UI package to the content array so that
   // those classes are included correctly.
-  content: ["./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
   presets: [web],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        sans: ["Geist, sans-serif", ...fontFamily.sans],
         mono: ["var(--font-geist-mono)", ...fontFamily.mono],
       },
     },
