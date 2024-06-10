@@ -6,13 +6,9 @@ import type { AppRouter } from "@seocraft/api";
 export const transformer = superjson;
 
 function getBaseUrl() {
-  if (typeof window !== "undefined") {
-    return "";
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  console.log("VITE_BACKEND_URL", import.meta.env.VITE_BACKEND_URL);
+  return import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
+  // return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
 export function getUrl() {

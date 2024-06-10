@@ -8,6 +8,7 @@ import { AuthSession } from "@supabase/supabase-js";
 import { router } from "./router";
 import { supabase } from "./libs/supabase";
 import { attachConsole } from "@tauri-apps/plugin-log";
+import { Providers } from "./providers";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -46,7 +47,9 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <InnerApp />
+      <Providers>
+        <InnerApp />
+      </Providers>
     </StrictMode>,
   );
 }

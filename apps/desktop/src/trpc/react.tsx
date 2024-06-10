@@ -15,7 +15,6 @@ export const api = createTRPCReact<AppRouter>();
 
 export function TRPCReactProvider(props: {
   children: React.ReactNode;
-  headers: Headers;
 }) {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -31,11 +30,6 @@ export function TRPCReactProvider(props: {
         unstable_httpBatchStreamLink({
           url: getUrl(),
           transformer,
-          headers() {
-            const heads = new Map(props.headers);
-            heads.set("x-trpc-source", "react");
-            return Object.fromEntries(heads);
-          },
         }),
       ],
     }),
@@ -43,9 +37,7 @@ export function TRPCReactProvider(props: {
   return (
     <api.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        {/* <ReactQueryStreamedHydration transformer={superjson}> */}
         {props.children}
-        {/* </ReactQueryStreamedHydration> */}
       </QueryClientProvider>
     </api.Provider>
   );
