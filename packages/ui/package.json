@@ -56,6 +56,8 @@
     "cmdk": "^0.2.0",
     "cobe": "^0.6.3",
     "framer-motion": "^10.16.0",
+    "kbar": "0.1.0-beta.43",
+    "lodash-es": "^4.17.21",
     "lucide-react": "^0.390.0",
     "next-themes": "^0.3.0",
     "react-day-picker": "^8.9.1",

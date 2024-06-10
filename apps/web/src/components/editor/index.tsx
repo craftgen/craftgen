@@ -71,7 +71,7 @@ import { FixedToolbarButtons } from "../plate-ui/fixed-toolbar-buttons";
 import { FloatingToolbar } from "../plate-ui/floating-toolbar";
 import { FloatingToolbarButtons } from "../plate-ui/floating-toolbar-buttons";
 import { TooltipProvider } from "../plate-ui/tooltip";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { autoformatRules } from "./autoformatRules";
 import { createPlateUI } from "./create-plate-ui";
 import { exitBreakPlugin } from "./exit-break-plugin-options";

@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  KBarAnimator,
-  KBarPortal,
-  KBarPositioner,
-  KBarSearch,
-  useRegisterActions,
-} from "kbar";
+import { KBarAnimator, KBarPortal, KBarPositioner, KBarSearch } from "kbar";
 
-import { Separator } from "../ui/separator";
+import { Separator } from "../components/separator";
 import { RenderResults } from "./render-results";
-import { useUser } from "@/app/(dashboard)/hooks/use-user";
-import { useRouter } from "next/navigation";
 import { KBarProviderWrapper } from "./provider";
-import { isNil } from "lodash-es";
-import { useMemo } from "react";
 import { Command } from "lucide-react";
 
 export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -27,39 +17,6 @@ export const KBar: React.FC<React.PropsWithChildren> = ({ children }) => {
 };
 
 export const KBarCore = () => {
-  const { data: user } = useUser();
-  const router = useRouter();
-
-  const currentProjectSlug = useMemo(() => {
-    return user?.user.user_metadata.currentProjectSlug;
-  }, [user]);
-
-  useRegisterActions(
-    [
-      ...(!isNil(currentProjectSlug)
-        ? [
-            {
-              id: "profile",
-              name: "Profile",
-              shortcut: ["@"],
-              keywords: "profile",
-              section: "Navigation",
-              perform: () => router.push(`/${currentProjectSlug}`),
-            },
-          ]
-        : [
-            {
-              id: "login",
-              name: "Login",
-              shortcut: ["@"],
-              keywords: "login",
-              section: "Navigation",
-              perform: () => router.push(`/login`),
-            },
-          ]),
-    ],
-    [user],
-  );
   return (
     <KBarPortal>
       <KBarPositioner className="min-w-xl fixed inset-0 z-30 box-border flex w-full items-start justify-center  bg-background/60 py-4 pb-4 pt-[14vh]">

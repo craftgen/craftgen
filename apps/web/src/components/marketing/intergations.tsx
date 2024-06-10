@@ -9,10 +9,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { Icons } from "../icons";
-import { Separator } from "../ui/separator";
-import DotPattern from "../ui/dot-pattern";
-
-
+import { Separator } from "@craftgen/ui/components/separator";
+import DotPattern from "@craftgen/ui/components/dot-pattern";
 
 export const Integrations = () => {
   return (

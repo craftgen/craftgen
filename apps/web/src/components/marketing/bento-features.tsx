@@ -1,9 +1,13 @@
 import { BentoCard, BentoGrid } from "@craftgen/ui/components/bento-grid";
 import Marquee from "@craftgen/ui/components/marquee";
-import { InputIcon } from "@radix-ui/react-icons";
 import { Calendar } from "@craftgen/ui/components/calendar";
 import Globe from "@craftgen/ui/components/globe";
-import { CalendarIcon, FileTextIcon, GlobeIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  FileTextIcon,
+  GlobeIcon,
+  TextCursorInput,
+} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -20,8 +24,8 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "../ui/card";
-import { Separator } from "../ui/separator";
+} from "@craftgen/ui/components/card";
+import { Separator } from "@craftgen/ui/components/separator";
 
 const NodeCard = ({
   id,
@@ -38,7 +42,7 @@ const NodeCard = ({
     return Icons[icon as keyof typeof Icons];
   }, []);
   return (
-    <Card className="glass light:border-2 flex w-56 flex-1 flex-col rounded-lg light:border-black">
+    <Card className="glass light:border-2 light:border-black flex w-56 flex-1 flex-col rounded-lg">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 px-2 py-1">
         <div className="flex items-center space-x-2">
           <NodeIcon className="h-5 w-5" />
@@ -47,7 +51,7 @@ const NodeCard = ({
       </CardHeader>
       <Separator />
       <CardContent>
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter></CardFooter>
     </Card>
@@ -109,7 +113,7 @@ const features = [
     ),
   },
   {
-    Icon: InputIcon,
+    Icon: TextCursorInput,
     name: "User-Friendly",
     description: "Type a command or search to get started.",
     href: "/",

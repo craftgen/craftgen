@@ -10,7 +10,7 @@ import { Toaster } from "@craftgen/ui/components/sonner";
 
 import { TRPCReactProvider } from "@/trpc/react";
 
-import { KBar } from "../components/kbar/kbar";
+import { KBar } from "@craftgen/ui/kbar/kbar";
 import { Providers } from "./providers";
 import { PHIdentify } from "@/components/ph-identify";
 
@@ -38,15 +38,15 @@ export default async function RootLayout({
         className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
       >
         <TRPCReactProvider headers={headers()}>
-          <Providers>
-            <KBar>
+          <KBar>
+            <Providers>
               {children}
               <Analytics />
               <SpeedInsights />
               <Toaster />
               <PHIdentify />
-            </KBar>
-          </Providers>
+            </Providers>
+          </KBar>
         </TRPCReactProvider>
       </body>
     </html>

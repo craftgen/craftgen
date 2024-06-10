@@ -4,8 +4,8 @@ import { Star, Zap } from "lucide-react";
 import type { getFeaturedWorkflows } from "@/app/(dashboard)/explore/actions";
 import type { ResultOf } from "@/lib/type";
 
-import { AspectRatio } from "./ui/aspect-ratio";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { AspectRatio } from "@craftgen/ui/components/aspect-ratio";
+import { Avatar, AvatarFallback, AvatarImage } from "@craftgen/ui/components/avatar";
 import { cn } from "@/lib/utils";
 
 interface Author {
