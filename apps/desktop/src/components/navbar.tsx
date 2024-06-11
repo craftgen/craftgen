@@ -13,7 +13,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
       <div className="flex w-full items-center justify-between p-1">
         <div className="flex items-center">
           <div className="mr-4 flex p-2">
-            <Link href="/explore" className="font-bold">
+            <Link to="/" className="font-bold">
               CraftGen
             </Link>
           </div>

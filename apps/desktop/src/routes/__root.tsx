@@ -1,9 +1,5 @@
 import { AuthSession } from "@supabase/supabase-js";
-import {
-  createRootRouteWithContext,
-  Link,
-  Outlet,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 import { Navbar } from "../components/navbar";
@@ -22,8 +18,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   },
   component: () => (
     <>
-      <Navbar />
-      <Outlet />
+      <main className="flex flex-col">
+        <Navbar />
+        <div className="relative mt-12 h-full min-h-[calc(100vh-3rem)] flex-1 bg-gray-100 dark:bg-muted">
+          <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white p-4 shadow-lg dark:bg-background">
+            <Outlet />
+          </div>
+        </div>
+      </main>
       <TanStackRouterDevtools />
     </>
   ),

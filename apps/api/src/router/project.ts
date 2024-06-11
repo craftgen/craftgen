@@ -28,6 +28,12 @@ export const projectRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const project = await ctx.db.query.project.findFirst({
         where: (p, { eq }) => eq(p.slug, input.projectSlug),
+        columns: {
+          name: true,
+          slug: true,
+          personal: true,
+          id: true,
+        },
       });
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       if (project?.personal) {
