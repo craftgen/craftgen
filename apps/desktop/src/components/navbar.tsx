@@ -1,23 +1,13 @@
-"use client";
+import { PropsWithChildren } from "react";
+import { Session } from "@supabase/supabase-js";
+import { Link } from "@tanstack/react-router";
 
-import type { PropsWithChildren } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
-import { Slash } from "lucide-react";
-
-import { Button } from "@craftgen/ui/components/button";
 import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
-
-import { FeedbackButton } from "./components/feedback-button";
-import { TeamSwitcher } from "./components/team-switcher";
-import { UserNav } from "./components/user-nav";
 
 export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
   children,
   session,
 }) => {
-  const params = useParams();
   return (
     <div className="fixed z-50 h-12 w-full bg-background">
       <div className="flex w-full items-center justify-between p-1">
@@ -29,7 +19,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
           </div>
           {session && (
             <>
-              {params.projectSlug && <TeamSwitcher session={session} />}
+              {/* {params.projectSlug && <TeamSwitcher session={session} />}
               {params.workflowSlug && (
                 <>
                   <Slash className="mx-2 h-4 w-4 -rotate-12 text-muted-foreground" />
@@ -37,21 +27,33 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
                     <span>{params.workflowSlug}</span>
                   </Link>
                 </>
-              )}
+              )} */}
             </>
           )}
         </div>
         <div className="flex items-center space-x-2 px-2">
-          <FeedbackButton />
+          {/* <FeedbackButton /> */}
           <ThemeToggle />
-          {session && <UserNav session={session} />}
+          {/* {session && <UserNav session={session} />}
           {!session && (
             <Link href="/login">
               <Button> Sign up</Button>
             </Link>
-          )}
+          )} */}
         </div>
       </div>
     </div>
+
+    // <div className="flex gap-2 p-2 w-full bg-red-200">
+    //   <Link to="/" className="[&.active]:font-bold">
+    //     Home
+    //   </Link>{" "}
+    //   <Link to="/dashboard" className="[&.active]:font-bold">
+    //     Dashboard
+    //   </Link>
+    //   <Link to="/about" className="[&.active]:font-bold">
+    //     About
+    //   </Link>
+    // </div>
   );
 };

@@ -20,11 +20,6 @@
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "module": "esnext"
   },
-  "include": [
-    ".",
-    ".next/types/**/*.ts",
-    "../../packages/ui/src/components/icons.tsx",
-    "../../packages/ui/src/components/copyable.tsx"
-  ],
+  "include": [".", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

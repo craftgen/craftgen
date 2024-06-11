@@ -12,9 +12,9 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@craftgen/ui/components/dialog";
+import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 import { StarCount } from "@/components/marketing/github-star-count";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const MenuDropdown = ({ session }: { session: Session | null }) => {
   const [open, setOpen] = useState(false);
