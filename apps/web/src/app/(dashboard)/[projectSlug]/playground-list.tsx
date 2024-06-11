@@ -6,7 +6,6 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
-import { mutate } from "swr";
 
 import { Button } from "@craftgen/ui/components/button";
 import {

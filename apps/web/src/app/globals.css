@@ -54,7 +54,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background font-sans text-foreground;
 
     font-feature-settings:
       "rlig" 1,
@@ -108,7 +108,7 @@
   }
 
   .step:before {
-    @apply border-background bg-muted absolute inline-flex h-9 w-9 items-center justify-center rounded-full border-4 text-center -indent-px font-mono text-base font-medium;
+    @apply absolute inline-flex h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-muted text-center -indent-px font-mono text-base font-medium;
     @apply ml-[-50px] mt-[-4px];
     content: counter(step);
   }
@@ -130,6 +130,10 @@
       rgba(40, 5, 117, 0.12);
     box-shadow: inset 0 0 12px #bf97ff3d;
   }
+}
+
+.shadow-super {
+  @apply shadow-[5px_5px_30px_rgba(190,190,190,0.15),-5px_-5px_30px_rgba(255,255,255,0.15)];
 }
 
 @layer components {
@@ -188,7 +192,7 @@
   /* Until I find a better way, need this to account for text in dark sections that remain dark after toggling dark mode off */
   /* The reason for this issue is that I haven't found a way to style these tags on the frontend without using the .wp-site-blocks selector. If I don't use it, it styles all h tags in the backend outside of the editor as well... */
   .wp-site-blocks .dark h1 {
-    @apply from-secondary via-secondary to-accent bg-gradient-to-b bg-clip-text text-transparent;
+    @apply bg-gradient-to-b from-secondary via-secondary to-accent bg-clip-text text-transparent;
   }
   .wp-site-blocks .dark h2,
   .wp-site-blocks .dark h4,
@@ -206,7 +210,7 @@
   h1.wp-block-heading,
   .wp-site-blocks h1,
   h1.wp-block-post-title:not(.editor-post-title) {
-    @apply dark:from-secondary dark:via-secondary dark:to-accent pb-2 text-7xl font-extrabold leading-none tracking-tight dark:bg-gradient-to-b dark:bg-clip-text dark:text-transparent sm:text-4xl;
+    @apply pb-2 text-7xl font-extrabold leading-none tracking-tight dark:bg-gradient-to-b dark:from-secondary dark:via-secondary dark:to-accent dark:bg-clip-text dark:text-transparent sm:text-4xl;
   }
 
   /* h2 */
@@ -246,10 +250,10 @@
 
   /* image block */
   .wp-block-image {
-    @apply dark:shadow-accent shadow-accent/30 rounded-2xl shadow-2xl;
+    @apply rounded-2xl shadow-2xl shadow-accent/30 dark:shadow-accent;
   }
   .wp-block-image img {
-    @apply dark:shadow-primary shadow-primary/10 rounded-2xl border border-neutral-100 shadow-lg dark:border-neutral-800;
+    @apply rounded-2xl border border-neutral-100 shadow-lg shadow-primary/10 dark:border-neutral-800 dark:shadow-primary;
   }
   .single-pattern .wp-block-image,
   .post-type-pattern .wp-block-image {
@@ -282,16 +286,16 @@
 
   /* button block */
   .wp-block-button {
-    @apply font-accent bg-accent shadow-inset rounded-lg hover:bg-opacity-90;
+    @apply font-accent shadow-inset rounded-lg bg-accent hover:bg-opacity-90;
   }
   .wp-block-button__link {
     @apply bg-transparent px-5 py-3 font-bold !important;
   }
   .is-style-outline.wp-block-button {
-    @apply hover:shadow-accent/30 dark:text-secondary dark:hover:shadow-accent [&>*]:hover:shadow-primary/10 [&>*:hover]:ring-accent [&>*]:dark:hover:shadow-primary [&>*:hover]:dark:ring-accent bg-transparent shadow-none hover:shadow-2xl [&>*:hover]:ring-1 [&>*:hover]:dark:ring-1 [&>*]:rounded-lg [&>*]:border-0 [&>*]:ring-1 [&>*]:ring-neutral-200 [&>*]:hover:shadow-lg [&>*]:dark:border-neutral-800 [&>*]:dark:ring-1 [&>*]:dark:ring-neutral-800 [&>*]:dark:hover:shadow-lg;
+    @apply bg-transparent shadow-none hover:shadow-2xl hover:shadow-accent/30 dark:text-secondary dark:hover:shadow-accent [&>*:hover]:ring-1 [&>*:hover]:ring-accent [&>*:hover]:dark:ring-1 [&>*:hover]:dark:ring-accent [&>*]:rounded-lg [&>*]:border-0 [&>*]:ring-1 [&>*]:ring-neutral-200 [&>*]:hover:shadow-lg [&>*]:hover:shadow-primary/10 [&>*]:dark:border-neutral-800 [&>*]:dark:ring-1 [&>*]:dark:ring-neutral-800 [&>*]:dark:hover:shadow-lg [&>*]:dark:hover:shadow-primary;
   }
   .is-style-outline .wp-block-button__link {
-    @apply text-text dark:text-secondary hover:shadow-primary/10 dark:hover:shadow-primary border-0 shadow-none hover:shadow-lg !important;
+    @apply text-text border-0 shadow-none hover:shadow-lg hover:shadow-primary/10 dark:text-secondary dark:hover:shadow-primary !important;
   }
 
   /* buttons block */
@@ -438,7 +442,7 @@
 
   /* table of contents block */
   .wp-block-table-of-contents {
-    @apply [&_a]:text-text [&_a:hover]:dark:text-secondary [&_a:hover]:text-primary [&_a:hover]:translate-x-2 [&_a]:inline-flex [&_a]:whitespace-normal [&_a]:text-sm [&_a]:no-underline [&_a]:transition-transform [&_li>a]:no-underline [&_li]:space-y-2 [&_ol:first-child]:pl-0 [&_ol]:my-0 [&_ol]:list-none [&_ol]:space-y-2 [&_ol]:pl-4;
+    @apply [&_a]:text-text [&_a:hover]:translate-x-2 [&_a:hover]:text-primary [&_a:hover]:dark:text-secondary [&_a]:inline-flex [&_a]:whitespace-normal [&_a]:text-sm [&_a]:no-underline [&_a]:transition-transform [&_li>a]:no-underline [&_li]:space-y-2 [&_ol:first-child]:pl-0 [&_ol]:my-0 [&_ol]:list-none [&_ol]:space-y-2 [&_ol]:pl-4;
   }
 
   /* tag cloud block */

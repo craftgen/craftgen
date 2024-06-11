@@ -1,4 +1,5 @@
 {
   "**/*.{json,md,mdx}": ["prettier --write"],
-  "**/*.{js,ts,jsx,tsx}": ["prettier --write"]
+  "**/*.{js,ts,jsx,tsx}": ["prettier --write"],
+  "**/*.{css}": ["prettier --write"]
 }
