@@ -3,9 +3,8 @@
 import Link from "next/link";
 import useSWR from "swr";
 
+import { Icons } from "@craftgen/ui/components/icons";
 import NumberTicker from "@craftgen/ui/components/number-ticker";
-
-import { Icons } from "../icons";
 
 export const StarCount: React.FC = () => {
   const { data } = useSWR(

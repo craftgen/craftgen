@@ -13,7 +13,8 @@ import {
 } from "@udecode/plate-dnd";
 import type { DropTargetMonitor } from "react-dnd";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { cn } from "@/lib/utils";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";

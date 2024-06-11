@@ -17,8 +17,8 @@ import {
   FormItem,
   FormLabel,
 } from "@craftgen/ui/components/form";
+import { Icons } from "@craftgen/ui/components/icons";
 
-import { Icons } from "@/components/icons";
 import { BASE_URL } from "@/lib/constants";
 
 import { getGoogleScopes } from "../../actions";

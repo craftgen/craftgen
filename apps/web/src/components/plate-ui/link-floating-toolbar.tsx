@@ -14,7 +14,8 @@ import {
   type LinkFloatingToolbarState,
 } from "@udecode/plate-link";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "./button";

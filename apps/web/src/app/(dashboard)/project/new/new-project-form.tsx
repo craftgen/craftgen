@@ -24,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@craftgen/ui/components/form";
+import { Icons } from "@craftgen/ui/components/icons";
 import { Input } from "@craftgen/ui/components/input";
 import {
   Select,
@@ -33,7 +34,6 @@ import {
   SelectValue,
 } from "@craftgen/ui/components/select";
 
-import { Icons } from "@/components/icons";
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
 import { api } from "@/trpc/react";

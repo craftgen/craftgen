@@ -8,7 +8,8 @@ import {
   useCommentEditButtonState,
 } from "@udecode/plate-comments";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { Button } from "@/components/plate-ui/button";
 import {
   DropdownMenu,

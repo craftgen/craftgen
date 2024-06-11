@@ -4,7 +4,8 @@ import {
   type EmojiDropdownMenuOptions,
 } from "@udecode/plate-emoji";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { EmojiToolbarDropdown } from "@/components/plate-ui/emoji-toolbar-dropdown";
 import {
   ToolbarButton,

@@ -5,7 +5,7 @@ import {
   useLineHeightDropdownMenuState,
 } from "@udecode/plate-line-height";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
 
 import {
   DropdownMenu,

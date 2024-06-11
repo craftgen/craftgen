@@ -9,7 +9,7 @@ import {
 import { usePlateReadOnly } from "@udecode/plate-common";
 import { ELEMENT_IMAGE } from "@udecode/plate-media";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
 
 import { AlignDropdownMenu } from "./align-dropdown-menu";
 import { ArticleSaveButton } from "./article-save-button";

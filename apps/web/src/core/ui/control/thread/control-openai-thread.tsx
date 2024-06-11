@@ -5,9 +5,9 @@ import { ThreadMessage } from "openai/resources/beta/threads/messages/messages";
 
 import { OpenAIThreadControl } from "@craftgen/core/src/controls/openai-thread.control";
 import { Button } from "@craftgen/ui/components/button";
+import { Copyable } from "@craftgen/ui/components/copyable";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 
-import { Copyable } from "@/components/copyable";
 import { api } from "@/trpc/react";
 
 import { InputSection } from "./input-section";

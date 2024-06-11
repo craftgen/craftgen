@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
-import NumberTicker from "@craftgen/ui/components/number-ticket";
 
 import { addToWaitlist } from "../action";
 

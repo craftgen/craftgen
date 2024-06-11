@@ -11,8 +11,7 @@ import {
   ContextMenu,
   ContextMenuTrigger,
 } from "@craftgen/ui/components/context-menu";
-
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
 
 import { useCraftStore } from "./use-store";
 

@@ -24,10 +24,9 @@ import {
   CommandList,
 } from "@craftgen/ui/components/command";
 import Globe from "@craftgen/ui/components/globe";
+import { Icons } from "@craftgen/ui/components/icons";
 import Marquee from "@craftgen/ui/components/marquee";
 import { Separator } from "@craftgen/ui/components/separator";
-
-import { Icons } from "../icons";
 
 const NodeCard = ({
   id,

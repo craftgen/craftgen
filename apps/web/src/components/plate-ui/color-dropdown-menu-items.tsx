@@ -3,7 +3,8 @@
 import React from "react";
 import type { DropdownMenuItemProps } from "@radix-ui/react-dropdown-menu";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { buttonVariants } from "@/components/plate-ui/button";
 import { DropdownMenuItem } from "@/components/plate-ui/dropdown-menu";
 import {

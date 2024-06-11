@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@craftgen/ui/components/icons";
+
 import { cn } from "@/lib/utils";
 
 import { Separator } from "./separator";

@@ -86,7 +86,7 @@ import {
   type LucideProps,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 export type Icon = LucideIcon | ((props: LucideProps) => JSX.Element);
 

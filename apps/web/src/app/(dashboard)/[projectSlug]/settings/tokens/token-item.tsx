@@ -44,6 +44,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@craftgen/ui/components/form";
+import { Icon } from "@craftgen/ui/components/icons";
 import { Input } from "@craftgen/ui/components/input";
 import {
   Popover,
@@ -52,7 +53,6 @@ import {
 } from "@craftgen/ui/components/popover";
 import { Separator } from "@craftgen/ui/components/separator";
 
-import { Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";

@@ -5,9 +5,9 @@ import { ExternalLink } from "lucide-react";
 
 import { RouterOutputs } from "@craftgen/api";
 import { Button } from "@craftgen/ui/components/button";
+import { Icons } from "@craftgen/ui/components/icons";
 import { JSONView } from "@craftgen/ui/components/json-view";
 
-import { Icons } from "@/components/icons";
 import * as motion from "@/components/motion";
 import { api } from "@/trpc/server";
 

@@ -21,7 +21,8 @@ import {
 } from "@udecode/plate-table";
 import { useReadOnly } from "slate-react";
 
-import { Icons, iconVariants } from "@/components/icons";
+import { Icons, iconVariants } from "@craftgen/ui/components/icons";
+
 import { cn } from "@/lib/utils";
 
 import { Button } from "./button";

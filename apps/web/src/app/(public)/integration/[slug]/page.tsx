@@ -7,8 +7,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@craftgen/ui/components/breadcrumb";
+import { Icons } from "@craftgen/ui/components/icons";
 
-import { Icons } from "@/components/icons";
 import { api } from "@/trpc/server";
 
 export const dynamicParams = true;

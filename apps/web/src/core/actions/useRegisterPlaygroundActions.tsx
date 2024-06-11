@@ -13,10 +13,10 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@craftgen/ui/components/avatar";
+import { Icons } from "@craftgen/ui/components/icons";
 
 import { searchModulesMeta } from "@/actions/search-modules-meta";
 import { searchOrgsMeta } from "@/actions/search-orgs-meta";
-import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
 
 import { useRegisterReplicateActions } from "./replicate-actions";

@@ -8,10 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@craftgen/ui/components/card";
+import { Icon, Icons } from "@craftgen/ui/components/icons";
 import Marquee from "@craftgen/ui/components/marquee";
 import { Separator } from "@craftgen/ui/components/separator";
-
-import { Icon, Icons } from "@/components/icons";
 
 import { LoginForm } from "./login-form";
 

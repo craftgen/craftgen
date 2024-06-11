@@ -11,9 +11,9 @@ import {
   Shield,
 } from "lucide-react";
 
+import { Icon, Icons } from "@craftgen/ui/components/icons";
 import Marquee from "@craftgen/ui/components/marquee";
 
-import { Icon, Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const tiles = [

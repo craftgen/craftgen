@@ -21,13 +21,13 @@ import { useStore } from "zustand";
 
 import type { Socket } from "@craftgen/core/src/sockets";
 import { Button } from "@craftgen/ui/components/button";
+import { Icon, Icons } from "@craftgen/ui/components/icons";
 import { Textarea } from "@craftgen/ui/components/textarea";
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
 
 import { updatePlaygroundLayout } from "@/actions/update-playground-layout";
 import { TokenList } from "@/app/(dashboard)/[projectSlug]/settings/tokens/token-item";
 import { UserNav } from "@/app/(dashboard)/components/user-nav";
-import { Icon, Icons } from "@/components/icons";
 import { createCraftStore } from "@/core/store";
 import { CraftContext, useCraftStore } from "@/core/use-store";
 import type { RouterOutputs } from "@/trpc/shared";

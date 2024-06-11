@@ -7,7 +7,7 @@ import {
   useAlignDropdownMenuState,
 } from "@udecode/plate-alignment";
 
-import { Icons, iconVariants } from "@/components/icons";
+import { Icons, iconVariants } from "@craftgen/ui/components/icons";
 
 import {
   DropdownMenu,

@@ -10,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@craftgen/ui/components/command";
+import { Icons } from "@craftgen/ui/components/icons";
 import {
   Popover,
   PopoverContent,
@@ -17,7 +18,6 @@ import {
 } from "@craftgen/ui/components/popover";
 
 import { useUser } from "@/app/(dashboard)/hooks/use-user";
-import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
 
 export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {

@@ -6,8 +6,8 @@ import { debounce, flatten, isNil } from "lodash-es";
 import { toast } from "sonner";
 
 import { Editor } from "@craftgen/core";
+import { Icons } from "@craftgen/ui/components/icons";
 
-import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
 
 import { extractOwnerAndName, extractOwnerAndNameAndVersion } from "./utils";

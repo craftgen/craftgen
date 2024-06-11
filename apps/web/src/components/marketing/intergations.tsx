@@ -1,19 +1,7 @@
-import { useMemo } from "react";
-
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@craftgen/ui/components/card";
 import DotPattern from "@craftgen/ui/components/dot-pattern";
 import Marquee from "@craftgen/ui/components/marquee";
-import { Separator } from "@craftgen/ui/components/separator";
 
 import { cn } from "@/lib/utils";
-
-import { Icons } from "../icons";
 
 export const Integrations = () => {
   return (
