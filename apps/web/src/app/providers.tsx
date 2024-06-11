@@ -2,6 +2,7 @@
 
 import { RootProvider } from "fumadocs-ui/provider";
 
+import { TooltipProvider } from "@craftgen/ui/components/tooltip";
 import { PHProvider } from "@craftgen/ui/providers/posthog-provider";
 import { ThemeProvider } from "@craftgen/ui/providers/theme-provider";
 
@@ -20,7 +21,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           api_host: `${BASE_URL}/ingest`,
         }}
       >
-        <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+        <TooltipProvider>
+          <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+        </TooltipProvider>
       </PHProvider>
     </ThemeProvider>
   );

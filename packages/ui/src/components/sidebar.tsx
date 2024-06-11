@@ -1,11 +1,11 @@
-import { Package2 } from "lucide-react";
-
+import { Icons } from "./icons";
+import { Separator } from "./separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export const Sidebar = <T extends React.ComponentType<any>>({
   Link,
-  topLinks,
-  bottomLinks,
+  topLinks = [],
+  bottomLinks = [],
   logoLinkProps,
 }: {
   Link: T;
@@ -26,11 +26,14 @@ export const Sidebar = <T extends React.ComponentType<any>>({
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-4">
         <Link
           {...(logoLinkProps as any)}
-          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2  text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base "
         >
-          <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
+          <Icons.logo className="h-8 w-8 transition-all group-hover:opacity-90" />
           <span className="sr-only">CraftGen</span>
         </Link>
+
+        <Separator />
+
         {topLinks.map((link, index) => (
           <Tooltip key={index}>
             <TooltipTrigger asChild>

@@ -8,6 +8,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 import { Icons } from "@craftgen/ui/components/icons";
 import { Sidebar } from "@craftgen/ui/components/sidebar";
+import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 
 interface MyRouterContext {
   // The ReturnType of your useAuth hook or the value of your AuthContext
@@ -23,7 +24,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   },
   component: () => (
     <>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <DashboardLayout>
         <Sidebar
           Link={Link}
           topLinks={[
@@ -46,10 +47,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             },
           ]}
         />
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+        <DashboardLayout.Content>
           <Outlet />
-        </div>
-      </div>
+        </DashboardLayout.Content>
+      </DashboardLayout>
 
       {/* <main className="flex flex-col">
         <Navbar />
