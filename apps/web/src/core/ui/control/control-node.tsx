@@ -32,10 +32,10 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@craftgen/ui/components/dropdown-menu";
+import { JSONView } from "@craftgen/ui/components/json-view";
 import { Label } from "@craftgen/ui/components/label";
 import { Toggle } from "@craftgen/ui/components/toggle";
 
-import { JSONView } from "@/components/json-view";
 import { ControlWrapper } from "@/core/ui/control-wrapper";
 import { cn } from "@/lib/utils";
 

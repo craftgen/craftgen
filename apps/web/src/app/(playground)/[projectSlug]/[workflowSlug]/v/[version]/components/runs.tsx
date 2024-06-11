@@ -4,10 +4,10 @@ import { AnyActorRef } from "xstate";
 import { NodeProps } from "@craftgen/core/src/types";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
+import { JSONView } from "@craftgen/ui/components/json-view";
 import { Label } from "@craftgen/ui/components/label";
 
 import { Icons } from "@/components/icons";
-import { JSONView } from "@/components/json-view";
 import { useCraftStore } from "@/core/use-store";
 import { cn } from "@/lib/utils";
 

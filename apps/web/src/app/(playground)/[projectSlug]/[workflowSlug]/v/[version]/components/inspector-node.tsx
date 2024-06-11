@@ -9,6 +9,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@craftgen/ui/components/alert";
+import { JSONView } from "@craftgen/ui/components/json-view";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { Separator } from "@craftgen/ui/components/separator";
 import {
@@ -18,7 +19,6 @@ import {
   TabsTrigger,
 } from "@craftgen/ui/components/tabs";
 
-import { JSONView } from "@/components/json-view";
 import { InputsList, OutputsList } from "@/core/ui/control/control-node";
 
 import { Runs } from "./runs";

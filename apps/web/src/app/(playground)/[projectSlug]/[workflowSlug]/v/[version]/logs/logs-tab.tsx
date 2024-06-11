@@ -13,11 +13,11 @@ import {
 } from "@craftgen/ui/components/accordion";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
+import { JSONView } from "@craftgen/ui/components/json-view";
 import { Label } from "@craftgen/ui/components/label";
 import { Separator } from "@craftgen/ui/components/separator";
 import { Switch } from "@craftgen/ui/components/switch";
 
-import { JSONView } from "@/components/json-view";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";

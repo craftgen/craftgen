@@ -19,6 +19,8 @@
     "@manypkg/cli": "^0.21.0",
     "@turbo/gen": "^1.9.7",
     "eslint": "^8.52.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.5",
     "prettier": "^3.0.3",
     "turbo": "^1.13.3",
     "typescript": "^5.4.5"
@@ -29,9 +31,5 @@
     "apps/*"
   ],
   "name": "noktastudio",
-  "prettier": "@acme/prettier-config",
-  "devDependencies": {
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.5"
-  }
+  "prettier": "@acme/prettier-config"
 }

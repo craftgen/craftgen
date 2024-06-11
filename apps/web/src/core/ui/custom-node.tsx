@@ -58,6 +58,7 @@ import Markdown from "react-markdown";
 import JsonView from "react18-json-view";
 import { AnyActorRef } from "xstate";
 
+import { JSONView } from "@craftgen/ui/components/json-view";
 import {
   Tabs,
   TabsContent,
@@ -73,7 +74,6 @@ import {
 
 import { updateNodeMetadata } from "@/actions/update-node-meta";
 import { Icons } from "@/components/icons";
-import { JSONView } from "@/components/json-view";
 
 const { RefSocket, RefControl } = Presets.classic;
 
