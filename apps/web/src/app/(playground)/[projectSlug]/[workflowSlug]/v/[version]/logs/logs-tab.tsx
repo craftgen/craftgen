@@ -178,17 +178,22 @@ export const ExecutionActorData: React.FC<{
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded border bg-muted/50 p-2">
-          <h5 className="font-bold">Inputs</h5>
+        <fieldset className="grid gap-6 rounded-lg border bg-muted/50 p-4">
+          <legend className="-ml-1 rounded bg-muted px-1 text-sm font-medium">
+            Inputs
+          </legend>
           <LogsTable record={actorData?.context?.inputs || {}} />
           {actorData?.context?.settings && (
             <LogsTable record={actorData?.context?.settings || {}} />
           )}
-        </div>
-        <div className="rounded border bg-muted/50 p-2">
-          <h5 className="font-bold">Outputs</h5>
+        </fieldset>
+
+        <fieldset className="grid gap-6 rounded-lg border bg-muted/50 p-4">
+          <legend className="-ml-1 rounded bg-muted px-1 text-sm font-medium">
+            Outputs
+          </legend>
           <LogsTable record={actorData?.context?.outputs || {}} />
-        </div>
+        </fieldset>
         {runs.length > 0 && (
           <div className="col-span-2 w-full">
             <Separator />
