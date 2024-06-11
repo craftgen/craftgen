@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipProvider } from "@craftgen/ui/components/tooltip";
 import { PHProvider } from "@craftgen/ui/providers/posthog-provider";
 import { ThemeProvider } from "@craftgen/ui/providers/theme-provider";
 
@@ -19,7 +20,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           }}
           enabled={import.meta.env.PROD}
         >
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </PHProvider>
       </ThemeProvider>
     </TRPCReactProvider>

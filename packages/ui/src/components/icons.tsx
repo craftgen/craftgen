@@ -1,4 +1,3 @@
-import React from "react";
 import { cva } from "class-variance-authority";
 import {
   AlignCenter,
@@ -36,6 +35,7 @@ import {
   Heading4,
   Heading5,
   Heading6,
+  Home,
   Image,
   Indent,
   Italic,
@@ -56,6 +56,7 @@ import {
   MoreHorizontal,
   Newspaper,
   Outdent,
+  Package2,
   PaintBucket,
   Paperclip,
   Pilcrow,
@@ -260,6 +261,7 @@ const Replicate = ({ className, ...props }: LucideProps) => (
     viewBox="0 0 1000 1000"
     className={cn("fill-foreground", className)}
     fill="currentColor"
+    {...props}
   >
     <g>
       <polygon points="1000,427.6 1000,540.6 603.4,540.6 603.4,1000 477,1000 477,427.6 	"></polygon>
@@ -276,6 +278,7 @@ const Ollama = ({ className, ...props }: LucideProps) => (
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
     className={cn(className)}
+    {...props}
   >
     <rect width="133" height="185" fill="url(#pattern0)" />
     <defs>
@@ -314,6 +317,8 @@ const Postgres = ({ className, ...props }: LucideProps) => (
 );
 
 export const Icons = {
+  home: Home,
+  package2: Package2,
   add: Plus,
   alignCenter: AlignCenter,
   alignJustify: AlignJustify,

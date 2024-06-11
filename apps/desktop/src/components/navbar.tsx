@@ -5,7 +5,6 @@ import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
-  children,
   session,
 }) => {
   return (
