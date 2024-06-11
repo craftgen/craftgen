@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@craftgen/ui/components/button";
+import { Confettis } from "@craftgen/ui/components/confetti";
 import {
   Dialog,
   DialogContent,
@@ -25,8 +26,6 @@ import {
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
 import NumberTicker from "@craftgen/ui/components/number-ticket";
-
-import { Confettis } from "@/components/confetti";
 
 import { addToWaitlist } from "../action";
 
