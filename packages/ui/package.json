@@ -24,6 +24,7 @@
   "keywords": [],
   "author": "",
   "peerDependencies": {
+    "posthog-js": "1.139.0",
     "react": "^18.2.0"
   },
   "dependencies": {
@@ -79,6 +80,7 @@
     "@acme/tsconfig": "workspace:*",
     "@types/react": "18.2.15",
     "eslint": "^8.52.0",
+    "posthog-js": "1.139.0",
     "prettier": "^3.0.3",
     "react": "18.2.0",
     "tailwindcss": "3.3.3",
