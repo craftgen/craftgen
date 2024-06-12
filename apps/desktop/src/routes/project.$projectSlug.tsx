@@ -1,13 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { JSONView } from "@craftgen/ui/components/json-view";
+import { ProjectLayout } from "@craftgen/ui/layout/project";
+import { PlaygroundList } from "@craftgen/ui/views/playground-list";
+import { ProjectCard } from "@craftgen/ui/views/project-card";
 
 import { api, client } from "../trpc/react";
 
 const ProjectPage = () => {
   const data = Route.useLoaderData();
   const params = Route.useParams();
-  const project = api.project.bySlug.useQuery(
+  const { data: project } = api.project.bySlug.useQuery(
     {
       projectSlug: params.projectSlug,
     },
@@ -15,17 +17,31 @@ const ProjectPage = () => {
       initialData: data,
     },
   );
+  const navigate = useNavigate();
   return (
-    <div>
-      <div className="bg-muted p-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex flex-row items-center space-x-2">
-            <h2 className="text-2xl font-bold">{project.data?.name}</h2>
-          </div>
-          <JSONView src={data} />
+    <ProjectLayout>
+      <ProjectLayout.Content>
+        <div className="col-span-3 ">
+          <ProjectCard project={project} />
         </div>
-      </div>
-    </div>
+
+        <section className="col-span-9">
+          <PlaygroundList
+            projectSlug={params.projectSlug}
+            onWorkflowCreate={(data) =>
+              navigate({
+                to: `/$projectSlug/$workflowSlug/v/$version`,
+                params: {
+                  projectSlug: data.projectSlug,
+                  workflowSlug: data.slug,
+                  version: 0,
+                },
+              })
+            }
+          />
+        </section>
+      </ProjectLayout.Content>
+    </ProjectLayout>
   );
 };
 

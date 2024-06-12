@@ -6,7 +6,6 @@ import type { Table } from "@tanstack/react-table";
 import { Button } from "@craftgen/ui/components/button";
 import { Input } from "@craftgen/ui/components/input";
 
-import { useProject } from "../../hooks/use-project";
 import { priorities, statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -65,10 +64,10 @@ export function DataTableToolbar<TData>({
 }
 
 const NewArticleButton = () => {
-  const { data: project } = useProject();
+  // const { data: project } = useProject();
 
   const handleNewArticle = () => {
-    if (!project) return;
+    // if (!project) return;
     // const article = createArticle({
     //   projectId: project?.id,
     // });

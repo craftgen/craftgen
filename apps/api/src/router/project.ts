@@ -1,9 +1,30 @@
 import { TRPCError } from "@trpc/server";
+import { isNull } from "lodash-es";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const projectRouter = createTRPCRouter({
+  checkSlugAvailable: protectedProcedure
+    .input(
+      z.object({
+        slug: z.string(),
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const exist = await ctx.db.query.workflow.findFirst({
+        where: (workflow, { and, eq }) =>
+          and(
+            eq(workflow.slug, input.slug),
+            eq(workflow.projectId, input.projectId),
+          ),
+        columns: {
+          slug: true,
+        },
+      });
+      return isNull(exist);
+    }),
   all: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.project.findMany({});
   }),

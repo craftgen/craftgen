@@ -57,8 +57,6 @@ import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
 
-import { useProject } from "../../hooks/use-project";
-
 const tokenSchema = z.object({
   key: z.string().min(1, "Key is required"),
   value: z.string().min(1, "Value is required"),
@@ -70,8 +68,11 @@ const formSchema = z.object({
 
 export const TokenList: React.FC<{
   tokens?: RouterOutputs["credentials"]["list"];
-}> = ({ tokens }) => {
-  const { data: project } = useProject();
+  projectSlug: string;
+}> = ({ tokens, projectSlug }) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
   const { data: tokensData } = api.credentials.list.useQuery(
     { projectId: project?.id! },
     {
@@ -82,7 +83,7 @@ export const TokenList: React.FC<{
     <div className="space-y-4 p-2 @container">
       {tokensData && (
         <>
-          <TokenListNew tokens={tokensData} />
+          <TokenListNew tokens={tokensData} projectSlug={projectSlug} />
           {tokensData?.length > 0 && (
             <>
               <Separator />
@@ -97,8 +98,11 @@ export const TokenList: React.FC<{
 
 export const TokenListNew: React.FC<{
   tokens: RouterOutputs["credentials"]["list"];
-}> = ({ tokens }) => {
-  const { data: project } = useProject();
+  projectSlug: string;
+}> = ({ tokens, projectSlug }) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
   const utils = api.useUtils();
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -388,8 +392,11 @@ export const TokenItem: React.FC<{
   token: RouterOutputs["credentials"]["list"][number];
   isOpen: boolean;
   setOpen: (id: string | null) => void;
-}> = ({ token, isOpen, setOpen }) => {
-  const { data: project } = useProject();
+  projectSlug: string;
+}> = ({ token, isOpen, setOpen, projectSlug }) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
   const utils = api.useUtils();
   const form = useForm<z.infer<typeof tokenSchema>>({
     defaultValues: {

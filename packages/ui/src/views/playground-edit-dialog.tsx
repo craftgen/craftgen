@@ -24,7 +24,7 @@ import { Input } from "@craftgen/ui/components/input";
 import { Switch } from "@craftgen/ui/components/switch";
 import { Textarea } from "@craftgen/ui/components/textarea";
 
-import { api } from "@/trpc/react";
+import { api } from "../lib/api";
 
 const formSchema = z.object({
   name: z.string().min(2, {

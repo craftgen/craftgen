@@ -31,7 +31,6 @@ export const Sidebar = <T extends React.ComponentType<any>>({
           <Icons.logo className="h-8 w-8 transition-all group-hover:opacity-90" />
           <span className="sr-only">CraftGen</span>
         </Link>
-
         <Separator />
 
         {topLinks.map((link, index) => (

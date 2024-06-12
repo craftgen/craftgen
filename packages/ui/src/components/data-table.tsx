@@ -25,8 +25,8 @@ import {
   TableRow,
 } from "@craftgen/ui/components/table";
 
-import { DataTablePagination } from "../components/data-table-pagination";
-import { DataTableToolbar } from "../components/data-table-toolbar";
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 import { TableContext } from "./use-table";
 
 interface DataTableProps<TData, TValue> {

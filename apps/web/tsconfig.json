@@ -20,6 +20,18 @@
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "module": "esnext"
   },
-  "include": [".", ".next/types/**/*.ts"],
+  "include": [
+    ".",
+    ".next/types/**/*.ts",
+    "../../packages/ui/src/views/playground-create-dialog.tsx",
+    "../../packages/ui/src/views/playground-edit-dialog.tsx",
+    "../../packages/ui/src/views/playground-list.tsx",
+    "../../packages/ui/src/components/data-table.tsx",
+    "../../packages/ui/src/components/data-table-toolbar.tsx",
+    "../../packages/ui/src/components/data-table-pagination.tsx",
+    "../../packages/ui/src/components/use-table.tsx",
+    "../../packages/ui/src/components/data-table-view-options.tsx",
+    "../../packages/ui/src/components/data-table-faceted-filter.tsx"
+  ],
   "exclude": ["node_modules"]
 }

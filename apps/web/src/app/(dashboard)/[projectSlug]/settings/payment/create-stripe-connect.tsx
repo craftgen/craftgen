@@ -7,14 +7,11 @@ import { Button } from "@craftgen/ui/components/button";
 import { useUser } from "@/app/(dashboard)/hooks/use-user";
 import { api } from "@/trpc/react";
 
-import { useProject } from "../../hooks/use-project";
-
 export const CreateStripeConnect = () => {
   const { mutateAsync: createStripeConnect } =
     api.stripe.connect.create.useMutation();
   const user = useUser();
   const router = useRouter();
-  const { data: project } = useProject();
   const handleCreateStripeAccount = async (type: "express" | "standard") => {
     const { accountLink } = await createStripeConnect({
       type,

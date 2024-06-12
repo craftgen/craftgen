@@ -120,19 +120,22 @@ export const craftModuleRouter = createTRPCRouter({
   list: publicProcedure
     .input(
       z.object({
-        projectId: z.string(),
+        projectSlug: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
         let canAccess = false;
+        const project = await tx.query.project.findFirst({
+          where: (project, { eq }) => eq(project.slug, input.projectSlug),
+        });
 
         if (ctx.session?.user.id) {
           // check if user member of project
           const member = await tx.query.projectMembers.findFirst({
             where: (projectMember, { eq, and }) =>
               and(
-                eq(projectMember.projectId, input.projectId),
+                eq(projectMember.projectId, project.id),
                 eq(projectMember.userId, ctx.session?.user?.id!),
               ),
           });
@@ -144,7 +147,7 @@ export const craftModuleRouter = createTRPCRouter({
         if (canAccess) {
           workflows = await tx.query.workflow.findMany({
             where: (workflow, { eq, and }) =>
-              and(eq(workflow.projectId, input.projectId)),
+              and(eq(workflow.projectId, project.id)),
             with: {
               versions: {
                 orderBy: (workflowVersion, { desc }) => [
@@ -163,7 +166,7 @@ export const craftModuleRouter = createTRPCRouter({
           workflows = await tx.query.workflow.findMany({
             where: (workflow, { eq, and }) =>
               and(
-                eq(workflow.projectId, input.projectId),
+                eq(workflow.projectId, project.id),
                 eq(workflow.public, true),
               ),
             with: {

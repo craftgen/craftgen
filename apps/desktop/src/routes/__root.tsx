@@ -3,6 +3,7 @@ import {
   createRootRouteWithContext,
   Link,
   Outlet,
+  redirect,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
@@ -27,6 +28,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       <DashboardLayout>
         <Sidebar
           Link={Link}
+          logoLinkProps={{
+            to: "/",
+          }}
           topLinks={[
             {
               label: "Dashboard",
@@ -51,16 +55,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           <Outlet />
         </DashboardLayout.Content>
       </DashboardLayout>
-
-      {/* <main className="flex flex-col">
-        <Navbar />
-        <div className="relative mt-12 h-full min-h-[calc(100vh-3rem)] flex-1 bg-gray-100 dark:bg-muted">
-          <div className="shadow-super m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white p-4 dark:bg-background">
-            <Outlet />
-          </div>
-        </div>
-      </main> */}
-      <TanStackRouterDevtools />
+      <TanStackRouterDevtools position="bottom-right" />
     </>
   ),
 });

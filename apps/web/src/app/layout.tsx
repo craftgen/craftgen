@@ -9,9 +9,12 @@ import { GeistMono, GeistSans } from "geist/font";
 
 import { Toaster } from "@craftgen/ui/components/sonner";
 import { KBar } from "@craftgen/ui/kbar/kbar";
+import { TRPCReactProvider } from "@craftgen/ui/lib/api";
 
 import { PHIdentify } from "@/components/ph-identify";
-import { TRPCReactProvider } from "@/trpc/react";
+import { getUrl } from "@/trpc/shared";
+
+// import { TRPCReactProvider } from "@/trpc/react";
 
 import { Providers } from "./providers";
 
@@ -38,7 +41,7 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
       >
-        <TRPCReactProvider headers={headers()}>
+        <TRPCReactProvider headers={headers()} url={getUrl()}>
           <KBar>
             <Providers>
               {children}

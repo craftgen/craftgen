@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounce } from "lodash-es";
 import { AlertCircle, Check, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "react-use";
-import { mutate } from "swr";
 import { z } from "zod";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@craftgen/ui/components/alert";
-import { Badge } from "@craftgen/ui/components/badge";
-import { Button } from "@craftgen/ui/components/button";
+import { RouterOutputs } from "@craftgen/api";
+
+import { Alert, AlertDescription, AlertTitle } from "../components/alert";
+import { Badge } from "../components/badge";
+import { Button } from "../components/button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +17,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@craftgen/ui/components/dialog";
+} from "../components/dialog";
 import {
   Form,
   FormControl,
@@ -31,19 +26,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/components/form";
-import { Input } from "@craftgen/ui/components/input";
-import { ScrollArea } from "@craftgen/ui/components/scroll-area";
-import { Switch } from "@craftgen/ui/components/switch";
-import { Textarea } from "@craftgen/ui/components/textarea";
-import { useToast } from "@craftgen/ui/components/use-toast";
-
-import { slugify } from "@/lib/string";
-import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
-
-import { checkSlugAvailable } from "./actions";
-import { useProject } from "./hooks/use-project";
+} from "../components/form";
+import { Input } from "../components/input";
+import { ScrollArea } from "../components/scroll-area";
+import { Switch } from "../components/switch";
+import { Textarea } from "../components/textarea";
+import { useToast } from "../components/use-toast";
+import { api } from "../lib/api";
+import { slugify } from "../lib/string";
+import { cn } from "../lib/utils";
 
 const formSchema = z.object({
   template: z.string().nullable(),
@@ -96,23 +87,20 @@ const templates = [
 export const WorkflowCreateDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-}> = ({ isOpen, onOpenChange }) => {
-  const { data: project } = useProject();
+  projectSlug: string;
+  onCreate: (data: RouterOutputs["craft"]["module"]["create"]) => void;
+}> = ({ isOpen, onOpenChange, projectSlug, onCreate }) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
 
-  const debouncedCheckSlugAvailable = debounce(
-    async (slug) =>
-      checkSlugAvailable({
-        slug,
-        projectId: project?.id!,
-      }),
-    500,
-  );
+  const utils = api.useUtils();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(
       formSchema.refine(
         async ({ slug }) => {
-          const val = await checkSlugAvailable({
+          const val = await utils.project.checkSlugAvailable.fetch({
             slug,
             projectId: project?.id!,
           });
@@ -136,8 +124,6 @@ export const WorkflowCreateDialog: React.FC<{
       public: true,
     },
   });
-  const params = useParams();
-  const router = useRouter();
   const { toast } = useToast();
   const name = form.watch("name");
   useEffect(() => {
@@ -147,7 +133,7 @@ export const WorkflowCreateDialog: React.FC<{
   const [nameAvailable, setNameAvailable] = useState(true);
   useDebounce(
     async () => {
-      const available = await checkSlugAvailable({
+      const available = await utils.project.checkSlugAvailable.fetch({
         slug,
         projectId: project?.id!,
       });
@@ -157,7 +143,6 @@ export const WorkflowCreateDialog: React.FC<{
     [slug],
   );
 
-  const utils = api.useUtils();
   const { mutateAsync: createWorkflow, error } =
     api.craft.module.create.useMutation({
       onSuccess: async () => {
@@ -185,7 +170,8 @@ export const WorkflowCreateDialog: React.FC<{
       });
       return;
     }
-    router.push(`/${params.projectSlug}/${newPlayground.slug}/v/0`);
+
+    onCreate(newPlayground);
     form.reset();
     onOpenChange(false);
   };

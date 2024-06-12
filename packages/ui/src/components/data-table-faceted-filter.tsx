@@ -20,7 +20,7 @@ import {
 } from "@craftgen/ui/components/popover";
 import { Separator } from "@craftgen/ui/components/separator";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 interface DataTableFacetedFilter<TData, TValue> {
   column?: Column<TData, TValue>;

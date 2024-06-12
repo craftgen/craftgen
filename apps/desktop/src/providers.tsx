@@ -1,17 +1,21 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
+import { TRPCReactProvider } from "@craftgen/ui/lib/api";
 import { PHProvider } from "@craftgen/ui/providers/posthog-provider";
 import { ThemeProvider } from "@craftgen/ui/providers/theme-provider";
 
-import { TRPCReactProvider } from "./trpc/react";
+import { getUrl } from "./trpc/shared";
 
 const posthogKey = import.meta.env.VITE_POSTHOG_API_KEY;
 const posthogHost = import.meta.env.VITE_POSTHOG_HOST;
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  const url = useMemo(() => getUrl(), []);
   return (
-    <TRPCReactProvider>
+    <TRPCReactProvider url={url} headers={new Headers()}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <PHProvider
           apiKey={posthogKey}

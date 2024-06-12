@@ -31,23 +31,36 @@ import { Input } from "@craftgen/ui/components/input";
 import { Label } from "@craftgen/ui/components/label";
 import { Separator } from "@craftgen/ui/components/separator";
 
-import { deleteProject, updateProject } from "../actions";
-import { useProject } from "../hooks/use-project";
+import { api } from "@/trpc/react";
 
-export const ProjectSettingsSection = () => {
-  const { data: project } = useProject();
+import { deleteProject, updateProject } from "../actions";
+
+export const ProjectSettingsSection = ({
+  projectSlug,
+}: {
+  projectSlug: string;
+}) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
   if (!project) return null;
   return (
     <div>
       <ProjectSettinsForm project={project} />
       <Separator />
-      <ProjectDeleteSection />
+      <ProjectDeleteSection projectSlug={projectSlug} />
     </div>
   );
 };
 
-export const ProjectDeleteSection = () => {
-  const { data: project } = useProject();
+export const ProjectDeleteSection = ({
+  projectSlug,
+}: {
+  projectSlug: string;
+}) => {
+  const { data: project } = api.project.bySlug.useQuery({
+    projectSlug: projectSlug,
+  });
   const router = useRouter();
   if (!project) return null;
   const handleDelete = async () => {

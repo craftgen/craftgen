@@ -17,12 +17,10 @@ import {
   FormItem,
   FormLabel,
 } from "@craftgen/ui/components/form";
-import { Icons } from "@craftgen/ui/components/icons";
 
 import { BASE_URL } from "@/lib/constants";
 
 import { getGoogleScopes } from "../../actions";
-import { useProject } from "../../hooks/use-project";
 
 const GoogleIntegrationsData = {
   googleSheets: [
@@ -91,7 +89,6 @@ const GoogleIntegrations: React.FC<{
       },
     });
   }
-  const { data: project } = useProject();
 
   return (
     <div>

@@ -13,7 +13,7 @@ const TokensPage = async ({
   const tokens = await api.credentials.list({});
   return (
     <div>
-      <TokenList tokens={tokens} />
+      <TokenList tokens={tokens} projectSlug={params.projectSlug} />
     </div>
   );
 };

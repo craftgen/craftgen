@@ -3,12 +3,8 @@ import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 
 import { db } from "@craftgen/db/db";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@craftgen/ui/components/avatar";
-import { Card } from "@craftgen/ui/components/card";
+import { ProjectLayout } from "@craftgen/ui/layout/project";
+import { ProjectCard } from "@craftgen/ui/views/project-card";
 
 import { api } from "@/trpc/server";
 
@@ -67,40 +63,22 @@ const ProjectPage = async ({
   if (!project) {
     notFound();
   }
+
   // const metrics = project?.site
   //   ? await getAnalytics({ siteUrl: project?.site })
   //   : undefined;
   return (
-    <div className="flex flex-col items-center p-10">
-      {/* {metrics && <Metrics metrics={metrics} />} */}
-      <div className="grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-12">
+    <ProjectLayout>
+      <ProjectLayout.Content>
         <div className="col-span-3 ">
-          <Card className="space-y-2 rounded-lg p-4">
-            <div className="flex w-full items-center justify-center">
-              <Avatar className="h-40 w-40">
-                {project?.avatar_url && (
-                  <AvatarImage src={project.avatar_url} />
-                )}
-                <AvatarFallback>
-                  {project.slug[0]?.toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <h1 className="font-mono text-xl font-bold leading-tight">
-              {project?.name}
-            </h1>
-            <h2 className="text-lg leading-tight text-muted-foreground">
-              {project?.slug}
-            </h2>
-          </Card>
+          <ProjectCard project={project} />
         </div>
 
         <section className="col-span-9">
-          <PlaygroundList projectId={project?.id!} />
+          <PlaygroundList projectSlug={params.projectSlug} />
         </section>
-      </div>
-      {/* <Onboarding /> */}
-    </div>
+      </ProjectLayout.Content>
+    </ProjectLayout>
   );
 };
 
