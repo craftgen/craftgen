@@ -43,6 +43,7 @@ export async function generateStaticParams() {
     columns: {
       slug: true,
     },
+    limit: 10,
   });
 
   return projects.map((project) => ({

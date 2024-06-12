@@ -47,6 +47,7 @@ export async function generateStaticParams() {
         },
       },
     },
+    limit: 10,
   });
   const paths = projects
     ?.map((project) => {
