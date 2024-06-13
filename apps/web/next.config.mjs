@@ -1,5 +1,10 @@
 import { remarkImage } from "fumadocs-core/mdx-plugins";
 import createMDX from "fumadocs-mdx/config";
+import BundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = BundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const withMDX = createMDX({
   cwd: "./src",
@@ -92,4 +97,4 @@ const nextConfig = {
   },
 };
 
-export default withMDX(nextConfig);
+export default withBundleAnalyzer(withMDX(nextConfig));

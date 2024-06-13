@@ -6,9 +6,9 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { auth } from "@googleapis/webmasters";
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { google } from "googleapis";
 import { OpenAI } from "openai";
 import Replicate from "replicate";
 import superjson from "superjson";
@@ -204,7 +204,7 @@ const openaiMiddleware = t.middleware(async ({ ctx, next }) => {
 export const openAiProducer = protectedProcedure.use(openaiMiddleware);
 
 const googleAuthMiddleware = t.middleware(async ({ ctx, next }) => {
-  const googleAuth = new google.auth.OAuth2({
+  const googleAuth = new auth.OAuth2({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   });

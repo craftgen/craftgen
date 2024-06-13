@@ -1,7 +1,7 @@
 "use server";
 
+import type { Auth } from "@googleapis/sheets";
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import type { Auth } from "googleapis";
 
 import type { GoogleSheetMachineSettingsContext } from "./google-sheet";
 

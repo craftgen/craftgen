@@ -1,10 +1,10 @@
+import { auth, drive } from "@googleapis/drive";
 import type { Session } from "@supabase/supabase-js";
-import { google } from "googleapis";
 
 import { db } from "@craftgen/db/db";
 
 export const getGoogleAuth = async ({ session }: { session: Session }) => {
-  const googleAuth = new google.auth.OAuth2({
+  const googleAuth = new auth.OAuth2({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   });
@@ -42,12 +42,10 @@ export const getWebmaster = async ({ session }: { session: Session }) => {
 export const getDrive = async ({ session }: { session: Session }) => {
   const googleAuth = await getGoogleAuth({ session });
 
-  const drive = google.drive({
+  return drive({
     version: "v3",
     auth: googleAuth,
   });
-
-  return drive;
 };
 
 export const getSpreadsheetData = async ({
@@ -57,25 +55,13 @@ export const getSpreadsheetData = async ({
   session: Session;
   query: string;
 }) => {
-  const googleAuth = await getGoogleAuth({ session });
-  const drive = google.drive({ version: "v3", auth: googleAuth });
+  const d = await getDrive({ session });
 
-  const response = await drive.files.list({
+  const response = await d.files.list({
     q: `mimeType='application/vnd.google-apps.spreadsheet' and name contains '${query}'`,
     pageSize: 10,
     fields: "nextPageToken, files(id, name)",
   });
 
   return response.data.files;
-};
-
-export const getSheets = async ({ session }: { session: Session }) => {
-  const googleAuth = await getGoogleAuth({ session });
-
-  const sheets = google.sheets({
-    version: "v4",
-    auth: googleAuth,
-  });
-
-  return sheets;
 };

@@ -1,5 +1,5 @@
+import { webmasters } from "@googleapis/webmasters";
 import { format, parseISO } from "date-fns";
-import { google } from "googleapis";
 import { z } from "zod";
 
 import { createTRPCRouter, googleAuthProducer } from "../../../trpc";
@@ -44,7 +44,7 @@ export const searchConsoleRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const webmaster = google.webmasters({
+      const webmaster = webmasters({
         version: "v3",
         auth: ctx.googleAuth,
       });
