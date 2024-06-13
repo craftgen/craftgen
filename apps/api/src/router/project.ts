@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { isNull } from "lodash-es";
+import { isNil } from "lodash-es";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -23,7 +23,8 @@ export const projectRouter = createTRPCRouter({
           slug: true,
         },
       });
-      return isNull(exist);
+      console.log("EXIST", exist);
+      return isNil(exist);
     }),
   all: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.project.findMany({});

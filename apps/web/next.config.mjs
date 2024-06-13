@@ -22,7 +22,6 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   poweredByHeader: false,
   experimental: {
-    serverComponentsExternalPackages: ["pg-native"],
     webpackBuildWorker: true,
   },
   // transpilePackages: [
