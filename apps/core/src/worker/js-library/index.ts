@@ -1,5 +1,4 @@
 import lodashPackageJson from "lodash/package.json";
-import momentPackageJson from "moment-timezone/package.json";
 
 export interface JSLibrary {
   version?: string;
@@ -16,18 +15,6 @@ export const defaultLibraries: JSLibrary[] = [
     version: lodashPackageJson.version,
     docsURL: `https://lodash.com/docs/${lodashPackageJson.version}`,
     name: "lodash",
-  },
-  {
-    accessor: ["moment"],
-    version: momentPackageJson.version,
-    docsURL: `https://momentjs.com/docs/`,
-    name: "moment",
-  },
-  {
-    accessor: ["forge"],
-    version: "1.3.0",
-    docsURL: "https://github.com/digitalbazaar/forge",
-    name: "forge",
   },
 ];
 
