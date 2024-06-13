@@ -23,7 +23,6 @@ export const projectRouter = createTRPCRouter({
           slug: true,
         },
       });
-      console.log("EXIST", exist);
       return isNil(exist);
     }),
   all: publicProcedure.query(({ ctx }) => {
