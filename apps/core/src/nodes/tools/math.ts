@@ -1,6 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
 import { merge } from "lodash-es";
-import { evaluate } from "mathjs/number";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import {
@@ -104,6 +103,7 @@ const RunMathMachine = setup({
           expression: string;
         };
       }) => {
+        const { evaluate } = await import("mathjs/number");
         const { expression } = input;
         return evaluate(expression);
       },
