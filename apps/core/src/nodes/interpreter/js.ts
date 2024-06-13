@@ -1,6 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import _ from "lodash";
-import { merge } from "lodash-es";
+import { merge, omit } from "lodash-es";
 import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import dedent from "ts-dedent";
 import {
@@ -64,7 +63,6 @@ const inputSockets = {
       {
         enum: [
           "lodash",
-          "moment",
           "axios",
           "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js",
         ],
@@ -319,7 +317,7 @@ export const JavascriptCodeInterpreterMachine = createMachine(
                         code: context.inputs.logic,
                         libraries: context.inputs.libraries,
                         args: {
-                          inputs: _.omit(context.inputs, [
+                          inputs: omit(context.inputs, [
                             "code",
                             "libraries",
                             "run",

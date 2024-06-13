@@ -3,7 +3,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Divider } from "@tremor/react";
 import { useSelector } from "@xstate/react";
 import { LayoutGroup, motion } from "framer-motion";
-import _, { get, isEqual, isNil, omit } from "lodash-es";
+import { chain, get, isEqual, isNil, omit } from "lodash-es";
 import {
   ChevronDown,
   ChevronRight,
@@ -135,7 +135,7 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
 // )}
 
 const advanceInputSelector = (state: any) =>
-  _.chain(state.context.inputSockets)
+  chain(state.context.inputSockets)
     .pickBy((v) => {
       const definition = v.getSnapshot().context.definition;
       return get(definition, "x-isAdvanced", false);
@@ -144,7 +144,7 @@ const advanceInputSelector = (state: any) =>
     .value();
 
 const basicInputSelector = (state: any) =>
-  _.chain(state.context.inputSockets)
+  chain(state.context.inputSockets)
     .pickBy((v) => {
       const definition = v.getSnapshot().context.definition;
       return !get(definition, "x-isAdvanced", false);
@@ -274,7 +274,7 @@ export const OutputSocketItem = (props: {
 };
 
 const BasicInputs = (props: { actor: AnyActor }) => {
-  const inputSockets = useSelector(props.actor, basicInputSelector, _.isEqual);
+  const inputSockets = useSelector(props.actor, basicInputSelector, isEqual);
 
   return (
     <>
@@ -287,11 +287,7 @@ const BasicInputs = (props: { actor: AnyActor }) => {
 
 const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const inputSockets = useSelector(
-    props.actor,
-    advanceInputSelector,
-    _.isEqual,
-  );
+  const inputSockets = useSelector(props.actor, advanceInputSelector, isEqual);
   console.log("ADVANCE", {
     inputSockets,
     props,

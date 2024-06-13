@@ -1,7 +1,7 @@
-import { use, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActor, useSelector } from "@xstate/react";
-import _, { get, isEqual, isNil, pick, set } from "lodash";
+import { get, isEqual, isNil, pick, set } from "lodash-es";
 import { Trash2Icon, X } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import { ActorRefFrom, AnyActor, enqueueActions, setup } from "xstate";
@@ -24,7 +24,6 @@ import {
 } from "@craftgen/ui/components/accordion";
 import { Badge } from "@craftgen/ui/components/badge";
 import { Button } from "@craftgen/ui/components/button";
-import { Checkbox } from "@craftgen/ui/components/checkbox";
 import {
   Form,
   FormControl,
@@ -528,7 +527,7 @@ export function SocketGeneratorControlComponent(props: {
   );
   const socketDatas = useMemo(() => {
     return Object.values(sockets).map(
-      (socket: JSONSocket) => _.omit(socket, "x-connection") as JSONSocket,
+      (socket: JSONSocket) => omit(socket, "x-connection") as JSONSocket,
     );
   }, [sockets]);
 

@@ -1,4 +1,4 @@
-import { isEqual, isNil } from "lodash";
+import { isEqual, isNil } from "lodash-es";
 import { debounceTime, distinctUntilChanged, from, of, switchMap } from "rxjs";
 import {
   ActorRefFrom,

@@ -133,7 +133,6 @@
     "hono": "^4.3.2",
     "json-schema-to-jsdoc": "^1.1.0",
     "kbar": "0.1.0-beta.43",
-    "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.390.0",
     "mobx-react-lite": "^4.0.5",

@@ -37,9 +37,7 @@ import { match } from "ts-pattern";
 import type { CodeControl } from "@craftgen/core/src/controls/code";
 import base64 from "@craftgen/core/src/worker/autocomplete/definitions/base64-js.json";
 import ecma from "@craftgen/core/src/worker/autocomplete/definitions/ecmascript.json";
-import forge from "@craftgen/core/src/worker/autocomplete/definitions/forge.json";
 import lodash from "@craftgen/core/src/worker/autocomplete/definitions/lodash.json";
-import moment from "@craftgen/core/src/worker/autocomplete/definitions/moment.json";
 import { start } from "@craftgen/core/src/worker/main";
 import { WorkerMessenger } from "@craftgen/core/src/worker/messenger";
 
@@ -279,7 +277,7 @@ export function CodeEditor<T extends string>(props: { data: CodeControl }) {
   function createTernServer() {
     return new tern.Server({
       async: true,
-      defs: [ecma as any, lodash, base64, moment, forge],
+      defs: [ecma as any, lodash, base64],
       plugins: {
         doc_comment: {},
       },

@@ -1,6 +1,5 @@
 import { init } from "@paralleldrive/cuid2";
 import { createBrowserInspector } from "@statelyai/inspect";
-import _ from "lodash";
 import {
   cloneDeep,
   difference,
@@ -2583,8 +2582,8 @@ const removeInputsOutputs = (persistedSnapshot: any) => {
       cloneSnapshot.snapshot.children[key] = removeInputsOutputs(value);
     }
   }
-  const inputs = _.get(cloneSnapshot, "snapshot.context.inputs");
-  const outputs = _.get(cloneSnapshot, "snapshot.context.outputs");
+  const inputs = get(cloneSnapshot, "snapshot.context.inputs");
+  const outputs = get(cloneSnapshot, "snapshot.context.outputs");
 
   if (inputs && outputs) {
     // set each input/output key value to null,

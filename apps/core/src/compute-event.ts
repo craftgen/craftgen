@@ -1,4 +1,4 @@
-import { isNull } from "lodash";
+import { isNull } from "lodash-es";
 import {
   AnyActorRef,
   assign,

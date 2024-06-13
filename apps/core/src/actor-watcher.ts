@@ -1,4 +1,4 @@
-import { get, isEqual } from "lodash";
+import { get, isEqual } from "lodash-es";
 import {
   BehaviorSubject,
   debounceTime,

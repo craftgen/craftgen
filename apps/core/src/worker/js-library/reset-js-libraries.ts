@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "lodash-es";
 
 import { invalidEntityIdentifiers } from "../dependency-map/utils";
 import {

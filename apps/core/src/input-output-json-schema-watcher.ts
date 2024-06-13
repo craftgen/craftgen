@@ -1,4 +1,4 @@
-import { get, isEqual, omit } from "lodash";
+import { get, isEqual, omit } from "lodash-es";
 import {
   BehaviorSubject,
   combineLatest,

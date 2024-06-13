@@ -1,5 +1,5 @@
 import { init } from "@paralleldrive/cuid2";
-import { get, isEqual, merge } from "lodash";
+import { get, isEqual, merge } from "lodash-es";
 import {
   BehaviorSubject,
   debounceTime,

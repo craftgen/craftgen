@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { uniqueId } from "lodash";
+import { uniqueId } from "lodash-es";
 
 import {
   EVAL_WORKER_ACTION,
