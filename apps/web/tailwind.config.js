@@ -4,13 +4,10 @@ import { createPreset } from "fumadocs-ui/tailwind-plugin";
 module.exports = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
     "./node_modules/fumadocs-ui/dist/**/*.js",
-    "../../packages/ui/**/*.{js,ts,jsx,tsx}",
+    "../../packages/ui/src**/*.{js,ts,jsx,tsx}",
   ],
   important: true,
   theme: {
