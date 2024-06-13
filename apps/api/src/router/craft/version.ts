@@ -194,115 +194,115 @@ export const craftVersionRouter = createTRPCRouter({
                   }
                 }
 
-                chain(changes.state)
-                  .get("context.outputSockets", {})
-                  .toPairs()
-                  .forEach(([key, value]) => {
-                    const connections = get(value, "x-connection", {});
-                    chain(connections)
-                      .entries()
-                      .forEach(([contextId, portConfig]) => {
-                        console.log("OUTPUTSOCKET", key, contextId, portConfig);
-                        const parent = contextsWithChildren.get(contextId);
-                        if (contextId === parent.id) {
-                          return;
-                        }
-                        console.log(
-                          "BEFORE",
-                          get(
-                            changes.state,
-                            `context.outputSockets.${key}.x-connection`,
-                          ),
-                        );
-                        // remove old connection
-                        unset(
-                          changes.state,
-                          `context.outputSockets.${key}.x-connection.${contextId}`,
-                        );
-                        // add new connection
-                        set(
-                          changes.state,
-                          `context.outputSockets.${key}.x-connection.${parent.id}`,
-                          portConfig,
-                        );
-                        set(
-                          changes.state,
-                          `context.outputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
-                          parent.id,
-                        );
-                        console.log(
-                          "BEFORE",
-                          get(
-                            changes.state,
-                            `context.outputSockets.${key}.x-connection`,
-                          ),
-                        );
-                      })
-                      .value();
-                  })
-                  .value();
+                // DEPRECATED TODO:
+                // chain(changes.state)
+                //   .get("context.outputSockets", {})
+                //   .toPairs()
+                //   .forEach(([key, value]) => {
+                //     const connections = get(value, "x-connection", {});
+                //     chain(connections)
+                //       .entries()
+                //       .forEach(([contextId, portConfig]) => {
+                //         console.log("OUTPUTSOCKET", key, contextId, portConfig);
+                //         const parent = contextsWithChildren.get(contextId);
+                //         if (contextId === parent.id) {
+                //           return;
+                //         }
+                //         console.log(
+                //           "BEFORE",
+                //           get(
+                //             changes.state,
+                //             `context.outputSockets.${key}.x-connection`,
+                //           ),
+                //         );
+                //         // remove old connection
+                //         unset(
+                //           changes.state,
+                //           `context.outputSockets.${key}.x-connection.${contextId}`,
+                //         );
+                //         // add new connection
+                //         set(
+                //           changes.state,
+                //           `context.outputSockets.${key}.x-connection.${parent.id}`,
+                //           portConfig,
+                //         );
+                //         set(
+                //           changes.state,
+                //           `context.outputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
+                //           parent.id,
+                //         );
+                //         console.log(
+                //           "BEFORE",
+                //           get(
+                //             changes.state,
+                //             `context.outputSockets.${key}.x-connection`,
+                //           ),
+                //         );
+                //       })
+                //       .value();
+                //   })
+                //   .value();
 
-                chain(changes.state)
-                  .get("context.inputSockets", {})
-                  .toPairs()
-                  .forEach(([key, value]) => {
-                    const connections = get(value, "x-connection", {});
-                    chain(connections)
-                      .entries()
-                      .forEach(([contextId, portConfig]) => {
-                        const parent = contextsWithChildren.get(contextId);
-                        if (contextId === parent.id) {
-                          return;
-                        }
-                        // remove old connection
-                        unset(
-                          changes.state,
-                          `context.inputSockets.${key}.x-connection.${contextId}`,
-                        );
-                        // add new connection
-                        set(
-                          changes.state,
-                          `context.inputSockets.${key}.x-connection.${parent.id}`,
-                          portConfig,
-                        );
-                        set(
-                          changes.state,
-                          `context.inputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
-                          parent.id,
-                        );
-                      });
+                // chain(changes.state)
+                //   .get("context.inputSockets", {})
+                //   .toPairs()
+                //   .forEach(([key, value]) => {
+                //     const connections = get(value, "x-connection", {});
+                //     chain(connections)
+                //       .entries()
+                //       .forEach(([contextId, portConfig]) => {
+                //         const parent = contextsWithChildren.get(contextId);
+                //         if (contextId === parent.id) {
+                //           return;
+                //         }
+                //         // remove old connection
+                //         unset(
+                //           changes.state,
+                //           `context.inputSockets.${key}.x-connection.${contextId}`,
+                //         );
+                //         // add new connection
+                //         set(
+                //           changes.state,
+                //           `context.inputSockets.${key}.x-connection.${parent.id}`,
+                //           portConfig,
+                //         );
+                //         set(
+                //           changes.state,
+                //           `context.inputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
+                //           parent.id,
+                //         );
+                //       });
+                //   if (get(value, "x-actor-config")) {
+                //     const config = get(value, "x-actor-config", {});
+                //     // Fix x-actor-config
+                //     Object.entries(config).forEach(([actorType, value]) => {
+                //       const actorId = get(value, "actorId");
+                //       if (actorId) {
+                //         const parent = contextsWithChildren.get(actorId);
+                //         if (actorId !== parent.id) {
+                //           set(
+                //             changes.state,
+                //             `context.inputSockets.${key}.x-actor-config.${actorType}.actorId`,
+                //             parent.id,
+                //           );
+                //         }
+                //       }
+                //     });
 
-                    if (get(value, "x-actor-config")) {
-                      const config = get(value, "x-actor-config", {});
-                      // Fix x-actor-config
-                      Object.entries(config).forEach(([actorType, value]) => {
-                        const actorId = get(value, "actorId");
-                        if (actorId) {
-                          const parent = contextsWithChildren.get(actorId);
-                          if (actorId !== parent.id) {
-                            set(
-                              changes.state,
-                              `context.inputSockets.${key}.x-actor-config.${actorType}.actorId`,
-                              parent.id,
-                            );
-                          }
-                        }
-                      });
-
-                      // Fix x-actor-ref-id
-                      const parent = contextsWithChildren.get(
-                        get(value, "x-actor-ref-id"),
-                      );
-                      if (parent.id !== get(value, "x-actor-ref-id")) {
-                        set(
-                          changes.state,
-                          `context.inputSockets.${key}.x-actor-ref-id`,
-                          parent.id,
-                        );
-                      }
-                    }
-                  })
-                  .value();
+                //     // Fix x-actor-ref-id
+                //     const parent = contextsWithChildren.get(
+                //       get(value, "x-actor-ref-id"),
+                //     );
+                //     if (parent.id !== get(value, "x-actor-ref-id")) {
+                //       set(
+                //         changes.state,
+                //         `context.inputSockets.${key}.x-actor-ref-id`,
+                //         parent.id,
+                //       );
+                //     }
+                //   }
+                // })
+                // .value();
 
                 await tx
                   .update(schema.context)
