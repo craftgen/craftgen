@@ -1,4 +1,4 @@
-import _ from "lodash-es";
+import { chain, get, isEqual, isNil, set, unset } from "lodash-es";
 import { z } from "zod";
 
 import { and, desc, eq, schema } from "@craftgen/db/db";
@@ -143,7 +143,7 @@ export const craftVersionRouter = createTRPCRouter({
               await getChildren(contextState.id);
 
               for (const [previousId, context] of contextsWithChildren) {
-                if (_.isEqual(context.state, context.previousContext?.state)) {
+                if (isEqual(context.state, context.previousContext?.state)) {
                   // THIS IS NO LONGER THE CASE.
                   // WE are keeping the connection relations in the actors so in each release there's a new actor happening.
                   console.log("REUSING CONTEXT");
@@ -184,22 +184,22 @@ export const craftVersionRouter = createTRPCRouter({
                 }> = {};
                 console.log({ previousId, context, changes });
                 changes.state = { ...context.state };
-                if (!_.isNil(context.parent_id)) {
+                if (!isNil(context.parent_id)) {
                   const parent = contextsWithChildren.get(context.parent_id);
                   if (context.parent_id !== parent.id) {
                     changes.parent_id = parent.id;
                   }
-                  if (_.get(changes.state, "context.parent.id")) {
-                    _.set(changes.state, "context.parent.id", parent.id);
+                  if (get(changes.state, "context.parent.id")) {
+                    set(changes.state, "context.parent.id", parent.id);
                   }
                 }
 
-                _.chain(changes.state)
+                chain(changes.state)
                   .get("context.outputSockets", {})
                   .toPairs()
                   .forEach(([key, value]) => {
-                    const connections = _.get(value, "x-connection", {});
-                    _.chain(connections)
+                    const connections = get(value, "x-connection", {});
+                    chain(connections)
                       .entries()
                       .forEach(([contextId, portConfig]) => {
                         console.log("OUTPUTSOCKET", key, contextId, portConfig);
@@ -209,30 +209,30 @@ export const craftVersionRouter = createTRPCRouter({
                         }
                         console.log(
                           "BEFORE",
-                          _.get(
+                          get(
                             changes.state,
                             `context.outputSockets.${key}.x-connection`,
                           ),
                         );
                         // remove old connection
-                        _.unset(
+                        unset(
                           changes.state,
                           `context.outputSockets.${key}.x-connection.${contextId}`,
                         );
                         // add new connection
-                        _.set(
+                        set(
                           changes.state,
                           `context.outputSockets.${key}.x-connection.${parent.id}`,
                           portConfig,
                         );
-                        _.set(
+                        set(
                           changes.state,
                           `context.outputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
                           parent.id,
                         );
                         console.log(
                           "BEFORE",
-                          _.get(
+                          get(
                             changes.state,
                             `context.outputSockets.${key}.x-connection`,
                           ),
@@ -242,12 +242,12 @@ export const craftVersionRouter = createTRPCRouter({
                   })
                   .value();
 
-                _.chain(changes.state)
+                chain(changes.state)
                   .get("context.inputSockets", {})
                   .toPairs()
                   .forEach(([key, value]) => {
-                    const connections = _.get(value, "x-connection", {});
-                    _.chain(connections)
+                    const connections = get(value, "x-connection", {});
+                    chain(connections)
                       .entries()
                       .forEach(([contextId, portConfig]) => {
                         const parent = contextsWithChildren.get(contextId);
@@ -255,32 +255,32 @@ export const craftVersionRouter = createTRPCRouter({
                           return;
                         }
                         // remove old connection
-                        _.unset(
+                        unset(
                           changes.state,
                           `context.inputSockets.${key}.x-connection.${contextId}`,
                         );
                         // add new connection
-                        _.set(
+                        set(
                           changes.state,
                           `context.inputSockets.${key}.x-connection.${parent.id}`,
                           portConfig,
                         );
-                        _.set(
+                        set(
                           changes.state,
                           `context.inputSockets.${key}.x-connection.${parent.id}.actorRef.id`,
                           parent.id,
                         );
                       });
 
-                    if (_.get(value, "x-actor-config")) {
-                      const config = _.get(value, "x-actor-config", {});
+                    if (get(value, "x-actor-config")) {
+                      const config = get(value, "x-actor-config", {});
                       // Fix x-actor-config
                       Object.entries(config).forEach(([actorType, value]) => {
-                        const actorId = _.get(value, "actorId");
+                        const actorId = get(value, "actorId");
                         if (actorId) {
                           const parent = contextsWithChildren.get(actorId);
                           if (actorId !== parent.id) {
-                            _.set(
+                            set(
                               changes.state,
                               `context.inputSockets.${key}.x-actor-config.${actorType}.actorId`,
                               parent.id,
@@ -291,10 +291,10 @@ export const craftVersionRouter = createTRPCRouter({
 
                       // Fix x-actor-ref-id
                       const parent = contextsWithChildren.get(
-                        _.get(value, "x-actor-ref-id"),
+                        get(value, "x-actor-ref-id"),
                       );
-                      if (parent.id !== _.get(value, "x-actor-ref-id")) {
-                        _.set(
+                      if (parent.id !== get(value, "x-actor-ref-id")) {
+                        set(
                           changes.state,
                           `context.inputSockets.${key}.x-actor-ref-id`,
                           parent.id,

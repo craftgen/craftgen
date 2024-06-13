@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import _ from "lodash-es";
+import { isNil } from "lodash-es";
 import { z } from "zod";
 
 import { and, eq, schema, sql, workflow } from "@craftgen/db/db";
@@ -265,7 +265,7 @@ export const craftModuleRouter = createTRPCRouter({
       }
 
       let version;
-      if (!_.isNil(input.version)) {
+      if (!isNil(input.version)) {
         version = await ctx.db.query.workflowVersion.findFirst({
           where: (workflowVersion, { eq, and }) =>
             and(
