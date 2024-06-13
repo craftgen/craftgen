@@ -1,5 +1,4 @@
 import _ from "lodash";
-import forge from "node-forge";
 
 import { invalidEntityIdentifiers } from "../dependency-map/utils";
 import {
@@ -12,7 +11,7 @@ const defaultLibImplementations = {
   lodash: _,
   // We are removing some functionalities of node-forge because they wont
   // work in the worker thread
-  forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
+  // forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
 };
 
 export function resetJSLibraries() {
