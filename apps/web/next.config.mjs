@@ -25,12 +25,12 @@ const nextConfig = {
     serverComponentsExternalPackages: ["pg-native"],
     webpackBuildWorker: true,
   },
-  transpilePackages: [
-    "@craftgen/core",
-    "@craftgen/api",
-    "@craftgen/db",
-    "@craftgen/ui",
-  ],
+  // transpilePackages: [
+  //   "@craftgen/core",
+  //   "@craftgen/api",
+  //   "@craftgen/db",
+  //   "@craftgen/ui",
+  // ],
   images: {
     unoptimized: true,
   },
