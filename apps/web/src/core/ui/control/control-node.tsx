@@ -108,49 +108,27 @@ export const NodeControlComponent = (props: { data: NodeControl }) => {
   );
 };
 
-// {selectedActorState && (
-//   <div
-//     className={cn(
-//       "bg-muted/10 flex flex-col rounded border p-2",
-//       selectedActorState === "complete" && "border-green-400/30",
-//       selectedActorState === "action_required" &&
-//         "border-yellow-400/30",
-//     )}
-//   >
-//     <div className="flex items-center justify-end">
-//       {/* <Badge>{JSON.stringify(selectedActorState.value)}</Badge> */}
-//       {selectedActorState === "complete" && (
-//         <CheckCircle size={14} className="text-green-400" />
-//       )}
-//       {selectedActorState === "action_required" && (
-//         <AlertCircle size={14} className="text-yellow-400" />
-//       )}
-//     </div>
-//     {selectedActor && (
-//       <div className="border p-1">
-//         <InputsList actor={selectedActor} />
-//       </div>
-//     )}
-//   </div>
-// )}
+const isAdvanced = (
+  v: ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine>,
+) => {
+  const definition = v.getSnapshot().context.definition;
+  return definition?.["x-isAdvanced"] ?? false;
+};
 
-const advanceInputSelector = (state: any) =>
-  chain(state.context.inputSockets)
-    .pickBy((v) => {
-      const definition = v.getSnapshot().context.definition;
-      return get(definition, "x-isAdvanced", false);
-    })
-    .entries()
-    .value();
+const filterInputs = (
+  inputSockets: Record<string, ActorRefFrom<typeof inputSocketMachine>>,
+  predicate: (v: ActorRefFrom<typeof inputSocketMachine>) => boolean,
+) => {
+  return Object.entries(inputSockets).filter(([key, v]) => predicate(v));
+};
 
-const basicInputSelector = (state: any) =>
-  chain(state.context.inputSockets)
-    .pickBy((v) => {
-      const definition = v.getSnapshot().context.definition;
-      return !get(definition, "x-isAdvanced", false);
-    })
-    .entries()
-    .value();
+const advanceInputSelector = (state: any) => {
+  return filterInputs(state.context.inputSockets, isAdvanced);
+};
+
+const basicInputSelector = (state: any) => {
+  return filterInputs(state.context.inputSockets, (v) => !isAdvanced(v));
+};
 
 export const OutputsList = (props: { actor: AnyActor }) => {
   const outputSockets = useSelector(
