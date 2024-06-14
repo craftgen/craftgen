@@ -14,7 +14,7 @@ function Index() {
       {projects?.map((project) => (
         <div key={project.id}>
           <Link
-            to={`/project/$projectSlug`}
+            to={`/$projectSlug`}
             params={{
               projectSlug: project.slug,
             }}

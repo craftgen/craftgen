@@ -3,7 +3,6 @@ import {
   createRootRouteWithContext,
   Link,
   Outlet,
-  redirect,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
@@ -55,7 +54,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           <Outlet />
         </DashboardLayout.Content>
       </DashboardLayout>
-      <TanStackRouterDevtools position="bottom-right" />
+      {import.meta.env.DEV && (
+        <TanStackRouterDevtools position="bottom-right" />
+      )}
     </>
   ),
 });

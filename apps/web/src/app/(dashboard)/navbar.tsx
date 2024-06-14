@@ -19,7 +19,7 @@ export const Navbar: React.FC<PropsWithChildren<{ session?: Session }>> = ({
 }) => {
   const params = useParams();
   return (
-    <div className="fixed z-50 h-12 w-full bg-background">
+    <div className="fixed z-50 inline-flex h-16 w-[calc(100%-4rem)] items-center justify-between border-b bg-background p-1">
       <div className="flex w-full items-center justify-between p-1">
         <div className="flex items-center">
           <div className="mr-4 flex p-2">

@@ -129,12 +129,6 @@ export const Composer: React.FC<{
       </div>
     );
 
-  // return null;
-  // return (
-  //   <div>
-  //     <pre>{JSON.stringify(latestWorkflow, null, 2)}</pre>
-  //   </div>
-  // );
   return <ComposerUI workflow={latestWorkflow} store={store} />;
 };
 

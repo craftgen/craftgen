@@ -45,7 +45,7 @@ const ProjectPage = () => {
   );
 };
 
-export const Route = createFileRoute("/project/$projectSlug")({
+export const Route = createFileRoute("/$projectSlug")({
   loader: async ({ params: { projectSlug } }) =>
     client.project.bySlug.query({
       projectSlug: projectSlug,

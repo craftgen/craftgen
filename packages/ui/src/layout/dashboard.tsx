@@ -11,5 +11,5 @@ export const DashboardLayout = ({
 };
 
 DashboardLayout.Content = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">{children}</div>
+  <div className="flex flex-col sm:gap-4 sm:pl-16">{children}</div>
 );
