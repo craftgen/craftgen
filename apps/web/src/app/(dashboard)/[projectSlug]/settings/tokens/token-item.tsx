@@ -119,16 +119,18 @@ export const TokenListNew: React.FC<{
     name: "tokens", // unique name for your Field Array
   });
 
-  const { mutateAsync: insertToken } = api.credentials.insert.useMutation();
+  const { mutateAsync: insertToken } = api.credentials.insert.useMutation({
+    onSettled: async () => {
+      await utils.credentials.list.invalidate();
+      await utils.credentials.hasKeyForProvider.invalidate({
+        projectId: project?.id!,
+      });
+    },
+  });
   const onSubmit = async (data?: z.infer<typeof formSchema>) => {
     await insertToken({
       projectId: project?.id!,
       tokens: data?.tokens!,
-    });
-    await utils.credentials.list.invalidate({ projectId: project?.id! });
-
-    await utils.credentials.hasKeyForProvider.invalidate({
-      projectId: project?.id!,
     });
     form.reset();
   };
