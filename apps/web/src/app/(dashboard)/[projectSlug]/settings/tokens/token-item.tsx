@@ -70,11 +70,8 @@ export const TokenList: React.FC<{
   tokens?: RouterOutputs["credentials"]["list"];
   projectSlug: string;
 }> = ({ tokens, projectSlug }) => {
-  const { data: project } = api.project.bySlug.useQuery({
-    projectSlug: projectSlug,
-  });
   const { data: tokensData } = api.credentials.list.useQuery(
-    { projectId: project?.id! },
+    {},
     {
       initialData: tokens,
     },
@@ -382,6 +379,7 @@ export const ExistingTokenList: React.FC<{
           token={token}
           isOpen={edit === token.id}
           setOpen={(value) => setEdit(value)}
+          projectSlug={token.projectSlug}
         />
       ))}
     </div>
@@ -392,11 +390,7 @@ export const TokenItem: React.FC<{
   token: RouterOutputs["credentials"]["list"][number];
   isOpen: boolean;
   setOpen: (id: string | null) => void;
-  projectSlug: string;
-}> = ({ token, isOpen, setOpen, projectSlug }) => {
-  const { data: project } = api.project.bySlug.useQuery({
-    projectSlug: projectSlug,
-  });
+}> = ({ token, isOpen, setOpen }) => {
   const utils = api.useUtils();
   const form = useForm<z.infer<typeof tokenSchema>>({
     defaultValues: {
@@ -408,21 +402,21 @@ export const TokenItem: React.FC<{
   const { mutateAsync: updateToken } = api.credentials.update.useMutation();
   const onSubmit = async (data: z.infer<typeof tokenSchema>) => {
     await updateToken({ id: token.id, ...data });
-    await utils.credentials.list.invalidate({ projectId: project?.id! });
+    await utils.credentials.list.invalidate();
     setOpen(null);
   };
   const { mutateAsync: deleteToken } = api.credentials.delete.useMutation();
 
   const handleDelete = async () => {
     await deleteToken({ id: token.id });
-    await utils.credentials.list.invalidate({ projectId: project?.id! });
+    await utils.credentials.list.invalidate();
   };
   const { mutateAsync: setDefaultToken } =
     api.credentials.setDefault.useMutation();
 
   const setDefault = async () => {
     await setDefaultToken({ id: token.id });
-    await utils.credentials.list.invalidate({ projectId: project?.id! });
+    await utils.credentials.list.invalidate();
   };
 
   const provider = useMemo(() => {

@@ -196,7 +196,7 @@ export const Playground: React.FC<{
               opacity: 0,
             }}
           >
-            <TokenList />
+            <TokenList projectSlug={workflow.project.slug} />
           </motion.div>
         );
       })

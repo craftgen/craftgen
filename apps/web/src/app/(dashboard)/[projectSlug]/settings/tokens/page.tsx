@@ -1,6 +1,5 @@
 import { api } from "@/trpc/server";
 
-import { getProject } from "../../actions";
 import { TokenList } from "./token-item";
 
 const TokensPage = async ({
