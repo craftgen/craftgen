@@ -252,87 +252,83 @@ export const Playground: React.FC<{
   };
 
   return (
-    <TooltipProvider>
-      <div className="h-screen">
-        <div className="flex h-10 w-full items-center justify-between border-b-2 px-2">
-          <MenubarDemo />
-          <div className="flex items-center space-x-2">
-            {/* {session && <UserNav session={session} />} */}
-            <VersionHistory workflow={workflow} />
-            {!workflow.version?.publishedAt ? (
-              <CreateReleaseButton
-                playgroundId={workflow.id}
-                version={workflow.version?.version!}
-              />
-            ) : (
-              <RestoreVersionButton />
-            )}
-            {/* <Link href={`/${workflow.projectSlug}/settings`}>
+    <div className="h-screen">
+      <div className="flex h-10 w-full items-center justify-between border-b-2 px-2">
+        <MenubarDemo />
+        <div className="flex items-center space-x-2">
+          {/* {session && <UserNav session={session} />} */}
+          <VersionHistory workflow={workflow} />
+          {!workflow.version?.publishedAt ? (
+            <CreateReleaseButton
+              playgroundId={workflow.id}
+              version={workflow.version?.version!}
+            />
+          ) : (
+            <RestoreVersionButton />
+          )}
+          {/* <Link href={`/${workflow.projectSlug}/settings`}>
               <Button variant={"outline"} size={"icon"}>
                 <Icon name="settings" />
               </Button>
             </Link> */}
-          </div>
         </div>
-        <motion.div
-          className="relative h-[calc(100vh-2.5rem)] w-full bg-muted/20 px-1 py-1 "
-          layout
-        >
-          <FlexLayout.Layout
-            model={layout}
-            factory={factory}
-            onModelChange={(model) => debouncedLayoutChange(model)}
-            onRenderTab={(node, renderValues) => {
-              const component = node.getComponent();
-              match(component)
-                .with("rete", () => {
-                  renderValues.leading = (
-                    <LayoutDashboard className="h-4 w-4" />
-                  );
-                })
-                .with("explorer", () => {
-                  renderValues.content = (
-                    <Icons.folder className="h-6 w-6 rotate-90" />
-                  );
-                  renderValues.name = "Explorer";
-                })
-                .with("credentials", () => {
-                  renderValues.content = (
-                    <Icons.key className="h-6 w-6 rotate-90" />
-                  );
-                  renderValues.name = "Credentials";
-                })
-                .with("inspector", () => {
-                  renderValues.content = (
-                    <MousePointerSquareDashed className="h-4 w-4" />
-                  );
-                  renderValues.name = "Inspector";
-                })
-                .with("inputWindow", () => {
-                  renderValues.leading = <Icons.input className="h-4 w-4" />;
-                })
-                .with("logs", () => {
-                  renderValues.leading = <FileClock className="h-4 w-4" />;
-                });
-            }}
-            onRenderTabSet={(node, renderValues) => {
-              // renderValues.stickyButtons = [<FileClock className="w-4 h-4" />];
-              // // renderValues.buttons.push(<Icons.add className="w-4 h-4" />);
-              // renderValues.centerContent = (
-              //   <Icons.alignCenter className="w-4 h-4" />
-              // );
-              // renderValues.headerContent = (
-              //   <Icons.alignLeft className="w-4 h-4" />
-              // );
-              // renderValues.headerButtons.push(
-              //   <Icons.bold className="w-4 h-4" />
-              // );
-            }}
-            realtimeResize
-          />
-        </motion.div>
       </div>
-    </TooltipProvider>
+      <motion.div
+        className="relative h-[calc(100vh-2.5rem)] w-full bg-muted/20 px-1 py-1 "
+        layout
+      >
+        <FlexLayout.Layout
+          model={layout}
+          factory={factory}
+          onModelChange={(model) => debouncedLayoutChange(model)}
+          onRenderTab={(node, renderValues) => {
+            const component = node.getComponent();
+            match(component)
+              .with("rete", () => {
+                renderValues.leading = <LayoutDashboard className="h-4 w-4" />;
+              })
+              .with("explorer", () => {
+                renderValues.content = (
+                  <Icons.folder className="h-6 w-6 rotate-90" />
+                );
+                renderValues.name = "Explorer";
+              })
+              .with("credentials", () => {
+                renderValues.content = (
+                  <Icons.key className="h-6 w-6 rotate-90" />
+                );
+                renderValues.name = "Credentials";
+              })
+              .with("inspector", () => {
+                renderValues.content = (
+                  <MousePointerSquareDashed className="h-4 w-4" />
+                );
+                renderValues.name = "Inspector";
+              })
+              .with("inputWindow", () => {
+                renderValues.leading = <Icons.input className="h-4 w-4" />;
+              })
+              .with("logs", () => {
+                renderValues.leading = <FileClock className="h-4 w-4" />;
+              });
+          }}
+          onRenderTabSet={(node, renderValues) => {
+            // renderValues.stickyButtons = [<FileClock className="w-4 h-4" />];
+            // // renderValues.buttons.push(<Icons.add className="w-4 h-4" />);
+            // renderValues.centerContent = (
+            //   <Icons.alignCenter className="w-4 h-4" />
+            // );
+            // renderValues.headerContent = (
+            //   <Icons.alignLeft className="w-4 h-4" />
+            // );
+            // renderValues.headerButtons.push(
+            //   <Icons.bold className="w-4 h-4" />
+            // );
+          }}
+          realtimeResize
+        />
+      </motion.div>
+    </div>
   );
 };
 

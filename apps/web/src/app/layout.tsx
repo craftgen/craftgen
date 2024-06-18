@@ -8,7 +8,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono, GeistSans } from "geist/font";
 
 import { Toaster } from "@craftgen/ui/components/sonner";
-import { KBar } from "@craftgen/ui/kbar/kbar";
 import { TRPCReactProvider } from "@craftgen/ui/lib/api";
 
 import { PHIdentify } from "@/components/ph-identify";
@@ -42,15 +41,13 @@ export default async function RootLayout({
         className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
       >
         <TRPCReactProvider headers={headers()} url={getUrl()}>
-          <KBar>
-            <Providers>
-              {children}
-              <Analytics />
-              <SpeedInsights />
-              <Toaster />
-              <PHIdentify />
-            </Providers>
-          </KBar>
+          <Providers>
+            {children}
+            <Analytics />
+            <SpeedInsights />
+            <Toaster />
+            <PHIdentify />
+          </Providers>
         </TRPCReactProvider>
       </body>
     </html>

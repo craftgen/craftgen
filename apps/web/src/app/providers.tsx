@@ -3,6 +3,7 @@
 import { RootProvider } from "fumadocs-ui/provider";
 
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
+import { KBar } from "@craftgen/ui/kbar/kbar";
 import { PHProvider } from "@craftgen/ui/providers/posthog-provider";
 import { ThemeProvider } from "@craftgen/ui/providers/theme-provider";
 
@@ -22,7 +23,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <TooltipProvider>
-          <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+          <KBar>
+            <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+          </KBar>
         </TooltipProvider>
       </PHProvider>
     </ThemeProvider>

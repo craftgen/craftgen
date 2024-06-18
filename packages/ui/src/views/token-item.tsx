@@ -54,6 +54,7 @@ import {
 } from "@craftgen/ui/components/popover";
 import { Separator } from "@craftgen/ui/components/separator";
 
+import { Alert, AlertDescription, AlertTitle } from "../components/alert";
 import { api } from "../lib/api";
 import { cn } from "../lib/utils";
 
@@ -70,7 +71,7 @@ export const TokenList: React.FC<{
   tokens?: RouterOutputs["credentials"]["list"];
   projectSlug: string;
 }> = ({ tokens, projectSlug }) => {
-  const { data: tokensData } = api.credentials.list.useQuery(
+  const { data: tokensData, isError } = api.credentials.list.useQuery(
     {},
     {
       initialData: tokens,
@@ -78,6 +79,16 @@ export const TokenList: React.FC<{
   );
   return (
     <div className="space-y-4 p-2 @container">
+      {isError && (
+        <div>
+          <Alert variant="warning">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              An error occurred while fetching the list of tokens.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       {tokensData && (
         <>
           <TokenListNew tokens={tokensData} projectSlug={projectSlug} />

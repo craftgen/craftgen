@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
+import { KBar } from "@craftgen/ui/kbar/kbar";
 import { TRPCReactProvider } from "@craftgen/ui/lib/api";
 import { PHProvider } from "@craftgen/ui/providers/posthog-provider";
 import { ThemeProvider } from "@craftgen/ui/providers/theme-provider";
@@ -24,7 +25,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           }}
           enabled={import.meta.env.PROD}
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <KBar>{children}</KBar>
+          </TooltipProvider>
         </PHProvider>
       </ThemeProvider>
     </TRPCReactProvider>

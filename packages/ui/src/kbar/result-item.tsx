@@ -1,7 +1,7 @@
 import React from "react";
 import type { ActionImpl } from "kbar";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 export const ResultItem = React.forwardRef<
   {} extends React.Ref<HTMLDivElement> ? HTMLDivElement : never,
