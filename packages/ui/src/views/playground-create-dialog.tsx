@@ -206,7 +206,7 @@ export const WorkflowCreateDialog: React.FC<{
               <div className="">
                 <ScrollArea className="h-[18rem]">
                   <div className="grid grid-cols-2 gap-8 px-4">
-                    {templates.map((template, i) => (
+                    {templates.map((template) => (
                       <div
                         key={template.id}
                         className="flex aspect-square h-full cursor-pointer flex-col rounded  bg-muted/80 p-4 shadow hover:bg-muted hover:shadow-lg"

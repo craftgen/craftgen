@@ -1,4 +1,4 @@
-import { chain, get, isEqual, isNil, set, unset } from "lodash-es";
+import { get, isEqual, isNil, set } from "lodash-es";
 import { z } from "zod";
 
 import { and, desc, eq, schema } from "@craftgen/db/db";

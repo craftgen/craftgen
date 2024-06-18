@@ -8,6 +8,7 @@ module.exports = {
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
     "./node_modules/fumadocs-ui/dist/**/*.js",
     "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
+    "../../packages/composer/src/**/*.{js,ts,jsx,tsx}",
   ],
   important: true,
   theme: {

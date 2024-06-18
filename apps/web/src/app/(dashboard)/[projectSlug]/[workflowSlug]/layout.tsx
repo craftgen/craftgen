@@ -1,8 +1,12 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
+import { ModuleHeader } from "@craftgen/ui/views/module-header";
 
 import { api } from "@/trpc/server";
 
-import { ModuleHeader } from "./components/module-header";
+import { WorkflowTabs } from "./tabs";
 
 const PlaygroundLayout = async (props: {
   params: {
@@ -15,14 +19,15 @@ const PlaygroundLayout = async (props: {
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
   });
-  console.log("@@@", workflow);
   if (!workflow) return notFound();
+  const moduleId = `${workflow.project.slug}/${workflow.slug}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-2 sm:py-5">
-      <ModuleHeader workflow={workflow} />
+    <WorkflowLayout>
+      <ModuleHeader workflow={workflow} moduleId={moduleId} Link={Link} />
+      <WorkflowTabs moduleId={moduleId} />
       {props.children}
-    </div>
+    </WorkflowLayout>
   );
 };
 

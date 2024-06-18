@@ -3,6 +3,8 @@ title: AI Agents vs Co-pilots
 description: Comparing AI agents and Co-pilots to clear up the confusion
 ---
 
+import { Accordion, Accordions } from "@craftgen/ui/mdx/accordion";
+
 In the world of artificial intelligence, the terms "AI agents" and "Co-pilots" are often used, but they represent different concepts and capabilities. This article aims to clarify the differences between these two technologies and address some common questions.
 
 ## AI Agents
@@ -10,11 +12,13 @@ In the world of artificial intelligence, the terms "AI agents" and "Co-pilots" a
 AI agents are autonomous systems designed to perform specific tasks or make decisions based on predefined rules or learned behaviors. They interact with their environment and adapt their actions based on feedback, often operating independently of human intervention.
 
 ### Key Features:
+
 - **Autonomy**: Operate without continuous human oversight.
 - **Adaptability**: Learn and improve from interactions.
 - **Task-Specific**: Typically designed for specific functions like customer service, data analysis, or automated trading.
 
 ### Examples:
+
 - **Chatbots**: Provide customer support by responding to user inquiries.
 - **Virtual Assistants**: Assist with scheduling, reminders, and information retrieval.
 - **Automated Trading Systems**: Execute trades based on market data and algorithms.
@@ -24,37 +28,47 @@ AI agents are autonomous systems designed to perform specific tasks or make deci
 Co-pilots, such as Microsoft's Copilot, are AI-driven tools designed to assist users by augmenting their capabilities, especially in productivity software. Unlike AI agents, co-pilots work alongside humans, providing suggestions, automating repetitive tasks, and enhancing user efficiency.
 
 ### Key Features:
+
 - **Assistance**: Enhance user productivity by automating routine tasks and providing intelligent suggestions.
 - **Integration**: Seamlessly integrate into existing workflows and software tools.
 - **User-Centric**: Designed to support and enhance human decision-making and productivity.
 
 ### Examples:
+
 - **Microsoft Copilot**: Integrates with Microsoft 365 to assist with tasks like email drafting, scheduling, and data analysis.
 - **GitHub Copilot**: Assists developers by suggesting code snippets and completing code.
 
 ## Commonly Asked Questions
 
-### Is Copilot an AI agent?
-Empower your workforce with Copilot for Microsoft 365 by automating routine tasks and providing intelligent suggestions, but it is not an AI agent as it works alongside humans rather than autonomously.
+<Accordions isFAQ type="single">
+<Accordion title="What is the difference between RPA and AI agents?" id="what-is-the-difference-between-rpa-and-ai-agents">
 
-### What is the difference between RPA and AI agents?
 RPA thrives on tasks like data entry, transferring information, and other repetitive tasks. In contrast, AI agents are more versatile, capable of learning and adapting to perform more complex and dynamic tasks.
 
-### What is the difference between AI agent and rational agent?
+</Accordion>
+
+<Accordion title="What is the difference between AI agent and rational agent?" id="what-is-the-difference-between-ai-agent-and-rational-agent">
+
 Intelligent agents work towards predefined goals using learning and adaptation, while rational agents always aim to make the best decision based on the given knowledge.
 
-### What is the difference between AI model and AI agent?
+</Accordion>
+
+<Accordion title="What is the difference between AI model and AI agent?" id="what-is-the-difference-between-ai-model-and-ai-agent">
+
 AI agents are the action heroes of the AI world, performing specific tasks autonomously. AI models provide the underlying intelligence but don't act independently without being embedded in an agent framework.
 
+</Accordion>
+
+</Accordions>
 
 ## Comparison
 
-| Feature                | AI Agents                         | Co-pilots                                 |
-|------------------------|-----------------------------------|-------------------------------------------|
-| **Functionality**      | Task-specific actions and decisions | Augmenting user capabilities and productivity |
-| **Interaction**        | Direct interaction with environment | Assists users within their workflow       |
-| **Autonomy**           | Operates independently             | Works alongside users                     |
-| **Use Cases**          | Customer service, automation      | Productivity enhancement, software development |
+| Feature           | AI Agents                           | Co-pilots                                      |
+| ----------------- | ----------------------------------- | ---------------------------------------------- |
+| **Functionality** | Task-specific actions and decisions | Augmenting user capabilities and productivity  |
+| **Interaction**   | Direct interaction with environment | Assists users within their workflow            |
+| **Autonomy**      | Operates independently              | Works alongside users                          |
+| **Use Cases**     | Customer service, automation        | Productivity enhancement, software development |
 
 ## Conclusion
 

@@ -1,5 +1,4 @@
 import { Icons } from "./icons";
-import { Separator } from "./separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export const Sidebar = <T extends React.ComponentType<any>>({

@@ -1,3 +1,5 @@
+"use client";
+
 import { PropsWithChildren, useState } from "react";
 import { CheckSquare, Copy } from "lucide-react";
 import { useCopyToClipboard } from "react-use";

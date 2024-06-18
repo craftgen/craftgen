@@ -3,6 +3,8 @@ title: AI Agents vs Large Language Models (LLMs)
 description: Clearing up the confusion between AI agents and Large Language Models (LLMs)
 ---
 
+import { Accordion, Accordions } from "@craftgen/ui/mdx/accordion";
+
 ## Overview
 
 The AI landscape is vast and rapidly evolving, with many concepts often overlapping and causing confusion. Two such concepts are AI agents and Large Language Models (LLMs). While both are integral to modern AI applications, they serve different purposes and have distinct characteristics.
@@ -12,11 +14,13 @@ The AI landscape is vast and rapidly evolving, with many concepts often overlapp
 AI agents are autonomous systems designed to perform specific tasks or make decisions based on predefined rules or learned behaviors. They interact with their environment and adapt their actions based on feedback, often operating independently of human intervention.
 
 ### Key Features:
+
 - **Autonomy**: Operate without continuous human oversight.
 - **Adaptability**: Learn and improve from interactions.
 - **Task-Specific**: Typically designed for specific functions like customer service, data analysis, or automated trading.
 
 ### Examples:
+
 - **Chatbots**: Provide customer support by responding to user inquiries.
 - **Virtual Assistants**: Assist with scheduling, reminders, and information retrieval.
 - **Automated Trading Systems**: Execute trades based on market data and algorithms.
@@ -26,37 +30,57 @@ AI agents are autonomous systems designed to perform specific tasks or make deci
 LLMs are a subset of AI that leverage vast amounts of text data to understand, generate, and predict human language. These models, like GPT-4, are trained on extensive datasets to generate human-like text based on the input they receive.
 
 ### Key Features:
+
 - **Natural Language Processing (NLP)**: Handle tasks involving understanding and generating human language.
 - **Contextual Understanding**: Generate contextually relevant and coherent text.
 - **Scalability**: Handle large volumes of text data efficiently.
 
 ### Examples:
+
 - **Content Generation**: Create articles, reports, and other textual content.
 - **Language Translation**: Translate text from one language to another.
 - **Conversational Agents**: Engage in human-like conversations, providing information and assistance.
 
 ## Comparison
 
-| Feature                | AI Agents                         | Large Language Models (LLMs)          |
-|------------------------|-----------------------------------|---------------------------------------|
-| **Functionality**      | Task-specific actions and decisions | Contextual language understanding and generation |
-| **Interaction**        | Direct interaction with environment | Indirect, via text data               |
-| **Adaptability**       | Learns from interactions          | Learns from vast text datasets        |
-| **Use Cases**          | Customer service, automation      | Content generation, language translation, conversational agents |
+| Feature           | AI Agents                           | Large Language Models (LLMs)                                    |
+| ----------------- | ----------------------------------- | --------------------------------------------------------------- |
+| **Functionality** | Task-specific actions and decisions | Contextual language understanding and generation                |
+| **Interaction**   | Direct interaction with environment | Indirect, via text data                                         |
+| **Adaptability**  | Learns from interactions            | Learns from vast text datasets                                  |
+| **Use Cases**     | Customer service, automation        | Content generation, language translation, conversational agents |
 
 ## FAQs
 
-### What are LLM agents?
-LLM agents are advanced AI systems designed for applications requiring sophisticated language understanding and generation. They combine the capabilities of LLMs with the autonomy of AI agents to perform complex tasks.
-
-### Is ChatGPT an AI agent?
-While ChatGPT kicked off the boom in generative AI, it primarily functions as an LLM. It generates human-like text based on input but doesn't operate autonomously like traditional AI agents.
-
-### What is the difference between an AI model and an AI agent?
-AI agents are the action heroes of the AI world, performing specific tasks autonomously. AI models, including LLMs, provide the underlying intelligence but don't act independently without being embedded in an agent framework.
-
-### What is the difference between LLM and AI agents?
-While LLMs and RAG models offer significant advancements in generating contextually relevant text, AI agents are designed to perform specific tasks and make decisions based on predefined rules or learned behaviors.
+<Accordions isFAQ type="single" defaultValue="what-are-llm-agents">
+  <Accordion title="What are LLM agents?" id="what-are-llm-agents">
+    LLM agents are advanced AI systems designed for applications requiring
+    sophisticated language understanding and generation. They combine the
+    capabilities of LLMs with the autonomy of AI agents to perform complex
+    tasks.
+  </Accordion>
+  <Accordion title="Is ChatGPT an AI agent?" id="is-chatgpt-an-ai-agent">
+    While ChatGPT kicked off the boom in generative AI, it primarily functions
+    as an LLM. It generates human-like text based on input but doesn't operate
+    autonomously like traditional AI agents.
+  </Accordion>
+  <Accordion
+    title="What is the difference between an AI model and an AI agent?"
+    id="what-is-the-difference-between-an-ai-model-and-an-ai-agent"
+  >
+    AI agents are the action heroes of the AI world, performing specific tasks
+    autonomously. AI models, including LLMs, provide the underlying intelligence
+    but don't act independently without being embedded in an agent framework.
+  </Accordion>
+  <Accordion
+    title="What is the difference between LLM and AI agents?"
+    id="what-is-the-difference-between-llm-and-ai-agents"
+  >
+    While LLMs and RAG models offer significant advancements in generating
+    contextually relevant text, AI agents are designed to perform specific tasks
+    and make decisions based on predefined rules or learned behaviors.
+  </Accordion>
+</Accordions>
 
 ## Conclusion
 

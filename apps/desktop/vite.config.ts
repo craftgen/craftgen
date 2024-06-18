@@ -1,3 +1,4 @@
+import path from "path";
 import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 import react from "@vitejs/plugin-react";
 import Unfonts from "unplugin-fonts/vite";
@@ -19,6 +20,13 @@ export default defineConfig(async () => ({
       },
     }),
   ],
+
+  resolve: {
+    alias: {
+      "@craftgen/ui": path.resolve(__dirname, "../../packages/ui/src"),
+      "@craftgen/core": path.resolve(__dirname, "../../packages/core/src"),
+    },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

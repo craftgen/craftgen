@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@craftgen/api": "^0.1.0",
+    "@craftgen/composer": "1.0.0",
     "@craftgen/core": "0.1.0",
     "@craftgen/db": "0.1.0",
     "@craftgen/ui": "1.0.0",
@@ -32,7 +33,9 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "superjson": "1.13.1",
-    "unplugin-fonts": "^1.1.1"
+    "unplugin-fonts": "^1.1.1",
+    "vite-plugin-commonjs": "^0.10.1",
+    "xstate": "5.10.0"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",

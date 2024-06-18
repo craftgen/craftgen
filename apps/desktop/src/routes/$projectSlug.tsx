@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { ProjectLayout } from "@craftgen/ui/layout/project";
 import { PlaygroundList } from "@craftgen/ui/views/playground-list";
@@ -27,6 +27,7 @@ const ProjectPage = () => {
 
         <section className="col-span-9">
           <PlaygroundList
+            Link={Link}
             projectSlug={params.projectSlug}
             onWorkflowCreate={(data) =>
               navigate({

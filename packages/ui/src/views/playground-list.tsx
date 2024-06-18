@@ -18,70 +18,13 @@ import {
 } from "@craftgen/ui/components/dropdown-menu";
 
 import { DataTable } from "../components/data-table";
-import { Link } from "../components/link";
+import { CLink } from "../components/link";
 import { api } from "../lib/api";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
 
 type Playground = RouterOutputs["craft"]["module"]["list"][number];
 
-const columns: ColumnDef<Playground>[] = [
-  {
-    header: "Name",
-    accessorKey: "name",
-    cell: ({ row }) => (
-      <Link
-        to={`/$projectSlug/$workflowSlug`}
-        params={{
-          projectSlug: row.original.project.slug,
-          workflowSlug: row.original.slug,
-        }}
-        className="font-bold"
-      >
-        {row.getValue("name")}
-      </Link>
-    ),
-  },
-  {
-    header: "Last Updated",
-    accessorKey: "updatedAt",
-    cell: ({ row }) => formatDistanceToNow(row.getValue("updatedAt")),
-  },
-  {
-    header: "Public",
-    accessorKey: "public",
-    cell: ({ row }) => (row.getValue("public") ? "Yes" : "No"),
-  },
-  {
-    id: "playground",
-    cell: ({ row }) => (
-      <div className="flex justify-end">
-        <Link
-          to={`/$projectSlug/$workflowSlug/v/$version`}
-          params={{
-            projectSlug: row.original.project.slug,
-            workflowSlug: row.original.slug,
-            version: row.original.version.version,
-          }}
-        >
-          <Button variant="outline">
-            <Rocket className="mr-2 h-4 w-4" />
-            Playground
-          </Button>
-        </Link>
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <PlaygroundListTableRowActions<Playground>
-        row={row}
-        projectSlug={row.original.project.slug}
-      />
-    ),
-  },
-];
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
   projectSlug: string;
@@ -149,14 +92,78 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
   );
 }
 
-export const PlaygroundList: React.FC<{
+export const PlaygroundList = <T extends React.ComponentType<any>>({
+  projectSlug,
+  onWorkflowCreate,
+  Link,
+}: {
   projectSlug: string;
+  Link: T;
   onWorkflowCreate: (data: RouterOutputs["craft"]["module"]["create"]) => void;
-}> = ({ projectSlug, onWorkflowCreate }) => {
+}) => {
   const { data } = api.craft.module.list.useQuery({
     projectSlug,
   });
   const [isOpen, setOpen] = useState(false);
+  const columns: ColumnDef<Playground>[] = [
+    {
+      header: "Name",
+      accessorKey: "name",
+      cell: ({ row }) => (
+        <CLink
+          Link={Link}
+          to={`/$projectSlug/$workflowSlug`}
+          params={{
+            projectSlug: row.original.project.slug,
+            workflowSlug: row.original.slug,
+          }}
+          className="font-bold"
+        >
+          {row.getValue("name")}
+        </CLink>
+      ),
+    },
+    {
+      header: "Last Updated",
+      accessorKey: "updatedAt",
+      cell: ({ row }) => formatDistanceToNow(row.getValue("updatedAt")),
+    },
+    {
+      header: "Public",
+      accessorKey: "public",
+      cell: ({ row }) => (row.getValue("public") ? "Yes" : "No"),
+    },
+    {
+      id: "playground",
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <CLink
+            Link={Link}
+            to={`/$projectSlug/$workflowSlug/v/$version`}
+            params={{
+              projectSlug: row.original.project.slug,
+              workflowSlug: row.original.slug,
+              version: row.original.version.version,
+            }}
+          >
+            <Button variant="outline">
+              <Rocket className="mr-2 h-4 w-4" />
+              Playground
+            </Button>
+          </CLink>
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <PlaygroundListTableRowActions<Playground>
+          row={row}
+          projectSlug={row.original.project.slug}
+        />
+      ),
+    },
+  ];
 
   return (
     <div className="py-4">

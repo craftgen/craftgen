@@ -4,7 +4,6 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 
 import { Button } from "@craftgen/ui/components/button";
 
-import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useTable } from "./use-table";
 
@@ -21,7 +20,7 @@ export function DataTableToolbar<TData>({
 DataTableToolbarProps<TData>) {
   const table = useTable();
   const isFiltered = table.getState().columnFilters.length > 0;
-  const selection = table.getState().rowSelection;
+  // const selection = table.getState().rowSelection;
 
   return (
     <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
-// import NextLink from "next/link";
+"use client";
+
 import { useMemo } from "react";
-import { LinkProps, Link as TLink } from "@tanstack/react-router";
+import { type LinkProps } from "@tanstack/react-router";
 
 import { cn } from "../lib/utils";
 
@@ -15,13 +16,14 @@ const convertTanStackToNextPath = (path: string, params: Params): string => {
   });
 };
 
-export const Link = ({
+export const CLink = ({
+  Link,
   to,
   params,
   search,
   children,
   className,
-}: LinkProps & { className?: string }) => {
+}: LinkProps & { className?: string; Link: any }) => {
   if (!to) throw new Error("Link must have a `to` prop");
 
   const nextPath = useMemo(
@@ -38,18 +40,22 @@ export const Link = ({
   );
 
   if (isNext()) {
-    const NextLink = require("next/link").default;
-
     return (
-      <NextLink href={finalPath} className={cn(className)}>
+      <Link href={finalPath} className={cn(className)}>
         {children}
-      </NextLink>
+      </Link>
+    );
+  } else if (import.meta.env) {
+    return (
+      <Link to={to} params={params} search={search} className={cn(className)}>
+        {children}
+      </Link>
+    );
+  } else {
+    return (
+      <a href={finalPath} className={cn(className)}>
+        {children}
+      </a>
     );
   }
-
-  return (
-    <TLink to={to} params={params} search={search} className={cn(className)}>
-      {children}
-    </TLink>
-  );
 };

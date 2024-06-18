@@ -5,8 +5,10 @@ import { db } from "@craftgen/db/db";
 
 import { api } from "@/trpc/server";
 
+import { Editor } from "./editor";
+
 const WorkflowInput = dynamic(() =>
-  import("@/core/workflow-input").then((mod) => mod.WorkflowInput),
+  import("@craftgen/ui/views/workflow-input").then((mod) => mod.WorkflowInput),
 );
 
 export const dynamicParams = true;
@@ -68,12 +70,18 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
   if (!workflowMeta) return <div>Not found</div>;
   return (
     <div className="flex h-full flex-col">
-      <WorkflowInput
+      <Editor
         projectSlug={workflowMeta.projectSlug}
         workflowSlug={workflowMeta.slug}
         version={workflowMeta.version?.version!}
         executionId={props.searchParams.execution as string}
       />
+      {/* <WorkflowInput
+        projectSlug={workflowMeta.projectSlug}
+        workflowSlug={workflowMeta.slug}
+        version={workflowMeta.version?.version!}
+        executionId={props.searchParams.execution as string}
+      /> */}
     </div>
   );
 };

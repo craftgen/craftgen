@@ -1,12 +1,11 @@
-import { Playground } from "./playground";
-
-import "@/core/rete.css";
-
 import React from "react";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { TRPCError } from "@trpc/server";
+
+import { Playground } from "@craftgen/composer/playground";
 
 import { api } from "@/trpc/server";
 
@@ -34,7 +33,7 @@ const PlaygroundPage = async (props: {
       data: { session },
     } = await supabase.auth.getSession();
 
-    return <Playground workflow={workflow} session={session} />;
+    return <Playground workflow={workflow} session={session} Link={Link} />;
   } catch (e) {
     if (e instanceof TRPCError) {
       if (e.code === "NOT_FOUND") {

@@ -1,0 +1,52 @@
+.cm-completionInfo {
+  @apply !font-mono text-xs !text-muted-foreground;
+}
+
+.cm-completion {
+  @apply flex items-center !px-2 !py-0.5 !font-mono text-xs text-muted-foreground;
+}
+
+.cm-completion:after {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: -0.24px;
+  padding-left: 10px;
+  @apply text-muted-foreground;
+}
+
+.cm-completion-function:after {
+  content: "Function";
+}
+
+.cm-completion-object:after {
+  content: "Object";
+}
+
+.cm-completion-unknown:after {
+  content: "Unknown";
+}
+
+.cm-completion-array:after {
+  content: "Array";
+}
+
+.cm-completion-number:after {
+  content: "Number";
+}
+
+.cm-completion-string:after {
+  content: "String";
+}
+
+.cm-completion-bool:after {
+  content: "Boolean";
+}
+
+.cm-completion-keyword[keyword]:after {
+  content: attr(keyword);
+}

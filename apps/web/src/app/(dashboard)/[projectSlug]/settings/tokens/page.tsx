@@ -1,6 +1,6 @@
-import { api } from "@/trpc/server";
+import { TokenList } from "@craftgen/ui/views/token-item";
 
-import { TokenList } from "./token-item";
+import { api } from "@/trpc/server";
 
 const TokensPage = async ({
   params,

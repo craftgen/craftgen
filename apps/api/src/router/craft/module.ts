@@ -129,6 +129,7 @@ export const craftModuleRouter = createTRPCRouter({
         const project = await tx.query.project.findFirst({
           where: (project, { eq }) => eq(project.slug, input.projectSlug),
         });
+        if (!project) throw new TRPCError({ code: "NOT_FOUND" });
 
         if (ctx.session?.user.id) {
           // check if user member of project
