@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { RootProvider } from "fumadocs-ui/provider";
 
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
@@ -12,7 +13,6 @@ import { BASE_URL } from "@/lib/constants";
 import { useRegisterKAuthActions } from "./useRegisterKAuthActions";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  useRegisterKAuthActions();
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <PHProvider
@@ -24,10 +24,19 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       >
         <TooltipProvider>
           <KBar>
-            <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+            <RootProvider search={{ enabled: false }}>
+              <RegisterKactions>{children}</RegisterKactions>
+            </RootProvider>
           </KBar>
         </TooltipProvider>
       </PHProvider>
     </ThemeProvider>
   );
+};
+
+const RegisterKactions: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  useRegisterKAuthActions();
+  return <>{children}</>;
 };

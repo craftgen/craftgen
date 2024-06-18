@@ -166,7 +166,7 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
   ];
 
   return (
-    <div className="py-4">
+    <div className="rounded-lg border  bg-background p-4 shadow">
       <div>
         {data && (
           <DataTable

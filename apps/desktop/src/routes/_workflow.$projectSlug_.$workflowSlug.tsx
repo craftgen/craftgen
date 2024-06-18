@@ -2,6 +2,7 @@ import {
   createFileRoute,
   Link,
   Outlet,
+  redirect,
   useChildMatches,
 } from "@tanstack/react-router";
 
@@ -54,6 +55,16 @@ const WorkflowPageLayout = () => {
 };
 
 export const Route = createFileRoute("/_workflow/$projectSlug/$workflowSlug")({
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth) {
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
   loader: async ({ params: { projectSlug, workflowSlug } }) =>
     client.craft.module.meta.query({
       workflowSlug: workflowSlug,

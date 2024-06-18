@@ -79,7 +79,7 @@ export function DataTable<TData, TValue>({
     <TableContext.Provider value={table}>
       <div className="space-y-4">
         <DataTableToolbar right={headerRight} left={headerLeft} />
-        <div className="rounded-md border">
+        <div className="rounded-md ">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
