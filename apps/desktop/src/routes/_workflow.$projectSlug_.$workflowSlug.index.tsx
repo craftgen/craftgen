@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { RouterOutputs } from "@craftgen/api";
-import { useHeadlessEditor } from "@craftgen/composer/editor";
-import {
-  InputsList,
-  OutputList,
-} from "@craftgen/composer/ui/control/control-node";
+import { WorkflowInput } from "@craftgen/composer/input-form-view";
+import { LoadingDots } from "@craftgen/ui/components/loading-dots";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
 
 import { api, client } from "../trpc/react";
@@ -23,7 +19,7 @@ const ProjectPage = () => {
     },
   );
 
-  const { data: workflow } = api.craft.module.get.useQuery(
+  const { data: workflow, isLoading } = api.craft.module.get.useQuery(
     {
       projectSlug: params.projectSlug,
       workflowSlug: params.workflowSlug,
@@ -37,27 +33,9 @@ const ProjectPage = () => {
 
   return (
     <WorkflowLayout.Content>
-      <WorkflowInput workflow={workflow} />
+      {isLoading && <LoadingDots />}
+      {workflow && <WorkflowInput workflow={workflow} />}
     </WorkflowLayout.Content>
-  );
-};
-
-export const WorkflowInput = (props: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
-}) => {
-  const utils = api.useUtils();
-  const { editor } = useHeadlessEditor({
-    workflow: props.workflow,
-    api: {
-      trpc: utils.client,
-    },
-  });
-
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      {editor?.actor && <InputsList actor={editor.actor} />}
-      {editor?.actor && <OutputList actor={editor.actor} />}
-    </div>
   );
 };
 

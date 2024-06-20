@@ -66,8 +66,9 @@ const defaultLayout: FlexLayout.IJsonModel = {
     {
       type: "border",
       location: "left",
-      minSize: 320,
+      minSize: 400,
       barSize: 40,
+      size: 400,
       enableDrop: false,
       selected: 0,
       children: [
@@ -99,7 +100,7 @@ const defaultLayout: FlexLayout.IJsonModel = {
   ],
   layout: {
     type: "row",
-    weight: 75,
+    weight: 100,
     children: [
       // {
       //   type: "row",

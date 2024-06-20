@@ -1,15 +1,11 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import dynamic from "next/dynamic";
+import { notFound } from "next/navigation";
 
 import { db } from "@craftgen/db/db";
 
 import { api } from "@/trpc/server";
 
 import { Editor } from "./editor";
-
-const WorkflowInput = dynamic(() =>
-  import("@craftgen/ui/views/workflow-input").then((mod) => mod.WorkflowInput),
-);
 
 export const dynamicParams = true;
 export const revalidate = 300;
@@ -67,7 +63,9 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
     projectSlug: props.params.projectSlug,
     workflowSlug: props.params.workflowSlug,
   });
-  if (!workflowMeta) return <div>Not found</div>;
+  if (!workflowMeta) {
+    notFound();
+  }
   return (
     <div className="flex h-full flex-col">
       <Editor
@@ -76,12 +74,6 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
         version={workflowMeta.version?.version!}
         executionId={props.searchParams.execution as string}
       />
-      {/* <WorkflowInput
-        projectSlug={workflowMeta.projectSlug}
-        workflowSlug={workflowMeta.slug}
-        version={workflowMeta.version?.version!}
-        executionId={props.searchParams.execution as string}
-      /> */}
     </div>
   );
 };

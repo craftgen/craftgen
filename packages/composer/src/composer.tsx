@@ -18,6 +18,7 @@ import {
   PlusIcon,
   Shrink,
 } from "lucide-react";
+import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
 import { useCopyToClipboard } from "react-use";
 
@@ -122,21 +123,9 @@ const ComposerUI = (props: {
     );
   }, [map]);
   const k = useKBar();
-  const [copyToClipboardState, copyToClipboard] = useCopyToClipboard();
   // const router = useRouter();
   // const pathname = usePathname();
   // const searchParams = useSearchParams();
-
-  const handleCopyExecutionId = () => {
-    // if (di?.executionId) {
-    //   copyToClipboard(
-    //     `${BASE_URL}${pathname}?${createQueryString(
-    //       "execution",
-    //       di.executionId,
-    //     )}`,
-    //   );
-    // }
-  };
 
   // useEffect(() => {
   //   if (di?.executionId) {
@@ -148,9 +137,6 @@ const ComposerUI = (props: {
   //   }
   // }, [di?.executionId]);
 
-  const handleReset = () => {
-    // router.push(`${pathname}?${createQueryString("execution", null)}`);
-  };
   // const createQueryString = useCallback(
   //   (name: string, value: string | null) => {
   //     const params = new URLSearchParams(searchParams.toString());
@@ -172,7 +158,7 @@ const ComposerUI = (props: {
           <TooltipTrigger asChild>
             <Button
               variant={"outline"}
-              className="group cursor-pointer"
+              className="group cursor-pointer bg-background"
               onClick={k.query.toggle}
               size="sm"
             >
@@ -205,44 +191,7 @@ const ComposerUI = (props: {
             </TooltipContent>
           </Tooltip>
         )}
-        {di?.executionId && (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  size="sm"
-                  onClick={handleReset}
-                  className="glass rounded-r-none border-r-0"
-                >
-                  <ChevronLeftCircle size={14} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Go back</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  size="sm"
-                  onClick={handleCopyExecutionId}
-                  className="glass rounded-l-none border-l-0"
-                >
-                  {false && (
-                    <Loader2
-                      size={14}
-                      className="animate-spin text-green-400"
-                    />
-                  )}
-                  {false && <Play size={14} />}
-                  {true && <CheckCircle size={14} className="text-green-400" />}
-                  <p className="ml-2 truncate">{di?.executionId}</p>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>The Execution: Current </TooltipContent>
-            </Tooltip>
-          </>
-        )}
+        <PlaygroundExecutionToolbar />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>
@@ -261,3 +210,56 @@ const ComposerUI = (props: {
     </div>
   );
 };
+
+export const PlaygroundExecutionToolbar = observer(() => {
+  const di = useCraftStore((state) => state.di);
+  const handleReset = () => {
+    // router.push(`${pathname}?${createQueryString("execution", null)}`);
+  };
+  const handleCopyExecutionId = () => {
+    // if (di?.executionId) {
+    //   copyToClipboard(
+    //     `${BASE_URL}${pathname}?${createQueryString(
+    //       "execution",
+    //       di.executionId,
+    //     )}`,
+    //   );
+    // }
+  };
+  if (!di || !di.executionId) return null;
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={"outline"}
+            size="sm"
+            onClick={handleReset}
+            className="glass rounded-r-none border-r-0"
+          >
+            <ChevronLeftCircle size={14} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Go back</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={"outline"}
+            size="sm"
+            onClick={handleCopyExecutionId}
+            className="glass rounded-l-none border-l-0"
+          >
+            {false && (
+              <Loader2 size={14} className="animate-spin text-green-400" />
+            )}
+            {false && <Play size={14} />}
+            {true && <CheckCircle size={14} className="text-green-400" />}
+            <p className="ml-2 truncate">{di?.executionId}</p>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>The Execution: Current </TooltipContent>
+      </Tooltip>
+    </>
+  );
+});
