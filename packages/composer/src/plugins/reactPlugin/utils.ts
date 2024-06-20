@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 export function Root({
@@ -44,7 +44,7 @@ export function useRete<T extends { destroy(): void }>(
   const [container, setContainer] = useState<null | HTMLElement>(null);
   const editorRef = useRef<T>();
   const [editor, setEditor] = useState<T | null>(null);
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (container) {
@@ -66,11 +66,12 @@ export function useRete<T extends { destroy(): void }>(
       }
     };
   }, []);
+
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current !== container) {
       setContainer(ref.current);
     }
-  }, [ref.current]);
+  }, [ref.current, container]);
 
   return [ref, editor] as const;
 }
