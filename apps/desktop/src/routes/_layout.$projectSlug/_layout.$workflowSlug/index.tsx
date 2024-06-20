@@ -4,7 +4,7 @@ import { WorkflowInput } from "@craftgen/composer/input-form-view";
 import { LoadingDots } from "@craftgen/ui/components/loading-dots";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
 
-import { api, client } from "../trpc/react";
+import { api, client } from "../../../trpc/react";
 
 const ProjectPage = () => {
   const initial = Route.useLoaderData();
@@ -39,7 +39,9 @@ const ProjectPage = () => {
   );
 };
 
-export const Route = createFileRoute("/_workflow/$projectSlug/$workflowSlug/")({
+export const Route = createFileRoute(
+  "/_layout/$projectSlug/_layout/$workflowSlug/",
+)({
   loader: async ({ params: { projectSlug, workflowSlug } }) => {
     const module = await client.craft.module.meta.query({
       workflowSlug: workflowSlug,

@@ -30,6 +30,7 @@
     "@trpc/client": "11.0.0-rc.366",
     "@trpc/react-query": "11.0.0-rc.366",
     "@trpc/server": "11.0.0-rc.366",
+    "framer-motion": "^10.16.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "superjson": "1.13.1",

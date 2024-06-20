@@ -187,6 +187,9 @@ importers:
       '@trpc/server':
         specifier: 11.0.0-rc.366
         version: 11.0.0-rc.366
+      framer-motion:
+        specifier: ^10.16.0
+        version: 10.16.4(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -31461,7 +31464,7 @@ packages:
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
-      postcss-load-config: 4.0.1(postcss@8.4.31)
+      postcss-load-config: 4.0.1(postcss@8.4.38)
       resolve-from: 5.0.0
       rollup: 3.29.4
       source-map: 0.8.0-beta.0

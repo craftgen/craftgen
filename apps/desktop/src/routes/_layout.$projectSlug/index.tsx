@@ -4,7 +4,7 @@ import { ProjectLayout } from "@craftgen/ui/layout/project";
 import { PlaygroundList } from "@craftgen/ui/views/playground-list";
 import { ProjectCard } from "@craftgen/ui/views/project-card";
 
-import { api, client } from "../trpc/react";
+import { api, client } from "../../trpc/react";
 
 const ProjectPage = () => {
   const data = Route.useLoaderData();
@@ -46,7 +46,7 @@ const ProjectPage = () => {
   );
 };
 
-export const Route = createFileRoute("/$projectSlug")({
+export const Route = createFileRoute("/_layout/$projectSlug/")({
   loader: async ({ params: { projectSlug } }) =>
     client.project.bySlug.query({
       projectSlug: projectSlug,

@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
 import { ModuleHeader } from "@craftgen/ui/views/module-header";
 
-import { api, client } from "../trpc/react";
+import { api, client } from "../../trpc/react";
 
 const WorkflowPageLayout = () => {
   const data = Route.useLoaderData();
@@ -54,7 +54,7 @@ const WorkflowPageLayout = () => {
   );
 };
 
-export const Route = createFileRoute("/_workflow/$projectSlug/$workflowSlug")({
+export const Route = createFileRoute("/_layout/$projectSlug/_layout")({
   beforeLoad: ({ context, location }) => {
     if (!context.auth) {
       throw redirect({
