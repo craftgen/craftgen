@@ -5,6 +5,22 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const projectRouter = createTRPCRouter({
+  search: publicProcedure
+    .input(
+      z.object({
+        query: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.project.findMany({
+        where: (project, { or, ilike }) =>
+          or(
+            ilike(project.name, `%${input.query}%`),
+            ilike(project.slug, `%${input.query}%`),
+          ),
+        limit: 10,
+      });
+    }),
   checkSlugAvailable: protectedProcedure
     .input(
       z.object({

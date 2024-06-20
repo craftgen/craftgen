@@ -4,9 +4,8 @@ import { useMemo, useState } from "react";
 import * as FlexLayout from "flexlayout-react";
 import { Priority, useKBar, useRegisterActions, type Action } from "kbar";
 import { debounce } from "lodash-es";
-import useSWR from "swr";
 
-import type { Editor } from "@craftgen/core";
+import type { Editor } from "@craftgen/core/editor";
 import type { NodeTypes } from "@craftgen/core/types";
 import {
   Avatar,
@@ -14,10 +13,7 @@ import {
   AvatarImage,
 } from "@craftgen/ui/components/avatar";
 import { Icons } from "@craftgen/ui/components/icons";
-
-import { searchModulesMeta } from "@/actions/search-modules-meta";
-import { searchOrgsMeta } from "@/actions/search-orgs-meta";
-import { api } from "@/trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 import { useRegisterReplicateActions } from "./replicate-actions";
 
@@ -40,9 +36,6 @@ export const useRegisterPlaygroundActions = ({
       };
     });
   }, [di?.nodeMeta]);
-
-  const { mutateAsync: createAssistant } =
-    api.openai.assistant.create.useMutation();
 
   useRegisterReplicateActions({ di, layout });
   const actions = useMemo(() => {
@@ -179,27 +172,23 @@ export const useRegisterPlaygroundActions = ({
     };
   });
 
-  const { data: workflowModules } = useSWR(
-    "/api/modules" + q,
-    async () => {
-      const res = await searchModulesMeta({
-        query: q,
-        currentModuleId: di?.workflowId!,
-      });
-      return res?.data || [];
+  const { data: workflowModules } = api.craft.module.search.useQuery(
+    {
+      query: q,
+      currentModuleId: di?.workflowId!,
     },
     {
+      enabled: !!q,
       keepPreviousData: true,
     },
   );
 
-  const { data: orgs } = useSWR(
-    "/api/orgs" + q,
-    async () => {
-      const res = await searchOrgsMeta({ query: q });
-      return res.data;
+  const { data: orgs } = api.project.search.useQuery(
+    {
+      query: q,
     },
     {
+      enabled: !!q,
       keepPreviousData: true,
     },
   );

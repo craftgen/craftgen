@@ -10,6 +10,7 @@ import { toast } from "@craftgen/ui/components/use-toast";
 
 import { getControl } from "./control";
 import { Presets, ReactPlugin, Registry } from "./plugins/reactPlugin";
+import type { ReteStoreInstance } from "./store";
 import { addCustomBackground } from "./ui/custom-background";
 import { CustomConnection } from "./ui/custom-connection";
 import { CustomNode } from "./ui/custom-node";
@@ -25,6 +26,7 @@ export const createEditorFunc = (params: {
       component: ReactNode;
     }
   >;
+  store: ReteStoreInstance;
 }) => {
   return (container: HTMLElement) => createEditor({ ...params, container });
 };
@@ -32,6 +34,7 @@ export const createEditorFunc = (params: {
 export const useHeadlessEditor = (params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
+  store: ReteStoreInstance;
 }) => {
   const ref = useRef<Editor | null>(null);
   const [isInitialized, setInitialized] = useState(false);
@@ -53,9 +56,10 @@ export const useHeadlessEditor = (params: {
   };
 };
 
-export async function createHeadlessEditor(params: {
+async function createHeadlessEditor(params: {
   workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
+  store: ReteStoreInstance;
 }) {
   const di = new Editor({
     config: {
@@ -80,10 +84,11 @@ export async function createHeadlessEditor(params: {
   });
 
   await di.setup();
+  params.store.getState().setDi(di);
   return di;
 }
 
-export async function createEditor(params: {
+async function createEditor(params: {
   container: HTMLElement;
   workflow: RouterOutputs["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
@@ -94,8 +99,9 @@ export async function createEditor(params: {
       component: ReactNode;
     }
   >;
+  store: ReteStoreInstance;
 }) {
-  console.log("BEFORE", params.workflow);
+  console.log("BEFORE", params);
   const di = new Editor({
     config: {
       nodes,
@@ -165,5 +171,6 @@ export async function createEditor(params: {
   });
   await di.setup();
   addCustomBackground(di?.area!);
+  params.store.getState().setDi(di);
   return di;
 }

@@ -24,6 +24,7 @@ import { useCopyToClipboard } from "react-use";
 import type { RouterOutputs } from "@craftgen/api";
 import type { WorkflowAPI } from "@craftgen/core/types";
 import { Button } from "@craftgen/ui/components/button";
+import { LoadingDots } from "@craftgen/ui/components/loading-dots";
 import {
   Tooltip,
   TooltipContent,
@@ -36,6 +37,7 @@ import { useRegisterPlaygroundActions } from "./actions";
 import { ContextMenuProvider } from "./context-menu"; // TODO: bind right click to kbar
 import { createEditorFunc } from "./editor";
 import { useRegistry, useRete } from "./plugins/reactPlugin";
+import { useCraftStore } from "./use-store";
 
 // import { useCraftStore } from "./use-store";
 
@@ -49,7 +51,8 @@ export type ComponentRegistry = Map<
 
 export const Composer: React.FC<{
   workflowMeta: RouterOutputs["craft"]["module"]["meta"];
-}> = ({ workflowMeta }) => {
+  store: any;
+}> = ({ workflowMeta, store }) => {
   const { data: latestWorkflow, isLoading } = api.craft.module.get.useQuery(
     {
       projectSlug: workflowMeta.project.slug,
@@ -65,74 +68,16 @@ export const Composer: React.FC<{
   if (isLoading)
     return (
       <div className="flex h-full w-full flex-col items-center justify-center fill-current">
-        <svg
-          className="h-20 w-20"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 200 200"
-        >
-          <circle
-            fill="current"
-            stroke="current"
-            stroke-width="15"
-            r="15"
-            cx="40"
-            cy="65"
-          >
-            <animate
-              attributeName="cy"
-              calcMode="spline"
-              dur="2"
-              values="65;135;65;"
-              keySplines=".5 0 .5 1;.5 0 .5 1"
-              repeatCount="indefinite"
-              begin="-.4"
-            ></animate>
-          </circle>
-          <circle
-            fill="current"
-            stroke="current"
-            stroke-width="15"
-            r="15"
-            cx="100"
-            cy="65"
-          >
-            <animate
-              attributeName="cy"
-              calcMode="spline"
-              dur="2"
-              values="65;135;65;"
-              keySplines=".5 0 .5 1;.5 0 .5 1"
-              repeatCount="indefinite"
-              begin="-.2"
-            ></animate>
-          </circle>
-          <circle
-            fill="current"
-            stroke="current"
-            stroke-width="15"
-            r="15"
-            cx="160"
-            cy="65"
-          >
-            <animate
-              attributeName="cy"
-              calcMode="spline"
-              dur="2"
-              values="65;135;65;"
-              keySplines=".5 0 .5 1;.5 0 .5 1"
-              repeatCount="indefinite"
-              begin="0"
-            ></animate>
-          </circle>
-        </svg>
+        <LoadingDots />
       </div>
     );
 
-  return <ComposerUI workflow={latestWorkflow} />;
+  return <ComposerUI workflow={latestWorkflow} store={store} />;
 };
 
 const ComposerUI = (props: {
   workflow: RouterOutputs["craft"]["module"]["get"];
+  store: any;
 }) => {
   const utils = api.useUtils();
   const workflowAPI: Partial<WorkflowAPI> = {
@@ -144,17 +89,18 @@ const ComposerUI = (props: {
       workflow: props.workflow,
       api: workflowAPI,
       componentRegistry,
+      store: props.store.current,
     });
   }, [props.workflow]);
   const [ref, rete] = useRete(createEditor);
-  // useEffect(() => {
-  //   (window as any).Editor = rete;
-  // }, [rete]);
+  useEffect(() => {
+    (window as any).Editor = rete;
+  }, [rete]);
 
-  // const di = useCraftStore((state) => state.di);
-  // const layout = useCraftStore((state) => state.layout);
+  const di = useCraftStore((state) => state.di);
+  const layout = useCraftStore((state) => state.layout);
 
-  // useRegisterPlaygroundActions({ di, layout });
+  useRegisterPlaygroundActions({ di, layout });
 
   const portals = useMemo(() => {
     return Array.from(map.entries()).reduce(
@@ -181,16 +127,16 @@ const ComposerUI = (props: {
   // const pathname = usePathname();
   // const searchParams = useSearchParams();
 
-  // const handleCopyExecutionId = () => {
-  //   if (di?.executionId) {
-  //     copyToClipboard(
-  //       `${BASE_URL}${pathname}?${createQueryString(
-  //         "execution",
-  //         di.executionId,
-  //       )}`,
-  //     );
-  //   }
-  // };
+  const handleCopyExecutionId = () => {
+    // if (di?.executionId) {
+    //   copyToClipboard(
+    //     `${BASE_URL}${pathname}?${createQueryString(
+    //       "execution",
+    //       di.executionId,
+    //     )}`,
+    //   );
+    // }
+  };
 
   // useEffect(() => {
   //   if (di?.executionId) {
@@ -202,9 +148,9 @@ const ComposerUI = (props: {
   //   }
   // }, [di?.executionId]);
 
-  // const handleReset = () => {
-  //   router.push(`${pathname}?${createQueryString("execution", null)}`);
-  // };
+  const handleReset = () => {
+    // router.push(`${pathname}?${createQueryString("execution", null)}`);
+  };
   // const createQueryString = useCallback(
   //   (name: string, value: string | null) => {
   //     const params = new URLSearchParams(searchParams.toString());
@@ -259,7 +205,7 @@ const ComposerUI = (props: {
             </TooltipContent>
           </Tooltip>
         )}
-        {/* {di?.executionId && (
+        {di?.executionId && (
           <>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -296,12 +242,12 @@ const ComposerUI = (props: {
               <TooltipContent>The Execution: Current </TooltipContent>
             </Tooltip>
           </>
-        )} */}
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
-            {/* <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>
+            <Button variant={"ghost"} size="icon" onClick={() => di?.setUI()}>
               <Shrink />
-            </Button> */}
+            </Button>
           </TooltipTrigger>
           <TooltipContent>Center the content</TooltipContent>
         </Tooltip>

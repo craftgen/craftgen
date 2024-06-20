@@ -42,6 +42,7 @@
     "kbar": "0.1.0-beta.43",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.390.0",
+    "mobx-react-lite": "^4.0.5",
     "next-themes": "^0.3.0",
     "openai": "^4.38.5",
     "react": "18.2.0",

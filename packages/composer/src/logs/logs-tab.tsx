@@ -72,20 +72,20 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
       },
     });
   const handleDeleteExecution = (executionId: string) => {
-    deleteExecution({ executionId });
-    if (isActiveView(executionId)) {
-      const search = new URLSearchParams(searchParams);
-      search.delete("execution");
-      router.replace(`${pathname}?${search.toString()}`);
-    }
+    // deleteExecution({ executionId });
+    // if (isActiveView(executionId)) {
+    //   const search = new URLSearchParams(searchParams);
+    //   search.delete("execution");
+    //   router.replace(`${pathname}?${search.toString()}`);
+    // }
   };
 
-  const isActiveView = useCallback(
-    (executionId: string) => {
-      return searchParams.get("execution") === executionId;
-    },
-    [searchParams.get("execution")],
-  );
+  // const isActiveView = useCallback(
+  //   (executionId: string) => {
+  //     return searchParams.get("execution") === executionId;
+  //   },
+  //   [searchParams.get("execution")],
+  // );
   return (
     <AccordionItem value={execution.id}>
       <AccordionTrigger>
@@ -96,9 +96,9 @@ const ExecutionItem: React.FC<{ execution: Execution }> = ({ execution }) => {
           {/* <Link href={execution.url}>
             <h3>{execution.id}</h3>
           </Link> */}
-          {isActiveView(execution.id) && (
+          {/* {isActiveView(execution.id) && (
             <div className="animate-pulse">Active</div>
-          )}
+          )} */}
           <div>
             <Button
               size={"icon"}

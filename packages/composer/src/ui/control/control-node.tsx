@@ -277,7 +277,7 @@ const AdvanceInputs = (props: { actor: AnyActor; showAdvanced: boolean }) => {
     <>
       {inputSockets.length > 0 && (
         <div
-        // className={cn("flex w-full items-center justify-center divide-x-2")}
+          className={cn("flex w-full items-center justify-center divide-x-2")}
         >
           <Button
             variant={showAdvanced ? "outline" : "ghost"}

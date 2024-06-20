@@ -3,12 +3,11 @@ import { formatDistance } from "date-fns";
 import * as FlexLayout from "flexlayout-react";
 import { Action, useKBar, useRegisterActions, VisualState } from "kbar";
 import { debounce, flatten, isNil } from "lodash-es";
-import { toast } from "sonner";
 
-import { Editor } from "@craftgen/core";
+import type { Editor } from "@craftgen/core/editor";
 import { Icons } from "@craftgen/ui/components/icons";
-
-import { api } from "@/trpc/react";
+import { toast } from "@craftgen/ui/components/use-toast";
+import { api } from "@craftgen/ui/lib/api";
 
 import { extractOwnerAndName, extractOwnerAndNameAndVersion } from "./utils";
 
