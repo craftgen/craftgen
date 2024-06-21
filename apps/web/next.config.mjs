@@ -22,14 +22,15 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   poweredByHeader: false,
   experimental: {
-    webpackBuildWorker: true,
+    // webpackBuildWorker: true,
+    serverComponentsExternalPackages: ["pg-native"],
   },
-  // transpilePackages: [
-  //   "@craftgen/core",
-  //   "@craftgen/api",
-  //   "@craftgen/db",
-  //   "@craftgen/ui",
-  // ],
+  transpilePackages: [
+    "@craftgen/core",
+    "@craftgen/api",
+    "@craftgen/db",
+    "@craftgen/ui",
+  ],
   images: {
     unoptimized: true,
   },

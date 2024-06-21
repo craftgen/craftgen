@@ -13,7 +13,7 @@ import {
 import { Textarea } from "@craftgen/ui/components/textarea";
 import { useToast } from "@craftgen/ui/components/use-toast";
 
-import { sendFeedback } from "../actions";
+import { api } from "../lib/api";
 
 const formSchema = z.object({
   feedback: z.string().min(3),
@@ -27,6 +27,7 @@ export const FeedbackButton = () => {
   });
   const { toast } = useToast();
   const satisfaction = form.watch("satisfaction");
+  const { mutateAsync: sendFeedback } = api.public.misc.feedback.useMutation();
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await sendFeedback(data);
     form.reset();

@@ -3,10 +3,6 @@ import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import App from "../App";
 import { api } from "../trpc/react";
 
-export const Route = createLazyFileRoute("/")({
-  component: Index,
-});
-
 function Index() {
   const { data: projects } = api.project.all.useQuery();
   return (
@@ -28,3 +24,7 @@ function Index() {
     </div>
   );
 }
+
+export const Route = createLazyFileRoute("/_layout/")({
+  component: Index,
+});

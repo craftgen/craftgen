@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Playground } from "@craftgen/composer/playground";
 
-import { api, client } from "../trpc/react";
+import { api, client } from "../../trpc/react";
 
 export const WorkflowEditor = () => {
   const data = Route.useLoaderData();
@@ -21,7 +21,9 @@ export const WorkflowEditor = () => {
   return <Playground workflow={workflow} session={auth} Link={Link} />;
 };
 
-export const Route = createFileRoute("/$projectSlug/$workflowSlug/v/$version")({
+export const Route = createFileRoute(
+  "/_layout/$projectSlug/$workflowSlug/v/$version",
+)({
   loader: async (context) => {
     const workflow = await client.craft.module.meta.query({
       projectSlug: context.params.projectSlug,

@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+// import { useRouter } from "next/navigation";
+// import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { Session } from "@supabase/supabase-js";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
@@ -31,10 +31,13 @@ import {
   DropdownMenuTrigger,
 } from "@craftgen/ui/components/dropdown-menu";
 
-import { useUser } from "../hooks/use-user";
+import { api } from "../lib/api";
 
-export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
-  const { data: user } = useUser();
+export const UserNav: React.FC<{ session: Session; Link: any }> = ({
+  session,
+  Link,
+}) => {
+  const { data: user } = api.auth.getSession.useQuery();
   const posthog = usePostHog();
   const avatarFallbackInitials = useMemo(() => {
     if (!user) return "S";
@@ -44,21 +47,21 @@ export const UserNav: React.FC<{ session: Session }> = ({ session }) => {
     ];
     return `${firstName[0]}${lastName[0]}`;
   }, [user?.fullName]);
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleProfileClick = () => {
-    router.push(`/${user?.username}`);
+    // router.push(`/${user?.username}`);
   };
 
   const handleBillingClick = () => {
-    router.push(`/billing`);
+    // router.push(`/billing`);
   };
-  const supabase = createClientComponentClient();
+  // const supabase = createClientComponentClient();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    // await supabase.auth.signOut();
     posthog.reset();
-    router.push("/");
+    // router.push("/");
   };
   useHotkeys(`${Key.Meta}+${Key.Shift}+q`, handleLogout);
 
