@@ -392,7 +392,6 @@ export const ExistingTokenList: React.FC<{
           token={token}
           isOpen={edit === token.id}
           setOpen={(value) => setEdit(value)}
-          projectSlug={token.projectSlug}
         />
       ))}
     </div>

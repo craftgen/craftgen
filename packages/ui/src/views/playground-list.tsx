@@ -34,9 +34,9 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
   row,
   projectSlug,
 }: DataTableRowActionsProps<TData>) {
-  const { data: project } = api.project.bySlug.useQuery({
-    projectSlug: projectSlug,
-  });
+  // const { data: project } = api.project.bySlug.useQuery({
+  //   projectSlug: projectSlug,
+  // });
   const [editDialog, setEditDialog] = React.useState(false);
   const utils = api.useUtils();
   const { mutateAsync: deleteWorkflow } = api.craft.module.delete.useMutation({

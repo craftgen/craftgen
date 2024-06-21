@@ -205,7 +205,7 @@ export class WorkerMessenger {
 
   private _broker(event: MessageEvent<TMessage<any>>) {
     if (!event || !event.data) return;
-    const { body, messageType } = event.data;
+    const { messageType } = event.data;
 
     if (messageType === MessageType.REQUEST) {
       // this.listenerChannel.put(event.data);

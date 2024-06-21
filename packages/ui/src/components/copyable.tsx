@@ -16,7 +16,7 @@ export const Copyable: React.FC<PropsWithChildren<{ value: string }>> = ({
       setCopied(false);
     }, 1000);
   };
-  const [copyState, copyToClipboard] = useCopyToClipboard();
+  const [_, copyToClipboard] = useCopyToClipboard();
   return (
     <span onClick={handleCopy} className="flex cursor-pointer items-center">
       {children}

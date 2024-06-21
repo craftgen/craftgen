@@ -35,7 +35,6 @@ import { api } from "../lib/api";
 
 export const UserNav: React.FC<{ session: Session; Link: any }> = ({
   session,
-  Link,
 }) => {
   const { data: user } = api.auth.getSession.useQuery();
   const posthog = usePostHog();

@@ -383,8 +383,8 @@ const replicateMachine = createMachine({
                       type: value.type
                         ? value.type
                         : value.allOf[0].enum
-                        ? value.allOf[0].type
-                        : "unknown",
+                          ? value.allOf[0].type
+                          : "unknown",
                       isMultiple: false,
                       required,
                       "x-key": key,

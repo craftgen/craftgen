@@ -16,7 +16,7 @@
   "scripts": {
     "test": "echo 'test'",
     "format": "prettier --check \"**/*.{js,cjs,mjs,ts,tsx,md,json}\"",
-    "lint": "eslint --fix . "
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",

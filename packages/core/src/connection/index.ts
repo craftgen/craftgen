@@ -73,11 +73,8 @@ export function useMagneticConnection<S extends Schemes, K = never>(
       // console.log(picked?.payload?.socket!);
       const nearestSockets = socketsList
         .filter((item) => nearestNodes.includes(item.nodeId))
-        .filter(
-          (item) =>
-            item.payload?.socket.isCompatibleWith(
-              picked?.payload?.socket.name!,
-            ),
+        .filter((item) =>
+          item.payload?.socket.isCompatibleWith(picked?.payload?.socket.name!),
         );
 
       const socketsPositions = await Promise.all(

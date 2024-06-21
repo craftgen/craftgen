@@ -226,7 +226,7 @@ export const NodeMathMachine = createMachine({
     idle: {
       on: {
         RESULT: {
-          actions: enqueueActions(({ enqueue, check, self, event }) => {
+          actions: enqueueActions(({ enqueue, event }) => {
             console.log("RESULT", event);
             // assertEvent(event, "TOOL_RESULT");
             enqueue.assign({
@@ -248,7 +248,7 @@ export const NodeMathMachine = createMachine({
           guard: ({ context }) => {
             return context.runs && Object.keys(context.runs).length > 0;
           },
-          actions: enqueueActions(({ enqueue, context, self }) => {
+          actions: enqueueActions(({ enqueue, context }) => {
             Object.values(context.runs).map((run) => {
               enqueue.stopChild(run);
             });
