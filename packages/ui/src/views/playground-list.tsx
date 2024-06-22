@@ -32,7 +32,6 @@ interface DataTableRowActionsProps<TData> {
 
 export function PlaygroundListTableRowActions<TData extends { id: string }>({
   row,
-  projectSlug,
 }: DataTableRowActionsProps<TData>) {
   // const { data: project } = api.project.bySlug.useQuery({
   //   projectSlug: projectSlug,

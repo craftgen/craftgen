@@ -6,6 +6,7 @@ import {
   enqueueActions,
   fromObservable,
   setup,
+  SnapshotFrom,
 } from "xstate";
 
 import { JSONSocket } from "./controls/socket-generator";
@@ -76,7 +77,7 @@ export const valueWatcher = fromObservable(
       typeof inputSocketMachine
     >;
     return from(actor).pipe(
-      switchMap((state) => {
+      switchMap((state: SnapshotFrom<AnyActor>) => {
         return of(state.context.definition["x-key"] || {});
       }),
       debounceTime(150),

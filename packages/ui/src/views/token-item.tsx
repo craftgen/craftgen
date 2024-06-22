@@ -107,7 +107,7 @@ export const TokenList: React.FC<{
 export const TokenListNew: React.FC<{
   tokens: RouterOutputs["credentials"]["list"];
   projectSlug: string;
-}> = ({ tokens, projectSlug }) => {
+}> = ({ projectSlug }) => {
   const { data: project } = api.project.bySlug.useQuery({
     projectSlug: projectSlug,
   });
@@ -386,7 +386,7 @@ export const ExistingTokenList: React.FC<{
   const [edit, setEdit] = useState<string | null>(null);
   return (
     <div className="">
-      {tokens.map((token, index) => (
+      {tokens.map((token) => (
         <TokenItem
           key={`token-${token.id}`}
           token={token}
