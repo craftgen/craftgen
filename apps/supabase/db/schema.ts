@@ -467,28 +467,25 @@ export const workflowRelations = relations(workflow, ({ one, many }) => ({
   executions: many(workflowExecution),
 }));
 
-export const workflowNodeRelations = relations(
-  workflowNode,
-  ({ one}) => ({
-    context: one(context, {
-      // the parent Actor for controls the node itself.
-      fields: [workflowNode.contextId],
-      references: [context.id],
-    }),
-    workflow: one(workflow, {
-      fields: [workflowNode.workflowId],
-      references: [workflow.id],
-    }),
-    workflowVersion: one(workflowVersion, {
-      fields: [workflowNode.workflowVersionId],
-      references: [workflowVersion.id],
-    }),
-    project: one(project, {
-      fields: [workflowNode.projectId],
-      references: [project.id],
-    }),
+export const workflowNodeRelations = relations(workflowNode, ({ one }) => ({
+  context: one(context, {
+    // the parent Actor for controls the node itself.
+    fields: [workflowNode.contextId],
+    references: [context.id],
   }),
-);
+  workflow: one(workflow, {
+    fields: [workflowNode.workflowId],
+    references: [workflow.id],
+  }),
+  workflowVersion: one(workflowVersion, {
+    fields: [workflowNode.workflowVersionId],
+    references: [workflowVersion.id],
+  }),
+  project: one(project, {
+    fields: [workflowNode.projectId],
+    references: [project.id],
+  }),
+}));
 
 export const contextRelations = relations(context, ({ one }) => ({
   project: one(project, {
