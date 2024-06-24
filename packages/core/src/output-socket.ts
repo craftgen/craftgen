@@ -334,7 +334,7 @@ export const outputSocketMachine = setup({
               ...context,
             }),
             onSnapshot: {
-              actions: enqueueActions(({ enqueue, event, context }) => {
+              actions: enqueueActions(({ enqueue, event }) => {
                 // enqueue.sendTo(
                 //   ({ context }) =>
                 //     context.value as ActorRefFrom<typeof valueActorMachine>,
@@ -356,7 +356,7 @@ export const outputSocketMachine = setup({
           },
           on: {
             COMPUTE: {
-              actions: enqueueActions(({ enqueue, context, event }) => {
+              actions: enqueueActions(({ enqueue }) => {
                 enqueue.sendTo(
                   ({ context, system }) => system.get(context.parent.id),
                   ({ event }) => ({

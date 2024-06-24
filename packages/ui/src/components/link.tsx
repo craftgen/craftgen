@@ -31,7 +31,7 @@ export const CLink = ({
     [to, params],
   );
   const searchParams = useMemo(
-    () => new URLSearchParams(search).toString(),
+    () => new URLSearchParams(search as any).toString(),
     [search],
   );
   const finalPath = useMemo(
