@@ -2,6 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "globalEnv": [
+    "POSTGRES_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "GOOGLE_API_KEY",
+    "GOOGLE_APP_ID",
+    "WORDPRESS_API_URL",
     "OPENAI_API_KEY",
     "NEXT_PUBLIC_BASE_URL",
     "NEXT_PUBLIC_VERCEL_URL",
@@ -14,7 +19,6 @@
     "TRIGGER_API_KEY",
     "TRIGGER_API_URL"
   ],
-
   "tasks": {
     "topo": {
       "dependsOn": ["^topo"]
