@@ -1,4 +1,3 @@
-import def from "ajv/dist/vocabularies/discriminator";
 import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
@@ -20,7 +19,7 @@ import { OpenAIThreadControl } from "./controls/openai-thread.control";
 import { SecretController } from "./controls/secret";
 import { SelectControl } from "./controls/select";
 import { SliderControl } from "./controls/slider";
-import type { JSONSocket, socketSchema } from "./controls/socket-generator";
+import { socketSchema, type JSONSocket } from "./controls/socket-generator";
 import { TextareControl } from "./controls/textarea";
 import { ThreadControl, type Message } from "./controls/thread.control";
 import { inputSocketMachine } from "./input-socket";
