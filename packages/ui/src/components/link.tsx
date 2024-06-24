@@ -45,7 +45,7 @@ export const CLink = ({
         {children}
       </Link>
     );
-  } else if (import.meta.env) {
+  } else if (import.meta.env as any) {
     return (
       <Link to={to} params={params} search={search} className={cn(className)}>
         {children}

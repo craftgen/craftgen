@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-import { sitemaps } from "./sitemap-index.xml/route";
+import { sitemaps } from "@/utils/constants";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   return {

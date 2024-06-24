@@ -70,6 +70,7 @@ export const projectRouter = createTRPCRouter({
           slug: true,
           personal: true,
           id: true,
+          stripeAccountId: true,
         },
       });
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });

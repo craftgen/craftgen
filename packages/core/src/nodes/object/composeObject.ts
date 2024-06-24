@@ -5,7 +5,6 @@ import { createMachine, enqueueActions } from "xstate";
 
 import {
   generateSocket,
-  SocketGeneratorControl,
   type JSONSocket,
 } from "../../controls/socket-generator";
 import type { DiContainer } from "../../types";
@@ -72,13 +71,13 @@ const composeObjectMachine = createMachine({
       | {
           type: "updateOutputObject";
         };
-    events: {
-      type: "CONFIG_CHANGE";
-      name: string;
-      description: string;
-      inputSockets: JSONSocket[];
-      schema: JSONSchemaDefinition;
-    };
+    events:
+      | {
+          type: "ADD_SOCKET";
+        }
+      | {
+          type: "REMOVE_SOCKET";
+        };
   }>,
   on: {
     ADD_SOCKET: {
@@ -106,9 +105,6 @@ const composeObjectMachine = createMachine({
   states: {
     idle: {
       on: {
-        CONFIG_CHANGE: {
-          actions: "updateConfig",
-        },
         COMPUTE: {
           actions: enqueueActions(({ enqueue, context, self, event }) => {
             enqueue({

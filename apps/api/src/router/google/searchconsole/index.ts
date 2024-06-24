@@ -17,7 +17,7 @@ export const normalizeUrl = (url: string) => {
 
 export const searchConsoleRouter = createTRPCRouter({
   sites: googleAuthProducer.query(async ({ ctx }) => {
-    const webmaster = google.webmasters({
+    const webmaster = webmasters({
       version: "v3",
       auth: ctx.googleAuth,
     });

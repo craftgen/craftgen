@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
-// import type { getWorkflow } from "@/actions/get-workflow";
 import { api } from "@craftgen/ui/lib/api";
 
 export const VersionHistory: React.FC<{

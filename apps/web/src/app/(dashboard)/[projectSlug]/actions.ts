@@ -17,12 +17,6 @@ import { getDrive, getWebmaster } from "@/lib/google/auth";
 
 import type { GoogleIntegrationsScope } from "./settings/integrations/page";
 
-export const getProject = async (projectSlug: string) => {
-  return await db.query.project.findFirst({
-    where: (p, { eq }) => eq(p.slug, projectSlug),
-  });
-};
-
 export const getGoogleScopes = async () => {
   const supabase = createServerActionClient({ cookies });
   const session = await supabase.auth.getSession();

@@ -23,7 +23,7 @@ const ProjectPage = () => {
     {
       projectSlug: params.projectSlug,
       workflowSlug: params.workflowSlug,
-      version: module?.version?.version,
+      version: Number(module?.version?.version),
       executionId: module?.execution?.id,
     },
     {
@@ -50,7 +50,7 @@ export const Route = createFileRoute(
     const workflow = await client.craft.module.get.query({
       workflowSlug: workflowSlug,
       projectSlug: projectSlug,
-      version: module?.version?.version,
+      version: Number(module?.version?.version),
       executionId: module?.execution?.id,
     });
     return { module, workflow };

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { JSONView } from "@craftgen/ui/components/json-view";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
 
 import { api, client } from "../../../trpc/react";
@@ -19,7 +20,7 @@ const ProjectPage = () => {
   return (
     <WorkflowLayout.Content>
       Versions
-      {/* <JSONView src={workflow} /> */}
+      <JSONView src={workflow} />
     </WorkflowLayout.Content>
   );
 };

@@ -1,19 +1,4 @@
-import { BASE_URL } from "@/lib/constants";
-
-export const sitemaps = [
-  {
-    url: `${BASE_URL}/sitemap-public.xml`,
-  },
-  {
-    url: `${BASE_URL}/integrations/sitemap.xml`,
-  },
-  {
-    url: `${BASE_URL}/projects/sitemap.xml`,
-  },
-  {
-    url: `${BASE_URL}/workflows/sitemap.xml`,
-  },
-];
+import { sitemaps } from "@/utils/constants";
 
 export async function GET(req: Request) {
   const xml = `

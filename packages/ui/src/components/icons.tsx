@@ -1,3 +1,4 @@
+import { DiscordLogoIcon } from "@radix-ui/react-icons";
 import { cva } from "class-variance-authority";
 import {
   AlignCenter,
@@ -411,6 +412,7 @@ export const Icons = {
   delete: Trash,
   database: Database,
   dragHandle: GripVertical,
+  discord: DiscordLogoIcon,
   editing: Edit2,
   emoji: Smile,
   externalLink: ExternalLink,

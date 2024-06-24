@@ -20,7 +20,7 @@ const ProjectPage = () => {
   return (
     <WorkflowLayout.Content>
       API
-      {/* <JSONView src={workflow} /> */}
+      <JSONView src={workflow} />
     </WorkflowLayout.Content>
   );
 };

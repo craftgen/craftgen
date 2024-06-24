@@ -42,7 +42,13 @@ const formSchema: z.ZodType<GoogleScopeMap> = z.object({
   searchConsole: z.boolean(),
 });
 
-const IntegrationsPage = () => {
+const IntegrationsPage = ({
+  params,
+}: {
+  params: {
+    projectSlug: string;
+  };
+}) => {
   const { data } = useSWR("googleScopes", getGoogleScopes);
   const scopeMap = useMemo<GoogleScopeMap>(() => {
     return Object.keys(GoogleIntegrationsData).reduce((acc, key) => {
@@ -55,14 +61,20 @@ const IntegrationsPage = () => {
   return (
     <div>
       Integrations Page
-      {data && <GoogleIntegrations userScopes={scopeMap} />}
+      {data && (
+        <GoogleIntegrations
+          userScopes={scopeMap}
+          projectSlug={params.projectSlug}
+        />
+      )}
     </div>
   );
 };
 
 const GoogleIntegrations: React.FC<{
   userScopes: GoogleScopeMap;
-}> = ({ userScopes }) => {
+  projectSlug: string;
+}> = ({ userScopes, projectSlug }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: userScopes,
     resolver: zodResolver(formSchema),
@@ -80,7 +92,7 @@ const GoogleIntegrations: React.FC<{
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${BASE_URL}/api/auth/callback?redirect=/project/${project?.slug}/settings/integrations&scopeKeys=${scopeKeys}`,
+        redirectTo: `${BASE_URL}/api/auth/callback?redirect=/project/${projectSlug}/settings/integrations&scopeKeys=${scopeKeys}`,
         queryParams: {
           access_type: "offline",
           prompt: "consent",

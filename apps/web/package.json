@@ -10,17 +10,11 @@
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../.env --",
     "with-env:prod": "dotenv -e ../.env.prod --"
   },
-  "eslintConfig": {
-    "extends": [
-      "@acme/eslint-config/base",
-      "@acme/eslint-config/nextjs",
-      "@acme/eslint-config/react"
-    ],
-    "root": true
-  },
+  "type": "module",
   "dependencies": {
     "@craftgen/api": "^0.1.0",
     "@craftgen/composer": "1.0.0",

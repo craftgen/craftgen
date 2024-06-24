@@ -8,18 +8,11 @@ interface Mode {
   name: string;
 }
 
-const modes: Mode[] = [
-  {
-    param: "headless",
-    package: "fumadocs-core",
-    name: "Craftgen.ai",
-  },
-  {
-    param: "ui",
-    package: "fumadocs-ui",
-    name: "UI",
-  },
-];
+const mode: Mode = {
+  param: "headless",
+  package: "fumadocs-core",
+  name: "Craftgen.ai",
+};
 
 export const runtime = "edge";
 
@@ -34,23 +27,23 @@ const background = "rgba(10, 10, 10)";
 export async function GET(
   request: NextRequest,
   { params }: { params: { mode: string } },
-): Promise<ImageResponse> {
+) {
   const { searchParams } = request.nextUrl;
   const title = searchParams.get("title"),
     description = searchParams.get("description");
 
   return new ImageResponse(
     OG({
-      title: title ?? "Fumadocs",
-      description: description ?? "The Documentation Framework",
-      mode: modes.find((mode) => mode.param === params.mode) ?? modes[0],
+      title: title ?? "Craftgen",
+      description: description ?? "Craftgen AI Agent Building Platform",
+      mode,
     }),
     {
       width: 1200,
       height: 630,
       fonts: [{ name: "Inter", data: await bold, weight: 700 }],
     },
-  );
+  ) as any;
 }
 
 function OG({

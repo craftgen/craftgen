@@ -9,7 +9,6 @@ import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 import { CLink } from "../components/link";
 import { FeedbackButton } from "./feedback-button";
-// import { TeamSwitcher } from "./components/team-switcher";
 import { UserNav } from "./user-nav";
 
 export const Navbar: React.FC<

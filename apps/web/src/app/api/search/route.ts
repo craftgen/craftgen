@@ -9,4 +9,4 @@ export const { GET } = createSearchAPI("advanced", {
     id: page.url,
     url: page.url,
   })),
-});
+}) as any;

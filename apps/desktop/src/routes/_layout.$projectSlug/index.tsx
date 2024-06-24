@@ -35,7 +35,7 @@ const ProjectPage = () => {
                 params: {
                   projectSlug: data.projectSlug,
                   workflowSlug: data.slug,
-                  version: 0,
+                  version: "0",
                 },
               })
             }

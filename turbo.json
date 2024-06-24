@@ -1,6 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
   "globalEnv": [
     "OPENAI_API_KEY",
     "NEXT_PUBLIC_BASE_URL",
