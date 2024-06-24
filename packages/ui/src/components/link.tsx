@@ -54,7 +54,7 @@ export const CLink = ({
   } else {
     return (
       <a href={finalPath} className={cn(className)}>
-        {children}
+        {children as any}
       </a>
     );
   }

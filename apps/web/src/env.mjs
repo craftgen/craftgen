@@ -55,3 +55,5 @@ export const env = createEnv({
     WORDPRESS_API_URL: process.env.WORDPRESS_API_URL,
   },
 });
+
+console.log("env", env);
