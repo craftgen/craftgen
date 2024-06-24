@@ -545,7 +545,7 @@ export const Icon = ({
   name,
   ...props
 }: LucideProps & { name: keyof typeof Icons }) => {
-  const Icon = Icons[name];
+  const Icon = Icons[name] as any;
   if (!Icon) {
     console.warn(`Icon ${name} not found`);
     return null;

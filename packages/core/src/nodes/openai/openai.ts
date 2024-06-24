@@ -232,13 +232,7 @@ export const OpenaiModelMachine = createMachine(
     types: {} as BaseMachineTypes<{
       input: BaseInputType<typeof inputSockets, typeof outputSockets>;
       context: BaseContextType<typeof inputSockets, typeof outputSockets>;
-      actions:
-        | {
-            type: "updateOutput";
-          }
-        | {
-            type: "adjustMaxCompletionTokens";
-          };
+      actions: None;
       events: None;
       actors: None;
       guards: None;
@@ -302,7 +296,7 @@ export const OpenaiModelMachine = createMachine(
             reenter: true,
           },
           RESULT: {
-            actions: enqueueActions(({ enqueue, context, event, check }) => {
+            actions: enqueueActions(({ enqueue }) => {
               enqueue("removeComputation");
 
               enqueue.assign({
@@ -335,26 +329,6 @@ export const OpenaiModelMachine = createMachine(
     },
   },
   {
-    actions: {
-      adjustMaxCompletionTokens: assign({
-        inputSockets: ({ event, context }) => {
-          if (event.type !== "SET_VALUE") return context.inputSockets;
-          if (event.values.model) {
-            return {
-              ...context.inputSockets,
-              maxCompletionTokens: {
-                ...context.inputSockets.maxCompletionTokens!,
-                maximum:
-                  OPENAI_CHAT_MODELS[
-                    event.values.model as keyof typeof OPENAI_CHAT_MODELS
-                  ].contextWindowSize,
-              },
-            };
-          }
-          return context.inputSockets;
-        },
-      }),
-    },
     actors: {
       getModels,
     },

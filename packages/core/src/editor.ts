@@ -84,7 +84,6 @@ import type {
   ReactArea2D,
   ReactPlugin,
 } from "./plugins/reactPlugin";
-import { socketWatcher } from "./socket-watcher";
 import { getSocket, type Socket } from "./sockets";
 import type { Node, NodeClass, Position, Schemes, WorkflowAPI } from "./types";
 import { valueActorMachine } from "./value-actor";
@@ -1374,7 +1373,6 @@ export class Editor<
         ...this.baseActions,
       },
       actors: {
-        socketWatcher,
         computeActorInputs,
         actorWatcher,
         input: inputSocketMachine.provide({
@@ -1394,7 +1392,6 @@ export class Editor<
             if (machine.provide) {
               acc[k] = machine.provide({
                 actors: {
-                  socketWatcher,
                   computeActorInputs,
                   computeEvent: ComputeEventMachine,
                   actorWatcher,

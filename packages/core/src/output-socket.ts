@@ -302,7 +302,6 @@ export const outputSocketMachine = setup({
           ],
         },
         trigger: {
-          exit: enqueueActions(({ enqueue }) => {}),
           on: {
             TRIGGER: {
               actions: enqueueActions(({ enqueue, context }) => {
@@ -386,7 +385,7 @@ export const outputSocketMachine = setup({
   },
   on: {
     UPDATE_SOCKET: {
-      actions: enqueueActions(({ enqueue, event, system }) => {
+      actions: enqueueActions(({ enqueue }) => {
         enqueue.assign({
           definition: ({ context, event }) => ({
             ...context.definition,

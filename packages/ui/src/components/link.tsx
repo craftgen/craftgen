@@ -27,7 +27,7 @@ export const CLink = ({
   if (!to) throw new Error("Link must have a `to` prop");
 
   const nextPath = useMemo(
-    () => convertTanStackToNextPath(to, params),
+    () => convertTanStackToNextPath(to as string, params as Params),
     [to, params],
   );
   const searchParams = useMemo(

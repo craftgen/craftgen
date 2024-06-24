@@ -1,4 +1,4 @@
-import { JSONSchema, JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
+import { JSONSchemaDefinition } from "openai/lib/jsonschema.mjs";
 import { ClassicPreset } from "rete";
 import { match, P } from "ts-pattern";
 import type { ActorRefFrom, AnyActorRef } from "xstate";
@@ -164,8 +164,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         type: "string",
         format: "expression",
       },
-      (def) => {
-        return new CodeControl(actor, def);
+      () => {
+        return new CodeControl(actor, definition);
       },
     )
     .with(
@@ -173,8 +173,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         type: "string",
         format: "secret",
       },
-      (def) => {
-        return new SecretController(actor, def);
+      () => {
+        return new SecretController(actor, definition);
       },
     )
     .with(
@@ -184,8 +184,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         "x-language": P.string,
         "x-canChangeFormat": false,
       },
-      (def) => {
-        return new CodeControl(actor, def);
+      () => {
+        return new CodeControl(actor, definition);
       },
     )
     .with(
@@ -201,8 +201,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
       {
         type: "object",
       },
-      (def) => {
-        return new JsonControl(actor, def);
+      () => {
+        return new JsonControl(actor, definition);
       },
     )
     .with(
@@ -211,8 +211,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         "x-controller": "combobox",
         allOf: P.array({ enum: P.array(P.string) }),
       },
-      (def) => {
-        return new ComboboxControl(actor, def);
+      () => {
+        return new ComboboxControl(actor, definition);
       },
     )
     .with(
@@ -220,8 +220,8 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         "x-controller": "select",
         allOf: P.array({ enum: P.array(P.any) }),
       },
-      (def) => {
-        return new SelectControl(actor, def);
+      () => {
+        return new SelectControl(actor, definition);
       },
     )
     .with(
@@ -231,7 +231,7 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
       {
         type: "number",
       },
-      (definition) => {
+      () => {
         return new NumberControl(actor, definition);
       },
     )
@@ -248,16 +248,16 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         type: "array",
         "x-controller": "thread",
       },
-      (def) => {
-        return new ThreadControl(actor, def);
+      () => {
+        return new ThreadControl(actor, definition);
       },
     )
     .with(
       {
         type: "string",
       },
-      (def) => {
-        return new InputControl(actor, def);
+      () => {
+        return new InputControl(actor, definition);
       },
     )
     .with(
@@ -280,318 +280,11 @@ export const getControlBySocket = <T extends AnyActorRef = AnyActorRef>({
         maximum: P.number,
         minimum: P.number.gte(0),
       },
-      (def) => {
-        return new SliderControl(actor, def);
+      () => {
+        return new SliderControl(actor, definition);
       },
     )
-    .otherwise((def) => {
-      return new JsonControl(actor, def);
+    .otherwise(() => {
+      return new JsonControl(actor, definition);
     });
-  // return (
-  //   match(definition)
-  //     .with(
-  //       {
-  //         "x-actor-ref": P.any,
-  //       },
-  //       () => {
-  //         return new NodeControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "trigger",
-  //         "x-event": P.string,
-  //       },
-  //       () => {
-  //         return new ButtonControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             onClick: () =>
-  //               actor.send({
-  //                 type: definition["x-event"]!,
-  //               }),
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         "x-controller": "textarea",
-  //       },
-  //       () => {
-  //         return new TextareControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         "x-controller": "select",
-  //       },
-  //       () => {
-  //         return new SelectControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //             placeholder:
-  //               definition?.title ?? definition?.description ?? "Select value",
-  //             values:
-  //               (definition?.allOf?.[0] as any)?.enum?.map((v: any) => {
-  //                 return {
-  //                   key: v,
-  //                   value: v,
-  //                 };
-  //               }) || [],
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         "x-controller": "combobox",
-  //         allOf: P.array({ enum: P.array(P.string) }),
-  //       },
-  //       () => {
-  //         return new ComboboxControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //             values: definition?.allOf?.[0]?.enum?.map((v: any) => {
-  //               return {
-  //                 key: v,
-  //                 value: v,
-  //               };
-  //             }),
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         format: "uri",
-  //       },
-  //       () => {
-  //         return new FileControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         "x-controller": "openai-thread-control",
-  //       },
-  //       () => {
-  //         return new OpenAIThreadControl(actor, selector, {}, definition);
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         format: "expression",
-  //       },
-  //       () => {
-  //         return new CodeControl(
-  //           actor,
-  //           selector,
-  //           definitionSelector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         format: "secret",
-  //       },
-  //       () => {
-  //         return new InputControl(
-  //           actor,
-  //           selector,
-  //           definitionSelector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //       },
-  //       () => {
-  //         return new InputControl(
-  //           actor,
-  //           selector,
-  //           definitionSelector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     // .with(
-  //     //   {
-  //     //     type: "integer",
-  //     //     maximum: P.number,
-  //     //     minimum: P.number,
-  //     //   },
-  //     //   {
-  //     //     type: "number",
-  //     //     maximum: P.number,
-  //     //     minimum: P.number.gte(0),
-  //     //   },
-  //     //   (def) => {
-  //     //     return new SliderControl(
-  //     //       actor,
-  //     //       selector,
-  //     //       {
-  //     //         change: onChange,
-  //     //         max: def.maximum,
-  //     //         min: def.minimum,
-  //     //       },
-  //     //       definition,
-  //     //     );
-  //     //   },
-  //     // )
-  //     .with(
-  //       {
-  //         type: "integer",
-  //       },
-  //       {
-  //         type: "number",
-  //       },
-  //       (definition) => {
-  //         return new NumberControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //             max: definition?.maximum,
-  //             min: definition?.minimum,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "boolean",
-  //       },
-  //       () => {
-  //         return new BooleanControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "string",
-  //         format: "date",
-  //       },
-  //       () => {
-  //         return new DateControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "array",
-  //         "x-controller": "js-cdn",
-  //       },
-  //       () => {
-  //         return new JsCdnController(
-  //           actor,
-  //           selector,
-  //           {
-  //             onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "array",
-  //         "x-controller": "thread",
-  //       },
-  //       () => {
-  //         return new ThreadControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .with(
-  //       {
-  //         type: "thread",
-  //         "x-controller": "thread",
-  //       },
-  //       () => {
-  //         return new ThreadControl(
-  //           actor,
-  //           selector,
-  //           {
-  //             change: onChange,
-  //           },
-  //           definition,
-  //         );
-  //       },
-  //     )
-  //     .otherwise(() => {
-  //       return new JsonControl(
-  //         actor,
-  //         selector,
-  //         {
-  //           change: onChange,
-  //         },
-  //         definition,
-  //       );
-  //     })
-  // );
 };

@@ -106,7 +106,7 @@ const composeObjectMachine = createMachine({
     idle: {
       on: {
         COMPUTE: {
-          actions: enqueueActions(({ enqueue, context, self, event }) => {
+          actions: enqueueActions(({ enqueue }) => {
             enqueue({
               type: "computeEvent",
               params: {
@@ -116,7 +116,7 @@ const composeObjectMachine = createMachine({
           }),
         },
         RESULT: {
-          actions: enqueueActions(({ enqueue, context, event }) => {
+          actions: enqueueActions(({ enqueue, context }) => {
             enqueue({
               type: "removeComputation",
             });

@@ -1,14 +1,14 @@
 "use client";
 
 import { Cross2Icon } from "@radix-ui/react-icons";
+import type { Table } from "@tanstack/react-table";
 
 import { Button } from "@craftgen/ui/components/button";
 
 import { DataTableViewOptions } from "./data-table-view-options";
-import { useTable } from "./use-table";
 
 interface DataTableToolbarProps<TData> {
-  // table: Table<TData>;
+  table: Table<TData>;
   left?: React.ReactNode;
   right?: React.ReactNode;
 }
@@ -16,9 +16,10 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
   left = null,
   right = null,
+  table,
 }: // table,
 DataTableToolbarProps<TData>) {
-  const table = useTable();
+  // const table = useTable();
   const isFiltered = table.getState().columnFilters.length > 0;
   // const selection = table.getState().rowSelection;
 

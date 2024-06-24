@@ -446,7 +446,7 @@ const GenerateTextMachine = createMachine({
               const runId = event.params.callId || `call_${createId()}`;
               enqueue.sendTo<ActorRefFrom<typeof generateTextCall>>(
                 ({ system }) => system.get("editor"),
-                ({ self, context }) => ({
+                ({ self }) => ({
                   type: "SPAWN_RUN",
                   params: {
                     id: runId,

@@ -177,7 +177,7 @@
     "type-fest": "^4.5.0",
     "uuid": "^9.0.0",
     "worker-loader": "^3.0.8",
-    "xstate": "5.10.0",
+    "xstate": "5.14.0",
     "zod": "3.21.4",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"

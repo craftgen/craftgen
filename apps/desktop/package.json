@@ -38,7 +38,7 @@
     "superjson": "1.13.1",
     "unplugin-fonts": "^1.1.1",
     "vite-plugin-commonjs": "^0.10.1",
-    "xstate": "5.10.0"
+    "xstate": "5.14.0"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",

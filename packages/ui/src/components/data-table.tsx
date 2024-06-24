@@ -78,7 +78,11 @@ export function DataTable<TData, TValue>({
   return (
     <TableContext.Provider value={table}>
       <div className="space-y-4">
-        <DataTableToolbar right={headerRight} left={headerLeft} />
+        <DataTableToolbar<TData>
+          right={headerRight}
+          left={headerLeft}
+          table={table}
+        />
         <div className="rounded-md ">
           <Table>
             <TableHeader>
