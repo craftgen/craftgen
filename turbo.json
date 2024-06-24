@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
   "globalEnv": [
     "OPENAI_API_KEY",
     "NEXT_PUBLIC_BASE_URL",
@@ -13,6 +14,7 @@
     "TRIGGER_API_KEY",
     "TRIGGER_API_URL"
   ],
+
   "tasks": {
     "topo": {
       "dependsOn": ["^topo"]
