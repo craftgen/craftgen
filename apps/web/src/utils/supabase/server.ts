@@ -3,10 +3,10 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 import { Database } from "@craftgen/db/db/database.types";
 
-export function createClient() {
+export function createClient(req?: Request) {
   const cookieStore = cookies();
 
-  return createServerClient<Database>(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -35,4 +35,17 @@ export function createClient() {
       },
     },
   );
+
+  if (req && req.headers.has("Authorization")) {
+    return supabase.auth
+      .setSession({
+        access_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
+        refresh_token: req.headers
+          .get("Authorization")
+          ?.replace("Bearer ", "")!,
+      })
+      .then(() => supabase);
+  }
+
+  return supabase;
 }

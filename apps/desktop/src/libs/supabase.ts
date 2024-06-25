@@ -17,6 +17,9 @@ export function createClient() {
     auth: {
       persistSession: true,
       flowType: "pkce",
+      autoRefreshToken: true,
+      storage: window.localStorage,
+      detectSessionInUrl: true,
     },
   });
 }

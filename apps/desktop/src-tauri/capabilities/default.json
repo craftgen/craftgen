@@ -55,8 +55,18 @@
       "allow": [
         {
           "url": "http://localhost:3000/**"
+        },
+        {
+          "url": "http://localhost:54321/**"
+        },
+        {
+          "url": "https://craftgen.ai/**"
+        },
+        {
+          "url": "https://siwhcblzmpihqdvvooqz.supabase.co/**"
         }
       ]
-    }
+    },
+    "oauth:allow-start"
   ]
 }

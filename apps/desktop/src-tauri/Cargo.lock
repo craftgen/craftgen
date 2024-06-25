@@ -3,6 +3,29 @@
 version = 3
 
 [[package]]
+name = "CraftGen"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "cocoa",
+ "eyre",
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-autostart",
+ "tauri-plugin-fs",
+ "tauri-plugin-http",
+ "tauri-plugin-log",
+ "tauri-plugin-notification",
+ "tauri-plugin-oauth",
+ "tauri-plugin-shell",
+ "tauri-plugin-store",
+ "tokio",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -985,28 +1008,6 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "desktop"
-version = "0.0.0"
-dependencies = [
- "clap",
- "cocoa",
- "eyre",
- "log",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-autostart",
- "tauri-plugin-fs",
- "tauri-plugin-http",
- "tauri-plugin-log",
- "tauri-plugin-notification",
- "tauri-plugin-shell",
- "tauri-plugin-store",
- "tokio",
 ]
 
 [[package]]
@@ -4292,6 +4293,20 @@ dependencies = [
  "time",
  "url",
  "zbus",
+]
+
+[[package]]
+name = "tauri-plugin-oauth"
+version = "0.0.0-alpha.0"
+source = "git+https://github.com/FabianLars/tauri-plugin-oauth?branch=v2#13d319dd194d311141c1c51edaf7a396cc164525"
+dependencies = [
+ "httparse",
+ "log",
+ "serde",
+ "tauri",
+ "tauri-plugin",
+ "thiserror",
+ "url",
 ]
 
 [[package]]

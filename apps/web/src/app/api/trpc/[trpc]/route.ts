@@ -1,11 +1,7 @@
-import { CookieOptions, createServerClient } from "@supabase/ssr";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { appRouter, createTRPCContext } from "@craftgen/api";
-import type { Database } from "@craftgen/db/db/database.types";
 
-// import { getServiceSupabase } from "@/utils/supabase";
-import { env } from "@/env.mjs";
 import { createClient } from "@/utils/supabase/server";
 import { getServiceSupabase } from "@/utils/supabase/service";
 
@@ -40,7 +36,7 @@ export function OPTIONS() {
 }
 
 const handler = async (req: Request) => {
-  const supabase = createClient();
+  const supabase = createClient(req);
 
   const session = await supabase.auth.getSession();
   // console.log("AUTH", req.headers.get("Cookie"));
