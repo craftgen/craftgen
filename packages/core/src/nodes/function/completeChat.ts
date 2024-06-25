@@ -8,7 +8,7 @@ import {
   type ToolCallPart,
   type ToolResultPart,
 } from "ai";
-import { get, isNil, isNull, merge } from "lodash-es";
+import { get, isNil, merge } from "lodash-es";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
 import {
@@ -628,7 +628,7 @@ const completeChatMachineRun = setup({
                   });
                 },
               )
-              .otherwise((res) => {
+              .otherwise(() => {
                 enqueue.raise({
                   type: "COMPLETE",
                 });
