@@ -11,11 +11,12 @@ type StrictExcludeInner<T, U> = 0 extends (
   : T;
 type StrictExclude<T, U> = T extends unknown ? StrictExcludeInner<T, U> : never;
 
-type UnionToTuple<T> = UnionToIntersection<
-  T extends never ? never : (t: T) => T
-> extends (_: never) => infer W
-  ? [...UnionToTuple<StrictExclude<T, W>>, W]
-  : [];
+type UnionToTuple<T> =
+  UnionToIntersection<T extends never ? never : (t: T) => T> extends (
+    _: never,
+  ) => infer W
+    ? [...UnionToTuple<StrictExclude<T, W>>, W]
+    : [];
 
 type TupleToObject<T extends readonly any[], Rest extends object> = {
   [K in keyof T]: React.JSXElementConstructor<{ data: T[K] } & Rest>;

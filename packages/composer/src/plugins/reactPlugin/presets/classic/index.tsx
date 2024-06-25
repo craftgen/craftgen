@@ -166,8 +166,8 @@ export function setup<
           control && context.data.payload
             ? control(context.data)
             : context.data.payload instanceof ClassicPreset.InputControl
-            ? Control
-            : null;
+              ? Control
+              : null;
 
         return Component && <Component data={context.data.payload as any} />;
       }

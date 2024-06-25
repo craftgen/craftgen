@@ -885,7 +885,7 @@ const CompleteChatMachine = createMachine({
           }),
         },
         RESET: {
-          actions: enqueueActions(({ enqueue, context, self }) => {
+          actions: enqueueActions(({ enqueue }) => {
             enqueue.assign({
               outputs: ({ context }) => ({
                 ...context.outputs,
