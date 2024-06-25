@@ -131,47 +131,43 @@ const RunMathMachine = setup({
         }),
         onDone: {
           target: "complete",
-          actions: enqueueActions(
-            ({ enqueue, check, self, event, context }) => {
-              enqueue.assign({
-                outputs: ({ event }) => ({
-                  result: event.output,
-                  ok: true,
-                }),
-              });
-              for (const sender of context.senders!) {
-                enqueue.sendTo(
-                  ({ system }) => system.get(sender.id),
-                  ({ context }) => ({
-                    type: "RESULT",
-                    params: {
-                      id: self.id,
-                      res: context.outputs,
-                    },
-                  }),
-                );
-              }
-            },
-          ),
-        },
-        onError: {
-          target: "complete",
-          actions: enqueueActions(
-            ({ enqueue, check, context, event, self }) => {
-              for (const sender of context.senders!) {
-                enqueue.sendTo(({ system }) => system.get(sender.id), {
+          actions: enqueueActions(({ enqueue, self, context }) => {
+            enqueue.assign({
+              outputs: ({ event }) => ({
+                result: event.output,
+                ok: true,
+              }),
+            });
+            for (const sender of context.senders!) {
+              enqueue.sendTo(
+                ({ system }) => system.get(sender.id),
+                ({ context }) => ({
                   type: "RESULT",
                   params: {
                     id: self.id,
-                    res: {
-                      result: event.error,
-                      ok: false,
-                    },
+                    res: context.outputs,
                   },
-                });
-              }
-            },
-          ),
+                }),
+              );
+            }
+          }),
+        },
+        onError: {
+          target: "complete",
+          actions: enqueueActions(({ enqueue, context, event, self }) => {
+            for (const sender of context.senders!) {
+              enqueue.sendTo(({ system }) => system.get(sender.id), {
+                type: "RESULT",
+                params: {
+                  id: self.id,
+                  res: {
+                    result: event.error,
+                    ok: false,
+                  },
+                },
+              });
+            }
+          }),
         },
       },
     },

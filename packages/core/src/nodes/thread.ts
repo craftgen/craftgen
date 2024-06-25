@@ -158,7 +158,7 @@ export const ThreadMachine = createMachine(
     },
     invoke: {
       src: "actorWatcher",
-      input: ({ self, context }) => ({
+      input: ({ self }) => ({
         actor: self,
         stateSelectorPath: "context.inputs",
         event: "COMPUTE",

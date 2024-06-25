@@ -2,7 +2,7 @@
 
 import { db, waitlist } from "@craftgen/db/db";
 
-import { getServiceSupabase } from "@/utils/supabase";
+import { getServiceSupabase } from "@/utils/supabase/service";
 
 export const addToWaitlist = async (params: {
   email: string;
