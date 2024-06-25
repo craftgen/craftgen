@@ -8,13 +8,12 @@ import {
 
 import { Tabs, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
+import { api } from "@craftgen/ui/lib/api";
 import { ModuleHeader } from "@craftgen/ui/views/module-header";
 
-import { api, client } from "../../trpc/react";
-
 const WorkflowPageLayout = () => {
-  const data = Route.useLoaderData();
   const params = Route.useParams();
+  const data = Route.useLoaderData();
   const { data: workflow } = api.craft.module.meta.useQuery(
     {
       projectSlug: params.projectSlug,
@@ -54,7 +53,9 @@ const WorkflowPageLayout = () => {
   );
 };
 
-export const Route = createFileRoute("/_layout/$projectSlug/_layout")({
+export const Route = createFileRoute(
+  "/_layout/$projectSlug/$workflowSlug/_layout",
+)({
   beforeLoad: ({ context, location }) => {
     if (!context.auth) {
       throw redirect({
@@ -65,8 +66,11 @@ export const Route = createFileRoute("/_layout/$projectSlug/_layout")({
       });
     }
   },
-  loader: async ({ params: { projectSlug, workflowSlug } }) =>
-    client.craft.module.meta.query({
+  loader: async ({
+    params: { projectSlug, workflowSlug },
+    context: { client },
+  }) =>
+    client.craft.module.meta.ensureData({
       workflowSlug: workflowSlug,
       projectSlug: projectSlug,
     }),

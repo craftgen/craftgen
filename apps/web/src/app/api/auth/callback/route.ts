@@ -1,12 +1,10 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
 import { and, db, eq, project, projectMembers, user } from "@craftgen/db/db";
-import type { Database } from "@craftgen/db/db/database.types";
 
 import { BASE_URL } from "@/lib/constants";
 import PostHogClient from "@/lib/posthog";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -17,7 +15,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "No code provided" }, { status: 400 });
   }
 
-  const supabase = createRouteHandlerClient<Database>({ cookies });
+  const supabase = createClient();
 
   const AuthResponse = await supabase.auth.exchangeCodeForSession(code);
   const session = AuthResponse.data.session;

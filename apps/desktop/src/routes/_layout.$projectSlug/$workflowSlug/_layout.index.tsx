@@ -3,8 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WorkflowInput } from "@craftgen/composer/input-form-view";
 import { LoadingDots } from "@craftgen/ui/components/loading-dots";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
-
-import { api, client } from "../../../trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 const ProjectPage = () => {
   const initial = Route.useLoaderData();
@@ -40,14 +39,17 @@ const ProjectPage = () => {
 };
 
 export const Route = createFileRoute(
-  "/_layout/$projectSlug/_layout/$workflowSlug/",
+  "/_layout/$projectSlug/$workflowSlug/_layout/",
 )({
-  loader: async ({ params: { projectSlug, workflowSlug } }) => {
-    const module = await client.craft.module.meta.query({
+  loader: async ({
+    params: { projectSlug, workflowSlug },
+    context: { client },
+  }) => {
+    const module = await client.craft.module.meta.ensureData({
       workflowSlug: workflowSlug,
       projectSlug: projectSlug,
     });
-    const workflow = await client.craft.module.get.query({
+    const workflow = await client.craft.module.get.ensureData({
       workflowSlug: workflowSlug,
       projectSlug: projectSlug,
       version: Number(module?.version?.version),

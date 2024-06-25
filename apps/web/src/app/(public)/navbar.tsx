@@ -1,17 +1,15 @@
 "use client";
 
-// import { Logo } from "../logo";
-// import { SessionButton } from "./session-button";
 import { useState } from "react";
 import Link from "next/link";
-import type { Session } from "@supabase/auth-helpers-nextjs";
-import { ExternalLinkIcon } from "lucide-react";
+import { Session } from "@supabase/supabase-js";
 
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@craftgen/ui/components/dialog";
+import { Icons } from "@craftgen/ui/components/icons";
 import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 import { StarCount } from "@/components/marketing/github-star-count";
@@ -62,7 +60,7 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
           className=" flex  items-center font-semibold leading-6"
         >
           Roadmap
-          <ExternalLinkIcon />
+          <Icons.externalLink className="h-4 w-4" />
         </Link>
         <Link
           onClick={() => setOpen(false)}
@@ -130,7 +128,7 @@ export const NavBar = ({ session }: { session: Session | null }) => {
               className=" flex  items-center font-semibold leading-6"
             >
               Roadmap
-              <ExternalLinkIcon className="h-4 w-4" />
+              <Icons.externalLink className="h-4 w-4" />
             </Link>
             <Link
               href="/careers"

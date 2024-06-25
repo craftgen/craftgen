@@ -154,6 +154,9 @@ importers:
       '@supabase/auth-ui-shared':
         specifier: ^0.1.8
         version: 0.1.8(@supabase/supabase-js@2.39.7)
+      '@supabase/ssr':
+        specifier: ^0.3.0
+        version: 0.3.0(@supabase/supabase-js@2.39.7)
       '@supabase/supabase-js':
         specifier: ^2.39.7
         version: 2.39.7
@@ -172,6 +175,9 @@ importers:
       '@tauri-apps/api':
         specifier: 2.0.0-beta.11
         version: 2.0.0-beta.11
+      '@tauri-apps/plugin-http':
+        specifier: 2.0.0-beta.6
+        version: 2.0.0-beta.6
       '@tauri-apps/plugin-log':
         specifier: 2.0.0-beta.6
         version: 2.0.0-beta.6
@@ -190,6 +196,9 @@ importers:
       framer-motion:
         specifier: ^10.16.0
         version: 10.16.4(react-dom@18.2.0)(react@18.2.0)
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -400,15 +409,15 @@ importers:
       '@stripe/stripe-js':
         specifier: ^3.0.5
         version: 3.0.5
-      '@supabase/auth-helpers-nextjs':
-        specifier: ^0.8.1
-        version: 0.8.4(@supabase/supabase-js@2.39.7)
       '@supabase/auth-ui-react':
         specifier: ^0.4.7
         version: 0.4.7(@supabase/supabase-js@2.39.7)
       '@supabase/auth-ui-shared':
         specifier: ^0.1.8
         version: 0.1.8(@supabase/supabase-js@2.39.7)
+      '@supabase/ssr':
+        specifier: ^0.3.0
+        version: 0.3.0(@supabase/supabase-js@2.39.7)
       '@supabase/supabase-js':
         specifier: ^2.39.7
         version: 2.39.7
@@ -1004,6 +1013,12 @@ importers:
       rete:
         specifier: ^2.0.2
         version: 2.0.2
+      rete-area-plugin:
+        specifier: ^2.0.1
+        version: 2.0.1(rete@2.0.2)
+      rete-render-utils:
+        specifier: ^2.0.1
+        version: 2.0.1(rete-area-plugin@2.0.1)(rete@2.0.2)
       styled-components:
         specifier: ^5.3.6
         version: 5.3.11(@babel/core@7.24.5)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
@@ -1348,9 +1363,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.0.6
         version: 1.0.7(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
-      '@supabase/auth-helpers-nextjs':
-        specifier: ^0.8.1
-        version: 0.8.4(@supabase/supabase-js@2.39.7)
       '@supabase/supabase-js':
         specifier: ^2.39.7
         version: 2.39.7
@@ -12111,25 +12123,6 @@ packages:
     engines: {node: '>=12.16'}
     dev: false
 
-  /@supabase/auth-helpers-nextjs@0.8.4(@supabase/supabase-js@2.39.7):
-    resolution: {integrity: sha512-2hCsxVwxV392d1B9qM6orY17rl8kUk40C8p0amMBt2jd4m0AuZo2yaLBqfmS2TdJOAAfo+8mI0b+4bNM16CuzA==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.19.0
-    dependencies:
-      '@supabase/auth-helpers-shared': 0.6.1(@supabase/supabase-js@2.39.7)
-      '@supabase/supabase-js': 2.39.7
-      set-cookie-parser: 2.6.0
-    dev: false
-
-  /@supabase/auth-helpers-shared@0.6.1(@supabase/supabase-js@2.39.7):
-    resolution: {integrity: sha512-aXNQ8KHKuR62b/GhEsKl/Id21KNm7t3tUP1sGbQj/kRSjTJisD/NnCmw7l9/oLsm8/9qf5491QaL8zD9BtcZ6A==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.19.0
-    dependencies:
-      '@supabase/supabase-js': 2.39.7
-      jose: 4.15.5
-    dev: false
-
   /@supabase/auth-ui-react@0.4.7(@supabase/supabase-js@2.39.7):
     resolution: {integrity: sha512-Lp4FQGFh7BMX1Y/BFaUKidbryL7eskj1fl6Lby7BeHrTctbdvDbCMjVKS8wZ2rxuI8FtPS2iU900fSb70FHknQ==}
     peerDependencies:
@@ -12182,6 +12175,16 @@ packages:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  /@supabase/ssr@0.3.0(@supabase/supabase-js@2.39.7):
+    resolution: {integrity: sha512-lcVyQ7H6eumb2FB1Wa2N+jYWMfq6CFza3KapikT0fgttMQ+QvDgpNogx9jI8bZgKds+XFSMCojxFvFb+gwdbfA==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.33.1
+    dependencies:
+      '@supabase/supabase-js': 2.39.7
+      cookie: 0.5.0
+      ramda: 0.29.1
+    dev: false
 
   /@supabase/storage-js@2.5.5:
     resolution: {integrity: sha512-OpLoDRjFwClwc2cjTJZG8XviTiQH4Ik8sCiMK5v7et0MDu2QlXjCAW3ljxJB5+z/KazdMOTnySi+hysxWUPu3w==}
@@ -12960,6 +12963,12 @@ packages:
       '@tauri-apps/cli-win32-ia32-msvc': 2.0.0-beta.16
       '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.16
     dev: true
+
+  /@tauri-apps/plugin-http@2.0.0-beta.6:
+    resolution: {integrity: sha512-/5cDY9LwrZkPBTqxx2xwvzA3fzYS+Y1UD0rK9NVxjKkNXoA9NmGxEetug05u0KPbOtciyFiTyq31koszlPy6KA==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-beta.13
+    dev: false
 
   /@tauri-apps/plugin-log@2.0.0-beta.6:
     resolution: {integrity: sha512-AFJj3eC9IKR9cDs3mgNeew1HeMgg1UWC2OlWc2A9q4qRtuJNdJRD0A6yu4ZvfO1AqQBFJ15J/dmeq40lu5dz8w==}
@@ -27945,6 +27954,10 @@ packages:
       performance-now: 2.1.0
     dev: false
 
+  /ramda@0.29.1:
+    resolution: {integrity: sha512-OfxIeWzd4xdUNxlWhgFazxsA/nl3mS4/jGZI5n00uWOoSSFRhC1b6gl6xvmzUamgmqELraWp0J/qqVlXYPDPyA==}
+    dev: false
+
   /randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
@@ -29110,7 +29123,7 @@ packages:
     peerDependencies:
       rete: ^2.0.0
     dependencies:
-      '@babel/runtime': 7.23.2
+      '@babel/runtime': 7.24.1
       rete: 2.0.2
     dev: false
 
@@ -29727,10 +29740,6 @@ packages:
     requiresBuild: true
     dev: false
 
-  /set-cookie-parser@2.6.0:
-    resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
-    dev: false
-
   /set-function-length@1.1.1:
     resolution: {integrity: sha512-VoaqjbBJKiWtg4yRcKBQ7g7wnGnLV3M8oLvVWwOk2PdYY6PEFegR1vezXR0tw6fZGF9csVakIRjrJiy2veSBFQ==}
     engines: {node: '>= 0.4'}
@@ -30210,9 +30219,6 @@ packages:
   /sqlite3@5.1.7:
     resolution: {integrity: sha512-GGIyOiFaG+TUra3JIfkI/zGP8yZYLPQ0pl1bH+ODjiX57sPhrLU5sQJn1y9bDKZUFYkX1crlrPfSYt0BKKdkog==}
     requiresBuild: true
-    peerDependenciesMeta:
-      node-gyp:
-        optional: true
     dependencies:
       bindings: 1.5.0
       node-addon-api: 7.0.0

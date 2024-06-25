@@ -1,7 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { format, sub } from "date-fns";
 
 import {
@@ -14,11 +12,12 @@ import {
 } from "@craftgen/db/db";
 
 import { getDrive, getWebmaster } from "@/lib/google/auth";
+import { createClient } from "@/utils/supabase/server";
 
 import type { GoogleIntegrationsScope } from "./settings/integrations/page";
 
 export const getGoogleScopes = async () => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
 
   const data = await db.query.user.findFirst({
@@ -162,7 +161,7 @@ export const clonePlayground = async ({
 };
 
 export const getUser = async () => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
 
   return await db.query.user.findFirst({
@@ -171,7 +170,7 @@ export const getUser = async () => {
 };
 
 export const getSheets = async ({ query }: { query: string }) => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
   const drive = await getDrive({ session: session.data.session! });
   const drives = await drive.drives.list({});
@@ -193,7 +192,8 @@ export const getSheets = async ({ query }: { query: string }) => {
 
 export const getAnalytics = async ({ siteUrl }: { siteUrl: string }) => {
   try {
-    const supabase = createServerActionClient({ cookies });
+    const supabase = createClient();
+
     const session = await supabase.auth.getSession();
     const webmaster = await getWebmaster({ session: session.data.session! });
 
@@ -212,7 +212,7 @@ export const getAnalytics = async ({ siteUrl }: { siteUrl: string }) => {
 };
 
 export const getSearchQueries = async ({ siteUrl }: { siteUrl: string }) => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
   const webmaster = await getWebmaster({ session: session.data.session! });
 

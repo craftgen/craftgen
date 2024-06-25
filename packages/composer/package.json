@@ -54,6 +54,8 @@
     "react-resizable": "^3.0.5",
     "react-use": "^17.4.0",
     "rete": "^2.0.2",
+    "rete-area-plugin": "^2.0.1",
+    "rete-render-utils": "^2.0.1",
     "styled-components": "^5.3.6",
     "swr": "^2.2.0",
     "tailwind-styled-components": "^2.2.0",

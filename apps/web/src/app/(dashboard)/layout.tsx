@@ -1,19 +1,19 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import type { Database } from "@craftgen/db/db/database.types";
 import { Icons } from "@craftgen/ui/components/icons";
 import { Sidebar } from "@craftgen/ui/components/sidebar";
 import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 import { Navbar } from "@craftgen/ui/views/navbar";
 
+import { createClient } from "@/utils/supabase/server";
+
 import { persistGoogleToken } from "./actions";
+import { UserNavWrapper } from "./user-nav";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -22,14 +22,6 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   }
   return (
     <DashboardLayout>
-      {/* <main className="flex flex-col">
-        <Navbar session={session!} />
-        <div className="relative mt-12 min-h-[calc(100vh-3rem)] flex-1 bg-gray-100 dark:bg-muted">
-          <div className="m-4 min-h-[calc(100vh-6rem)] rounded-lg bg-white p-4 shadow-lg dark:bg-background">
-            {children}
-          </div>
-        </div>
-      </main> */}
       <Sidebar
         Link={Link}
         logoLinkProps={{
@@ -45,7 +37,9 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         bottomLinks={[]}
       />
       <DashboardLayout.Content>
-        <Navbar session={session!} Link={Link} />
+        <Navbar Link={Link}>
+          <UserNavWrapper session={session} />
+        </Navbar>
         <div className="mt-20">{children}</div>
       </DashboardLayout.Content>
     </DashboardLayout>

@@ -49,6 +49,14 @@
     "notification:default",
     "store:default",
     "fs:default",
-    "log:default"
+    "log:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "http://localhost:3000/**"
+        }
+      ]
+    }
   ]
 }

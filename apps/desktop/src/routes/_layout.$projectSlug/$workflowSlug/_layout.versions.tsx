@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { JSONView } from "@craftgen/ui/components/json-view";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
-
-import { api, client } from "../../../trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 const ProjectPage = () => {
   const data = Route.useLoaderData();
@@ -19,17 +18,20 @@ const ProjectPage = () => {
   );
   return (
     <WorkflowLayout.Content>
-      API
+      Versions
       <JSONView src={workflow} />
     </WorkflowLayout.Content>
   );
 };
 
 export const Route = createFileRoute(
-  "/_layout/$projectSlug/_layout/$workflowSlug/api",
+  "/_layout/$projectSlug/$workflowSlug/_layout/versions",
 )({
-  loader: async ({ params: { projectSlug, workflowSlug } }) =>
-    client.craft.module.meta.query({
+  loader: async ({
+    params: { projectSlug, workflowSlug },
+    context: { client },
+  }) =>
+    client.craft.module.meta.ensureData({
       workflowSlug: workflowSlug,
       projectSlug: projectSlug,
     }),

@@ -1,11 +1,11 @@
 import "server-only";
 
 import { cache } from "react";
-import { cookies, headers } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { headers } from "next/headers";
 
 import { createCaller, createTRPCContext } from "@craftgen/api";
-import type { Database } from "@craftgen/db/db/database.types";
+
+import { createClient } from "@/utils/supabase/server";
 
 // import { createTRPCContext } from "~/server/api/trpc";
 
@@ -16,10 +16,7 @@ import type { Database } from "@craftgen/db/db/database.types";
 const createContext = cache(async () => {
   const heads = new Headers(headers());
   heads.set("x-trpc-source", "rsc");
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore,
-  });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
 
   return createTRPCContext({

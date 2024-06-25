@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-// import { useRouter } from "next/navigation";
-// import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { Session } from "@supabase/supabase-js";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
@@ -33,9 +31,10 @@ import {
 
 import { api } from "../lib/api";
 
-export const UserNav: React.FC<{ session: Session; Link: any }> = ({
-  session,
-}) => {
+export const UserNav: React.FC<{
+  Link: any;
+  handleLogout: () => Promise<void>;
+}> = ({ handleLogout }) => {
   const { data: user } = api.auth.getSession.useQuery();
   const posthog = usePostHog();
   const avatarFallbackInitials = useMemo(() => {
@@ -57,25 +56,24 @@ export const UserNav: React.FC<{ session: Session; Link: any }> = ({
   };
   // const supabase = createClientComponentClient();
 
-  const handleLogout = async () => {
+  const onLogout = async () => {
     // await supabase.auth.signOut();
     posthog.reset();
+    await handleLogout();
     // router.push("/");
   };
-  useHotkeys(`${Key.Meta}+${Key.Shift}+q`, handleLogout);
+  useHotkeys(`${Key.Meta}+${Key.Shift}+q`, onLogout);
 
   useHotkeys(`${Key.Meta}+${Key.Shift}+p`, handleProfileClick);
   const { setTheme, theme } = useTheme();
+  if (!user) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={user?.avatar_url || session.user?.user_metadata.avatar_url}
-              alt={user?.fullName || session.user?.user_metadata.full_name}
-            />
+            <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
             <AvatarFallback>{avatarFallbackInitials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -135,7 +133,7 @@ export const UserNav: React.FC<{ session: Session; Link: any }> = ({
           </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={handleLogout}>
+        <DropdownMenuItem onSelect={onLogout}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

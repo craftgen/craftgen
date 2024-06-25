@@ -7,7 +7,9 @@ import "./styles.css";
 import { AuthSession } from "@supabase/supabase-js";
 import { attachConsole } from "@tauri-apps/plugin-log";
 
-import { supabase } from "./libs/supabase";
+import { api } from "@craftgen/ui/lib/api";
+
+import { createClient } from "./libs/supabase";
 import { Providers } from "./providers";
 // Import the generated route tree
 import { router } from "./router";
@@ -21,6 +23,7 @@ declare module "@tanstack/react-router" {
 
 const InnerApp = () => {
   const [session, setSession] = useState<AuthSession | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -28,9 +31,13 @@ const InnerApp = () => {
       setSession(session);
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -40,7 +47,10 @@ const InnerApp = () => {
     })();
   }, []);
 
-  return <RouterProvider router={router} context={{ auth: session! }} />;
+  const client = api.useUtils();
+  return (
+    <RouterProvider router={router} context={{ auth: session!, client }} />
+  );
 };
 
 // Render the app

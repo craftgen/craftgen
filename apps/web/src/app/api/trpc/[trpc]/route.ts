@@ -1,11 +1,13 @@
-import { cookies } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { CookieOptions, createServerClient } from "@supabase/ssr";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { appRouter, createTRPCContext } from "@craftgen/api";
 import type { Database } from "@craftgen/db/db/database.types";
 
-import { getServiceSupabase } from "@/utils/supabase";
+// import { getServiceSupabase } from "@/utils/supabase";
+import { env } from "@/env.mjs";
+import { createClient } from "@/utils/supabase/server";
+import { getServiceSupabase } from "@/utils/supabase/service";
 
 // export const runtime = "edge";
 
@@ -13,12 +15,16 @@ import { getServiceSupabase } from "@/utils/supabase";
  * Configure basic CORS headers
  * You should extend this to match your needs
  */
-function setCorsHeaders(res: Response) {
-  res.headers.set("Access-Control-Allow-Origin", "*");
+const setCorsHeaders = (res: Response) => {
+  res.headers.set("Access-Control-Allow-Origin", "http://localhost:1420");
   res.headers.set("Access-Control-Request-Method", "*");
   res.headers.set("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
-  res.headers.set("Access-Control-Allow-Headers", "*");
-}
+  res.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, trpc-batch-mode,  x-trpc-source",
+  );
+  res.headers.set("Access-Control-Allow-Credentials", "true");
+};
 
 export function OPTIONS() {
   const response = new Response(null, {
@@ -29,17 +35,12 @@ export function OPTIONS() {
 }
 
 const handler = async (req: Request) => {
-  // console.log(">>> tRPC Request from", req);
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore,
-  });
-  // const supabase = createMiddlewareClient<Database>({ cookies });
+  const supabase = createClient();
+
   const session = await supabase.auth.getSession();
   // console.log("AUTH", req.headers.get("Cookie"));
-  console.time("GETTIN USER TOOK:");
-  const user = await supabase.auth.getUser();
-  console.timeEnd("GETTIN USER TOOK:");
+  // const user = await supabase.auth.getUser(req.headers.get("Authorization"));
+
   const supabaseService = getServiceSupabase();
 
   const response = await fetchRequestHandler({
@@ -48,19 +49,19 @@ const handler = async (req: Request) => {
     req,
     createContext: () =>
       createTRPCContext({
-        auth: session.data.session
-          ? {
-              ...session.data.session,
-              user: {
-                ...session.data.session.user,
-                user_metadata: {
-                  ...session.data.session.user.user_metadata,
-                  ...user?.data?.user?.user_metadata,
-                },
-              },
-            }
-          : null,
-        req,
+        headers: req.headers,
+        auth: session.data.session,
+        // ? {
+        //     ...session.data.session,
+        //     user: {
+        //       ...session.data.session.user,
+        //       user_metadata: {
+        //         ...session.data.session.user.user_metadata,
+        //         ...user?.data?.user?.user_metadata,
+        //       },
+        //     },
+        //   }
+        // : null,
         supabaseService: supabaseService,
       }),
     onError({ error, path }) {

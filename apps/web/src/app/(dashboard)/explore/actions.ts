@@ -1,12 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-
 import { db } from "@craftgen/db/db";
 
+import { createClient } from "@/utils/supabase/server";
+
 export const getUserProjects = async () => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

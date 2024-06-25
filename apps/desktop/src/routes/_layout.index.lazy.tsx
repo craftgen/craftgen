@@ -1,7 +1,8 @@
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 
+import { api } from "@craftgen/ui/lib/api";
+
 import App from "../App";
-import { api } from "../trpc/react";
 
 function Index() {
   const { data: projects } = api.project.all.useQuery();

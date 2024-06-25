@@ -1,12 +1,29 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+} from "@tanstack/react-router";
+import { isNil } from "lodash-es";
 
+import { Button } from "@craftgen/ui/components/button";
 import { Icons } from "@craftgen/ui/components/icons";
 import { Sidebar } from "@craftgen/ui/components/sidebar";
 import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 import { Navbar } from "@craftgen/ui/views/navbar";
+import { UserNav } from "@craftgen/ui/views/user-nav";
+
+import { createClient } from "../libs/supabase";
 
 const DashboardLayoutComponent = () => {
   const context = Route.useRouteContext();
+  const navigate = useNavigate();
+  const supabase = createClient();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  };
+  console.log("CONTEXT", context);
   return (
     <DashboardLayout>
       <Sidebar
@@ -35,7 +52,15 @@ const DashboardLayoutComponent = () => {
         ]}
       />
       <DashboardLayout.Content>
-        <Navbar session={context.auth} Link={Link} />
+        <Navbar Link={Link}>
+          {!isNil(context.auth?.user) ? (
+            <UserNav Link={Link} handleLogout={handleLogout} />
+          ) : (
+            <Link to="/login">
+              <Button> Sign up</Button>
+            </Link>
+          )}
+        </Navbar>
         <div className="mt-20">
           <Outlet />
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { fetch } from "@tauri-apps/plugin-http";
 
 import { TooltipProvider } from "@craftgen/ui/components/tooltip";
 import { KBar } from "@craftgen/ui/kbar/kbar";
@@ -15,8 +16,15 @@ const posthogHost = import.meta.env.VITE_POSTHOG_HOST;
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   const url = useMemo(() => getUrl(), []);
+  // const headers = new Headers();
+  const headers = () => {
+    const headers = new Headers();
+    headers.set("x-trpc-source", "desktop");
+    return headers;
+  };
+
   return (
-    <TRPCReactProvider url={url} headers={new Headers()}>
+    <TRPCReactProvider url={url} headers={headers()} fetch={fetch}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <PHProvider
           apiKey={posthogKey}

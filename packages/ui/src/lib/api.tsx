@@ -15,6 +15,7 @@ export function TRPCReactProvider(props: {
   children: React.ReactNode;
   headers: Headers;
   url: string;
+  fetch?: (url: string, options?: RequestInit) => Promise<Response>;
 }) {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -32,9 +33,21 @@ export function TRPCReactProvider(props: {
           transformer: superjson,
           headers() {
             const heads = new Map(props.headers);
-            heads.set("x-trpc-source", "react");
             return Object.fromEntries(heads);
           },
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: "include",
+            });
+          },
+
+          // fetch: props.fetch && (url, options) =>  {
+          //     return props.fetch(url, {
+          //       ...options,
+          //       credentials: "include",
+          //     });
+          // },
         }),
       ],
     }),

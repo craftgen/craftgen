@@ -1,10 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { ProjectLayout } from "@craftgen/ui/layout/project";
+import { api } from "@craftgen/ui/lib/api";
 import { PlaygroundList } from "@craftgen/ui/views/playground-list";
 import { ProjectCard } from "@craftgen/ui/views/project-card";
-
-import { api, client } from "../../trpc/react";
 
 const ProjectPage = () => {
   const data = Route.useLoaderData();
@@ -47,8 +46,8 @@ const ProjectPage = () => {
 };
 
 export const Route = createFileRoute("/_layout/$projectSlug/")({
-  loader: async ({ params: { projectSlug } }) =>
-    client.project.bySlug.query({
+  loader: async ({ params: { projectSlug }, context: { client } }) =>
+    client.project.bySlug.ensureData({
       projectSlug: projectSlug,
     }),
   component: ProjectPage,

@@ -2,9 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { createLazyFileRoute } from "@tanstack/react-router";
 
-import { supabase } from "../libs/supabase";
-
-// import type { Database } from "@craftgen/db/db/database.types";
+import { createClient } from "../libs/supabase";
 
 export const Route = createLazyFileRoute("/login")({
   component: () => (
@@ -15,6 +13,7 @@ export const Route = createLazyFileRoute("/login")({
 });
 
 const LoginForm = () => {
+  const supabase = createClient();
   return (
     <Auth
       supabaseClient={supabase}

@@ -15,17 +15,19 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutProjectSlugIndexImport } from './routes/_layout.$projectSlug/index'
-import { Route as LayoutProjectSlugLayoutImport } from './routes/_layout.$projectSlug/_layout'
-import { Route as LayoutProjectSlugLayoutWorkflowSlugIndexImport } from './routes/_layout.$projectSlug/_layout.$workflowSlug/index'
-import { Route as LayoutProjectSlugLayoutWorkflowSlugVersionsImport } from './routes/_layout.$projectSlug/_layout.$workflowSlug/versions'
-import { Route as LayoutProjectSlugLayoutWorkflowSlugApiImport } from './routes/_layout.$projectSlug/_layout.$workflowSlug/api'
+import { Route as LayoutProjectSlugWorkflowSlugLayoutImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout'
+import { Route as LayoutProjectSlugWorkflowSlugLayoutIndexImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout.index'
 import { Route as LayoutProjectSlugWorkflowSlugVVersionImport } from './routes/_layout.$projectSlug/$workflowSlug.v.$version'
+import { Route as LayoutProjectSlugWorkflowSlugLayoutVersionsImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout.versions'
+import { Route as LayoutProjectSlugWorkflowSlugLayoutApiImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout.api'
 
 // Create Virtual Routes
 
 const LoginLazyImport = createFileRoute('/login')()
-const LayoutProjectSlugImport = createFileRoute('/_layout/$projectSlug')()
 const LayoutIndexLazyImport = createFileRoute('/_layout/')()
+const LayoutProjectSlugWorkflowSlugImport = createFileRoute(
+  '/_layout/$projectSlug/$workflowSlug',
+)()
 
 // Create/Update Routes
 
@@ -39,48 +41,50 @@ const LayoutRoute = LayoutImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutProjectSlugRoute = LayoutProjectSlugImport.update({
-  path: '/$projectSlug',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutIndexLazyRoute = LayoutIndexLazyImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute,
 } as any).lazy(() => import('./routes/_layout.index.lazy').then((d) => d.Route))
 
+const LayoutProjectSlugWorkflowSlugRoute =
+  LayoutProjectSlugWorkflowSlugImport.update({
+    path: '/$projectSlug/$workflowSlug',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+
 const LayoutProjectSlugIndexRoute = LayoutProjectSlugIndexImport.update({
-  path: '/',
-  getParentRoute: () => LayoutProjectSlugRoute,
+  path: '/$projectSlug/',
+  getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutProjectSlugLayoutRoute = LayoutProjectSlugLayoutImport.update({
-  id: '/_layout',
-  getParentRoute: () => LayoutProjectSlugRoute,
-} as any)
-
-const LayoutProjectSlugLayoutWorkflowSlugIndexRoute =
-  LayoutProjectSlugLayoutWorkflowSlugIndexImport.update({
-    path: '/$workflowSlug/',
-    getParentRoute: () => LayoutProjectSlugLayoutRoute,
+const LayoutProjectSlugWorkflowSlugLayoutRoute =
+  LayoutProjectSlugWorkflowSlugLayoutImport.update({
+    id: '/_layout',
+    getParentRoute: () => LayoutProjectSlugWorkflowSlugRoute,
   } as any)
 
-const LayoutProjectSlugLayoutWorkflowSlugVersionsRoute =
-  LayoutProjectSlugLayoutWorkflowSlugVersionsImport.update({
-    path: '/$workflowSlug/versions',
-    getParentRoute: () => LayoutProjectSlugLayoutRoute,
-  } as any)
-
-const LayoutProjectSlugLayoutWorkflowSlugApiRoute =
-  LayoutProjectSlugLayoutWorkflowSlugApiImport.update({
-    path: '/$workflowSlug/api',
-    getParentRoute: () => LayoutProjectSlugLayoutRoute,
+const LayoutProjectSlugWorkflowSlugLayoutIndexRoute =
+  LayoutProjectSlugWorkflowSlugLayoutIndexImport.update({
+    path: '/',
+    getParentRoute: () => LayoutProjectSlugWorkflowSlugLayoutRoute,
   } as any)
 
 const LayoutProjectSlugWorkflowSlugVVersionRoute =
   LayoutProjectSlugWorkflowSlugVVersionImport.update({
-    path: '/$workflowSlug/v/$version',
-    getParentRoute: () => LayoutProjectSlugRoute,
+    path: '/v/$version',
+    getParentRoute: () => LayoutProjectSlugWorkflowSlugRoute,
+  } as any)
+
+const LayoutProjectSlugWorkflowSlugLayoutVersionsRoute =
+  LayoutProjectSlugWorkflowSlugLayoutVersionsImport.update({
+    path: '/versions',
+    getParentRoute: () => LayoutProjectSlugWorkflowSlugLayoutRoute,
+  } as any)
+
+const LayoutProjectSlugWorkflowSlugLayoutApiRoute =
+  LayoutProjectSlugWorkflowSlugLayoutApiImport.update({
+    path: '/api',
+    getParentRoute: () => LayoutProjectSlugWorkflowSlugLayoutRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -108,54 +112,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexLazyImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/$projectSlug': {
-      id: '/_layout/$projectSlug'
-      path: '/$projectSlug'
-      fullPath: '/$projectSlug'
-      preLoaderRoute: typeof LayoutProjectSlugImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/$projectSlug/_layout': {
-      id: '/_layout/$projectSlug/_layout'
-      path: '/$projectSlug'
-      fullPath: '/$projectSlug'
-      preLoaderRoute: typeof LayoutProjectSlugLayoutImport
-      parentRoute: typeof LayoutProjectSlugRoute
-    }
     '/_layout/$projectSlug/': {
       id: '/_layout/$projectSlug/'
-      path: '/'
-      fullPath: '/$projectSlug/'
+      path: '/$projectSlug'
+      fullPath: '/$projectSlug'
       preLoaderRoute: typeof LayoutProjectSlugIndexImport
-      parentRoute: typeof LayoutProjectSlugImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/$projectSlug/$workflowSlug': {
+      id: '/_layout/$projectSlug/$workflowSlug'
+      path: '/$projectSlug/$workflowSlug'
+      fullPath: '/$projectSlug/$workflowSlug'
+      preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/$projectSlug/$workflowSlug/_layout': {
+      id: '/_layout/$projectSlug/$workflowSlug/_layout'
+      path: '/$projectSlug/$workflowSlug'
+      fullPath: '/$projectSlug/$workflowSlug'
+      preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugLayoutImport
+      parentRoute: typeof LayoutProjectSlugWorkflowSlugRoute
+    }
+    '/_layout/$projectSlug/$workflowSlug/_layout/api': {
+      id: '/_layout/$projectSlug/$workflowSlug/_layout/api'
+      path: '/api'
+      fullPath: '/$projectSlug/$workflowSlug/api'
+      preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugLayoutApiImport
+      parentRoute: typeof LayoutProjectSlugWorkflowSlugLayoutImport
+    }
+    '/_layout/$projectSlug/$workflowSlug/_layout/versions': {
+      id: '/_layout/$projectSlug/$workflowSlug/_layout/versions'
+      path: '/versions'
+      fullPath: '/$projectSlug/$workflowSlug/versions'
+      preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugLayoutVersionsImport
+      parentRoute: typeof LayoutProjectSlugWorkflowSlugLayoutImport
     }
     '/_layout/$projectSlug/$workflowSlug/v/$version': {
       id: '/_layout/$projectSlug/$workflowSlug/v/$version'
-      path: '/$workflowSlug/v/$version'
+      path: '/v/$version'
       fullPath: '/$projectSlug/$workflowSlug/v/$version'
       preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugVVersionImport
-      parentRoute: typeof LayoutProjectSlugImport
+      parentRoute: typeof LayoutProjectSlugWorkflowSlugImport
     }
-    '/_layout/$projectSlug/_layout/$workflowSlug/api': {
-      id: '/_layout/$projectSlug/_layout/$workflowSlug/api'
-      path: '/$workflowSlug/api'
-      fullPath: '/$projectSlug/$workflowSlug/api'
-      preLoaderRoute: typeof LayoutProjectSlugLayoutWorkflowSlugApiImport
-      parentRoute: typeof LayoutProjectSlugLayoutImport
-    }
-    '/_layout/$projectSlug/_layout/$workflowSlug/versions': {
-      id: '/_layout/$projectSlug/_layout/$workflowSlug/versions'
-      path: '/$workflowSlug/versions'
-      fullPath: '/$projectSlug/$workflowSlug/versions'
-      preLoaderRoute: typeof LayoutProjectSlugLayoutWorkflowSlugVersionsImport
-      parentRoute: typeof LayoutProjectSlugLayoutImport
-    }
-    '/_layout/$projectSlug/_layout/$workflowSlug/': {
-      id: '/_layout/$projectSlug/_layout/$workflowSlug/'
-      path: '/$workflowSlug'
-      fullPath: '/$projectSlug/$workflowSlug'
-      preLoaderRoute: typeof LayoutProjectSlugLayoutWorkflowSlugIndexImport
-      parentRoute: typeof LayoutProjectSlugLayoutImport
+    '/_layout/$projectSlug/$workflowSlug/_layout/': {
+      id: '/_layout/$projectSlug/$workflowSlug/_layout/'
+      path: '/'
+      fullPath: '/$projectSlug/$workflowSlug/'
+      preLoaderRoute: typeof LayoutProjectSlugWorkflowSlugLayoutIndexImport
+      parentRoute: typeof LayoutProjectSlugWorkflowSlugLayoutImport
     }
   }
 }
@@ -165,15 +169,17 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   LayoutRoute: LayoutRoute.addChildren({
     LayoutIndexLazyRoute,
-    LayoutProjectSlugRoute: LayoutProjectSlugRoute.addChildren({
-      LayoutProjectSlugLayoutRoute: LayoutProjectSlugLayoutRoute.addChildren({
-        LayoutProjectSlugLayoutWorkflowSlugApiRoute,
-        LayoutProjectSlugLayoutWorkflowSlugVersionsRoute,
-        LayoutProjectSlugLayoutWorkflowSlugIndexRoute,
+    LayoutProjectSlugIndexRoute,
+    LayoutProjectSlugWorkflowSlugRoute:
+      LayoutProjectSlugWorkflowSlugRoute.addChildren({
+        LayoutProjectSlugWorkflowSlugLayoutRoute:
+          LayoutProjectSlugWorkflowSlugLayoutRoute.addChildren({
+            LayoutProjectSlugWorkflowSlugLayoutApiRoute,
+            LayoutProjectSlugWorkflowSlugLayoutVersionsRoute,
+            LayoutProjectSlugWorkflowSlugLayoutIndexRoute,
+          }),
+        LayoutProjectSlugWorkflowSlugVVersionRoute,
       }),
-      LayoutProjectSlugIndexRoute,
-      LayoutProjectSlugWorkflowSlugVVersionRoute,
-    }),
   }),
   LoginLazyRoute,
 })
@@ -194,7 +200,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_layout.tsx",
       "children": [
         "/_layout/",
-        "/_layout/$projectSlug"
+        "/_layout/$projectSlug/",
+        "/_layout/$projectSlug/$workflowSlug"
       ]
     },
     "/login": {
@@ -204,43 +211,42 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_layout.index.lazy.tsx",
       "parent": "/_layout"
     },
-    "/_layout/$projectSlug": {
-      "filePath": "_layout.$projectSlug",
+    "/_layout/$projectSlug/": {
+      "filePath": "_layout.$projectSlug/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/$projectSlug/$workflowSlug": {
+      "filePath": "_layout.$projectSlug/$workflowSlug",
       "parent": "/_layout",
       "children": [
-        "/_layout/$projectSlug/_layout",
-        "/_layout/$projectSlug/",
+        "/_layout/$projectSlug/$workflowSlug/_layout",
         "/_layout/$projectSlug/$workflowSlug/v/$version"
       ]
     },
-    "/_layout/$projectSlug/_layout": {
-      "filePath": "_layout.$projectSlug/_layout.tsx",
-      "parent": "/_layout/$projectSlug",
+    "/_layout/$projectSlug/$workflowSlug/_layout": {
+      "filePath": "_layout.$projectSlug/$workflowSlug/_layout.tsx",
+      "parent": "/_layout/$projectSlug/$workflowSlug",
       "children": [
-        "/_layout/$projectSlug/_layout/$workflowSlug/api",
-        "/_layout/$projectSlug/_layout/$workflowSlug/versions",
-        "/_layout/$projectSlug/_layout/$workflowSlug/"
+        "/_layout/$projectSlug/$workflowSlug/_layout/api",
+        "/_layout/$projectSlug/$workflowSlug/_layout/versions",
+        "/_layout/$projectSlug/$workflowSlug/_layout/"
       ]
     },
-    "/_layout/$projectSlug/": {
-      "filePath": "_layout.$projectSlug/index.tsx",
-      "parent": "/_layout/$projectSlug"
+    "/_layout/$projectSlug/$workflowSlug/_layout/api": {
+      "filePath": "_layout.$projectSlug/$workflowSlug/_layout.api.tsx",
+      "parent": "/_layout/$projectSlug/$workflowSlug/_layout"
+    },
+    "/_layout/$projectSlug/$workflowSlug/_layout/versions": {
+      "filePath": "_layout.$projectSlug/$workflowSlug/_layout.versions.tsx",
+      "parent": "/_layout/$projectSlug/$workflowSlug/_layout"
     },
     "/_layout/$projectSlug/$workflowSlug/v/$version": {
       "filePath": "_layout.$projectSlug/$workflowSlug.v.$version.tsx",
-      "parent": "/_layout/$projectSlug"
+      "parent": "/_layout/$projectSlug/$workflowSlug"
     },
-    "/_layout/$projectSlug/_layout/$workflowSlug/api": {
-      "filePath": "_layout.$projectSlug/_layout.$workflowSlug/api.tsx",
-      "parent": "/_layout/$projectSlug/_layout"
-    },
-    "/_layout/$projectSlug/_layout/$workflowSlug/versions": {
-      "filePath": "_layout.$projectSlug/_layout.$workflowSlug/versions.tsx",
-      "parent": "/_layout/$projectSlug/_layout"
-    },
-    "/_layout/$projectSlug/_layout/$workflowSlug/": {
-      "filePath": "_layout.$projectSlug/_layout.$workflowSlug/index.tsx",
-      "parent": "/_layout/$projectSlug/_layout"
+    "/_layout/$projectSlug/$workflowSlug/_layout/": {
+      "filePath": "_layout.$projectSlug/$workflowSlug/_layout.index.tsx",
+      "parent": "/_layout/$projectSlug/$workflowSlug/_layout"
     }
   }
 }

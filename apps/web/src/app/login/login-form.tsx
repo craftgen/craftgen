@@ -1,16 +1,15 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useTheme } from "next-themes";
 
-import type { Database } from "@craftgen/db/db/database.types";
-
 import { BASE_URL } from "@/lib/constants";
+import { createClient } from "@/utils/supabase/client";
 
 export const LoginForm = () => {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient();
+
   const { theme } = useTheme();
 
   return (

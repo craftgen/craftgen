@@ -1,17 +1,15 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { Button } from "@craftgen/ui/components/button";
 
 import { WorkflowList } from "@/components/template-list";
+import { createClient } from "@/utils/supabase/server";
 
 import { getFeaturedWorkflows } from "./actions";
 import { ProjectList } from "./project-list";
 
 const DashboardPage = async () => {
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient({ cookies: () => cookieStore });
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

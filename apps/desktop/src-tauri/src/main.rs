@@ -10,7 +10,6 @@ mod tray;
 use clap::Parser;
 use tauri_plugin_log::{Target, TargetKind};
 
-
 #[cfg(target_os = "macos")]
 mod dock;
 
@@ -28,13 +27,15 @@ struct AppState {
 }
 
 fn main() {
-
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([
                     Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::LogDir { file_name: Some("craftgen.log".to_string()) }),
+                    Target::new(TargetKind::LogDir {
+                        file_name: Some("craftgen.log".to_string()),
+                    }),
                     Target::new(TargetKind::Webview),
                 ])
                 .build(),
