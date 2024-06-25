@@ -1,4 +1,3 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import Markdown from "react-markdown";
 import { AnyActor } from "xstate";
@@ -13,6 +12,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@craftgen/ui/components/alert";
+import { Icons } from "@craftgen/ui/components/icons";
 import { JSONView } from "@craftgen/ui/components/json-view";
 import { ScrollArea } from "@craftgen/ui/components/scroll-area";
 import { Separator } from "@craftgen/ui/components/separator";
@@ -77,7 +77,7 @@ const ActorError = (props: { actor: AnyActor }) => {
   if (!error) return null;
   return (
     <Alert variant={"destructive"} className="bg-muted/80 shadow">
-      <ExclamationTriangleIcon className="h-6 w-6" />
+      <Icons.triangleAlert className="h-6 w-6" />
       <AlertTitle className="text-lg font-bold">{error.name}</AlertTitle>
       <AlertDescription className="prose">
         <Markdown>{error.message}</Markdown>

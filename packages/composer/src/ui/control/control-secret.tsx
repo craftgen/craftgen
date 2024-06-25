@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useSelector } from "@xstate/react";
 import { CheckIcon } from "lucide-react";
 
@@ -12,6 +11,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@craftgen/ui/components/command";
+import { Icons } from "@craftgen/ui/components/icons";
 import {
   Popover,
   PopoverContent,
@@ -68,7 +68,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
             {value
               ? values && values.find((entry) => entry.id === value)?.key
               : "Select Secret"}
-            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <Icons.chevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">

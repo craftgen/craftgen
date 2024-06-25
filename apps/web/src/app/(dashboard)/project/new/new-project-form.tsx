@@ -3,12 +3,10 @@
 import { useEffect, type PropsWithChildren } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Link } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
-import type { Database } from "@craftgen/db/db/database.types";
 import {
   Alert,
   AlertDescription,
@@ -37,6 +35,7 @@ import {
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
 import { api } from "@/trpc/react";
+import { createClient } from "@/utils/supabase/client";
 
 import { createNewProject } from "./actions";
 import { newProjectSchema, normalizeUrl } from "./shared";
@@ -73,7 +72,7 @@ export const NewProjectForm: React.FC<PropsWithChildren> = ({
     }
   }, [site, form]);
   const { data, error } = api.google.searchConsole.sites.useQuery();
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient();
   const handleConnectGoogle = async (response: any) => {
     await supabase.auth.signInWithOAuth({
       provider: "google",

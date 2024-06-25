@@ -1,13 +1,12 @@
 import React from "react";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { TRPCError } from "@trpc/server";
 
 import { Playground } from "@craftgen/composer/playground";
 
 import { api } from "@/trpc/server";
+import { createClient } from "@/utils/supabase/server";
 
 const PlaygroundPage = async (props: {
   params: {
@@ -19,8 +18,7 @@ const PlaygroundPage = async (props: {
     execution?: string;
   };
 }) => {
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient({ cookies: () => cookieStore });
+  const supabase = createClient();
 
   try {
     const workflow = await api.craft.module.meta({

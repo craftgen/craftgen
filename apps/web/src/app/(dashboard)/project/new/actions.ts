@@ -1,17 +1,17 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import type { z } from "zod";
 
 import { db, project, projectMembers, variable } from "@craftgen/db/db";
+
+import { createClient } from "@/utils/supabase/server";
 
 import type { newProjectSchema } from "./shared";
 
 export const createNewProject = async (
   params: z.infer<typeof newProjectSchema>,
 ) => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createClient();
   const session = await supabase.auth.getSession();
   return await db.transaction(async (tx) => {
     const [newProject] = await tx

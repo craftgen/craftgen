@@ -2,12 +2,10 @@
 
 import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import { z } from "zod";
 
-import type { Database } from "@craftgen/db/db/database.types";
 import { Button } from "@craftgen/ui/components/button";
 import { Checkbox } from "@craftgen/ui/components/checkbox";
 import {
@@ -19,6 +17,7 @@ import {
 } from "@craftgen/ui/components/form";
 
 import { BASE_URL } from "@/lib/constants";
+import { createClient } from "@/utils/supabase/client";
 
 import { getGoogleScopes } from "../../actions";
 
@@ -88,7 +87,7 @@ const GoogleIntegrations: React.FC<{
       ...(values.searchConsole ? GoogleIntegrationsData.searchConsole : []),
     ].join(", ");
     const scopeKeys = Object.keys(values).join(",");
-    const supabase = createClientComponentClient<Database>();
+    const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

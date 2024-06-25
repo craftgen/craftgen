@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import type { Database } from "@craftgen/db/db/database.types";
 import { Icons } from "@craftgen/ui/components/icons";
@@ -8,13 +7,15 @@ import { Sidebar } from "@craftgen/ui/components/sidebar";
 // import { Navbar } from "./navbar";
 import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 
+import { createClient } from "@/utils/supabase/server";
+
 // import { persistGoogleToken } from "./actions";
 // import { Navbar } from "./navbar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 10;
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
