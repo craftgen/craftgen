@@ -18,7 +18,9 @@ import { getServiceSupabase } from "@/utils/supabase/service";
 const setCorsHeaders = (res: Response) => {
   res.headers.set(
     "Access-Control-Allow-Origin",
-    "http://localhost:1420, tauri://localhost",
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:1420"
+      : "tauri://localhost",
   );
   res.headers.set("Access-Control-Request-Method", "*");
   res.headers.set("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
