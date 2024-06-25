@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSelector } from "@xstate/react";
 
-import type { SliderControl } from "@craftgen/core/src/controls/slider";
+import type { SliderControl } from "@craftgen/core/controls/slider";
 import { Slider } from "@craftgen/ui/components/slider";
 
 import { ControlContainer } from "../control-container";

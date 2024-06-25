@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
-import type { TrpcSelectControl } from "@craftgen/core/src/controls/trpc-select";
+import type { TrpcSelectControl } from "@craftgen/core/controls/trpc-select";
 import {
   Select,
   SelectContent,
@@ -9,8 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
-
-import { api } from "@/trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 export function TrpcSelectControlComponent<T extends string, Data>(props: {
   data: TrpcSelectControl<T, Data>;

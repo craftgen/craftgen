@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
 
-import { SelectControl } from "@craftgen/core/src/controls/select";
+import { SelectControl } from "@craftgen/core/controls/select";
 import {
   Select,
   SelectContent,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Session } from "@supabase/supabase-js";
 import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -73,7 +72,12 @@ export const UserNav: React.FC<{
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
+            {user.avatar_url && (
+              <AvatarImage
+                src={user?.avatar_url}
+                alt={user?.fullName || "craftgen user"}
+              />
+            )}
             <AvatarFallback>{avatarFallbackInitials}</AvatarFallback>
           </Avatar>
         </Button>

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useSelector } from "@xstate/react";
 
-import type { InputControl } from "@craftgen/core/src/controls/input.control";
+import type { InputControl } from "@craftgen/core/controls/input.control";
 import { Input } from "@craftgen/ui/components/input";
 
 import { ChangeFormat } from "./shared/change-format";

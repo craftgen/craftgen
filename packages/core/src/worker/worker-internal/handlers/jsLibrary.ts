@@ -1,4 +1,4 @@
-import difference from "lodash/difference";
+import { difference } from "lodash-es";
 import log from "loglevel";
 import type { Def } from "tern";
 

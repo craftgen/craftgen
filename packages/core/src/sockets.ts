@@ -36,7 +36,7 @@ export const getSocket = ({
   >;
   key: string;
 }): ActorRefFrom<typeof inputSocketMachine | typeof outputSocketMachine> => {
-  return Object.entries(sockets).find(([socketId, socket]) =>
+  return Object.entries(sockets).find(([socketId]) =>
     socketId.endsWith(key),
   )?.[1] as ActorRefFrom<
     typeof inputSocketMachine | typeof outputSocketMachine

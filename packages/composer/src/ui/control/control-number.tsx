@@ -1,6 +1,6 @@
 import { useSelector } from "@xstate/react";
 
-import type { NumberControl } from "@craftgen/core/src/controls/number";
+import type { NumberControl } from "@craftgen/core/controls/number";
 import { Input } from "@craftgen/ui/components/input";
 
 import { useStep } from "./shared/useStep";

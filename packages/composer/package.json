@@ -37,6 +37,7 @@
     "@uiw/codemirror-theme-github": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
     "@xstate/react": "4.1.0",
+    "date-fns": "^2.30.0",
     "flexlayout-react": "^0.7.15",
     "framer-motion": "^10.16.0",
     "json-schema-to-jsdoc": "^1.1.0",
@@ -72,6 +73,7 @@
     "@acme/eslint-config": "*",
     "@acme/prettier-config": "*",
     "@acme/tsconfig": "*",
+    "@types/lodash-es": "^4.17.8",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",
     "typescript": "^5.4.5"

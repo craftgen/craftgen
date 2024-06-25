@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
+import { JSONSocket } from "@craftgen/core/controls/socket-generator";
 
 export const useStep = (definition: JSONSocket) => {
   const decimalPlaceCount = useCallback((value: number) => {

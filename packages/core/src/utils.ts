@@ -4,10 +4,6 @@ import type { NodeEditor, NodeId } from "rete";
 import type { JSONSocket } from "./controls/socket-generator";
 import type { Schemes } from "./types";
 
-export function getInputNodes(editor: NodeEditor<Schemes>) {
-  return editor.getNodes().filter((node) => node.ID === "InputNode");
-}
-
 export async function removeConnections(
   editor: NodeEditor<Schemes>,
   nodeId: NodeId,

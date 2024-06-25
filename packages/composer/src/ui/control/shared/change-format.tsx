@@ -1,9 +1,7 @@
 import { useMemo } from "react";
 import { useSelector } from "@xstate/react";
-import { ActorRefFrom, AnyActorRef, SnapshotFrom } from "xstate";
 
-import { JSONSocket } from "@craftgen/core/src/controls/socket-generator";
-import { inputSocketMachine } from "@craftgen/core/src/input-socket";
+import { InputSocketMachineActor } from "@craftgen/core/input-socket";
 import {
   Select,
   SelectContent,
@@ -32,9 +30,7 @@ function parseValueFN(value: string) {
 }
 
 export const ChangeFormat = <
-  T extends ActorRefFrom<typeof inputSocketMachine> = ActorRefFrom<
-    typeof inputSocketMachine
-  >,
+  T extends InputSocketMachineActor = InputSocketMachineActor,
 >(props: {
   value: string;
   actor: T;

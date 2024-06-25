@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "@xstate/react";
-import JsonView from "react18-json-view";
 
-import { JsonControl } from "@craftgen/core/src/controls/json";
+import { JsonControl } from "@craftgen/core/controls/json";
+import { JSONView } from "@craftgen/ui/components/json-view";
 
 export const JsonControlComponent = (props: { data: JsonControl }) => {
   const { value: valueActor } = useSelector(
@@ -29,7 +29,7 @@ export const JsonControlComponent = (props: { data: JsonControl }) => {
   };
   return (
     <div className="space-y-1">
-      <JsonView
+      <JSONView
         src={value}
         editable
         collapsed={2}

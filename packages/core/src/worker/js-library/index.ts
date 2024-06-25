@@ -1,4 +1,4 @@
-import lodashPackageJson from "lodash/package.json";
+import lodashPackageJson from "lodash-es/package.json";
 
 export interface JSLibrary {
   version?: string;
