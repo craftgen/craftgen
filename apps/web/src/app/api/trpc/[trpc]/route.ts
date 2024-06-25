@@ -37,6 +37,12 @@ export function OPTIONS() {
 
 const handler = async (req: Request) => {
   const supabase = createClient(req);
+  if (req && req.headers.has("Authorization")) {
+    await supabase.auth.setSession({
+      access_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
+      refresh_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
+    });
+  }
 
   const session = await supabase.auth.getSession();
   // console.log("AUTH", req.headers.get("Cookie"));
