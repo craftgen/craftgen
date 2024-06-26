@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { usePostHog } from "posthog-js/react";
 
-import HomeCTA from "../HomeCTA";
+import { Button } from "@craftgen/ui/components/button";
+
 import {
   BASE_DL_LINK,
   Platform,
@@ -79,19 +81,20 @@ export function Downloads({ latestVersion }: Props) {
       {selectedPlatform?.links && selectedPlatform.links.length > 1 && (
         <div className="z-50 mb-2 mt-4 flex flex-row gap-3 fade-in">
           {selectedPlatform.links.map(({ name, arch }) => (
-            <HomeCTA
-              key={name}
-              size="md"
-              text={name}
-              rel="noopener"
-              href={`${BASE_DL_LINK}/${selectedPlatform.os}/${arch}`}
-              onClick={() => {
-                posthog.capture("download", {
-                  props: { os: selectedPlatform.name + " " + arch },
-                });
-              }}
-              className="z-5 relative !py-1 !text-sm"
-            />
+            <Link href={`${BASE_DL_LINK}/${selectedPlatform.os}/${arch}`}>
+              <Button
+                key={name}
+                rel="noopener"
+                onClick={() => {
+                  posthog.capture("download", {
+                    props: { os: selectedPlatform.name + " " + arch },
+                  });
+                }}
+                className="z-5 relative !py-1 !text-sm"
+              >
+                {name}
+              </Button>
+            </Link>
           ))}
         </div>
       )}

@@ -1,15 +1,13 @@
 "use client";
 
 import { ComponentProps, FunctionComponent, useEffect, useState } from "react";
+
+import { Icon, Icons } from "@craftgen/ui/components/icons";
 import {
-  AndroidLogo,
-  Globe,
-  Icon,
-  LinuxLogo,
-  WindowsLogo,
-} from "@phosphor-icons/react";
-import { Apple, Docker } from "@sd/assets/svgs/brands";
-import { Tooltip } from "@sd/ui";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@craftgen/ui/components/tooltip";
 
 export type Platform = {
   name: string;
@@ -25,7 +23,7 @@ export const platforms = {
   darwin: {
     name: "macOS",
     os: "darwin",
-    icon: Apple,
+    icon: Icons.apple,
     version: "12+",
     links: [
       { name: "Intel", arch: "x86_64" },
@@ -35,26 +33,26 @@ export const platforms = {
   windows: {
     name: "Windows",
     os: "windows",
-    icon: WindowsLogo,
+    icon: Icons.WindowsLogo,
     version: "10+",
     links: [{ name: "x86_64", arch: "x86_64" }],
   },
   linux: {
     name: "Linux",
     os: "linux",
-    icon: LinuxLogo,
+    icon: Icons.LinuxLogo,
     version: "deb",
     links: [{ name: "x86_64", arch: "x86_64" }],
     note: "Supports Ubuntu 22.04+, Debian Bookworm+, Linux Mint 21+, PopOS 22.04+",
   },
-  docker: { name: "Docker", icon: Docker },
+  docker: { name: "Docker", icon: Icons.docker },
   android: {
     name: "Android",
-    icon: AndroidLogo,
+    icon: Icons.AndroidLogo,
     version: "10+",
     disabled: true,
   },
-  web: { name: "Web", icon: Globe, disabled: true },
+  web: { name: "Web", icon: Icons.Globe, disabled: true },
 } satisfies Record<string, Platform>;
 
 export function useCurrentPlatform() {
@@ -109,15 +107,18 @@ export function Platform({
   const Icon = platform.icon;
 
   return (
-    <Tooltip label={platform.name}>
-      <Outer {...props}>
-        <Icon
-          className={`size-[24px] text-white ${
-            platform.disabled ? "opacity-20" : "opacity-90"
-          }`}
-          weight="fill"
-        />
-      </Outer>
+    <Tooltip>
+      <TooltipTrigger>
+        <Outer {...props}>
+          <Icon
+            className={`size-[24px] text-white ${
+              platform.disabled ? "opacity-20" : "opacity-90"
+            }`}
+            weight="fill"
+          />
+        </Outer>
+      </TooltipTrigger>
+      <TooltipContent>{platform.name}</TooltipContent>
     </Tooltip>
   );
 }
