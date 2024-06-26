@@ -31,10 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@craftgen/ui/components/select";
+import { api } from "@craftgen/ui/lib/api";
 
 import { BASE_URL } from "@/lib/constants";
 import { slugify } from "@/lib/string";
-import { api } from "@/trpc/react";
 import { createClient } from "@/utils/supabase/client";
 
 import { createNewProject } from "./actions";

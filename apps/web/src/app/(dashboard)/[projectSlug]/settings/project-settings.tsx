@@ -30,8 +30,7 @@ import {
 import { Input } from "@craftgen/ui/components/input";
 import { Label } from "@craftgen/ui/components/label";
 import { Separator } from "@craftgen/ui/components/separator";
-
-import { api } from "@/trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 import { deleteProject, updateProject } from "../actions";
 

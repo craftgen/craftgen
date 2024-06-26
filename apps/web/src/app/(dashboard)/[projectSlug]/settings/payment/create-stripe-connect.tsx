@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 
 import { Button } from "@craftgen/ui/components/button";
+import { api } from "@craftgen/ui/lib/api";
 
 import { useUser } from "@/app/(dashboard)/hooks/use-user";
-import { api } from "@/trpc/react";
 
 export const CreateStripeConnect = () => {
   const { mutateAsync: createStripeConnect } =

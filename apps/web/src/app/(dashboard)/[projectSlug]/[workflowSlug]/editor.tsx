@@ -2,8 +2,7 @@
 
 import { WorkflowInput } from "@craftgen/composer/input-form-view";
 import { LoadingDots } from "@craftgen/ui/components/loading-dots";
-
-import { api } from "@/trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 export const Editor = ({
   projectSlug,

@@ -2,8 +2,8 @@
 
 import { useMemo } from "react";
 
-import { api } from "@/trpc/react";
-import { RouterOutputs } from "@/trpc/shared";
+import { RouterOutputs } from "@craftgen/api";
+import { api } from "@craftgen/ui/lib/api";
 
 export const useUser = (params?: {
   fallbackData?: RouterOutputs["auth"]["getSession"];

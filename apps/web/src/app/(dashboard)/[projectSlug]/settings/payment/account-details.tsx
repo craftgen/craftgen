@@ -2,8 +2,7 @@
 
 import { RouterOutputs } from "@craftgen/api";
 import { JSONView } from "@craftgen/ui/components/json-view";
-
-import { api } from "@/trpc/react";
+import { api } from "@craftgen/ui/lib/api";
 
 export const StripeAccountDetails = ({
   project,
