@@ -20,6 +20,11 @@ export const env = createEnv({
     TELEGRAM_BOT_TOKEN: z.string().min(1),
 
     WORDPRESS_API_URL: z.string().url(),
+
+    GITHUB_SECRET: z.string().optional(),
+    GITHUB_PAT: z.string().min(1),
+    GITHUB_ORG: z.string().min(1),
+    GITHUB_REPO: z.string().min(1),
   },
   /*
    * Environment variables available on the client (and server).
@@ -40,6 +45,11 @@ export const env = createEnv({
    * 💡 You'll get type errors if not all variables from `server` & `client` are included here.
    */
   runtimeEnv: {
+    GITHUB_SECRET: process.env.GITHUB_SECRET,
+    GITHUB_PAT: process.env.GITHUB_PAT,
+    GITHUB_ORG: process.env.GITHUB_ORG,
+    GITHUB_REPO: process.env.GITHUB_REPO,
+
     POSTGRES_URL: process.env.POSTGRES_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
