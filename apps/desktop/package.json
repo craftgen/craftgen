@@ -48,7 +48,7 @@
     "@acme/prettier-config": "workspace:*",
     "@acme/tailwind-config": "workspace:*",
     "@acme/tsconfig": "workspace:*",
-    "@tauri-apps/cli": ">=2.0.0-beta.0",
+    "@tauri-apps/cli": "2.0.0-beta.20",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",
     "@types/web": "^0.0.117",
