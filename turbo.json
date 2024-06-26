@@ -17,7 +17,10 @@
     "NEXT_PUBLIC_POSTHOG_HOST",
     "NODE_ENV",
     "TRIGGER_API_KEY",
-    "TRIGGER_API_URL"
+    "TRIGGER_API_URL",
+    "GITHUB_PAT",
+    "GITHUB_ORG",
+    "GITHUB_REPO"
   ],
   "tasks": {
     "topo": {
