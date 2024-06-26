@@ -1,0 +1,1 @@
+export { useRegisterActions } from "kbar";

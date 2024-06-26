@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useRegisterActions } from "kbar";
 import { isNil } from "lodash-es";
+
+// import { useRegisterActions } from "kbar";
+import { useRegisterActions } from "@craftgen/ui/kbar/use-register-actions";
 
 import { useUser } from "./(dashboard)/hooks/use-user";
 
