@@ -64,7 +64,11 @@ export async function GET(
   params.version = release.tag_name;
 
   const name =
-    `Craftgen-${params.target}-${params.arch}.${extensions[params.target]}` as const;
+    `CraftGen-${params.target}-${params.arch}.${extensions[params.target]}` as const;
+
+  console.log("NAME", name);
+  const assets = release.assets?.map((a) => a.name);
+  console.log("ASSETS", assets);
 
   const asset = release.assets?.find((asset: any) => asset.name === name);
 

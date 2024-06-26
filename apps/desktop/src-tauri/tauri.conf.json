@@ -1,7 +1,7 @@
 {
   "productName": "CraftGen",
-  "version": "0.0.0",
-  "identifier": "com.craftgen.dev",
+  "version": "0.0.1",
+  "identifier": "com.craftgen.ai",
   "build": {
     "beforeDevCommand": "pnpm copy-functions && pnpm dev ",
     "devUrl": "http://localhost:1420",
@@ -29,6 +29,9 @@
     }
   },
   "bundle": {
+    "publisher": "Craftgen AI",
+    "copyright": "Craftgen AI",
+    "shortDescription": "Craftgen AI Agent Building Platform",
     "active": true,
     "targets": "all",
     "icon": [
