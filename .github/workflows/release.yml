@@ -16,12 +16,17 @@ jobs:
         settings:
           - platform: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
+            architecture: "aarch64-apple-darwin"
           - platform: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
+            architecture: "x86_64-apple-darwin"
           # - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
           #   args: ""
           # - platform: "windows-latest"
           #   args: ""
+          # -x86_64-pc-windows-msvc
+          #-x86_64-unknown-linux-gnu
+          # -x86_64-unknown-linux-musl
 
     runs-on: ${{ matrix.settings.platform }}
     steps:
@@ -68,11 +73,20 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: "./apps/desktop/src-tauri -> target"
 
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: pnpm install # change this to npm or pnpm depending on which one you use.
+
+      - name: create binaries directory
+        run: mkdir -p ./apps/desktop/src-tauri/binaries
+        
+      - name: download binaries
+        run: curl https://bin.craftgen.ai/edge-runtime -o ./apps/desktop/src-tauri/binaries/edge-runtime
+
+      - name: rename the binary base on platform
+        run: mv ./apps/desktop/src-tauri/binaries/edge-runtime ./apps/desktop/src-tauri/binaries/edge-runtime-${{ matrix.settings.architecture }}
 
       - uses: tauri-apps/tauri-action@v0
         env:
