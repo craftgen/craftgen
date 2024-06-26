@@ -22,6 +22,8 @@ import { UserCentric } from "@/components/marketing/user-centeric";
 
 import { Waitlist } from "../waitlist/waitlist";
 
+// import { Downloads } from "./downloads";
+
 export default function Home() {
   const posthog = usePostHog();
   return (
@@ -120,6 +122,7 @@ export default function Home() {
               >
                 Schedule a call for demo <span aria-hidden="true">→</span>
               </Link>
+              {/* <Downloads latestVersion="v0.1.0" /> */}
             </div>
           </div>
           <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">

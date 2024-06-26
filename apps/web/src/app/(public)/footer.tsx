@@ -21,7 +21,6 @@ export async function Footer() {
       id="footer"
       className="relative z-50 w-screen overflow-hidden backdrop-blur"
     >
-      <div className="absolute h-full w-full bg-gradient-to-tr from-transparent  to-white/10 " />
       <div className="min-h-64 m-auto  grid max-w-[100rem] grid-cols-2 gap-6 p-8 pb-20 pt-10  sm:grid-cols-2 lg:grid-cols-6">
         <div className="col-span-2">
           <h1 className="font-sans text-2xl  font-black tracking-tighter  md:text-5xl">
@@ -130,6 +129,7 @@ export async function Footer() {
         <div className="h-px w-1/2 bg-gradient-to-r from-transparent to-white/10"></div>
         <div className="h-px w-1/2 bg-gradient-to-l from-transparent to-white/10"></div>
       </div>
+      <div className="absolute h-full w-full bg-gradient-to-tr from-transparent  to-white/10 " />
     </footer>
   );
 }
