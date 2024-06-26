@@ -35,6 +35,7 @@ export const getRelease = (tag: string) =>
   }) as FetchConfig<Release>;
 
 export async function githubFetch<T>({ path }: FetchConfig<T>): Promise<T> {
+  console.log("PATH", path);
   return fetch(`https://api.github.com${path}`, {
     ...FETCH_META,
     next: {
