@@ -1,6 +1,6 @@
 {
   "productName": "CraftGen",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "identifier": "com.craftgen.ai",
   "build": {
     "beforeDevCommand": "pnpm copy-functions && pnpm dev ",
