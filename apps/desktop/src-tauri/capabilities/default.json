@@ -57,6 +57,9 @@
       ]
     },
     "oauth:allow-start",
-    "updater:default"
+    "updater:default",
+    "dialog:default",
+    "process:default",
+    "process:allow-restart"
   ]
 }

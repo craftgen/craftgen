@@ -1,6 +1,6 @@
 {
   "productName": "CraftGen",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "identifier": "com.craftgen.ai",
   "build": {
     "beforeDevCommand": "pnpm copy-functions && pnpm dev ",
@@ -9,6 +9,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "visible": false,
@@ -48,6 +49,8 @@
   },
   "plugins": {
     "updater": {
+      "active": true,
+      "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJCNjEyMzI0RUEwMTU3RDkKUldUWlZ3SHFKQ05odTl5SmpvR2hJWFUwdnBYSXJvazBTTVc5cXM1VUM3ZDl0RENnZXIySklyODYK",
       "endpoints": [
         "https://github.com/craftgen/craftgen/releases/latest/download/latest.json"

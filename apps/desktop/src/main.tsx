@@ -13,6 +13,7 @@ import { createClient } from "./libs/supabase";
 import { Providers } from "./providers";
 // Import the generated route tree
 import { router } from "./router";
+import { checkForAppUpdates } from "./updater";
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -42,6 +43,7 @@ const InnerApp = () => {
 
   useEffect(() => {
     (async () => {
+      await checkForAppUpdates();
       const detach = await attachConsole();
       return detach;
     })();

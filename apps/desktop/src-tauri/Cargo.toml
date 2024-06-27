@@ -1,6 +1,6 @@
 [package]
 name = "CraftGen"
-version = "0.0.3"
+version = "0.0.4"
 description = "CraftGen AI Agent Building Platform"
 authors = ["necmetin karakaya <necmetin.karakaya@gmail.com>"]
 edition = "2021"
@@ -27,6 +27,8 @@ tauri-plugin-log = "2.0.0-beta.6"
 tauri-plugin-http = "2.0.0-beta.10"
 tauri-plugin-oauth = { git = "https://github.com/FabianLars/tauri-plugin-oauth", branch = "v2" }
 sentry = "0.34.0"
+tauri-plugin-dialog = "2.0.0-beta.9"
+tauri-plugin-process = "2.0.0-beta.6"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
