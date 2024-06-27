@@ -9,6 +9,15 @@ import { defineConfig } from "vite";
 export default defineConfig(async () => ({
   build: {
     sourcemap: true, // Source map generation must be turned on for Sentry to work
+    // rollupOptions: {
+    //   output: {
+    //     manualChunks: {
+    //       "@craftgen/core": ["@craftgen/core"],
+    //       "@craftgen/ui": ["@craftgen/ui"],
+    //       "@craftgen/composer": ["@craftgen/composer"],
+    //     },
+    //   },
+    // },
   },
   plugins: [
     react(),
@@ -27,6 +36,7 @@ export default defineConfig(async () => ({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "craftgen",
       project: "desktop",
+      // disable: !process.env.GITHUB_SHA,
     }),
   ],
 

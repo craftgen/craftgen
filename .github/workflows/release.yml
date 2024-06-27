@@ -95,6 +95,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          NODE_OPTIONS: --max-old-space-size=8192
         with:
           tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           tauriScript: "pnpm tauri"
