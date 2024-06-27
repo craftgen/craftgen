@@ -85,6 +85,9 @@ jobs:
       - name: download binaries
         run: curl https://bin.craftgen.ai/edge-runtime -o ./apps/desktop/src-tauri/binaries/edge-runtime
 
+      - name: make binaries executable
+        run: chmod +x ./apps/desktop/src-tauri/binaries/edge-runtime
+
       - name: rename the binary base on platform
         run: mv ./apps/desktop/src-tauri/binaries/edge-runtime ./apps/desktop/src-tauri/binaries/edge-runtime-${{ matrix.settings.architecture }}
 

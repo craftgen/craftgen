@@ -16,17 +16,6 @@
       "identifier": "shell:allow-execute",
       "allow": [
         {
-          "args": [],
-          "cmd": "",
-          "name": "binaries/welcome",
-          "sidecar": true
-        }
-      ]
-    },
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
           "args": [
             "start",
             "--main-service",
