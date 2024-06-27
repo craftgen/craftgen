@@ -22,7 +22,6 @@ function App() {
     <div className="container">
       <h1 className="font-geist text-2xl font-bold">Craftgen</h1>
       <Button onClick={callFuncOnRust}>Start Edge Runtime</Button>
-      {/* {JSON.stringify(res)} */}
     </div>
   );
 }
