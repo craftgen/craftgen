@@ -59,6 +59,11 @@
     "oauth:allow-start",
     "updater:default",
     "dialog:default",
+    "dialog:allow-ask",
+    "dialog:allow-message",
+    "dialog:allow-confirm",
+    "dialog:allow-save",
+    "dialog:allow-open",
     "process:default",
     "process:allow-restart"
   ]
