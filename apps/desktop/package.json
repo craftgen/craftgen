@@ -11,7 +11,7 @@
     "format": "prettier --check . --ignore-path ../../.gitignore --ignore-path .prettierignore",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "version": "pnpx tauri-version patch",
+    "version": "pnpx tauri-version patch --no-git",
     "copy-functions": "cp -r ../edge-functions/functions ./src-tauri"
   },
   "dependencies": {
