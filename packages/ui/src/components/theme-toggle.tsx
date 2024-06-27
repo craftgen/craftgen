@@ -3,13 +3,13 @@
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
-import { Button } from "@craftgen/ui/components/button";
+import { Button } from "./button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@craftgen/ui/components/dropdown-menu";
+} from "./dropdown-menu";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();

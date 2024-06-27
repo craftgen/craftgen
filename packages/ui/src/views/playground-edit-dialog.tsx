@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@craftgen/ui/components/button";
+import { Button } from "../components/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@craftgen/ui/components/dialog";
+} from "../components/dialog";
 import {
   Form,
   FormControl,
@@ -19,11 +19,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/components/form";
-import { Input } from "@craftgen/ui/components/input";
-import { Switch } from "@craftgen/ui/components/switch";
-import { Textarea } from "@craftgen/ui/components/textarea";
-
+} from "../components/form";
+import { Input } from "../components/input";
+import { Switch } from "../components/switch";
+import { Textarea } from "../components/textarea";
 import { api } from "../lib/api";
 
 const formSchema = z.object({

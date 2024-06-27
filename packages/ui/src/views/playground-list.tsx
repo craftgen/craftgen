@@ -7,7 +7,9 @@ import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
 
 import { RouterOutputs } from "@craftgen/api";
-import { Button } from "@craftgen/ui/components/button";
+
+import { Button } from "../components/button";
+import { DataTable } from "../components/data-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@craftgen/ui/components/dropdown-menu";
-
-import { DataTable } from "../components/data-table";
+} from "../components/dropdown-menu";
 import { CLink } from "../components/link";
 import { api } from "../lib/api";
 import { WorkflowCreateDialog } from "./playground-create-dialog";

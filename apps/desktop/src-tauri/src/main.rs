@@ -41,7 +41,7 @@ fn main() {
                 .targets([
                     Target::new(TargetKind::Stdout),
                     Target::new(TargetKind::LogDir {
-                        file_name: Some("craftgen.log".to_string()),
+                        file_name: Some("craftgen".to_string()),
                     }),
                     Target::new(TargetKind::Webview),
                 ])

@@ -232,6 +232,9 @@ importers:
       postcss:
         specifier: 8.4.31
         version: 8.4.31
+      rollup-preserve-directives:
+        specifier: ^1.1.1
+        version: 1.1.1(rollup@4.17.2)
       tailwindcss:
         specifier: 3.3.3
         version: 3.3.3
@@ -21346,7 +21349,6 @@ packages:
     resolution: {integrity: sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
-    dev: false
 
   /magic-string@0.30.8:
     resolution: {integrity: sha512-ISQTe55T2ao7XtlAStud6qwYPZjE4GK1S/BeVPus4jrq6JuOnQ00YKQC581RWhR122W7msZV263KzVeLoqidyQ==}
@@ -25620,6 +25622,15 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.3
+
+  /rollup-preserve-directives@1.1.1(rollup@4.17.2):
+    resolution: {integrity: sha512-+eQafbuEfDPfxQ9hQPlwaROfin4yiVRxap8hnrvvvcSGoukv1tTiYpAW9mvm3uR8J+fe4xd8FdVd5rz9q7jZ+Q==}
+    peerDependencies:
+      rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
+    dependencies:
+      magic-string: 0.30.10
+      rollup: 4.17.2
+    dev: true
 
   /rollup@3.29.4:
     resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}

@@ -2,9 +2,8 @@
 
 import type { PropsWithChildren } from "react";
 
-import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
-
 import { CLink } from "../components/link";
+import { ThemeToggle } from "../components/theme-toggle";
 import { FeedbackButton } from "./feedback-button";
 
 export const Navbar: React.FC<PropsWithChildren<{ Link: any }>> = ({

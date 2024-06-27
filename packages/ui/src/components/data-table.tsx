@@ -16,6 +16,8 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 import {
   Table,
   TableBody,
@@ -23,10 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@craftgen/ui/components/table";
-
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
+} from "./table";
 import { TableContext } from "./use-table";
 
 interface DataTableProps<TData, TValue> {

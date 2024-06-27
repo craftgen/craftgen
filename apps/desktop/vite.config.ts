@@ -2,6 +2,7 @@ import path from "path";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 import react from "@vitejs/plugin-react";
+import preserveDirectives from "rollup-preserve-directives";
 import Unfonts from "unplugin-fonts/vite";
 import { defineConfig } from "vite";
 
@@ -9,17 +10,9 @@ import { defineConfig } from "vite";
 export default defineConfig(async () => ({
   build: {
     sourcemap: true, // Source map generation must be turned on for Sentry to work
-    // rollupOptions: {
-    //   output: {
-    //     manualChunks: {
-    //       "@craftgen/core": ["@craftgen/core"],
-    //       "@craftgen/ui": ["@craftgen/ui"],
-    //       "@craftgen/composer": ["@craftgen/composer"],
-    //     },
-    //   },
-    // },
   },
   plugins: [
+    preserveDirectives(),
     react(),
     TanStackRouterVite(),
     Unfonts({

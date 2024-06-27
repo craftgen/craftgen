@@ -6,12 +6,8 @@ import { usePostHog } from "posthog-js/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@craftgen/ui/components/avatar";
-import { Button } from "@craftgen/ui/components/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/avatar";
+import { Button } from "../components/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -26,8 +22,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@craftgen/ui/components/dropdown-menu";
-
+} from "../components/dropdown-menu";
 import { api } from "../lib/api";
 
 export const UserNav: React.FC<{

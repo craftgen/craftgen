@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "NODE_OPTIONS=--max_old_space_size=8192 vite build",
     "preview": "vite preview",
     "tauri": "tauri",
     "format": "prettier --check . --ignore-path ../../.gitignore --ignore-path .prettierignore",
@@ -56,6 +56,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "postcss": "8.4.31",
+    "rollup-preserve-directives": "^1.1.1",
     "tailwindcss": "3.3.3",
     "typescript": "^5.4.5",
     "vite": "^5.0.0"

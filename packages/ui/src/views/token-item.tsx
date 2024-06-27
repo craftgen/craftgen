@@ -13,8 +13,10 @@ import {
   providers,
   ProviderType,
 } from "@craftgen/core/provider/config";
-import { Badge } from "@craftgen/ui/components/badge";
-import { Button } from "@craftgen/ui/components/button";
+
+import { Alert, AlertDescription, AlertTitle } from "../components/alert";
+import { Badge } from "../components/badge";
+import { Button } from "../components/button";
 import {
   Card,
   CardContent,
@@ -22,20 +24,20 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@craftgen/ui/components/card";
+} from "../components/card";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@craftgen/ui/components/command";
+} from "../components/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@craftgen/ui/components/dropdown-menu";
+} from "../components/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -44,17 +46,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@craftgen/ui/components/form";
-import { Icon } from "@craftgen/ui/components/icons";
-import { Input } from "@craftgen/ui/components/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@craftgen/ui/components/popover";
-import { Separator } from "@craftgen/ui/components/separator";
-
-import { Alert, AlertDescription, AlertTitle } from "../components/alert";
+} from "../components/form";
+import { Icon } from "../components/icons";
+import { Input } from "../components/input";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/popover";
+import { Separator } from "../components/separator";
 import { api } from "../lib/api";
 import { cn } from "../lib/utils";
 

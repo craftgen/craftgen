@@ -3,16 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@craftgen/ui/components/button";
-import { Form, FormField, FormItem } from "@craftgen/ui/components/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@craftgen/ui/components/popover";
-import { Textarea } from "@craftgen/ui/components/textarea";
-import { useToast } from "@craftgen/ui/components/use-toast";
-
+import { Button } from "../components/button";
+import { Form, FormField, FormItem } from "../components/form";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/popover";
+import { Textarea } from "../components/textarea";
+import { useToast } from "../components/use-toast";
 import { api } from "../lib/api";
 
 const formSchema = z.object({
