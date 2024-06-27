@@ -26,6 +26,7 @@ tauri-plugin-fs = "2.0.0-beta.9"
 tauri-plugin-log = "2.0.0-beta.6"
 tauri-plugin-http = "2.0.0-beta.10"
 tauri-plugin-oauth = { git = "https://github.com/FabianLars/tauri-plugin-oauth", branch = "v2" }
+tauri-plugin-sentry = { git = "https://github.com/arashi-dev/sentry-tauri", branch = "v2" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.25.0"

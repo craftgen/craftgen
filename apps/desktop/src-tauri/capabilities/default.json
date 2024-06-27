@@ -67,6 +67,7 @@
         }
       ]
     },
-    "oauth:allow-start"
+    "oauth:allow-start",
+    "sentry:default"
   ]
 }
