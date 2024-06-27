@@ -1,4 +1,5 @@
 import path from "path";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 import react from "@vitejs/plugin-react";
 import Unfonts from "unplugin-fonts/vite";
@@ -6,6 +7,9 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
+  build: {
+    sourcemap: true, // Source map generation must be turned on for Sentry to work
+  },
   plugins: [
     react(),
     TanStackRouterVite(),
@@ -18,6 +22,11 @@ export default defineConfig(async () => ({
           },
         ],
       },
+    }),
+    sentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "craftgen",
+      project: "desktop",
     }),
   ],
 
