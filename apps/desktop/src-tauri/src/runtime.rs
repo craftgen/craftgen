@@ -1,33 +1,36 @@
+use tauri::Manager;
+use tokio::sync::Mutex;
+
 use crate::cmd::open_main_window;
 use crate::tray::EXIT_FLAG;
-use tauri::Manager;
+use crate::AppState;
 
 #[cfg(target_os = "macos")]
 use crate::dock;
 
 pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
-    // log::trace!("Run event: {:?}", event);
     match event {
         tauri::RunEvent::Ready { .. } => {
-            println!("[Event] Ready");
-            // let app_state = app_handle.state::<AppState>();
-
-            // tauri::async_runtime::spawn(async move {
-            //     let handle = cmd::start_edge_runtime(app_handle.clone()).await.expect("Failed to start sidecar");
-
-            //     // *app_state.sidecar_handle.lock().unwrap() = Some(handle);
-            //     // // Close the app handle after storing the sidecar handle
-            //     // app_handle.close().unwrap();
-            // });
+            log::info!("[Event] Ready");
         }
 
         #[cfg(target_os = "macos")]
         tauri::RunEvent::Reopen { .. } => {
-            println!("[Event] Reopen");
             open_main_window(app_handle).unwrap();
         }
         tauri::RunEvent::ExitRequested { api, .. } => {
-            println!("[Event] Exit requested, shutting down API...");
+            log::info!("[Event] Exit requested, shutting down API...");
+            let state = app_handle.try_state::<Mutex<AppState>>().unwrap();
+            // Lock the mutex to get mutable access to AppState
+            if let Ok(mut app_state) = state.try_lock() {
+                // Kill the sidecar process.
+                if let Some(handle) = app_state.sidecar_handle.take() {
+                    handle.kill().unwrap();
+                }
+            } else {
+                log::error!("Failed to lock AppState mutex");
+            }
+
             if !EXIT_FLAG.load(std::sync::atomic::Ordering::Relaxed) {
                 api.prevent_exit();
                 #[cfg(target_os = "macos")]

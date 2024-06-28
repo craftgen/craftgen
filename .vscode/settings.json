@@ -9,6 +9,10 @@
   },
   "deno.enable": true,
   // "deno.config": "packages/core/deno.json",
-  "deno.enablePaths": ["./apps/edge-functions", "./packages/core-deno"],
+  "deno.enablePaths": [
+    "./apps/edge-functions",
+    "./packages/core-deno",
+    "./apps/desktop/src-tauri/functions"
+  ],
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }

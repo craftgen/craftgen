@@ -1,11 +1,10 @@
 use clap::Parser;
-use std::error::Error;
-use tauri::{App, Manager};
-// use tokio::sync::Mutex;
+use tauri::{ AppHandle, Manager,};
+use tokio::sync::Mutex;
 
-use crate::{cmd, tray, Args};
+use crate::{cmd, AppState, Args};
 
-pub fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
+pub async fn setup(app_handle: AppHandle) -> Result<(), ()> {
     let args = Args::parse();
     log::debug!("args: {:?}", args);
     if args.minimized {
@@ -14,19 +13,16 @@ pub fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
             crate::dock::set_dock_visible(false);
         }
     } else {
-        cmd::open_main_window(app.app_handle()).unwrap();
+        cmd::open_main_window(&app_handle).unwrap();
     }
 
-    let app_handle = app.app_handle();
-    tray::create_tray(app_handle)?;
-    // let app_handle = app.handle();
-    // let config = store::get(app_handle)?;
-    // let app_clone = app_handle.app_handle();
-    // let config = Arc::new(Mutex::new(config));
-    // app_clone.manage(config.clone());
-    // tauri::async_runtime::spawn(async {
-    //     duckdns::updater_task(config).await;
-    // });
+    // tray::create_tray(&app_handle);
+
+    log::info!("Starting edge runtime");
+    let runtime_handle = cmd::start_edge_runtime(app_handle.clone()).await?;
+    let app_state = app_handle.state::<Mutex<AppState>>();
+    let mut app_state_guard = app_state.lock().await;
+    app_state_guard.sidecar_handle = Some(runtime_handle);
 
     Ok(())
 }

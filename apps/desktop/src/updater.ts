@@ -3,6 +3,7 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { check } from "@tauri-apps/plugin-updater";
 
 export async function checkForAppUpdates() {
+  if (import.meta.env.DEV) return;
   const update = await check();
 
   if (update?.available) {

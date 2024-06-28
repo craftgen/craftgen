@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+
+use tauri::{async_runtime::spawn};
 use tauri_plugin_autostart::MacosLauncher;
 
 mod cmd;
@@ -8,7 +10,8 @@ mod runtime;
 mod setup;
 mod tray;
 use clap::Parser;
-use tauri_plugin_log::{Target, TargetKind};
+use tauri_plugin_log::{fern::colors::{Color, ColoredLevelConfig}, Target, TargetKind};
+use tokio::sync::Mutex;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -47,12 +50,19 @@ fn main() {
                     }),
                     Target::new(TargetKind::Webview),
                 ])
+                .with_colors(ColoredLevelConfig {
+                    error: Color::Red,
+                    warn: Color::Yellow,
+                    debug: Color::White,
+                    info: Color::BrightGreen,
+                    trace: Color::Cyan,
+                })
                 .build(),
         )
         .plugin(tauri_plugin_fs::init())
-        .manage(AppState {
-            sidecar_handle: None,
-        })
+        .manage(Mutex::new(AppState {
+            sidecar_handle: None
+        }))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
@@ -62,9 +72,13 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             cmd::greet,
-            cmd::start_edge_runtime
         ])
-        .setup(setup::setup)
+        .setup(|app| {
+            // Spawn setup as a non-blocking task so the windows can be
+            // created and ran while it executes
+             spawn(setup::setup(app.handle().clone()));
+            Ok(())
+        })
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(runtime::on_run_event);
