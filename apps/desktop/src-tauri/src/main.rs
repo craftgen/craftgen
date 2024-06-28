@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
-use tauri::{async_runtime::spawn};
+use tauri::{async_runtime::spawn, Manager};
 use tauri_plugin_autostart::MacosLauncher;
 
 mod cmd;
@@ -74,9 +74,13 @@ fn main() {
             cmd::greet,
         ])
         .setup(|app| {
+            let app_handle = app.app_handle();
+
             // Spawn setup as a non-blocking task so the windows can be
             // created and ran while it executes
              spawn(setup::setup(app.handle().clone()));
+
+             tray::build(&app_handle);
             Ok(())
         })
         .build(tauri::generate_context!())

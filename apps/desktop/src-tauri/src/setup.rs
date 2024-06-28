@@ -1,8 +1,8 @@
 use clap::Parser;
-use tauri::{ AppHandle, Manager,};
+use tauri::{ AppHandle, Manager};
 use tokio::sync::Mutex;
 
-use crate::{cmd, AppState, Args};
+use crate::{cmd,  AppState, Args};
 
 pub async fn setup(app_handle: AppHandle) -> Result<(), ()> {
     let args = Args::parse();
@@ -16,13 +16,13 @@ pub async fn setup(app_handle: AppHandle) -> Result<(), ()> {
         cmd::open_main_window(&app_handle).unwrap();
     }
 
-    // tray::create_tray(&app_handle);
-
     log::info!("Starting edge runtime");
     let runtime_handle = cmd::start_edge_runtime(app_handle.clone()).await?;
     let app_state = app_handle.state::<Mutex<AppState>>();
     let mut app_state_guard = app_state.lock().await;
     app_state_guard.sidecar_handle = Some(runtime_handle);
+
+
 
     Ok(())
 }

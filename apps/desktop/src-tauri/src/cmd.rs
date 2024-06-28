@@ -37,7 +37,7 @@ pub async fn start_edge_runtime(
             &main_service.to_string_lossy(),
             "--event-worker",
             &event_worker.to_string_lossy(),
-            "-v",
+            // "-v",
             "-p",
             "24321"
         ])
