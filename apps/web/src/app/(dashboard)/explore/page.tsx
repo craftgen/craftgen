@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 import { Button } from "@craftgen/ui/components/button";
+import { WorkflowList } from "@craftgen/ui/views/workflow-list";
 
-import { WorkflowList } from "@/components/template-list";
+import { api } from "@/trpc/server";
 import { createClient } from "@/utils/supabase/server";
 
-import { getFeaturedWorkflows } from "./actions";
 import { ProjectList } from "./project-list";
 
 const DashboardPage = async () => {
@@ -14,7 +14,9 @@ const DashboardPage = async () => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const featuredWorkflows = await getFeaturedWorkflows();
+  const featuredWorkflows = await api.craft.module.featured({
+    category: "all",
+  });
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -33,7 +35,7 @@ const DashboardPage = async () => {
           </>
         )}
         <div className="py-4">
-          <WorkflowList workflows={featuredWorkflows} />
+          <WorkflowList workflows={featuredWorkflows} Link={Link} />
         </div>
       </div>
     </div>

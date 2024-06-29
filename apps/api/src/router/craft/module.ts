@@ -11,6 +11,29 @@ import {
 } from "../../trpc";
 
 export const craftModuleRouter = createTRPCRouter({
+  featured: publicProcedure
+    .input(
+      z.object({
+        category: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx }) => {
+      return await ctx.db.query.workflow.findMany({
+        where: (workflow, { eq, and }) => and(eq(workflow.public, true)),
+        orderBy: (workflow, { desc }) => desc(workflow.updatedAt),
+        limit: 20,
+        with: {
+          project: true,
+          versions: {
+            columns: {
+              version: true,
+            },
+            orderBy: (version, { desc }) => desc(version.version),
+            limit: 1,
+          },
+        },
+      });
+    }),
   search: publicProcedure
     .input(
       z.object({
