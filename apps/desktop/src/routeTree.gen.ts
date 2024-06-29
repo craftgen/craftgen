@@ -15,6 +15,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
+import { Route as LayoutIndexImport } from './routes/_layout.index'
 import { Route as LayoutProjectSlugIndexImport } from './routes/_layout.$projectSlug/index'
 import { Route as LayoutProjectSlugWorkflowSlugLayoutImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout'
 import { Route as LayoutProjectSlugWorkflowSlugLayoutIndexImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout.index'
@@ -24,7 +25,6 @@ import { Route as LayoutProjectSlugWorkflowSlugLayoutApiImport } from './routes/
 
 // Create Virtual Routes
 
-const LayoutIndexLazyImport = createFileRoute('/_layout/')()
 const LayoutProjectSlugWorkflowSlugImport = createFileRoute(
   '/_layout/$projectSlug/$workflowSlug',
 )()
@@ -41,10 +41,10 @@ const LayoutRoute = LayoutImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutIndexLazyRoute = LayoutIndexLazyImport.update({
+const LayoutIndexRoute = LayoutIndexImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute,
-} as any).lazy(() => import('./routes/_layout.index.lazy').then((d) => d.Route))
+} as any)
 
 const LayoutProjectSlugWorkflowSlugRoute =
   LayoutProjectSlugWorkflowSlugImport.update({
@@ -109,7 +109,7 @@ declare module '@tanstack/react-router' {
       id: '/_layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexLazyImport
+      preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/$projectSlug/': {
@@ -168,7 +168,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   LayoutRoute: LayoutRoute.addChildren({
-    LayoutIndexLazyRoute,
+    LayoutIndexRoute,
     LayoutProjectSlugIndexRoute,
     LayoutProjectSlugWorkflowSlugRoute:
       LayoutProjectSlugWorkflowSlugRoute.addChildren({
@@ -208,7 +208,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "login.tsx"
     },
     "/_layout/": {
-      "filePath": "_layout.index.lazy.tsx",
+      "filePath": "_layout.index.tsx",
       "parent": "/_layout"
     },
     "/_layout/$projectSlug/": {
