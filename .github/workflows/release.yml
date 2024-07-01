@@ -6,6 +6,8 @@ on:
       - release
   workflow_dispatch:
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   publish-tauri:
     permissions:
