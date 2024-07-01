@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@acme/prettier-config": "workspace:*",
+    "@changesets/cli": "^2.27.6",
     "@manypkg/cli": "^0.21.0",
     "@turbo/gen": "^2.0.3",
     "eslint": "^8.52.0",
