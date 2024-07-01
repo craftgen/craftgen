@@ -1,7 +1,7 @@
 {
   "name": "@craftgen/desktop",
   "private": true,
-  "version": "0.0.11",
+  "version": "0.0.12",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "@craftgen/api": "^0.1.1",
-    "@craftgen/composer": "1.0.1",
+    "@craftgen/composer": "1.0.2",
     "@craftgen/core": "0.1.0",
     "@craftgen/db": "0.1.0",
-    "@craftgen/ui": "1.0.1",
+    "@craftgen/ui": "1.0.2",
     "@sentry/vite-plugin": "^2.20.1",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
