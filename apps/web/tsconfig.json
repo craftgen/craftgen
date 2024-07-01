@@ -23,7 +23,8 @@
   "include": [
     ".",
     ".next/types/**/*.ts",
-    "../../packages/ui/src/views/workflow-list.tsx"
+    "../../packages/ui/src/views/workflow-list.tsx",
+    "../../packages/ui/src/views/project-list.tsx"
   ],
   "exclude": ["node_modules"]
 }

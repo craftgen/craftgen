@@ -13,6 +13,8 @@ import {
 import { Label } from "../components/label";
 import { cn } from "../lib/utils";
 
+export { useForm } from "react-hook-form";
+
 const Form = FormProvider;
 
 interface FormFieldContextValue<

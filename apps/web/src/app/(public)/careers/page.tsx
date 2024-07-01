@@ -1,5 +1,3 @@
-// import { Clock, CurrencyDollar } from '@phosphor-icons/react/dist/ssr';
-
 import Link from "next/link";
 import { Clock, DollarSign } from "lucide-react";
 
