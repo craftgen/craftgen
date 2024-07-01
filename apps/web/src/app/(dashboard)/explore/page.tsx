@@ -1,12 +1,11 @@
 import Link from "next/link";
 
 import { Button } from "@craftgen/ui/components/button";
+import { ProjectList } from "@craftgen/ui/views/project-list";
 import { WorkflowList } from "@craftgen/ui/views/workflow-list";
 
 import { api } from "@/trpc/server";
 import { createClient } from "@/utils/supabase/server";
-
-import { ProjectList } from "./project-list";
 
 const DashboardPage = async () => {
   const supabase = createClient();
@@ -30,7 +29,7 @@ const DashboardPage = async () => {
               </Link>
             </div>
             <div className="py-4">
-              <ProjectList />
+              <ProjectList Link={Link} />
             </div>
           </>
         )}

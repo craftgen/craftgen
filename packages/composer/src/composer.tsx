@@ -153,7 +153,7 @@ const ComposerUI = (props: {
 
   return (
     <div className="h-full w-full">
-      <div className="absolute left-1 top-1 z-50 flex">
+      <div className="absolute left-1 top-1 z-10 flex">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

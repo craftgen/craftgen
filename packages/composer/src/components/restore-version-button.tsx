@@ -1,13 +1,11 @@
 "use client";
 
 import { Button } from "@craftgen/ui/components/button";
-import { useToast } from "@craftgen/ui/components/use-toast";
+import { toast } from "@craftgen/ui/components/use-toast";
 
 export const RestoreVersionButton = ({}) => {
-  const { toast } = useToast();
   const handleRestoreVersion = async () => {
-    toast({
-      title: "Not implemented yet",
+    toast.info("Not implemented yet", {
       description: "Coming soon.",
     });
   };

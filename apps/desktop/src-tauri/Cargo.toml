@@ -1,6 +1,6 @@
 [package]
 name = "CraftGen"
-version = "0.0.9"
+version = "0.0.10"
 description = "CraftGen AI Agent Building Platform"
 authors = ["necmetin karakaya <necmetin.karakaya@gmail.com>"]
 edition = "2021"

@@ -1,7 +1,7 @@
 {
-  "name": "desktop",
+  "name": "@craftgen/desktop",
   "private": true,
-  "version": "0.0.9",
+  "version": "0.0.11",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,11 +15,11 @@
     "copy-functions": "cp -r ../edge-functions/functions ./src-tauri"
   },
   "dependencies": {
-    "@craftgen/api": "^0.1.0",
-    "@craftgen/composer": "1.0.0",
+    "@craftgen/api": "^0.1.1",
+    "@craftgen/composer": "1.0.1",
     "@craftgen/core": "0.1.0",
     "@craftgen/db": "0.1.0",
-    "@craftgen/ui": "1.0.0",
+    "@craftgen/ui": "1.0.1",
     "@sentry/vite-plugin": "^2.20.1",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
@@ -46,7 +46,8 @@
     "superjson": "1.13.1",
     "unplugin-fonts": "^1.1.1",
     "vite-plugin-commonjs": "^0.10.1",
-    "xstate": "5.14.0"
+    "xstate": "5.14.0",
+    "zod": "3.21.4"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",

@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import { z } from "zod";
 
@@ -26,6 +25,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useForm,
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
 import { Label } from "@craftgen/ui/components/label";

@@ -1,7 +1,7 @@
 {
   "name": "@craftgen/ui",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "type": "module",
   "scripts": {
@@ -30,10 +30,9 @@
     "react": "^18.2.0"
   },
   "dependencies": {
-    "@craftgen/api": "0.1.0",
+    "@craftgen/api": "0.1.1",
     "@craftgen/core": "0.1.0",
     "@hookform/resolvers": "^3.3.0",
-    "@phosphor-icons/react": "^2.1.6",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -80,6 +79,7 @@
     "react-dom-confetti": "^0.2.0",
     "react-hook-form": "^7.51.4",
     "react-hotkeys-hook": "^4.4.1",
+    "react-icons": "^5.2.1",
     "react-spring": "^9.7.3",
     "react-use": "^17.4.0",
     "react18-json-view": "^0.2.6",
