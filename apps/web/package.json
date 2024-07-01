@@ -1,6 +1,6 @@
 {
   "name": "@craftgen/web",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "build": "pnpm with-env next build",
@@ -16,11 +16,11 @@
   },
   "type": "module",
   "dependencies": {
-    "@craftgen/api": "^0.1.0",
-    "@craftgen/composer": "1.0.0",
+    "@craftgen/api": "^0.1.1",
+    "@craftgen/composer": "1.0.1",
     "@craftgen/core": "0.1.0",
     "@craftgen/db": "0.1.0",
-    "@craftgen/ui": "1.0.0",
+    "@craftgen/ui": "1.0.1",
     "@faustwp/blocks": "^4.0.0",
     "@faustwp/core": "^3.0.0",
     "@faustwp/experimental-app-router": "^0.3.0",
