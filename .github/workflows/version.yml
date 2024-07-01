@@ -5,7 +5,9 @@ on:
     branches:
       - main
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -50,7 +52,5 @@ jobs:
       - name: Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
-        # with:
-        #   branch: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
