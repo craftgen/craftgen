@@ -118,7 +118,7 @@ importers:
         specifier: ^0.1.1
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../packages/composer
       '@craftgen/core':
         specifier: 0.1.0
@@ -127,7 +127,7 @@ importers:
         specifier: 0.1.0
         version: link:../supabase
       '@craftgen/ui':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../packages/ui
       '@sentry/vite-plugin':
         specifier: ^2.20.1
@@ -352,7 +352,7 @@ importers:
         specifier: ^0.1.1
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../packages/composer
       '@craftgen/core':
         specifier: 0.1.0
@@ -361,7 +361,7 @@ importers:
         specifier: 0.1.0
         version: link:../supabase
       '@craftgen/ui':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../packages/ui
       '@faustwp/blocks':
         specifier: ^4.0.0
