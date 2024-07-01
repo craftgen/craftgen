@@ -1,6 +1,7 @@
 import { Metadata, ResolvingMetadata } from "next";
 // import { ProjectNavbar } from "./project-navbar";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getTRPCErrorFromUnknown } from "@trpc/server";
 
 import { db } from "@craftgen/db/db";
 import { ProjectLayout } from "@craftgen/ui/layout/project";
@@ -11,8 +12,7 @@ import { api } from "@/trpc/server";
 // import { getAnalytics } from "./actions";
 // import { Metrics } from "./metrics";
 import { PlaygroundList } from "./playground-list";
-
-// import { Onboarding } from "@/components/onboarding";
+import { ProjectNavbar } from "./project-navbar";
 
 export const dynamicParams = true;
 export const revalidate = 300;
@@ -28,14 +28,22 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const project = await api.project.bySlug({
-    projectSlug: params.projectSlug,
-  });
+  try {
+    const project = await api.project.bySlug({
+      projectSlug: params.projectSlug,
+    });
 
-  return {
-    title: `AI Agents by ${project?.name}`,
-    // description: `${project?.name}`,
-  };
+    return {
+      title: `AI Agents by ${project?.name}`,
+      // description: `${project?.name}`,
+    };
+  } catch (e) {
+    console.log("ERROR", e);
+    return {
+      title: `AI Agents by ${params.projectSlug}`,
+      // description: `${project?.name}`,
+    };
+  }
 }
 
 export async function generateStaticParams() {
@@ -58,29 +66,36 @@ const ProjectPage = async ({
     projectSlug: string;
   };
 }) => {
-  const project = await api.project.bySlug({
-    projectSlug: params.projectSlug,
-  });
-  if (!project) {
-    notFound();
+  try {
+    const project = await api.project.bySlug({
+      projectSlug: params.projectSlug,
+    });
+
+    return (
+      <ProjectLayout>
+        <ProjectLayout.Content>
+          {/* <ProjectNavbar /> */}
+          <div className="col-span-3 ">
+            <ProjectCard project={project} />
+          </div>
+
+          <section className="col-span-9">
+            <PlaygroundList projectSlug={params.projectSlug} />
+          </section>
+        </ProjectLayout.Content>
+      </ProjectLayout>
+    );
+  } catch (e: unknown) {
+    const error = getTRPCErrorFromUnknown(e);
+    if (error.code === "NOT_FOUND") {
+      notFound();
+    } else if (error.code === "UNAUTHORIZED") {
+      redirect(`/login?redirect=${params.projectSlug}`);
+    } else {
+      console.log("ERROR", error);
+      return <div>Error</div>;
+    }
   }
-
-  // const metrics = project?.site
-  //   ? await getAnalytics({ siteUrl: project?.site })
-  //   : undefined;
-  return (
-    <ProjectLayout>
-      <ProjectLayout.Content>
-        <div className="col-span-3 ">
-          <ProjectCard project={project} />
-        </div>
-
-        <section className="col-span-9">
-          <PlaygroundList projectSlug={params.projectSlug} />
-        </section>
-      </ProjectLayout.Content>
-    </ProjectLayout>
-  );
 };
 
 export default ProjectPage;

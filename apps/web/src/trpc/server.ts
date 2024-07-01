@@ -25,4 +25,8 @@ const createContext = cache(async () => {
   });
 });
 
-export const api = createCaller(createContext);
+export const api = createCaller(createContext, {
+  onError: ({ error }) => {
+    console.log("ERROR", error);
+  },
+});

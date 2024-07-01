@@ -1,5 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getTRPCErrorFromUnknown } from "@trpc/server";
 
 import { db } from "@craftgen/db/db";
 
@@ -59,23 +60,37 @@ export async function generateStaticParams() {
 }
 
 const PlaygroundPage: React.FC<Props> = async (props) => {
-  const workflowMeta = await api.craft.module.meta({
-    projectSlug: props.params.projectSlug,
-    workflowSlug: props.params.workflowSlug,
-  });
-  if (!workflowMeta) {
-    notFound();
+  try {
+    const workflowMeta = await api.craft.module.meta({
+      projectSlug: props.params.projectSlug,
+      workflowSlug: props.params.workflowSlug,
+    });
+    if (!workflowMeta) {
+      notFound();
+    }
+    return (
+      <div className="flex h-full flex-col">
+        <Editor
+          projectSlug={workflowMeta.projectSlug}
+          workflowSlug={workflowMeta.slug}
+          version={workflowMeta.version?.version!}
+          executionId={props.searchParams.execution as string}
+        />
+      </div>
+    );
+  } catch (e: unknown) {
+    const error = getTRPCErrorFromUnknown(e);
+    if (error.code === "NOT_FOUND") {
+      notFound();
+    } else if (error.code === "UNAUTHORIZED") {
+      redirect(
+        `/login?redirect=${props.params.projectSlug}/${props.params.workflowSlug}`,
+      );
+    } else {
+      console.log("ERROR", error);
+      return <div>Error</div>;
+    }
   }
-  return (
-    <div className="flex h-full flex-col">
-      <Editor
-        projectSlug={workflowMeta.projectSlug}
-        workflowSlug={workflowMeta.slug}
-        version={workflowMeta.version?.version!}
-        executionId={props.searchParams.execution as string}
-      />
-    </div>
-  );
 };
 
 export default PlaygroundPage;
