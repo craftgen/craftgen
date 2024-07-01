@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   publish-tauri:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'changeset-release/main')
+    if: (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'changeset-release/main')) || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
     strategy:
