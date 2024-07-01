@@ -61,9 +61,7 @@ const DashboardLayoutComponent = () => {
             </Link>
           )}
         </Navbar>
-        <div className="mt-20 w-full">
-          <Outlet />
-        </div>
+        <Outlet />
       </DashboardLayout.Content>
     </DashboardLayout>
   );

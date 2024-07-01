@@ -40,7 +40,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         <Navbar Link={Link}>
           <UserNavWrapper session={session} />
         </Navbar>
-        <div className="mt-20">{children}</div>
+        {children}
       </DashboardLayout.Content>
     </DashboardLayout>
   );
