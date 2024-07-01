@@ -1,5 +1,15 @@
 # @craftgen/composer
 
+## 1.0.2
+
+### Patch Changes
+
+- 9d016a4: - Fix playground size
+  - Prevent backspace navigating in desktop
+- Updated dependencies [9d016a4]
+- Updated dependencies [b2a663e]
+  - @craftgen/ui@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
