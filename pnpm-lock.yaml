@@ -90,8 +90,8 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@acme/eslint-config':
         specifier: workspace:*
@@ -211,8 +211,8 @@ importers:
         specifier: 5.14.0
         version: 5.14.0
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@acme/eslint-config':
         specifier: workspace:*
@@ -313,10 +313,10 @@ importers:
         version: 0.29.3(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
       drizzle-zod:
         specifier: ^0.5.1
-        version: 0.5.1(drizzle-orm@0.29.3)(zod@3.21.4)
+        version: 0.5.1(drizzle-orm@0.29.3)(zod@3.22.3)
       jose:
-        specifier: ^4.14.4
-        version: 4.15.4
+        specifier: ^4.15.5
+        version: 4.15.5
       pg:
         specifier: ^8.11.3
         version: 8.11.3
@@ -324,8 +324,8 @@ importers:
         specifier: ^3.3.5
         version: 3.4.2
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@supabase/supabase-js':
         specifier: ^2.39.7
@@ -434,7 +434,7 @@ importers:
         version: 2.39.7
       '@t3-oss/env-nextjs':
         specifier: ^0.10.1
-        version: 0.10.1(typescript@5.4.5)(zod@3.21.4)
+        version: 0.10.1(typescript@5.4.5)(zod@3.22.3)
       '@tailwindcss/container-queries':
         specifier: ^0.1.1
         version: 0.1.1(tailwindcss@3.3.3)
@@ -448,8 +448,8 @@ importers:
         specifier: ^5.24.0
         version: 5.35.1(@tanstack/react-query@5.35.1)(react@18.2.0)
       '@tanstack/react-query-next-experimental':
-        specifier: ^5.5.0
-        version: 5.5.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^5.18.0
+        version: 5.18.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react@18.2.0)
       '@tanstack/react-table':
         specifier: ^8.9.3
         version: 8.10.7(react-dom@18.2.0)(react@18.2.0)
@@ -689,7 +689,7 @@ importers:
         version: 14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.4.0)(react-dom@18.2.0)(react@18.2.0)
       next-safe-action:
         specifier: ^3.3.0
-        version: 3.4.0(next@14.2.4)(react@18.2.0)(zod@3.21.4)
+        version: 3.4.0(next@14.2.4)(react@18.2.0)(zod@3.22.3)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.2.0)(react@18.2.0)
@@ -853,11 +853,11 @@ importers:
         specifier: 5.14.0
         version: 5.14.0
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
       zod-to-json-schema:
         specifier: ^3.21.4
-        version: 3.21.4(zod@3.21.4)
+        version: 3.21.4(zod@3.22.3)
       zustand:
         specifier: ^4.3.9
         version: 4.4.5(@types/react@18.2.15)(react@18.2.0)
@@ -1064,8 +1064,8 @@ importers:
         specifier: 5.14.0
         version: 5.14.0
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
       zustand:
         specifier: ^4.3.9
         version: 4.4.5(@types/react@18.2.15)(react@18.2.0)
@@ -1096,7 +1096,7 @@ importers:
     dependencies:
       '@ai-sdk/openai':
         specifier: ^0.0.8
-        version: 0.0.8(zod@3.21.4)
+        version: 0.0.8(zod@3.22.3)
       '@apidevtools/swagger-parser':
         specifier: ^10.1.0
         version: 10.1.0(openapi-types@12.1.3)
@@ -1135,7 +1135,7 @@ importers:
         version: 8.3.2
       ai:
         specifier: ^3.1.0
-        version: 3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.2.18)(vue@3.4.30)(zod@3.21.4)
+        version: 3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.2.18)(vue@3.4.30)(zod@3.22.3)
       ajv:
         specifier: ^8.12.0
         version: 8.12.0
@@ -1260,8 +1260,8 @@ importers:
         specifier: 5.14.0
         version: 5.14.0
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
       zustand:
         specifier: ^4.3.9
         version: 4.4.5(@types/react@18.2.15)(react@18.2.0)
@@ -1387,8 +1387,8 @@ importers:
         specifier: ^5.22.2
         version: 5.35.1(react@18.2.0)
       '@tanstack/react-query-next-experimental':
-        specifier: ^5.5.0
-        version: 5.5.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^5.18.0
+        version: 5.18.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react@18.2.0)
       '@tanstack/react-table':
         specifier: ^8.9.3
         version: 8.10.7(react-dom@18.2.0)(react@18.2.0)
@@ -1483,8 +1483,8 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       zod:
-        specifier: 3.21.4
-        version: 3.21.4
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@acme/eslint-config':
         specifier: workspace:*
@@ -1665,7 +1665,7 @@ packages:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
 
-  /@ai-sdk/openai@0.0.8(zod@3.21.4):
+  /@ai-sdk/openai@0.0.8(zod@3.22.3):
     resolution: {integrity: sha512-fiSjiyBNqi8onQLsXyxSpn4qgqE8TWD3Aq0Sa3K9uIaOajCOwLiFZkMp7X3G8dIJjOJcJf6oqs6e0eSGR+vAGg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -1675,11 +1675,11 @@ packages:
         optional: true
     dependencies:
       '@ai-sdk/provider': 0.0.2
-      '@ai-sdk/provider-utils': 0.0.4(zod@3.21.4)
-      zod: 3.21.4
+      '@ai-sdk/provider-utils': 0.0.4(zod@3.22.3)
+      zod: 3.22.3
     dev: false
 
-  /@ai-sdk/provider-utils@0.0.4(zod@3.21.4):
+  /@ai-sdk/provider-utils@0.0.4(zod@3.22.3):
     resolution: {integrity: sha512-LOBdO+2Fs5rWA6Akjxj42byW31a1XWZc32HUst7Hz0wOQrbWFl4jnElz38BDDGBtIZxPqWpEvoanfj6xXn8acg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -1692,10 +1692,10 @@ packages:
       eventsource-parser: 1.1.2
       nanoid: 3.3.6
       secure-json-parse: 2.7.0
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
-  /@ai-sdk/provider-utils@0.0.5(zod@3.21.4):
+  /@ai-sdk/provider-utils@0.0.5(zod@3.22.3):
     resolution: {integrity: sha512-VVy9eQS+vS2j6cqTEQ9htMHz2nW/HFAkDXLvNFPoi1pZkviknJZEzb+DZUna6Od+jBf/TVA0HZwYnyGDaeI9cQ==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -1708,7 +1708,7 @@ packages:
       eventsource-parser: 1.1.2
       nanoid: 3.3.6
       secure-json-parse: 2.7.0
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
   /@ai-sdk/provider@0.0.2:
@@ -11094,7 +11094,7 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
-  /@t3-oss/env-core@0.10.1(typescript@5.4.5)(zod@3.21.4):
+  /@t3-oss/env-core@0.10.1(typescript@5.4.5)(zod@3.22.3):
     resolution: {integrity: sha512-GcKZiCfWks5CTxhezn9k5zWX3sMDIYf6Kaxy2Gx9YEQftFcz8hDRN56hcbylyAO3t4jQnQ5ifLawINsNgCDpOg==}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -11104,10 +11104,10 @@ packages:
         optional: true
     dependencies:
       typescript: 5.4.5
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
-  /@t3-oss/env-nextjs@0.10.1(typescript@5.4.5)(zod@3.21.4):
+  /@t3-oss/env-nextjs@0.10.1(typescript@5.4.5)(zod@3.22.3):
     resolution: {integrity: sha512-iy2qqJLnFh1RjEWno2ZeyTu0ufomkXruUsOZludzDIroUabVvHsrSjtkHqwHp1/pgPUzN3yBRHMILW162X7x2Q==}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -11116,9 +11116,9 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@t3-oss/env-core': 0.10.1(typescript@5.4.5)(zod@3.21.4)
+      '@t3-oss/env-core': 0.10.1(typescript@5.4.5)(zod@3.22.3)
       typescript: 5.4.5
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
   /@tailwindcss/container-queries@0.1.1(tailwindcss@3.3.3):
@@ -11204,18 +11204,16 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@tanstack/react-query-next-experimental@5.5.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-EgpAaUbjvMkkZbzyedprfNzmCpLVmiWv/utsgQS37KtBDkdikXfDdpsdsh+XbGl8GJrVNpQdGKemjdSiKVg0Rw==}
+  /@tanstack/react-query-next-experimental@5.18.0(@tanstack/react-query@5.35.1)(next@14.2.4)(react@18.2.0):
+    resolution: {integrity: sha512-8xrk+UjXE38MC5pOG3ztdoobXXzFaIXnQ6a1UfLdZCVkXDzt3RbHchpf/ESTjYmKYL5ohJNVO2by19ZMlzjPSQ==}
     peerDependencies:
-      '@tanstack/react-query': ^5.4.3
+      '@tanstack/react-query': ^5.18.0
       next: ^13 || ^14
       react: ^18.0.0
-      react-dom: ^18.0.0
     dependencies:
       '@tanstack/react-query': 5.35.1(react@18.2.0)
       next: 14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.4.0)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@tanstack/react-query@5.0.0-beta.2(react-dom@18.2.0)(react-native@0.74.2)(react@18.2.0):
@@ -14508,7 +14506,7 @@ packages:
       indent-string: 5.0.0
     dev: false
 
-  /ai@3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.2.18)(vue@3.4.30)(zod@3.21.4):
+  /ai@3.1.0(react@18.2.0)(solid-js@1.8.17)(svelte@4.2.18)(vue@3.4.30)(zod@3.22.3):
     resolution: {integrity: sha512-U4XVA+Oh7a/s7uOQTAawWzDgwZehCk869TsF/3eNkBprq/ScJGRF2iUsYAx0ZULQlok5wLvtfrrK1iT6my2B7g==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -14530,7 +14528,7 @@ packages:
         optional: true
     dependencies:
       '@ai-sdk/provider': 0.0.3
-      '@ai-sdk/provider-utils': 0.0.5(zod@3.21.4)
+      '@ai-sdk/provider-utils': 0.0.5(zod@3.22.3)
       eventsource-parser: 1.1.2
       json-schema: 0.4.0
       jsondiffpatch: 0.6.0
@@ -14545,8 +14543,8 @@ packages:
       swr-store: 0.10.6
       swrv: 1.0.4(vue@3.4.30)
       vue: 3.4.30(typescript@5.4.5)
-      zod: 3.21.4
-      zod-to-json-schema: 3.22.5(zod@3.21.4)
+      zod: 3.22.3
+      zod-to-json-schema: 3.22.5(zod@3.22.3)
     dev: false
 
   /ajv-draft-04@1.0.0(ajv@8.12.0):
@@ -16927,7 +16925,7 @@ packages:
       json-diff: 0.9.0
       minimatch: 7.4.6
       semver: 7.5.4
-      zod: 3.21.4
+      zod: 3.22.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -17008,14 +17006,14 @@ packages:
       postgres: 3.4.2
     dev: false
 
-  /drizzle-zod@0.5.1(drizzle-orm@0.29.3)(zod@3.21.4):
+  /drizzle-zod@0.5.1(drizzle-orm@0.29.3)(zod@3.22.3):
     resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
     peerDependencies:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
       drizzle-orm: 0.29.3(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
   /duplexer3@0.1.5:
@@ -20806,8 +20804,8 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: false
 
-  /jose@4.15.4:
-    resolution: {integrity: sha512-W+oqK4H+r5sITxfxpSU+MMdr/YSWGvgZMQDIsNoBDGGy4i7GBPTtvFKibQzW06n3U3TqHjhvBJsirShsEJ6eeQ==}
+  /jose@4.15.5:
+    resolution: {integrity: sha512-jc7BFxgKPKi94uOvEmzlSWFFe2+vASyXaKUpdQKatWAESU2MWjDfFf0fdfc83CDKcA5QecabZeNLyfhe3yKNkg==}
     dev: false
 
   /jotai@1.7.2(@babel/core@7.24.7)(@urql/core@4.3.0)(react@18.2.0)(xstate@5.14.0):
@@ -22832,7 +22830,7 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: false
 
-  /next-safe-action@3.4.0(next@14.2.4)(react@18.2.0)(zod@3.21.4):
+  /next-safe-action@3.4.0(next@14.2.4)(react@18.2.0)(zod@3.22.3):
     resolution: {integrity: sha512-EUmcChSlfIjdHu2n6L4w3EQnb1Np9C2OEWObPSKggdK/IhihDDatsunZKGcuimxFO3JbBdpFiUYcMe2slbovUg==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -22842,7 +22840,7 @@ packages:
     dependencies:
       next: 14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.4.0)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
   /next-themes@0.3.0(react-dom@18.2.0)(react@18.2.0):
@@ -29220,15 +29218,15 @@ packages:
   /zod-error@1.5.0:
     resolution: {integrity: sha512-zzopKZ/skI9iXpqCEPj+iLCKl9b88E43ehcU+sbRoHuwGd9F1IDVGQ70TyO6kmfiRL1g4IXkjsXK+g1gLYl4WQ==}
     dependencies:
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
-  /zod-to-json-schema@3.21.4(zod@3.21.4):
+  /zod-to-json-schema@3.21.4(zod@3.22.3):
     resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
     peerDependencies:
       zod: ^3.21.4
     dependencies:
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
 
   /zod-to-json-schema@3.22.3(zod@3.22.4):
@@ -29239,20 +29237,16 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /zod-to-json-schema@3.22.5(zod@3.21.4):
+  /zod-to-json-schema@3.22.5(zod@3.22.3):
     resolution: {integrity: sha512-+akaPo6a0zpVCCseDed504KBJUQpEW5QZw7RMneNmKw+fGaML1Z9tUNLnHHAC8x6dzVRO1eB2oEMyZRnuBZg7Q==}
     peerDependencies:
       zod: ^3.22.4
     dependencies:
-      zod: 3.21.4
+      zod: 3.22.3
     dev: false
-
-  /zod@3.21.4:
-    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
-    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
