@@ -22,6 +22,14 @@ declare module "@tanstack/react-router" {
   }
 }
 
+document.addEventListener("keydown", (ev) => {
+  // cancel backspace and delete
+  if (ev.key === "Backspace" || ev.key === "Delete") {
+    ev.preventDefault();
+    return;
+  }
+});
+
 const InnerApp = () => {
   const [session, setSession] = useState<AuthSession | null>(null);
   const supabase = createClient();

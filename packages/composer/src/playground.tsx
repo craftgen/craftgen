@@ -248,31 +248,8 @@ export const Playground: React.FC<{
 
   return (
     <CraftContext.Provider value={store?.current}>
-      <div className="h-screen">
-        <div className="flex h-10 w-full items-center justify-between border-b-2 px-2">
-          <MenubarDemo />
-          <div className="flex items-center space-x-2">
-            {/* {session && <UserNav session={session} />} */}
-            <VersionHistory workflow={workflow} />
-            {!workflow.version?.publishedAt ? (
-              <CreateReleaseButton
-                playgroundId={workflow.id}
-                version={workflow.version?.version!}
-              />
-            ) : (
-              <RestoreVersionButton />
-            )}
-            {/* <Link href={`/${workflow.projectSlug}/settings`}>
-              <Button variant={"outline"} size={"icon"}>
-                <Icon name="settings" />
-              </Button>
-            </Link> */}
-          </div>
-        </div>
-        <motion.div
-          className="relative h-[calc(100vh-2.5rem)] w-full bg-muted/20 px-1 py-1 "
-          layout
-        >
+      <div className="">
+        <motion.div className="relative h-[calc(100vh-4rem-2px)] bg-muted/20 px-1 py-1 ">
           <FlexLayout.Layout
             model={layout}
             factory={factory}
@@ -345,3 +322,24 @@ const LoginToContinue: React.FC<{}> = ({}) => {
     </div>
   );
 };
+
+// <div className="flex h-10 w-full items-center justify-between border-b-2 px-2">
+//   <MenubarDemo />
+//   <div className="flex items-center space-x-2">
+//     {/* {session && <UserNav session={session} />} */}
+//     <VersionHistory workflow={workflow} />
+//     {!workflow.version?.publishedAt ? (
+//       <CreateReleaseButton
+//         playgroundId={workflow.id}
+//         version={workflow.version?.version!}
+//       />
+//     ) : (
+//       <RestoreVersionButton />
+//     )}
+//     {/* <Link href={`/${workflow.projectSlug}/settings`}>
+//       <Button variant={"outline"} size={"icon"}>
+//         <Icon name="settings" />
+//       </Button>
+//     </Link> */}
+//   </div>
+// </div>

@@ -1,10 +1,16 @@
+import { cn } from "../lib/utils";
+
 export const DashboardLayout = ({
   children,
+  className,
 }: {
   children: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <main className="flex min-h-screen w-full flex-col bg-muted/40">
+    <main
+      className={cn("flex min-h-screen w-full flex-col bg-muted/40", className)}
+    >
       {children}
     </main>
   );
