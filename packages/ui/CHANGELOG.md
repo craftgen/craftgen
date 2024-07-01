@@ -1,5 +1,11 @@
 # @craftgen/ui
 
+## 1.0.2
+
+### Patch Changes
+
+- b2a663e: Handle not found pages in rsc update layout component
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @craftgen/desktop
 
+## 0.0.12
+
+### Patch Changes
+
+- b2a663e: Handle not found pages in rsc update layout component
+- Updated dependencies [b2a663e]
+  - @craftgen/ui@1.0.2
+
 ## 0.0.11
 
 ### Patch Changes
