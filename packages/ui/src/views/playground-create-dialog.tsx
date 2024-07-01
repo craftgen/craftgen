@@ -31,7 +31,7 @@ import { Input } from "../components/input";
 import { ScrollArea } from "../components/scroll-area";
 import { Switch } from "../components/switch";
 import { Textarea } from "../components/textarea";
-import { useToast } from "../components/use-toast";
+import { toast } from "../components/use-toast";
 import { api } from "../lib/api";
 import { slugify } from "../lib/string";
 import { cn } from "../lib/utils";
@@ -124,7 +124,6 @@ export const WorkflowCreateDialog: React.FC<{
       public: true,
     },
   });
-  const { toast } = useToast();
   const name = form.watch("name");
   useEffect(() => {
     form.setValue("slug", slugify(name));
@@ -151,27 +150,25 @@ export const WorkflowCreateDialog: React.FC<{
     });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    toast({
-      title: "Creating playground...",
-      description: "This may take a few seconds.",
-    });
-
-    const newPlayground = await createWorkflow({
+    const newPlayground = createWorkflow({
       projectId: project?.id!,
       public: data.public,
       name: data.name,
       slug: data.slug,
       description: data.description,
     });
+    toast.promise(newPlayground, {
+      loading: "Creating playground...",
+      success: (data) => {
+        onCreate(data);
+        return `Playground ${data.name} created successfully!`;
+      },
+      error: "Something went wrong.",
+    });
     if (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong.",
-      });
       return;
     }
 
-    onCreate(newPlayground);
     form.reset();
     onOpenChange(false);
   };

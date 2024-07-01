@@ -15,13 +15,14 @@ export const craftModuleRouter = createTRPCRouter({
     .input(
       z.object({
         category: z.string().optional(),
+        count: z.number().optional(),
       }),
     )
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
       return await ctx.db.query.workflow.findMany({
         where: (workflow, { eq, and }) => and(eq(workflow.public, true)),
         orderBy: (workflow, { desc }) => desc(workflow.updatedAt),
-        limit: 20,
+        limit: input.count || 20,
         with: {
           project: true,
           versions: {

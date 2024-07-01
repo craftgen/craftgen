@@ -7,7 +7,7 @@ import { Button } from "../components/button";
 import { Form, FormField, FormItem } from "../components/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../components/popover";
 import { Textarea } from "../components/textarea";
-import { useToast } from "../components/use-toast";
+import { toast } from "../components/use-toast";
 import { api } from "../lib/api";
 
 const formSchema = z.object({
@@ -20,14 +20,12 @@ export const FeedbackButton = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
-  const { toast } = useToast();
   const satisfaction = form.watch("satisfaction");
   const { mutateAsync: sendFeedback } = api.public.misc.feedback.useMutation();
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await sendFeedback(data);
     form.reset();
-    toast({
-      title: "Thank you ! - Feedback sent",
+    toast("Thank you ! - Feedback sent", {
       description: "We will review your feedback and get back to you soon.",
     });
     setOpen(false);

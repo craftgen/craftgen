@@ -57,6 +57,7 @@
       ]
     },
     "oauth:allow-start",
+    "oauth:allow-cancel",
     "updater:default",
     "dialog:default",
     "dialog:allow-ask",

@@ -16,6 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout.index'
+import { Route as LayoutExploreImport } from './routes/_layout.explore'
 import { Route as LayoutProjectSlugIndexImport } from './routes/_layout.$projectSlug/index'
 import { Route as LayoutProjectSlugWorkflowSlugLayoutImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout'
 import { Route as LayoutProjectSlugWorkflowSlugLayoutIndexImport } from './routes/_layout.$projectSlug/$workflowSlug/_layout.index'
@@ -43,6 +44,11 @@ const LayoutRoute = LayoutImport.update({
 
 const LayoutIndexRoute = LayoutIndexImport.update({
   path: '/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutExploreRoute = LayoutExploreImport.update({
+  path: '/explore',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -104,6 +110,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
+    }
+    '/_layout/explore': {
+      id: '/_layout/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof LayoutExploreImport
+      parentRoute: typeof LayoutImport
     }
     '/_layout/': {
       id: '/_layout/'
@@ -168,6 +181,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   LayoutRoute: LayoutRoute.addChildren({
+    LayoutExploreRoute,
     LayoutIndexRoute,
     LayoutProjectSlugIndexRoute,
     LayoutProjectSlugWorkflowSlugRoute:
@@ -199,6 +213,7 @@ export const routeTree = rootRoute.addChildren({
     "/_layout": {
       "filePath": "_layout.tsx",
       "children": [
+        "/_layout/explore",
         "/_layout/",
         "/_layout/$projectSlug/",
         "/_layout/$projectSlug/$workflowSlug"
@@ -206,6 +221,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/_layout/explore": {
+      "filePath": "_layout.explore.tsx",
+      "parent": "/_layout"
     },
     "/_layout/": {
       "filePath": "_layout.index.tsx",
