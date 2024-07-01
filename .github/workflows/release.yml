@@ -1,6 +1,10 @@
 name: Publish
 
 on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -9,6 +13,7 @@ concurrency:
 
 jobs:
   publish-tauri:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'changeset-release/main')
     permissions:
       contents: write
     strategy:
