@@ -45,16 +45,15 @@ export function useRete<T extends { destroy(): void }>(
   const editorRef = useRef<T>();
   const [editor, setEditor] = useState<T | null>(null);
   const ref = useRef<HTMLElement | null>(null);
+  const creationInProgress = useRef(false);
 
   useEffect(() => {
-    if (container) {
-      if (editorRef.current) {
-        editorRef.current.destroy();
-        container.innerHTML = "";
-      }
+    if (container && !editorRef.current && !creationInProgress.current) {
+      creationInProgress.current = true;
       create(container).then((value) => {
         editorRef.current = value;
         setEditor(value);
+        creationInProgress.current = false;
       });
     }
   }, [container, create]);

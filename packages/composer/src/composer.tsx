@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
 } from "react";
 // import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useKBar } from "kbar";
@@ -85,6 +86,8 @@ const ComposerUI = (props: {
     trpc: utils.client,
   };
   const [map, componentRegistry] = useRegistry<HTMLElement, ReactElement>();
+  const editorCreated = useRef(false);
+
   const createEditor = useMemo(() => {
     return createEditorFunc({
       workflow: props.workflow,
@@ -95,7 +98,10 @@ const ComposerUI = (props: {
   }, [props.workflow]);
   const [ref, rete] = useRete(createEditor);
   useEffect(() => {
-    (window as any).Editor = rete;
+    if (rete && !editorCreated.current) {
+      (window as any).Editor = rete;
+      editorCreated.current = true;
+    }
   }, [rete]);
 
   const di = useCraftStore((state) => state.di);
@@ -123,34 +129,6 @@ const ComposerUI = (props: {
     );
   }, [map]);
   const k = useKBar();
-  // const router = useRouter();
-  // const pathname = usePathname();
-  // const searchParams = useSearchParams();
-
-  // useEffect(() => {
-  //   if (di?.executionId) {
-  //     window.history.pushState(
-  //       null,
-  //       "",
-  //       `?${createQueryString("execution", di?.executionId)}`,
-  //     );
-  //   }
-  // }, [di?.executionId]);
-
-  // const createQueryString = useCallback(
-  //   (name: string, value: string | null) => {
-  //     const params = new URLSearchParams(searchParams.toString());
-  //     if (value === null) {
-  //       params.delete(name);
-  //     } else {
-  //       params.set(name, value);
-  //     }
-
-  //     return params.toString();
-  //   },
-  //   [searchParams],
-  // );
-
   return (
     <div className="h-full w-full">
       <div className="absolute left-1 top-1 z-10 flex">

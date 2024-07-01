@@ -1,2 +1,3 @@
 apps/desktop/src/routeTree.gen.ts
 apps/web/src/wordpress-graphql.d.ts
+apps/desktop/src-tauri/functions/**
