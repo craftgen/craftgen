@@ -1,5 +1,11 @@
 # @craftgen/composer
 
+## 1.0.3
+
+### Patch Changes
+
+- c999acc: prevent double render on composer
+
 ## 1.0.2
 
 ### Patch Changes
