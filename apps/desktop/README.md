@@ -1,7 +1,10 @@
-# Tauri + React + Typescript
+# Craftgen Desktop
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+Craftgen Desktop is a desktop application built using [Tauri](https://tauri.app/). It allows users to interact with Craftgen's API and run workflows on their local machine.
 
-## Recommended IDE Setup
+## Features
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- Run workflows on your local machine
+- Access your projects and workflows
+- Collaborate with others on your projects
+- Share your workflows with others
