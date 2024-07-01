@@ -27,7 +27,7 @@
 
 export const getModels = async (): Promise<{ models: any[] } | undefined> => {
   try {
-    const respose = await fetch("http://127.0.0.1:11434/api/tags");
+    const respose =  await fetch('http://127.0.0.1:11434/api/tags');
     console.log("@MODELS", respose);
 
     if (!respose.ok) {

@@ -24,8 +24,12 @@ declare module "@tanstack/react-router" {
 
 document.addEventListener("keydown", (ev) => {
   // cancel backspace and delete
-  if (ev.key === "Backspace" || ev.key === "Delete") {
+  if (
+    (ev.key === "Backspace" || ev.key === "Delete") &&
+    ev.target === document.body
+  ) {
     ev.preventDefault();
+    console.log("prevented", ev);
     return;
   }
 });
