@@ -14,7 +14,9 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <DashboardLayout>
+      <DashboardLayout
+        className={import.meta.env.DEV ? "border-2 border-red-500" : ""}
+      >
         <Outlet />
       </DashboardLayout>
       {import.meta.env.DEV && (
