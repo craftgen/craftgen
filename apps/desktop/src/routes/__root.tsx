@@ -15,7 +15,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
       <DashboardLayout
-        className={import.meta.env.DEV ? "border-2 border-red-500" : ""}
+        className={import.meta.env.DEV ? " border-x-4 border-red-500" : ""}
       >
         <Outlet />
       </DashboardLayout>
