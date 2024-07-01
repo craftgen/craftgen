@@ -15,20 +15,20 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 8.10.0
-          run_install: false
+      # - uses: pnpm/action-setup@v4
+      #   name: Install pnpm
+      #   with:
+      #     version: 8.10.0
+      #     run_install: false
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-          cache: "pnpm" # Set this to npm, yarn or pnpm.
+      # - name: Setup Node.js 20.x
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 20.x
+      #     cache: "pnpm" # Set this to npm, yarn or pnpm.
 
-      - name: Install Dependencies
-        run: pnpm
+      # - name: Install Dependencies
+      #   run: pnpm
 
       - name: Create Release Pull Request
         id: changesets
