@@ -1,5 +1,12 @@
 # @craftgen/web
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [c999acc]
+  - @craftgen/composer@1.0.3
+
 ## 0.1.2
 
 ### Patch Changes
