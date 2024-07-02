@@ -1,5 +1,34 @@
 # @craftgen/desktop
 
+## 0.0.14
+
+### Patch Changes
+
+- 7f1fb71: ### Changes Made
+
+  - **index.ts**: Removed unnecessary blank line for code cleanliness.
+  - **layout.tsx**: Added TODO comment to handle cookie removal on logout.
+  - **login.tsx**: Refactored login component to a named export for better readability.
+  - **icons.tsx**: Added `ChevronLeft` icon to the Icons export for use in components.
+
+  ### Commit Details
+
+  - **Commit Hash**: `7a143928`
+  - **Branch**: `necmttn/refactor-and-todo-updates`
+  - **Files Changed**: 4
+  - **Insertions**: 19
+  - **Deletions**: 9
+
+- 1123486: Add edge runtime indicator
+- 2090110:
+- Updated dependencies [7f1fb71]
+- Updated dependencies [1123486]
+- Updated dependencies [3559148]
+- Updated dependencies [60fdb88]
+  - @craftgen/ui@1.0.3
+  - @craftgen/composer@1.0.4
+  - @craftgen/core@0.1.1
+
 ## 0.0.13
 
 ### Patch Changes

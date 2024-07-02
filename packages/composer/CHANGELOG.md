@@ -1,5 +1,17 @@
 # @craftgen/composer
 
+## 1.0.4
+
+### Patch Changes
+
+- 1123486: Add edge runtime indicator
+- Updated dependencies [7f1fb71]
+- Updated dependencies [1123486]
+- Updated dependencies [3559148]
+- Updated dependencies [60fdb88]
+  - @craftgen/ui@1.0.3
+  - @craftgen/core@0.1.1
+
 ## 1.0.3
 
 ### Patch Changes

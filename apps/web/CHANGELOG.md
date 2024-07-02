@@ -1,5 +1,19 @@
 # @craftgen/web
 
+## 0.1.4
+
+### Patch Changes
+
+- 87840db: - Added error handling for the generateMetadata function to manage API errors and redirect appropriately.
+  - Removed unnecessary echo command and improved PR description prompt in the auto-pr script.
+- Updated dependencies [7f1fb71]
+- Updated dependencies [1123486]
+- Updated dependencies [3559148]
+- Updated dependencies [60fdb88]
+  - @craftgen/ui@1.0.3
+  - @craftgen/composer@1.0.4
+  - @craftgen/core@0.1.1
+
 ## 0.1.3
 
 ### Patch Changes
