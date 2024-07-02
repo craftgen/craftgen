@@ -1,5 +1,12 @@
 # @craftgen/desktop
 
+## 0.0.16
+
+### Patch Changes
+
+- 3d35c52: - Removed outdated comment in MyRouterContext interface in routes/\_\_root.tsx
+  - Ensured code clarity and maintainability
+
 ## 0.0.15
 
 ### Patch Changes
