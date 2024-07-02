@@ -12,11 +12,9 @@ import { api } from "@craftgen/ui/lib/api";
 import useHealthStatus from "./hooks/use-health-callback";
 import { createClient } from "./libs/supabase";
 import { Providers } from "./providers";
-// Import the generated route tree
 import { router } from "./router";
 import { checkForAppUpdates } from "./updater";
 
-// Register the router instance for type safety
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
