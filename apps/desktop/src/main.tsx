@@ -9,6 +9,7 @@ import { attachConsole } from "@tauri-apps/plugin-log";
 
 import { api } from "@craftgen/ui/lib/api";
 
+import useHealthStatus from "./hooks/use-health-callback";
 import { createClient } from "./libs/supabase";
 import { Providers } from "./providers";
 // Import the generated route tree
@@ -61,9 +62,14 @@ const InnerApp = () => {
     })();
   }, []);
 
+  const isHealthy = useHealthStatus(5000);
+
   const client = api.useUtils();
   return (
-    <RouterProvider router={router} context={{ auth: session!, client }} />
+    <RouterProvider
+      router={router}
+      context={{ auth: session!, client, status: isHealthy }}
+    />
   );
 };
 

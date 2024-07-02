@@ -11,6 +11,7 @@ export const router = createRouter({
     // We'll be passing down the auth state from within a React component
     auth: undefined!,
     client: undefined!,
+    status: false,
   },
   // Since we're using TRPC, we don't want loader calls to ever be stale
   // This will ensure that the loader is always called when the route is preloaded or visited

@@ -108,7 +108,7 @@ pub fn open_main_window(app_handle: &tauri::AppHandle) -> Result<()> {
         window.show().unwrap();
         window.set_focus().unwrap();
     } else {
-        let url = tauri::WebviewUrl::App(PathBuf::from_str("/index.html").unwrap());
+        let url = tauri::WebviewUrl::App(PathBuf::from_str("/").unwrap());
         tauri::WebviewWindowBuilder::new(app_handle, "main", url)
             .title("Craftgen")
             .inner_size(800.0, 600.0)

@@ -6,6 +6,13 @@ Deno.serve(async (req: Request) => {
   const headers = new Headers({
     "Content-Type": "application/json",
   });
+  if (req.headers.get("origin")?.includes("http://localhost:1420")) {
+    headers.set("Access-Control-Allow-Origin", "http://localhost:1420");
+  }
+  if (req.headers.get("origin")?.includes("tauri:://localhost")) {
+    headers.set("Access-Control-Allow-Origin", "tauri:://localhost");
+  }
+
 
   const url = new URL(req.url);
   const { pathname } = url;

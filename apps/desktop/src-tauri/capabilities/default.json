@@ -49,6 +49,12 @@
           "url": "http://localhost:54321/**"
         },
         {
+          "url": "http://localhost:1234/**"
+        },
+        {
+          "url": "http://localhost:24321/**"
+        },
+        {
           "url": "https://craftgen.ai/**"
         },
         {
