@@ -96,6 +96,7 @@ async function main() {
         role: "user",
         content: dedent`
         Create a Pull Request for the following changes:
+        Keep the description  concise and to the point. do not include commit details in the description.
 
         ${lastCommit}
         `,
@@ -116,7 +117,12 @@ async function main() {
 
   console.log("PR", pr);
   $`gp`; //git push
-  $`echo -e "${pr.body}" > msg`; // hack for the new lines.
+  console.log("Running PR command");
+  console.log(`
+
+  PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY 
+  
+  `);
   $`PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY `;
 }
 

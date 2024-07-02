@@ -23,15 +23,28 @@ export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const workflowMeta = await api.craft.module.meta({
-    projectSlug: params.projectSlug,
-    workflowSlug: params.workflowSlug,
-  });
+  try {
+    const workflowMeta = await api.craft.module.meta({
+      projectSlug: params.projectSlug,
+      workflowSlug: params.workflowSlug,
+    });
 
-  return {
-    title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
-    description: workflowMeta?.description,
-  };
+    return {
+      title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
+      description: workflowMeta?.description,
+    };
+  } catch (e: unknown) {
+    console.log("ERROR", e);
+    const error = getTRPCErrorFromUnknown(e);
+    if (error.code === "NOT_FOUND") {
+      notFound();
+    } else if (error.code === "UNAUTHORIZED") {
+      redirect(`/login?redirect=${params.projectSlug}/${params.workflowSlug}`);
+    } else {
+      console.log("ERROR", error);
+      return new Response("Error", { status: 500 });
+    }
+  }
 }
 
 export async function generateStaticParams() {
