@@ -21,6 +21,7 @@ const DashboardLayoutComponent = () => {
   const supabase = createClient();
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    // TODO: remove cookies  as well.
     navigate({ to: "/login" });
   };
   console.log("CONTEXT", context);

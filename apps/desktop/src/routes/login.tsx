@@ -25,19 +25,27 @@ import { toast } from "@craftgen/ui/components/use-toast";
 import { useOAuth } from "../hooks/use-auth-callback";
 import { createClient } from "../libs/supabase";
 
+export const LoginPage = () => {
+  const { signup, redirect } = Route.useSearch();
+  return (
+    <div className="flex h-full min-h-screen w-full flex-col items-center justify-center">
+      <Link to="/">
+        <Button className="absolute left-4 top-4">
+          <Icons.arrowLeft />
+          Go Home
+        </Button>
+      </Link>
+      <AuthForm isSignup={signup} redirect={redirect} />
+    </div>
+  );
+};
+
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({
     redirect: z.string().optional(),
     signup: z.boolean().optional(),
   }),
-  component: () => {
-    const { signup, redirect } = Route.useSearch();
-    return (
-      <div className="flex h-full min-h-screen w-full flex-col items-center justify-center">
-        <AuthForm isSignup={signup} redirect={redirect} />
-      </div>
-    );
-  },
+  component: LoginPage,
 });
 
 function getLocalHostUrl(port: number) {
