@@ -8,6 +8,8 @@ import { handleChangets } from "./changeset";
 
 async function main() {
   const result = await $`git status`.text();
+  //  if nothing is staged then exit
+
   // check unstaged changes to string.
   if (result.includes("nothing to commit")) {
     console.log("nothing to commit");
@@ -15,6 +17,12 @@ async function main() {
   }
 
   const changes = await $`git diff --staged`.text();
+
+  if (changes.length === 0) {
+    console.log(changes);
+    console.log("No changes to commit");
+    return;
+  }
 
   // first need to checkout the branch
   // figure out title for the branch
@@ -36,6 +44,7 @@ async function main() {
         },
       }),
     },
+    toolChoice: "required",
     maxRetries: 3,
     messages: [
       {
@@ -43,8 +52,6 @@ async function main() {
         content: dedent`
         Create a branch name for the following changes. 
         The branch name should be in the format of "user-name/my-branch-name".
-
-
 
 
         Current user: "necmttn"
@@ -56,7 +63,8 @@ async function main() {
       },
     ],
   });
-  console.log("BRANCH NAME", branchName);
+
+  console.log("BRANCH NAME", branchName.toolResults);
 
   // checkout to the branhc
   // console.log("Checking out to branch", branchName);
@@ -96,9 +104,10 @@ async function main() {
         role: "user",
         content: dedent`
         Create a Pull Request for the following changes:
-        Keep the description  concise and to the point. do not include commit details in the description.
-
         ${lastCommit}
+        ---
+        Keep the description  concise and to the point. do not include commit details in the description.
+        make it bullet point list.
         `,
       },
     ],
@@ -116,14 +125,26 @@ async function main() {
   await handleChangets(pr.body);
 
   console.log("PR", pr);
-  $`gp`; //git push
+  await $`git push`; //git push
   console.log("Running PR command");
-  console.log(`
 
-  PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY 
-  
-  `);
-  $`PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY `;
+  await Bun.write("../../prbody.md", pr.body);
+  // console.log("PR body", await $`cat ../../prbody.md`);
+  // console.log("PR", "@".repeat(50));
+  // console.log(
+  //   `gh pr create --repo "craftgen/craftgen" --title "${pr.title}"  -F prbody.md `,
+  // );
+  // console.log("PR", "@".repeat(50));
+
+  // console.log("PWD", await $`pwd`.text());
+
+  const PRRes =
+    await $`gh pr create --repo "craftgen/craftgen" --title ${pr.title} -F prbody.md `;
+
+  if (PRRes.stderr) {
+    console.log("ERROR", PRRes.stderr);
+    return;
+  }
+  console.log("PR created successfully: ", PRRes.stdout);
 }
-
 main();

@@ -33,7 +33,17 @@ export const WorkflowItem: React.FC<{
     "bg-gradient-to-r from-rose-400 to-pink-300",
     "bg-gradient-to-r from-sky-400 to-blue-300",
   ];
-  const randomBg = bgList[Math.floor(Math.random() * bgList.length)];
+  const getRandomBg = (input: string): string => {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const index = Math.abs(hash) % bgList.length;
+    return bgList[index] as string;
+  };
+  const randomBg = getRandomBg(`${workflow.projectSlug}${workflow.slug}`);
   return (
     <div className="group flex cursor-pointer  flex-col rounded-lg transition-all duration-500 hover:bg-muted">
       <CLink
