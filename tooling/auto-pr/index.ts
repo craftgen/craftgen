@@ -117,6 +117,12 @@ async function main() {
 
   console.log("PR", pr);
   $`gp`; //git push
+  console.log("Running PR command");
+  console.log(`
+
+  PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY 
+  
+  `);
   $`PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY `;
 }
 
