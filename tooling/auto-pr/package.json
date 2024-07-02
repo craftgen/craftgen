@@ -13,6 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "@ai-sdk/openai": "^0.0.8",
+    "@changesets/config": "^3.0.2",
+    "@changesets/git": "^3.0.0",
+    "@changesets/should-skip-package": "^0.1.0",
+    "@changesets/types": "^6.0.0",
+    "@manypkg/get-packages": "^2.2.2",
     "@types/bun": "^1.1.6",
     "ai": "^3.2.16",
     "ts-dedent": "^2.2.0",

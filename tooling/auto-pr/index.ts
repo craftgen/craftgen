@@ -4,6 +4,8 @@ import { $ } from "bun";
 import dedent from "ts-dedent";
 import { z } from "zod";
 
+import { handleChangets } from "./changeset";
+
 async function main() {
   const result = await $`git status`.text();
   // check unstaged changes to string.
@@ -64,6 +66,12 @@ async function main() {
   const lastCommit = await $`oco -y`.text();
   console.log("LAST COMMIT", lastCommit);
 
+  const doesHasChangeset = await $`pnpm changeset status --since=origin/main`;
+
+  if (doesHasChangeset.stderr) {
+    console.log("Theres changes not yet staged");
+  }
+
   const res = await generateObject({
     model: openai("gpt-4o"),
     maxTokens: 1200,
@@ -87,7 +95,9 @@ async function main() {
       {
         role: "user",
         content: dedent`
-        last commit: ${lastCommit}
+        Create a Pull Request for the following changes:
+
+        ${lastCommit}
         `,
       },
     ],
@@ -101,6 +111,8 @@ async function main() {
     title: res.object.pullrequest.title,
     body: res.object.pullrequest.description,
   };
+
+  await handleChangets(pr.body);
 
   console.log("PR", pr);
   $`gp`; //git push
