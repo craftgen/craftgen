@@ -117,7 +117,7 @@ async function main() {
   console.log("PR", pr);
   $`gp`; //git push
   $`echo -e "${pr.body}" > msg`; // hack for the new lines.
-  $`gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body "$msg" `;
+  $`PR_BODY=${pr.body} gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body $PR_BODY `;
 }
 
 main();
