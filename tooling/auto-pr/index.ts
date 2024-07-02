@@ -44,6 +44,7 @@ async function main() {
         },
       }),
     },
+    toolChoice: "required",
     maxRetries: 3,
     messages: [
       {
@@ -51,8 +52,6 @@ async function main() {
         content: dedent`
         Create a branch name for the following changes. 
         The branch name should be in the format of "user-name/my-branch-name".
-
-
 
 
         Current user: "necmttn"
@@ -64,8 +63,11 @@ async function main() {
       },
     ],
   });
-  console.log("BRANCH NAME", branchName);
 
+  console.log(
+    "Created a branch with the following name:",
+    branchName.toolCalls[0].args.branchName,
+  );
   // checkout to the branhc
   // console.log("Checking out to branch", branchName);
   // await $`git checkout -b ${branchName}`;
@@ -129,19 +131,11 @@ async function main() {
   console.log("Running PR command");
 
   await Bun.write("../../prbody.md", pr.body);
-  // console.log("PR body", await $`cat ../../prbody.md`);
-  // console.log("PR", "@".repeat(50));
-  // console.log(
-  //   `gh pr create --repo "craftgen/craftgen" --title "${pr.title}"  -F prbody.md `,
-  // );
-  // console.log("PR", "@".repeat(50));
-
-  // console.log("PWD", await $`pwd`.text());
 
   const PRRes =
     await $`gh pr create --repo "craftgen/craftgen" --title ${pr.title} -F prbody.md `;
 
-  if (PRRes.stderr) {
+  if (PRRes.stderr.length > 0) {
     console.log("ERROR", PRRes.stderr);
     return;
   }
