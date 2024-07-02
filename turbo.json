@@ -43,6 +43,10 @@
       "dependsOn": ["^topo"],
       "outputs": ["node_modules/.cache/tsbuildinfo.json"]
     },
+    "pr": {
+      "cache": false,
+      "persistent": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
