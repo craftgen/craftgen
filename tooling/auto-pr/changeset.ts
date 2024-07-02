@@ -58,6 +58,6 @@ export async function handleChangets(changeDescription: string) {
     w.end();
 
     await $`git add .`;
-    await $`git commit -m "chore: add changeset"`;
+    await $`git commit --amend --no-edit"`;
   }
 }
