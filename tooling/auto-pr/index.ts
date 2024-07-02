@@ -64,10 +64,6 @@ async function main() {
     ],
   });
 
-  console.log(
-    "Created a branch with the following name:",
-    branchName.toolCalls[0].args.branchName,
-  );
   // checkout to the branhc
   // console.log("Checking out to branch", branchName);
   // await $`git checkout -b ${branchName}`;
