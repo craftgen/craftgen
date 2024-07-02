@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
-// import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ReactElement, ReactNode, useEffect, useMemo, useRef } from "react";
 import { useKBar } from "kbar";
 import {
   CheckCircle,
@@ -21,7 +13,6 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
-import { useCopyToClipboard } from "react-use";
 
 import type { RouterOutputs } from "@craftgen/api";
 import type { WorkflowAPI } from "@craftgen/core/types";
