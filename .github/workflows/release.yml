@@ -99,7 +99,7 @@ jobs:
       - name: rename the binary base on platform
         run: mv ./apps/desktop/src-tauri/binaries/edge-runtime ./apps/desktop/src-tauri/binaries/edge-runtime-${{ matrix.settings.architecture }}
 
-      - uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@v0.5.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -116,5 +116,7 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: true
           args: ${{ matrix.settings.args }}
           projectPath: ./apps/desktop
+
