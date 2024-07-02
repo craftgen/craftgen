@@ -12,7 +12,6 @@ import { api } from "@craftgen/ui/lib/api";
 import { cn } from "@craftgen/ui/lib/utils";
 
 interface MyRouterContext {
-  // The ReturnType of your useAuth hook or the value of your AuthContext
   auth: AuthSession;
   client: ReturnType<typeof api.useUtils>;
   status: boolean;
