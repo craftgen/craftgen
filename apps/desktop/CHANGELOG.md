@@ -1,5 +1,12 @@
 # @craftgen/desktop
 
+## 0.0.15
+
+### Patch Changes
+
+- 30ef396: - Updated release.yml to specify branch ref to main in checkout action
+  - Cleaned up main.tsx by removing redundant comments
+
 ## 0.0.14
 
 ### Patch Changes
