@@ -1,3 +1,0 @@
----
-"@craftgen/desktop": patch
----
