@@ -118,16 +118,16 @@ importers:
         specifier: ^0.1.1
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.3
+        specifier: 1.0.4
         version: link:../../packages/composer
       '@craftgen/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../../packages/core
       '@craftgen/db':
         specifier: 0.1.0
         version: link:../supabase
       '@craftgen/ui':
-        specifier: 1.0.2
+        specifier: 1.0.3
         version: link:../../packages/ui
       '@sentry/vite-plugin':
         specifier: ^2.20.1
@@ -263,7 +263,7 @@ importers:
   apps/extension:
     dependencies:
       '@craftgen/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../../packages/core
       '@plasmohq/messaging':
         specifier: ^0.5.0
@@ -352,16 +352,16 @@ importers:
         specifier: ^0.1.1
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.3
+        specifier: 1.0.4
         version: link:../../packages/composer
       '@craftgen/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../../packages/core
       '@craftgen/db':
         specifier: 0.1.0
         version: link:../supabase
       '@craftgen/ui':
-        specifier: 1.0.2
+        specifier: 1.0.3
         version: link:../../packages/ui
       '@faustwp/blocks':
         specifier: ^4.0.0
@@ -947,7 +947,7 @@ importers:
         specifier: '*'
         version: link:../../apps/api
       '@craftgen/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../core
       '@craftgen/ui':
         specifier: '*'
@@ -1303,7 +1303,7 @@ importers:
         specifier: 0.1.1
         version: link:../../apps/api
       '@craftgen/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../core
       '@hookform/resolvers':
         specifier: ^3.3.0
