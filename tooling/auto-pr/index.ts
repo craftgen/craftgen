@@ -78,7 +78,7 @@ async function main() {
           description: z
             .string()
             .describe(
-              "A description of the PR. do not include parantheses ( or ) ",
+              "A description of the PR. do not include parantheses ( or ) in Markdown",
             ),
         })
         .describe("The Pull Request details"),
@@ -103,8 +103,9 @@ async function main() {
   };
 
   console.log("PR", pr);
-
-  $`gh pr create --title "${pr.title}" --body "${pr.body}"`;
+  $`gp`; //git push
+  $`echo -e "${pr.body}" > msg`; // hack for the new lines.
+  $`gh pr create --repo "craftgen/craftgen" --title "${pr.title}" --body "$msg" `;
 }
 
 main();
