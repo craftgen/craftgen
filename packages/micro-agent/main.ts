@@ -30,10 +30,31 @@ const graphState: StateGraphArgs<AgentState>["channels"] = {
 // Define the tools for the agent to use
 const tools = [
   new DynamicTool({
-    name: "read-the-code",
-    description: "Reads the code file",
+    name: "get-files",
+    description: "Get a list of files in the functions directory",
     func: async () => {
-      return await Deno.readTextFile("functions/main/index.ts");
+      const files = [];
+      for await (const dirEntry of Deno.readDir("./functions")) {
+        files.push(dirEntry);
+      }
+      return `
+        The following files are available in the functions directory:
+        ${files.length === 0 ? "No files found" : ""}
+        ${files.map((file) => file.name).join("\n")}
+      `;
+    },
+    verbose: true,
+  }),
+  new DynamicStructuredTool({
+    name: "read-file",
+    description: "Reads the code file",
+    schema: z.object({
+      fileName: z
+        .string()
+        .describe("The name of the file to read with extension"),
+    }),
+    func: async ({ fileName }) => {
+      return await Deno.readTextFile(`./functions/${fileName}`);
     },
     verbose: true,
   }),
@@ -41,21 +62,28 @@ const tools = [
     name: "overwrite-the-code",
     description: "overwrites the code file",
     schema: z.object({
+      filename: z.string().describe("The name of the file to overwrite"),
       content: z.string(),
     }),
     verbose: true,
-    func: async ({ content }) => {
-      await Deno.writeTextFile("functions/main/index.ts", content);
+    func: async ({ filename, content }) => {
+      await Deno.writeTextFile(`./functions/${filename}`, content);
       return "File written successfully";
     },
   }),
-  new DynamicTool({
+  new DynamicStructuredTool({
     name: "run-tests",
     description: "runs the tests",
     verbose: true,
-    func: async () => {
+    schema: z.object({
+      filename: z
+        .string()
+        .describe("The name of the file to run the tests for"),
+    }),
+    func: async ({ filename }) => {
+      console.log("RUNNING TESTS FOR FILE", filename);
       const res = Deno.run({
-        cmd: ["deno", "test", "functions/main/index.ts", "--reload", "--quiet"],
+        cmd: ["deno", "test", `functions/${filename}`, "--reload", "--quiet"],
         env: {
           NO_COLOR: "true",
         },
@@ -193,13 +221,11 @@ Deno.test({
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
-  console.log(
-    await run(
-      `
-    At John's Pizza Palace in the 6 hours they were open they sold the following number of pizzas: 
-    92 pepperoni, 106 sausage, 96 cheese, 104 mushroom, 96 anchovies and 88 pineapple. 
-    What is the mean of the number of pizzas sold? 
-    `,
-    ),
+  const requestt = prompt(
+    "What you wanna do?",
+    "create a module for getting analytics from youtube sdk",
   );
+  if (requestt) {
+    await run(requestt);
+  }
 }

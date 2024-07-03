@@ -9,7 +9,7 @@ Deno.test({
   name: "mean of pizzas sold",
   fn: () => {
     const pizzas = [92, 106, 96, 104, 96, 88];
-    const expectedMean = 97;
+    const expectedMean = 9723;
     assertEquals(meanPizzasSold(pizzas), expectedMean);
   },
 });
