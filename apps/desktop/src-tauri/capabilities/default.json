@@ -30,6 +30,19 @@
           "cmd": "echo $APPDATA",
           "name": "binaries/edge-runtime",
           "sidecar": true
+        },
+        {
+          "args": [
+            "test",
+            {
+              "validator": "\\S+"
+            },
+            "--reload",
+            "--quiet"
+          ],
+          "cmd": "deno",
+          "name": "deno",
+          "sidecar": false
         }
       ]
     },

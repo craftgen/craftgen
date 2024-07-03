@@ -9,8 +9,8 @@ Deno.serve(async (req: Request) => {
   if (req.headers.get("origin")?.includes("http://localhost:1420")) {
     headers.set("Access-Control-Allow-Origin", "http://localhost:1420");
   }
-  if (req.headers.get("origin")?.includes("tauri:://localhost")) {
-    headers.set("Access-Control-Allow-Origin", "tauri:://localhost");
+  if (req.headers.get("origin")?.includes("tauri://localhost")) {
+    headers.set("Access-Control-Allow-Origin", "tauri://localhost");
   }
 
   const url = new URL(req.url);
@@ -103,17 +103,31 @@ Deno.serve(async (req: Request) => {
     // or load module source from an inline module
 
     const maybeModuleCode = `
-      import ollama from 'npm:ollama/browser'
-      // const response = "hello" + STATUS_CODE.Accepted 
-      const response = await ollama.chat({
-        model: 'llama2',
-        messages: [{ role: 'user', content: 'Why is the sky blue?' }],
-      })
-      console.log(response.message.content)
+    const moduleCodeWithTests = \`
+    import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+    export default interface Person {
+      firstName: string;
+      lastName: string;
+    }
+    
+    export function sayHello(p: Person): string {
+      return "Hello, " + p.firstName + "!";
+    }
 
-      Deno.serve((req) => new Response(response.message.content));
+    Deno.test("sayHello function", () => {
+      const grace: Person = {
+        lastName: "Hopper",
+        firstName: "Grace",
+      };
+
+      assertEquals("Hello, Grace 2!", sayHello(grace));
+    });
+    console.log(sayHello({ firstName: "Grace", lastName: "Hopper" }));
+    \`;
+      Deno.serve((req) => new Response(moduleCodeWithTests));
       `;
-    //
+
+    //k
     const cpuTimeSoftLimitMs = 10000;
     const cpuTimeHardLimitMs = 20000;
 
@@ -128,9 +142,10 @@ Deno.serve(async (req: Request) => {
       netAccessDisabled,
       cpuTimeSoftLimitMs,
       cpuTimeHardLimitMs,
+
       // maybeEszip,
       // maybeEntrypoint,
-      maybeModuleCode: params.moduleCode,
+      maybeModuleCode: maybeModuleCode,
     });
   };
 
@@ -140,8 +155,13 @@ Deno.serve(async (req: Request) => {
       // it will be reused by default.
       // Update forceCreate option in createWorker to force create a new worker for each request.
 
-      const body = await req.json();
-      const worker = await createWorker({ moduleCode: body.moduleCode });
+      let worker;
+      if (req.method === "POST") {
+        const body = await req.json();
+        worker = await createWorker({ moduleCode: body.moduleCode });
+      } else {
+        worker = await createWorker({});
+      }
       const controller = new AbortController();
 
       const signal = controller.signal;

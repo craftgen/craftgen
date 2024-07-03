@@ -11,3 +11,20 @@ services:
     network_mode: host
     environment:
       - SERVICE_BASE_DIR=/home/deno/functions/
+
+  electric:
+    image: electricsql/electric:latest
+    environment:
+      # - AUTH_JWT_ALG=HS256
+      # - AUTH_JWT_KEY=super-secret-jwt-token-with-at-least-32-characters-long
+      - DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - DATABASE_REQUIRE_SSL=false
+      # - DATABASE_USE_IPV6=true
+      - ELECTRIC_WRITE_TO_PG_MODE=direct_writes
+      - PG_PROXY_PASSWORD=super-secret-jwt-token-with-at-least-32-characters-long
+      - AUTH_MODE=insecure
+    network_mode: host
+    ports:
+      - "5133:5133"
+      - "5433:5433"
+      - "65432:65432"

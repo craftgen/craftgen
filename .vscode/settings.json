@@ -12,7 +12,8 @@
   "deno.enablePaths": [
     "./apps/edge-functions",
     "./packages/core-deno",
-    "./apps/desktop/src-tauri/functions"
+    "./apps/desktop/src-tauri/functions",
+    "./packages/micro-agent"
   ],
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }

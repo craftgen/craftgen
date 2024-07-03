@@ -295,6 +295,27 @@ type Position = {
   y: number;
 };
 
+export const packageTable = pgTable(
+  "package",
+  {
+    id: text("id").$defaultFn(createIdWithPrefix("actor")).primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+
+    slug: text("slug").notNull(),
+
+    name: text("name").notNull(),
+    code: text("code").notNull(),
+
+    inputSchema: json("schema").notNull(),
+    outputSchema: json("schema").notNull(),
+  },
+  (table) => ({
+    slug: unique().on(table.projectId, table.slug),
+  }),
+);
+
 export const workflowNode = pgTable("workflow_node", {
   id: text("id").$defaultFn(createIdWithPrefix("node")).primaryKey(),
   workflowId: text("workflow_id")

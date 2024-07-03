@@ -1,4 +1,4 @@
-FROM ghcr.io/supabase/edge-runtime:v1.48.0
+FROM ghcr.io/supabase/edge-runtime:v1.54.9
 
 COPY ./functions /home/deno/functions
 
