@@ -23,7 +23,7 @@ import {
   TabsTrigger,
 } from "@craftgen/ui/components/tabs";
 
-// import { Runs } from "./runs";
+import { Runs } from "./runs";
 
 export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
   return (
@@ -43,7 +43,7 @@ export const InspectorNode: React.FC<{ node: NodeProps }> = ({ node }) => {
             <ScrollArea className="w-full object-contain">
               <InputsList actor={node.actor} />
               <Separator />
-              {/* <Runs node={node} /> */}
+              <Runs node={node} />
             </ScrollArea>
           </div>
         </TabsContent>

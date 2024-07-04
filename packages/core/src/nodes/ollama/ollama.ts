@@ -1,9 +1,6 @@
 import ky from "ky";
 import { isNil } from "lodash-es";
-import type {
-  BaseUrlPartsApiConfigurationOptions,
-  OllamaChatModelSettings,
-} from "modelfusion";
+import type { OllamaProviderSettings } from "ollama-ai-provider";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import {
@@ -14,8 +11,7 @@ import {
 } from "xstate";
 
 import { generateSocket } from "../../controls/socket-generator";
-import { inputSocketMachine } from "../../input-socket";
-import type { DiContainer } from "../../types";
+import { getSocket } from "../../sockets";
 import { ApiConfigurationMachine } from "../apiConfiguration";
 import {
   BaseNode,
@@ -541,11 +537,10 @@ export const OllamaModelMachine = createMachine(
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue.sendTo(
                 ({ context, system }) =>
-                  system.get(
-                    Object.keys(context.inputSockets).find((k) =>
-                      k.endsWith("model"),
-                    ),
-                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                  getSocket({
+                    sockets: context.inputSockets,
+                    key: "model",
+                  }),
                 {
                   type: "UPDATE_SOCKET",
                   params: {
@@ -609,11 +604,10 @@ export const OllamaModelMachine = createMachine(
               });
               enqueue.sendTo(
                 ({ system, context }) =>
-                  system.get(
-                    Object.keys(context.inputSockets).find((k) =>
-                      k.endsWith("modelfile"),
-                    ),
-                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                  getSocket({
+                    sockets: context.inputSockets,
+                    key: "modelfile",
+                  }),
                 ({ event }) => ({
                   type: "SET_VALUE",
                   params: {
@@ -623,11 +617,10 @@ export const OllamaModelMachine = createMachine(
               );
               enqueue.sendTo(
                 ({ system, context }) =>
-                  system.get(
-                    Object.keys(context.inputSockets).find((k) =>
-                      k.endsWith("template"),
-                    ),
-                  ) as ActorRefFrom<typeof inputSocketMachine>,
+                  getSocket({
+                    sockets: context.inputSockets,
+                    key: "template",
+                  }),
                 ({ event }) => ({
                   type: "SET_VALUE",
                   params: {
@@ -706,6 +699,7 @@ export const OllamaModelMachine = createMachine(
                     ...event.params.inputs,
                     config: {
                       provider: "ollama",
+                      ...event.params.inputs.apiConfiguration,
                       ...event.params.inputs,
                       template: undefined,
                     },
@@ -728,9 +722,8 @@ export const OllamaModelMachine = createMachine(
   },
 );
 
-export type OllamaModelConfig = OllamaChatModelSettings & {
+export type OllamaModelConfig = OllamaProviderSettings & {
   provider: "ollama";
-  apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
 export type OllamaModelNode = ParsedNode<

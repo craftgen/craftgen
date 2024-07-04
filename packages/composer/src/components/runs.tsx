@@ -7,9 +7,9 @@ import { Button } from "@craftgen/ui/components/button";
 import { Icons } from "@craftgen/ui/components/icons";
 import { JSONView } from "@craftgen/ui/components/json-view";
 import { Label } from "@craftgen/ui/components/label";
+import { cn } from "@craftgen/ui/lib/utils";
 
-import { useCraftStore } from "@/core/use-store";
-import { cn } from "@/lib/utils";
+import { useCraftStore } from "../use-store";
 
 export const Runs = ({ node }: { node: NodeProps }) => {
   const di = useCraftStore((state) => state.di);
@@ -86,6 +86,14 @@ const Run = ({ run }: { run: AnyActorRef }) => {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
+        {state.value === "error" && (
+          <div className="col-span-2">
+            <Label>Error</Label>
+            <div className="p-2">
+              <JSONView src={state.error} />
+            </div>
+          </div>
+        )}
         <div className="border-1 rounded bg-muted/30 p-2">
           <Label>Input</Label>
           <div className="p-2">

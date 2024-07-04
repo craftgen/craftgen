@@ -17,9 +17,9 @@ import {
 } from "./base";
 
 const inputSockets = {
-  baseUrl: generateSocket({
-    "x-key": "baseUrl",
-    name: "baseUrl" as const,
+  baseURL: generateSocket({
+    "x-key": "baseURL",
+    name: "baseURL" as const,
     title: "Base URL",
     type: "string" as const,
     default: "https://api.example.com/v1",
@@ -60,9 +60,9 @@ const outputSockets = {
     isMultiple: false,
     "x-showSocket": true,
   }),
-  baseUrl: generateSocket({
-    "x-key": "baseUrl",
-    name: "baseUrl" as const,
+  baseURL: generateSocket({
+    "x-key": "baseURL",
+    name: "baseURL" as const,
     title: "Base URL",
     type: "string" as const,
     description: "The base URL for the API",
@@ -185,7 +185,7 @@ export const ApiConfigurationMachine = createMachine(
           enqueue.assign({
             outputs: ({ event }) => {
               return {
-                baseUrl: event.params.inputs.baseUrl,
+                baseURL: event.params.inputs.baseURL,
                 headers,
                 config: {
                   ...event.params.inputs,
@@ -206,7 +206,7 @@ export const ApiConfigurationMachine = createMachine(
         enqueue.assign({
           outputs: ({ context }) => {
             return {
-              baseUrl: context.inputs.baseUrl,
+              baseURL: context.inputs.baseURL,
               headers: context.inputs.headers,
               config: {
                 ...context.inputs,

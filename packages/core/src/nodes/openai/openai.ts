@@ -1,13 +1,9 @@
+import type { OpenAIProviderSettings } from "@ai-sdk/openai";
 import ky from "ky";
-import type {
-  BaseUrlPartsApiConfigurationOptions,
-  OpenAIChatSettings,
-} from "modelfusion";
 import dedent from "ts-dedent";
 import type { SetOptional } from "type-fest";
 import {
   ActorRefFrom,
-  assign,
   createMachine,
   enqueueActions,
   fromPromise,
@@ -15,6 +11,7 @@ import {
 
 import { generateSocket } from "../../controls/socket-generator";
 import { inputSocketMachine } from "../../input-socket";
+import { getSocket } from "../../sockets";
 import type { DiContainer } from "../../types";
 import {
   BaseNode,
@@ -38,7 +35,7 @@ const inputSockets = {
     "x-compatible": ["NodeApiConfiguration"],
     required: true,
     default: {
-      baseUrl: "https://api.openai.com/v1",
+      baseURL: "https://api.openai.com/v1",
     },
     isMultiple: false,
     "x-showSocket": false,
@@ -167,7 +164,7 @@ const outputSockets = {
     title: "Config",
     type: "object",
     description: dedent`
-    Ollama config
+    OpenAI config
     `,
     required: true,
     isMultiple: false,
@@ -175,9 +172,8 @@ const outputSockets = {
   }),
 };
 
-export type OpenAIModelConfig = OpenAIChatSettings & {
+export type OpenAIModelConfig = OpenAIProviderSettings & {
   provider: "openai";
-  apiConfiguration: BaseUrlPartsApiConfigurationOptions;
 };
 
 const getModels = fromPromise(
@@ -186,14 +182,14 @@ const getModels = fromPromise(
   }: {
     input: {
       apiConfiguration: {
-        baseUrl: string;
+        baseURL: string;
         APIKey: string;
       };
     };
   }) => {
     console.log("GETTING MODELS", input);
     const models = await ky
-      .get(`${input.apiConfiguration.baseUrl}/models`, {
+      .get(`${input.apiConfiguration.baseURL}/models`, {
         headers: {
           Authorization: `Bearer ${input.apiConfiguration.APIKey}`,
         },
@@ -251,11 +247,10 @@ export const OpenaiModelMachine = createMachine(
               actions: enqueueActions(({ enqueue, event }) => {
                 enqueue.sendTo(
                   ({ context, system }) =>
-                    system.get(
-                      Object.keys(context.inputSockets).find((k) =>
-                        k.endsWith("model"),
-                      ),
-                    ) as ActorRefFrom<typeof inputSocketMachine>,
+                    getSocket({
+                      sockets: context.inputSockets,
+                      key: "model",
+                    }) as ActorRefFrom<typeof inputSocketMachine>,
                   {
                     type: "UPDATE_SOCKET",
                     params: {
@@ -305,6 +300,7 @@ export const OpenaiModelMachine = createMachine(
                     ...event.params.inputs,
                     config: {
                       provider: "openai",
+                      ...event.params.inputs.apiConfiguration,
                       ...event.params.inputs,
                     } as OpenAIModelConfig,
                   };

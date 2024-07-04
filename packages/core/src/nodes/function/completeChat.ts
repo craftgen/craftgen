@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createId } from "@paralleldrive/cuid2";
 import {
   CoreAssistantMessage,
+  CoreMessage,
   CoreTool,
   CoreToolMessage,
   generateText,
@@ -9,6 +10,7 @@ import {
   type ToolResultPart,
 } from "ai";
 import { get, isNil, merge } from "lodash-es";
+import { createOllama } from "ollama-ai-provider";
 import dedent from "ts-dedent";
 import { match, P } from "ts-pattern";
 import {
@@ -195,25 +197,6 @@ const outputSockets = {
   }),
 };
 
-// export type ToolCallInstance<NAME extends string, PARAMETERS, RETURN_TYPE> = {
-//   tool: NAME;
-//   toolCall: ToolCall<NAME, PARAMETERS>;
-//   args: PARAMETERS;
-// } & (
-//   | {
-//       ok: true;
-//       result: RETURN_TYPE;
-//     }
-//   | {
-//       ok: false;
-//       result: ToolCallError;
-//     }
-//   | {
-//       ok: null;
-//       result: null;
-//     }
-// );
-
 export type ToolResultObject = {
   toolCallId: string;
   toolName: string;
@@ -294,35 +277,39 @@ const completeChatActor = fromPromise(
     console.log("INPUT", input);
 
     const result = await match(input)
-      // .with(
-      //   {
-      //     llm: {
-      //       provider: "ollama",
-      //     },
-      //   },
-      //   async ({ llm }) => {
-      //     const model = ollama.ChatTextGenerator({
-      //       ...llm,
-      //     });
-
-      //     const res = await generateText({
-      //       model,
-      //       prompt: [
-      //         ...(input.system
-      //           ? [
-      //               {
-      //                 role: "system" as const,
-      //                 content: input.system,
-      //               },
-      //             ]
-      //           : []),
-      //         ...(simplyfyMessages(input.messages) as OllamaChatMessage[]),
-      //       ],
-      //       fullResponse: true,
-      //     });
-      //     return res;
-      //   },
-      // )
+      .with(
+        {
+          llm: {
+            provider: "ollama",
+          },
+        },
+        async ({ llm }) => {
+          const ollama = createOllama({
+            baseURL: input.llm.apiConfiguration.baseUrl,
+            // custom settings
+          }).chat(input.llm.model, {
+            logitBias: {
+              "50256": -100, //
+            },
+          });
+          const res = await generateText({
+            model: ollama,
+            messages: [
+              ...(input.system
+                ? [
+                    {
+                      role: "system" as const,
+                      content: input.system,
+                    },
+                  ]
+                : []),
+              ...(simplyfyMessages(input.messages) as CoreMessage[]),
+            ],
+            fullResponse: true,
+          });
+          return res;
+        },
+      )
       // .with(
       //   {
       //     llm: {
@@ -372,7 +359,7 @@ const completeChatActor = fromPromise(
             apiKey: input.llm.apiConfiguration.APIKey,
           }).chat(input.llm.model, {
             logitBias: {
-              "50256": -100, //  to prevent the <|endoftext|> token from being generated.
+              "50256": -100, //
             },
           });
 
@@ -447,7 +434,7 @@ const completeChatActor = fromPromise(
             apiKey: input.llm.apiConfiguration.APIKey,
           }).chat(input.llm.model, {
             logitBias: {
-              "50256": -100, //  to prevent the <|endoftext|> token from being generated.
+              "50256": -100, //
             },
           });
 
