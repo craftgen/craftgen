@@ -43,7 +43,7 @@ importers:
     dependencies:
       '@craftgen/db':
         specifier: ^0.1.0
-        version: link:../supabase
+        version: link:../db
       '@craftgen/utils':
         specifier: ^0.1.0
         version: link:../../packages/utils
@@ -76,7 +76,7 @@ importers:
         version: 4.17.21
       openai:
         specifier: ^4.38.5
-        version: 4.38.5(encoding@0.1.13)
+        version: 4.38.5
       replicate:
         specifier: ^0.22.0
         version: 0.22.0
@@ -112,6 +112,52 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
+  apps/db:
+    dependencies:
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.2
+        version: 2.2.2
+      '@types/pg':
+        specifier: ^8.10.2
+        version: 8.10.7
+      drizzle-orm:
+        specifier: ^0.29.3
+        version: 0.29.3(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
+      drizzle-zod:
+        specifier: ^0.5.1
+        version: 0.5.1(drizzle-orm@0.29.3)(zod@3.21.4)
+      jose:
+        specifier: ^4.14.4
+        version: 4.15.4
+      pg:
+        specifier: ^8.11.3
+        version: 8.11.3
+      postgres:
+        specifier: ^3.3.5
+        version: 3.4.2
+      zod:
+        specifier: 3.21.4
+        version: 3.21.4
+    devDependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.39.7
+        version: 2.39.7
+      '@types/node':
+        specifier: ^20.4.10
+        version: 20.14.8
+      dotenv-cli:
+        specifier: ^7.2.1
+        version: 7.3.0
+      drizzle-kit:
+        specifier: ^0.20.14
+        version: 0.20.14
+      tsx:
+        specifier: ^3.12.7
+        version: 3.14.0
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
   apps/desktop:
     dependencies:
       '@craftgen/api':
@@ -125,7 +171,7 @@ importers:
         version: link:../../packages/core
       '@craftgen/db':
         specifier: 0.1.0
-        version: link:../supabase
+        version: link:../db
       '@craftgen/ui':
         specifier: 1.0.3
         version: link:../../packages/ui
@@ -300,52 +346,6 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  apps/supabase:
-    dependencies:
-      '@paralleldrive/cuid2':
-        specifier: ^2.2.2
-        version: 2.2.2
-      '@types/pg':
-        specifier: ^8.10.2
-        version: 8.10.7
-      drizzle-orm:
-        specifier: ^0.29.3
-        version: 0.29.3(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
-      drizzle-zod:
-        specifier: ^0.5.1
-        version: 0.5.1(drizzle-orm@0.29.3)(zod@3.21.4)
-      jose:
-        specifier: ^4.14.4
-        version: 4.15.4
-      pg:
-        specifier: ^8.11.3
-        version: 8.11.3
-      postgres:
-        specifier: ^3.3.5
-        version: 3.4.2
-      zod:
-        specifier: 3.21.4
-        version: 3.21.4
-    devDependencies:
-      '@supabase/supabase-js':
-        specifier: ^2.39.7
-        version: 2.39.7
-      '@types/node':
-        specifier: ^20.4.10
-        version: 20.8.10
-      dotenv-cli:
-        specifier: ^7.2.1
-        version: 7.3.0
-      drizzle-kit:
-        specifier: ^0.20.14
-        version: 0.20.14
-      tsx:
-        specifier: ^3.12.7
-        version: 3.14.0
-      typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
-
   apps/web:
     dependencies:
       '@craftgen/api':
@@ -359,7 +359,7 @@ importers:
         version: link:../../packages/core
       '@craftgen/db':
         specifier: 0.1.0
-        version: link:../supabase
+        version: link:../db
       '@craftgen/ui':
         specifier: 1.0.3
         version: link:../../packages/ui
@@ -1005,7 +1005,7 @@ importers:
         version: 0.3.0(react-dom@18.2.0)(react@18.2.0)
       openai:
         specifier: ^4.38.5
-        version: 4.38.5(encoding@0.1.13)
+        version: 4.38.5
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1174,7 +1174,7 @@ importers:
         version: 0.9.1(zod@3.21.4)
       openai:
         specifier: ^4.38.5
-        version: 4.38.5(encoding@0.1.13)
+        version: 4.38.5
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
@@ -5442,14 +5442,14 @@ packages:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.9.0
+      '@types/node': 20.14.8
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.9.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@20.9.0)
+      jest-config: 29.7.0(@types/node@20.14.8)
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
       jest-regex-util: 29.6.3
@@ -5640,7 +5640,7 @@ packages:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.5
       '@types/istanbul-reports': 3.0.3
-      '@types/node': 20.9.0
+      '@types/node': 20.14.8
       '@types/yargs': 17.0.29
       chalk: 4.1.2
 
@@ -12416,7 +12416,7 @@ packages:
   /@types/node-fetch@2.6.9:
     resolution: {integrity: sha512-bQVlnMLFJ2d35DkPNjEPmd9ueO/rh5EiaZt2bhqiSarPjZIuIV6bPQVqcrEyvNo+AfTrRGVazle1tl597w3gfA==}
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.14.8
       form-data: 4.0.0
     dev: false
 
@@ -12462,6 +12462,7 @@ packages:
     resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
     dependencies:
       undici-types: 5.26.5
+    dev: false
 
   /@types/parse-json@4.0.1:
     resolution: {integrity: sha512-3YmXzzPAdOTVljVMkTMBdBEvlOLg2cDQaDhnnhT3nT9uDbnJzjWhKlzb+desT12Y7tGqaN6d+AbozcKzyL36Ng==}
@@ -12476,7 +12477,7 @@ packages:
   /@types/pg@8.10.7:
     resolution: {integrity: sha512-ksJqHipwYaSEHz9e1fr6H6erjoEdNNaOxwyJgPx9bNeaqOW3iWBQgVHfpwiSAoqGzchfc+ZyRLwEfeCcyYD3uQ==}
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.14.8
       pg-protocol: 1.6.0
       pg-types: 4.0.1
     dev: false
@@ -12625,7 +12626,7 @@ packages:
   /@types/ws@8.5.10:
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.14.8
 
   /@types/yargs-parser@21.0.2:
     resolution: {integrity: sha512-5qcvofLPbfjmBfKaLfj/+f+Sbd6pN4zl7w7VSVI5uz7m9QZTuB2aZAa2uo1wHFBNN2x6g/SoTkXmd8mQnQF2Cw==}
@@ -14795,7 +14796,7 @@ packages:
       json-schema: 0.4.0
       jsondiffpatch: 0.6.0
       nanoid: 3.3.6
-      openai: 4.38.5(encoding@0.1.13)
+      openai: 4.38.5
       react: 18.2.0
       secure-json-parse: 2.7.0
       sswr: 2.1.0(svelte@4.2.18)
@@ -17191,7 +17192,7 @@ packages:
       hanji: 0.0.5
       json-diff: 0.9.0
       minimatch: 7.4.6
-      semver: 7.5.4
+      semver: 7.6.2
       zod: 3.21.4
     transitivePeerDependencies:
       - supports-color
@@ -17721,7 +17722,7 @@ packages:
     peerDependencies:
       esbuild: '>=0.12 <1'
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.5
       esbuild: 0.19.12
     transitivePeerDependencies:
       - supports-color
@@ -19286,6 +19287,7 @@ packages:
   /glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -20710,46 +20712,6 @@ packages:
       '@jest/test-sequencer': 29.7.0
       '@jest/types': 29.6.3
       '@types/node': 20.14.8
-      babel-jest: 29.7.0(@babel/core@7.24.7)
-      chalk: 4.1.2
-      ci-info: 3.9.0
-      deepmerge: 4.3.1
-      glob: 7.2.3
-      graceful-fs: 4.2.11
-      jest-circus: 29.7.0
-      jest-environment-node: 29.7.0
-      jest-get-type: 29.6.3
-      jest-regex-util: 29.6.3
-      jest-resolve: 29.7.0
-      jest-runner: 29.7.0
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      micromatch: 4.0.7
-      parse-json: 5.2.0
-      pretty-format: 29.7.0
-      slash: 3.0.0
-      strip-json-comments: 3.1.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-    dev: true
-
-  /jest-config@29.7.0(@types/node@20.9.0):
-    resolution: {integrity: sha512-uXbpfeQ7R6TZBqI3/TxCU4q4ttk3u0PJeC+E0zbfSoSjq6bJ7buBPxzQPL0ifrkY4DNu4JUdk0ImlBUYi840eQ==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      '@types/node': '*'
-      ts-node: '>=9.0.0'
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      ts-node:
-        optional: true
-    dependencies:
-      '@babel/core': 7.24.7
-      '@jest/test-sequencer': 29.7.0
-      '@jest/types': 29.6.3
-      '@types/node': 20.9.0
       babel-jest: 29.7.0(@babel/core@7.24.7)
       chalk: 4.1.2
       ci-info: 3.9.0
@@ -23598,11 +23560,27 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.38.5(encoding@0.1.13):
+  /openai@4.38.5:
     resolution: {integrity: sha512-Ym5GJL98ZhLJJ7enBx53jjG3vwN/fsB+Ozh46nnRZZS9W1NiYqbwkJ+sXd3dkCIiWIgcyyOPL2Zr8SQAzbpj3g==}
     hasBin: true
     dependencies:
       '@types/node': 18.18.9
+      '@types/node-fetch': 2.6.9
+      abort-controller: 3.0.0
+      agentkeepalive: 4.5.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0(encoding@0.1.13)
+      web-streams-polyfill: 3.2.1
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /openai@4.38.5(encoding@0.1.13):
+    resolution: {integrity: sha512-Ym5GJL98ZhLJJ7enBx53jjG3vwN/fsB+Ozh46nnRZZS9W1NiYqbwkJ+sXd3dkCIiWIgcyyOPL2Zr8SQAzbpj3g==}
+    hasBin: true
+    dependencies:
+      '@types/node': 18.19.39
       '@types/node-fetch': 2.6.9
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
