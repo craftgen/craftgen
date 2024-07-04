@@ -1,8 +1,8 @@
 {
+  "id": "25f79794-9c29-410d-b339-33592cc12799",
+  "prevId": "3b65a126-94ff-4d03-8e2b-19eae37f711e",
   "version": "5",
   "dialect": "pg",
-  "id": "ed976202-f44b-4049-b567-90a430c5948f",
-  "prevId": "172da8f4-8ee4-44c3-8785-0479926664e8",
   "tables": {
     "project_api_key": {
       "name": "project_api_key",
@@ -39,12 +39,8 @@
           "name": "project_api_key_project_id_project_id_fk",
           "tableFrom": "project_api_key",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -54,10 +50,7 @@
         "project_api_key_project_id_key_unique": {
           "name": "project_api_key_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -76,6 +69,24 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workflow_version_id": {
+          "name": "workflow_version_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "previous_context_id": {
           "name": "previous_context_id",
@@ -102,12 +113,35 @@
           "name": "context_project_id_project_id_fk",
           "tableFrom": "context",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "context_workflow_id_workflow_id_fk": {
+          "name": "context_workflow_id_workflow_id_fk",
+          "tableFrom": "context",
+          "tableTo": "workflow",
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "context_workflow_version_id_workflow_version_id_fk": {
+          "name": "context_workflow_version_id_workflow_version_id_fk",
+          "tableFrom": "context",
+          "tableTo": "workflow_version",
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "context_parent_id_context_id_fk": {
+          "name": "context_parent_id_context_id_fk",
+          "tableFrom": "context",
+          "tableTo": "context",
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -151,12 +185,6 @@
         },
         "project_id": {
           "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workflow_node_id": {
-          "name": "workflow_node_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -206,12 +234,8 @@
           "name": "node_execution_data_workflow_execution_id_workflow_execution_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -219,12 +243,8 @@
           "name": "node_execution_data_context_id_context_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -232,12 +252,8 @@
           "name": "node_execution_data_workflow_id_workflow_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -245,12 +261,8 @@
           "name": "node_execution_data_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -258,26 +270,9 @@
           "name": "node_execution_data_project_id_project_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "node_execution_data_workflow_node_id_workflow_node_id_fk": {
-          "name": "node_execution_data_workflow_node_id_workflow_node_id_fk",
-          "tableFrom": "node_execution_data",
-          "tableTo": "workflow_node",
-          "columnsFrom": [
-            "workflow_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -318,6 +313,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "stripe_account_id": {
+          "name": "stripe_account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -327,16 +328,12 @@
         "project_site_unique": {
           "name": "project_site_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "site"
-          ]
+          "columns": ["site"]
         },
         "project_slug_unique": {
           "name": "project_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -376,12 +373,8 @@
           "name": "project_members_project_id_project_id_fk",
           "tableFrom": "project_members",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -389,12 +382,8 @@
           "name": "project_members_user_id_user_id_fk",
           "tableFrom": "project_members",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -469,9 +458,7 @@
         "user_username_unique": {
           "name": "user_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       }
     },
@@ -497,14 +484,33 @@
           "primaryKey": false,
           "notNull": true
         },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "value": {
           "name": "value",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_system": {
           "name": "is_system",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "default": {
+          "name": "default",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -517,12 +523,8 @@
           "name": "project_variable_project_id_project_id_fk",
           "tableFrom": "project_variable",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -532,10 +534,7 @@
         "project_variable_project_id_key_unique": {
           "name": "project_variable_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -577,9 +576,7 @@
         "waitlist_email_unique": {
           "name": "waitlist_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -670,12 +667,8 @@
           "name": "workflow_project_id_project_id_fk",
           "tableFrom": "workflow",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -685,10 +678,7 @@
         "workflow_project_id_slug_unique": {
           "name": "workflow_project_id_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "slug"
-          ]
+          "columns": ["project_id", "slug"]
         }
       }
     },
@@ -739,12 +729,8 @@
           "name": "workflow_edge_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -752,12 +738,8 @@
           "name": "workflow_edge_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -765,12 +747,8 @@
           "name": "workflow_edge_source_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "source"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -778,25 +756,16 @@
           "name": "workflow_edge_target_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "target"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "workflow_edge_source_target_source_output_target_input": {
-          "name": "workflow_edge_source_target_source_output_target_input",
-          "columns": [
-            "source",
-            "target",
-            "source_output",
-            "target_input"
-          ]
+        "workflow_edge_source_target_source_output_target_input_pk": {
+          "name": "workflow_edge_source_target_source_output_target_input_pk",
+          "columns": ["source", "target", "source_output", "target_input"]
         }
       },
       "uniqueConstraints": {}
@@ -875,12 +844,8 @@
           "name": "workflow_execution_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -888,12 +853,8 @@
           "name": "workflow_execution_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -901,12 +862,8 @@
           "name": "workflow_execution_entry_node_id_workflow_node_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "entry_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["entry_node_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -914,12 +871,8 @@
           "name": "workflow_execution_exit_node_id_workflow_node_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "exit_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["exit_node_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -969,12 +922,8 @@
           "name": "workflow_execution_step_workflow_execution_id_workflow_execution_id_fk",
           "tableFrom": "workflow_execution_step",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -982,12 +931,8 @@
           "name": "workflow_execution_step_source_node_id_node_execution_data_id_fk",
           "tableFrom": "workflow_execution_step",
           "tableTo": "node_execution_data",
-          "columnsFrom": [
-            "source_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_node_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -995,12 +940,8 @@
           "name": "workflow_execution_step_target_node_id_node_execution_data_id_fk",
           "tableFrom": "workflow_execution_step",
           "tableTo": "node_execution_data",
-          "columnsFrom": [
-            "target_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target_node_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1066,6 +1007,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "color": {
           "name": "color",
           "type": "text",
@@ -1085,12 +1032,8 @@
           "name": "workflow_node_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1098,12 +1041,8 @@
           "name": "workflow_node_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1111,12 +1050,8 @@
           "name": "workflow_node_context_id_context_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1124,12 +1059,8 @@
           "name": "workflow_node_project_id_project_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1158,6 +1089,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "context_id": {
+          "name": "context_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "previous_workflow_version_id": {
           "name": "previous_workflow_version_id",
@@ -1192,12 +1129,8 @@
           "name": "workflow_version_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1205,12 +1138,17 @@
           "name": "workflow_version_project_id_project_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workflow_version_context_id_context_id_fk": {
+          "name": "workflow_version_context_id_context_id_fk",
+          "tableFrom": "workflow_version",
+          "tableTo": "context",
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1220,10 +1158,7 @@
         "workflow_version_workflow_id_version_unique": {
           "name": "workflow_version_workflow_id_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "workflow_id",
-            "version"
-          ]
+          "columns": ["workflow_id", "version"]
         }
       }
     }
@@ -1241,8 +1176,8 @@
   },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

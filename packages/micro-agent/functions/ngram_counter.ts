@@ -1,5 +1,22 @@
+/**
+ * @module ngram_counter
+ * This module provides functionality to count n-grams in a given text.
+ */
+
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
+/**
+ * Counts the occurrences of n-grams in a given text.
+ *
+ * @param {string} text - The input text to analyze.
+ * @param {number} n - The length of the n-grams to count.
+ * @returns {Record<string, number>} An object where keys are n-grams and values are their frequencies.
+ *
+ * @example
+ * const text = "banana";
+ * const result = countNGrams(text, 2);
+ * // result: { ba: 1, an: 2, na: 2 }
+ */
 export default function countNGrams(
   text: string,
   n: number,

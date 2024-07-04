@@ -1,6 +1,6 @@
 {
-  "id": "685f476f-c147-4820-a261-1d327c98f4b1",
-  "prevId": "2ee478cd-188d-4dfd-ad72-ebd05a877658",
+  "id": "dffb1d6f-5718-4c63-83f7-ea82268366de",
+  "prevId": "685f476f-c147-4820-a261-1d327c98f4b1",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -39,12 +39,8 @@
           "name": "project_api_key_project_id_project_id_fk",
           "tableFrom": "project_api_key",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -54,10 +50,7 @@
         "project_api_key_project_id_key_unique": {
           "name": "project_api_key_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -120,12 +113,8 @@
           "name": "context_project_id_project_id_fk",
           "tableFrom": "context",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -133,12 +122,8 @@
           "name": "context_workflow_id_workflow_id_fk",
           "tableFrom": "context",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -146,12 +131,8 @@
           "name": "context_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "context",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -159,12 +140,8 @@
           "name": "context_parent_id_context_id_fk",
           "tableFrom": "context",
           "tableTo": "context",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -404,12 +381,8 @@
           "name": "directus_users_role_directus_roles_id_fk",
           "tableFrom": "directus_users",
           "tableTo": "directus_roles",
-          "columnsFrom": [
-            "role"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -419,23 +392,17 @@
         "directus_users_email_unique": {
           "name": "directus_users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "directus_users_token_unique": {
           "name": "directus_users_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         },
         "directus_users_external_identifier_unique": {
           "name": "directus_users_external_identifier_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "external_identifier"
-          ]
+          "columns": ["external_identifier"]
         }
       }
     },
@@ -512,12 +479,8 @@
           "name": "integration_user_created_directus_users_id_fk",
           "tableFrom": "integration",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_created"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -525,12 +488,8 @@
           "name": "integration_user_updated_directus_users_id_fk",
           "tableFrom": "integration",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_updated"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -598,12 +557,8 @@
           "name": "integration_categories_user_created_directus_users_id_fk",
           "tableFrom": "integration_categories",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_created"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -611,12 +566,8 @@
           "name": "integration_categories_user_updated_directus_users_id_fk",
           "tableFrom": "integration_categories",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_updated"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -659,12 +610,8 @@
           "name": "integration_categories_translations_integration_categories_id_integration_categories_id_fk",
           "tableFrom": "integration_categories_translations",
           "tableTo": "integration_categories",
-          "columnsFrom": [
-            "integration_categories_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["integration_categories_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -672,12 +619,8 @@
           "name": "integration_categories_translations_languages_code_languages_code_fk",
           "tableFrom": "integration_categories_translations",
           "tableTo": "languages",
-          "columnsFrom": [
-            "languages_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -714,12 +657,8 @@
           "name": "integration_integration_categories_integration_id_integration_id_fk",
           "tableFrom": "integration_integration_categories",
           "tableTo": "integration",
-          "columnsFrom": [
-            "integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -727,12 +666,8 @@
           "name": "integration_integration_categories_integration_categories_id_integration_categories_id_fk",
           "tableFrom": "integration_integration_categories",
           "tableTo": "integration_categories",
-          "columnsFrom": [
-            "integration_categories_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["integration_categories_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -769,12 +704,8 @@
           "name": "integration_solution_integration_id_integration_id_fk",
           "tableFrom": "integration_solution",
           "tableTo": "integration",
-          "columnsFrom": [
-            "integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -782,12 +713,8 @@
           "name": "integration_solution_solution_id_solution_id_fk",
           "tableFrom": "integration_solution",
           "tableTo": "solution",
-          "columnsFrom": [
-            "solution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solution_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -836,12 +763,8 @@
           "name": "integration_translations_integration_id_integration_id_fk",
           "tableFrom": "integration_translations",
           "tableTo": "integration",
-          "columnsFrom": [
-            "integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -849,12 +772,8 @@
           "name": "integration_translations_languages_code_languages_code_fk",
           "tableFrom": "integration_translations",
           "tableTo": "languages",
-          "columnsFrom": [
-            "languages_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -976,12 +895,8 @@
           "name": "node_execution_data_workflow_execution_id_workflow_execution_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -989,12 +904,8 @@
           "name": "node_execution_data_context_id_context_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1002,12 +913,8 @@
           "name": "node_execution_data_workflow_id_workflow_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1015,12 +922,8 @@
           "name": "node_execution_data_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1028,12 +931,8 @@
           "name": "node_execution_data_project_id_project_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1090,16 +989,12 @@
         "project_site_unique": {
           "name": "project_site_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "site"
-          ]
+          "columns": ["site"]
         },
         "project_slug_unique": {
           "name": "project_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -1139,12 +1034,8 @@
           "name": "project_members_project_id_project_id_fk",
           "tableFrom": "project_members",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1152,12 +1043,8 @@
           "name": "project_members_user_id_user_id_fk",
           "tableFrom": "project_members",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1225,12 +1112,8 @@
           "name": "solution_user_created_directus_users_id_fk",
           "tableFrom": "solution",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_created"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1238,12 +1121,8 @@
           "name": "solution_user_updated_directus_users_id_fk",
           "tableFrom": "solution",
           "tableTo": "directus_users",
-          "columnsFrom": [
-            "user_updated"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1253,9 +1132,7 @@
         "solution_slug_unique": {
           "name": "solution_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -1300,12 +1177,8 @@
           "name": "solution_translations_solution_id_solution_id_fk",
           "tableFrom": "solution_translations",
           "tableTo": "solution",
-          "columnsFrom": [
-            "solution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solution_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1313,12 +1186,8 @@
           "name": "solution_translations_languages_code_languages_code_fk",
           "tableFrom": "solution_translations",
           "tableTo": "languages",
-          "columnsFrom": [
-            "languages_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1393,9 +1262,7 @@
         "user_username_unique": {
           "name": "user_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       }
     },
@@ -1460,12 +1327,8 @@
           "name": "project_variable_project_id_project_id_fk",
           "tableFrom": "project_variable",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1475,10 +1338,7 @@
         "project_variable_project_id_key_unique": {
           "name": "project_variable_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -1520,9 +1380,7 @@
         "waitlist_email_unique": {
           "name": "waitlist_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -1613,12 +1471,8 @@
           "name": "workflow_project_id_project_id_fk",
           "tableFrom": "workflow",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1628,10 +1482,7 @@
         "workflow_project_id_slug_unique": {
           "name": "workflow_project_id_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "slug"
-          ]
+          "columns": ["project_id", "slug"]
         }
       }
     },
@@ -1682,12 +1533,8 @@
           "name": "workflow_edge_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1695,12 +1542,8 @@
           "name": "workflow_edge_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1708,12 +1551,8 @@
           "name": "workflow_edge_source_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "source"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1721,12 +1560,8 @@
           "name": "workflow_edge_target_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "target"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1734,12 +1569,7 @@
       "compositePrimaryKeys": {
         "workflow_edge_source_target_source_output_target_input_pk": {
           "name": "workflow_edge_source_target_source_output_target_input_pk",
-          "columns": [
-            "source",
-            "target",
-            "source_output",
-            "target_input"
-          ]
+          "columns": ["source", "target", "source_output", "target_input"]
         }
       },
       "uniqueConstraints": {}
@@ -1824,12 +1654,8 @@
           "name": "workflow_execution_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1837,39 +1663,9 @@
           "name": "workflow_execution_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "workflow_execution_entry_context_id_context_id_fk": {
-          "name": "workflow_execution_entry_context_id_context_id_fk",
-          "tableFrom": "workflow_execution",
-          "tableTo": "context",
-          "columnsFrom": [
-            "entry_context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "workflow_execution_current_context_id_context_id_fk": {
-          "name": "workflow_execution_current_context_id_context_id_fk",
-          "tableFrom": "workflow_execution",
-          "tableTo": "context",
-          "columnsFrom": [
-            "current_context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1937,12 +1733,8 @@
           "name": "workflow_execution_event_workflow_execution_id_workflow_execution_id_fk",
           "tableFrom": "workflow_execution_event",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1950,12 +1742,8 @@
           "name": "workflow_execution_event_source_context_id_context_id_fk",
           "tableFrom": "workflow_execution_event",
           "tableTo": "context",
-          "columnsFrom": [
-            "source_context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_context_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2046,12 +1834,8 @@
           "name": "workflow_node_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2059,12 +1843,8 @@
           "name": "workflow_node_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2072,12 +1852,8 @@
           "name": "workflow_node_context_id_context_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2085,12 +1861,8 @@
           "name": "workflow_node_project_id_project_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2159,12 +1931,8 @@
           "name": "workflow_version_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2172,12 +1940,8 @@
           "name": "workflow_version_project_id_project_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2185,12 +1949,8 @@
           "name": "workflow_version_context_id_context_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2200,10 +1960,7 @@
         "workflow_version_workflow_id_version_unique": {
           "name": "workflow_version_workflow_id_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "workflow_id",
-            "version"
-          ]
+          "columns": ["workflow_id", "version"]
         }
       }
     }

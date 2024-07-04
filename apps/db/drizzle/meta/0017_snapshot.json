@@ -1,6 +1,6 @@
 {
-  "id": "25f79794-9c29-410d-b339-33592cc12799",
-  "prevId": "3b65a126-94ff-4d03-8e2b-19eae37f711e",
+  "id": "685f476f-c147-4820-a261-1d327c98f4b1",
+  "prevId": "2ee478cd-188d-4dfd-ad72-ebd05a877658",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -39,12 +39,8 @@
           "name": "project_api_key_project_id_project_id_fk",
           "tableFrom": "project_api_key",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -54,10 +50,7 @@
         "project_api_key_project_id_key_unique": {
           "name": "project_api_key_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -120,12 +113,8 @@
           "name": "context_project_id_project_id_fk",
           "tableFrom": "context",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -133,12 +122,8 @@
           "name": "context_workflow_id_workflow_id_fk",
           "tableFrom": "context",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -146,29 +131,682 @@
           "name": "context_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "context",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "context_parent_id_context_id_fk": {
           "name": "context_parent_id_context_id_fk",
           "tableFrom": "context",
           "tableTo": "context",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "directus_roles": {
+      "name": "directus_roles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "icon": {
+          "name": "icon",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'supervised_user_circle'"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_access": {
+          "name": "ip_access",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "enforce_tfa": {
+          "name": "enforce_tfa",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "admin_access": {
+          "name": "admin_access",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "app_access": {
+          "name": "app_access",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "directus_users": {
+      "name": "directus_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tags": {
+          "name": "tags",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "language": {
+          "name": "language",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tfa_secret": {
+          "name": "tfa_secret",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "role": {
+          "name": "role",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_access": {
+          "name": "last_access",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_page": {
+          "name": "last_page",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider": {
+          "name": "provider",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'default'"
+        },
+        "external_identifier": {
+          "name": "external_identifier",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auth_data": {
+          "name": "auth_data",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_notifications": {
+          "name": "email_notifications",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "appearance": {
+          "name": "appearance",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme_dark": {
+          "name": "theme_dark",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme_light": {
+          "name": "theme_light",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme_light_overrides": {
+          "name": "theme_light_overrides",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme_dark_overrides": {
+          "name": "theme_dark_overrides",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "directus_users_role_directus_roles_id_fk": {
+          "name": "directus_users_role_directus_roles_id_fk",
+          "tableFrom": "directus_users",
+          "tableTo": "directus_roles",
+          "columnsFrom": ["role"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "directus_users_email_unique": {
+          "name": "directus_users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email"]
+        },
+        "directus_users_token_unique": {
+          "name": "directus_users_token_unique",
+          "nullsNotDistinct": false,
+          "columns": ["token"]
+        },
+        "directus_users_external_identifier_unique": {
+          "name": "directus_users_external_identifier_unique",
+          "nullsNotDistinct": false,
+          "columns": ["external_identifier"]
+        }
+      }
+    },
+    "integration": {
+      "name": "integration",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "sort": {
+          "name": "sort",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_created": {
+          "name": "user_created",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_created": {
+          "name": "date_created",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_updated": {
+          "name": "user_updated",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_updated": {
+          "name": "date_updated",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "featured": {
+          "name": "featured",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_user_created_directus_users_id_fk": {
+          "name": "integration_user_created_directus_users_id_fk",
+          "tableFrom": "integration",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "integration_user_updated_directus_users_id_fk": {
+          "name": "integration_user_updated_directus_users_id_fk",
+          "tableFrom": "integration",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "integration_categories": {
+      "name": "integration_categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "sort": {
+          "name": "sort",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_created": {
+          "name": "user_created",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_created": {
+          "name": "date_created",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_updated": {
+          "name": "user_updated",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_updated": {
+          "name": "date_updated",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_categories_user_created_directus_users_id_fk": {
+          "name": "integration_categories_user_created_directus_users_id_fk",
+          "tableFrom": "integration_categories",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "integration_categories_user_updated_directus_users_id_fk": {
+          "name": "integration_categories_user_updated_directus_users_id_fk",
+          "tableFrom": "integration_categories",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "integration_categories_translations": {
+      "name": "integration_categories_translations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "integration_categories_id": {
+          "name": "integration_categories_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages_code": {
+          "name": "languages_code",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_categories_translations_integration_categories_id_integration_categories_id_fk": {
+          "name": "integration_categories_translations_integration_categories_id_integration_categories_id_fk",
+          "tableFrom": "integration_categories_translations",
+          "tableTo": "integration_categories",
+          "columnsFrom": ["integration_categories_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "integration_categories_translations_languages_code_languages_code_fk": {
+          "name": "integration_categories_translations_languages_code_languages_code_fk",
+          "tableFrom": "integration_categories_translations",
+          "tableTo": "languages",
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "integration_integration_categories": {
+      "name": "integration_integration_categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "integration_id": {
+          "name": "integration_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "integration_categories_id": {
+          "name": "integration_categories_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_integration_categories_integration_id_integration_id_fk": {
+          "name": "integration_integration_categories_integration_id_integration_id_fk",
+          "tableFrom": "integration_integration_categories",
+          "tableTo": "integration",
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "integration_integration_categories_integration_categories_id_integration_categories_id_fk": {
+          "name": "integration_integration_categories_integration_categories_id_integration_categories_id_fk",
+          "tableFrom": "integration_integration_categories",
+          "tableTo": "integration_categories",
+          "columnsFrom": ["integration_categories_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "integration_solution": {
+      "name": "integration_solution",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "integration_id": {
+          "name": "integration_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "solution_id": {
+          "name": "solution_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_solution_integration_id_integration_id_fk": {
+          "name": "integration_solution_integration_id_integration_id_fk",
+          "tableFrom": "integration_solution",
+          "tableTo": "integration",
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "integration_solution_solution_id_solution_id_fk": {
+          "name": "integration_solution_solution_id_solution_id_fk",
+          "tableFrom": "integration_solution",
+          "tableTo": "solution",
+          "columnsFrom": ["solution_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "integration_translations": {
+      "name": "integration_translations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "integration_id": {
+          "name": "integration_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages_code": {
+          "name": "languages_code",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "integration_translations_integration_id_integration_id_fk": {
+          "name": "integration_translations_integration_id_integration_id_fk",
+          "tableFrom": "integration_translations",
+          "tableTo": "integration",
+          "columnsFrom": ["integration_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "integration_translations_languages_code_languages_code_fk": {
+          "name": "integration_translations_languages_code_languages_code_fk",
+          "tableFrom": "integration_translations",
+          "tableTo": "languages",
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "languages": {
+      "name": "languages",
+      "schema": "",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direction": {
+          "name": "direction",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'ltr'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -257,12 +895,8 @@
           "name": "node_execution_data_workflow_execution_id_workflow_execution_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -270,12 +904,8 @@
           "name": "node_execution_data_context_id_context_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -283,12 +913,8 @@
           "name": "node_execution_data_workflow_id_workflow_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -296,12 +922,8 @@
           "name": "node_execution_data_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -309,12 +931,8 @@
           "name": "node_execution_data_project_id_project_id_fk",
           "tableFrom": "node_execution_data",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -371,16 +989,12 @@
         "project_site_unique": {
           "name": "project_site_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "site"
-          ]
+          "columns": ["site"]
         },
         "project_slug_unique": {
           "name": "project_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       }
     },
@@ -420,12 +1034,8 @@
           "name": "project_members_project_id_project_id_fk",
           "tableFrom": "project_members",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -433,13 +1043,152 @@
           "name": "project_members_user_id_user_id_fk",
           "tableFrom": "project_members",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "solution": {
+      "name": "solution",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "sort": {
+          "name": "sort",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_created": {
+          "name": "user_created",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_created": {
+          "name": "date_created",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_updated": {
+          "name": "user_updated",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_updated": {
+          "name": "date_updated",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "solution_user_created_directus_users_id_fk": {
+          "name": "solution_user_created_directus_users_id_fk",
+          "tableFrom": "solution",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_created"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "solution_user_updated_directus_users_id_fk": {
+          "name": "solution_user_updated_directus_users_id_fk",
+          "tableFrom": "solution",
+          "tableTo": "directus_users",
+          "columnsFrom": ["user_updated"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "solution_slug_unique": {
+          "name": "solution_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": ["slug"]
+        }
+      }
+    },
+    "solution_translations": {
+      "name": "solution_translations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "solution_id": {
+          "name": "solution_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages_code": {
+          "name": "languages_code",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "solution_translations_solution_id_solution_id_fk": {
+          "name": "solution_translations_solution_id_solution_id_fk",
+          "tableFrom": "solution_translations",
+          "tableTo": "solution",
+          "columnsFrom": ["solution_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "solution_translations_languages_code_languages_code_fk": {
+          "name": "solution_translations_languages_code_languages_code_fk",
+          "tableFrom": "solution_translations",
+          "tableTo": "languages",
+          "columnsFrom": ["languages_code"],
+          "columnsTo": ["code"],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -513,9 +1262,7 @@
         "user_username_unique": {
           "name": "user_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       }
     },
@@ -580,12 +1327,8 @@
           "name": "project_variable_project_id_project_id_fk",
           "tableFrom": "project_variable",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -595,10 +1338,7 @@
         "project_variable_project_id_key_unique": {
           "name": "project_variable_project_id_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "key"
-          ]
+          "columns": ["project_id", "key"]
         }
       }
     },
@@ -640,9 +1380,7 @@
         "waitlist_email_unique": {
           "name": "waitlist_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -733,12 +1471,8 @@
           "name": "workflow_project_id_project_id_fk",
           "tableFrom": "workflow",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -748,10 +1482,7 @@
         "workflow_project_id_slug_unique": {
           "name": "workflow_project_id_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "slug"
-          ]
+          "columns": ["project_id", "slug"]
         }
       }
     },
@@ -802,12 +1533,8 @@
           "name": "workflow_edge_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -815,12 +1542,8 @@
           "name": "workflow_edge_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -828,12 +1551,8 @@
           "name": "workflow_edge_source_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "source"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -841,12 +1560,8 @@
           "name": "workflow_edge_target_workflow_node_id_fk",
           "tableFrom": "workflow_edge",
           "tableTo": "workflow_node",
-          "columnsFrom": [
-            "target"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -854,12 +1569,7 @@
       "compositePrimaryKeys": {
         "workflow_edge_source_target_source_output_target_input_pk": {
           "name": "workflow_edge_source_target_source_output_target_input_pk",
-          "columns": [
-            "source",
-            "target",
-            "source_output",
-            "target_input"
-          ]
+          "columns": ["source", "target", "source_output", "target_input"]
         }
       },
       "uniqueConstraints": {}
@@ -893,14 +1603,20 @@
           "notNull": true,
           "default": "'active'"
         },
-        "entry_node_id": {
-          "name": "entry_node_id",
+        "state": {
+          "name": "state",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entry_context_id": {
+          "name": "entry_context_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "exit_node_id": {
-          "name": "exit_node_id",
+        "current_context_id": {
+          "name": "current_context_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -938,12 +1654,8 @@
           "name": "workflow_execution_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -951,38 +1663,26 @@
           "name": "workflow_execution_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_execution",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "workflow_execution_entry_node_id_workflow_node_id_fk": {
-          "name": "workflow_execution_entry_node_id_workflow_node_id_fk",
+        "workflow_execution_entry_context_id_context_id_fk": {
+          "name": "workflow_execution_entry_context_id_context_id_fk",
           "tableFrom": "workflow_execution",
-          "tableTo": "workflow_node",
-          "columnsFrom": [
-            "entry_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "tableTo": "context",
+          "columnsFrom": ["entry_context_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "workflow_execution_exit_node_id_workflow_node_id_fk": {
-          "name": "workflow_execution_exit_node_id_workflow_node_id_fk",
+        "workflow_execution_current_context_id_context_id_fk": {
+          "name": "workflow_execution_current_context_id_context_id_fk",
           "tableFrom": "workflow_execution",
-          "tableTo": "workflow_node",
-          "columnsFrom": [
-            "exit_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "tableTo": "context",
+          "columnsFrom": ["current_context_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -990,8 +1690,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "workflow_execution_step": {
-      "name": "workflow_execution_step",
+    "workflow_execution_event": {
+      "name": "workflow_execution_event",
       "schema": "",
       "columns": {
         "id": {
@@ -1006,17 +1706,36 @@
           "primaryKey": false,
           "notNull": true
         },
-        "source_node_id": {
-          "name": "source_node_id",
+        "run_id": {
+          "name": "run_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_context_id": {
+          "name": "source_context_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "target_node_id": {
-          "name": "target_node_id",
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'queued'"
+        },
+        "event": {
+          "name": "event",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1028,43 +1747,22 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "workflow_execution_step_workflow_execution_id_workflow_execution_id_fk": {
-          "name": "workflow_execution_step_workflow_execution_id_workflow_execution_id_fk",
-          "tableFrom": "workflow_execution_step",
+        "workflow_execution_event_workflow_execution_id_workflow_execution_id_fk": {
+          "name": "workflow_execution_event_workflow_execution_id_workflow_execution_id_fk",
+          "tableFrom": "workflow_execution_event",
           "tableTo": "workflow_execution",
-          "columnsFrom": [
-            "workflow_execution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_execution_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "workflow_execution_step_source_node_id_node_execution_data_id_fk": {
-          "name": "workflow_execution_step_source_node_id_node_execution_data_id_fk",
-          "tableFrom": "workflow_execution_step",
-          "tableTo": "node_execution_data",
-          "columnsFrom": [
-            "source_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "workflow_execution_step_target_node_id_node_execution_data_id_fk": {
-          "name": "workflow_execution_step_target_node_id_node_execution_data_id_fk",
-          "tableFrom": "workflow_execution_step",
-          "tableTo": "node_execution_data",
-          "columnsFrom": [
-            "target_node_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+        "workflow_execution_event_source_context_id_context_id_fk": {
+          "name": "workflow_execution_event_source_context_id_context_id_fk",
+          "tableFrom": "workflow_execution_event",
+          "tableTo": "context",
+          "columnsFrom": ["source_context_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1154,12 +1852,8 @@
           "name": "workflow_node_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1167,12 +1861,8 @@
           "name": "workflow_node_workflow_version_id_workflow_version_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "workflow_version",
-          "columnsFrom": [
-            "workflow_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1180,12 +1870,8 @@
           "name": "workflow_node_context_id_context_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1193,12 +1879,8 @@
           "name": "workflow_node_project_id_project_id_fk",
           "tableFrom": "workflow_node",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1267,12 +1949,8 @@
           "name": "workflow_version_workflow_id_workflow_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "workflow",
-          "columnsFrom": [
-            "workflow_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1280,12 +1958,8 @@
           "name": "workflow_version_project_id_project_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1293,12 +1967,8 @@
           "name": "workflow_version_context_id_context_id_fk",
           "tableFrom": "workflow_version",
           "tableTo": "context",
-          "columnsFrom": [
-            "context_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1308,10 +1978,7 @@
         "workflow_version_workflow_id_version_unique": {
           "name": "workflow_version_workflow_id_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "workflow_id",
-            "version"
-          ]
+          "columns": ["workflow_id", "version"]
         }
       }
     }
