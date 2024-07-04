@@ -91,7 +91,7 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-key-enum": "^2.0.12",
     "ts-pattern": "^5.0.5",
-    "zod": "3.21.4"
+    "zod": "3.22.3"
   },
   "license": "ISC",
   "devDependencies": {

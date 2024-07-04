@@ -47,7 +47,7 @@
     "unplugin-fonts": "^1.1.1",
     "vite-plugin-commonjs": "^0.10.1",
     "xstate": "5.14.0",
-    "zod": "3.21.4"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",
