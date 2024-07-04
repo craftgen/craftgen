@@ -195,6 +195,12 @@ async function run(problem?: string) {
 
     Example of a valid module:
     ---
+    /** 
+     * Function for adding two numbers together. 
+     * examples: 
+     * const sum = add(2, 5)
+     * // sum = 7
+     *  
     function add(a: number, b: number): number {
       return a + b;
     } 
@@ -223,7 +229,7 @@ Deno.test({
 if (import.meta.main) {
   const requestt = prompt(
     "What you wanna do?",
-    "create a module for getting analytics from youtube sdk",
+    "create a module for turning csv data to markdown table.",
   );
   if (requestt) {
     await run(requestt);
