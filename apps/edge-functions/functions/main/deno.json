@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2021"],
+    "strict": true
+  },
+  "imports": { "hono": "npm:hono@^4.4.11" }
+}

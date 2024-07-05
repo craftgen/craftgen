@@ -8,7 +8,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "deno.enable": true,
-  // "deno.config": "packages/core/deno.json",
+  // "deno.config": "./apps/edge-functions/functions/deno.json",
   "deno.enablePaths": [
     "./apps/edge-functions",
     "./packages/core-deno",

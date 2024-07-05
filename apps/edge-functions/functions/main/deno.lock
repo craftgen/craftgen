@@ -1,0 +1,35 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:@hono/zod-validator": "npm:@hono/zod-validator@0.2.2_hono@4.4.11_zod@3.23.8",
+      "npm:hono": "npm:hono@4.4.11",
+      "npm:zod": "npm:zod@3.23.8"
+    },
+    "npm": {
+      "@hono/zod-validator@0.2.2_hono@4.4.11_zod@3.23.8": {
+        "integrity": "sha512-dSDxaPV70Py8wuIU2QNpoVEIOSzSXZ/6/B/h4xA7eOMz7+AarKTSGV8E6QwrdcCbBLkpqfJ4Q2TmBO0eP1tCBQ==",
+        "dependencies": {
+          "hono": "hono@4.4.11",
+          "zod": "zod@3.23.8"
+        }
+      },
+      "hono@4.4.11": {
+        "integrity": "sha512-R5RADpjoRsR3/VsnFovpsYNLPnC1f+FgdfsePk3qIgjb4D41Sg7uW5QCj41kzEOwXCjBg0sVvOZMvUNZ0DKB7g==",
+        "dependencies": {}
+      },
+      "zod@3.23.8": {
+        "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {
+    "https://deno.land/std@0.224.0/http/status.ts": "ed61b4882af2514a81aefd3245e8df4c47b9a8e54929a903577643d2d1ebf514"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:hono@^4.4.11"
+    ]
+  }
+}
