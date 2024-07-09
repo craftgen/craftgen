@@ -1,3 +1,0 @@
-# craftgen
-
-execute craftgen workflow

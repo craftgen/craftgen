@@ -12,7 +12,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "version": "pnpx tauri-version patch --no-git",
-    "copy-functions": "cp -r ../edge-functions/functions ./src-tauri"
+    "copy-functions": "cp -r ../edge-functions/functions ./src-tauri",
+    "local:db": "surreal start --log trace  --user root --pass root --bind 0.0.0.0:12345 file:./src-tauri/functions/mydatabase.db"
   },
   "dependencies": {
     "@craftgen/api": "^0.1.1",

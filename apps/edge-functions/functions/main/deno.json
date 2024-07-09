@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["ES2021"],
-    "strict": true
+    "strict": true,
+    "allowJs": true
   },
-  "imports": { "hono": "npm:hono@^4.4.11" }
+  "tasks": {
+    "dev": "deno run --watch index.ts"
+  },
+  "nodeModulesDir": true
 }

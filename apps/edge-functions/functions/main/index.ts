@@ -1,18 +1,21 @@
-import type { TimingVariables } from "hono/timing";
 import { STATUS_CODE } from "https://deno.land/std@0.224.0/http/status.ts";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import { endTime, setMetric, startTime, timing } from "npm:hono/timing";
-import { z } from "npm:zod";
+import {
+  endTime,
+  setMetric,
+  startTime,
+  timing,
+  type TimingVariables,
+} from "npm:hono/timing";
 
-import { zValidator } from "./zValidator.ts";
+import packages from "./package.ts";
 
 type Variables = TimingVariables;
 
 const app = new Hono<{ Variables: Variables }>();
 app.use(timing());
-
 app.use(logger());
 app.use(
   cors({
@@ -35,23 +38,25 @@ app.get("/_internal/metric", async (c) => {
 
 console.log("main function started");
 
-const route = app.get(
-  "/hello",
-  zValidator(
-    "query",
-    z.object({
-      name: z.string(),
-    }),
-  ),
-  (c) => {
-    const { name } = c.req.valid("query");
-    return c.json({
-      message: `Hello! ${name} Bye fooo?`,
-    });
-  },
-);
-export type AppType = typeof route;
-Deno.serve({ port: 8787 }, route.fetch);
+// const route = app.get(
+//   "/package",
+//   zValidator(
+//     "query",
+//     z.object({
+//       name: z.string(),
+//     }),
+//   ),
+//   (c) => {
+//     const { name } = c.req.valid("query");
+//     return c.json({
+//       message: `Hello! ${name} Bye fooo?`,
+//     });
+//   },
+// );
+
+const routes = app.route("/package", packages);
+export type AppType = typeof routes;
+Deno.serve({ port: 8787 }, routes.fetch);
 
 // Deno.serve(async (req: Request) => {
 //   const headers = new Headers({
