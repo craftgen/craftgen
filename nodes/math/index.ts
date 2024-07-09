@@ -3,11 +3,12 @@ import { createActor, waitFor } from "npm:xstate";
 import { z } from "npm:zod";
 
 import { zValidator } from "../_shared/zValidator.ts";
+import config from "./config.ts";
 import { actor } from "./run.actor.ts";
 
 const app = new Hono().basePath("/run/craftgen/math");
-app.post("/", (c) => {
-  return c.json({ message: "Hello World" });
+app.get("/", (c) => {
+  return c.json({ ...config });
 });
 
 app.post(
