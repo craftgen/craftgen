@@ -13,7 +13,8 @@
     "./apps/edge-functions/functions/main",
     "./packages/core-deno",
     "./apps/desktop/src-tauri/functions",
-    "./packages/micro-agent"
+    "./packages/micro-agent",
+    "./nodes/"
   ],
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }

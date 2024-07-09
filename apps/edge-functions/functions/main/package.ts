@@ -4,7 +4,7 @@ import { z } from "npm:zod";
 import { getDB } from "./surreal/db.ts";
 import { zValidator } from "./zValidator.ts";
 
-const app = new Hono()
+export const packages = new Hono()
   .get("/", async (c) => {
     const db = await getDB();
     const packages = await db.select("package");
@@ -62,5 +62,3 @@ const app = new Hono()
       });
     },
   );
-
-export default app;

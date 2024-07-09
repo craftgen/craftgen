@@ -1,11 +1,17 @@
-import type { TimingVariables } from "npm:hono/timing";
 import { STATUS_CODE } from "https://deno.land/std@0.224.0/http/status.ts";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import { endTime, setMetric, startTime, timing } from "npm:hono/timing";
-import packages from "./package.ts";
+import {
+  endTime,
+  setMetric,
+  startTime,
+  timing,
+  type TimingVariables,
+} from "npm:hono/timing";
 
+import { packages } from "./package.ts";
+import { run } from "./run.ts";
 
 type Variables = TimingVariables;
 
@@ -29,27 +35,9 @@ app.get("/_internal/metric", async (c) => {
   return c.json(metric);
 });
 
-// app.get("/", (c) => c.text("Craftgen"));
-
 console.log("main function started");
 
-// const route = app.get(
-//   "/package",
-//   zValidator(
-//     "query",
-//     z.object({
-//       name: z.string(),
-//     }),
-//   ),
-//   (c) => {
-//     const { name } = c.req.valid("query");
-//     return c.json({
-//       message: `Hello! ${name} Bye fooo?`,
-//     });
-//   },
-// );
-
-const routes = app.route("/package", packages);
+const routes = app.route("/package", packages).route("/run", run);
 export type AppType = typeof routes;
 Deno.serve({ port: 8787 }, routes.fetch);
 
@@ -114,7 +102,6 @@ Deno.serve({ port: 8787 }, routes.fetch);
 //   }
 
 //   const serviceBaseDir = Deno.env.get("SERVICE_BASE_DIR")!;
-
 //   const servicePath = `${serviceBaseDir}/${service_name}`;
 //   // const servicePath = `/home/deno/functions/${service_name}`;
 //   console.error(`serving the request with ${servicePath}`);
