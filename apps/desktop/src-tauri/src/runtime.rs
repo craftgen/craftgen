@@ -39,6 +39,7 @@ pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
         tauri::RunEvent::Exit { } => {
             log::info!("[Event] Exit");
             kill_sidecar_process(app_handle);
+            app_handle.exit(0)
         }
         _ => {}
     };

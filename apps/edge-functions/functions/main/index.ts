@@ -1,4 +1,5 @@
 import { STATUS_CODE } from "https://deno.land/std@0.224.0/http/status.ts";
+import { trpcServer } from "npm:@hono/trpc-server";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
@@ -10,6 +11,7 @@ import {
   type TimingVariables,
 } from "npm:hono/timing";
 
+import { appRouter } from "../../../../packages/api/router/hello.ts";
 import { packages } from "./package.ts";
 import { run } from "./run.ts";
 
@@ -34,6 +36,13 @@ app.get("/_internal/metric", async (c) => {
   const metric = await EdgeRuntime.getRuntimeMetrics();
   return c.json(metric);
 });
+
+app.use(
+  "/trpc/*",
+  trpcServer({
+    router: appRouter,
+  }),
+);
 
 console.log("main function started");
 

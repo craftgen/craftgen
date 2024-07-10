@@ -21,6 +21,16 @@ export function run(expression: string): number {
 
 /**
  * This actor is used to run the mathematical expression.
+ * @example
+ * const result = createActor(runActorPromise, {
+ *   input: {
+ *     expression: "2 + 3"
+ *   }
+ * });
+ * result.start();
+ * await waitFor(result, (state) => state.matches("complete"));
+ * const res = result.getSnapshot();
+ * console.log(res.outputs.result); // 5
  */
 export const runActorPromise: PromiseActorLogic<
   number,
@@ -56,7 +66,7 @@ const runActor = setup({
     run: runActorPromise,
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QFsCGAXAFgJQK4DsA6AJwPwEt8oBiCAe3zEMoDc6BrJtLPI0-ClQSs6AYwzkGAbQAMAXVlzEoAA51Y5dJPzKQAD0QBGAJwBmQgDYALAA4rpgOwBWADQgAnohuHCTgL5+btw4BCRklDRgxMR0xIQqADYYAGaxyITBvGECEcL4bOJa0vKKumoaRTpI+kZmlrb2zm6eCIYOVoTGTqaGAEz+AW74dBBwupkEZeqa2roGCAC0Fs2IS4MgE3zhVFMVs9XzVr0rCMYdvb0WThb965uEonTIiWDoYLszDHOIpr3ml9dfjczGduidDDJeoQLlcbgMghgQkQojFiB9Kt8EL9-rCgb0QVYwR5ak5LA5jBYbM4AgEgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QFsCGAXAFgJQK4DsA6AJwPwEt8oBiCAe3zEMoDc6BrJtLPI0-ClQSs6AYwzkGAbQAMAXVlzEoAA51Y5dJPzKQAD0QBGAOwBmQgA5TATgsAWU8YCsAGhABPRAFoATE8syFk7Wjk4AvmFu3DgEJGSUNGDExHTEhCoANhgAZqnIhNG8cQIJwvhs4lrS8oq6ahpVOkj6RiGEAGx29qFunggmdoTWTqaGfhGRIPh0EHC6hQR16praugYIXu293oaG5qaBwaERURgxfPFUSw2rzet2PtsI1oM+Pu1O7eOTC0SidMhMmB0GBrisGGtEKYfOZ3p9oV8Qi8Rk9DDIfIQ3h8vuEfmcikkUsQwY1IQhobDsQifEi7CiPK1-O1jNZ2hZnBMwkA */
   id: "mathRun",
   initial: "running",
 
