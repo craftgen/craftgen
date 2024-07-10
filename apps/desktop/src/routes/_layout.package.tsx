@@ -34,6 +34,7 @@ const PackagePage = () => {
   };
 
   const rpcTest = async () => {
+    // client.hello.
     // const result = await client.hello.({
     //   input: "World",
     // });
