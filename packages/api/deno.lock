@@ -2,16 +2,11 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:@trpc/server@10.45.2": "npm:@trpc/server@10.45.2",
-      "npm:@trpc/server@^11.0.0-rc.366": "npm:@trpc/server@11.0.0-rc.452",
+      "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:zod@3.23.8": "npm:zod@3.23.8"
     },
     "npm": {
-      "@trpc/server@10.45.2": {
-        "integrity": "sha512-wOrSThNNE4HUnuhJG6PfDRp4L2009KDVxsd+2VYH8ro6o/7/jwYZ8Uu5j+VaW+mOmc8EHerHzGcdbGNQSAUPgg==",
-        "dependencies": {}
-      },
       "@trpc/server@11.0.0-rc.452": {
         "integrity": "sha512-sqZ2Nmh9hD/xuW5x/9tLoa7N1k/99B0eCDoVdbVtnMQZ0gH79vlLQXrbIPg6BZxu/h1i/jyHWXBmFMqN2JZ6xw==",
         "dependencies": {}
@@ -38,11 +33,5 @@
       }
     }
   },
-  "remote": {},
-  "workspace": {
-    "dependencies": [
-      "npm:@trpc/server@^11.0.0-rc.366",
-      "npm:zod@^3.23.8"
-    ]
-  }
+  "remote": {}
 }

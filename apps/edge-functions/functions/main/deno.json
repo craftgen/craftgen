@@ -5,6 +5,5 @@
   },
   "tasks": {
     "dev": "deno run --watch index.ts"
-  },
-  "nodeModulesDir": true
+  }
 }

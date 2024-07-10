@@ -173,8 +173,8 @@ importers:
         specifier: 0.1.0
         version: link:../db
       '@craftgen/ipc-api':
-        specifier: npm:@jsr/craftgen__ipc-api@^0.0.2
-        version: /@jsr/craftgen__ipc-api@0.0.2
+        specifier: npm:@jsr/craftgen__ipc-api@^0.0.5
+        version: /@jsr/craftgen__ipc-api@0.0.5
       '@craftgen/ui':
         specifier: 1.0.3
         version: link:../../packages/ui
@@ -5708,10 +5708,10 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: false
 
-  /@jsr/craftgen__ipc-api@0.0.2:
-    resolution: {integrity: sha512-6PK5h91bktlTUrVBNqUBIJSjRl8PGaoin9V/U0kvbv92jFDj08y3P0gZW2RrBkesMKP/x3pPuakpny/e9fSGGQ==, tarball: https://npm.jsr.io/~/11/@jsr/craftgen__ipc-api/0.0.2.tgz}
+  /@jsr/craftgen__ipc-api@0.0.5:
+    resolution: {integrity: sha512-WrcuMzk0kfL1Jbhjx+PruJHR7np/XSNMSxrXascsiMpirOBH2+nAcLRtEl8T/Iy9o9uMP+duVsAf4Rqc+MskeQ==, tarball: https://npm.jsr.io/~/11/@jsr/craftgen__ipc-api/0.0.5.tgz}
     dependencies:
-      '@trpc/server': 10.45.2
+      '@trpc/server': 11.0.0-rc.366
       superjson: 2.2.1
       zod: 3.23.8
     dev: false
@@ -11975,10 +11975,6 @@ packages:
       '@trpc/server': 11.0.0-rc.366
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /@trpc/server@10.45.2:
-    resolution: {integrity: sha512-wOrSThNNE4HUnuhJG6PfDRp4L2009KDVxsd+2VYH8ro6o/7/jwYZ8Uu5j+VaW+mOmc8EHerHzGcdbGNQSAUPgg==}
     dev: false
 
   /@trpc/server@11.0.0-rc.366:

@@ -1,5 +1,4 @@
 import { STATUS_CODE } from "https://deno.land/std@0.224.0/http/status.ts";
-import { trpcServer } from "npm:@hono/trpc-server";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
@@ -11,9 +10,10 @@ import {
   type TimingVariables,
 } from "npm:hono/timing";
 
-import { appRouter } from "../../../../packages/api/router/hello.ts";
 import { packages } from "./package.ts";
 import { run } from "./run.ts";
+import { appRouter } from "../api/mod.ts";
+import { trpcServer } from "./trpcServer.ts";
 
 type Variables = TimingVariables;
 
@@ -22,7 +22,7 @@ app.use(timing());
 app.use(logger());
 app.use(
   cors({
-    origin: ["http://localhost:1420", "http://localhost:1420"],
+    origin: ["http://localhost:1420", "tauri://localhost"],
   }),
 );
 

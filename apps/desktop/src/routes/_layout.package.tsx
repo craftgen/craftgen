@@ -34,18 +34,16 @@ const PackagePage = () => {
   };
 
   const rpcTest = async () => {
-    // client.hello.
-    // const result = await client.hello.({
-    //   input: "World",
-    // });
-    // console.log("RESULT", result);
-    // setData(result);
+    const result = await client.toast.query("World");
+    const mu = await client.hello.test.mutate("World");
+    console.log("RESULT", result, mu);
+    setData({ result, mu });
   };
 
   return (
     <div>
       <Button onClick={runtest}>Run Test</Button>
-      <Button onClick={rpcTest}>Run Test</Button>
+      <Button onClick={rpcTest}>RPC Test</Button>
       <JSONView src={data} />
     </div>
   );
