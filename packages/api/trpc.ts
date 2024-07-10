@@ -6,9 +6,9 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { initTRPC, TRPCError } from "npm:@trpc/server@10.45.2";
-import superjson from "npm:superjson@2.2.1";
-import { ZodError } from "npm:zod@3.23.8";
+import { initTRPC, TRPCError } from "@trpc/server";
+import superjson from "superjson";
+import { ZodError } from "zod";
 
 interface Session {
   user: {

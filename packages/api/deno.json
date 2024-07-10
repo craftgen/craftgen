@@ -1,12 +1,13 @@
 {
   "name": "@craftgen/ipc-api",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "tasks": {
     "dev": "deno run --watch main.ts"
   },
   "exports": "./mod.ts",
   "imports": {
-    "@trpc/server": "npm:@trpc/server@^10.45.2",
-    "zod": "npm:zod@^3.23.8"
+    "@trpc/server": "npm:@trpc/server@^11.0.0-rc.366",
+    "zod": "npm:zod@^3.23.8",
+    "superjson": "npm:superjson@^2.2.1"
   }
 }

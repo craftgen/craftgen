@@ -17,5 +17,8 @@
     "./packages/api/",
     "./nodes/"
   ],
+  "deno.config": {
+    "packages/api": "packages/api/deno.json"
+  },
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }
