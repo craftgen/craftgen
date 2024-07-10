@@ -20,6 +20,7 @@
     "@craftgen/composer": "1.0.4",
     "@craftgen/core": "0.1.1",
     "@craftgen/db": "0.1.0",
+    "@craftgen/ipc-api": "npm:@jsr/craftgen__ipc-api@^0.0.1",
     "@craftgen/ui": "1.0.3",
     "@sentry/vite-plugin": "^2.20.1",
     "@supabase/auth-ui-react": "^0.4.7",
