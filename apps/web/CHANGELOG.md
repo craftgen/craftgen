@@ -1,5 +1,18 @@
 # @craftgen/web
 
+## 0.1.5
+
+### Patch Changes
+
+- 23f4ce1: bump the trpc version
+- Updated dependencies [687b6d7]
+- Updated dependencies [23f4ce1]
+  - @craftgen/db@0.1.1
+  - @craftgen/core@0.1.2
+  - @craftgen/ui@1.0.4
+  - @craftgen/api@0.1.2
+  - @craftgen/composer@1.0.5
+
 ## 0.1.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@craftgen/api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@craftgen/db": "^0.1.0",
+    "@craftgen/db": "^0.1.1",
     "@craftgen/utils": "^0.1.0",
     "@googleapis/webmasters": "^1.0.3",
     "@supabase/supabase-js": "^2.39.7",

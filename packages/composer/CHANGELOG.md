@@ -1,5 +1,14 @@
 # @craftgen/composer
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies [23f4ce1]
+  - @craftgen/core@0.1.2
+  - @craftgen/ui@1.0.4
+  - @craftgen/api@0.1.2
+
 ## 1.0.4
 
 ### Patch Changes

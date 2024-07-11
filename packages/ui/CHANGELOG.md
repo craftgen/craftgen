@@ -1,5 +1,14 @@
 # @craftgen/ui
 
+## 1.0.4
+
+### Patch Changes
+
+- 23f4ce1: bump the trpc version
+- Updated dependencies [23f4ce1]
+  - @craftgen/core@0.1.2
+  - @craftgen/api@0.1.2
+
 ## 1.0.3
 
 ### Patch Changes

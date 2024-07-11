@@ -1,6 +1,6 @@
 {
   "name": "@craftgen/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "type": "module",
   "exports": {
@@ -30,7 +30,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.8",
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@craftgen/api": "^0.1.0",
+    "@craftgen/api": "^0.1.2",
     "@craftgen/utils": "^0.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@statelyai/agent": "^0.0.7",

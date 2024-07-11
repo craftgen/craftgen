@@ -1,7 +1,7 @@
 {
   "name": "@craftgen/ui",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "type": "module",
   "scripts": {
@@ -30,8 +30,8 @@
     "react": "^18.2.0"
   },
   "dependencies": {
-    "@craftgen/api": "0.1.1",
-    "@craftgen/core": "0.1.1",
+    "@craftgen/api": "0.1.2",
+    "@craftgen/core": "0.1.2",
     "@hookform/resolvers": "^3.3.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.4",
