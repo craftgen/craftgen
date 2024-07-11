@@ -15,7 +15,9 @@
     "./apps/desktop/src-tauri/functions",
     "./packages/micro-agent",
     "./packages/api/",
-    "./nodes/"
+    "./nodes/math/",
+    "./nodes/_shared/",
+    "./nodes/base/"
   ],
   "deno.config": {
     "packages/api": "packages/api/deno.json",

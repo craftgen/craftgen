@@ -1,17 +1,6 @@
 import { dedent } from "npm:ts-dedent@2.2.0";
 
-interface CraftgenNodeConfig {
-  name: string;
-  description: string;
-  icon: string;
-  inputs: Record<string, SocketConfig>;
-  outputs: Record<string, SocketConfig>;
-}
-
-interface SocketConfig {
-  type: string;
-  description: string;
-}
+import type { CraftgenNodeConfig } from "../base/config.ts";
 
 const config: CraftgenNodeConfig = {
   name: "math",

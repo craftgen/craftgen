@@ -6,6 +6,7 @@ import superjson from "superjson";
 
 import { type AppRouter } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
+import { Input } from "@craftgen/ui/components/input";
 import { JSONView } from "@craftgen/ui/components/json-view";
 
 const client = createTRPCClient<AppRouter>({
@@ -34,10 +35,15 @@ const PackagePage = () => {
   };
 
   const rpcTest = async () => {
-    const result = await client.toast.query("World");
-    const mu = await client.hello.test.mutate("World");
-    console.log("RESULT", result, mu);
-    setData({ result, mu });
+    const result = await client.package.cwd.query();
+    setData({ result });
+  };
+  const [path, setPath] = useState("");
+  const sendReadPath = async () => {
+    const result = await client.package.get.query({
+      path,
+    });
+    setData({ result });
   };
 
   return (
@@ -45,6 +51,12 @@ const PackagePage = () => {
       <Button onClick={runtest}>Run Test</Button>
       <Button onClick={rpcTest}>RPC Test</Button>
       <JSONView src={data} />
+      <Input
+        placeholder="Query"
+        value={path}
+        onChange={(e) => setPath(e.target.value)}
+      />
+      <Button onClick={sendReadPath}>Send</Button>
     </div>
   );
 };
