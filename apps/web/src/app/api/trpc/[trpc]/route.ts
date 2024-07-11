@@ -22,7 +22,7 @@ const setCorsHeaders = (res: Response) => {
   res.headers.set("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
   res.headers.set(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, trpc-batch-mode,  x-trpc-source",
+    "Content-Type, Authorization, trpc-batch-mode,  x-trpc-source, trpc-accept",
   );
   res.headers.set("Access-Control-Allow-Credentials", "true");
 };

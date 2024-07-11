@@ -1,0 +1,11 @@
+{
+  "name": "@craftgen/math",
+  "version": "0.0.2",
+  "exports": {
+    ".": "./mod.ts",
+    "./config": "./config.ts"
+  },
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  }
+}

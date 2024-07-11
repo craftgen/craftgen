@@ -43,15 +43,12 @@ const DashboardLayoutComponent = () => {
             icon: <Icons.package2 className="h-5 w-5" />,
             linkProps: { to: "/explore" },
           },
-          ...(import.meta.env.DEV
-            ? [
-                {
-                  label: "Package",
-                  icon: <Icons.code className="h-5 w-5 text-red-500" />,
-                  linkProps: { to: "/package" },
-                },
-              ]
-            : []),
+          {
+            label: "Package",
+            icon: <Icons.code className="h-5 w-5 text-red-500" />,
+            linkProps: { to: "/package" },
+          },
+          ...(import.meta.env.DEV ? [] : []),
         ]}
         bottomLinks={[
           {

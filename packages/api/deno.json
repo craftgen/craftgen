@@ -1,0 +1,8 @@
+{
+  "name": "@craftgen/ipc-api",
+  "version": "0.0.6",
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "exports": "./mod.ts"
+}

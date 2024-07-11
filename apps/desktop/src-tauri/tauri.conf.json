@@ -3,9 +3,9 @@
   "version": "../package.json",
   "identifier": "com.craftgen.ai",
   "build": {
-    "beforeDevCommand": "pnpm copy-functions && pnpm dev ",
+    "beforeDevCommand": "pnpm dev ",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm copy-functions && pnpm build",
+    "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -45,8 +45,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": ["functions/*"],
-    "externalBin": ["binaries/edge-runtime"]
+    "resources": [
+      "functions/*"
+    ],
+    "externalBin": [
+      "binaries/edge-runtime"
+    ]
   },
   "plugins": {
     "updater": {
