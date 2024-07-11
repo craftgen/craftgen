@@ -42,7 +42,7 @@ importers:
   apps/api:
     dependencies:
       '@craftgen/db':
-        specifier: ^0.1.0
+        specifier: ^0.1.1
         version: link:../db
       '@craftgen/utils':
         specifier: ^0.1.0
@@ -161,22 +161,22 @@ importers:
   apps/desktop:
     dependencies:
       '@craftgen/api':
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.4
+        specifier: 1.0.5
         version: link:../../packages/composer
       '@craftgen/core':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../packages/core
       '@craftgen/db':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../db
       '@craftgen/ipc-api':
         specifier: npm:@jsr/craftgen__ipc-api@^0.0.5
         version: /@jsr/craftgen__ipc-api@0.0.5
       '@craftgen/ui':
-        specifier: 1.0.3
+        specifier: 1.0.4
         version: link:../../packages/ui
       '@sentry/vite-plugin':
         specifier: ^2.20.1
@@ -312,7 +312,7 @@ importers:
   apps/extension:
     dependencies:
       '@craftgen/core':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../packages/core
       '@plasmohq/messaging':
         specifier: ^0.5.0
@@ -352,19 +352,19 @@ importers:
   apps/web:
     dependencies:
       '@craftgen/api':
-        specifier: ^0.1.1
+        specifier: ^0.1.2
         version: link:../api
       '@craftgen/composer':
-        specifier: 1.0.4
+        specifier: 1.0.5
         version: link:../../packages/composer
       '@craftgen/core':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../packages/core
       '@craftgen/db':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../db
       '@craftgen/ui':
-        specifier: 1.0.3
+        specifier: 1.0.4
         version: link:../../packages/ui
       '@faustwp/blocks':
         specifier: ^4.0.0
@@ -950,7 +950,7 @@ importers:
         specifier: '*'
         version: link:../../apps/api
       '@craftgen/core':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../core
       '@craftgen/ui':
         specifier: '*'
@@ -1104,7 +1104,7 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0(openapi-types@12.1.3)
       '@craftgen/api':
-        specifier: ^0.1.0
+        specifier: ^0.1.2
         version: link:../../apps/api
       '@craftgen/utils':
         specifier: ^0.1.0
@@ -1306,10 +1306,10 @@ importers:
   packages/ui:
     dependencies:
       '@craftgen/api':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../apps/api
       '@craftgen/core':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../core
       '@hookform/resolvers':
         specifier: ^3.3.0
