@@ -1,7 +1,7 @@
 {
   "name": "@craftgen/extension",
   "displayName": "Extension",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A basic Plasmo extension.",
   "author": "Plasmo Corp. <foss@plasmo.com>",
   "scripts": {
@@ -10,7 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
-    "@craftgen/core": "0.1.1",
+    "@craftgen/core": "0.1.2",
     "@plasmohq/messaging": "^0.5.0",
     "plasmo": "0.83.0",
     "react": "18.2.0",
