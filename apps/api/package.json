@@ -28,7 +28,7 @@
     "stripe": "^14.18.0",
     "superjson": "2.2.1",
     "ts-pattern": "^5.0.5",
-    "zod": "3.21.4"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@acme/eslint-config": "workspace:*",

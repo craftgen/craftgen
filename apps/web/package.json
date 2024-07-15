@@ -86,7 +86,7 @@
     "@udecode/plate-line-height": "^23.7.0",
     "@udecode/plate-link": "^23.7.0",
     "@udecode/plate-list": "^23.7.0",
-    "@udecode/plate-media": "^23.7.0",
+    "@udecode/plate-media": "^36.0.10",
     "@udecode/plate-mention": "^23.7.0",
     "@udecode/plate-node-id": "^23.7.0",
     "@udecode/plate-paragraph": "^23.7.0",
@@ -184,7 +184,7 @@
     "uuid": "^9.0.0",
     "worker-loader": "^3.0.8",
     "xstate": "5.14.0",
-    "zod": "3.21.4",
+    "zod": "3.22.3",
     "zod-to-json-schema": "^3.21.4",
     "zustand": "^4.3.9"
   },
