@@ -16,6 +16,11 @@ export const packageRouter = createTRPCRouter({
     return Deno.cwd();
   }),
 
+  set: publicProcedure.mutation(({ ctx, input }) => {
+    Deno.env.get("SER");
+    Deno.openKv("");
+  }),
+
   get: publicProcedure
     .input(
       z.object({

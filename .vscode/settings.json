@@ -17,7 +17,7 @@
     "./packages/api/",
     "./nodes/math/",
     "./nodes/_shared/",
-    "./nodes/base/"
+    "./nodes"
   ],
   "deno.config": {
     "packages/api": "packages/api/deno.json",
