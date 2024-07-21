@@ -19,9 +19,5 @@
     "./nodes/_shared/",
     "./nodes"
   ],
-  "deno.config": {
-    "packages/api": "packages/api/deno.json",
-    "apps/edge-functions/functions/main": "apps/edge-functions/functions/main/deno.json"
-  },
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }

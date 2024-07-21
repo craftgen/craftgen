@@ -6,8 +6,8 @@ export { createTRPCContext } from "./trpc.ts";
 
 export const appRouter = createTRPCRouter({
   package: packageRouter,
-  toast: publicProcedure.input(z.string().nullish()).query(({ input }) => {
-    return `Hey ${input ?? "World"}!`;
+  context: publicProcedure.query(({ ctx }) => {
+    return ctx;
   }),
 });
 

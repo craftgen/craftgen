@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
-export const projectRouter = createTRPCRouter({
+export const orgRouter = createTRPCRouter({
   search: publicProcedure
     .input(
       z.object({

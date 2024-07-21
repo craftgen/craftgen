@@ -1,0 +1,28 @@
+{
+  "name": "@craftgen/database",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "drizzle:generate": "drizzle-kit generate:sqlite --out ./drizzle/migrations --breakpoints --schema=./drizzle/schema.ts",
+    "drizzle:generate:orgs": "drizzle-kit generate:sqlite --out ./drizzle/migrations-orgs --breakpoints --schema=./drizzle/org-schema.ts",
+    "drizzle:migrate": "pnpm with-env tsx drizzle/migrate.ts",
+    "drizzle:push": "pnpm with-env drizzle-kit push",
+    "with-env": "dotenv -e ../.env --",
+    "with-env:prod": "dotenv -e ../.env.prod --"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@libsql/client": "^0.7.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "drizzle-orm": "^0.32.0",
+    "ky": "^1.1.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.2.1",
+    "drizzle-kit": "^0.23.0",
+    "tsx": "^3.12.7"
+  }
+}
