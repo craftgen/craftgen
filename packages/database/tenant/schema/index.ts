@@ -1,13 +1,6 @@
-import { relations, sql } from "drizzle-orm";
-import {
-  blob,
-  integer,
-  sqliteTable,
-  text,
-  uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { blob, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-import { createIdWithPrefix } from "../lib/id";
+import { createIdWithPrefix } from "../../lib/id.ts";
 
 /**
  * This table is used for store `latest` data for the nodes in the workflow;

@@ -1,13 +1,13 @@
-import { sql } from "drizzle-orm";
+import { sql } from "npm:drizzle-orm";
 import {
   index,
   integer,
   sqliteTable,
   text,
   uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+} from "npm:drizzle-orm/sqlite-core";
 
-import { createIdWithPrefix } from "../lib/id";
+import { createIdWithPrefix } from "../lib/id.ts";
 
 export const organizations = sqliteTable(
   "organizations",

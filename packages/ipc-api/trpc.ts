@@ -6,6 +6,7 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { buildDbClient } from "../database/lib/client-org.ts";
 import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
 interface Session {
@@ -40,8 +41,14 @@ interface CreateContextOptions {
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
+  const token =
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE2MTgwMzEsImlkIjoiN2NiMTRkN2MtODVjYy00NWUyLWEwNTctOTA5OGJkZGQ4MTY4In0.HXvTbW-5N6Z9b6PE8I3HfugXLou0lvS0HJ7_pXiaxE6fveyycIUJf6zsMo0_gtOlr7K9-trO74pmqMKSs1GGBw";
   return {
     session: opts.session,
+    db: buildDbClient({
+      url: "libsql://org-123-craftgen.turso.io",
+      authToken: token || Deno.env.get("TURSO_DB_AUTH_TOKEN"),
+    }),
   };
 };
 

@@ -1,11 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "allowJs": true
-  },
-  "tasks": {
-    "dev": "deno run --watch index.ts"
-  },
   "imports": {
     "@craftgen/ipc-api": "npm:@craftgen/ipc-api@^0.0.1",
     "@libsql/client": "npm:@libsql/client@^0.7.0",

@@ -2,7 +2,7 @@
   "name": "@craftgen/database",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "mod.ts",
   "scripts": {
     "drizzle:generate": "drizzle-kit generate:sqlite --out ./drizzle/migrations --breakpoints --schema=./drizzle/schema.ts",
     "drizzle:generate:orgs": "drizzle-kit generate:sqlite --out ./drizzle/migrations-orgs --breakpoints --schema=./drizzle/org-schema.ts",

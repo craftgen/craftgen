@@ -10,9 +10,9 @@ import {
   type TimingVariables,
 } from "npm:hono/timing";
 
+import { appRouter } from "../ipc-api/mod.ts";
 import { packages } from "./package.ts";
 import { run } from "./run.ts";
-import { appRouter } from "../api/mod.ts";
 import { trpcServer } from "./trpcServer.ts";
 
 type Variables = TimingVariables;

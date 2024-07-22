@@ -1,13 +1,13 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "allowJs": true
-  },
+  "name": "@craftgen/database",
+  "version": "0.0.1",
+  "exports": "./mod.ts",
   "tasks": {
-    "dev": "deno run --watch index.ts"
+    "dev": "deno test --watch mod.ts",
+    "drizzle:push": "pnpm with-env drizzle-kit push",
+    "create-org-db": "deno run -A ./lib/create-org-db.ts"
   },
   "imports": {
-    "@craftgen/ipc-api": "npm:@craftgen/ipc-api@^0.0.1",
     "@libsql/client": "npm:@libsql/client@^0.7.0",
     "drizzle-orm": "npm:drizzle-orm@^0.32.0",
     "drizzle-kit": "npm:drizzle-kit@0.23.0",

@@ -4,5 +4,8 @@
   "tasks": {
     "dev": "deno run --watch main.ts"
   },
-  "exports": "./mod.ts"
+  "exports": "./mod.ts",
+  "imports": {
+    "@craftgen/database": "npm:@craftgen/database@0.0.1"
+  }
 }

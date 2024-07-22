@@ -1,0 +1,21 @@
+copy:
+  cp -r ../../packages/database ./functions/database
+  cp -r ../../packages/ipc-api ./functions/ipc-api
+  cp -r ../../nodes ./functions/@craftgen
+
+dev:
+  just clean
+  just copy
+  docker compose up --build
+
+
+link:
+  just clean
+  ln -s ../../packages/database ./functions/database
+  ln -s ../../packages/ipc-api ./functions/ipc-api
+  ln -s ../../nodes ./functions/@craftgen
+
+clean:
+  rm -rf ./functions/database
+  rm -rf ./functions/ipc-api
+  rm -rf ./functions/@craftgen  

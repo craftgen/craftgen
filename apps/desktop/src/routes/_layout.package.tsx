@@ -35,7 +35,7 @@ const PackagePage = () => {
   };
 
   const rpcTest = async () => {
-    const result = await client.package.cwd.query();
+    const result = await client.context.query();
     setData({ result });
   };
   const [path, setPath] = useState("");

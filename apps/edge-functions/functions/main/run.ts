@@ -1,5 +1,4 @@
 import { STATUS_CODE } from "https://deno.land/std@0.224.0/http/status.ts";
-import { ulid } from "https://deno.land/x/ulid/mod.ts";
 import { Hono } from "npm:hono";
 import { z } from "npm:zod";
 

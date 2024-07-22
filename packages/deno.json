@@ -1,0 +1,6 @@
+{
+  "workspace": ["./ipc-api", "./database"],
+  "imports": {
+    "chalk": "npm:chalk@5"
+  }
+}

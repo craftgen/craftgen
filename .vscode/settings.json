@@ -17,7 +17,8 @@
     "./packages/api/",
     "./nodes/math/",
     "./nodes/_shared/",
-    "./nodes"
+    "./nodes",
+    "./packages"
   ],
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }
