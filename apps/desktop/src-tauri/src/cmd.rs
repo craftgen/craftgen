@@ -17,6 +17,7 @@ pub async fn start_edge_runtime(
 
     let main_service = resource_path.join("main");
     let event_worker = resource_path.join("event");
+    let import_map = resource_path.join("import_map.json");
     let env = [(
         "SERVICE_BASE_DIR",
         resource_path.to_string_lossy().to_string(),
@@ -26,6 +27,17 @@ pub async fn start_edge_runtime(
         "Starting edge runtime with main service: {}",
         main_service.to_string_lossy()
     );
+
+    let ipc_command = app_handle
+        .shell()
+        .sidecar("deno")
+        .unwrap()
+        .args([
+            "run",
+            "./functions/ipc-api/server.ts"
+        ])
+        .envs(env.clone());
+        
 
     let sidecar_command = app_handle
         .shell()
@@ -38,12 +50,17 @@ pub async fn start_edge_runtime(
             "--event-worker",
             &event_worker.to_string_lossy(),
             // "-v",
+            "--import-map", 
+            &import_map.to_string_lossy(),
             "-p",
             "24321"
         ])
-        .envs(env);
+        .envs(env.clone());
 
     let (mut rx, child) = sidecar_command.spawn().expect("Failed to spawn sidecar");
+
+    // start ipc server
+    ipc_command.spawn().expect("Failed to spawn ipc backend");
 
 
 

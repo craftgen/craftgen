@@ -11,9 +11,9 @@ dev:
 
 link:
   just clean
-  ln -s ../../packages/database ./functions/database
-  ln -s ../../packages/ipc-api ./functions/ipc-api
-  ln -s ../../nodes ./functions/@craftgen
+  cd functions && ln -s ../../../packages/database database
+  cd functions && ln -s ../../../packages/ipc-api ipc-api
+  cd functions && ln -s ../../../nodes @craftgen
 
 clean:
   rm -rf ./functions/database

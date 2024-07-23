@@ -46,7 +46,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     db: buildDbClient({
-      url: "libsql://org-123-craftgen.turso.io",
+      url: "libsql://org-123-necmttn.turso.io",
       authToken: token || Deno.env.get("TURSO_DB_AUTH_TOKEN"),
     }),
   };

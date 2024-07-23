@@ -40,8 +40,8 @@
             "--reload",
             "--quiet"
           ],
-          "cmd": "deno",
-          "name": "deno",
+          "cmd": "",
+          "name": "binaries/deno",
           "sidecar": false
         }
       ]

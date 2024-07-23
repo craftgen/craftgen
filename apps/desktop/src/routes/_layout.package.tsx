@@ -13,7 +13,7 @@ const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       transformer: superjson,
-      url: "http://localhost:24321/trpc",
+      url: "http://localhost:8787/trpc",
     }),
   ],
 });

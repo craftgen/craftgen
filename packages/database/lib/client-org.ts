@@ -6,6 +6,8 @@ import * as schema from "../tenant/schema/index.ts";
 interface Env {
   url: string;
   authToken?: string;
+
+  useLocalReplica?: boolean;
 }
 
 export function buildDbClient({ url, authToken }: Env) {
@@ -17,14 +19,13 @@ export function buildDbClient({ url, authToken }: Env) {
   if (authToken === undefined) {
     throw new Error("TURSO_DB_AUTH_TOKEN is not defined");
   }
-
-  const a = createClient({
-    url: `${Deno.env.get("SERVICE_BASE_DIR")}/org.db`,
-    syncUrl: `libsql://${url}`,
-    authToken,
-  });
-
-  return drizzle(a, {
-    schema,
-  });
+  return drizzle(
+    createClient({
+      url: `libsql://${url}`,
+      authToken,
+    }),
+    {
+      schema,
+    },
+  );
 }

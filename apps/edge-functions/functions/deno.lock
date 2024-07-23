@@ -5,20 +5,32 @@
       "npm:@libsql/client": "npm:@libsql/client@0.7.0",
       "npm:@libsql/client-wasm": "npm:@libsql/client-wasm@0.7.0",
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
-      "npm:@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@paralleldrive/cuid2@^2.2.2": "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
-      "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:dotenv-cli@^7.2.1": "npm:dotenv-cli@7.4.2",
       "npm:drizzle-kit@^0.23.0": "npm:drizzle-kit@0.23.0_esbuild@0.19.12",
       "npm:drizzle-orm": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
       "npm:drizzle-orm@^0.32.0": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
+      "npm:hono": "npm:hono@4.4.12",
       "npm:ky@^1.1.3": "npm:ky@1.2.4",
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
+      "npm:surrealdb.js": "npm:surrealdb.js@1.0.0-beta.9_ws@8.18.0__bufferutil@4.0.8__utf-8-validate@6.0.4_bufferutil@4.0.8_utf-8-validate@6.0.4",
       "npm:tsx@^3.12.7": "npm:tsx@3.14.0",
+      "npm:zod": "npm:zod@3.23.8",
       "npm:zod@3.23.8": "npm:zod@3.23.8"
     },
     "npm": {
+      "@deno/shim-deno-test@0.4.0": {
+        "integrity": "sha512-oYWcD7CpERZy/TXMTM9Tgh1HD/POHlbY9WpzmAk+5H8DohcxG415Qws8yLGlim3EaKBT2v3lJv01x4G0BosnaQ==",
+        "dependencies": {}
+      },
+      "@deno/shim-deno@0.16.1": {
+        "integrity": "sha512-s9v0kzF5bm/o9TgdwvsraHx6QNllYrXXmKzgOG2lh4LFXnVMr2gpjK/c/ve6EflQn1MqImcWmVD8HAv5ahuuZQ==",
+        "dependencies": {
+          "@deno/shim-deno-test": "@deno/shim-deno-test@0.4.0",
+          "which": "which@2.0.2"
+        }
+      },
       "@esbuild-kit/core-utils@3.3.2": {
         "integrity": "sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==",
         "dependencies": {
@@ -213,6 +225,10 @@
         "integrity": "sha512-T1QyPSDCyMXaO3pzBkF96E8xMkiRYbUEZADd29SyPGabqxMViNoii+NcK7eWJAEoU6RZyEm5lVSIjTmcdoB9HA==",
         "dependencies": {}
       },
+      "@icholy/duration@5.1.0": {
+        "integrity": "sha512-I/zdjC6qYdwWJ2H1/PZbI3g58pPIiI/eOe5XDTtQ/v36d0ogcvAylqwOIWj/teY1rBnIMzUyWfX7PMm9I67WWg==",
+        "dependencies": {}
+      },
       "@libsql/client-wasm@0.7.0": {
         "integrity": "sha512-ahDPL5qqD/3tONvKUyKUDttqAA2C1Nj0E7LMsTL8DsL6QhdWTzZqqI3VB2++k9l30xOW5e4GwGuHHrVPs7LcOw==",
         "dependencies": {
@@ -321,6 +337,18 @@
         "integrity": "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==",
         "dependencies": {}
       },
+      "bufferutil@4.0.8": {
+        "integrity": "sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw==",
+        "dependencies": {
+          "node-gyp-build": "node-gyp-build@4.8.1"
+        }
+      },
+      "cbor-redux@1.0.0": {
+        "integrity": "sha512-nqCD/Yu2FON0XgZYdUNsMx1Tc08MOY3noh9bO2MvkjlyLZyqIVWjuz6A0mDrPJncdOfacokFUtF7zlzzP5oK5A==",
+        "dependencies": {
+          "@deno/shim-deno": "@deno/shim-deno@0.16.1"
+        }
+      },
       "copy-anything@3.0.5": {
         "integrity": "sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==",
         "dependencies": {
@@ -344,6 +372,10 @@
         "dependencies": {
           "ms": "ms@2.1.2"
         }
+      },
+      "decimal.js@10.4.3": {
+        "integrity": "sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==",
+        "dependencies": {}
       },
       "detect-libc@2.0.2": {
         "integrity": "sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==",
@@ -465,6 +497,10 @@
           "resolve-pkg-maps": "resolve-pkg-maps@1.0.0"
         }
       },
+      "hono@4.4.12": {
+        "integrity": "sha512-Lx4Vwbws0IqFfXIVYychxUW0A4EE+7dn/jsjVeM34OXSA2Xs45MkDDP14Mzznp7LlDemUNHQG2uv2N5jQld0hA==",
+        "dependencies": {}
+      },
       "is-what@4.1.16": {
         "integrity": "sha512-ZhMwEosbFJkA0YhFnNDgTM4ZxDRsS6HqTo7qsZM08fehyRYIYa0yHu5R6mgo1n/8MgaPBXiPimPD77baVFYg+A==",
         "dependencies": {}
@@ -472,6 +508,12 @@
       "isexe@2.0.0": {
         "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==",
         "dependencies": {}
+      },
+      "isows@1.0.4_ws@8.18.0__bufferutil@4.0.8__utf-8-validate@6.0.4_bufferutil@4.0.8_utf-8-validate@6.0.4": {
+        "integrity": "sha512-hEzjY+x9u9hPmBom9IIAqdJCwNLax+xrPb51vEPpERoFlIxgmZcHzsT5jKG06nvInKOBGvReAVz80Umed5CczQ==",
+        "dependencies": {
+          "ws": "ws@8.18.0_bufferutil@4.0.8_utf-8-validate@6.0.4"
+        }
       },
       "js-base64@3.7.7": {
         "integrity": "sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==",
@@ -515,6 +557,10 @@
           "formdata-polyfill": "formdata-polyfill@4.0.10"
         }
       },
+      "node-gyp-build@4.8.1": {
+        "integrity": "sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==",
+        "dependencies": {}
+      },
       "path-key@3.1.1": {
         "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==",
         "dependencies": {}
@@ -525,6 +571,10 @@
       },
       "resolve-pkg-maps@1.0.0": {
         "integrity": "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==",
+        "dependencies": {}
+      },
+      "semver@7.6.2": {
+        "integrity": "sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==",
         "dependencies": {}
       },
       "shebang-command@2.0.0": {
@@ -554,6 +604,21 @@
           "copy-anything": "copy-anything@3.0.5"
         }
       },
+      "surrealdb.js@1.0.0-beta.9_ws@8.18.0__bufferutil@4.0.8__utf-8-validate@6.0.4_bufferutil@4.0.8_utf-8-validate@6.0.4": {
+        "integrity": "sha512-EPodlWRWwfK91qtKHJ246Rljpvl7eB0egHwhthRa/wsxMoEVqUyIqmMSjmweKOGGKxm35NhivYbJh+5LnqI/nA==",
+        "dependencies": {
+          "@icholy/duration": "@icholy/duration@5.1.0",
+          "bufferutil": "bufferutil@4.0.8",
+          "cbor-redux": "cbor-redux@1.0.0",
+          "decimal.js": "decimal.js@10.4.3",
+          "isows": "isows@1.0.4_ws@8.18.0__bufferutil@4.0.8__utf-8-validate@6.0.4_bufferutil@4.0.8_utf-8-validate@6.0.4",
+          "semver": "semver@7.6.2",
+          "utf-8-validate": "utf-8-validate@6.0.4",
+          "uuidv7": "uuidv7@0.6.3",
+          "ws": "ws@8.18.0_bufferutil@4.0.8_utf-8-validate@6.0.4",
+          "zod": "zod@3.23.8"
+        }
+      },
       "tsx@3.14.0": {
         "integrity": "sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==",
         "dependencies": {
@@ -562,6 +627,16 @@
           "get-tsconfig": "get-tsconfig@4.7.6",
           "source-map-support": "source-map-support@0.5.21"
         }
+      },
+      "utf-8-validate@6.0.4": {
+        "integrity": "sha512-xu9GQDeFp+eZ6LnCywXN/zBancWvOpUMzgjLPSjy4BRHSmTelvn2E0DG0o1sTiw5hkCKBHo8rwSKncfRfv2EEQ==",
+        "dependencies": {
+          "node-gyp-build": "node-gyp-build@4.8.1"
+        }
+      },
+      "uuidv7@0.6.3": {
+        "integrity": "sha512-zV3eW2NlXTsun/aJ7AixxZjH/byQcH/r3J99MI0dDEkU2cJIBJxhEWUHDTpOaLPRNhebPZoeHuykYREkI9HafA==",
+        "dependencies": {}
       },
       "web-streams-polyfill@3.3.3": {
         "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
@@ -577,16 +652,27 @@
         "integrity": "sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==",
         "dependencies": {}
       },
+      "ws@8.18.0_bufferutil@4.0.8_utf-8-validate@6.0.4": {
+        "integrity": "sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==",
+        "dependencies": {
+          "bufferutil": "bufferutil@4.0.8",
+          "utf-8-validate": "utf-8-validate@6.0.4"
+        }
+      },
       "zod@3.23.8": {
         "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==",
         "dependencies": {}
       }
     }
   },
-  "remote": {},
+  "remote": {
+    "https://deno.land/std@0.224.0/http/status.ts": "ed61b4882af2514a81aefd3245e8df4c47b9a8e54929a903577643d2d1ebf514"
+  },
   "workspace": {
     "dependencies": [
-      "npm:chalk@5"
+      "npm:@libsql/client@^0.7.0",
+      "npm:drizzle-kit@0.23.0",
+      "npm:drizzle-orm@^0.32.0"
     ],
     "members": {
       "database": {
@@ -610,6 +696,14 @@
       "ipc-api": {
         "dependencies": [
           "npm:@craftgen/database@0.0.1"
+        ]
+      },
+      "main": {
+        "dependencies": [
+          "npm:@craftgen/ipc-api@^0.0.1",
+          "npm:@libsql/client@^0.7.0",
+          "npm:drizzle-kit@0.23.0",
+          "npm:drizzle-orm@^0.32.0"
         ]
       }
     }
