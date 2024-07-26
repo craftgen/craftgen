@@ -4,12 +4,14 @@
   "description": "",
   "main": "mod.ts",
   "scripts": {
-    "drizzle:generate": "drizzle-kit generate:sqlite --out ./drizzle/migrations --breakpoints --schema=./drizzle/schema.ts",
-    "drizzle:generate:orgs": "drizzle-kit generate:sqlite --out ./drizzle/migrations-orgs --breakpoints --schema=./drizzle/org-schema.ts",
+    "drizzle:generate": "drizzle-kit generate --out ./primary/migrations --breakpoints --schema=./primary/schema/index.ts --dialect=sqlite",
+    "drizzle:generate:orgs": "drizzle-kit generate --out ./tenant/migrations-orgs --breakpoints --schema=./tenant/schema/index.ts --dialect=sqlite",
     "drizzle:migrate": "pnpm with-env tsx drizzle/migrate.ts",
     "drizzle:push": "pnpm with-env drizzle-kit push",
     "with-env": "dotenv -e ../.env --",
-    "with-env:prod": "dotenv -e ../.env.prod --"
+    "with-env:prod": "dotenv -e ../.env.prod --",
+    "studio": "drizzle-kit studio --config ./tenant/drizzle.config.ts",
+    "push_demo": "APP_NAME=necmttn deno run -A ./lib/create-org-db.ts"
   },
   "keywords": [],
   "author": "",

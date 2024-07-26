@@ -6,10 +6,16 @@ use tauri::path::BaseDirectory;
 use tauri::Manager;
 use tauri_plugin_shell::{process::{CommandChild, CommandEvent}, ShellExt};
 
+use crate::runtime::kill_sidecar_process;
+
+
 pub async fn start_edge_runtime(
     app_handle: tauri::AppHandle,
 ) -> Result<CommandChild, ()> {
     log::info!("Starting edge runtime");
+
+    kill_sidecar_process(&app_handle);
+
     let resource_path = app_handle
         .path()
         .resolve("functions", BaseDirectory::Resource)
@@ -28,16 +34,17 @@ pub async fn start_edge_runtime(
         main_service.to_string_lossy()
     );
 
-    let ipc_command = app_handle
-        .shell()
-        .sidecar("deno")
-        .unwrap()
-        .args([
-            "run",
-            "./functions/ipc-api/server.ts"
-        ])
-        .envs(env.clone());
-        
+    // let ipc_command = app_handle
+    //     .shell()
+    //     .sidecar("deno")
+    //     .unwrap()
+    //     .args([
+    //         "run",
+    //         "./functions/ipc-api/server.ts"
+    //     ])
+    //     .envs(env.clone());
+
+
 
     let sidecar_command = app_handle
         .shell()
@@ -59,8 +66,6 @@ pub async fn start_edge_runtime(
 
     let (mut rx, child) = sidecar_command.spawn().expect("Failed to spawn sidecar");
 
-    // start ipc server
-    ipc_command.spawn().expect("Failed to spawn ipc backend");
 
 
 

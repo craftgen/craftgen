@@ -43,7 +43,7 @@ importers:
     dependencies:
       '@craftgen/database':
         specifier: 0.0.1
-        version: link:../database
+        version: link:../../packages/database
       '@craftgen/db':
         specifier: ^0.1.1
         version: link:../db
@@ -117,31 +117,6 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
-
-  apps/database:
-    dependencies:
-      '@libsql/client':
-        specifier: ^0.7.0
-        version: 0.7.0
-      '@paralleldrive/cuid2':
-        specifier: ^2.2.2
-        version: 2.2.2
-      drizzle-orm:
-        specifier: ^0.32.0
-        version: 0.32.0(@libsql/client@0.7.0)(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
-      ky:
-        specifier: ^1.1.3
-        version: 1.2.2
-    devDependencies:
-      dotenv-cli:
-        specifier: ^7.2.1
-        version: 7.3.0
-      drizzle-kit:
-        specifier: ^0.23.0
-        version: 0.23.0
-      tsx:
-        specifier: ^3.12.7
-        version: 3.14.0
 
   apps/db:
     dependencies:
@@ -1336,6 +1311,31 @@ importers:
       prettier:
         specifier: ^3.0.3
         version: 3.2.5
+
+  packages/database:
+    dependencies:
+      '@libsql/client':
+        specifier: ^0.7.0
+        version: 0.7.0
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.2
+        version: 2.2.2
+      drizzle-orm:
+        specifier: ^0.32.0
+        version: 0.32.0(@libsql/client@0.7.0)(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
+      ky:
+        specifier: ^1.1.3
+        version: 1.2.2
+    devDependencies:
+      dotenv-cli:
+        specifier: ^7.2.1
+        version: 7.3.0
+      drizzle-kit:
+        specifier: ^0.23.0
+        version: 0.23.0
+      tsx:
+        specifier: ^3.12.7
+        version: 3.14.0
 
   packages/ui:
     dependencies:

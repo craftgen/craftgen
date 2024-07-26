@@ -2,6 +2,8 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@lambdalisue/async": "jsr:@lambdalisue/async@2.1.1",
+      "jsr:@lambdalisue/async@^2.1.1": "jsr:@lambdalisue/async@2.1.1",
       "npm:@libsql/client": "npm:@libsql/client@0.7.0",
       "npm:@libsql/client-wasm": "npm:@libsql/client-wasm@0.7.0",
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
@@ -17,6 +19,11 @@
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:tsx@^3.12.7": "npm:tsx@3.14.0",
       "npm:zod@3.23.8": "npm:zod@3.23.8"
+    },
+    "jsr": {
+      "@lambdalisue/async@2.1.1": {
+        "integrity": "1fc9bc6f4ed50215cd2f7217842b18cea80f81c25744f88f8c5eb4be5a1c9ab4"
+      }
     },
     "npm": {
       "@esbuild-kit/core-utils@3.3.2": {
@@ -583,7 +590,24 @@
       }
     }
   },
-  "remote": {},
+  "remote": {
+    "https://deno.land/std@0.188.0/fmt/colors.ts": "d67e3cd9f472535241a8e410d33423980bec45047e343577554d3356e1f0ef4e",
+    "https://deno.land/std@0.188.0/testing/_diff.ts": "1a3c044aedf77647d6cac86b798c6417603361b66b54c53331b312caeb447aea",
+    "https://deno.land/std@0.188.0/testing/_format.ts": "a69126e8a469009adf4cf2a50af889aca364c349797e63174884a52ff75cf4c7",
+    "https://deno.land/std@0.188.0/testing/asserts.ts": "e16d98b4d73ffc4ed498d717307a12500ae4f2cbe668f1a215632d19fcffc22f",
+    "https://deno.land/x/async@v2.1.1/barrier.ts": "6a5ce735fffbe87a354e36875f2dda94ff23d55bf6eafc16b66d0e8ec49ff773",
+    "https://deno.land/x/async@v2.1.1/lock.ts": "276c97fb7e9e64632bdbb1ab37f82c70eec1bdefde048faa671201ac55023687",
+    "https://deno.land/x/async@v2.1.1/mod.ts": "7d42b09f82ad96ef40fe71c0d1142233fb713f203ea23ddfc2b71601f2a9bbda",
+    "https://deno.land/x/async@v2.1.1/mutex.ts": "782792457021425da571b8f30d6c62f7dc1cdf83d7299257343d57cac7357e27",
+    "https://deno.land/x/async@v2.1.1/notify.ts": "8b4150ca1063586084825a34e997b845ccbe5014aed69327489e1fc89569ec0e",
+    "https://deno.land/x/async@v2.1.1/queue.ts": "9e90b6b5f16bbfe6c0e47af0d9317c0bbcb752e3d92c87753f21e2e545171aff",
+    "https://deno.land/x/async@v2.1.1/rw_lock.ts": "faa5f74729237d2308eb491f8e4fa2c14010bff17d7ace6f7955bf6a165a9f63",
+    "https://deno.land/x/async@v2.1.1/semaphore.ts": "dd2ecbb3441bd59ada4494f327cb9caa143a8ad699df5f10054057404db8e733",
+    "https://deno.land/x/async@v2.1.1/stack.ts": "146e80f29d1eafca71f387610d6f9fe75b02c87629fa9a7c3b9b4be2619233c6",
+    "https://deno.land/x/async@v2.1.1/state.ts": "a71692b72371239120b196d0c6a249631bab867dd499e85c422c2e5ec9695999",
+    "https://deno.land/x/async@v2.1.1/testutil.ts": "5ba512c6f14b7b319f320e149970ca8944115a35f4312b697ae427250d27fb6d",
+    "https://deno.land/x/async@v2.1.1/wait_group.ts": "e1b4f7f1210c9e8c65d3ee1d8cab8155b33327d3daba79b124ebb54b5ee6d15e"
+  },
   "workspace": {
     "dependencies": [
       "npm:chalk@5"

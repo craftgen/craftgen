@@ -8,7 +8,6 @@ dev:
   just copy
   docker compose up --build
 
-
 link:
   just clean
   cd functions && ln -s ../../../packages/database database

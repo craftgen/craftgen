@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  runtime:
+    build:
+      dockerfile: Dockerfile.runtime
+      context: .
+    volumes:
+      - type: bind
+        source: ./functions
+        target: /home/deno/functions
+    ports:
+      - "8000:9000"
+    network_mode: host
+    environment:
+      - SERVICE_BASE_DIR=/home/deno/functions/
+  ipc-api:
+    build:
+      dockerfile: Dockerfile.api
+      context: .
+    environment:
+      - DB_LOCATION=/home/deno/db/
+    volumes:
+      - type: bind
+        source: ./db
+        target: /home/deno/db
+    network_mode: host
+    ports:
+      - "8787:8787"

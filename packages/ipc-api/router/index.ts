@@ -1,15 +1,29 @@
+import { context } from "../../database/tenant/schema/index.ts";
 import { createTRPCRouter, publicProcedure } from "../trpc.ts";
 import { packageRouter } from "./package.ts";
 
 export const appRouter = createTRPCRouter({
   package: packageRouter,
-  context: publicProcedure.query(({ ctx }) => {
-    console.log("CONTEXT", ctx);
+  context: publicProcedure.query(async ({ ctx }) => {
+    const ddd = await ctx.db
+      .insert(context)
+      .values({
+        type: "NodeModule",
+        organizationId: "123",
+        workflow_id: "123",
+        previousContextId: "123",
+        snapshot: {
+          foo: "json",
+        },
+      })
+      .returning();
+    const contexts = await ctx.db.query.context.findMany({
+      where: (context, { eq }) => eq(context.id, "12"),
+    });
 
     return {
-      type: typeof ctx.db,
-      ctx: ctx.db,
-      ses: ctx.session,
+      contexts,
+      context: ddd,
     };
     // return ctx.db.query.organizations.findMany();
   }),

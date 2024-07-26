@@ -46,7 +46,8 @@ pub fn on_run_event(app_handle: &tauri::AppHandle, event: tauri::RunEvent) {
 }
 
 
-fn kill_sidecar_process(app_handle: &tauri::AppHandle) {
+pub fn kill_sidecar_process(app_handle: &tauri::AppHandle) {
+    log::info!("Killing sidecar process");
     let state = app_handle.try_state::<Mutex<AppState>>().unwrap();
     
     // Use a block to ensure the MutexGuard is dropped early

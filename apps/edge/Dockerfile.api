@@ -1,0 +1,11 @@
+FROM denoland/deno
+
+EXPOSE 8787
+
+WORKDIR /app
+
+ADD ./functions /app
+
+RUN deno cache ./ipc-api/server.ts
+
+CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-sys", "--allow-ffi", "./ipc-api/server.ts"]

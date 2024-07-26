@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import ky from "ky";
 
-import { organizations } from "../primary/schema.ts";
+import { organization } from "../primary/schema.ts";
 import { buildDbClient } from "./client.ts";
 
 const turso = ky.create({
@@ -18,12 +18,12 @@ type OrgDBName = `${OrgId}-${string}`;
 const orgDatabaseName = (organizationId: OrgId): OrgDBName =>
   `${organizationId}-${Deno.env.get("APP_NAME")}`;
 
-export async function createOrganizationDatabase(organization: { id: OrgId }) {
+export async function createOrganizationDatabase(params: { id: OrgId }) {
   // create a database for organization
   const orgDatabase = await turso
     .post(`/databases`, {
       json: {
-        name: orgDatabaseName(organization.id),
+        name: orgDatabaseName(params.id),
         group: `${Deno.env.get("APP_GROUP")}`,
         location: `${Deno.env.get("APP_PRIMARY_LOCATION")}`,
       },
@@ -39,17 +39,41 @@ export async function createOrganizationDatabase(organization: { id: OrgId }) {
 
   const db = buildDbClient();
   await db
-    .update(organizations)
+    .update(organization)
     .set({
       database_name: orgDatabase.database.Name,
       database_auth_token: jwt,
     })
-    .where(eq(organizations.id, organization.id));
+    .where(eq(organization.id, params.id));
 
   // await pushToOrgDb({
   //   dbName: orgDatabase.database.Name,
   //   authToken: jwt,
   // });
+}
+
+export async function createConfigFile({
+  orgId,
+  authToken,
+}: {
+  orgId: OrgId;
+  authToken: string;
+}) {
+  const configPath = "./tenant/drizzle.config.ts";
+  const configText = `
+  export default {
+    schema: "./tenant/schema/index.ts",
+    driver: "turso",
+    dialect: "sqlite",
+    dbCredentials: {
+      url: "libsql://${orgId}-${Deno.env.get("APP_NAME")}.turso.io",
+      authToken: "${authToken}",
+    },
+    tablesFilter: ["!libsql_wasm_func_table"],
+  }`;
+
+  await Deno.writeTextFile(configPath, configText);
+  return configPath;
 }
 
 export async function pushToOrgDb({
@@ -61,24 +85,13 @@ export async function pushToOrgDb({
   authToken: string;
   input?: boolean;
 }) {
-  const tempConfigPath = "../tenant/drizzle.config.ts";
-
-  const configText = `
-  export default {
-    schema: "./schema/index.ts",
-    driver: "turso",
-    dialect: "sqlite",
-    dbCredentials: {
-      url: "libsql://${orgDatabaseName(dbName)}.turso.io",
-      authToken: "${authToken}",
-    },
-    tablesFilter: ["!libsql_wasm_func_table"],
-  }`;
-
-  await Deno.writeTextFile(tempConfigPath, configText);
+  const tempConfigPath = await createConfigFile({
+    orgId: dbName,
+    authToken,
+  });
 
   const proc = new Deno.Command("bunx", {
-    cwd: "../tenant",
+    // cwd: "./tenant",
     args: ["drizzle-kit", "push", `--config=${tempConfigPath}`],
     stdout: "inherit",
     stdin: "inherit",
@@ -96,7 +109,7 @@ export async function pushToOrgDb({
 }
 
 const token =
-  "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE2MTgwMzEsImlkIjoiN2NiMTRkN2MtODVjYy00NWUyLWEwNTctOTA5OGJkZGQ4MTY4In0.HXvTbW-5N6Z9b6PE8I3HfugXLou0lvS0HJ7_pXiaxE6fveyycIUJf6zsMo0_gtOlr7K9-trO74pmqMKSs1GGBw";
+  "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE4ODUzNzgsImlkIjoiMjA5ZDQ5YzEtNzg2Zi00MTI1LTkyMjQtMmIxODJlYjI1NjY1In0.qNRpKqXB-MHgB_n0-LIWbHhpXJZQR4WIP5pxiVtPTeSj-VF3xMSbwWvjhwuv1lo7VrS_ZVphEnQt3EZITbcNDQ";
 
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {

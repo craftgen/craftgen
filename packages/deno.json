@@ -1,5 +1,5 @@
 {
-  "workspace": ["./ipc-api", "./database"],
+  "workspace": ["./ipc-api", "./database", "./queue"],
   "imports": {
     "chalk": "npm:chalk@5"
   }

@@ -22,17 +22,17 @@ Deno.serve(async (req: Request) => {
       },
     );
   } catch (e) {
-		return new Response(
-			JSON.stringify({
-				result: e.message,
-				ok: false,
-			}),
-			{
-				headers: {
-					"Content-Type": "application/json",
-					Connection: "keep-alive",
-				},
-			},
-		);
+    return new Response(
+      JSON.stringify({
+        result: e.message,
+        ok: false,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Connection: "keep-alive",
+        },
+      },
+    );
   }
 });

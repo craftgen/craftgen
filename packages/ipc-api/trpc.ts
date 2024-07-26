@@ -6,6 +6,8 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { type createClient } from "npm:@libsql/client";
+
 import { buildDbClient } from "../database/lib/client-org.ts";
 import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
@@ -29,6 +31,8 @@ interface Session {
  */
 interface CreateContextOptions {
   session: Session | null;
+  db: ReturnType<typeof buildDbClient>;
+  client: ReturnType<typeof createClient>;
 }
 
 /**
@@ -41,14 +45,10 @@ interface CreateContextOptions {
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
-  const token =
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE2MTgwMzEsImlkIjoiN2NiMTRkN2MtODVjYy00NWUyLWEwNTctOTA5OGJkZGQ4MTY4In0.HXvTbW-5N6Z9b6PE8I3HfugXLou0lvS0HJ7_pXiaxE6fveyycIUJf6zsMo0_gtOlr7K9-trO74pmqMKSs1GGBw";
   return {
     session: opts.session,
-    db: buildDbClient({
-      url: "libsql://org-123-necmttn.turso.io",
-      authToken: token || Deno.env.get("TURSO_DB_AUTH_TOKEN"),
-    }),
+    db: opts.db,
+    client: opts.client,
   };
 };
 
@@ -60,6 +60,8 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = (opts: {
   headers: Headers;
   auth: Session | null;
+  client: ReturnType<typeof createClient>;
+  db: ReturnType<typeof buildDbClient>;
 }) => {
   const session = opts.auth;
 
@@ -68,6 +70,8 @@ export const createTRPCContext = (opts: {
 
   return createInnerTRPCContext({
     session,
+    client: opts.client,
+    db: opts.db,
   });
 };
 
