@@ -8,9 +8,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "deno.enable": true,
-  // "deno.config": "./apps/edge-functions/functions/deno.json",
+  // "deno.config": "./apps/edge/functions/deno.json",
   "deno.enablePaths": [
-    "./apps/edge-functions/functions",
+    "./apps/edge/functions",
     "./packages/core-deno",
     "./apps/desktop/src-tauri/functions",
     "./packages/micro-agent",

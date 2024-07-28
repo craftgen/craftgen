@@ -37,3 +37,6 @@ download-deno:
     done
 
     echo "Deno binaries for all platforms have been downloaded to $BINARIES_DIR"
+
+link-functions:
+    cd src-tauri && ln -s ../../edge/functions functions
