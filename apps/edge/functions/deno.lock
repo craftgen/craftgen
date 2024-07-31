@@ -2,6 +2,8 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@deno/kv": "npm:@deno/kv@0.8.1",
+      "npm:@deno/kv@^0.8.1": "npm:@deno/kv@0.8.1",
       "npm:@libsql/client": "npm:@libsql/client@0.7.0",
       "npm:@libsql/client-wasm": "npm:@libsql/client-wasm@0.7.0",
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
@@ -15,11 +17,37 @@
       "npm:ky@^1.1.3": "npm:ky@1.2.4",
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:surrealdb.js": "npm:surrealdb.js@1.0.0-beta.9_ws@8.18.0__bufferutil@4.0.8__utf-8-validate@6.0.4_bufferutil@4.0.8_utf-8-validate@6.0.4",
+      "npm:timestring@^7.0.0": "npm:timestring@7.0.0",
       "npm:tsx@^3.12.7": "npm:tsx@3.14.0",
       "npm:zod": "npm:zod@3.23.8",
       "npm:zod@3.23.8": "npm:zod@3.23.8"
     },
     "npm": {
+      "@deno/kv-darwin-arm64@0.8.1": {
+        "integrity": "sha512-q1FldAFYVxBAapSsNRaI4wkI97K7UWy+5JTQ/1JN9AdVFPEFhopUB7dRzV19wqzRsRzcHY23U+BDKp9U23np/w==",
+        "dependencies": {}
+      },
+      "@deno/kv-darwin-x64@0.8.1": {
+        "integrity": "sha512-4DtOBHT3/bJQJCJkbvugbDxrMneCQcRtVXYzQ65uDqzUKEJVMxINS1Fc0j0Xmtg6xEZfbjnGamXrLaQ1kRNFvA==",
+        "dependencies": {}
+      },
+      "@deno/kv-linux-x64-gnu@0.8.1": {
+        "integrity": "sha512-XF/bRZgKtUvJmLDMjz/QSS9lMt5hL1e8+sRXh7ffKjkvDJL4dK88ZjOpW2G+C71G0SruqcNy1oYSXqQ+LVw3dw==",
+        "dependencies": {}
+      },
+      "@deno/kv-win32-x64-msvc@0.8.1": {
+        "integrity": "sha512-d3CA3Hp0vZNOKj4lcgppiArQCbVbxV/GBHl14En/8MDkScOInuy5R1hw+0mW7Y+4DekWl2LlfZZaaz+/mYEiwQ==",
+        "dependencies": {}
+      },
+      "@deno/kv@0.8.1": {
+        "integrity": "sha512-bS50xRWgYU3TiSHE2Lwznl2xTlkD/EkZ5HuqYT0wD8YdnRLhMnm8MgUf2Wf+mKw92JI5zCSHsJI3C3ahQKYs6A==",
+        "dependencies": {
+          "@deno/kv-darwin-arm64": "@deno/kv-darwin-arm64@0.8.1",
+          "@deno/kv-darwin-x64": "@deno/kv-darwin-x64@0.8.1",
+          "@deno/kv-linux-x64-gnu": "@deno/kv-linux-x64-gnu@0.8.1",
+          "@deno/kv-win32-x64-msvc": "@deno/kv-win32-x64-msvc@0.8.1"
+        }
+      },
       "@deno/shim-deno-test@0.4.0": {
         "integrity": "sha512-oYWcD7CpERZy/TXMTM9Tgh1HD/POHlbY9WpzmAk+5H8DohcxG415Qws8yLGlim3EaKBT2v3lJv01x4G0BosnaQ==",
         "dependencies": {}
@@ -619,6 +647,10 @@
           "zod": "zod@3.23.8"
         }
       },
+      "timestring@7.0.0": {
+        "integrity": "sha512-U7ttxEdKWqHYJ96OGoJJR5gU8Nwkl3tlY0n7Jr4vcpLD2RkVZLE1Ph9k8ZRrZ7LYX9QCtd3M9OUaR9P8Z37QNg==",
+        "dependencies": {}
+      },
       "tsx@3.14.0": {
         "integrity": "sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==",
         "dependencies": {
@@ -695,7 +727,9 @@
       },
       "ipc-api": {
         "dependencies": [
-          "npm:@craftgen/database@0.0.1"
+          "npm:@craftgen/database@0.0.1",
+          "npm:@craftgen/queue@0.0.1",
+          "npm:timestring@^7.0.0"
         ]
       },
       "main": {
@@ -704,6 +738,12 @@
           "npm:@libsql/client@^0.7.0",
           "npm:drizzle-kit@0.23.0",
           "npm:drizzle-orm@^0.32.0"
+        ]
+      },
+      "queue": {
+        "dependencies": [
+          "npm:@deno/kv@^0.8.1",
+          "npm:timestring@^7.0.0"
         ]
       }
     }

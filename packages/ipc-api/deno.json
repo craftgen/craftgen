@@ -6,6 +6,8 @@
   },
   "exports": "./mod.ts",
   "imports": {
-    "@craftgen/database": "npm:@craftgen/database@0.0.1"
+    "@craftgen/database": "npm:@craftgen/database@0.0.1",
+    "timestring": "npm:timestring@^7.0.0",
+    "@craftgen/queue": "npm:@craftgen/queue@0.0.1"
   }
 }

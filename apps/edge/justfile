@@ -1,6 +1,7 @@
 copy:
   cp -r ../../packages/database ./functions/database
   cp -r ../../packages/ipc-api ./functions/ipc-api
+  cp -r ../../packages/queue ./functions/queue
   cp -r ../../nodes ./functions/@craftgen
 
 dev:
@@ -12,9 +13,11 @@ link:
   just clean
   cd functions && ln -s ../../../packages/database database
   cd functions && ln -s ../../../packages/ipc-api ipc-api
+  cd functions && ln -s ../../../packages/queue queue
   cd functions && ln -s ../../../nodes @craftgen
-
+  
 clean:
   rm -rf ./functions/database
   rm -rf ./functions/ipc-api
   rm -rf ./functions/@craftgen  
+  rm -rf ./functions/queue

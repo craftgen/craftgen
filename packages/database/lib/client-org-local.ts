@@ -1,6 +1,7 @@
 import { createClient } from "npm:@libsql/client/node";
-import { drizzle } from "npm:drizzle-orm/libsql";
+import { drizzle, type LibSQLDatabase } from "npm:drizzle-orm/libsql";
 
+import { EventProcessor } from "../tenant/queue.ts";
 import * as schema from "../tenant/schema/index.ts";
 
 interface Env {
@@ -14,6 +15,13 @@ const extractOrgId = (url: string): string | null => {
   const regex = /libsql:\/\/(org-[a-zA-Z0-9]+)-/;
   const match = url.match(regex);
   return match ? match[1] : null;
+};
+
+export type TenantDb = LibSQLDatabase<typeof schema>;
+export type DbClient = {
+  db: TenantDb;
+  client: ReturnType<typeof createClient>;
+  queue: EventProcessor;
 };
 
 export function buildDbClient({
@@ -43,11 +51,19 @@ export function buildDbClient({
     });
     console.log("DB", a);
     console.log("");
+    const db = drizzle(a, {
+      schema,
+    });
+    const queue = new EventProcessor(db, {
+      lockDuration: 90000, // 90 seconds
+      maxConcurrentMachines: 10,
+      batchSize: 50,
+      cleanupInterval: 600000, // 10 minutes
+    });
     return {
       client: a,
-      db: drizzle(a, {
-        schema,
-      }),
+      db,
+      queue,
     };
   }
   const client = createClient({
@@ -57,8 +73,15 @@ export function buildDbClient({
   const db = drizzle(client, {
     schema,
   });
+  const queue = new EventProcessor(db, {
+    lockDuration: 90000, // 90 seconds
+    maxConcurrentMachines: 10,
+    batchSize: 50,
+    cleanupInterval: 600000, // 10 minutes
+  });
   return {
     client,
     db,
+    queue,
   };
 }

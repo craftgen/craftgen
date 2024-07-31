@@ -1,32 +1,34 @@
+import { event } from "../../database/tenant/schema/events.ts";
 import { context } from "../../database/tenant/schema/index.ts";
+import { timestring, z } from "../deps.ts";
 import { createTRPCRouter, publicProcedure } from "../trpc.ts";
 import { packageRouter } from "./package.ts";
 
 export const appRouter = createTRPCRouter({
   package: packageRouter,
-  context: publicProcedure.query(async ({ ctx }) => {
-    const ddd = await ctx.db
-      .insert(context)
-      .values({
-        type: "NodeModule",
-        organizationId: "123",
-        workflow_id: "123",
-        previousContextId: "123",
-        snapshot: {
-          foo: "json",
-        },
-      })
-      .returning();
-    const contexts = await ctx.db.query.context.findMany({
-      where: (context, { eq }) => eq(context.id, "12"),
-    });
+  context: publicProcedure
+    .input(
+      z.object({
+        type: z.string(),
+        payload: z.any(),
+        delay: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const event = {
+        type: input.type,
+        payload: input.payload,
+        delay: input.delay,
+      };
 
-    return {
-      contexts,
-      context: ddd,
-    };
-    // return ctx.db.query.organizations.findMany();
-  }),
+      await ctx.kv.enqueue(event, {
+        delay: timestring(input.delay, "ms"),
+      });
+
+      return {
+        event,
+      };
+    }),
 });
 
 // export type definition of API

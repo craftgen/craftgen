@@ -4,5 +4,9 @@
   "exports": "./mod.ts",
   "tasks": {
     "dev": "deno test --watch mod.ts"
+  },
+  "imports": {
+    "timestring": "npm:timestring@^7.0.0",
+    "@deno/kv": "npm:@deno/kv@^0.8.1"
   }
 }

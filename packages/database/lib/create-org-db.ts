@@ -99,7 +99,7 @@ export async function pushToOrgDb({
   const migration = proc.spawn();
 
   const { code, success } = await migration.output();
-  await Deno.remove(tempConfigPath);
+  // await Deno.remove(tempConfigPath);
   if (success) {
     console.log("Migration successful");
   } else {

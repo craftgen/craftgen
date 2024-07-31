@@ -1,5 +1,5 @@
 {
-  "workspace": ["./database", "./main", "./ipc-api"],
+  "workspace": ["./database", "./main", "./ipc-api", "./queue"],
   "imports": {
     "@libsql/client": "npm:@libsql/client@^0.7.0",
     "drizzle-orm": "npm:drizzle-orm@^0.32.0",
