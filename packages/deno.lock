@@ -12,12 +12,15 @@
       "npm:@paralleldrive/cuid2@^2.2.2": "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
       "npm:@types/node": "npm:@types/node@18.16.19",
+      "npm:date-fns@^3.6.0": "npm:date-fns@3.6.0",
       "npm:dotenv-cli@^7.2.1": "npm:dotenv-cli@7.4.2",
+      "npm:drizzle-kit@0.23.0": "npm:drizzle-kit@0.23.0_esbuild@0.19.12",
       "npm:drizzle-kit@^0.23.0": "npm:drizzle-kit@0.23.0_esbuild@0.19.12",
       "npm:drizzle-orm": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
       "npm:drizzle-orm@^0.32.0": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
       "npm:hono": "npm:hono@4.4.12",
       "npm:ky@^1.1.3": "npm:ky@1.2.4",
+      "npm:rxjs@^7.8.1": "npm:rxjs@7.8.1",
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:timestring@^7.0.0": "npm:timestring@7.0.0",
       "npm:tsx@^3.12.7": "npm:tsx@3.14.0",
@@ -374,6 +377,10 @@
         "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==",
         "dependencies": {}
       },
+      "date-fns@3.6.0": {
+        "integrity": "sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==",
+        "dependencies": {}
+      },
       "debug@4.3.5": {
         "integrity": "sha512-pt0bNEmneDIvdL1Xsd9oDQ/wrQRkXDT4AUWlNZNPKvW5x/jyO9VFXkJUP07vQ2upmw5PlaITaPKc31jK13V+jg==",
         "dependencies": {
@@ -566,6 +573,12 @@
         "integrity": "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==",
         "dependencies": {}
       },
+      "rxjs@7.8.1": {
+        "integrity": "sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==",
+        "dependencies": {
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "shebang-command@2.0.0": {
         "integrity": "sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==",
         "dependencies": {
@@ -595,6 +608,10 @@
       },
       "timestring@7.0.0": {
         "integrity": "sha512-U7ttxEdKWqHYJ96OGoJJR5gU8Nwkl3tlY0n7Jr4vcpLD2RkVZLE1Ph9k8ZRrZ7LYX9QCtd3M9OUaR9P8Z37QNg==",
+        "dependencies": {}
+      },
+      "tslib@2.6.3": {
+        "integrity": "sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==",
         "dependencies": {}
       },
       "tsx@3.14.0": {
@@ -652,8 +669,10 @@
       "database": {
         "dependencies": [
           "npm:@libsql/client@^0.7.0",
+          "npm:date-fns@^3.6.0",
           "npm:drizzle-kit@0.23.0",
-          "npm:drizzle-orm@^0.32.0"
+          "npm:drizzle-orm@^0.32.0",
+          "npm:rxjs@^7.8.1"
         ],
         "packageJson": {
           "dependencies": [

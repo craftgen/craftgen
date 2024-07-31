@@ -44,10 +44,12 @@ app.use(
   }),
 );
 
+await client.sync();
 queue.start();
 
 const someAsyncProcessingFunction = async (event: ProcessingEvent) => {
   // Simulate some async processing
+  console.log("PROCESSING EVENT", event);
   await new Promise((resolve) => setTimeout(resolve, 1000));
 };
 

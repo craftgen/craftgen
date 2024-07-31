@@ -1,3 +1,4 @@
+import { add } from "date-fns";
 import { and, eq, lte } from "drizzle-orm";
 import {
   defer,
@@ -7,7 +8,13 @@ import {
   type Observable,
   type Subscription,
 } from "rxjs";
-import { groupBy, mergeMap, repeat, takeUntil } from "rxjs/operators";
+import {
+  catchError,
+  groupBy,
+  mergeMap,
+  repeat,
+  takeUntil,
+} from "rxjs/operators";
 
 import { type TenantDb } from "../lib/client-org-local.ts";
 import {
@@ -38,7 +45,7 @@ export class EventProcessor {
     this.db = db;
     this.eventSubject = new Subject<ProcessingEvent>();
     this.config = {
-      lockDuration: config.lockDuration || 60000,
+      lockDuration: config.lockDuration || 10,
       maxConcurrentMachines: config.maxConcurrentMachines || 10,
       batchSize: config.batchSize || 100,
       cleanupInterval: config.cleanupInterval || 300000,
@@ -64,11 +71,19 @@ export class EventProcessor {
     this.processingSubscription = timer(0, this.config.pollingInterval)
       .pipe(
         takeUntil(this.shutdownSubject),
-        mergeMap(() => this.processPendingEvents()),
+        mergeMap(() =>
+          this.processPendingEvents().pipe(
+            catchError((error) => {
+              console.error("Error processing events:", error);
+              return [];
+            }),
+          ),
+        ),
         repeat(),
       )
       .subscribe({
-        error: (err) => console.error("Error processing events:", err),
+        error: (err) =>
+          console.error("Unhandled error in event processing:", err),
       });
   }
 
@@ -100,52 +115,78 @@ export class EventProcessor {
 
   private async fetchAndLockEvents(): Promise<ProcessingEvent[]> {
     const now = new Date();
-    const lockUntil = new Date(now.getTime() + this.config.lockDuration);
+    const lockUntil = add(now, { seconds: this.config.lockDuration });
 
-    return await this.db.transaction(async (tx) => {
-      const distinctMachines = await tx
-        .selectDistinct({ machineId: queuedEvents.machineId })
-        .from(queuedEvents)
-        .where(
-          and(
-            lte(queuedEvents.scheduledFor, now),
-            lte(queuedEvents.attempts, queuedEvents.maxAttempts),
-          ),
-        )
-        .limit(this.config.maxConcurrentMachines);
+    try {
+      return await this.db.transaction(async (tx) => {
+        const events: ProcessingEvent[] = [];
 
-      const events: ProcessingEvent[] = [];
-
-      for (const { machineId } of distinctMachines) {
-        const [nextEvent] = await tx
+        const queuedEventsToProcess = await tx
           .select()
           .from(queuedEvents)
           .where(
             and(
-              eq(queuedEvents.machineId, machineId),
               lte(queuedEvents.scheduledFor, now),
               lte(queuedEvents.attempts, queuedEvents.maxAttempts),
             ),
           )
           .orderBy(queuedEvents.createdAt)
-          .limit(1);
+          .limit(this.config.batchSize);
 
-        if (nextEvent) {
-          events.push(nextEvent);
+        for (const event of queuedEventsToProcess) {
+          try {
+            // Check if there's already a processing event for this machine
+            const [existingProcessingEvent] = await tx
+              .select()
+              .from(processingEvents)
+              .where(eq(processingEvents.machineId, event.machineId))
+              .limit(1);
 
-          await tx.insert(processingEvents).values({
-            ...nextEvent,
-            lockedUntil: lockUntil,
-          });
+            if (existingProcessingEvent) {
+              // If the existing event is locked, skip this event
+              if (existingProcessingEvent.lockedUntil > now) {
+                console.log(
+                  `Skipping event ${event.id} as machine ${event.machineId} is already processing an event.`,
+                );
+                continue;
+              }
+              // If the lock has expired, delete the existing processing event
+              await tx
+                .delete(processingEvents)
+                .where(eq(processingEvents.id, existingProcessingEvent.id));
+            }
 
-          await tx
-            .delete(queuedEvents)
-            .where(eq(queuedEvents.id, nextEvent.id));
+            // Insert the new processing event
+            await tx.insert(processingEvents).values({
+              ...event,
+              lockedUntil: lockUntil,
+              processingStartedAt: now,
+            });
+
+            // Remove from queued_events
+            await tx.delete(queuedEvents).where(eq(queuedEvents.id, event.id));
+
+            events.push({
+              ...event,
+              lockedUntil: lockUntil,
+              processingStartedAt: now,
+            });
+          } catch (error) {
+            console.error(`Error processing event ${event.id}:`, error);
+            // Optionally, you could update the event's scheduled time to try again later
+            await tx
+              .update(queuedEvents)
+              .set({ scheduledFor: add(now, { seconds: 60 }) }) // Try again in 1 minute
+              .where(eq(queuedEvents.id, event.id));
+          }
         }
-      }
 
-      return events;
-    });
+        return events;
+      });
+    } catch (error) {
+      console.error("Error in fetchAndLockEvents:", error);
+      return [];
+    }
   }
 
   private async markEventAsProcessing(event: ProcessingEvent): Promise<void> {
@@ -157,6 +198,7 @@ export class EventProcessor {
     return this.eventSubject.asObservable();
   }
   async completeEvent(eventId: string, success: boolean): Promise<void> {
+    const now = new Date();
     await this.db.transaction(async (tx) => {
       const [event] = await tx
         .select()
@@ -164,21 +206,33 @@ export class EventProcessor {
         .where(eq(processingEvents.id, eventId));
 
       if (!event) {
-        throw new Error(`No processing event found with id ${eventId}`);
+        console.log(
+          `Event ${eventId} not found in processing_events. It may have already been processed.`,
+        );
+        return; // Exit gracefully instead of throwing an error
       }
+
+      const processingDuration =
+        now.getTime() - event.processingStartedAt.getTime();
 
       await tx.insert(processedEvents).values({
         ...event,
         status: success ? "complete" : "failed",
+        processedAt: now,
+        processingDuration,
       });
 
       await tx.delete(processingEvents).where(eq(processingEvents.id, eventId));
 
       if (!success && event.attempts < event.maxAttempts) {
+        const nextAttempt = event.attempts + 1;
+        const backoffTime = Math.pow(2, nextAttempt - 1); // Exponential backoff starting from 1 second
+        const scheduledFor = add(now, { seconds: backoffTime });
+
         await tx.insert(queuedEvents).values({
           ...event,
-          attempts: event.attempts + 1,
-          scheduledFor: new Date(Date.now() + 5 * 60000), // 5 minutes later
+          attempts: nextAttempt,
+          scheduledFor,
         });
       }
     });
@@ -198,15 +252,23 @@ export class EventProcessor {
           await tx.insert(processedEvents).values({
             ...event,
             status: "failed",
+            processedAt: now,
+            processingDuration:
+              now.getTime() - event.processingStartedAt.getTime(),
           });
           await tx
             .delete(processingEvents)
             .where(eq(processingEvents.id, event.id));
         } else {
+          const nextAttempt = event.attempts + 1;
+          const backoffTime = Math.pow(2, nextAttempt - 1); // Exponential backoff starting from 1 second
+          const scheduledFor = add(now, { seconds: backoffTime });
+
           await tx.insert(queuedEvents).values({
             ...event,
-            attempts: event.attempts + 1,
-            scheduledFor: new Date(Date.now() + 5 * 60000), // 5 minutes later
+            status: "retrying",
+            attempts: nextAttempt,
+            scheduledFor,
           });
           await tx
             .delete(processingEvents)

@@ -2,7 +2,7 @@ import {
   sqliteTable,
   text,
   type AnySQLiteColumn,
-} from "npm:drizzle-orm/sqlite-core";
+} from "drizzle-orm/sqlite-core";
 
 import { createIdWithPrefix } from "../../lib/id.ts";
 import { organization } from "./organization.ts";

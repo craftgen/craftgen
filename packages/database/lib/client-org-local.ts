@@ -74,10 +74,11 @@ export function buildDbClient({
     schema,
   });
   const queue = new EventProcessor(db, {
-    lockDuration: 90000, // 90 seconds
-    maxConcurrentMachines: 10,
+    lockDuration: 10, // 90 seconds
+    maxConcurrentMachines: 5,
     batchSize: 50,
     cleanupInterval: 600000, // 10 minutes
+    pollingInterval: 1000, // 1 second
   });
   return {
     client,

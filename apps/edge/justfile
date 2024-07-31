@@ -1,11 +1,17 @@
 copy:
+  just clean
   cp -r ../../packages/database ./functions/database
   cp -r ../../packages/ipc-api ./functions/ipc-api
   cp -r ../../packages/queue ./functions/queue
   cp -r ../../nodes ./functions/@craftgen
 
+
+d:
+  just copy
+  DB_LOCATION=./db/ deno run -A functions/ipc-api/server.ts
+
+
 dev:
-  just clean
   just copy
   docker compose up --build
 
@@ -15,7 +21,7 @@ link:
   cd functions && ln -s ../../../packages/ipc-api ipc-api
   cd functions && ln -s ../../../packages/queue queue
   cd functions && ln -s ../../../nodes @craftgen
-  
+
 clean:
   rm -rf ./functions/database
   rm -rf ./functions/ipc-api

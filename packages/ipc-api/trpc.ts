@@ -9,7 +9,8 @@
 import { type createClient } from "npm:@libsql/client";
 
 import { buildDbClient } from "../database/lib/client-org.ts";
-import { initTRPC, openKv, superjson, TRPCError, ZodError } from "./deps.ts";
+import { EventProcessor } from "../database/tenant/queue.ts";
+import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
 interface Session {
   user: {
@@ -33,7 +34,7 @@ interface CreateContextOptions {
   session: Session | null;
   db: ReturnType<typeof buildDbClient>;
   client: ReturnType<typeof createClient>;
-  kv: Awaited<ReturnType<typeof openKv>>;
+  queue: EventProcessor;
 }
 
 /**
@@ -47,7 +48,7 @@ interface CreateContextOptions {
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
-    kv: opts.kv,
+    queue: opts.queue,
     session: opts.session,
     db: opts.db,
     client: opts.client,
@@ -64,7 +65,7 @@ export const createTRPCContext = (opts: {
   auth: Session | null;
   client: ReturnType<typeof createClient>;
   db: ReturnType<typeof buildDbClient>;
-  kv: Awaited<ReturnType<typeof openKv>>;
+  queue: EventProcessor;
 }) => {
   const session = opts.auth;
 
@@ -72,7 +73,7 @@ export const createTRPCContext = (opts: {
   console.log(">>> tRPC Request from", source, "by", `${session?.user.email} `);
 
   return createInnerTRPCContext({
-    kv: opts.kv,
+    queue: opts.queue,
     session,
     client: opts.client,
     db: opts.db,
