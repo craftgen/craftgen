@@ -7,15 +7,13 @@ export const appRouter = createTRPCRouter({
   context: publicProcedure
     .input(
       z.object({
+        machineId: z.string(),
         type: z.string(),
         payload: z.any(),
         delay: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      console.log("INPUT", input);
-      console.log("QUEUE", ctx.queue);
-
       const event = {
         type: input.type,
         payload: input.payload,
@@ -23,9 +21,10 @@ export const appRouter = createTRPCRouter({
       };
 
       await ctx.queue.enqueueEvent({
-        machineId: "123",
+        machineId: input.machineId,
         type: input.type,
         payload: input.payload,
+        scheduledFor: new Date(),
       });
 
       return {

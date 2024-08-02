@@ -34,8 +34,9 @@ const PackagePage = () => {
     setData(result);
   };
 
-  const rpcTest = async () => {
+  const rpcTest = async (id: string) => {
     const result = await client.context.query({
+      machineId: id,
       type: "text",
       payload: "Hello World",
       delay: "5s",
@@ -53,7 +54,9 @@ const PackagePage = () => {
   return (
     <div>
       <Button onClick={runtest}>Run Test</Button>
-      <Button onClick={rpcTest}>RPC Test</Button>
+      <Button onClick={() => rpcTest("123")}>RPC Test 123</Button>
+      <Button onClick={() => rpcTest("456")}>RPC Test 456</Button>
+      <Button onClick={() => rpcTest("789")}>RPC Test 789</Button>
       <JSONView src={data} />
       <Input
         placeholder="Query"

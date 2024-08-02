@@ -121,8 +121,9 @@ export class EventProcessor {
       return await this.db.transaction(async (tx) => {
         const events: ProcessingEvent[] = [];
 
-        const queuedEventsToProcess = await tx
-          .select()
+        // Select distinct machineIds that are ready for processing
+        const distinctMachines = await tx
+          .selectDistinct({ machineId: queuedEvents.machineId })
           .from(queuedEvents)
           .where(
             and(
@@ -130,23 +131,22 @@ export class EventProcessor {
               lte(queuedEvents.attempts, queuedEvents.maxAttempts),
             ),
           )
-          .orderBy(queuedEvents.createdAt)
-          .limit(this.config.batchSize);
+          .limit(this.config.maxConcurrentMachines);
 
-        for (const event of queuedEventsToProcess) {
+        for (const { machineId } of distinctMachines) {
           try {
             // Check if there's already a processing event for this machine
             const [existingProcessingEvent] = await tx
               .select()
               .from(processingEvents)
-              .where(eq(processingEvents.machineId, event.machineId))
+              .where(eq(processingEvents.machineId, machineId))
               .limit(1);
 
             if (existingProcessingEvent) {
-              // If the existing event is locked, skip this event
+              // If the existing event is locked, skip this machine
               if (existingProcessingEvent.lockedUntil > now) {
                 console.log(
-                  `Skipping event ${event.id} as machine ${event.machineId} is already processing an event.`,
+                  `Skipping events for machine ${machineId} as it's already processing an event.`,
                 );
                 continue;
               }
@@ -156,28 +156,49 @@ export class EventProcessor {
                 .where(eq(processingEvents.id, existingProcessingEvent.id));
             }
 
-            // Insert the new processing event
-            await tx.insert(processingEvents).values({
-              ...event,
-              lockedUntil: lockUntil,
-              processingStartedAt: now,
-            });
+            // Select the next event for this machine
+            const [nextEvent] = await tx
+              .select()
+              .from(queuedEvents)
+              .where(
+                and(
+                  eq(queuedEvents.machineId, machineId),
+                  lte(queuedEvents.scheduledFor, now),
+                  lte(queuedEvents.attempts, queuedEvents.maxAttempts),
+                ),
+              )
+              .orderBy(queuedEvents.createdAt)
+              .limit(1);
 
-            // Remove from queued_events
-            await tx.delete(queuedEvents).where(eq(queuedEvents.id, event.id));
+            if (nextEvent) {
+              // Insert the new processing event
+              await tx.insert(processingEvents).values({
+                ...nextEvent,
+                lockedUntil: lockUntil,
+                processingStartedAt: now,
+              });
 
-            events.push({
-              ...event,
-              lockedUntil: lockUntil,
-              processingStartedAt: now,
-            });
+              // Remove from queued_events
+              await tx
+                .delete(queuedEvents)
+                .where(eq(queuedEvents.id, nextEvent.id));
+
+              events.push({
+                ...nextEvent,
+                lockedUntil: lockUntil,
+                processingStartedAt: now,
+              });
+            }
           } catch (error) {
-            console.error(`Error processing event ${event.id}:`, error);
+            console.error(
+              `Error processing event for machine ${machineId}:`,
+              error,
+            );
             // Optionally, you could update the event's scheduled time to try again later
             await tx
               .update(queuedEvents)
               .set({ scheduledFor: add(now, { seconds: 60 }) }) // Try again in 1 minute
-              .where(eq(queuedEvents.id, event.id));
+              .where(eq(queuedEvents.machineId, machineId));
           }
         }
 

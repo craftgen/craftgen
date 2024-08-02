@@ -28,7 +28,6 @@ export const run = new Hono().on(
         servicePath,
       });
 
-      console.log("DENO DENO", Object.keys(Deno));
       const worker = await createWorker({
         servicePath,
       });
@@ -39,7 +38,7 @@ export const run = new Hono().on(
       //setTimeout(() => controller.abort(), 2 * 60 * 1000);
 
       // const headers = new Headers(c.req.header());
-      return await worker.fetch(c.req.raw, signal);
+      return worker.fetch(c.req.raw, signal);
     } catch (e) {
       console.error("THE ERROR:", e);
       if (e instanceof Deno.errors.WorkerRequestCancelled) {

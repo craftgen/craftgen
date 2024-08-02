@@ -21,7 +21,7 @@ const token =
 const { client, db, queue } = buildDbClient({
   url: "libsql://org-123-necmttn.turso.io",
   authToken: token || Deno.env.get("TURSO_DB_AUTH_TOKEN"),
-  useLocalReplica: true,
+  useLocalReplica: false,
 });
 
 app.use(
@@ -44,26 +44,46 @@ app.use(
   }),
 );
 
-await client.sync();
-queue.start();
+// await client.sync();
+// queue.start();
+async function sendTaskToEdgeRuntime(event: ProcessingEvent) {
+  const response = await fetch(
+    "http://localhost:9000/run/@craftgen/math/send",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: "run",
+        params: {
+          inputs: {
+            expression: "40 + 2",
+          },
+          senders: [],
+        },
+      }),
+    },
+  );
 
-const someAsyncProcessingFunction = async (event: ProcessingEvent) => {
-  // Simulate some async processing
-  console.log("PROCESSING EVENT", event);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-};
+  if (!response.ok) {
+    throw new Error(
+      `Failed to send task to Edge Runtime: ${response.statusText}`,
+    );
+  }
+
+  return await response.json();
+}
 
 const eventStreamSubscription = queue.getEventStream().subscribe({
-  next: async (event) => {
+  next: (event) => {
     console.log(`Processing event for machine: ${event.machineId}`);
-    try {
-      // Implement your processing logic here
-      await someAsyncProcessingFunction(event);
-      await queue.completeEvent(event.id, true);
-    } catch (error) {
-      console.error(`Error processing event ${event.id}:`, error);
-      await queue.completeEvent(event.id, false);
-    }
+    sendTaskToEdgeRuntime(event)
+      .then(async () => {
+        await queue.completeEvent(event.id, true);
+      })
+      .catch(async (error) => {
+        console.error(`Error processing event ${event.id}:`, error);
+        await queue.completeEvent(event.id, false);
+      });
   },
   error: (err) => console.error("Error in event stream:", err),
 });
