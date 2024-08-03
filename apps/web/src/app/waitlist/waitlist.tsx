@@ -57,52 +57,66 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <Button>Unlock Early Access: Join Our Priority Waitlist</Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-5xl">
         {success ? (
           <div>
-            <DialogHeader>
-              <DialogTitle className="text-4xl">YESS!</DialogTitle>
-              <DialogDescription className="space-y-2 py-2 leading-relaxed">
-                <p>
-                  Thanks for joining the CraftGen waitlist! You're one step
-                  closer to unlocking the power of AI.
-                </p>
-                <p>
-                  We'll keep you updated with exclusive previews, launch news,
-                  and early access opportunities.
-                </p>
-                <p>
-                  In the meantime, connect with fellow AI enthusiasts and stay
-                  in the loop by joining our
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <DialogHeader>
+                  <DialogTitle className="text-4xl">YESS!</DialogTitle>
+                  <DialogDescription className="space-y-2 py-2 leading-relaxed">
+                    <p>
+                      Thanks for joining the CraftGen waitlist! You're one step
+                      closer to unlocking the power of AI.
+                    </p>
+                    <p>
+                      We'll keep you updated with exclusive previews, launch
+                      news, and early access opportunities.
+                    </p>
+                    <p>
+                      In the meantime, connect with fellow AI enthusiasts and
+                      stay in the loop by joining our
+                      <a
+                        href="/discord"
+                        target="_blank"
+                        className="cursor-pointer font-bold text-primary"
+                      >
+                        {" "}
+                        Discord community.{" "}
+                      </a>
+                    </p>
+                    .
+                  </DialogDescription>
+                </DialogHeader>
+                <Image
+                  src="/images/cant-thankyou-enough.gif"
+                  alt="Waitlist"
+                  width={500}
+                  height={500}
+                />
+                <p className="py-4">
+                  Ready for more? Spread the news on{" "}
                   <a
-                    href="/discord"
+                    href="https://twitter.com/intent/tweet?text=%40craftgenai%20rocks%20check%20it%20out%20%F0%9F%91%89&url=craftgen.ai"
                     target="_blank"
                     className="cursor-pointer font-bold text-primary"
                   >
-                    {" "}
-                    Discord community.{" "}
-                  </a>
+                    Twitter / X
+                  </a>{" "}
+                  now!
                 </p>
-                .
-              </DialogDescription>
-            </DialogHeader>
-            <Image
-              src="/images/cant-thankyou-enough.gif"
-              alt="Waitlist"
-              width={500}
-              height={500}
-            />
-            <p className="py-4">
-              Ready for more? Spread the news on{" "}
-              <a
-                href="https://twitter.com/intent/tweet?text=%40craftgenai%20rocks%20check%20it%20out%20%F0%9F%91%89&url=craftgen.ai"
-                target="_blank"
-                className="cursor-pointer font-bold text-primary"
-              >
-                Twitter / X
-              </a>{" "}
-              now!
-            </p>
+              </div>
+              <div className="hidden sm:block">
+                <script
+                  async
+                  src="https://js.stripe.com/v3/pricing-table.js"
+                ></script>
+                <stripe-pricing-table
+                  pricing-table-id="prctbl_1PjbJlGq5sEqGXRO2mqR4t43"
+                  publishable-key="pk_live_51OeplEGq5sEqGXROv95gQtVZDgm3o4uvBstcPrzVCSh5215QtrUTUMiBE3XCiiXlCAdcxdNdG5CqVQ2vqXTfBws40026hqQaWG"
+                ></stripe-pricing-table>
+              </div>
+            </div>
             <Confettis />
           </div>
         ) : (
