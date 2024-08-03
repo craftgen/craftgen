@@ -3,7 +3,7 @@ import { cors } from "npm:hono/cors";
 import { type TimingVariables } from "npm:hono/timing";
 
 import { buildDbClient } from "../database/lib/client-org-local.ts";
-import { ProcessingEvent } from "../database/tenant/queue.ts";
+import { ActorEvent } from "../database/tenant/schema/events.ts";
 import { appRouter } from "./router/index.ts";
 import { trpcServer } from "./trpcServer.ts";
 
@@ -21,7 +21,7 @@ const token =
 const { client, db, queue } = buildDbClient({
   url: "libsql://org-123-necmttn.turso.io",
   authToken: token || Deno.env.get("TURSO_DB_AUTH_TOKEN"),
-  useLocalReplica: false,
+  useLocalReplica: true,
 });
 
 app.use(
@@ -45,45 +45,53 @@ app.use(
 );
 
 // await client.sync();
-// queue.start();
-async function sendTaskToEdgeRuntime(event: ProcessingEvent) {
-  const response = await fetch(
-    "http://localhost:9000/run/@craftgen/math/send",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "run",
-        params: {
-          inputs: {
-            expression: "40 + 2",
+queue.start();
+async function sendTaskToEdgeRuntime(event: ActorEvent) {
+  try {
+    console.log("Sending event to worker", event);
+    const response = await fetch(
+      "http://localhost:9000/run/@craftgen/math/send",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "run",
+          params: {
+            inputs: {
+              expression: "40 + 2",
+            },
+            senders: [],
           },
-          senders: [],
-        },
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to send task to Edge Runtime: ${response.statusText}`,
+        }),
+      },
     );
-  }
 
-  return await response.json();
+    if (!response.ok) {
+      throw new Error(
+        `Failed to send task to Edge Runtime: ${response.statusText}`,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error sending event to worker:", error);
+  }
+}
+
+async function sendEventsToWorker(events: ActorEvent[]) {
+  // Send the batch of events to the worker for processing
+  for (const event of events) {
+    await sendTaskToEdgeRuntime(event);
+  }
 }
 
 const eventStreamSubscription = queue.getEventStream().subscribe({
-  next: (event) => {
-    console.log(`Processing event for machine: ${event.machineId}`);
-    sendTaskToEdgeRuntime(event)
-      .then(async () => {
-        await queue.completeEvent(event.id, true);
-      })
-      .catch(async (error) => {
-        console.error(`Error processing event ${event.id}:`, error);
-        await queue.completeEvent(event.id, false);
-      });
+  next: (events) => {
+    console.log(
+      `Processing ${events.length} events for machine: ${events[0].machineId}`,
+    );
+    // Send the batch of events to the worker for processing
+    sendEventsToWorker(events);
   },
   error: (err) => console.error("Error in event stream:", err),
 });

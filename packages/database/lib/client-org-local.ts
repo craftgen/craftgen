@@ -54,12 +54,7 @@ export function buildDbClient({
     const db = drizzle(a, {
       schema,
     });
-    const queue = new EventProcessor(db, {
-      lockDuration: 90000, // 90 seconds
-      maxConcurrentMachines: 10,
-      batchSize: 50,
-      cleanupInterval: 600000, // 10 minutes
-    });
+    const queue = new EventProcessor(db);
     return {
       client: a,
       db,

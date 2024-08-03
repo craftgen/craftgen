@@ -1,5 +1,15 @@
 import { add } from "date-fns";
-import { and, eq, lte } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  gt,
+  isNull,
+  lte,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import {
   defer,
   from,
@@ -14,28 +24,27 @@ import {
   mergeMap,
   repeat,
   takeUntil,
+  toArray,
 } from "rxjs/operators";
 
 import { type TenantDb } from "../lib/client-org-local.ts";
 import {
+  events,
   processedEvents,
-  processingEvents,
-  queuedEvents,
+  type ActorEvent,
 } from "../tenant/schema/index.ts";
 
 interface EventProcessorConfig {
   lockDuration?: number;
   maxConcurrentMachines?: number;
-  batchSize?: number;
   cleanupInterval?: number;
   pollingInterval?: number;
 }
-export type ProcessingEvent = typeof processingEvents.$inferSelect;
 
 // Event Processor Class
 export class EventProcessor {
   private db: TenantDb;
-  private eventSubject: Subject<ProcessingEvent>;
+  private eventSubject: Subject<ActorEvent[]>;
   private config: Required<EventProcessorConfig>;
   private cleanupSubscription: Subscription | null = null;
   private processingSubscription: Subscription | null = null;
@@ -43,12 +52,11 @@ export class EventProcessor {
 
   constructor(db: TenantDb, config: EventProcessorConfig = {}) {
     this.db = db;
-    this.eventSubject = new Subject<ProcessingEvent>();
+    this.eventSubject = new Subject<ActorEvent[]>();
     this.config = {
       lockDuration: config.lockDuration || 10,
       maxConcurrentMachines: config.maxConcurrentMachines || 10,
-      batchSize: config.batchSize || 100,
-      cleanupInterval: config.cleanupInterval || 300000,
+      cleanupInterval: config.cleanupInterval || 1000,
       pollingInterval: config.pollingInterval || 1000,
     };
   }
@@ -88,10 +96,11 @@ export class EventProcessor {
   }
 
   async enqueueEvent(
-    eventData: Omit<typeof queuedEvents.$inferInsert, "id" | "createdAt">,
+    eventData: Omit<typeof events.$inferInsert, "id" | "createdAt" | "status">,
   ): Promise<void> {
-    await this.db.insert(queuedEvents).values({
+    await this.db.insert(events).values({
       ...eventData,
+      status: "queued",
       scheduledFor: eventData.scheduledFor || new Date(),
     });
   }
@@ -103,106 +112,60 @@ export class EventProcessor {
       mergeMap(
         (group) =>
           group.pipe(
-            mergeMap((event) => {
-              this.eventSubject.next(event);
-              return defer(() => this.markEventAsProcessing(event));
-            }, 1), // Ensure sequential processing within each machine
+            toArray(),
+            mergeMap((events) => {
+              this.eventSubject.next(events);
+              return [];
+            }),
           ),
         this.config.maxConcurrentMachines,
       ),
     );
   }
 
-  private async fetchAndLockEvents(): Promise<ProcessingEvent[]> {
+  private async fetchAndLockEvents(): Promise<ActorEvent[]> {
     const now = new Date();
     const lockUntil = add(now, { seconds: this.config.lockDuration });
+    console.log("FETCHING");
 
     try {
       return await this.db.transaction(async (tx) => {
-        const events: ProcessingEvent[] = [];
+        // Subquery to get machineIds that are currently being processed
+        const activeMachineIds = await tx
+          .selectDistinct({ machineId: events.machineId })
+          .from(events)
+          .where(
+            and(eq(events.status, "processing"), gt(events.lockedUntil!, now)),
+          );
 
-        // Select distinct machineIds that are ready for processing
-        const distinctMachines = await tx
-          .selectDistinct({ machineId: queuedEvents.machineId })
-          .from(queuedEvents)
+        console.log("ACTIVE MACHINE IDS", activeMachineIds);
+
+        // Main query to fetch and lock events
+        const result = await tx
+          .update(events)
+          .set({
+            status: "processing",
+            lockedUntil: lockUntil,
+            processingStartedAt: now,
+          })
           .where(
             and(
-              lte(queuedEvents.scheduledFor, now),
-              lte(queuedEvents.attempts, queuedEvents.maxAttempts),
+              or(eq(events.status, "queued"), eq(events.status, "retrying")),
+              lte(events.scheduledFor, now),
+              lte(events.attempts, events.maxAttempts),
+              or(isNull(events.lockedUntil), lte(events.lockedUntil, now)),
+              activeMachineIds.length === 0
+                ? sql`true`
+                : notInArray(
+                    events.machineId,
+                    activeMachineIds.map((m) => m.machineId),
+                  ),
             ),
           )
-          .limit(this.config.maxConcurrentMachines);
+          .returning();
 
-        for (const { machineId } of distinctMachines) {
-          try {
-            // Check if there's already a processing event for this machine
-            const [existingProcessingEvent] = await tx
-              .select()
-              .from(processingEvents)
-              .where(eq(processingEvents.machineId, machineId))
-              .limit(1);
-
-            if (existingProcessingEvent) {
-              // If the existing event is locked, skip this machine
-              if (existingProcessingEvent.lockedUntil > now) {
-                console.log(
-                  `Skipping events for machine ${machineId} as it's already processing an event.`,
-                );
-                continue;
-              }
-              // If the lock has expired, delete the existing processing event
-              await tx
-                .delete(processingEvents)
-                .where(eq(processingEvents.id, existingProcessingEvent.id));
-            }
-
-            // Select the next event for this machine
-            const [nextEvent] = await tx
-              .select()
-              .from(queuedEvents)
-              .where(
-                and(
-                  eq(queuedEvents.machineId, machineId),
-                  lte(queuedEvents.scheduledFor, now),
-                  lte(queuedEvents.attempts, queuedEvents.maxAttempts),
-                ),
-              )
-              .orderBy(queuedEvents.createdAt)
-              .limit(1);
-
-            if (nextEvent) {
-              // Insert the new processing event
-              await tx.insert(processingEvents).values({
-                ...nextEvent,
-                lockedUntil: lockUntil,
-                processingStartedAt: now,
-              });
-
-              // Remove from queued_events
-              await tx
-                .delete(queuedEvents)
-                .where(eq(queuedEvents.id, nextEvent.id));
-
-              events.push({
-                ...nextEvent,
-                lockedUntil: lockUntil,
-                processingStartedAt: now,
-              });
-            }
-          } catch (error) {
-            console.error(
-              `Error processing event for machine ${machineId}:`,
-              error,
-            );
-            // Optionally, you could update the event's scheduled time to try again later
-            await tx
-              .update(queuedEvents)
-              .set({ scheduledFor: add(now, { seconds: 60 }) }) // Try again in 1 minute
-              .where(eq(queuedEvents.machineId, machineId));
-          }
-        }
-
-        return events;
+        console.log("EVENTS TO BE PROCESSED", result);
+        return result;
       });
     } catch (error) {
       console.error("Error in fetchAndLockEvents:", error);
@@ -210,12 +173,7 @@ export class EventProcessor {
     }
   }
 
-  private async markEventAsProcessing(event: ProcessingEvent): Promise<void> {
-    // This method is now a no-op because we've already moved the event to the processing table
-    // We keep it for potential future use or logging
-  }
-
-  getEventStream(): Observable<ProcessingEvent> {
+  getEventStream(): Observable<ActorEvent[]> {
     return this.eventSubject.asObservable();
   }
   async completeEvent(eventId: string, success: boolean): Promise<void> {
@@ -223,38 +181,57 @@ export class EventProcessor {
     await this.db.transaction(async (tx) => {
       const [event] = await tx
         .select()
-        .from(processingEvents)
-        .where(eq(processingEvents.id, eventId));
+        .from(events)
+        .where(eq(events.id, eventId));
 
       if (!event) {
         console.log(
-          `Event ${eventId} not found in processing_events. It may have already been processed.`,
+          `Event ${eventId} not found. It may have already been processed.`,
         );
-        return; // Exit gracefully instead of throwing an error
+        return;
       }
 
-      const processingDuration =
-        now.getTime() - event.processingStartedAt.getTime();
+      if (success) {
+        const processingDuration =
+          now.getTime() - event.processingStartedAt!.getTime();
 
-      await tx.insert(processedEvents).values({
-        ...event,
-        status: success ? "complete" : "failed",
-        processedAt: now,
-        processingDuration,
-      });
-
-      await tx.delete(processingEvents).where(eq(processingEvents.id, eventId));
-
-      if (!success && event.attempts < event.maxAttempts) {
-        const nextAttempt = event.attempts + 1;
-        const backoffTime = Math.pow(2, nextAttempt - 1); // Exponential backoff starting from 1 second
-        const scheduledFor = add(now, { seconds: backoffTime });
-
-        await tx.insert(queuedEvents).values({
+        await tx.insert(processedEvents).values({
           ...event,
-          attempts: nextAttempt,
-          scheduledFor,
+          status: "complete",
+          processedAt: now,
+          processingDuration,
         });
+
+        await tx.delete(events).where(eq(events.id, eventId));
+      } else {
+        if (event.attempts < event.maxAttempts) {
+          const nextAttempt = event.attempts + 1;
+          const backoffTime = Math.pow(2, nextAttempt - 1);
+          const scheduledFor = add(now, { seconds: backoffTime });
+
+          await tx
+            .update(events)
+            .set({
+              status: "retrying",
+              attempts: nextAttempt,
+              scheduledFor,
+              lockedUntil: null,
+              processingStartedAt: null,
+            })
+            .where(eq(events.id, eventId));
+        } else {
+          const processingDuration =
+            now.getTime() - event.processingStartedAt!.getTime();
+
+          await tx.insert(processedEvents).values({
+            ...event,
+            status: "failed",
+            processedAt: now,
+            processingDuration,
+          });
+
+          await tx.delete(events).where(eq(events.id, eventId));
+        }
       }
     });
   }
@@ -265,9 +242,12 @@ export class EventProcessor {
     await this.db.transaction(async (tx) => {
       const stalledEvents = await tx
         .select()
-        .from(processingEvents)
-        .where(lte(processingEvents.lockedUntil, now));
+        .from(events)
+        .where(
+          and(eq(events.status, "processing"), lte(events.lockedUntil!, now)),
+        );
 
+      console.log("STALLED EVENTS", stalledEvents);
       for (const event of stalledEvents) {
         if (event.attempts >= event.maxAttempts) {
           await tx.insert(processedEvents).values({
@@ -275,58 +255,47 @@ export class EventProcessor {
             status: "failed",
             processedAt: now,
             processingDuration:
-              now.getTime() - event.processingStartedAt.getTime(),
+              now.getTime() - event.processingStartedAt!.getTime(),
           });
-          await tx
-            .delete(processingEvents)
-            .where(eq(processingEvents.id, event.id));
+          await tx.delete(events).where(eq(events.id, event.id));
         } else {
           const nextAttempt = event.attempts + 1;
-          const backoffTime = Math.pow(2, nextAttempt - 1); // Exponential backoff starting from 1 second
+          const backoffTime = Math.pow(2, nextAttempt - 1);
           const scheduledFor = add(now, { seconds: backoffTime });
 
-          await tx.insert(queuedEvents).values({
-            ...event,
-            status: "retrying",
-            attempts: nextAttempt,
-            scheduledFor,
-          });
           await tx
-            .delete(processingEvents)
-            .where(eq(processingEvents.id, event.id));
+            .update(events)
+            .set({
+              status: "retrying",
+              attempts: nextAttempt,
+              scheduledFor,
+              lockedUntil: null,
+              processingStartedAt: null,
+            })
+            .where(eq(events.id, event.id));
         }
       }
     });
   }
 
-  async getEventsByMachineId(
-    machineId: string,
-  ): Promise<
-    (
-      | typeof queuedEvents.$inferSelect
-      | typeof processingEvents.$inferSelect
-      | typeof processedEvents.$inferSelect
-    )[]
-  > {
-    const [queued, processing, processed] = await Promise.all([
+  async getEventsByMachineId(machineId: string) {
+    const [activeEvents, completedEvents] = await Promise.all([
       this.db
         .select()
-        .from(queuedEvents)
-        .where(eq(queuedEvents.machineId, machineId)),
-      this.db
-        .select()
-        .from(processingEvents)
-        .where(eq(processingEvents.machineId, machineId)),
+        .from(events)
+        .where(eq(events.machineId, machineId))
+        .orderBy(desc(events.createdAt)),
       this.db
         .select()
         .from(processedEvents)
-        .where(eq(processedEvents.machineId, machineId)),
+        .where(eq(processedEvents.machineId, machineId))
+        .orderBy(desc(processedEvents.processedAt)),
     ]);
 
-    return [...queued, ...processing, ...processed].sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
+    return {
+      activeEvents,
+      completedEvents,
+    };
   }
 
   async shutdown(): Promise<void> {
