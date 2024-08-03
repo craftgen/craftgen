@@ -1,15 +1,5 @@
 import { add } from "date-fns";
-import {
-  and,
-  desc,
-  eq,
-  gt,
-  isNull,
-  lte,
-  notInArray,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, desc, eq, gt, isNull, lte, notExists, or } from "drizzle-orm";
 import {
   defer,
   from,
@@ -130,16 +120,6 @@ export class EventProcessor {
 
     try {
       return await this.db.transaction(async (tx) => {
-        // Subquery to get machineIds that are currently being processed
-        const activeMachineIds = await tx
-          .selectDistinct({ machineId: events.machineId })
-          .from(events)
-          .where(
-            and(eq(events.status, "processing"), gt(events.lockedUntil!, now)),
-          );
-
-        console.log("ACTIVE MACHINE IDS", activeMachineIds);
-
         // Main query to fetch and lock events
         const result = await tx
           .update(events)
@@ -154,12 +134,18 @@ export class EventProcessor {
               lte(events.scheduledFor, now),
               lte(events.attempts, events.maxAttempts),
               or(isNull(events.lockedUntil), lte(events.lockedUntil, now)),
-              activeMachineIds.length === 0
-                ? sql`true`
-                : notInArray(
-                    events.machineId,
-                    activeMachineIds.map((m) => m.machineId),
+              notExists(
+                tx
+                  .select()
+                  .from(events)
+                  .where(
+                    and(
+                      eq(events.status, "processing"),
+                      gt(events.lockedUntil!, now),
+                      eq(events.machineId, events.machineId),
+                    ),
                   ),
+              ),
             ),
           )
           .returning();
