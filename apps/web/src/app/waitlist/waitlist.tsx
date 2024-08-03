@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from "@craftgen/ui/components/form";
 import { Input } from "@craftgen/ui/components/input";
+import { cn } from "@craftgen/ui/lib/utils";
 
 import { addToWaitlist } from "../action";
 
@@ -40,7 +41,9 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
     resolver: zodResolver(formSchema),
   });
   const [success, setSuccess] = useState(false);
+  const [email, setEmail] = useState("");
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setEmail(data.email);
     await addToWaitlist(data);
     posthog.setPersonProperties({
       email: data.email,
@@ -57,7 +60,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
           <Button>Unlock Early Access: Join Our Priority Waitlist</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-5xl">
+      <DialogContent className={cn(success && "max-w-5xl")}>
         {success ? (
           <div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -114,6 +117,7 @@ export const Waitlist: React.FC<PropsWithChildren> = ({ children }) => {
                 <stripe-pricing-table
                   pricing-table-id="prctbl_1PjbJlGq5sEqGXRO2mqR4t43"
                   publishable-key="pk_live_51OeplEGq5sEqGXROv95gQtVZDgm3o4uvBstcPrzVCSh5215QtrUTUMiBE3XCiiXlCAdcxdNdG5CqVQ2vqXTfBws40026hqQaWG"
+                  customer-email={email}
                 ></stripe-pricing-table>
               </div>
             </div>
