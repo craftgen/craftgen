@@ -26,6 +26,7 @@
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:timestring@^7.0.0": "npm:timestring@7.0.0",
       "npm:tsx@^3.12.7": "npm:tsx@3.14.0",
+      "npm:zod@3.21.4": "npm:zod@3.21.4",
       "npm:zod@3.23.8": "npm:zod@3.23.8"
     },
     "jsr": {
@@ -649,6 +650,10 @@
       },
       "ws@8.18.0": {
         "integrity": "sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==",
+        "dependencies": {}
+      },
+      "zod@3.21.4": {
+        "integrity": "sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==",
         "dependencies": {}
       },
       "zod@3.23.8": {

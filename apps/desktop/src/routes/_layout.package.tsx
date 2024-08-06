@@ -1,13 +1,24 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { BaseDirectory } from "@tauri-apps/plugin-fs";
 import { Command } from "@tauri-apps/plugin-shell";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
+import { CodeEditor } from "@craftgen/composer/ui/control/control-code";
 import { type AppRouter } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
 import { Input } from "@craftgen/ui/components/input";
 import { JSONView } from "@craftgen/ui/components/json-view";
+import {
+  File,
+  Folder,
+  Tree,
+  useTree,
+} from "@craftgen/ui/components/tree-view-api";
+
+import { NodeManager } from "../libs/files";
 
 const client = createTRPCClient<AppRouter>({
   links: [
@@ -55,16 +66,109 @@ const PackagePage = () => {
     <div>
       <Button onClick={runtest}>Run Test</Button>
       <Button onClick={() => rpcTest("123")}>RPC Test 123</Button>
-      <Button onClick={() => rpcTest("456")}>RPC Test 456</Button>
-      <Button onClick={() => rpcTest("789")}>RPC Test 789</Button>
       <JSONView src={data} />
       <Input
         placeholder="Query"
         value={path}
         onChange={(e) => setPath(e.target.value)}
       />
+      <FolderRoot path="functions" dir={BaseDirectory.Resource} />
       <Button onClick={sendReadPath}>Send</Button>
     </div>
+  );
+};
+
+const FolderRoot = ({ dir, path }: { dir: BaseDirectory; path: string }) => {
+  const { data: files } = useQuery({
+    queryKey: [`file:${dir}`],
+    queryFn: ({ queryKey }) => {
+      return NodeManager.readDir(path, dir);
+    },
+    initialData: [],
+  });
+
+  return (
+    <>
+      <Tree>
+        {files.map((file) =>
+          file.isDirectory ? (
+            <Folder element={file.name} value={file.name}>
+              <TreeFileTest path={file.name} dir={dir} enabled={true} />
+            </Folder>
+          ) : (
+            <File value={file.name}>
+              <span>{file.name}</span>
+            </File>
+          ),
+        )}
+        <FileEditor></FileEditor>
+      </Tree>
+    </>
+  );
+};
+
+const FileEditor = (path: string) => {
+  const { data } = useQuery({
+    queryKey: [`file:${path}`],
+    queryFn: ({ queryKey }) => {
+      return NodeManager.readTextFile(queryKey[1], path);
+    },
+    initialData: "",
+    enabled: true,
+  });
+  const [value, setValue] = useState(data);
+  const { selectedId } = useTree();
+  return <CodeEditor />;
+};
+
+const TreeFileTest = (props: {
+  path: string;
+  dir: BaseDirectory;
+  enabled: boolean;
+}) => {
+  const { data: files } = useQuery({
+    queryKey: [`file:${props.path}`],
+    queryFn: ({ queryKey }) => {
+      return NodeManager.readDir(`functions/${props.path}`, props.dir);
+    },
+    initialData: [],
+    enabled: props.enabled,
+  });
+
+  const { expendedItems } = useTree();
+  const [hover, setHover] = useState(false);
+
+  return (
+    <>
+      {files.map((file) =>
+        file.isDirectory ? (
+          <div
+            onMouseOver={() => {
+              console.log("HOVER", file.name);
+              setHover(true);
+            }}
+            onMouseOut={() => setHover(false)}
+          >
+            <Folder element={file.name} value={`${props.path}/${file.name}`}>
+              {
+                <TreeFileTest
+                  path={`${props.path}/${file.name}`}
+                  dir={props.dir}
+                  enabled={
+                    true ||
+                    expendedItems?.includes(`${props.path}/${file.name}`)!
+                  }
+                />
+              }
+            </Folder>
+          </div>
+        ) : (
+          <File value={file.name}>
+            <span>{file.name}</span>
+          </File>
+        ),
+      )}
+    </>
   );
 };
 

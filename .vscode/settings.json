@@ -18,7 +18,8 @@
     "./nodes/math/",
     "./nodes/_shared/",
     "./nodes",
-    "./packages"
+    "./packages/ipc-api",
+    "./packages/database"
   ],
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }
