@@ -2,14 +2,15 @@ FROM denoland/deno
 
 EXPOSE 8787
 
-WORKDIR /app
-
-ADD ./functions /app
-
 # Need to add ca-certificates or will see the below error:
 # tls: failed to verify certificate: x509: certificate signed by unknown authority
 RUN apt-get update && apt-get install -y ca-certificates
 RUN update-ca-certificates
+
+WORKDIR /app
+
+ADD ./functions /app
+
 
 # TODO: Cache the dependencies as a layer (the following two steps are re-run only when deps.ts is modified).
 # Ideally cache deps.ts will download and compile _all_ external files used in main.ts.
@@ -19,5 +20,5 @@ RUN update-ca-certificates
 # Compile the main app so that it doesn't need to be compiled each startup/entry.
 RUN deno cache ./ipc-api/server.ts
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-sys", "--allow-ffi", "./ipc-api/server.ts"]
-# CMD ["run", "-A", "./ipc-api/server.ts"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-sys", "--allow-ffi", "./ipc-api/server.ts"]# CMD ["run", "-A", "./ipc-api/server.ts"]
+
