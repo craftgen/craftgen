@@ -1,0 +1,1 @@
+{ "workspace": ["./nodes/base", "./nodes/shared"] }

@@ -1,0 +1,6 @@
+{
+  "name": "@craftgen/node-base",
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  }
+}

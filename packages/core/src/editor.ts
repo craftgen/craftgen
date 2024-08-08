@@ -117,6 +117,8 @@ export interface EditorHandlers {
 export const EditorMachine = setup({
   types: {
     context: {} as {
+      selectedNodeId: string | null;
+
       inputSockets: Record<string, JSONSocket>;
       outputSockets: Record<string, JSONSocket>;
       inputs: Record<string, any>;
@@ -133,6 +135,12 @@ export const EditorMachine = setup({
       actors: Record<string, AnyActorRef>;
     },
     events: {} as
+      | {
+          type: "SET_SELECTED_NODE_ID";
+          params: {
+            id: string | null;
+          };
+        }
       | {
           type: "SPAWN";
           params: {
@@ -193,6 +201,12 @@ export const EditorMachine = setup({
         },
   },
   actions: {
+    setSelectedNodeId: enqueueActions(({ enqueue, event }) => {
+      assertEvent(event, "SET_SELECTED_NODE_ID");
+      enqueue.assign({
+        selectedNodeId: event.params.id,
+      });
+    }),
     setInputOutput: enqueueActions(
       ({ enqueue, event, check, context, system, self }) => {
         assertEvent(event, "SET_INPUT_OUTPUT");
@@ -359,6 +373,9 @@ export const EditorMachine = setup({
     },
     SET_VALUE: {
       actions: ["setValue"],
+    },
+    SET_SELECTED_NODE_ID: {
+      actions: ["setSelectedNodeId"],
     },
   },
   states: {
@@ -1438,9 +1455,9 @@ export class Editor<
       cursorPosition: observable,
       setCursorPosition: action,
 
-      selectedNodeId: observable,
-      setSelectedNodeId: action,
-      selectedNode: computed,
+      // selectedNodeId: observable,
+      // // setSelectedNodeId: action,
+      // selectedNode: computed,
 
       executionId: observable,
       setExecutionId: action,
@@ -1650,6 +1667,7 @@ export class Editor<
       status: "active",
       children: {},
       context: {
+        selectedNodeId: null,
         inputSockets: {},
         outputSockets: {},
         inputs: {},
@@ -2340,8 +2358,13 @@ export class Editor<
         })
         .with({ type: "noderemove" }, async ({ data }) => {
           console.log("noderemove", { data });
-          if (data.id === this.selectedNodeId) {
-            this.setSelectedNodeId(null);
+          if (data.id === this.actor?.getSnapshot().context.selectedNodeId) {
+            this.actor.send({
+              type: "SET_SELECTED_NODE_ID",
+              params: {
+                id: null,
+              },
+            });
           }
           this.actor?.send({
             type: "DESTROY",
@@ -2369,14 +2392,6 @@ export class Editor<
               data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
-          if (this.selectedNodeId && data.target === this.selectedNodeId) {
-            this.setSelectedNodeId(null);
-            this.setSelectedNodeId(data.target);
-          }
-          if (this.selectedNodeId && data.source === this.selectedNodeId) {
-            this.setSelectedNodeId(null);
-            this.setSelectedNodeId(data.source);
-          }
           return context;
         })
         .with({ type: "connectionremoved" }, async ({ data }) => {
@@ -2389,14 +2404,6 @@ export class Editor<
               data: JSON.parse(JSON.stringify(data.toJSON())),
             }),
           );
-          if (this.selectedNodeId && data.target === this.selectedNodeId) {
-            this.setSelectedNodeId(null);
-            this.setSelectedNodeId(data.target);
-          }
-          if (this.selectedNodeId && data.source === this.selectedNodeId) {
-            this.setSelectedNodeId(null);
-            this.setSelectedNodeId(data.source);
-          }
           return context;
         })
         .otherwise(() => context);
@@ -2407,17 +2414,14 @@ export class Editor<
     this.cursorPosition = position;
   }
 
-  setSelectedNodeId(nodeId: NodeId | null) {
-    this.selectedNodeId = nodeId;
-  }
-
   setExecutionId(executionId: string | undefined) {
     this.executionId = executionId;
   }
 
   get selectedNode() {
-    if (!this.selectedNodeId) return null;
-    return this.editor.getNode(this.selectedNodeId);
+    const selectedNodeId = this.actor?.getSnapshot().context.selectedNodeId;
+    if (!selectedNodeId) return null;
+    return this.editor.getNode(selectedNodeId);
   }
 
   public async createExecution(
@@ -2492,7 +2496,12 @@ export class Editor<
 
   public reset() {
     this.setExecutionId(undefined);
-    this.setSelectedNodeId(null);
+    this.actor?.send({
+      type: "SET_SELECTED_NODE_ID",
+      params: {
+        id: null,
+      },
+    });
     // this.editor.getNodes().forEach((n) => {
     //   n.reset();
     // });
@@ -2523,7 +2532,12 @@ export class Editor<
     const selectedNodeSubject = new BehaviorSubject<NodeId | null>(null);
 
     selectedNodeSubject.pipe(debounceTime(100)).subscribe((nodeId) => {
-      this.setSelectedNodeId(nodeId);
+      this.actor?.send({
+        type: "SET_SELECTED_NODE_ID",
+        params: {
+          id: nodeId,
+        },
+      });
     });
 
     this.area?.addPipe((context) => {
@@ -2539,7 +2553,7 @@ export class Editor<
             (data?.event.target as HTMLElement).classList.contains(
               "background",
             ) &&
-            this.selectedNodeId
+            this.actor?.getSnapshot().context.selectedNodeId
           ) {
             selectedNodeSubject.next(null);
           }

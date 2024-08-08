@@ -4,14 +4,14 @@
   "description": "Capability for the main window",
   "windows": ["main"],
   "permissions": [
-    "path:default",
-    "event:default",
-    "window:default",
-    "app:default",
-    "image:default",
-    "resources:default",
-    "menu:default",
-    "tray:default",
+    "core:path:default",
+    "core:event:default",
+    "core:window:default",
+    "core:app:default",
+    "core:image:default",
+    "core:resources:default",
+    "core:menu:default",
+    "core:tray:default",
     {
       "identifier": "shell:allow-execute",
       "allow": [
@@ -40,8 +40,8 @@
             "--reload",
             "--quiet"
           ],
-          "cmd": "deno",
-          "name": "deno",
+          "cmd": "",
+          "name": "binaries/deno",
           "sidecar": false
         }
       ]
@@ -62,7 +62,7 @@
           "url": "http://localhost:54321/**"
         },
         {
-          "url": "http://localhost:1234/**"
+          "url": "http://localhost:8787/**"
         },
         {
           "url": "http://localhost:24321/**"
@@ -85,6 +85,32 @@
     "dialog:allow-save",
     "dialog:allow-open",
     "process:default",
-    "process:allow-restart"
+    "process:allow-restart",
+    "fs:allow-download-read-recursive",
+    "fs:read-all",
+    "fs:allow-write",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$APPDATA"
+        },
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "$RESOURCE/functions"
+        },
+        {
+          "path": "$RESOURCE/functions/**"
+        },
+        {
+          "path": "$DOWNLOAD"
+        },
+        {
+          "path": "$DOWNLOAD/**"
+        }
+      ]
+    }
   ]
 }

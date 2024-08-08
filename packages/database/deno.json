@@ -1,0 +1,20 @@
+{
+  "name": "@craftgen/database",
+  "version": "0.0.1",
+  "exports": "./mod.ts",
+  "tasks": {
+    "dev": "deno test --watch mod.ts",
+    "drizzle:push": "pnpm with-env drizzle-kit push",
+    "create-org-db": "deno run -A ./lib/create-org-db.ts"
+  },
+  "imports": {
+    "@libsql/client": "npm:@libsql/client@^0.7.0",
+    "date-fns": "npm:date-fns@^3.6.0",
+    "drizzle-kit": "npm:drizzle-kit@0.23.0",
+    "drizzle-kit/": "npm:/drizzle-kit@0.23.0/",
+    "drizzle-orm": "npm:drizzle-orm@^0.32.0",
+    "drizzle-orm/": "npm:drizzle-orm@^0.32.0/",
+    "effect": "npm:effect@^3.6.1",
+    "rxjs": "npm:rxjs@^7.8.1"
+  }
+}

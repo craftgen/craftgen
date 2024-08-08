@@ -1,0 +1,14 @@
+---
+---
+
+- Update VSCode settings to include all nodes directories
+- Add ulid import and log Deno object keys for debugging
+- Add Deno configuration files for base and shared nodes
+- Add dependencies for base node
+- Refactor router to use NodeBuilder class
+- Add tRPC setup and context creation for base node
+- Refactor math node to use NodeBuilder class
+- Add shared middleware for logging requests
+- Add zValidator utility for schema validation using zod
+- Add new script "new:node" for initializing Deno nodes
+- Add set mutation to packageRouter for setting environment variables

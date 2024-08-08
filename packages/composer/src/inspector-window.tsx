@@ -1,12 +1,16 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react-lite";
+import { useSelector } from "@xstate/react";
 
 import { InspectorNode } from "./components/inspector-node";
 import { useCraftStore } from "./use-store";
 
-export const InspectorWindow: React.FC<{}> = observer(({}) => {
+export const InspectorWindow: React.FC<{}> = () => {
   const di = useCraftStore((state) => state.di);
-  const selectedNode = useMemo(() => di?.selectedNode, [di?.selectedNodeId]);
+  const selectedNodeId = useSelector(
+    di?.actor,
+    (state) => state?.context?.selectedNodeId,
+  );
+  const selectedNode = useMemo(() => di?.selectedNode, [selectedNodeId]);
 
   return (
     <>
@@ -21,4 +25,4 @@ export const InspectorWindow: React.FC<{}> = observer(({}) => {
       )}
     </>
   );
-});
+};

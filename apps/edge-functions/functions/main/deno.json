@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "strict": true,
-    "allowJs": true
-  },
-  "tasks": {
-    "dev": "deno run --watch index.ts"
-  }
-}
