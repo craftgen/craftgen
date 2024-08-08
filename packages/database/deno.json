@@ -14,6 +14,7 @@
     "drizzle-kit/": "npm:/drizzle-kit@0.23.0/",
     "drizzle-orm": "npm:drizzle-orm@^0.32.0",
     "drizzle-orm/": "npm:drizzle-orm@^0.32.0/",
+    "effect": "npm:effect@^3.6.1",
     "rxjs": "npm:rxjs@^7.8.1"
   }
 }

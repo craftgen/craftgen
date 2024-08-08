@@ -1,18 +1,18 @@
 version: "3.9"
+
 services:
   runtime:
     build:
       dockerfile: Dockerfile.runtime
       context: .
     volumes:
-      - type: bind
-        source: ./functions
-        target: /home/deno/functions
+      - shared_functions:/home/deno/functions
     ports:
       - "8000:9000"
     network_mode: host
     environment:
       - SERVICE_BASE_DIR=/home/deno/functions/
+
   ipc-api:
     build:
       dockerfile: Dockerfile.api
@@ -23,6 +23,15 @@ services:
       - type: bind
         source: ./db
         target: /home/deno/db
+      - shared_functions:/home/deno/functions
     network_mode: host
     ports:
       - "8787:8787"
+
+volumes:
+  shared_functions:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./functions

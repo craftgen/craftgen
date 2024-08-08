@@ -27,6 +27,7 @@ pub async fn start_edge_runtime(
     let env = [(
         "SERVICE_BASE_DIR",
         resource_path.to_string_lossy().to_string(),
+
     )];
 
     println!(

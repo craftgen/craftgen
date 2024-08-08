@@ -1,9 +1,11 @@
 import { z } from "../deps.ts";
 import { createTRPCRouter, publicProcedure } from "../trpc.ts";
+import { fsRouter } from "./file.ts";
 import { packageRouter } from "./package.ts";
 
 export const appRouter = createTRPCRouter({
   package: packageRouter,
+  fs: fsRouter,
   context: publicProcedure
     .input(
       z.object({

@@ -81,8 +81,11 @@ const PackagePage = () => {
 const FolderRoot = ({ dir, path }: { dir: BaseDirectory; path: string }) => {
   const { data: files } = useQuery({
     queryKey: [`file:${dir}`],
-    queryFn: ({ queryKey }) => {
-      return NodeManager.readDir(path, dir);
+    queryFn: async ({ queryKey }) => {
+      const files = await client.fs.readDir.query({
+        path: "/",
+      });
+      return files;
     },
     initialData: [],
   });
@@ -93,7 +96,7 @@ const FolderRoot = ({ dir, path }: { dir: BaseDirectory; path: string }) => {
         {files.map((file) =>
           file.isDirectory ? (
             <Folder element={file.name} value={file.name}>
-              <TreeFileTest path={file.name} dir={dir} enabled={true} />
+              <TreeFileTest path={`/${file.name}`} dir={dir} enabled={true} />
             </Folder>
           ) : (
             <File value={file.name}>
@@ -101,24 +104,9 @@ const FolderRoot = ({ dir, path }: { dir: BaseDirectory; path: string }) => {
             </File>
           ),
         )}
-        <FileEditor></FileEditor>
       </Tree>
     </>
   );
-};
-
-const FileEditor = (path: string) => {
-  const { data } = useQuery({
-    queryKey: [`file:${path}`],
-    queryFn: ({ queryKey }) => {
-      return NodeManager.readTextFile(queryKey[1], path);
-    },
-    initialData: "",
-    enabled: true,
-  });
-  const [value, setValue] = useState(data);
-  const { selectedId } = useTree();
-  return <CodeEditor />;
 };
 
 const TreeFileTest = (props: {
@@ -128,8 +116,11 @@ const TreeFileTest = (props: {
 }) => {
   const { data: files } = useQuery({
     queryKey: [`file:${props.path}`],
-    queryFn: ({ queryKey }) => {
-      return NodeManager.readDir(`functions/${props.path}`, props.dir);
+    queryFn: async ({ queryKey }) => {
+      const files = await client.fs.readDir.query({
+        path: props.path,
+      });
+      return files;
     },
     initialData: [],
     enabled: props.enabled,

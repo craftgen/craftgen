@@ -1326,6 +1326,9 @@ importers:
       drizzle-orm:
         specifier: ^0.32.0
         version: 0.32.0(@libsql/client@0.7.0)(@types/pg@8.10.7)(pg@8.11.3)(postgres@3.4.2)
+      effect:
+        specifier: ^3.6.1
+        version: 3.6.1
       ky:
         specifier: ^1.1.3
         version: 1.2.2
@@ -1345,6 +1348,9 @@ importers:
       '@trpc/server':
         specifier: 11.0.0-rc.452
         version: 11.0.0-rc.452
+      effect:
+        specifier: ^3.6.1
+        version: 3.6.1
       superjson:
         specifier: 2.2.1
         version: 2.2.1
@@ -18059,6 +18065,10 @@ packages:
 
   /ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
+    dev: false
+
+  /effect@3.6.1:
+    resolution: {integrity: sha512-RdHsRMuEUKgkhs3z2d5XI5SDADX0THDx6GjP1oJAAAM/w+oT5/3BpKZyg/05VHy7YfOUdaQbcDzFO6YowkqsSQ==}
     dev: false
 
   /electron-to-chromium@1.4.572:
