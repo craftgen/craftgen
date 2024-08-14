@@ -3,6 +3,8 @@ import { createTRPCRouter, publicProcedure } from "../trpc.ts";
 import { fsRouter } from "./file.ts";
 import { packageRouter } from "./package.ts";
 
+import "@craftgen/api";
+
 export const appRouter = createTRPCRouter({
   package: packageRouter,
   fs: fsRouter,

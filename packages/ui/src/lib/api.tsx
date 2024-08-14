@@ -7,7 +7,7 @@ import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
-import type { AppRouter } from "@craftgen/api";
+import type { AppRouter } from "@craftgen/ipc-api";
 
 export const api = createTRPCReact<AppRouter>();
 

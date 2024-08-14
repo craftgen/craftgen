@@ -6,7 +6,6 @@ import { Command } from "@tauri-apps/plugin-shell";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
-import { CodeEditor } from "@craftgen/composer/ui/control/control-code";
 import { type AppRouter } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
 import { Input } from "@craftgen/ui/components/input";
@@ -17,8 +16,6 @@ import {
   Tree,
   useTree,
 } from "@craftgen/ui/components/tree-view-api";
-
-import { NodeManager } from "../libs/files";
 
 const client = createTRPCClient<AppRouter>({
   links: [
@@ -114,6 +111,7 @@ const TreeFileTest = (props: {
   dir: BaseDirectory;
   enabled: boolean;
 }) => {
+  console.log("TREEFILETEST", props.path, props.enabled);
   const { data: files } = useQuery({
     queryKey: [`file:${props.path}`],
     queryFn: async ({ queryKey }) => {
@@ -133,20 +131,21 @@ const TreeFileTest = (props: {
     <>
       {files.map((file) =>
         file.isDirectory ? (
-          <div
-            onMouseOver={() => {
-              console.log("HOVER", file.name);
-              setHover(true);
-            }}
-            onMouseOut={() => setHover(false)}
-          >
-            <Folder element={file.name} value={`${props.path}/${file.name}`}>
+          <div>
+            <Folder
+              element={file.name}
+              value={`${props.path}/${file.name}`}
+              onMouseOver={() => {
+                setHover(true);
+              }}
+              onMouseOut={() => setHover(false)}
+            >
               {
                 <TreeFileTest
                   path={`${props.path}/${file.name}`}
                   dir={props.dir}
                   enabled={
-                    true ||
+                    hover ||
                     expendedItems?.includes(`${props.path}/${file.name}`)!
                   }
                 />
@@ -156,6 +155,13 @@ const TreeFileTest = (props: {
         ) : (
           <File value={file.name}>
             <span>{file.name}</span>
+            <Button
+              onClick={() => {
+                console.log("READ", file.name);
+              }}
+            >
+              Read
+            </Button>
           </File>
         ),
       )}

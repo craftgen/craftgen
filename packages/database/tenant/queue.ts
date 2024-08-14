@@ -46,8 +46,8 @@ export class EventProcessor {
     this.config = {
       lockDuration: config.lockDuration || 10,
       maxConcurrentMachines: config.maxConcurrentMachines || 10,
-      cleanupInterval: config.cleanupInterval || 1000,
-      pollingInterval: config.pollingInterval || 1000,
+      cleanupInterval: config.cleanupInterval || 5000,
+      pollingInterval: config.pollingInterval || 5000,
     };
   }
   start(): void {

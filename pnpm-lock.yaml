@@ -182,7 +182,7 @@ importers:
         specifier: 0.1.1
         version: link:../db
       '@craftgen/ipc-api':
-        specifier: 1.0.0
+        specifier: workspace:*
         version: link:../../packages/ipc-api
       '@craftgen/ui':
         specifier: 1.0.4
@@ -1366,6 +1366,9 @@ importers:
       '@craftgen/core':
         specifier: 0.1.2
         version: link:../core
+      '@craftgen/ipc-api':
+        specifier: workspace:0.0.1
+        version: link:../ipc-api
       '@hookform/resolvers':
         specifier: ^3.3.0
         version: 3.3.2(react-hook-form@7.51.5)
