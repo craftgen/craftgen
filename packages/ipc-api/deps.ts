@@ -4,6 +4,7 @@
 // export { default as superjson } from "npm:superjson@2.2.1";
 // export { initTRPC, TRPCError } from "npm:@trpc/server@11.0.0-rc.452";
 
+import { createTRPCProxyClient } from "@trpc/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Effect, Schedule } from "effect";
 import superjson from "superjson";
@@ -14,6 +15,7 @@ export {
   timestring,
   superjson,
   initTRPC,
+  createTRPCProxyClient,
   TRPCError,
   z,
   ZodError,

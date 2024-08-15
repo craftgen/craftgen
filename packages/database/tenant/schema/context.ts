@@ -5,8 +5,9 @@ import {
 } from "drizzle-orm/sqlite-core";
 
 import { createIdWithPrefix } from "../../lib/id.ts";
-import { organization } from "./organization.ts";
-import { workflow } from "./workflow.ts";
+import { workflowVersion } from "./index.ts";
+import { organization } from "./organization/organization.ts";
+import { workflow } from "./workflow/workflow.ts";
 
 /**
  * This table is used for store `latest` data for the nodes in the workflow;
@@ -18,14 +19,14 @@ export const context = sqliteTable("context", {
     .references(() => organization.id, {
       onDelete: "cascade",
     }),
-  workflow_id: text("workflow_id")
+  workflowId: text("workflow_id")
     .notNull()
     .references(() => workflow.id, {
       onDelete: "cascade",
     }),
-  //  workflow_version_id: text("workflow_version_id")
-  //    .notNull()
-  //    .references(() => workflowVersion.id, { onDelete: "set null" }),
+  workflowVersionId: text("workflow_version_id")
+    .notNull()
+    .references(() => workflowVersion.id, { onDelete: "set null" }),
   parent_id: text("parent_id").references((): AnySQLiteColumn => context.id, {
     onDelete: "cascade",
   }),

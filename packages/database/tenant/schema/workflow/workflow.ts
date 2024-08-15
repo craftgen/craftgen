@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   index,
   integer,
@@ -7,8 +7,12 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-import { createIdWithPrefix } from "../../lib/id.ts";
-import { organization } from "./organization.ts";
+import { createIdWithPrefix } from "../../../lib/id.ts";
+import { context } from "../context.ts";
+import { organization } from "../organization/organization.ts";
+import { workflowEdge } from "./edge.ts";
+import { workflowNode } from "./node.ts";
+import { workflowVersion } from "./version.ts";
 
 export const workflow = sqliteTable(
   "workflow",
@@ -37,7 +41,23 @@ export const workflow = sqliteTable(
     publishedAt: integer("published_at", { mode: "timestamp" }),
   },
   (w) => ({
-    slugIdx: uniqueIndex("workflow_slug_idx").on(w.slug),
+    slugUniqueIdx: uniqueIndex("workflow_slug_unique_idx").on(
+      w.slug,
+      w.organizationId,
+    ),
     nameIdx: index("workflow_name_idx").on(w.name),
+    slugIdx: index("workflow_slug_idx").on(w.slug),
   }),
 );
+
+export const workflowRelations = relations(workflow, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [workflow.organizationId],
+    references: [organization.id],
+  }),
+  versions: many(workflowVersion),
+  edges: many(workflowEdge),
+  nodes: many(workflowNode),
+  contexts: many(context),
+  // executions: many(workflowExecution),
+}));

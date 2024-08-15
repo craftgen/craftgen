@@ -8,7 +8,9 @@
   "imports": {
     "@craftgen/database": "npm:@craftgen/database@0.0.1",
     "@craftgen/queue": "npm:@craftgen/queue@0.0.1",
+    "@trpc/client": "npm:@trpc/client@^10.45.2",
     "effect": "npm:effect@^3.6.1",
+    "lodash-es": "npm:lodash-es@^4.17.21",
     "timestring": "npm:timestring@^7.0.0",
     "zod": "npm:zod@3.23.8"
   }

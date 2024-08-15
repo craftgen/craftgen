@@ -1,13 +1,15 @@
 import { z } from "../deps.ts";
 import { createTRPCRouter, publicProcedure } from "../trpc.ts";
+import { craftRouter } from "./craft/index.ts";
 import { fsRouter } from "./file.ts";
 import { packageRouter } from "./package.ts";
-
-// import {create} from "@craftgen/api";
+import { variablesRouter } from "./variables.ts";
 
 export const appRouter = createTRPCRouter({
   package: packageRouter,
   fs: fsRouter,
+  craft: craftRouter,
+  variables: variablesRouter,
   context: publicProcedure
     .input(
       z.object({

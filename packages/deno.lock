@@ -12,6 +12,8 @@
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
       "npm:@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@paralleldrive/cuid2@^2.2.2": "npm:@paralleldrive/cuid2@2.2.2",
+      "npm:@trpc/client@11.0.0-rc.452": "npm:@trpc/client@11.0.0-rc.452_@trpc+server@11.0.0-rc.452",
+      "npm:@trpc/client@^10.45.2": "npm:@trpc/client@10.45.2_@trpc+server@10.45.2",
       "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:date-fns@^3.6.0": "npm:date-fns@3.6.0",
@@ -20,6 +22,7 @@
       "npm:drizzle-kit@^0.23.0": "npm:drizzle-kit@0.23.0_esbuild@0.19.12",
       "npm:drizzle-orm": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
       "npm:drizzle-orm@^0.32.0": "npm:drizzle-orm@0.32.0_@libsql+client@0.7.0",
+      "npm:effect@^3.6.1": "npm:effect@3.6.1",
       "npm:hono": "npm:hono@4.4.12",
       "npm:ky@^1.1.3": "npm:ky@1.2.4",
       "npm:rxjs@^7.8.1": "npm:rxjs@7.8.1",
@@ -356,6 +359,22 @@
           "@noble/hashes": "@noble/hashes@1.4.0"
         }
       },
+      "@trpc/client@10.45.2_@trpc+server@10.45.2": {
+        "integrity": "sha512-ykALM5kYWTLn1zYuUOZ2cPWlVfrXhc18HzBDyRhoPYN0jey4iQHEFSEowfnhg1RvYnrAVjNBgHNeSAXjrDbGwg==",
+        "dependencies": {
+          "@trpc/server": "@trpc/server@10.45.2"
+        }
+      },
+      "@trpc/client@11.0.0-rc.452_@trpc+server@11.0.0-rc.452": {
+        "integrity": "sha512-QAabLHbaqVAc4FOkC5QbDMRy2mEZk+mYdVjAOdeqjIwQ4jUJ/m0Dx6gEM99I7ASnT1TAuPGy6WwIWJixma6QWg==",
+        "dependencies": {
+          "@trpc/server": "@trpc/server@11.0.0-rc.452"
+        }
+      },
+      "@trpc/server@10.45.2": {
+        "integrity": "sha512-wOrSThNNE4HUnuhJG6PfDRp4L2009KDVxsd+2VYH8ro6o/7/jwYZ8Uu5j+VaW+mOmc8EHerHzGcdbGNQSAUPgg==",
+        "dependencies": {}
+      },
       "@trpc/server@11.0.0-rc.452": {
         "integrity": "sha512-sqZ2Nmh9hD/xuW5x/9tLoa7N1k/99B0eCDoVdbVtnMQZ0gH79vlLQXrbIPg6BZxu/h1i/jyHWXBmFMqN2JZ6xw==",
         "dependencies": {}
@@ -436,6 +455,10 @@
         "dependencies": {
           "@libsql/client": "@libsql/client@0.7.0"
         }
+      },
+      "effect@3.6.1": {
+        "integrity": "sha512-RdHsRMuEUKgkhs3z2d5XI5SDADX0THDx6GjP1oJAAAM/w+oT5/3BpKZyg/05VHy7YfOUdaQbcDzFO6YowkqsSQ==",
+        "dependencies": {}
       },
       "esbuild-register@3.5.0_esbuild@0.19.12": {
         "integrity": "sha512-+4G/XmakeBAsvJuDugJvtyF1x+XJT4FMocynNpxrvEBViirpfUn2PgNpCHedfWhF4WokNsO/OvMKrmJOIJsI5A==",

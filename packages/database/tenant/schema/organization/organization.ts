@@ -7,11 +7,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-import { createIdWithPrefix } from "../../lib/id.ts";
+import { createIdWithPrefix } from "../../../lib/id.ts";
 
-/**
- * This table is used for store `latest` data for the nodes in the workflow;
- */
 export const organization = sqliteTable(
   "organization",
   {

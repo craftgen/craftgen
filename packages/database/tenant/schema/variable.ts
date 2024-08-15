@@ -1,11 +1,11 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 import { createIdWithPrefix } from "../../lib/id.ts";
-import { organization } from "./organization.ts";
+import { organization } from "./organization/organization.ts";
 
 export const variable = sqliteTable("variable", {
   id: text("id").$defaultFn(createIdWithPrefix("var")).primaryKey(),
-  organization_id: text("organization_id")
+  organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, {
       onDelete: "cascade",
