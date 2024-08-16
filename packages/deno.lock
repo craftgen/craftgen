@@ -25,6 +25,7 @@
       "npm:effect@^3.6.1": "npm:effect@3.6.1",
       "npm:hono": "npm:hono@4.4.12",
       "npm:ky@^1.1.3": "npm:ky@1.2.4",
+      "npm:lodash-es@^4.17.21": "npm:lodash-es@4.17.21",
       "npm:rxjs@^7.8.1": "npm:rxjs@7.8.1",
       "npm:superjson@2.2.1": "npm:superjson@2.2.1",
       "npm:timestring@^7.0.0": "npm:timestring@7.0.0",
@@ -579,6 +580,10 @@
           "detect-libc": "detect-libc@2.0.2"
         }
       },
+      "lodash-es@4.17.21": {
+        "integrity": "sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==",
+        "dependencies": {}
+      },
       "minimist@1.2.8": {
         "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==",
         "dependencies": {}
@@ -754,6 +759,7 @@
           "npm:date-fns@^3.6.0",
           "npm:drizzle-kit@0.23.0",
           "npm:drizzle-orm@^0.32.0",
+          "npm:effect@^3.6.1",
           "npm:rxjs@^7.8.1"
         ],
         "packageJson": {
@@ -763,6 +769,7 @@
             "npm:dotenv-cli@^7.2.1",
             "npm:drizzle-kit@^0.23.0",
             "npm:drizzle-orm@^0.32.0",
+            "npm:effect@^3.6.1",
             "npm:ky@^1.1.3",
             "npm:tsx@^3.12.7"
           ]
@@ -772,8 +779,22 @@
         "dependencies": [
           "npm:@craftgen/database@0.0.1",
           "npm:@craftgen/queue@0.0.1",
-          "npm:timestring@^7.0.0"
-        ]
+          "npm:@trpc/client@^10.45.2",
+          "npm:effect@^3.6.1",
+          "npm:lodash-es@^4.17.21",
+          "npm:timestring@^7.0.0",
+          "npm:zod@3.23.8"
+        ],
+        "packageJson": {
+          "dependencies": [
+            "npm:@trpc/client@11.0.0-rc.452",
+            "npm:@trpc/server@11.0.0-rc.452",
+            "npm:effect@^3.6.1",
+            "npm:lodash-es@^4.17.21",
+            "npm:superjson@2.2.1",
+            "npm:zod@3.21.4"
+          ]
+        }
       },
       "queue": {
         "dependencies": [

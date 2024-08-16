@@ -7,7 +7,7 @@ import { organization } from "./index.ts";
 
 export const organizationMembers = sqliteTable("organization_members", {
   id: text("id").$defaultFn(createIdWithPrefix("member")).primaryKey(),
-  organizationId: text("organization_id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
   userId: text("user_id").notNull(),
   role: text("role").notNull(),
   createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),

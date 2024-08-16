@@ -65,6 +65,7 @@ export async function createConfigFile({
     schema: "./tenant/schema/index.ts",
     driver: "turso",
     dialect: "sqlite",
+    out: "./tenant/drop",
     dbCredentials: {
       url: "libsql://${orgId}-${Deno.env.get("APP_NAME")}.turso.io",
       authToken: "${authToken}",

@@ -1,13 +1,13 @@
 import { get, isEqual, isNil, set } from "lodash-es";
 import { z } from "zod";
 
-import { and, desc, eq, schema } from "@craftgen/db/db";
+import { and, desc, eq, tenant } from "@craftgen/database";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
-} from "../../trpc";
+} from "../../trpc.ts";
 
 export const craftVersionRouter = createTRPCRouter({
   list: publicProcedure
@@ -52,43 +52,43 @@ export const craftVersionRouter = createTRPCRouter({
       return await ctx.db.transaction(async (tx) => {
         const [versionRes] = await tx
           .select({
-            latestVersionId: schema.workflowVersion.id,
-            latestVersion: schema.workflowVersion.version,
-            projectId: schema.workflow.projectId,
+            latestVersionId: tenant.workflowVersion.id,
+            latestVersion: tenant.workflowVersion.version,
+            organizationId: tenant.workflow.organizationId,
           })
-          .from(schema.workflowVersion)
-          .where(and(eq(schema.workflowVersion.workflowId, input.workflowId)))
+          .from(tenant.workflowVersion)
+          .where(and(eq(tenant.workflowVersion.workflowId, input.workflowId)))
           .leftJoin(
-            schema.workflow,
-            eq(schema.workflow.id, schema.workflowVersion.workflowId),
+            tenant.workflow,
+            eq(tenant.workflow.id, tenant.workflowVersion.workflowId),
           )
-          .orderBy(desc(schema.workflowVersion.version))
+          .orderBy(desc(tenant.workflowVersion.version))
           .limit(1);
         if (!versionRes) {
           throw new Error("Could not find previous version to create new");
         }
-        const { latestVersionId, latestVersion, projectId } = versionRes;
-        if (!projectId) {
-          throw new Error("Project not found");
+        const { latestVersionId, latestVersion, organizationId } = versionRes;
+        if (!organizationId) {
+          throw new Error("Organization not found");
         }
         // Publish the latest version
         await tx
-          .update(schema.workflowVersion)
+          .update(tenant.workflowVersion)
           .set({ publishedAt: new Date(), changeLog: input.changeLog })
           .where(
             and(
-              eq(schema.workflowVersion.workflowId, input.workflowId),
-              eq(schema.workflowVersion.version, latestVersion),
+              eq(tenant.workflowVersion.workflowId, input.workflowId),
+              eq(tenant.workflowVersion.version, latestVersion),
             ),
           );
 
         const [newVersion] = await tx
-          .insert(schema.workflowVersion)
+          .insert(tenant.workflowVersion)
           .values({
+            organizationId,
             workflowId: input.workflowId,
             version: latestVersion + 1,
             previousVersionId: latestVersionId,
-            projectId,
           })
           .returning();
         if (!newVersion) {
@@ -154,15 +154,15 @@ export const craftVersionRouter = createTRPCRouter({
                     context.previousContext,
                   );
                   const [cloneContext] = await tx
-                    .insert(schema.context)
+                    .insert(tenant.context)
                     .values({
                       type: context.type,
-                      project_id: context.project_id,
+                      organizationId,
                       previousContextId: context.id,
-                      state: context.state,
-                      parent_id: context.parent_id,
-                      workflow_id: input.workflowId,
-                      workflow_version_id: newVersion.id,
+                      snapshot: context.snapshot,
+                      parentId: context.parentId,
+                      workflowId: input.workflowId,
+                      workflowVersionId: newVersion.id,
                     })
                     .returning();
 
@@ -305,11 +305,11 @@ export const craftVersionRouter = createTRPCRouter({
                 // .value();
 
                 await tx
-                  .update(schema.context)
+                  .update(tenant.context)
                   .set({
                     ...changes,
                   })
-                  .where(eq(schema.context.id, context.id));
+                  .where(eq(tenant.context.id, context.id));
               }
 
               const nodeContextId = contextsWithChildren.get(
@@ -317,7 +317,7 @@ export const craftVersionRouter = createTRPCRouter({
               ).id;
 
               const [cloneNode] = await tx
-                .insert(schema.workflowNode)
+                .insert(tenant.workflowNode)
                 .values({
                   ...workflowNodeMeta,
                   contextId: nodeContextId,
@@ -341,7 +341,7 @@ export const craftVersionRouter = createTRPCRouter({
         );
 
         if (edges.length > 0) {
-          await tx.insert(schema.workflowEdge).values(
+          await tx.insert(tenant.workflowEdge).values(
             edges.map((edge) => ({
               ...edge,
               workflowVersionId: newVersion.id,
