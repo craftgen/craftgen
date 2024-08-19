@@ -1,3 +1,5 @@
+import { NextRequest } from "next/server";
+import { auth, currentUser, getAuth } from "@clerk/nextjs/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { appRouter, createTRPCContext } from "@craftgen/api";
@@ -35,7 +37,10 @@ export function OPTIONS() {
   return response;
 }
 
-const handler = async (req: Request) => {
+const handler = async (req: NextRequest) => {
+  const auth = getAuth(req);
+  console.log("AUTH", auth);
+
   const supabase = createClient(req);
   if (req && req.headers.has("Authorization")) {
     await supabase.auth.setSession({

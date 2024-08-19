@@ -3,6 +3,13 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Noto_Sans } from "next/font/google";
 import { headers } from "next/headers";
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono, GeistSans } from "geist/font";
@@ -36,20 +43,28 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body
-        className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
-      >
-        <TRPCReactProvider headers={headers()} url={getUrl()}>
-          <Providers>
-            {children}
-            <Analytics />
-            <SpeedInsights />
-            <Toaster />
-            <PHIdentify />
-          </Providers>
-        </TRPCReactProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className="scroll-smooth">
+        <body
+          className={`${inter.variable} ${notoSans.variable} ${GeistSans.variable} ${GeistMono.variable} min-h-screen`}
+        >
+          <TRPCReactProvider headers={headers()} url={getUrl()}>
+            <Providers>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+              {children}
+              <Analytics />
+              <SpeedInsights />
+              <Toaster />
+              <PHIdentify />
+            </Providers>
+          </TRPCReactProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

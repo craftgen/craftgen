@@ -16,6 +16,7 @@
     "local:db": "surreal start --log trace  --user root --pass root --bind 0.0.0.0:12345 file:./src-tauri/functions/mydatabase.db"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.4.1",
     "@craftgen/api": "^0.1.2",
     "@craftgen/composer": "1.0.5",
     "@craftgen/core": "0.1.2",

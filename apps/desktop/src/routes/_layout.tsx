@@ -1,4 +1,10 @@
 import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
+import {
   createFileRoute,
   Link,
   Outlet,
@@ -60,13 +66,19 @@ const DashboardLayoutComponent = () => {
       />
       <DashboardLayout.Content>
         <Navbar Link={Link}>
-          {!isNil(context.auth?.user) ? (
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+          {/* {!isNil(context.auth?.user) ? (
             <UserNav Link={Link} handleLogout={handleLogout} />
           ) : (
             <Link to="/login">
               <Button> Sign up</Button>
             </Link>
-          )}
+          )} */}
         </Navbar>
         <Outlet />
       </DashboardLayout.Content>

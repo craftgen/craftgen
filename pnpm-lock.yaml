@@ -90,6 +90,9 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@clerk/clerk-react':
+        specifier: ^5.4.1
+        version: 5.4.1(react-dom@18.2.0)(react@18.2.0)
       '@craftgen/api':
         specifier: ^0.1.2
         version: link:../../packages/api
@@ -284,6 +287,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@clerk/nextjs':
+        specifier: ^5.3.1
+        version: 5.3.1(next@14.2.4)(react-dom@18.2.0)(react@18.2.0)
       '@craftgen/api':
         specifier: ^0.1.2
         version: link:../../packages/api
@@ -413,6 +419,9 @@ importers:
       '@trpc/server':
         specifier: 11.0.0-rc.452
         version: 11.0.0-rc.452
+      '@tursodatabase/api':
+        specifier: ^1.8.1
+        version: 1.8.1
       '@udecode/plate-alignment':
         specifier: ^23.7.0
         version: 23.7.4(@babel/core@7.24.7)(@types/react@18.2.15)(@urql/core@4.3.0)(react-dom@18.2.0)(react-native@0.74.5)(react@18.2.0)(scheduler@0.23.2)(slate-history@0.93.0)(slate-react@0.98.4)(slate@0.94.1)(xstate@5.14.0)
@@ -755,6 +764,9 @@ importers:
       superjson:
         specifier: 2.2.1
         version: 2.2.1
+      svix:
+        specifier: ^1.30.0
+        version: 1.30.0(encoding@0.1.13)
       swr:
         specifier: ^2.2.0
         version: 2.2.4(react@18.2.0)
@@ -4579,6 +4591,84 @@ packages:
       prettier: 2.8.8
     dev: false
 
+  /@clerk/backend@1.6.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-rZHrbVpmHF9T61EVM2mksocLVQ9/7oWY/Q+Fq0lZGtIVfBPJa1QMYGosPooOw9MeMvpBK21BujjBg4OxrT9ToQ==}
+    engines: {node: '>=18.17.0'}
+    dependencies:
+      '@clerk/shared': 2.5.1(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/types': 4.13.1
+      cookie: 0.5.0
+      snakecase-keys: 5.4.4
+      tslib: 2.4.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+    dev: false
+
+  /@clerk/clerk-react@5.4.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-r0P5kEFWh3Cyl+PrNWM7oW/+0aPaB0Zp80MzQLTvpSSGgemYoDHgybmc2Twc4rS0GOJ455y5uSB1smTh0G+ztw==}
+    engines: {node: '>=18.17.0'}
+    peerDependencies:
+      react: '>=18 || >=19.0.0-beta'
+      react-dom: '>=18 || >=19.0.0-beta'
+    dependencies:
+      '@clerk/shared': 2.5.1(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/types': 4.13.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.4.1
+    dev: false
+
+  /@clerk/nextjs@5.3.1(next@14.2.4)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-W3R/jU1m2R/H0rd1nQAzgvMdVlklCMHb2kLA7yelD6X5Vpe2HBlO8EwQNIHQpEJDC0RrKTta0HHSWUjqYdHT/Q==}
+    engines: {node: '>=18.17.0'}
+    peerDependencies:
+      next: ^13.5.4 || ^14.0.3 || >=15.0.0-rc
+      react: '>=18 || >=19.0.0-beta'
+      react-dom: '>=18 || >=19.0.0-beta'
+    dependencies:
+      '@clerk/backend': 1.6.3(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/clerk-react': 5.4.1(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/shared': 2.5.1(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/types': 4.13.1
+      crypto-js: 4.2.0
+      next: 14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.4.0)(react-dom@18.2.0)(react@18.2.0)
+      path-to-regexp: 6.2.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      server-only: 0.0.1
+      tslib: 2.4.1
+    dev: false
+
+  /@clerk/shared@2.5.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-RslzZvjolG8ToZlegV8XPEkINQ4XM23lO2xS6ZtJEeGzRzchkpEBUOYywjG6aGtJDByWBY2OxyrPaa5rwx1XEg==}
+    engines: {node: '>=18.17.0'}
+    requiresBuild: true
+    peerDependencies:
+      react: '>=18 || >=19.0.0-beta'
+      react-dom: '>=18 || >=19.0.0-beta'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      '@clerk/types': 4.13.1
+      glob-to-regexp: 0.4.1
+      js-cookie: 3.0.5
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      std-env: 3.7.0
+      swr: 2.2.5(react@18.2.0)
+    dev: false
+
+  /@clerk/types@4.13.1:
+    resolution: {integrity: sha512-AfFTA1Du0pog62CSl23Y8NNDN+iHwXdUQAp/sQ/LbE+/wYBOMSaV5d+cS5F4HX+/uzXgKsc3BpCNI/Th3CLNHg==}
+    engines: {node: '>=18.17.0'}
+    dependencies:
+      csstype: 3.1.1
+    dev: false
+
   /@codemirror/autocomplete@6.12.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.24.0)(@lezer/common@1.2.0):
     resolution: {integrity: sha512-r4IjdYFthwbCQyvqnSlx0WBHRHi8nBvU+WjJxFUij81qsBfhNudf/XKKmmC2j3m0LaOYUQTf3qiEK1J8lO1sdg==}
     peerDependencies:
@@ -5610,7 +5700,7 @@ packages:
   /@formatjs/intl-localematcher@0.5.4:
     resolution: {integrity: sha512-zTwEpWOzZ2CiKcB93BLngUX59hQkuZjT2+SAQEscSm52peDW/getsawMcWF1rGRpMCX6D7nSJA3CzJ8gn13N/g==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /@gilbarbara/deep-equal@0.1.2:
@@ -11550,6 +11640,10 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
 
+  /@stablelib/base64@1.0.1:
+    resolution: {integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==}
+    dev: false
+
   /@statelyai/agent@0.0.7:
     resolution: {integrity: sha512-K0SiNFVoGVrqp6UivRFYNpb7wANj07QXOwv/w8tNGeIAfz/XDtVLqfHK+Mh/L4aqOCkUvV5XuKe1zKPI/r5Sgw==}
     dependencies:
@@ -12034,14 +12128,14 @@ packages:
   /@swc/helpers@0.5.3:
     resolution: {integrity: sha512-FaruWX6KdudYloq1AHD/4nU+UsMTdNE8CKyrseXWEcgjDAbvkwJg2QGPAnfIJLIWsjZOSPLOAykK6fuYp4vp4A==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /@swc/helpers@0.5.5:
     resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
     dependencies:
       '@swc/counter': 0.1.3
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   /@swc/types@0.1.5:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
@@ -12777,6 +12871,12 @@ packages:
       rimraf: 3.0.2
       semver: 7.6.0
       update-check: 1.5.4
+    dev: false
+
+  /@tursodatabase/api@1.8.1:
+    resolution: {integrity: sha512-/HhBZEJEtGtI3FlP+vZY0VG+/GRO9L/yaPOjg/lWRDi0x9tjX6pvDiX1QOaeadKzGVkXH6gM+HYEH8LZnvOhKQ==}
+    dependencies:
+      whatwg-fetch: 3.6.20
     dev: false
 
   /@types/accepts@1.3.7:
@@ -15746,7 +15846,7 @@ packages:
     resolution: {integrity: sha512-xcLxITLe2HYa1cnYnwCjkOO1PqUHQpozB8x9AR0OgWN2woOBi5kSDVxKfd0b7sb1hw5qFeJhXm9H1nu3xSfLeQ==}
     engines: {node: '>=10'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /aria-query@5.3.0:
@@ -15906,7 +16006,7 @@ packages:
     resolution: {integrity: sha512-x1FCFnFifvYDDzTaLII71vG5uvDwgtmDTEVWAxrgeiR8VjMONcCXJx7E+USjDtHlwFmt9MysbqgF9b9Vjr6w+w==}
     engines: {node: '>=4'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /ast-types@0.15.2:
@@ -16488,7 +16588,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /camelcase-css@2.0.1:
@@ -16533,7 +16633,7 @@ packages:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
       upper-case-first: 2.0.2
     dev: false
 
@@ -16606,7 +16706,7 @@ packages:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /char-regex@1.0.2:
@@ -17058,7 +17158,7 @@ packages:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
       upper-case: 2.0.2
     dev: false
 
@@ -17207,6 +17307,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    dev: false
 
   /crypto-random-string@4.0.0:
     resolution: {integrity: sha512-x8dy3RnvYdlUcPOjkEHqozhiwzKNSq7GcPuXFbnyMOCHxX8V3OgIg/pYuabl2sbUPfIJaeAQB7PMOK8DFIdoRA==}
@@ -17368,6 +17472,10 @@ packages:
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
     dependencies:
       css-tree: 2.2.1
+    dev: false
+
+  /csstype@3.1.1:
+    resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
     dev: false
 
   /csstype@3.1.3:
@@ -17873,7 +17981,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /dotenv-cli@7.3.0:
@@ -17935,7 +18043,7 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
       react-is: 17.0.2
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /drizzle-kit@0.23.0:
@@ -18454,6 +18562,10 @@ packages:
       is-callable: 1.2.7
       is-date-object: 1.0.5
       is-symbol: 1.0.4
+
+  /es6-promise@4.2.8:
+    resolution: {integrity: sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==}
+    dev: false
 
   /esbuild-register@3.5.0(esbuild@0.19.12):
     resolution: {integrity: sha512-+4G/XmakeBAsvJuDugJvtyF1x+XJT4FMocynNpxrvEBViirpfUn2PgNpCHedfWhF4WokNsO/OvMKrmJOIJsI5A==}
@@ -19311,6 +19423,10 @@ packages:
 
   /fast-safe-stringify@2.1.1:
     resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
+    dev: false
+
+  /fast-sha256@1.3.0:
+    resolution: {integrity: sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==}
     dev: false
 
   /fast-shallow-equal@1.0.0:
@@ -20450,7 +20566,7 @@ packages:
     resolution: {integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==}
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /hermes-estree@0.19.1:
@@ -21927,6 +22043,11 @@ packages:
     resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
     dev: false
 
+  /js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
+    dev: false
+
   /js-sha256@0.9.0:
     resolution: {integrity: sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==}
     dev: false
@@ -22198,7 +22319,7 @@ packages:
     dependencies:
       copy-anything: 2.0.6
       parse-node-version: 1.0.1
-      tslib: 2.6.2
+      tslib: 2.6.3
     optionalDependencies:
       errno: 0.1.8
       graceful-fs: 4.2.11
@@ -22667,7 +22788,7 @@ packages:
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /lowercase-keys@1.0.1:
@@ -22771,6 +22892,11 @@ packages:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
     dependencies:
       tmpl: 1.0.5
+
+  /map-obj@4.3.0:
+    resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
+    engines: {node: '>=8'}
+    dev: false
 
   /markdown-extensions@2.0.0:
     resolution: {integrity: sha512-o5vL7aDWatOTX8LzaS1WMoaoxIiLRQJuIKKe2wAw6IeULDHaqbiqiggmx+pKvZDb1Sj+pE46Sn1T7lCqfFtg1Q==}
@@ -24070,7 +24196,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /nocache@3.0.4:
@@ -24692,7 +24818,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /parent-module@1.0.1:
@@ -24768,7 +24894,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /path-case@2.1.1:
@@ -24781,7 +24907,7 @@ packages:
     resolution: {integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /path-exists@3.0.0:
@@ -24815,6 +24941,10 @@ packages:
     dependencies:
       lru-cache: 10.2.0
       minipass: 7.1.2
+    dev: false
+
+  /path-to-regexp@6.2.2:
+    resolution: {integrity: sha512-GQX3SSMokngb36+whdpRXE+3f9V8UzyAorlYvOGx87ufGHehNTn5lCxrKtLyZ4Yl/wEKnNnr98ZzOwwDZV5ogw==}
     dev: false
 
   /path-type@4.0.0:
@@ -25905,6 +26035,10 @@ packages:
     deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
     dev: false
 
+  /querystringify@2.2.0:
+    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+    dev: false
+
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -26319,7 +26453,7 @@ packages:
       '@types/react': 18.2.15
       react: 18.2.0
       react-style-singleton: 2.2.1(@types/react@18.2.15)(react@18.2.0)
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /react-remove-scroll@2.5.10(@types/react@18.2.15)(react@18.2.0):
@@ -26336,7 +26470,7 @@ packages:
       react: 18.2.0
       react-remove-scroll-bar: 2.3.6(@types/react@18.2.15)(react@18.2.0)
       react-style-singleton: 2.2.1(@types/react@18.2.15)(react@18.2.0)
-      tslib: 2.6.2
+      tslib: 2.6.3
       use-callback-ref: 1.3.0(@types/react@18.2.15)(react@18.2.0)
       use-sidecar: 1.1.2(@types/react@18.2.15)(react@18.2.0)
     dev: false
@@ -26355,7 +26489,7 @@ packages:
       react: 18.2.0
       react-remove-scroll-bar: 2.3.6(@types/react@18.2.15)(react@18.2.0)
       react-style-singleton: 2.2.1(@types/react@18.2.15)(react@18.2.0)
-      tslib: 2.6.2
+      tslib: 2.6.3
       use-callback-ref: 1.3.0(@types/react@18.2.15)(react@18.2.0)
       use-sidecar: 1.1.2(@types/react@18.2.15)(react@18.2.0)
     dev: false
@@ -26374,7 +26508,7 @@ packages:
       react: 18.2.0
       react-remove-scroll-bar: 2.3.6(@types/react@18.2.15)(react@18.2.0)
       react-style-singleton: 2.2.1(@types/react@18.2.15)(react@18.2.0)
-      tslib: 2.6.2
+      tslib: 2.6.3
       use-callback-ref: 1.3.0(@types/react@18.2.15)(react@18.2.0)
       use-sidecar: 1.1.2(@types/react@18.2.15)(react@18.2.0)
     dev: false
@@ -26464,7 +26598,7 @@ packages:
       get-nonce: 1.0.1
       invariant: 2.2.4
       react: 18.2.0
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /react-textarea-autosize@8.5.3(@types/react@18.2.15)(react@18.2.0):
@@ -26945,6 +27079,10 @@ packages:
 
   /require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
+    dev: false
+
+  /requires-port@1.0.0:
+    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
     dev: false
 
   /resize-observer-polyfill@1.5.1:
@@ -27543,7 +27681,7 @@ packages:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
       upper-case-first: 2.0.2
     dev: false
 
@@ -27843,7 +27981,16 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.6.3
+    dev: false
+
+  /snakecase-keys@5.4.4:
+    resolution: {integrity: sha512-YTywJG93yxwHLgrYLZjlC75moVEX04LZM4FHfihjHe1FCXm+QaLOFfSf535aXOAd0ArVQMWUAe8ZPm4VtWyXaA==}
+    engines: {node: '>=12'}
+    dependencies:
+      map-obj: 4.3.0
+      snake-case: 3.0.4
+      type-fest: 2.19.0
     dev: false
 
   /socks-proxy-agent@8.0.2:
@@ -28011,6 +28158,10 @@ packages:
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /std-env@3.7.0:
+    resolution: {integrity: sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==}
     dev: false
 
   /streamsearch@1.1.0:
@@ -28486,6 +28637,27 @@ packages:
       css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.0.1
+    dev: false
+
+  /svix-fetch@3.0.0(encoding@0.1.13):
+    resolution: {integrity: sha512-rcADxEFhSqHbraZIsjyZNh4TF6V+koloX1OzZ+AQuObX9mZ2LIMhm1buZeuc5BIZPftZpJCMBsSiBaeszo9tRw==}
+    dependencies:
+      node-fetch: 2.7.0(encoding@0.1.13)
+      whatwg-fetch: 3.6.20
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /svix@1.30.0(encoding@0.1.13):
+    resolution: {integrity: sha512-Osc+W9Xa3AsV9JEea6Bt6XuFzkUidhhgBItQzGffPeD6oWB0P6Ft82uDOdOyUjF+vdxos7F2Csyh7YlOl4N0bQ==}
+    dependencies:
+      '@stablelib/base64': 1.0.1
+      es6-promise: 4.2.8
+      fast-sha256: 1.3.0
+      svix-fetch: 3.0.0(encoding@0.1.13)
+      url-parse: 1.5.10
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /swap-case@1.1.2:
@@ -29116,12 +29288,16 @@ packages:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: false
 
+  /tslib@2.4.1:
+    resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
+    dev: false
+
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: false
 
   /tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
-    dev: false
 
   /tsup@7.2.0(typescript@5.2.2):
     resolution: {integrity: sha512-vDHlczXbgUvY3rWvqFEbSqmC1L7woozbzngMqTtL2PGBODTtWlRwGDDawhvWzr5c1QjKe4OAKqJGfE1xeXUvtQ==}
@@ -29639,7 +29815,7 @@ packages:
   /upper-case-first@2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /upper-case@1.1.3:
@@ -29649,7 +29825,7 @@ packages:
   /upper-case@2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /uri-js@4.4.1:
@@ -29662,6 +29838,13 @@ packages:
     engines: {node: '>=4'}
     dependencies:
       prepend-http: 2.0.0
+    dev: false
+
+  /url-parse@1.5.10:
+    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
+    dependencies:
+      querystringify: 2.2.0
+      requires-port: 1.0.0
     dev: false
 
   /url-template@2.0.8:
@@ -29680,7 +29863,7 @@ packages:
     dependencies:
       '@types/react': 18.2.15
       react: 18.2.0
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /use-composed-ref@1.3.0(react@18.2.0):
@@ -29770,7 +29953,7 @@ packages:
       '@types/react': 18.2.15
       detect-node-es: 1.1.0
       react: 18.2.0
-      tslib: 2.6.2
+      tslib: 2.6.3
     dev: false
 
   /use-sync-external-store@1.2.0(react@18.2.0):
