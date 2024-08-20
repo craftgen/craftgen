@@ -1,55 +1,42 @@
-import fs from "node:fs/promises";
-import { eq, or } from "drizzle-orm";
-import ky from "ky";
+import { createClient } from "@tursodatabase/api";
+import { eq } from "drizzle-orm";
+import { parse } from "https://deno.land/std@0.200.0/flags/mod.ts";
 
-import { organization } from "../primary/schema.ts";
-import { buildDbClient } from "./client.ts";
-
-const turso = ky.create({
-  prefixUrl: `${Deno.env.get("TURSO_API_URL")}/v1/organizations/${Deno.env.get("TURSO_APP_ORGANIZATION")}/`,
-  headers: {
-    Authorization: `Bearer ${Deno.env.get("TURSO_API_TOKEN")}`,
-  },
-});
+import { platform } from "../mod.ts";
+import { tenantDbClient } from "./client-org.ts";
+import { platformDbClient } from "./client.ts";
 
 type OrgId = `org-${string}`;
 type OrgDBName = `${OrgId}-${string}`;
+
+const ORG_SCHEMA_NAME = "org-root";
 
 const orgDatabaseName = (organizationId: OrgId): OrgDBName =>
   `${organizationId}-${Deno.env.get("APP_NAME")}`;
 
 export async function createOrganizationDatabase(params: { id: OrgId }) {
+  const turso = createClient({
+    token: Deno.env.get("TURSO_API_TOKEN")!,
+    org: Deno.env.get("TURSO_APP_ORGANIZATION")!,
+  });
   // create a database for organization
-  const orgDatabase = await turso
-    .post(`/databases`, {
-      json: {
-        name: orgDatabaseName(params.id),
-        group: `${Deno.env.get("APP_GROUP")}`,
-        location: `${Deno.env.get("APP_PRIMARY_LOCATION")}`,
-      },
-    })
-    .json<{
-      database: { Hostname: string; DbId: string; Name: OrgDBName };
-    }>();
+  const orgDatabase = await turso.databases.create(orgDatabaseName(params.id), {
+    schema: ORG_SCHEMA_NAME,
+    group: `${Deno.env.get("APP_GROUP")}`,
+  });
 
-  // create an authentication token
-  const { jwt } = await turso
-    .post(`/databases/${orgDatabase.database.Name}/auth/tokens`)
-    .json<{ jwt: string }>();
+  const { jwt } = await turso.databases.createToken(orgDatabase.name, {
+    authorization: "full-access",
+  });
 
-  const db = buildDbClient();
-  await db
-    .update(organization)
+  const pDb = platformDbClient();
+  await pDb
+    .update(platform.organization)
     .set({
-      database_name: orgDatabase.database.Name,
+      database_name: orgDatabase.name,
       database_auth_token: jwt,
     })
-    .where(eq(organization.id, params.id));
-
-  // await pushToOrgDb({
-  //   dbName: orgDatabase.database.Name,
-  //   authToken: jwt,
-  // });
+    .where(eq(platform.organization.id, params.id));
 }
 
 export async function createConfigFile({
@@ -77,45 +64,22 @@ export async function createConfigFile({
   return configPath;
 }
 
-export async function pushToOrgDb({
-  dbName,
-  authToken,
-  input,
-}: {
-  dbName: OrgId;
-  authToken: string;
-  input?: boolean;
-}) {
-  const tempConfigPath = await createConfigFile({
-    orgId: dbName,
-    authToken,
-  });
-
-  const proc = new Deno.Command("bunx", {
-    // cwd: "./tenant",
-    args: ["drizzle-kit", "push", `--config=${tempConfigPath}`],
-    stdout: "inherit",
-    stdin: "inherit",
-  });
-  const migration = proc.spawn();
-
-  const { code, success } = await migration.output();
-  // await Deno.remove(tempConfigPath);
-  if (success) {
-    console.log("Migration successful");
-  } else {
-    console.error("Migration failed");
-    Deno.exit(code);
-  }
-}
-
-const token =
-  "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE4ODUzNzgsImlkIjoiMjA5ZDQ5YzEtNzg2Zi00MTI1LTkyMjQtMmIxODJlYjI1NjY1In0.qNRpKqXB-MHgB_n0-LIWbHhpXJZQR4WIP5pxiVtPTeSj-VF3xMSbwWvjhwuv1lo7VrS_ZVphEnQt3EZITbcNDQ";
-
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
-  await pushToOrgDb({
-    dbName: "org-123",
-    authToken: token,
+  const { orgId, authToken } = parse(Deno.args, {
+    string: ["orgId", "authToken"],
   });
+
+  if (!orgId || !authToken) {
+    console.error("orgId and authToken are required");
+    Deno.exit(1);
+  }
+
+  // check if orgId is a valid orgId
+  if (!orgId.startsWith("org-")) {
+    console.error("orgId is not a valid orgId");
+    Deno.exit(1);
+  }
+
+  await createConfigFile({ orgId: orgId as OrgId, authToken });
 }

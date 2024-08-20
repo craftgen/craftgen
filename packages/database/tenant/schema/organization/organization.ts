@@ -18,8 +18,8 @@ export const organization = sqliteTable(
     logo: text("logo"),
     createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
     updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
-    database_name: text("database_name").notNull(),
-    database_auth_token: text("database_auth_token").notNull(),
+    database_name: text("database_name"),
+    database_auth_token: text("database_auth_token"),
   },
   (orgs) => ({
     slugIdx: uniqueIndex("organization_slug_idx").on(orgs.slug),

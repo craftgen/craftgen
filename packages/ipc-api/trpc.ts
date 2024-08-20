@@ -8,7 +8,7 @@
  */
 import { type createClient } from "npm:@libsql/client";
 
-import { buildDbClient } from "../database/lib/client-org.ts";
+import { tenantDbClient } from "../database/lib/client-org.ts";
 import { EventProcessor } from "../database/tenant/queue.ts";
 import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
@@ -32,7 +32,7 @@ interface Session {
  */
 interface CreateContextOptions {
   session: Session | null;
-  db: ReturnType<typeof buildDbClient>;
+  db: ReturnType<typeof tenantDbClient>;
   client: ReturnType<typeof createClient>;
   queue: EventProcessor;
 }

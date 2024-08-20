@@ -50,12 +50,6 @@ export default async function RootLayout({
         >
           <TRPCReactProvider headers={headers()} url={getUrl()}>
             <Providers>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
               {children}
               <Analytics />
               <SpeedInsights />

@@ -15,6 +15,7 @@
       "npm:@trpc/client@11.0.0-rc.452": "npm:@trpc/client@11.0.0-rc.452_@trpc+server@11.0.0-rc.452",
       "npm:@trpc/client@^10.45.2": "npm:@trpc/client@10.45.2_@trpc+server@10.45.2",
       "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
+      "npm:@tursodatabase/api@^1.8.1": "npm:@tursodatabase/api@1.8.1",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:date-fns@^3.6.0": "npm:date-fns@3.6.0",
       "npm:dotenv-cli@^7.2.1": "npm:dotenv-cli@7.4.2",
@@ -380,6 +381,12 @@
         "integrity": "sha512-sqZ2Nmh9hD/xuW5x/9tLoa7N1k/99B0eCDoVdbVtnMQZ0gH79vlLQXrbIPg6BZxu/h1i/jyHWXBmFMqN2JZ6xw==",
         "dependencies": {}
       },
+      "@tursodatabase/api@1.8.1": {
+        "integrity": "sha512-/HhBZEJEtGtI3FlP+vZY0VG+/GRO9L/yaPOjg/lWRDi0x9tjX6pvDiX1QOaeadKzGVkXH6gM+HYEH8LZnvOhKQ==",
+        "dependencies": {
+          "whatwg-fetch": "whatwg-fetch@3.6.20"
+        }
+      },
       "@types/node@18.16.19": {
         "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
@@ -670,6 +677,10 @@
         "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
         "dependencies": {}
       },
+      "whatwg-fetch@3.6.20": {
+        "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==",
+        "dependencies": {}
+      },
       "which@2.0.2": {
         "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
         "dependencies": {
@@ -698,6 +709,9 @@
     "https://deno.land/std@0.188.0/testing/_diff.ts": "1a3c044aedf77647d6cac86b798c6417603361b66b54c53331b312caeb447aea",
     "https://deno.land/std@0.188.0/testing/_format.ts": "a69126e8a469009adf4cf2a50af889aca364c349797e63174884a52ff75cf4c7",
     "https://deno.land/std@0.188.0/testing/asserts.ts": "e16d98b4d73ffc4ed498d717307a12500ae4f2cbe668f1a215632d19fcffc22f",
+    "https://deno.land/std@0.200.0/assert/assert.ts": "9a97dad6d98c238938e7540736b826440ad8c1c1e54430ca4c4e623e585607ee",
+    "https://deno.land/std@0.200.0/assert/assertion_error.ts": "4d0bde9b374dfbcbe8ac23f54f567b77024fb67dbb1906a852d67fe050d42f56",
+    "https://deno.land/std@0.200.0/flags/mod.ts": "a5ac18af6583404f21ea03771f8816669d901e0ff4374020870334d6f61d73d5",
     "https://deno.land/x/async@v2.1.1/barrier.ts": "6a5ce735fffbe87a354e36875f2dda94ff23d55bf6eafc16b66d0e8ec49ff773",
     "https://deno.land/x/async@v2.1.1/lock.ts": "276c97fb7e9e64632bdbb1ab37f82c70eec1bdefde048faa671201ac55023687",
     "https://deno.land/x/async@v2.1.1/mod.ts": "7d42b09f82ad96ef40fe71c0d1142233fb713f203ea23ddfc2b71601f2a9bbda",
@@ -756,6 +770,7 @@
       "database": {
         "dependencies": [
           "npm:@libsql/client@^0.7.0",
+          "npm:@tursodatabase/api@^1.8.1",
           "npm:date-fns@^3.6.0",
           "npm:drizzle-kit@0.23.0",
           "npm:drizzle-orm@^0.32.0",
@@ -766,6 +781,7 @@
           "dependencies": [
             "npm:@libsql/client@^0.7.0",
             "npm:@paralleldrive/cuid2@^2.2.2",
+            "npm:@tursodatabase/api@^1.8.1",
             "npm:dotenv-cli@^7.2.1",
             "npm:drizzle-kit@^0.23.0",
             "npm:drizzle-orm@^0.32.0",

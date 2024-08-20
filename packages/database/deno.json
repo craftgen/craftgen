@@ -5,10 +5,12 @@
   "tasks": {
     "dev": "deno test --watch mod.ts",
     "drizzle:push": "pnpm with-env drizzle-kit push",
-    "create-org-db": "deno run -A ./lib/create-org-db.ts"
+    "drizzle:config": "deno run -A ./lib/create-org-db.ts",
+    "studio": "pnpm with-env drizzle-kit studio"
   },
   "imports": {
     "@libsql/client": "npm:@libsql/client@^0.7.0",
+    "@tursodatabase/api": "npm:@tursodatabase/api@^1.8.1",
     "date-fns": "npm:date-fns@^3.6.0",
     "drizzle-kit": "npm:drizzle-kit@0.23.0",
     "drizzle-kit/": "npm:/drizzle-kit@0.23.0/",

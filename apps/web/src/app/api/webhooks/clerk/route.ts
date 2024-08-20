@@ -1,14 +1,18 @@
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
-import { createClient } from "@tursodatabase/api";
+import { Effect, Layer, Match } from "effect";
 import { Webhook } from "svix";
 
-const turso = createClient({
-  token: process.env.TURSO_USER_API_TOKEN!,
-  org: process.env.TURSO_ORG_NAME!,
-});
-
-const allowedEvents = ["user.created"];
+import {
+  platform,
+  PlatformDb,
+  PlatformDbLive,
+  tenant,
+  TenantDb,
+  tenantDbClient,
+  TenantDbClient,
+  TenantDBConfig,
+} from "@craftgen/database";
 
 export async function POST(req: Request) {
   console.log("CLERK WEBHOOK", req);
@@ -60,24 +64,96 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!allowedEvents.includes(eventType)) {
-    return new Response("Event not allowed", {
-      status: 400,
-    });
-  }
+  const handleUserCreated = Effect.gen(function* (_) {
+    const { pDb } = yield* PlatformDb;
+    const user = yield* _(
+      Effect.tryPromise(() =>
+        pDb
+          .insert(platform.user)
+          .values({
+            id: id,
+            fullName: payload.data.object.fullName,
+            avatarUrl: payload.data.object.imageUrl,
+            username: payload.data.object.username,
+            email: payload.data.object.emailAddresses[0].emailAddress,
+            firstName: payload.data.object.firstName,
+            lastName: payload.data.object.lastName,
+          })
+          .returning(),
+      ),
+    );
 
-  // const databaseName = md5(id);
+    const tenantDbConfigLayer = Layer.succeed(
+      TenantDBConfig,
+      TenantDBConfig.of({
+        getConfig: Effect.succeed({
+          url: "your-tenant-db-url",
+          authToken: "your-tenant-db-auth-token",
+        }),
+      }),
+    );
 
-  try {
-    await turso.databases.create(databaseName, {
-      schema: process.env.TURSO_SCHEMA_DATABASE_NAME!,
-    });
-  } catch (err) {
-    console.error("Error processing webhook:", err);
-    return new Response("Error occured", {
-      status: 500,
-    });
-  }
+    const tenantDbLayer = Layer.effect(TenantDb, TenantDb.live()).pipe(
+      Layer.provide(tenantDbConfigLayer),
+    );
+
+    const userInTenant = yield* _(
+      Effect.gen(function* (_) {
+        const { tDb } = yield* _(TenantDb);
+        return yield* _(
+          Effect.tryPromise(() =>
+            tDb
+              .insert(tenant.user)
+              .values({
+                id: id,
+                fullName: payload.data.object.fullName,
+                avatarUrl: payload.data.object.imageUrl,
+                username: payload.data.object.username,
+                email: payload.data.object.emailAddresses[0].emailAddress,
+                firstName: payload.data.object.firstName,
+                lastName: payload.data.object.lastName,
+              })
+              .returning(),
+          ),
+        );
+      }).pipe(Effect.provide(tenantDbLayer)),
+    );
+
+    return { user, userInTenant };
+  });
+
+  const match = Match.type<WebhookEvent>().pipe(
+    Match.when({ type: "user.created" }, ({ data }) => {
+      const { id } = data;
+      return Effect.gen(function* (_) {
+        const result = yield* _(handleUserCreated);
+        console.log("User created", result.user);
+        console.log("User created in tenant", result.userInTenant);
+      }).pipe(Effect.provide(PlatformDbLive));
+    }),
+    Match.when({ type: "organization.created" }, ({ data }) => {
+      const { id } = data;
+    }),
+    Match.orElse(({ type }) => {
+      console.error("Unhandled event type:", type);
+      return;
+    }),
+  );
+
+  match(evt);
+
+  // // const databaseName = md5(id);
+
+  // try {
+  //   await turso.databases.create(databaseName, {
+  //     schema: process.env.TURSO_SCHEMA_DATABASE_NAME!,
+  //   });
+  // } catch (err) {
+  //   console.error("Error processing webhook:", err);
+  //   return new Response("Error occured", {
+  //     status: 500,
+  //   });
+  // }
 
   return new Response();
 }

@@ -19,6 +19,7 @@
   "dependencies": {
     "@libsql/client": "^0.7.0",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@tursodatabase/api": "^1.8.1",
     "drizzle-orm": "^0.32.0",
     "effect": "^3.6.1",
     "ky": "^1.1.3"
