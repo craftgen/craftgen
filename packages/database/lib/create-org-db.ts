@@ -1,33 +1,105 @@
+import { Schema } from "@effect/schema";
 import { createClient } from "@tursodatabase/api";
+import { Config, Context, Data, Effect, Layer } from "effect";
 
 type OrgId = `org-${string}`;
-type OrgDBName = `${OrgId}-${string}`;
+type UserId = `user-${string}`;
+type OrgDBName = `${OrgId}-${string}` | `${UserId}-${string}`;
 
-const ORG_SCHEMA_NAME = "org-root";
+const ORG_SCHEMA_NAME = Config.string("TURSO_TENANT_DB_NAME");
+const TENANT_GROUP = Config.string("TURSO_TENANT_GROUP")!;
 
-const orgDatabaseName = (organizationId: OrgId): OrgDBName =>
-  `${organizationId}-${Deno.env.get("APP_NAME")}`;
+export const orgDatabaseName = (organizationId: OrgId | UserId): OrgDBName =>
+  `${organizationId}-${Config.string("TURSO_APP_ORGANIZATION")}`;
 
-export async function createOrganizationDatabase(params: { id: OrgId }) {
-  const turso = createClient({
-    token: Deno.env.get("TURSO_API_TOKEN")!,
-    org: Deno.env.get("TURSO_APP_ORGANIZATION")!,
-  });
-  // create a database for organization
-  const orgDatabase = await turso.databases.create(orgDatabaseName(params.id), {
-    schema: ORG_SCHEMA_NAME,
-    group: `${Deno.env.get("TURSO_TENANT_GROUP")}`,
-  });
-
-  const { jwt } = await turso.databases.createToken(orgDatabase.name, {
-    authorization: "full-access",
-  });
-
-  return {
-    orgId: params.id,
-    authToken: jwt,
-  };
+export class TursoClient extends Context.Tag("TursoClient")<
+  TursoClient,
+  ReturnType<typeof createClient>
+>() {
+  static Live = () =>
+    Layer.effect(
+      TursoClient,
+      Effect.gen(function* (_) {
+        const token = yield* Config.string("TURSO_API_TOKEN")!;
+        const org = yield* Config.string("TURSO_APP_ORGANIZATION")!;
+        return createClient({
+          token,
+          org,
+        });
+      }),
+    );
 }
+
+class DatabaseAlreadyExistsError extends Data.TaggedError(
+  "DatabaseAlreadyExistsError",
+)<{
+  readonly message: string;
+  readonly orgId: OrgId | UserId;
+}> {}
+
+class DatabaseQuotaExceededError extends Data.TaggedError(
+  "DatabaseQuotaExceededError",
+)<{
+  readonly message: string;
+  readonly orgId: OrgId | UserId;
+}> {}
+
+class DatabaseCreationError extends Data.TaggedError("DatabaseCreationError")<{
+  readonly message: string;
+  readonly orgId: OrgId | UserId;
+  readonly cause: unknown;
+}> {}
+
+export const createOrganizationDatabase = (params: { orgId: OrgId | UserId }) =>
+  Effect.gen(function* (_) {
+    const turso = yield* _(TursoClient);
+    const schema = yield* _(ORG_SCHEMA_NAME);
+    const group = yield* _(TENANT_GROUP);
+    const orgDatabase = yield* _(
+      Effect.tryPromise({
+        try: () =>
+          turso.databases.create(orgDatabaseName(params.orgId), {
+            schema,
+            group,
+          }),
+        catch: (error) => {
+          if (error instanceof Error) {
+            if (error.message.includes("already exists")) {
+              throw new DatabaseAlreadyExistsError({
+                message: `Database for organization ${params.orgId} already exists`,
+                orgId: params.orgId,
+              });
+            }
+            if (error.message.includes("quota exceeded")) {
+              throw new DatabaseQuotaExceededError({
+                message: "Database quota exceeded",
+                orgId: params.orgId,
+              });
+            }
+          }
+          throw new DatabaseCreationError({
+            message: "Failed to create database",
+            orgId: params.orgId,
+            cause: error,
+          });
+        },
+      }),
+    );
+
+    const { jwt } = yield* _(
+      Effect.tryPromise(() =>
+        turso.databases.createToken(orgDatabase.name, {
+          authorization: "full-access",
+        }),
+      ),
+    );
+
+    return {
+      orgDatabase,
+      orgId: params.orgId,
+      authToken: jwt,
+    };
+  });
 
 export async function createConfigFile({
   orgId,

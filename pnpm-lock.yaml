@@ -290,6 +290,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^5.3.1
         version: 5.3.1(next@14.2.4)(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/themes':
+        specifier: ^2.1.21
+        version: 2.1.21
       '@craftgen/api':
         specifier: ^0.1.2
         version: link:../../packages/api
@@ -4674,8 +4677,23 @@ packages:
       swr: 2.2.5(react@18.2.0)
     dev: false
 
+  /@clerk/themes@2.1.21:
+    resolution: {integrity: sha512-eJTji2x6XMt6FOD5deNjTe86foHIUEBNuaCWVywjVnLbqHX5/uYsJkiexpUrKGGfyEjTr7z5j7V7jZNLsYRSRw==}
+    engines: {node: '>=18.17.0'}
+    dependencies:
+      '@clerk/types': 4.14.0
+      tslib: 2.4.1
+    dev: false
+
   /@clerk/types@4.13.1:
     resolution: {integrity: sha512-AfFTA1Du0pog62CSl23Y8NNDN+iHwXdUQAp/sQ/LbE+/wYBOMSaV5d+cS5F4HX+/uzXgKsc3BpCNI/Th3CLNHg==}
+    engines: {node: '>=18.17.0'}
+    dependencies:
+      csstype: 3.1.1
+    dev: false
+
+  /@clerk/types@4.14.0:
+    resolution: {integrity: sha512-d3MUcWtXGTOS7QYCRVrOra7NYAGRiNWlb+Ke2KMSb+Z3lea6WlKeHa18uVnAkIVxBXtHlzdU2kwW0PrHkx8j9Q==}
     engines: {node: '>=18.17.0'}
     dependencies:
       csstype: 3.1.1

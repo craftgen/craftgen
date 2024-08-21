@@ -13,8 +13,8 @@ class TursoDbAuthTokenMissingError extends Error {
 }
 
 const TursoConfig = Config.all({
-  url: Config.string("TURSO_DB_URL"),
-  authToken: Config.redacted("TURSO_DB_AUTH_TOKEN").pipe(Config.option),
+  url: Config.string("TURSO_PRIMARY_DB_URL"),
+  authToken: Config.redacted("TURSO_PRIMARY_DB_AUTH_TOKEN").pipe(Config.option),
 });
 
 const createPlatformDbClient = Effect.gen(function* (_) {

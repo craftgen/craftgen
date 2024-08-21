@@ -10,6 +10,7 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono, GeistSans } from "geist/font";

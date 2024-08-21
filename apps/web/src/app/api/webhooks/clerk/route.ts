@@ -1,14 +1,18 @@
 import { headers } from "next/headers";
 import { UserJSON, WebhookEvent } from "@clerk/nextjs/server";
-import { Config, Data, Effect, Layer, Match, pipe, Redacted } from "effect";
+import { Config, Data, Effect, Match, pipe, Redacted } from "effect";
 import { Webhook, WebhookRequiredHeaders } from "svix";
 
 import {
+  createOrganizationDatabase,
   Databases,
+  eq,
   getTenantDbClient,
+  orgDatabaseName,
   platform,
   PlatformDb,
   tenant,
+  TursoClient,
 } from "@craftgen/database";
 
 const verifyWebhook = (body: string, headers: WebhookRequiredHeaders) =>
@@ -20,6 +24,10 @@ const verifyWebhook = (body: string, headers: WebhookRequiredHeaders) =>
     });
   });
 
+class UserCreateFailedError extends Data.TaggedError("UserCreateFailedError")<{
+  readonly message: string;
+}> {}
+
 const appendToPlatformDb = (userJSON: UserJSON) =>
   Effect.gen(function* (_) {
     const { pDb } = yield* _(PlatformDb);
@@ -28,7 +36,7 @@ const appendToPlatformDb = (userJSON: UserJSON) =>
         pDb
           .insert(platform.user)
           .values({
-            id: userJSON.id,
+            id: userJSON.id as `user-${string}`,
             avatarUrl: userJSON.image_url,
             username: userJSON.username!,
             email: userJSON.email_addresses?.[0]?.email_address || "",
@@ -38,8 +46,43 @@ const appendToPlatformDb = (userJSON: UserJSON) =>
           })
           .returning(),
       ),
+      Effect.flatMap((users) =>
+        users[0]
+          ? Effect.succeed(users[0])
+          : Effect.fail(
+              new UserCreateFailedError({ message: "User not created" }),
+            ),
+      ),
     );
     return user;
+  });
+
+const createTenantDb = (user: typeof platform.user.$inferSelect) =>
+  Effect.gen(function* (_) {
+    const { pDb } = yield* _(PlatformDb);
+    const dbName = orgDatabaseName(user.id);
+    const db = yield* _(createOrganizationDatabase({ orgId: dbName }));
+
+    const personalOrg = yield* _(
+      Effect.tryPromise(() =>
+        pDb
+          .insert(platform.organization)
+          .values({
+            id: user.id,
+            name: user.username!,
+            slug: user.username!,
+            personal: true,
+            database_name: dbName,
+            database_auth_token: db.authToken,
+          })
+          .returning(),
+      ),
+    );
+
+    return {
+      personalOrg,
+      db,
+    };
   });
 
 const handleWebhookEvent = (evt: WebhookEvent) =>
@@ -47,7 +90,8 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
     .pipe(
       Match.when({ type: "user.created" }, ({ data }) =>
         pipe(
-          appendToPlatformDb(data),
+          Effect.zipRight(appendToPlatformDb),
+          Effect.zipRight(createTenantDb),
           Effect.tap((user) =>
             Effect.log(`User created: ${JSON.stringify(user)}`),
           ),
@@ -58,7 +102,10 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
       ),
       Match.orElse(({ type }) => Effect.log(`Unhandled event type: ${type}`)),
     )(evt)
-    .pipe(Effect.provide(PlatformDb.Live()));
+    .pipe(
+      Effect.provide(PlatformDb.Live()),
+      Effect.provide(TursoClient.Live()),
+    );
 
 export async function POST(req: Request) {
   const headerPayload = headers();

@@ -1,15 +1,22 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 
 export const UserNavWrapper: React.FC = () => {
+  const { user } = useUser();
   return (
     <>
       <SignedOut>
         <SignInButton />
       </SignedOut>
       <SignedIn>
-        <UserButton />
+        <UserButton userProfileUrl={`/${user?.username}`} />
       </SignedIn>
     </>
   );
