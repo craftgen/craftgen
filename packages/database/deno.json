@@ -9,6 +9,7 @@
     "studio": "pnpm with-env drizzle-kit studio"
   },
   "imports": {
+    "@effect/schema": "npm:@effect/schema@^0.71.0",
     "@libsql/client": "npm:@libsql/client@^0.7.0",
     "@tursodatabase/api": "npm:@tursodatabase/api@^1.8.1",
     "date-fns": "npm:date-fns@^3.6.0",

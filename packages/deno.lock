@@ -7,6 +7,8 @@
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.1",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "npm:@deno/kv@^0.8.1": "npm:@deno/kv@0.8.1",
+      "npm:@effect/schema": "npm:@effect/schema@0.71.0_effect@3.6.4",
+      "npm:@effect/schema@^0.71.0": "npm:@effect/schema@0.71.0_effect@3.6.4",
       "npm:@libsql/client": "npm:@libsql/client@0.7.0",
       "npm:@libsql/client-wasm": "npm:@libsql/client-wasm@0.7.0",
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
@@ -75,6 +77,13 @@
           "@deno/kv-darwin-x64": "@deno/kv-darwin-x64@0.8.1",
           "@deno/kv-linux-x64-gnu": "@deno/kv-linux-x64-gnu@0.8.1",
           "@deno/kv-win32-x64-msvc": "@deno/kv-win32-x64-msvc@0.8.1"
+        }
+      },
+      "@effect/schema@0.71.0_effect@3.6.4": {
+        "integrity": "sha512-rw2AP16bXaejUHAdUm6n86KSzhvZCZA/OYpCoZV+Q1gXNe65lQ2aRYaiSpMUxqK49j6FkcY3MvwehJ8jP7suTA==",
+        "dependencies": {
+          "effect": "effect@3.6.4",
+          "fast-check": "fast-check@3.21.0"
         }
       },
       "@esbuild-kit/core-utils@3.3.2": {
@@ -468,6 +477,10 @@
         "integrity": "sha512-RdHsRMuEUKgkhs3z2d5XI5SDADX0THDx6GjP1oJAAAM/w+oT5/3BpKZyg/05VHy7YfOUdaQbcDzFO6YowkqsSQ==",
         "dependencies": {}
       },
+      "effect@3.6.4": {
+        "integrity": "sha512-nNsn+Uw/n4bHKR8w45IIuYGLCgHsQodjRPB+BHreylQJ89W3iLc/Av9CiL9uvtO/ERp4e3oy5wrTO2J2pkbRRw==",
+        "dependencies": {}
+      },
       "esbuild-register@3.5.0_esbuild@0.19.12": {
         "integrity": "sha512-+4G/XmakeBAsvJuDugJvtyF1x+XJT4FMocynNpxrvEBViirpfUn2PgNpCHedfWhF4WokNsO/OvMKrmJOIJsI5A==",
         "dependencies": {
@@ -528,6 +541,12 @@
           "@esbuild/win32-arm64": "@esbuild/win32-arm64@0.19.12",
           "@esbuild/win32-ia32": "@esbuild/win32-ia32@0.19.12",
           "@esbuild/win32-x64": "@esbuild/win32-x64@0.19.12"
+        }
+      },
+      "fast-check@3.21.0": {
+        "integrity": "sha512-QpmbiqRFRZ+SIlBJh6xi5d/PgXciUc/xWKc4Vi2RWEHHIRx6oM3f0fWNna++zP9VB5HUBTObUK9gTKQP3vVcrQ==",
+        "dependencies": {
+          "pure-rand": "pure-rand@6.1.0"
         }
       },
       "fetch-blob@3.2.0": {
@@ -617,6 +636,10 @@
       },
       "promise-limit@2.7.0": {
         "integrity": "sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==",
+        "dependencies": {}
+      },
+      "pure-rand@6.1.0": {
+        "integrity": "sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==",
         "dependencies": {}
       },
       "resolve-pkg-maps@1.0.0": {

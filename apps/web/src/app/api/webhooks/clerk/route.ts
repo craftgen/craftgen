@@ -1,17 +1,14 @@
 import { headers } from "next/headers";
-import { WebhookEvent } from "@clerk/nextjs/server";
-import { Effect, Layer, Match } from "effect";
+import { UserJSON, WebhookEvent } from "@clerk/nextjs/server";
+import { Effect, Layer, Match, pipe } from "effect";
 import { Webhook } from "svix";
 
 import {
+  Databases,
+  getTenantDbClient,
   platform,
   PlatformDb,
-  PlatformDbLive,
   tenant,
-  TenantDb,
-  tenantDbClient,
-  TenantDbClient,
-  TenantDBConfig,
 } from "@craftgen/database";
 
 export async function POST(req: Request) {
@@ -64,72 +61,63 @@ export async function POST(req: Request) {
     });
   }
 
-  const handleUserCreated = Effect.gen(function* (_) {
-    const { pDb } = yield* PlatformDb;
-    const user = yield* _(
-      Effect.tryPromise(() =>
-        pDb
-          .insert(platform.user)
-          .values({
-            id: id,
-            fullName: payload.data.object.fullName,
-            avatarUrl: payload.data.object.imageUrl,
-            username: payload.data.object.username,
-            email: payload.data.object.emailAddresses[0].emailAddress,
-            firstName: payload.data.object.firstName,
-            lastName: payload.data.object.lastName,
-          })
-          .returning(),
-      ),
-    );
+  const appendToTenantDb = (userJSON: UserJSON) =>
+    Effect.gen(function* (_) {
+      const tDb = yield* _(getTenantDbClient(userJSON.id, ""));
+      const user = yield* _(
+        Effect.tryPromise(() =>
+          tDb
+            .insert(tenant.user)
+            .values({
+              id: userJSON.id,
+              avatarUrl: userJSON.image_url,
+              username: userJSON.username!,
+              email: userJSON.email_addresses?.[0]?.email_address || "",
+              fullName: userJSON.first_name + " " + userJSON.last_name,
+              firstName: userJSON.first_name,
+              lastName: userJSON.last_name,
+            })
+            .returning(),
+        ),
+      );
+      return user;
+    });
 
-    const tenantDbConfigLayer = Layer.succeed(
-      TenantDBConfig,
-      TenantDBConfig.of({
-        getConfig: Effect.succeed({
-          url: "your-tenant-db-url",
-          authToken: "your-tenant-db-auth-token",
-        }),
-      }),
-    );
+  const appendToPlatformDb = (userJSON: UserJSON) =>
+    Effect.gen(function* (_) {
+      const { pDb } = yield* PlatformDb;
+      const user = yield* _(
+        Effect.tryPromise(() =>
+          pDb
+            .insert(platform.user)
+            .values({
+              id: userJSON.id,
+              avatarUrl: userJSON.image_url,
+              username: userJSON.username!,
+              email: userJSON.email_addresses?.[0]?.email_address || "",
+              fullName: userJSON.first_name + " " + userJSON.last_name,
+              firstName: userJSON.first_name,
+              lastName: userJSON.last_name,
+            })
+            .returning(),
+        ),
+      );
+      return user;
+    });
 
-    const tenantDbLayer = Layer.effect(TenantDb, TenantDb.live()).pipe(
-      Layer.provide(tenantDbConfigLayer),
+  const handleUserCreatedPipe = (data: UserJSON) =>
+    pipe(
+      appendToPlatformDb(data),
+      Effect.provide(PlatformDb.Live()),
+      Effect.tap((user) => Effect.log(user)),
     );
-
-    const userInTenant = yield* _(
-      Effect.gen(function* (_) {
-        const { tDb } = yield* _(TenantDb);
-        return yield* _(
-          Effect.tryPromise(() =>
-            tDb
-              .insert(tenant.user)
-              .values({
-                id: id,
-                fullName: payload.data.object.fullName,
-                avatarUrl: payload.data.object.imageUrl,
-                username: payload.data.object.username,
-                email: payload.data.object.emailAddresses[0].emailAddress,
-                firstName: payload.data.object.firstName,
-                lastName: payload.data.object.lastName,
-              })
-              .returning(),
-          ),
-        );
-      }).pipe(Effect.provide(tenantDbLayer)),
-    );
-
-    return { user, userInTenant };
-  });
 
   const match = Match.type<WebhookEvent>().pipe(
     Match.when({ type: "user.created" }, ({ data }) => {
       const { id } = data;
       return Effect.gen(function* (_) {
-        const result = yield* _(handleUserCreated);
-        console.log("User created", result.user);
-        console.log("User created in tenant", result.userInTenant);
-      }).pipe(Effect.provide(PlatformDbLive));
+        const result = yield* _(handleUserCreatedPipe(data));
+      });
     }),
     Match.when({ type: "organization.created" }, ({ data }) => {
       const { id } = data;
