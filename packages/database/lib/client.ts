@@ -1,14 +1,9 @@
+import { createClient } from "@libsql/client/http";
+import { drizzle } from "drizzle-orm/libsql";
 import { Config, Context, Effect, Layer, Option, Redacted } from "effect";
-import { createClient } from "npm:@libsql/client/http";
-import { drizzle } from "npm:drizzle-orm/libsql";
 
 import type { PlatformDbClient } from "../mod.ts";
 import * as schema from "../primary/schema/index.ts";
-
-interface Env {
-  TURSO_DB_AUTH_TOKEN?: string;
-  TURSO_DB_URL?: string;
-}
 
 class TursoDbAuthTokenMissingError extends Error {
   readonly _tag = "TursoDbAuthTokenMissingError";
@@ -35,6 +30,11 @@ const createPlatformDbClient = Effect.gen(function* (_) {
     config.authToken,
     () => new TursoDbAuthTokenMissingError(),
   );
+
+  console.log("CREATING PLATFORM DB CLIENT", {
+    url: config.url,
+    authToken: Redacted.value(token),
+  });
 
   return drizzle(
     createClient({ url: config.url, authToken: Redacted.value(token) }),

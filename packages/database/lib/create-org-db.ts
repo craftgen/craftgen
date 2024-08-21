@@ -1,10 +1,4 @@
 import { createClient } from "@tursodatabase/api";
-import { eq } from "drizzle-orm";
-import { parse } from "https://deno.land/std@0.200.0/flags/mod.ts";
-
-import { platform } from "../mod.ts";
-import { tenantDbClient } from "./client-org.ts";
-import { platformDbClient } from "./client.ts";
 
 type OrgId = `org-${string}`;
 type OrgDBName = `${OrgId}-${string}`;
@@ -22,21 +16,17 @@ export async function createOrganizationDatabase(params: { id: OrgId }) {
   // create a database for organization
   const orgDatabase = await turso.databases.create(orgDatabaseName(params.id), {
     schema: ORG_SCHEMA_NAME,
-    group: `${Deno.env.get("APP_GROUP")}`,
+    group: `${Deno.env.get("TURSO_TENANT_GROUP")}`,
   });
 
   const { jwt } = await turso.databases.createToken(orgDatabase.name, {
     authorization: "full-access",
   });
 
-  const pDb = platformDbClient();
-  await pDb
-    .update(platform.organization)
-    .set({
-      database_name: orgDatabase.name,
-      database_auth_token: jwt,
-    })
-    .where(eq(platform.organization.id, params.id));
+  return {
+    orgId: params.id,
+    authToken: jwt,
+  };
 }
 
 export async function createConfigFile({
@@ -62,24 +52,4 @@ export async function createConfigFile({
 
   await Deno.writeTextFile(configPath, configText);
   return configPath;
-}
-
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  const { orgId, authToken } = parse(Deno.args, {
-    string: ["orgId", "authToken"],
-  });
-
-  if (!orgId || !authToken) {
-    console.error("orgId and authToken are required");
-    Deno.exit(1);
-  }
-
-  // check if orgId is a valid orgId
-  if (!orgId.startsWith("org-")) {
-    console.error("orgId is not a valid orgId");
-    Deno.exit(1);
-  }
-
-  await createConfigFile({ orgId: orgId as OrgId, authToken });
 }

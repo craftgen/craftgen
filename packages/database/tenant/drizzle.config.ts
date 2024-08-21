@@ -1,12 +1,19 @@
-export default {
+import { defineConfig } from "drizzle-kit";
+
+console.log("CRRED", {
+  TURSO_TENANT_DB_URL: process.env.TURSO_TENANT_DB_URL,
+  TURSO_TENANT_GROUP_AUTH_TOKEN: process.env.TURSO_TENANT_GROUP_AUTH_TOKEN,
+});
+
+export default defineConfig({
   schema: "./tenant/schema/index.ts",
-  driver: "turso",
-  dialect: "sqlite",
-  dbCredentials: {
-    url: "libsql://org-123-necmttn.turso.io",
-    authToken:
-      "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE4ODUzNzgsImlkIjoiMjA5ZDQ5YzEtNzg2Zi00MTI1LTkyMjQtMmIxODJlYjI1NjY1In0.qNRpKqXB-MHgB_n0-LIWbHhpXJZQR4WIP5pxiVtPTeSj-VF3xMSbwWvjhwuv1lo7VrS_ZVphEnQt3EZITbcNDQ",
-  },
   out: "./tenant/migrations",
-  tablesFilter: ["!libsql_wasm_func_table"],
-};
+  dialect: "sqlite",
+  driver: "turso",
+  dbCredentials: {
+    url: process.env.TURSO_TENANT_DB_URL as string,
+    authToken: process.env.TURSO_TENANT_GROUP_AUTH_TOKEN as string,
+  },
+  verbose: true,
+  strict: true,
+});

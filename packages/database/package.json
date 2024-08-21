@@ -4,14 +4,15 @@
   "description": "",
   "main": "mod.ts",
   "scripts": {
-    "drizzle:generate": "drizzle-kit generate --out ./primary/migrations --breakpoints --schema=./primary/schema/index.ts --dialect=sqlite",
-    "drizzle:generate:orgs": "drizzle-kit generate --out ./tenant/migrations-orgs --breakpoints --schema=./tenant/schema/index.ts --dialect=sqlite",
-    "drizzle:migrate": "pnpm with-env tsx drizzle/migrate.ts",
-    "drizzle:push": "pnpm with-env drizzle-kit push",
-    "with-env": "dotenv -e ../.env --",
-    "with-env:prod": "dotenv -e ../.env.prod --",
-    "studio": "drizzle-kit studio --config ./tenant/drizzle.config.ts",
-    "push_demo": "APP_NAME=necmttn deno run -A ./lib/create-org-db.ts"
+    "d:generate": "drizzle-kit generate --out ./primary/migrations --breakpoints --schema=./primary/schema/index.ts --dialect=sqlite",
+    "d:generate:orgs": "drizzle-kit generate --out ./tenant/migrations --breakpoints --schema=./tenant/schema/index.ts --dialect=sqlite",
+    "d:migrate": "pnpm with-env drizzle-kit migrate --config ./primary/drizzle.config.ts",
+    "d:migrate:orgs": "pnpm with-env drizzle-kit migrate --config ./tenant/drizzle.config.ts",
+    "d:push": "pnpm with-env drizzle-kit push --config ./primary/drizzle.config.ts",
+    "d:push:orgs": "pnpm with-env drizzle-kit push --config ./tenant/drizzle.config.ts",
+    "with-env": "dotenv -e ../../apps/.env --",
+    "with-env:prod": "dotenv -e ../../apps/.env.prod --",
+    "studio": "drizzle-kit studio --config ./tenant/drizzle.config.ts"
   },
   "keywords": [],
   "author": "",

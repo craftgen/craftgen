@@ -1,7 +1,7 @@
+import { Schema } from "@effect/schema";
+import { createClient } from "@libsql/client/http";
+import { drizzle } from "drizzle-orm/libsql";
 import { Cache, Context, Effect } from "effect";
-import { Schema } from "npm:@effect/schema";
-import { createClient } from "npm:@libsql/client/http";
-import { drizzle } from "npm:drizzle-orm/libsql";
 
 import type { TenantDbClient } from "../mod.ts";
 import * as schema from "../tenant/schema/index.ts";
