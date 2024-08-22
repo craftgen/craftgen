@@ -8,9 +8,13 @@ type OrgDBName = `${OrgId}-${string}` | `${UserId}-${string}`;
 
 const ORG_SCHEMA_NAME = Config.string("TURSO_TENANT_DB_NAME");
 const TENANT_GROUP = Config.string("TURSO_TENANT_GROUP")!;
+const APP_ORGANIZATION = Config.string("TURSO_APP_ORGANIZATION")!;
 
-export const orgDatabaseName = (organizationId: OrgId | UserId): OrgDBName =>
-  `${organizationId}-${Config.string("TURSO_APP_ORGANIZATION")}`;
+export const orgDatabaseName = (organizationId: OrgId | UserId) =>
+  Effect.gen(function* (_) {
+    const appOrg = yield* APP_ORGANIZATION;
+    return `${organizationId}-${appOrg}`;
+  });
 
 export class TursoClient extends Context.Tag("TursoClient")<
   TursoClient,
@@ -55,18 +59,20 @@ export const createOrganizationDatabase = (params: { orgId: OrgId | UserId }) =>
     const turso = yield* _(TursoClient);
     const schema = yield* _(ORG_SCHEMA_NAME);
     const group = yield* _(TENANT_GROUP);
+    const databaseName = params.orgId;
     const orgDatabase = yield* _(
       Effect.tryPromise({
         try: () =>
-          turso.databases.create(orgDatabaseName(params.orgId), {
+          turso.databases.create(databaseName, {
             schema,
             group,
           }),
         catch: (error) => {
+          Effect.logError(`Creating database ${databaseName} failed`);
           if (error instanceof Error) {
             if (error.message.includes("already exists")) {
               throw new DatabaseAlreadyExistsError({
-                message: `Database for organization ${params.orgId} already exists`,
+                message: `Database for organization ${params.orgId} already exists ${databaseName}`,
                 orgId: params.orgId,
               });
             }
@@ -78,7 +84,7 @@ export const createOrganizationDatabase = (params: { orgId: OrgId | UserId }) =>
             }
           }
           throw new DatabaseCreationError({
-            message: "Failed to create database",
+            message: `Failed to create database [${databaseName}]`,
             orgId: params.orgId,
             cause: error,
           });

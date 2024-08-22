@@ -28,7 +28,7 @@ class UserCreateFailedError extends Data.TaggedError("UserCreateFailedError")<{
   readonly message: string;
 }> {}
 
-const appendToPlatformDb = (userJSON: UserJSON) =>
+const createUserInPlatformDB = (userJSON: UserJSON) =>
   Effect.gen(function* (_) {
     const { pDb } = yield* _(PlatformDb);
     const user = yield* _(
@@ -36,7 +36,7 @@ const appendToPlatformDb = (userJSON: UserJSON) =>
         pDb
           .insert(platform.user)
           .values({
-            id: userJSON.id as `user-${string}`,
+            id: userJSON.id as `user_${string}`,
             avatarUrl: userJSON.image_url,
             username: userJSON.username!,
             email: userJSON.email_addresses?.[0]?.email_address || "",
@@ -57,55 +57,81 @@ const appendToPlatformDb = (userJSON: UserJSON) =>
     return user;
   });
 
-const createTenantDb = (user: typeof platform.user.$inferSelect) =>
+const createOrgInPlatformDB = (
+  platformData: typeof platform.organization.$inferInsert,
+) =>
   Effect.gen(function* (_) {
-    const { pDb } = yield* _(PlatformDb);
-    const dbName = orgDatabaseName(user.id);
-    const db = yield* _(createOrganizationDatabase({ orgId: dbName }));
-
-    const personalOrg = yield* _(
+    const { pDb } = yield* PlatformDb;
+    const org = yield* _(
       Effect.tryPromise(() =>
-        pDb
-          .insert(platform.organization)
-          .values({
-            id: user.id,
-            name: user.username!,
-            slug: user.username!,
-            personal: true,
-            database_name: dbName,
-            database_auth_token: db.authToken,
-          })
-          .returning(),
+        pDb.insert(platform.organization).values(platformData).returning(),
+      ),
+      Effect.flatMap((orgs) =>
+        orgs[0]
+          ? Effect.succeed(orgs[0])
+          : Effect.fail(new Error("Organization not created")),
       ),
     );
-
-    return {
-      personalOrg,
-      db,
-    };
+    return org;
   });
+
+const createTenantDb = (org: typeof platform.organization.$inferSelect) =>
+  Effect.gen(function* (_) {
+    const db = yield* _(
+      createOrganizationDatabase({ orgId: org.database_name }),
+    );
+    const { pDb } = yield* PlatformDb;
+    yield* _(
+      Effect.tryPromise(() =>
+        pDb
+          .update(platform.organization)
+          .set({
+            database_auth_token: db.authToken,
+            database_name: db.orgDatabase.name as `org-${string}`,
+          })
+          .where(eq(platform.organization.id, org.id)),
+      ),
+      Effect.tap((res) =>
+        Effect.log(`Updated org ${org.id} with db ${db.orgDatabase.name}`),
+      ),
+    );
+    return db;
+  }).pipe(Effect.provide(TursoClient.Live()));
 
 const handleWebhookEvent = (evt: WebhookEvent) =>
   Match.type<WebhookEvent>()
     .pipe(
-      Match.when({ type: "user.created" }, ({ data }) =>
-        pipe(
-          Effect.zipRight(appendToPlatformDb),
-          Effect.zipRight(createTenantDb),
-          Effect.tap((user) =>
-            Effect.log(`User created: ${JSON.stringify(user)}`),
-          ),
-        ),
+      Match.when(
+        { type: "user.created" },
+        ({ data }) =>
+          Effect.gen(function* (_) {
+            Effect.log(`User created: ${JSON.stringify(data)}`);
+            const userInPlatform = yield* createUserInPlatformDB(data);
+            const personalOrg = yield* createOrgInPlatformDB({
+              id: userInPlatform.id,
+              name: userInPlatform.username!,
+              slug: userInPlatform.username!,
+              personal: true,
+            });
+            const userDb = yield* createTenantDb(personalOrg);
+          }),
+        // pipe(
+        //   Effect.zipRight(appendToPlatformDb),
+        //   Effect.zipRight(createTenantDb),
+        //   Effect.tap((user) =>
+        //     Effect.log(`User created: ${JSON.stringify(user)}`),
+        //   ),
+        // ),
       ),
       Match.when({ type: "organization.created" }, ({ data }) =>
-        Effect.log(`Organization created: ${JSON.stringify(data)}`),
+        Effect.gen(function* (_) {
+          Effect.log(`Organization created: ${JSON.stringify(data)}`);
+          // const org = yield* _(createOrgInPlatformDB(data));
+        }),
       ),
       Match.orElse(({ type }) => Effect.log(`Unhandled event type: ${type}`)),
     )(evt)
-    .pipe(
-      Effect.provide(PlatformDb.Live()),
-      Effect.provide(TursoClient.Live()),
-    );
+    .pipe(Effect.provide(PlatformDb.Live()));
 
 export async function POST(req: Request) {
   const headerPayload = headers();

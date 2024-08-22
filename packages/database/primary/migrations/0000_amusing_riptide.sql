@@ -7,7 +7,7 @@ CREATE TABLE `organization` (
 	`created_at` integer DEFAULT (cast(unixepoch() as int)),
 	`updated_at` integer DEFAULT (cast(unixepoch() as int)),
 	`database_name` text NOT NULL,
-	`database_auth_token` text NOT NULL
+	`database_auth_token` text
 );
 --> statement-breakpoint
 CREATE TABLE `organization_members` (
@@ -93,6 +93,7 @@ CREATE TABLE `workflow_version` (
 	FOREIGN KEY (`context_id`) REFERENCES `context`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `organization_slug_unique` ON `organization` (`slug`);--> statement-breakpoint
 CREATE UNIQUE INDEX `organization_slug_idx` ON `organization` (`slug`);--> statement-breakpoint
 CREATE INDEX `organization_name_idx` ON `organization` (`name`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_username_unique` ON `user` (`username`);--> statement-breakpoint

@@ -7,6 +7,7 @@ console.log("CRRED", {
 
 export default defineConfig({
   schema: "./primary/schema/index.ts",
+  out: "./primary/migrations",
   dialect: "sqlite",
   driver: "turso",
   dbCredentials: {

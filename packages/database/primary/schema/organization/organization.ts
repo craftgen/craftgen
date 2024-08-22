@@ -19,8 +19,11 @@ export const organization = sqliteTable(
     personal: integer("personal", { mode: "boolean" }).notNull(),
     createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
     updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
-    database_name: text("database_name").notNull(),
-    database_auth_token: text("database_auth_token").notNull(),
+    database_name: text("database_name")
+      .$defaultFn(createIdWithPrefix("org", "-"))
+      .$type<`org-${string}`>()
+      .notNull(),
+    database_auth_token: text("database_auth_token"),
   },
   (orgs) => ({
     slugIdx: uniqueIndex("organization_slug_idx").on(orgs.slug),

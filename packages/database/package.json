@@ -5,6 +5,7 @@
   "main": "mod.ts",
   "scripts": {
     "d:generate": "drizzle-kit generate --out ./primary/migrations --breakpoints --schema=./primary/schema/index.ts --dialect=sqlite",
+    "d:drop": "pnpm with-env drizzle-kit drop --config ./primary/drizzle.config.ts",
     "d:generate:orgs": "drizzle-kit generate --out ./tenant/migrations --breakpoints --schema=./tenant/schema/index.ts --dialect=sqlite",
     "d:migrate": "pnpm with-env drizzle-kit migrate --config ./primary/drizzle.config.ts",
     "d:migrate:orgs": "pnpm with-env drizzle-kit migrate --config ./tenant/drizzle.config.ts",
