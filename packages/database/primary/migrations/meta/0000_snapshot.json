@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5518ff10-219f-4e23-8fe1-e2a4b9c71f48",
+  "id": "303856ec-bc15-49f5-b279-7667d348e395",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "organization": {
@@ -214,6 +214,13 @@
           "notNull": false,
           "autoincrement": false,
           "default": "(cast(unixepoch() as int))"
+        },
+        "personal_org_id": {
+          "name": "personal_org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -223,7 +230,17 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "user_personal_org_id_organization_id_fk": {
+          "name": "user_personal_org_id_organization_id_fk",
+          "tableFrom": "user",
+          "tableTo": "organization",
+          "columnsFrom": ["personal_org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -658,6 +675,108 @@
           "tableFrom": "workflow_version",
           "tableTo": "context",
           "columnsFrom": ["context_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "context": {
+      "name": "context",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workflow_version_id": {
+          "name": "workflow_version_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "previous_context_id": {
+          "name": "previous_context_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "snapshot": {
+          "name": "snapshot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "context_organization_id_organization_id_fk": {
+          "name": "context_organization_id_organization_id_fk",
+          "tableFrom": "context",
+          "tableTo": "organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "context_workflow_id_workflow_id_fk": {
+          "name": "context_workflow_id_workflow_id_fk",
+          "tableFrom": "context",
+          "tableTo": "workflow",
+          "columnsFrom": ["workflow_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "context_workflow_version_id_workflow_version_id_fk": {
+          "name": "context_workflow_version_id_workflow_version_id_fk",
+          "tableFrom": "context",
+          "tableTo": "workflow_version",
+          "columnsFrom": ["workflow_version_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "context_parent_id_context_id_fk": {
+          "name": "context_parent_id_context_id_fk",
+          "tableFrom": "context",
+          "tableTo": "context",
+          "columnsFrom": ["parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"

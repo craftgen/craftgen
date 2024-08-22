@@ -28,7 +28,9 @@ CREATE TABLE `user` (
 	`username` text NOT NULL,
 	`avatar_url` text,
 	`created_at` integer DEFAULT (cast(unixepoch() as int)),
-	`updated_at` integer DEFAULT (cast(unixepoch() as int))
+	`updated_at` integer DEFAULT (cast(unixepoch() as int)),
+	`personal_org_id` text,
+	FOREIGN KEY (`personal_org_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `workflow` (
@@ -91,6 +93,21 @@ CREATE TABLE `workflow_version` (
 	FOREIGN KEY (`workflow_id`) REFERENCES `workflow`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`context_id`) REFERENCES `context`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `context` (
+	`id` text PRIMARY KEY NOT NULL,
+	`organization_id` text NOT NULL,
+	`workflow_id` text NOT NULL,
+	`workflow_version_id` text NOT NULL,
+	`parent_id` text,
+	`previous_context_id` text,
+	`type` text NOT NULL,
+	`snapshot` text,
+	FOREIGN KEY (`organization_id`) REFERENCES `organization`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`workflow_id`) REFERENCES `workflow`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`workflow_version_id`) REFERENCES `workflow_version`(`id`) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (`parent_id`) REFERENCES `context`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `organization_slug_unique` ON `organization` (`slug`);--> statement-breakpoint

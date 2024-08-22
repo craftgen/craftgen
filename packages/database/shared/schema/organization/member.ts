@@ -6,7 +6,7 @@ import { user } from "../user.ts";
 import { organization } from "./index.ts";
 
 export const organizationMembers = sqliteTable("organization_members", {
-  id: text("id").$defaultFn(createIdWithPrefix("member")).primaryKey(),
+  id: text("id").$defaultFn(createIdWithPrefix("orgmem")).primaryKey(),
   organizationId: text("organization_id").notNull(),
   userId: text("user_id").notNull(),
   role: text("role").notNull(),

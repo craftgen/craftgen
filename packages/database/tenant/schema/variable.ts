@@ -1,7 +1,7 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 import { createIdWithPrefix } from "../../lib/id.ts";
-import { organization } from "./organization/organization.ts";
+import { organization } from "./index.ts";
 
 export const variable = sqliteTable("variable", {
   id: text("id").$defaultFn(createIdWithPrefix("var")).primaryKey(),

@@ -9,7 +9,7 @@
     "d:generate:orgs": "drizzle-kit generate --out ./tenant/migrations --breakpoints --schema=./tenant/schema/index.ts --dialect=sqlite",
     "d:migrate": "pnpm with-env drizzle-kit migrate --config ./primary/drizzle.config.ts",
     "d:migrate:orgs": "pnpm with-env drizzle-kit migrate --config ./tenant/drizzle.config.ts",
-    "d:push": "pnpm with-env drizzle-kit push --config ./primary/drizzle.config.ts",
+    "d:push": "pnpm with-env drizzle-kit push --config ./primary/drizzle.config.ts ",
     "d:push:orgs": "pnpm with-env drizzle-kit push --config ./tenant/drizzle.config.ts",
     "with-env": "dotenv -e ../../apps/.env --",
     "with-env:prod": "dotenv -e ../../apps/.env.prod --",

@@ -21,7 +21,7 @@ export const organization = sqliteTable(
     updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
     database_name: text("database_name")
       .$defaultFn(createIdWithPrefix("org", "-"))
-      .$type<`org-${string}`>()
+      .$type<`org-${string}` | `user-${string}`>()
       .notNull(),
     database_auth_token: text("database_auth_token"),
   },

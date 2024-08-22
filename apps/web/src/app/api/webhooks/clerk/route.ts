@@ -5,15 +5,13 @@ import { Webhook, WebhookRequiredHeaders } from "svix";
 
 import {
   createOrganizationDatabase,
-  Databases,
   eq,
-  getTenantDbClient,
-  orgDatabaseName,
   platform,
   PlatformDb,
   tenant,
   TursoClient,
 } from "@craftgen/database";
+import { createIdWithPrefix } from "@craftgen/database/lib/id";
 
 const verifyWebhook = (body: string, headers: WebhookRequiredHeaders) =>
   Effect.gen(function* (_) {
@@ -95,38 +93,217 @@ const createTenantDb = (org: typeof platform.organization.$inferSelect) =>
         Effect.log(`Updated org ${org.id} with db ${db.orgDatabase.name}`),
       ),
     );
-    return db;
   }).pipe(Effect.provide(TursoClient.Live()));
 
 const handleWebhookEvent = (evt: WebhookEvent) =>
   Match.type<WebhookEvent>()
     .pipe(
-      Match.when(
-        { type: "user.created" },
-        ({ data }) =>
-          Effect.gen(function* (_) {
-            Effect.log(`User created: ${JSON.stringify(data)}`);
-            const userInPlatform = yield* createUserInPlatformDB(data);
-            const personalOrg = yield* createOrgInPlatformDB({
-              id: userInPlatform.id,
-              name: userInPlatform.username!,
-              slug: userInPlatform.username!,
-              personal: true,
-            });
-            const userDb = yield* createTenantDb(personalOrg);
-          }),
-        // pipe(
-        //   Effect.zipRight(appendToPlatformDb),
-        //   Effect.zipRight(createTenantDb),
-        //   Effect.tap((user) =>
-        //     Effect.log(`User created: ${JSON.stringify(user)}`),
-        //   ),
-        // ),
+      Match.when({ type: "user.created" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(`User created: ${JSON.stringify(data)}`);
+          const userInPlatform = yield* createUserInPlatformDB(data);
+          const personalOrg = yield* createOrgInPlatformDB({
+            id: userInPlatform.id,
+            name: userInPlatform.username!,
+            slug: userInPlatform.username!,
+            logo: userInPlatform.avatarUrl,
+            personal: true,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at,
+            database_name: createIdWithPrefix(
+              "user",
+              "-",
+            )() as `user-${string}`,
+          });
+          const { pDb } = yield* PlatformDb;
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .update(platform.user)
+                .set({
+                  personalOrgId: personalOrg.id as `org_${string}`,
+                })
+                .where(
+                  eq(platform.user.id, userInPlatform.id as `user_${string}`),
+                ),
+            ),
+          );
+          yield* createTenantDb(personalOrg);
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb.insert(platform.organizationMembers).values({
+                id: data.id as `orgmem_${string}`,
+                organizationId: personalOrg.id as `org_${string}`,
+                userId: userInPlatform.id as `user_${string}`,
+                role: "org:admin",
+                createdAt: data.created_at,
+                updatedAt: data.updated_at,
+              }),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "user.updated" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(`User updated: ${JSON.stringify(data)}`);
+          const { pDb } = yield* PlatformDb;
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb.update(platform.user).set({
+                username: data.username!,
+                avatarUrl: data.image_url,
+                updatedAt: data.updated_at,
+              }),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "user.deleted" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(`User deleted: ${JSON.stringify(data)}`);
+          const { pDb } = yield* PlatformDb;
+
+          const user = yield* _(
+            Effect.tryPromise(() =>
+              pDb.query.user.findFirst({
+                where: eq(platform.user.id, data.id as `user_${string}`),
+                with: {
+                  personalOrg: true,
+                },
+              }),
+            ),
+            Effect.flatMap((user) =>
+              user
+                ? Effect.succeed(user)
+                : Effect.fail(new Error("User not found")),
+            ),
+            Effect.flatMap((user) =>
+              user.personalOrg
+                ? Effect.succeed(user)
+                : Effect.fail(new Error("User has no personal org")),
+            ),
+          );
+          const turso = yield* _(TursoClient).pipe(
+            Effect.provide(TursoClient.Live()),
+          );
+          yield* _(
+            Effect.tryPromise(() =>
+              turso.databases.delete(
+                user.personalOrg?.database_name as `org-${string}`,
+              ),
+            ),
+          );
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .delete(platform.user)
+                .where(eq(platform.user.id, user.id as `user_${string}`)),
+            ),
+          );
+        }),
       ),
       Match.when({ type: "organization.created" }, ({ data }) =>
         Effect.gen(function* (_) {
           Effect.log(`Organization created: ${JSON.stringify(data)}`);
-          // const org = yield* _(createOrgInPlatformDB(data));
+          const org = yield* _(
+            createOrgInPlatformDB({
+              id: data.id,
+              name: data.name,
+              slug: data.slug,
+              logo: data.image_url,
+              personal: false,
+              createdAt: data.created_at,
+              updatedAt: data.updated_at,
+            }),
+          );
+          yield* createTenantDb(org);
+        }),
+      ),
+      Match.when({ type: "organization.updated" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(`Organization updated: ${JSON.stringify(data)}`);
+          const { pDb } = yield* PlatformDb;
+          const org = yield* _(
+            Effect.tryPromise(() =>
+              pDb.update(platform.organization).set({
+                name: data.name,
+                slug: data.slug,
+                logo: data.image_url,
+                updatedAt: data.updated_at,
+              }),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "organization.deleted" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(`Organization deleted: ${JSON.stringify(data)}`);
+          const { pDb } = yield* PlatformDb;
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .delete(platform.organization)
+                .where(
+                  eq(platform.organization.id, data.id as `org_${string}`),
+                ),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "organizationMembership.created" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(
+            `Organization membership created: ${JSON.stringify(data)}`,
+          );
+          const { pDb } = yield* PlatformDb;
+          const org = yield* _(
+            Effect.tryPromise(() =>
+              pDb.insert(platform.organizationMembers).values({
+                id: data.id as `orgmem_${string}`,
+                organizationId: data.organization.id as `org_${string}`,
+                userId: data.public_user_data.user_id as `user_${string}`,
+                role: data.role,
+                createdAt: data.created_at,
+                updatedAt: data.updated_at,
+              }),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "organizationMembership.updated" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(
+            `Organization membership updated: ${JSON.stringify(data)}`,
+          );
+          const { pDb } = yield* PlatformDb;
+          const org = yield* _(
+            Effect.tryPromise(() =>
+              pDb.update(platform.organizationMembers).set({
+                role: data.role,
+                updatedAt: data.updated_at,
+              }),
+            ),
+          );
+        }),
+      ),
+      Match.when({ type: "organizationMembership.deleted" }, ({ data }) =>
+        Effect.gen(function* (_) {
+          Effect.log(
+            `Organization membership deleted: ${JSON.stringify(data)}`,
+          );
+          const { pDb } = yield* PlatformDb;
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .delete(platform.organizationMembers)
+                .where(
+                  eq(
+                    platform.organizationMembers.id,
+                    data.id as `orgmem_${string}`,
+                  ),
+                ),
+            ),
+          );
         }),
       ),
       Match.orElse(({ type }) => Effect.log(`Unhandled event type: ${type}`)),
@@ -151,6 +328,9 @@ export async function POST(req: Request) {
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     }),
+    Effect.tap((event) =>
+      Effect.log(`Webhook event: ${JSON.stringify(event.type)}`),
+    ),
     Effect.flatMap(handleWebhookEvent),
     Effect.match({
       onSuccess: () =>
