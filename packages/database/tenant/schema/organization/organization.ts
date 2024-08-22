@@ -14,11 +14,15 @@ export const organization = sqliteTable(
   {
     id: text("id").$defaultFn(createIdWithPrefix("org")).primaryKey(),
     name: text("name").notNull(),
-    slug: text("slug").notNull(),
+    slug: text("slug").notNull().unique(),
     logo: text("logo"),
+    personal: integer("personal", { mode: "boolean" }).notNull(),
     createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
     updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
-    database_name: text("database_name"),
+    database_name: text("database_name")
+      .$defaultFn(createIdWithPrefix("org", "-"))
+      .$type<`org-${string}`>()
+      .notNull(),
     database_auth_token: text("database_auth_token"),
   },
   (orgs) => ({

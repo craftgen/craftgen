@@ -63,6 +63,21 @@ export const createOrganizationDatabase = (params: { orgId: OrgId | UserId }) =>
     const orgDatabase = yield* _(
       Effect.tryPromise({
         try: () =>
+          // fetch(
+          //   `https://api.turso.tech/v1/organizations/${yield* Config.string("TURSO_APP_ORGANIZATION")}/databases`,
+          //   {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //       Authorization: `Bearer ${yield* Config.string("TURSO_API_TOKEN")}`,
+          //     },
+          //     body: JSON.stringify({
+          //       name: databaseName,
+          //       schema,
+          //       group,
+          //     }),
+          //   },
+          // ),
           turso.databases.create(databaseName, {
             schema,
             group,
@@ -90,6 +105,7 @@ export const createOrganizationDatabase = (params: { orgId: OrgId | UserId }) =>
           });
         },
       }),
+      Effect.tap((res) => Effect.log(`Created database ${res}`)),
     );
 
     const { jwt } = yield* _(
