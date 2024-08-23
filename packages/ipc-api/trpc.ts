@@ -6,21 +6,13 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
+import { type AuthObject } from "npm:@clerk/backend";
 import { type createClient } from "npm:@libsql/client";
 
 import { tenantDbClient } from "../database/lib/client-org.ts";
 import { EventProcessor } from "../database/tenant/queue.ts";
 import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
-interface Session {
-  user: {
-    id: string;
-    email: string;
-    user_metadata: {
-      currentProjectSlug: string;
-    };
-  };
-}
 /**
  * 1. CONTEXT
  *
@@ -31,7 +23,7 @@ interface Session {
  *
  */
 interface CreateContextOptions {
-  session: Session | null;
+  auth: AuthObject | null;
   db: ReturnType<typeof tenantDbClient>;
   client: ReturnType<typeof createClient>;
   queue: EventProcessor;
@@ -49,7 +41,7 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     queue: opts.queue,
-    session: opts.session,
+    auth: opts.auth,
     db: opts.db,
     client: opts.client,
   };
@@ -62,19 +54,19 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  */
 export const createTRPCContext = (opts: {
   headers: Headers;
-  auth: Session | null;
-  client: ReturnType<typeof createClient>;
-  db: ReturnType<typeof buildDbClient>;
-  queue: EventProcessor;
+  auth: AuthObject | null;
+  client?: ReturnType<typeof createClient>;
+  // db: ReturnType<typeof buildDbClient>;
+  queue?: EventProcessor;
 }) => {
-  const session = opts.auth;
+  const auth = opts.auth;
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
-  console.log(">>> tRPC Request from", source, "by", `${session?.user.email} `);
+  console.log(">>> tRPC Request from", source, "by", `${auth?.user.email} `);
 
   return createInnerTRPCContext({
     queue: opts.queue,
-    session,
+    auth,
     client: opts.client,
     db: opts.db,
   });

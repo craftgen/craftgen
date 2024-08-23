@@ -2,8 +2,9 @@ import "server-only";
 
 import { cache } from "react";
 import { headers } from "next/headers";
+import { auth } from "@clerk/nextjs/server";
 
-import { createCaller, createTRPCContext } from "@craftgen/api";
+import { createCaller, createTRPCContext } from "@craftgen/ipc-api";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -16,12 +17,13 @@ import { createClient } from "@/utils/supabase/server";
 const createContext = cache(async () => {
   const heads = new Headers(headers());
   heads.set("x-trpc-source", "rsc");
-  const supabase = createClient();
-  const session = await supabase.auth.getSession();
+  // const supabase = createClient();
+
+  // const session = await supabase.auth.getSession();
 
   return createTRPCContext({
     headers: heads,
-    auth: session.data.session,
+    auth: auth(),
   });
 });
 

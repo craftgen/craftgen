@@ -24,6 +24,7 @@
     "@craftgen/core": "0.1.2",
     "@craftgen/database": "0.0.1",
     "@craftgen/db": "0.1.1",
+    "@craftgen/ipc-api": "0.0.1",
     "@craftgen/ui": "1.0.4",
     "@faustwp/blocks": "^4.0.0",
     "@faustwp/core": "^3.0.0",

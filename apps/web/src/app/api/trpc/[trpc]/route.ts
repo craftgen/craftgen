@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { auth, currentUser, getAuth } from "@clerk/nextjs/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-import { appRouter, createTRPCContext } from "@craftgen/api";
+// import { appRouter, createTRPCContext } from "@craftgen/api";
+import { appRouter, createTRPCContext } from "@craftgen/ipc-api";
 
 import { createClient } from "@/utils/supabase/server";
 import { getServiceSupabase } from "@/utils/supabase/service";
@@ -41,28 +42,28 @@ const handler = async (req: NextRequest) => {
   const auth = getAuth(req);
   console.log("AUTH", auth);
 
-  const supabase = createClient(req);
-  if (req && req.headers.has("Authorization")) {
-    await supabase.auth.setSession({
-      access_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
-      refresh_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
-    });
-  }
+  // const supabase = createClient(req);
+  // if (req && req.headers.has("Authorization")) {
+  //   await supabase.auth.setSession({
+  //     access_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
+  //     refresh_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
+  //   });
+  // }
 
-  const session = await supabase.auth.getSession();
+  // const session = await supabase.auth.getSession();
   // console.log("AUTH", req.headers.get("Cookie"));
   // const user = await supabase.auth.getUser(req.headers.get("Authorization"));
 
-  const supabaseService = getServiceSupabase();
+  // const supabaseService = getServiceSupabase();
 
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
-    req,
+    req: req as unknown as Request,
     createContext: () =>
       createTRPCContext({
-        headers: req.headers,
-        auth: session.data.session,
+        // headers: req.headers,
+        auth: auth,
         // ? {
         //     ...session.data.session,
         //     user: {
@@ -74,7 +75,7 @@ const handler = async (req: NextRequest) => {
         //     },
         //   }
         // : null,
-        supabaseService: supabaseService,
+        // supabaseService: supabaseService,
       }),
     onError({ error, path }) {
       console.error(`>>> tRPC Error on '${path}'`, error);
