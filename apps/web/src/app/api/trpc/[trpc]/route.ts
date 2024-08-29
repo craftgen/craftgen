@@ -64,6 +64,8 @@ const handler = async (req: NextRequest) => {
       createTRPCContext({
         // headers: req.headers,
         auth: auth,
+        headers: req.headers,
+
         // ? {
         //     ...session.data.session,
         //     user: {

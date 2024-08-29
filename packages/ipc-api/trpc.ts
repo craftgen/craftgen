@@ -62,7 +62,7 @@ export const createTRPCContext = (opts: {
   const auth = opts.auth;
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
-  console.log(">>> tRPC Request from", source, "by", `${auth?.user.email} `);
+  console.log(">>> tRPC Request from", source, "by", `${auth?.userId} `);
 
   return createInnerTRPCContext({
     queue: opts.queue,

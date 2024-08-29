@@ -1381,6 +1381,9 @@ importers:
       '@clerk/types':
         specifier: ^4.14.0
         version: 4.14.0
+      '@craftgen/database':
+        specifier: 0.0.1
+        version: link:../database
       '@trpc/client':
         specifier: 11.0.0-rc.452
         version: 11.0.0-rc.452(@trpc/server@11.0.0-rc.452)
@@ -1396,6 +1399,9 @@ importers:
       superjson:
         specifier: 2.2.1
         version: 2.2.1
+      timestring:
+        specifier: ^7.0.0
+        version: 7.0.0
       zod:
         specifier: 3.21.4
         version: 3.21.4
@@ -29300,6 +29306,11 @@ packages:
 
   /through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
+    dev: false
+
+  /timestring@7.0.0:
+    resolution: {integrity: sha512-U7ttxEdKWqHYJ96OGoJJR5gU8Nwkl3tlY0n7Jr4vcpLD2RkVZLE1Ph9k8ZRrZ7LYX9QCtd3M9OUaR9P8Z37QNg==}
+    engines: {node: '>=12'}
     dev: false
 
   /timsort@0.3.0:
