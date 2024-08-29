@@ -24,40 +24,40 @@ interface Props {
   searchParams: Record<string, string | string[] | undefined>;
 }
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  try {
-    const project = await api.project.bySlug({
-      projectSlug: params.projectSlug,
-    });
+// export async function generateMetadata(
+//   { params }: Props,
+//   parent: ResolvingMetadata,
+// ): Promise<Metadata> {
+//   try {
+//     const project = await api.project.bySlug({
+//       projectSlug: params.projectSlug,
+//     });
 
-    return {
-      title: `AI Agents by ${project?.name}`,
-      // description: `${project?.name}`,
-    };
-  } catch (e) {
-    console.log("ERROR", e);
-    return {
-      title: `AI Agents by ${params.projectSlug}`,
-      // description: `${project?.name}`,
-    };
-  }
-}
+//     return {
+//       title: `AI Agents by ${project?.name}`,
+//       // description: `${project?.name}`,
+//     };
+//   } catch (e) {
+//     console.log("ERROR", e);
+//     return {
+//       title: `AI Agents by ${params.projectSlug}`,
+//       // description: `${project?.name}`,
+//     };
+//   }
+// }
 
-export async function generateStaticParams() {
-  const projects = await db.query.project.findMany({
-    columns: {
-      slug: true,
-    },
-    limit: 10,
-  });
+// export async function generateStaticParams() {
+//   const projects = await db.query.project.findMany({
+//     columns: {
+//       slug: true,
+//     },
+//     limit: 10,
+//   });
 
-  return projects.map((project) => ({
-    projectSlug: project.slug,
-  }));
-}
+//   return projects.map((project) => ({
+//     projectSlug: project.slug,
+//   }));
+// }
 
 const ProjectPage = async ({
   params,

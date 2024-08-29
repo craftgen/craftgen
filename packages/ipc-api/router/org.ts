@@ -16,7 +16,7 @@ export const orgRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.project.findMany({
+      return ctx.tenantDb.query.organization.findMany({
         where: (project, { or, ilike }) =>
           or(
             ilike(project.name, `%${input.query}%`),
@@ -33,11 +33,11 @@ export const orgRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const exist = await ctx.db.query.workflow.findFirst({
+      const exist = await ctx.tenantDb.query.workflow.findFirst({
         where: (workflow, { and, eq }) =>
           and(
             eq(workflow.slug, input.slug),
-            eq(workflow.projectId, input.projectId),
+            eq(workflow.organizationId, input.organizationId),
           ),
         columns: {
           slug: true,
@@ -46,58 +46,38 @@ export const orgRouter = createTRPCRouter({
       return isNil(exist);
     }),
   all: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.project.findMany({});
+    return ctx.tenantDb.query.organization.findMany({});
   }),
   userProjects: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.query.projectMembers.findMany({
-      where: (projectMembers, { eq }) =>
-        eq(projectMembers.userId, ctx.session.user?.id),
+    return await ctx.tenantDb.query.organizationMembers.findMany({
+      where: (orgMembers, { eq }) =>
+        eq(orgMembers.userId, ctx.session.user?.id),
       with: {
-        project: true,
+        organization: true,
       },
     });
   }),
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.project.findFirst({
+      return await ctx.tenantDb.query.organization.findFirst({
         where: (p, { eq }) => eq(p.id, input.id),
       });
     }),
   bySlug: publicProcedure
     .input(z.object({ projectSlug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const project = await ctx.db.query.project.findFirst({
+      console.log("input", input, ctx);
+      const org = await ctx.tenantDb.query.organization.findFirst({
         where: (p, { eq }) => eq(p.slug, input.projectSlug),
         columns: {
           name: true,
           slug: true,
           personal: true,
           id: true,
-          stripeAccountId: true,
         },
       });
-      if (!project) throw new TRPCError({ code: "NOT_FOUND" });
-      if (project?.personal) {
-        const projectMembers = await ctx.db.query.projectMembers.findFirst({
-          where: (projectMembers, { eq }) =>
-            eq(projectMembers.projectId, project.id),
-          with: {
-            user: {
-              columns: {
-                avatar_url: true,
-              },
-            },
-          },
-        });
-        return {
-          ...project,
-          avatar_url: projectMembers?.user.avatar_url,
-        };
-      }
-      return {
-        ...project,
-        avatar_url: null,
-      };
+      if (!org) throw new TRPCError({ code: "NOT_FOUND" });
+      return org;
     }),
 });

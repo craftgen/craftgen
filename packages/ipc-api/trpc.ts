@@ -24,7 +24,8 @@ import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
  */
 interface CreateContextOptions {
   auth: AuthObject | null;
-  db: ReturnType<typeof tenantDbClient>;
+  tenantDb: ReturnType<typeof tenantDbClient>;
+  primaryDb: ReturnType<typeof tenantDbClient>;
   client: ReturnType<typeof createClient>;
   queue: EventProcessor;
 }
@@ -42,7 +43,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     queue: opts.queue,
     auth: opts.auth,
-    db: opts.db,
+    tenantDb: opts.tenantDb,
     client: opts.client,
   };
 };
@@ -68,7 +69,7 @@ export const createTRPCContext = (opts: {
     queue: opts.queue,
     auth,
     client: opts.client,
-    db: opts.db,
+    tenantDb: opts.db,
   });
 };
 
