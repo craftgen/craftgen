@@ -6,12 +6,19 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { type AuthObject } from "npm:@clerk/backend";
+import { createClerkClient, type AuthObject } from "npm:@clerk/backend";
 import { type createClient } from "npm:@libsql/client";
 
 import { tenantDbClient } from "../database/lib/client-org.ts";
+import {
+  createPlatformDbClient,
+  Databases,
+  getTenantDbClient,
+  type PlatformDbClient,
+  type TenantDbClient,
+} from "../database/mod.ts";
 import { EventProcessor } from "../database/tenant/queue.ts";
-import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
+import { Effect, initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
 
 /**
  * 1. CONTEXT
@@ -24,10 +31,10 @@ import { initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
  */
 interface CreateContextOptions {
   auth: AuthObject | null;
-  tenantDb: ReturnType<typeof tenantDbClient>;
-  primaryDb: ReturnType<typeof tenantDbClient>;
-  client: ReturnType<typeof createClient>;
-  queue: EventProcessor;
+  tenantDb: TenantDbClient;
+  platformDb?: PlatformDbClient;
+  client?: ReturnType<typeof createClient>;
+  queue?: EventProcessor;
 }
 
 /**
@@ -43,21 +50,25 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     queue: opts.queue,
     auth: opts.auth,
-    tenantDb: opts.tenantDb,
+    tDb: opts.tenantDb,
+    pDb: opts.platformDb,
     client: opts.client,
   };
 };
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
 
 /**
  * This is the actual context you'll use in your router. It will be used to
  * process every request that goes through your tRPC endpoint
  * @link https://trpc.io/docs/context
  */
-export const createTRPCContext = (opts: {
+export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: AuthObject | null;
   client?: ReturnType<typeof createClient>;
-  // db: ReturnType<typeof buildDbClient>;
   queue?: EventProcessor;
 }) => {
   const auth = opts.auth;
@@ -65,13 +76,33 @@ export const createTRPCContext = (opts: {
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
   console.log(">>> tRPC Request from", source, "by", `${auth?.userId} `);
 
+  const platformDb = Effect.runSync(createPlatformDbClient);
+
+  console.log("AUTH IN BACKEND", auth);
+
+  const user = await clerkClient.users.getUser(auth?.userId);
+
+  // const tenantDb = Effect.runSync(() =>
+  //   getTenantDbClient({
+  //     tenantId: user.privateMetadata.database_name,
+  //     authToken: user.privateMetadata.database_auth_token,
+  //   }),
+  // );
+  const tenantDb = tenantDbClient({
+    url: `${user.privateMetadata.database_name}-craftgen.turso.io`,
+    authToken: user.privateMetadata.database_auth_token as string,
+  });
+
   return createInnerTRPCContext({
     queue: opts.queue,
     auth,
     client: opts.client,
-    tenantDb: opts.db,
+    tenantDb: tenantDb,
+    platformDb,
   });
 };
+
+export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
  * 2. INITIALIZATION
@@ -79,7 +110,7 @@ export const createTRPCContext = (opts: {
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
-const t = initTRPC.context<typeof createTRPCContext>().create({
+const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
     return {

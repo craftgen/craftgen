@@ -17,6 +17,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@clerk/backend": "^1.9.0",
     "@clerk/nextjs": "^5.3.1",
     "@clerk/themes": "^2.1.21",
     "@craftgen/api": "^0.1.2",
@@ -135,7 +136,7 @@
     "lucide-react": "^0.390.0",
     "mobx-react-lite": "^4.0.5",
     "modelfusion": "^0.137.0",
-    "next": "^14.2.4",
+    "next": "^14.2.7",
     "next-safe-action": "^3.3.0",
     "next-themes": "^0.3.0",
     "next-usequerystate": "^1.9.1",

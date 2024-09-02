@@ -6,7 +6,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
-} from "../trpc.ts";
+} from "../../trpc.ts";
 
 export const orgRouter = createTRPCRouter({
   search: publicProcedure
@@ -68,7 +68,8 @@ export const orgRouter = createTRPCRouter({
     .input(z.object({ projectSlug: z.string() }))
     .query(async ({ ctx, input }) => {
       console.log("input", input, ctx);
-      const org = await ctx.tenantDb.query.organization.findFirst({
+
+      const org = await ctx.pDb?.query.organization.findFirst({
         where: (p, { eq }) => eq(p.slug, input.projectSlug),
         columns: {
           name: true,

@@ -17,7 +17,7 @@ const TursoConfig = Config.all({
   authToken: Config.redacted("TURSO_PRIMARY_DB_AUTH_TOKEN").pipe(Config.option),
 });
 
-const createPlatformDbClient = Effect.gen(function* (_) {
+export const createPlatformDbClient = Effect.gen(function* (_) {
   const config = yield* _(TursoConfig);
 
   const isFile = config.url.includes("file:");
@@ -31,9 +31,9 @@ const createPlatformDbClient = Effect.gen(function* (_) {
     () => new TursoDbAuthTokenMissingError(),
   );
 
-  console.log("CREATING PLATFORM DB CLIENT", {
+  Effect.log("CREATING PLATFORM DB CLIENT", {
     url: config.url,
-    authToken: Redacted.value(token),
+    authToken: token,
   });
 
   return drizzle(

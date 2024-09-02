@@ -65,10 +65,13 @@ export class Databases extends Context.Tag("services/Databases")<
   Effect.Effect.Success<typeof make>
 >() {}
 
-export const getTenantDbClient = (
-  tenantId: string,
-  authToken: string,
-): Effect.Effect<TenantDbClient, never, Databases> =>
+export const getTenantDbClient = ({
+  tenantId,
+  authToken,
+}: {
+  tenantId: string;
+  authToken: string;
+}): Effect.Effect<TenantDbClient, never, Databases> =>
   Effect.gen(function* (_) {
     const databases = yield* _(Databases);
     const tenant = new Tenant({ id: tenantId, authToken });

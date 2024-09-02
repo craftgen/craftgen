@@ -1,5 +1,9 @@
 import { headers } from "next/headers";
-import { UserJSON, WebhookEvent } from "@clerk/nextjs/server";
+import {
+  createClerkClient,
+  UserJSON,
+  WebhookEvent,
+} from "@clerk/nextjs/server";
 import { Config, Data, Effect, Match, pipe, Redacted } from "effect";
 import { Webhook, WebhookRequiredHeaders } from "svix";
 
@@ -12,6 +16,10 @@ import {
   TursoClient,
 } from "@craftgen/database";
 import { createIdWithPrefix } from "@craftgen/database/lib/id";
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
 
 const verifyWebhook = (body: string, headers: WebhookRequiredHeaders) =>
   Effect.gen(function* (_) {
@@ -79,7 +87,7 @@ const createTenantDb = (org: typeof platform.organization.$inferSelect) =>
       createOrganizationDatabase({ orgId: org.database_name }),
     );
     const { pDb } = yield* PlatformDb;
-    yield* _(
+    const updatedOrg = yield* _(
       Effect.tryPromise(() =>
         pDb
           .update(platform.organization)
@@ -87,12 +95,23 @@ const createTenantDb = (org: typeof platform.organization.$inferSelect) =>
             database_auth_token: db.authToken,
             database_name: db.orgDatabase.name as `org-${string}`,
           })
-          .where(eq(platform.organization.id, org.id)),
+          .where(eq(platform.organization.id, org.id))
+          .returning(),
+      ),
+      Effect.flatMap((orgs) =>
+        orgs[0]
+          ? Effect.succeed(orgs[0])
+          : Effect.fail(
+              new Error(
+                "Updating organization is failed after creating a tenant db.",
+              ),
+            ),
       ),
       Effect.tap((res) =>
         Effect.log(`Updated org ${org.id} with db ${db.orgDatabase.name}`),
       ),
     );
+    return updatedOrg;
   }).pipe(Effect.provide(TursoClient.Live()));
 
 const handleWebhookEvent = (evt: WebhookEvent) =>
@@ -128,7 +147,7 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                 ),
             ),
           );
-          yield* createTenantDb(personalOrg);
+          const orgWithDbInformation = yield* createTenantDb(personalOrg);
           yield* _(
             Effect.tryPromise(() =>
               pDb.insert(platform.organizationMembers).values({
@@ -140,6 +159,20 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                 updatedAt: data.updated_at,
               }),
             ),
+          );
+          yield* _(
+            Effect.tryPromise(() =>
+              clerkClient.users.updateUserMetadata(data.id, {
+                privateMetadata: {
+                  database_name: orgWithDbInformation?.database_name,
+                  database_auth_token:
+                    orgWithDbInformation?.database_auth_token,
+                },
+              }),
+            ),
+            Effect.tap((clerkUser) => {
+              Effect.log("Clerk user updated", clerkUser);
+            }),
           );
         }),
       ),
@@ -216,7 +249,22 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
               updatedAt: data.updated_at,
             }),
           );
-          yield* createTenantDb(org);
+          const orgWithDbInformation = yield* createTenantDb(org);
+
+          yield* _(
+            Effect.tryPromise(() =>
+              clerkClient.organizations.updateOrganization(
+                orgWithDbInformation?.id,
+                {
+                  privateMetadata: {
+                    database_name: orgWithDbInformation?.database_name,
+                    database_auth_token:
+                      orgWithDbInformation?.database_auth_token,
+                  },
+                },
+              ),
+            ),
+          );
         }),
       ),
       Match.when({ type: "organization.updated" }, ({ data }) =>
