@@ -20,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@effect/schema": "^0.71.0",
-    "@libsql/client": "^0.7.0",
+    "@libsql/client": "^0.10.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@tursodatabase/api": "^1.8.1",
     "drizzle-orm": "^0.32.0",

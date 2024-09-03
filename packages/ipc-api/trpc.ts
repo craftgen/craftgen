@@ -6,14 +6,12 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { createClerkClient, type AuthObject } from "npm:@clerk/backend";
-import { type createClient } from "npm:@libsql/client";
+import { createClerkClient, type AuthObject } from "@clerk/backend";
+import { type createClient } from "@libsql/client";
 
 import { tenantDbClient } from "../database/lib/client-org.ts";
 import {
   createPlatformDbClient,
-  Databases,
-  getTenantDbClient,
   type PlatformDbClient,
   type TenantDbClient,
 } from "../database/mod.ts";
@@ -31,7 +29,7 @@ import { Effect, initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
  */
 interface CreateContextOptions {
   auth: AuthObject | null;
-  tenantDb: TenantDbClient;
+  tenantDb?: TenantDbClient;
   platformDb?: PlatformDbClient;
   client?: ReturnType<typeof createClient>;
   queue?: EventProcessor;
@@ -82,22 +80,33 @@ export const createTRPCContext = async (opts: {
 
   const user = await clerkClient.users.getUser(auth?.userId);
 
-  // const tenantDb = Effect.runSync(() =>
+  console.log({ user });
+
+  // const tenantDb = Effect.runSync(
   //   getTenantDbClient({
   //     tenantId: user.privateMetadata.database_name,
   //     authToken: user.privateMetadata.database_auth_token,
   //   }),
   // );
-  const tenantDb = tenantDbClient({
-    url: `${user.privateMetadata.database_name}-craftgen.turso.io`,
-    authToken: user.privateMetadata.database_auth_token as string,
-  });
+
+  const tenantDb = () => {
+    if (
+      !user?.privateMetadata.database_name &&
+      !user?.privateMetadata.database_auth_token
+    ) {
+      return undefined;
+    }
+    return tenantDbClient({
+      url: `libsql://${user.privateMetadata.database_name}-craftgen.turso.io`,
+      authToken: user.privateMetadata.database_auth_token as string,
+    });
+  };
 
   return createInnerTRPCContext({
     queue: opts.queue,
     auth,
     client: opts.client,
-    tenantDb: tenantDb,
+    tenantDb: tenantDb(),
     platformDb,
   });
 };

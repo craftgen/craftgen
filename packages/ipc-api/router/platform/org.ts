@@ -71,13 +71,9 @@ export const orgRouter = createTRPCRouter({
 
       const org = await ctx.pDb?.query.organization.findFirst({
         where: (p, { eq }) => eq(p.slug, input.projectSlug),
-        columns: {
-          name: true,
-          slug: true,
-          personal: true,
-          id: true,
-        },
       });
+      console.log({ org });
+
       if (!org) throw new TRPCError({ code: "NOT_FOUND" });
       return org;
     }),

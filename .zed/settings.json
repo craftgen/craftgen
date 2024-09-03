@@ -3,24 +3,45 @@
 // For a full list of overridable settings, and general information on folder-specific settings,
 // see the documentation: https://zed.dev/docs/configuring-zed#settings-files
 {
-  "languages": {
-    "TypeScript": {
-      "language_servers": [
-        "deno",
-        "!typescript-language-server",
-        "!vtsls",
-        "!eslint",
-        "..."
-      ]
-    },
-    "TSX": {
-      "language_servers": [
-        "deno",
-        "!typescript-language-server",
-        "!vtsls",
-        "!eslint",
-        "..."
-      ]
+  "lsp": {
+    "deno": {
+      "settings": {
+        "deno": {
+          "enable": true,
+          "enablePaths": [
+            "./apps/edge/functions",
+            "./packages/core-deno",
+            "./apps/desktop/src-tauri/functions",
+            "./packages/micro-agent",
+            "./packages/api/",
+            "./nodes/math/",
+            "./nodes/_shared/",
+            "./nodes",
+            "./packages/ipc-api"
+          ]
+        }
+      }
     }
   }
+
+  // "languages": {
+  //   "TypeScript": {
+  //     "language_servers": [
+  //       "deno",
+  //       "!typescript-language-server",
+  //       "!vtsls",
+  //       "!eslint",
+  //       "..."
+  //     ]
+  //   },
+  //   "TSX": {
+  //     "language_servers": [
+  //       "deno",
+  //       "!typescript-language-server",
+  //       "!vtsls",
+  //       "!eslint",
+  //       "..."
+  //     ]
+  //   }
+  // }
 }

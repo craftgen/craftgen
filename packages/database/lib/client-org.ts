@@ -1,7 +1,7 @@
 import { Schema } from "@effect/schema";
 import { createClient } from "@libsql/client/http";
 import { drizzle } from "drizzle-orm/libsql";
-import { Cache, Context, Effect } from "effect";
+import { Effect } from "effect";
 
 import type { TenantDbClient } from "../mod.ts";
 import * as schema from "../tenant/schema/index.ts";
@@ -22,9 +22,10 @@ export function tenantDbClient({ url, authToken }: Env): TenantDbClient {
   if (authToken === undefined) {
     throw new Error("TURSO_DB_AUTH_TOKEN is not defined");
   }
+
   return drizzle(
     createClient({
-      url: `libsql://${url}`,
+      url: url,
       authToken,
     }),
     {
@@ -36,44 +37,27 @@ export function tenantDbClient({ url, authToken }: Env): TenantDbClient {
 export class Tenant extends Schema.TaggedClass<Tenant>("Databases/Tenant")(
   "Tenant",
   {
-    id: Schema.String,
+    url: Schema.String,
     authToken: Schema.String, // TODO: Redacted
   },
 ) {
   client() {
     return tenantDbClient({
-      url: `libsql://${this.id}.db`,
+      url: this.url,
       authToken: this.authToken,
     });
   }
 }
 
-const make = Effect.gen(function* () {
-  const connections = yield* Cache.make({
-    capacity: 64,
-    timeToLive: "30 minutes",
-    lookup: (tenant: Tenant) => Effect.sync(() => tenant.client()),
-  });
-
-  return {
-    for: (t: Tenant) => connections.get(t),
-  };
-});
-
-export class Databases extends Context.Tag("services/Databases")<
-  Databases,
-  Effect.Effect.Success<typeof make>
->() {}
-
+// Updated getTenantDbClient function
 export const getTenantDbClient = ({
-  tenantId,
+  url,
   authToken,
 }: {
-  tenantId: string;
+  url: string;
   authToken: string;
-}): Effect.Effect<TenantDbClient, never, Databases> =>
+}): Effect.Effect<TenantDbClient, never, never> =>
   Effect.gen(function* (_) {
-    const databases = yield* _(Databases);
-    const tenant = new Tenant({ id: tenantId, authToken });
-    return yield* _(databases.for(tenant));
+    const tenant = new Tenant({ url, authToken });
+    return tenant.client();
   });

@@ -7,6 +7,7 @@
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.1",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "npm:@clerk/backend": "npm:@clerk/backend@1.8.0",
+      "npm:@clerk/backend@^1.9.0": "npm:@clerk/backend@1.9.0",
       "npm:@clerk/clerk-js@^5.15.1": "npm:@clerk/clerk-js@5.15.1_react@18.3.1_react-dom@18.3.1__react@18.3.1",
       "npm:@clerk/types": "npm:@clerk/types@4.14.0",
       "npm:@clerk/types@^4.14.0": "npm:@clerk/types@4.14.0",
@@ -16,6 +17,7 @@
       "npm:@effect/schema@^0.71.1": "npm:@effect/schema@0.71.1_effect@3.6.5",
       "npm:@libsql/client": "npm:@libsql/client@0.7.0",
       "npm:@libsql/client-wasm": "npm:@libsql/client-wasm@0.7.0",
+      "npm:@libsql/client@^0.10.0": "npm:@libsql/client@0.10.0",
       "npm:@libsql/client@^0.7.0": "npm:@libsql/client@0.7.0",
       "npm:@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@paralleldrive/cuid2@^2.2.2": "npm:@paralleldrive/cuid2@2.2.2",
@@ -175,6 +177,16 @@
           "tslib": "tslib@2.4.1"
         }
       },
+      "@clerk/backend@1.9.0": {
+        "integrity": "sha512-yT/WvH4qesWhG6OdllhUMLs0uMrMkTQMURCoC6dX3RZ0BzUMmgf0z6nD3o3zvFEXpWwInfh+vsXCgbIQ7QjBfg==",
+        "dependencies": {
+          "@clerk/shared": "@clerk/shared@2.6.0",
+          "@clerk/types": "@clerk/types@4.17.0",
+          "cookie": "cookie@0.5.0",
+          "snakecase-keys": "snakecase-keys@5.4.4",
+          "tslib": "tslib@2.4.1"
+        }
+      },
       "@clerk/clerk-js@5.15.1_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
         "integrity": "sha512-ZYGtGmbu00fjfRr57zal51TTZXkOWAwra1XJFuDSGUQv5FuWm5WC0cojggXPUConHj67A4T4VFumfs3jwMQPXQ==",
         "dependencies": {
@@ -226,8 +238,24 @@
           "swr": "swr@2.2.5_react@18.3.1"
         }
       },
+      "@clerk/shared@2.6.0": {
+        "integrity": "sha512-ntgDxluwkvtGr73cc6vRQQAa/MAxr49NlroQ4GcAidylmSYTrqouD+SFQp21UQX51sFecGZKPyr2YoTFyxzQoA==",
+        "dependencies": {
+          "@clerk/types": "@clerk/types@4.17.0",
+          "glob-to-regexp": "glob-to-regexp@0.4.1",
+          "js-cookie": "js-cookie@3.0.5",
+          "std-env": "std-env@3.7.0",
+          "swr": "swr@2.2.5_react@18.3.1"
+        }
+      },
       "@clerk/types@4.14.0": {
         "integrity": "sha512-d3MUcWtXGTOS7QYCRVrOra7NYAGRiNWlb+Ke2KMSb+Z3lea6WlKeHa18uVnAkIVxBXtHlzdU2kwW0PrHkx8j9Q==",
+        "dependencies": {
+          "csstype": "csstype@3.1.1"
+        }
+      },
+      "@clerk/types@4.17.0": {
+        "integrity": "sha512-/GksPLzWLCTbZ1ZNTUs4CMze89XUQNGNy9KJOP56JUaxCy+9iHbIsDyia6zicHXhH8/oIj9SrZv/nlEPNUFkoA==",
         "dependencies": {
           "csstype": "csstype@3.1.1"
         }
@@ -627,6 +655,16 @@
           "js-base64": "js-base64@3.7.7"
         }
       },
+      "@libsql/client@0.10.0": {
+        "integrity": "sha512-2ERn08T4XOVx34yBtUPq0RDjAdd9TJ5qNH/izugr208ml2F94mk92qC64kXyDVQINodWJvp3kAdq6P4zTtCZ7g==",
+        "dependencies": {
+          "@libsql/core": "@libsql/core@0.10.0",
+          "@libsql/hrana-client": "@libsql/hrana-client@0.6.2",
+          "js-base64": "js-base64@3.7.7",
+          "libsql": "libsql@0.4.1",
+          "promise-limit": "promise-limit@2.7.0"
+        }
+      },
       "@libsql/client@0.7.0": {
         "integrity": "sha512-1aLDtWzsErr68GZ640TVyOLkL/+lB2YK8cYvJIfiI7Mt+DEPB22Jkoz2QfBDg5PVGX/efeRHog2j/oVbUhxO8Q==",
         "dependencies": {
@@ -635,6 +673,12 @@
           "js-base64": "js-base64@3.7.7",
           "libsql": "libsql@0.3.19",
           "promise-limit": "promise-limit@2.7.0"
+        }
+      },
+      "@libsql/core@0.10.0": {
+        "integrity": "sha512-rqynAXGaiSpTsykOZdBtI1N4z4O+KZ6mt33K/aHeXAY0gSIfK/ctxuWa0Y1Bjo4FMz1idBTCXz4Ps5kITOvZZw==",
+        "dependencies": {
+          "js-base64": "js-base64@3.7.7"
         }
       },
       "@libsql/core@0.7.0": {
@@ -647,8 +691,16 @@
         "integrity": "sha512-rmOqsLcDI65zzxlUOoEiPJLhqmbFsZF6p4UJQ2kMqB+Kc0Rt5/A1OAdOZ/Wo8fQfJWjR1IbkbpEINFioyKf+nQ==",
         "dependencies": {}
       },
+      "@libsql/darwin-arm64@0.4.1": {
+        "integrity": "sha512-XICT9/OyU8Aa9Iv1xZIHgvM09n/1OQUk3VC+s5uavzdiGHrDMkOWzN47JN7/FiMa/NWrcgoEiDMk3+e7mE53Ig==",
+        "dependencies": {}
+      },
       "@libsql/darwin-x64@0.3.19": {
         "integrity": "sha512-q9O55B646zU+644SMmOQL3FIfpmEvdWpRpzubwFc2trsa+zoBlSkHuzU9v/C+UNoPHQVRMP7KQctJ455I/h/xw==",
+        "dependencies": {}
+      },
+      "@libsql/darwin-x64@0.4.1": {
+        "integrity": "sha512-pSKxhRrhu4SsTD+IBRZXcs1SkwMdeAG1tv6Z/Ctp/sOEYrgkU8MDKLqkOr9NsmwpK4S0+JdwjkLMyhTkct/5TQ==",
         "dependencies": {}
       },
       "@libsql/hrana-client@0.6.2": {
@@ -679,20 +731,40 @@
         "integrity": "sha512-mgeAUU1oqqh57k7I3cQyU6Trpdsdt607eFyEmH5QO7dv303ti+LjUvh1pp21QWV6WX7wZyjeJV1/VzEImB+jRg==",
         "dependencies": {}
       },
+      "@libsql/linux-arm64-gnu@0.4.1": {
+        "integrity": "sha512-9lpvb24tO2qZd9nq5dlq3ESA3hSKYWBIK7lJjfiCM6f7a70AUwBY9QoPJV9q4gILIyVnR1YBGrlm50nnb+dYgw==",
+        "dependencies": {}
+      },
       "@libsql/linux-arm64-musl@0.3.19": {
         "integrity": "sha512-VEZtxghyK6zwGzU9PHohvNxthruSxBEnRrX7BSL5jQ62tN4n2JNepJ6SdzXp70pdzTfwroOj/eMwiPt94gkVRg==",
+        "dependencies": {}
+      },
+      "@libsql/linux-arm64-musl@0.4.1": {
+        "integrity": "sha512-lyxi+lFxE+NcBRDMQCxCtDg3c4WcKAbc9u63d5+B23Vm+UgphD9XY4seu+tGrBy1MU2tuNVix7r9S7ECpAaVrA==",
         "dependencies": {}
       },
       "@libsql/linux-x64-gnu@0.3.19": {
         "integrity": "sha512-2t/J7LD5w2f63wGihEO+0GxfTyYIyLGEvTFEsMO16XI5o7IS9vcSHrxsvAJs4w2Pf907uDjmc7fUfMg6L82BrQ==",
         "dependencies": {}
       },
+      "@libsql/linux-x64-gnu@0.4.1": {
+        "integrity": "sha512-psvuQ3UFBEmDFV8ZHG+WkUHIJiWv+elZ+zIPvOVedlIKdxG1O+8WthWUAhFHOGnbiyzc4sAZ4c3de1oCvyHxyQ==",
+        "dependencies": {}
+      },
       "@libsql/linux-x64-musl@0.3.19": {
         "integrity": "sha512-BLsXyJaL8gZD8+3W2LU08lDEd9MIgGds0yPy5iNPp8tfhXx3pV/Fge2GErN0FC+nzt4DYQtjL+A9GUMglQefXQ==",
         "dependencies": {}
       },
+      "@libsql/linux-x64-musl@0.4.1": {
+        "integrity": "sha512-PDidJ3AhGDqosGg3OAZzGxMFIbnuOALya4BoezJKl667AFv3x7BBQ30H81Mngsq3Fh8RkJkXSdWfL91+Txb1iA==",
+        "dependencies": {}
+      },
       "@libsql/win32-x64-msvc@0.3.19": {
         "integrity": "sha512-ay1X9AobE4BpzG0XPw1gplyLZPGHIgJOovvW23gUrukRegiUP62uzhpRbKNogLlUOynyXeq//prHgPXiebUfWg==",
+        "dependencies": {}
+      },
+      "@libsql/win32-x64-msvc@0.4.1": {
+        "integrity": "sha512-IdODVqV/PrdOnHA/004uWyorZQuRsB7U7bCRCE3vXgABj3eJLJGc6cv2C6ksEaEoVxJbD8k53H4VVAGrtYwXzQ==",
         "dependencies": {}
       },
       "@neon-rs/load@0.0.4": {
@@ -1137,6 +1209,21 @@
           "@libsql/win32-x64-msvc": "@libsql/win32-x64-msvc@0.3.19",
           "@neon-rs/load": "@neon-rs/load@0.0.4",
           "detect-libc": "detect-libc@2.0.2"
+        }
+      },
+      "libsql@0.4.1": {
+        "integrity": "sha512-qZlR9Yu1zMBeLChzkE/cKfoKV3Esp9cn9Vx5Zirn4AVhDWPcjYhKwbtJcMuHehgk3mH+fJr9qW+3vesBWbQpBg==",
+        "dependencies": {
+          "@libsql/darwin-arm64": "@libsql/darwin-arm64@0.4.1",
+          "@libsql/darwin-x64": "@libsql/darwin-x64@0.4.1",
+          "@libsql/linux-arm64-gnu": "@libsql/linux-arm64-gnu@0.4.1",
+          "@libsql/linux-arm64-musl": "@libsql/linux-arm64-musl@0.4.1",
+          "@libsql/linux-x64-gnu": "@libsql/linux-x64-gnu@0.4.1",
+          "@libsql/linux-x64-musl": "@libsql/linux-x64-musl@0.4.1",
+          "@libsql/win32-x64-msvc": "@libsql/win32-x64-msvc@0.4.1",
+          "@neon-rs/load": "@neon-rs/load@0.0.4",
+          "detect-libc": "detect-libc@2.0.2",
+          "libsql": "libsql@0.3.19"
         }
       },
       "lines-and-columns@1.2.4": {

@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@libsql/client": "^0.7.0",
+    "@libsql/client": "^0.10.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@types/pg": "^8.10.2",
     "drizzle-orm": "^0.32.0",

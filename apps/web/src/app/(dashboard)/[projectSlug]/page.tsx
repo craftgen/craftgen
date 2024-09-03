@@ -67,8 +67,17 @@ const ProjectPage = async ({
   };
 }) => {
   try {
-    const project = await api.project.bySlug({
+    // const platform = await api.platform.orgs.bySlug({
+    //   projectSlug: params.projectSlug,
+    // });
+
+    const tenant = await api.tenant.orgs.bySlug({
       projectSlug: params.projectSlug,
+    });
+
+    console.log({
+      // platform,
+      tenant,
     });
 
     return (
@@ -76,12 +85,12 @@ const ProjectPage = async ({
         <ProjectLayout.Content>
           {/* <ProjectNavbar /> */}
           <div className="col-span-3 ">
-            <ProjectCard project={project} />
+            <ProjectCard project={tenant} />
           </div>
 
-          <section className="col-span-9">
+          {/* <section className="col-span-9">
             <PlaygroundList projectSlug={params.projectSlug} />
-          </section>
+          </section> */}
         </ProjectLayout.Content>
       </ProjectLayout>
     );
@@ -93,7 +102,13 @@ const ProjectPage = async ({
       redirect(`/login?redirect=${params.projectSlug}`);
     } else {
       console.log("ERROR", error);
-      return <div>Error</div>;
+      return (
+        <div>
+          {JSON.stringify({
+            error,
+          })}
+        </div>
+      );
     }
   }
 };

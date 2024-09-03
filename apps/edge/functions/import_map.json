@@ -1,7 +1,7 @@
 {
   "imports": {
     "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
-    "@libsql/client": "npm:@libsql/client@^0.7.0",
+    "@libsql/client": "npm:@libsql/client@^0.10.0",
     "drizzle-orm": "npm:drizzle-orm@^0.32.0",
     "drizzle-orm/": "npm:/drizzle-orm@^0.32.0/",
     "drizzle-kit": "npm:drizzle-kit@0.23.0",

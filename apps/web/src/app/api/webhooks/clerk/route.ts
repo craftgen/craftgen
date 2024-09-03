@@ -10,6 +10,7 @@ import { Webhook, WebhookRequiredHeaders } from "svix";
 import {
   createOrganizationDatabase,
   eq,
+  getTenantDbClient,
   platform,
   PlatformDb,
   tenant,
@@ -23,9 +24,11 @@ const clerkClient = createClerkClient({
 
 const verifyWebhook = (body: string, headers: WebhookRequiredHeaders) =>
   Effect.gen(function* (_) {
-    const secret = yield* _(Config.redacted("CLERK_WEBHOOK_SECRET"));
+    // const secret = yield* _(Config.redacted("CLERK_WEBHOOK_SECRET"));
+    const secret = "whsec_/jnS1wEFVWIXbhK2XDkC1782s+WCSgpf";
     return yield* Effect.try(() => {
-      const wh = new Webhook(Redacted.value(secret));
+      // const wh = new Webhook(Redacted.value(secret));
+      const wh = new Webhook(secret);
       return wh.verify(body, headers) as WebhookEvent;
     });
   });
@@ -50,6 +53,17 @@ const createUserInPlatformDB = (userJSON: UserJSON) =>
             firstName: userJSON.first_name,
             lastName: userJSON.last_name,
           })
+          .onConflictDoUpdate({
+            target: platform.user.id,
+            set: {
+              avatarUrl: userJSON.image_url,
+              username: userJSON.username!,
+              email: userJSON.email_addresses?.[0]?.email_address || "",
+              fullName: userJSON.first_name + " " + userJSON.last_name,
+              firstName: userJSON.first_name,
+              lastName: userJSON.last_name,
+            },
+          })
           .returning(),
       ),
       Effect.flatMap((users) =>
@@ -70,7 +84,14 @@ const createOrgInPlatformDB = (
     const { pDb } = yield* PlatformDb;
     const org = yield* _(
       Effect.tryPromise(() =>
-        pDb.insert(platform.organization).values(platformData).returning(),
+        pDb
+          .insert(platform.organization)
+          .values(platformData)
+          .onConflictDoUpdate({
+            target: platform.organization.id,
+            set: platformData,
+          })
+          .returning(),
       ),
       Effect.flatMap((orgs) =>
         orgs[0]
@@ -83,9 +104,19 @@ const createOrgInPlatformDB = (
 
 const createTenantDb = (org: typeof platform.organization.$inferSelect) =>
   Effect.gen(function* (_) {
+    if (org.database_name && org.database_auth_token) {
+      Effect.log(
+        `Organization ${org.id} already has a database ${org.database_name}`,
+      );
+      return org;
+    }
     const db = yield* _(
       createOrganizationDatabase({ orgId: org.database_name }),
     );
+    Effect.log(`Created database ${db.orgDatabase.name} for org ${org.id} `, {
+      dbAuth: db.authToken,
+      dbName: db.orgDatabase.name,
+    });
     const { pDb } = yield* PlatformDb;
     const updatedOrg = yield* _(
       Effect.tryPromise(() =>
@@ -134,6 +165,7 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
               "-",
             )() as `user-${string}`,
           });
+
           const { pDb } = yield* PlatformDb;
           yield* _(
             Effect.tryPromise(() =>
@@ -147,32 +179,119 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                 ),
             ),
           );
-          const orgWithDbInformation = yield* createTenantDb(personalOrg);
           yield* _(
             Effect.tryPromise(() =>
-              pDb.insert(platform.organizationMembers).values({
-                id: data.id as `orgmem_${string}`,
-                organizationId: personalOrg.id as `org_${string}`,
-                userId: userInPlatform.id as `user_${string}`,
-                role: "org:admin",
-                createdAt: data.created_at,
-                updatedAt: data.updated_at,
-              }),
+              pDb
+                .insert(platform.organizationMembers)
+                .values({
+                  id: data.id as `orgmem_${string}`,
+                  organizationId: personalOrg.id as `org_${string}`,
+                  userId: userInPlatform.id as `user_${string}`,
+                  role: "org:admin",
+                  createdAt: data.created_at,
+                  updatedAt: data.updated_at,
+                })
+                .onConflictDoUpdate({
+                  target: platform.organizationMembers.id,
+                  set: {
+                    organizationId: personalOrg.id as `org_${string}`,
+                    userId: userInPlatform.id as `user_${string}`,
+                    role: "org:admin",
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at,
+                  },
+                }),
             ),
           );
+          const orgWithDbInformation = yield* createTenantDb(personalOrg);
           yield* _(
             Effect.tryPromise(() =>
               clerkClient.users.updateUserMetadata(data.id, {
                 privateMetadata: {
                   database_name: orgWithDbInformation?.database_name,
                   database_auth_token:
-                    orgWithDbInformation?.database_auth_token,
+                    orgWithDbInformation?.database_auth_token!,
                 },
               }),
             ),
             Effect.tap((clerkUser) => {
               Effect.log("Clerk user updated", clerkUser);
             }),
+          );
+
+          const tDb = yield* _(
+            getTenantDbClient({
+              url: `libsql://${orgWithDbInformation?.database_name}-craftgen.turso.io`,
+              authToken: orgWithDbInformation?.database_auth_token!,
+            }),
+          );
+
+          // clone org and user to tenant
+          yield* _(
+            Effect.tryPromise(() =>
+              tDb
+                .insert(tenant.user)
+                .values({
+                  id: userInPlatform.id as `user_${string}`,
+                  username: data.username!,
+                  avatarUrl: data.image_url,
+                  createdAt: data.created_at,
+                  updatedAt: data.updated_at,
+                })
+                .onConflictDoUpdate({
+                  target: tenant.user.id,
+                  set: {
+                    username: data.username!,
+                    avatarUrl: data.image_url,
+                    updatedAt: data.updated_at,
+                  },
+                }),
+            ),
+          );
+
+          yield* _(
+            Effect.tryPromise(() =>
+              tDb
+                .insert(tenant.organization)
+                .values({
+                  id: personalOrg.id as `org_${string}`,
+                  name: personalOrg.name,
+                  slug: personalOrg.slug,
+                  personal: true,
+                  createdAt: data.created_at,
+                  updatedAt: data.updated_at,
+                })
+                .onConflictDoUpdate({
+                  target: tenant.organization.id,
+                  set: {
+                    name: personalOrg.name,
+                    slug: personalOrg.slug,
+                    updatedAt: data.updated_at,
+                  },
+                }),
+            ),
+          );
+
+          yield* _(
+            Effect.tryPromise(() =>
+              tDb
+                .insert(tenant.organizationMembers)
+                .values({
+                  id: data.id as `orgmem_${string}`,
+                  organizationId: personalOrg.id as `org_${string}`,
+                  userId: userInPlatform.id as `user_${string}`,
+                  role: "org:admin",
+                  createdAt: data.created_at,
+                  updatedAt: data.updated_at,
+                })
+                .onConflictDoUpdate({
+                  target: tenant.organizationMembers.id,
+                  set: {
+                    role: "org:admin",
+                    updatedAt: data.updated_at,
+                  },
+                }),
+            ),
           );
         }),
       ),
@@ -182,11 +301,14 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
           const { pDb } = yield* PlatformDb;
           yield* _(
             Effect.tryPromise(() =>
-              pDb.update(platform.user).set({
-                username: data.username!,
-                avatarUrl: data.image_url,
-                updatedAt: data.updated_at,
-              }),
+              pDb
+                .update(platform.user)
+                .set({
+                  username: data.username!,
+                  avatarUrl: data.image_url,
+                  updatedAt: data.updated_at,
+                })
+                .where(eq(platform.user.id, data.id as `user_${string}`)),
             ),
           );
         }),

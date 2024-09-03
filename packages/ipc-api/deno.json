@@ -12,6 +12,8 @@
     "effect": "npm:effect@^3.6.1",
     "lodash-es": "npm:lodash-es@^4.17.21",
     "timestring": "npm:timestring@^7.0.0",
-    "zod": "npm:zod@3.23.8"
+    "zod": "npm:zod@3.23.8",
+    "@clerk/backend": "npm:@clerk/backend@^1.9.0",
+    "libsql-client": "npm:libsql-client@^0.7.0"
   }
 }
