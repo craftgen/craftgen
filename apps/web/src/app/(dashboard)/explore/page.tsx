@@ -13,7 +13,7 @@ const DashboardPage = async () => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const featuredWorkflows = await api.craft.module.featured({
+  const featuredWorkflows = await api.platform.craft.module.featured({
     category: "all",
   });
 

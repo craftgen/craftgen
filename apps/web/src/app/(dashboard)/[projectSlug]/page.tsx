@@ -67,17 +67,12 @@ const ProjectPage = async ({
   };
 }) => {
   try {
-    // const platform = await api.platform.orgs.bySlug({
-    //   projectSlug: params.projectSlug,
-    // });
-
-    const tenant = await api.tenant.orgs.bySlug({
+    const platform = await api.platform.orgs.bySlug({
       projectSlug: params.projectSlug,
     });
 
-    console.log({
-      // platform,
-      tenant,
+    const tenant = await api.tenant.orgs.bySlug({
+      projectSlug: params.projectSlug,
     });
 
     return (
@@ -85,12 +80,12 @@ const ProjectPage = async ({
         <ProjectLayout.Content>
           {/* <ProjectNavbar /> */}
           <div className="col-span-3 ">
-            <ProjectCard project={tenant} />
+            <ProjectCard project={platform || tenant} />
           </div>
 
-          {/* <section className="col-span-9">
+          <section className="col-span-9">
             <PlaygroundList projectSlug={params.projectSlug} />
-          </section> */}
+          </section>
         </ProjectLayout.Content>
       </ProjectLayout>
     );

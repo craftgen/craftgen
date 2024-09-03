@@ -17,6 +17,7 @@ import {
 } from "../database/mod.ts";
 import { EventProcessor } from "../database/tenant/queue.ts";
 import { Effect, initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
+import { createCaller } from "./mod.ts";
 
 /**
  * 1. CONTEXT
@@ -29,7 +30,7 @@ import { Effect, initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
  */
 interface CreateContextOptions {
   auth: AuthObject | null;
-  tenantDb?: TenantDbClient;
+  tenantDb: TenantDbClient;
   platformDb?: PlatformDbClient;
   client?: ReturnType<typeof createClient>;
   queue?: EventProcessor;
@@ -78,9 +79,7 @@ export const createTRPCContext = async (opts: {
 
   console.log("AUTH IN BACKEND", auth);
 
-  const user = await clerkClient.users.getUser(auth?.userId);
-
-  console.log({ user });
+  const user = await clerkClient.users.getUser(auth?.userId as string);
 
   // const tenantDb = Effect.runSync(
   //   getTenantDbClient({
@@ -106,11 +105,34 @@ export const createTRPCContext = async (opts: {
     queue: opts.queue,
     auth,
     client: opts.client,
-    tenantDb: tenantDb(),
+    tenantDb: tenantDb()!,
     platformDb,
   });
 };
 
+export const createTRPCContextforTenant = async (
+  opts: ReturnType<typeof createInnerTRPCContext> & { tenantSlug: string },
+) => {
+  const tenantOrg = await opts.pDb?.query.organization.findFirst({
+    where: (org, { eq }) => eq(org.slug, opts.tenantSlug),
+  });
+  if (!tenantOrg) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Tenant not found" });
+  }
+
+  const tenantDb = tenantDbClient({
+    url: `libsql://${tenantOrg.database_name}-craftgen.turso.io`,
+    authToken: tenantOrg.database_auth_token as string,
+  });
+
+  return createInnerTRPCContext({
+    queue: opts.queue,
+    auth: opts.auth,
+    client: opts.client,
+    tenantDb,
+    platformDb: opts.pDb,
+  });
+};
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
@@ -166,13 +188,13 @@ export const publicProcedure = t.procedure;
  * procedure
  */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+  if (!ctx.auth?.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      auth: ctx.auth,
     },
   });
 });
@@ -187,3 +209,16 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+// const tenantDbMiddleware = publicProcedure.unstable_concat(async ({ ctx, next }) => {
+//   const tenantDb = tenantDbClient({
+//     url: `libsql://${user.privateMetadata.database_name}-craftgen.turso.io`,
+//     authToken: user.privateMetadata.database_auth_token as string,
+//   });
+//   return next({
+//     ctx: {
+//       ...ctx,
+//       tenantDb,
+//     },
+//   });
+// });

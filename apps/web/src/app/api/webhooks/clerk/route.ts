@@ -345,6 +345,35 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                 .delete(platform.user)
                 .where(eq(platform.user.id, user.id as `user_${string}`)),
             ),
+            Effect.tap((res) => Effect.log("User deleted", res)),
+          );
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .delete(platform.organization)
+                .where(
+                  eq(
+                    platform.organization.id,
+                    user.personalOrg?.id as `org_${string}`,
+                  ),
+                ),
+            ),
+            Effect.tap((res) => Effect.log("Organization deleted", res)),
+          );
+          yield* _(
+            Effect.tryPromise(() =>
+              pDb
+                .delete(platform.organizationMembers)
+                .where(
+                  eq(
+                    platform.organizationMembers.organizationId,
+                    user.personalOrg?.id as `org_${string}`,
+                  ),
+                ),
+            ),
+            Effect.tap((res) =>
+              Effect.log("Organization members deleted", res),
+            ),
           );
         }),
       ),
