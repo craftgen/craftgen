@@ -179,7 +179,7 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                 ),
             ),
           );
-          yield* _(
+          const orgMember = yield* _(
             Effect.tryPromise(() =>
               pDb
                 .insert(platform.organizationMembers)
@@ -200,7 +200,17 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
                     createdAt: data.created_at,
                     updatedAt: data.updated_at,
                   },
-                }),
+                })
+                .returning(),
+            ),
+            Effect.flatMap((orgMembers) =>
+              orgMembers[0]
+                ? Effect.succeed(orgMembers[0])
+                : Effect.fail(
+                    new Error(
+                      "Updating organization members is failed after creating a tenant db.",
+                    ),
+                  ),
             ),
           );
           const orgWithDbInformation = yield* createTenantDb(personalOrg);
@@ -232,18 +242,12 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
               tDb
                 .insert(tenant.user)
                 .values({
-                  id: userInPlatform.id as `user_${string}`,
-                  username: data.username!,
-                  avatarUrl: data.image_url,
-                  createdAt: data.created_at,
-                  updatedAt: data.updated_at,
+                  ...userInPlatform,
                 })
                 .onConflictDoUpdate({
                   target: tenant.user.id,
                   set: {
-                    username: data.username!,
-                    avatarUrl: data.image_url,
-                    updatedAt: data.updated_at,
+                    ...userInPlatform,
                   },
                 }),
             ),
@@ -254,19 +258,12 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
               tDb
                 .insert(tenant.organization)
                 .values({
-                  id: personalOrg.id as `org_${string}`,
-                  name: personalOrg.name,
-                  slug: personalOrg.slug,
-                  personal: true,
-                  createdAt: data.created_at,
-                  updatedAt: data.updated_at,
+                  ...personalOrg,
                 })
                 .onConflictDoUpdate({
                   target: tenant.organization.id,
                   set: {
-                    name: personalOrg.name,
-                    slug: personalOrg.slug,
-                    updatedAt: data.updated_at,
+                    ...personalOrg,
                   },
                 }),
             ),
@@ -277,18 +274,12 @@ const handleWebhookEvent = (evt: WebhookEvent) =>
               tDb
                 .insert(tenant.organizationMembers)
                 .values({
-                  id: data.id as `orgmem_${string}`,
-                  organizationId: personalOrg.id as `org_${string}`,
-                  userId: userInPlatform.id as `user_${string}`,
-                  role: "org:admin",
-                  createdAt: data.created_at,
-                  updatedAt: data.updated_at,
+                  ...orgMember,
                 })
                 .onConflictDoUpdate({
                   target: tenant.organizationMembers.id,
                   set: {
-                    role: "org:admin",
-                    updatedAt: data.updated_at,
+                    ...orgMember,
                   },
                 }),
             ),
