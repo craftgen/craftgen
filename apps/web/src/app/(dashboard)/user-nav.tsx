@@ -16,7 +16,7 @@ export const UserNavWrapper: React.FC = () => {
         <SignInButton />
       </SignedOut>
       <SignedIn>
-        <UserButton userProfileUrl={`/${user?.username}`} />
+        <UserButton userProfileMode="modal" />
       </SignedIn>
     </>
   );

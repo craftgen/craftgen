@@ -6,7 +6,7 @@ import type { ColumnDef, Row } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { PlusIcon, Rocket } from "lucide-react";
 
-import { RouterOutputs } from "@craftgen/api";
+import { RouterOutputs } from "@craftgen/ipc-api";
 
 import { Button } from "../components/button";
 import { DataTable } from "../components/data-table";
@@ -92,17 +92,24 @@ export function PlaygroundListTableRowActions<TData extends { id: string }>({
 }
 
 export const PlaygroundList = <T extends React.ComponentType<any>>({
-  projectSlug,
+  orgSlug,
   onWorkflowCreate,
   Link,
+  playgroundList,
 }: {
-  projectSlug: string;
+  orgSlug: string;
   Link: T;
   onWorkflowCreate: (data: RouterOutputs["craft"]["module"]["create"]) => void;
+  playgroundList?: RouterOutputs["craft"]["module"]["list"];
 }) => {
-  const { data } = api.craft.module.list.useQuery({
-    projectSlug,
-  });
+  const { data } = api.platform.craft.module.list.useQuery(
+    {
+      orgSlug,
+    },
+    {
+      initialData: playgroundList,
+    },
+  );
   const [isOpen, setOpen] = useState(false);
   const columns: ColumnDef<Playground>[] = [
     {

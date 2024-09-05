@@ -16,7 +16,7 @@ export const orgRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.tenantDb.query.organization.findMany({
+      return ctx.tDb.query.organization.findMany({
         where: (project, { or, ilike }) =>
           or(
             ilike(project.name, `%${input.query}%`),
@@ -33,7 +33,7 @@ export const orgRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const exist = await ctx.tenantDb.query.workflow.findFirst({
+      const exist = await ctx.tDb.query.workflow.findFirst({
         where: (workflow, { and, eq }) =>
           and(
             eq(workflow.slug, input.slug),
@@ -49,9 +49,8 @@ export const orgRouter = createTRPCRouter({
     return ctx.pDb?.query.organization.findMany({});
   }),
   userProjects: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.tenantDb.query.organizationMembers.findMany({
-      where: (orgMembers, { eq }) =>
-        eq(orgMembers.userId, ctx.session.user?.id),
+    return await ctx.tDb.query.organizationMembers.findMany({
+      where: (orgMembers, { eq }) => eq(orgMembers.userId, ctx.auth.user?.id),
       with: {
         organization: true,
       },
@@ -60,7 +59,7 @@ export const orgRouter = createTRPCRouter({
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.tenantDb.query.organization.findFirst({
+      return await ctx.tDb.query.organization.findFirst({
         where: (p, { eq }) => eq(p.id, input.id),
       });
     }),

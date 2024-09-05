@@ -67,11 +67,15 @@ const ProjectPage = async ({
   };
 }) => {
   try {
-    const platform = await api.platform.orgs.bySlug({
+    const org = await api.platform.orgs.bySlug({
       orgSlug: params.projectSlug,
     });
 
-    const tenant = await api.tenant.orgs.bySlug({
+    if (!org) {
+      notFound();
+    }
+
+    const playgroundList = await api.platform.craft.module.list({
       orgSlug: params.projectSlug,
     });
 
@@ -80,11 +84,14 @@ const ProjectPage = async ({
         <ProjectLayout.Content>
           {/* <ProjectNavbar /> */}
           <div className="col-span-3 ">
-            <ProjectCard project={platform || tenant} />
+            <ProjectCard project={org} />
           </div>
 
           <section className="col-span-9">
-            {/* <PlaygroundList projectSlug={params.projectSlug} /> */}
+            <PlaygroundList
+              orgSlug={params.projectSlug}
+              playgroundList={playgroundList}
+            />
           </section>
         </ProjectLayout.Content>
       </ProjectLayout>
@@ -95,15 +102,6 @@ const ProjectPage = async ({
       notFound();
     } else if (error.code === "UNAUTHORIZED") {
       redirect(`/login?redirect=${params.projectSlug}`);
-    } else {
-      console.log("ERROR", error);
-      return (
-        <div>
-          {JSON.stringify({
-            error,
-          })}
-        </div>
-      );
     }
   }
 };

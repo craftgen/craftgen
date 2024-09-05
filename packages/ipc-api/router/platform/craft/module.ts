@@ -184,6 +184,18 @@ export const craftModuleRouter = createTRPCRouter({
   //         .where(and(eq(tenant.workflow.id, input.workflowId)));
   //     });
   //   }),
+  list: publicProcedure
+    .input(z.object({ orgSlug: z.string() }))
+    .query(({ ctx, input }) => {
+      // TODO: if (auth) owner then return all.
+      // const caller = await createCallerForTenant(input.orgSlug, ctx);
+      // return caller.craft.module.list({
+      //   orgSlug: input.orgSlug,
+      // });
+      return ctx.pDb?.query.workflow.findMany({
+        where: (w, { eq }) => eq(w.organizationSlug, input.orgSlug),
+      });
+    }),
 
   // list: publicProcedure
   //   .input(
