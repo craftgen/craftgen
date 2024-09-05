@@ -9,14 +9,13 @@ import {
 } from "@clerk/nextjs";
 
 export const UserNavWrapper: React.FC = () => {
-  const { user } = useUser();
   return (
     <>
       <SignedOut>
         <SignInButton />
       </SignedOut>
       <SignedIn>
-        <UserButton userProfileMode="modal" />
+        <UserButton userProfileUrl="/settings"></UserButton>
       </SignedIn>
     </>
   );
