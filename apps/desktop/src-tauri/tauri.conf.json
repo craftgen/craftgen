@@ -45,12 +45,8 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "functions/*"
-    ],
-    "externalBin": [
-      "binaries/edge-runtime"
-    ]
+    "resources": ["functions/*"],
+    "externalBin": ["binaries/deno", "binaries/edge-runtime"]
   },
   "plugins": {
     "updater": {

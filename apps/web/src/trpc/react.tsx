@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
+import {
+  loggerLink,
+  splitLink,
+  unstable_httpBatchStreamLink,
+} from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
-import type { AppRouter } from "@craftgen/api";
+import type { AppRouter } from "@craftgen/ipc-api";
 
 import { getUrl, transformer } from "./shared";
 
@@ -28,15 +32,30 @@ export function TRPCReactProvider(props: {
             process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        unstable_httpBatchStreamLink({
-          url: getUrl(),
-          transformer,
-          headers() {
-            const heads = new Map(props.headers);
-            console.log("HEADS", heads);
-            heads.set("x-trpc-source", "react");
-            return Object.fromEntries(heads);
+        splitLink({
+          condition: (op) => {
+            return op.path.startsWith("primary");
           },
+          true: unstable_httpBatchStreamLink({
+            url: getUrl(),
+            transformer,
+            headers() {
+              const heads = new Map(props.headers);
+              console.log("HEADS", heads);
+              heads.set("x-trpc-source", "react");
+              return Object.fromEntries(heads);
+            },
+          }),
+          false: unstable_httpBatchStreamLink({
+            url: getUrl(),
+            transformer,
+            headers() {
+              const heads = new Map(props.headers);
+              console.log("HEADS", heads);
+              heads.set("x-trpc-source", "react");
+              return Object.fromEntries(heads);
+            },
+          }),
         }),
       ],
     }),

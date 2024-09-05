@@ -1,0 +1,6 @@
+{
+  "name": "@craftgen/shared",
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  }
+}

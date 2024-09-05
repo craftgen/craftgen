@@ -8,20 +8,18 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "deno.enable": true,
-  // "deno.config": "./apps/edge-functions/functions/deno.json",
+  // "deno.config": "./apps/edge/functions/deno.json",
   "deno.enablePaths": [
-    "./apps/edge-functions/functions/main",
+    "./apps/edge/functions",
     "./packages/core-deno",
     "./apps/desktop/src-tauri/functions",
     "./packages/micro-agent",
     "./packages/api/",
     "./nodes/math/",
     "./nodes/_shared/",
-    "./nodes/base/"
+    "./nodes",
+    "./packages/ipc-api"
+    // "./packages/database"
   ],
-  "deno.config": {
-    "packages/api": "packages/api/deno.json",
-    "apps/edge-functions/functions/main": "apps/edge-functions/functions/main/deno.json"
-  },
   "rust-analyzer.linkedProjects": ["./apps/desktop/src-tauri/Cargo.toml"]
 }

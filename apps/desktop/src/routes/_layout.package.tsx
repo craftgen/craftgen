@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { BaseDirectory } from "@tauri-apps/plugin-fs";
 import { Command } from "@tauri-apps/plugin-shell";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
@@ -8,12 +10,18 @@ import { type AppRouter } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
 import { Input } from "@craftgen/ui/components/input";
 import { JSONView } from "@craftgen/ui/components/json-view";
+import {
+  File,
+  Folder,
+  Tree,
+  useTree,
+} from "@craftgen/ui/components/tree-view-api";
 
 const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       transformer: superjson,
-      url: "http://localhost:24321/trpc",
+      url: "http://localhost:8787/trpc",
     }),
   ],
 });
@@ -34,8 +42,13 @@ const PackagePage = () => {
     setData(result);
   };
 
-  const rpcTest = async () => {
-    const result = await client.package.cwd.query();
+  const rpcTest = async (id: string) => {
+    const result = await client.context.query({
+      machineId: id,
+      type: "text",
+      payload: "Hello World",
+      delay: "5s",
+    });
     setData({ result });
   };
   const [path, setPath] = useState("");
@@ -49,15 +62,110 @@ const PackagePage = () => {
   return (
     <div>
       <Button onClick={runtest}>Run Test</Button>
-      <Button onClick={rpcTest}>RPC Test</Button>
+      <Button onClick={() => rpcTest("123")}>RPC Test 123</Button>
       <JSONView src={data} />
       <Input
         placeholder="Query"
         value={path}
         onChange={(e) => setPath(e.target.value)}
       />
+      <FolderRoot path="functions" dir={BaseDirectory.Resource} />
       <Button onClick={sendReadPath}>Send</Button>
     </div>
+  );
+};
+
+const FolderRoot = ({ dir, path }: { dir: BaseDirectory; path: string }) => {
+  const { data: files } = useQuery({
+    queryKey: [`file:${dir}`],
+    queryFn: async ({ queryKey }) => {
+      const files = await client.fs.readDir.query({
+        path: "/",
+      });
+      return files;
+    },
+    initialData: [],
+  });
+
+  return (
+    <>
+      <Tree>
+        {files.map((file) =>
+          file.isDirectory ? (
+            <Folder element={file.name} value={file.name}>
+              <TreeFileTest path={`/${file.name}`} dir={dir} enabled={true} />
+            </Folder>
+          ) : (
+            <File value={file.name}>
+              <span>{file.name}</span>
+            </File>
+          ),
+        )}
+      </Tree>
+    </>
+  );
+};
+
+const TreeFileTest = (props: {
+  path: string;
+  dir: BaseDirectory;
+  enabled: boolean;
+}) => {
+  console.log("TREEFILETEST", props.path, props.enabled);
+  const { data: files } = useQuery({
+    queryKey: [`file:${props.path}`],
+    queryFn: async ({ queryKey }) => {
+      const files = await client.fs.readDir.query({
+        path: props.path,
+      });
+      return files;
+    },
+    initialData: [],
+    enabled: props.enabled,
+  });
+
+  const { expendedItems } = useTree();
+  const [hover, setHover] = useState(false);
+
+  return (
+    <>
+      {files.map((file) =>
+        file.isDirectory ? (
+          <div>
+            <Folder
+              element={file.name}
+              value={`${props.path}/${file.name}`}
+              onMouseOver={() => {
+                setHover(true);
+              }}
+              onMouseOut={() => setHover(false)}
+            >
+              {
+                <TreeFileTest
+                  path={`${props.path}/${file.name}`}
+                  dir={props.dir}
+                  enabled={
+                    hover ||
+                    expendedItems?.includes(`${props.path}/${file.name}`)!
+                  }
+                />
+              }
+            </Folder>
+          </div>
+        ) : (
+          <File value={file.name}>
+            <span>{file.name}</span>
+            <Button
+              onClick={() => {
+                console.log("READ", file.name);
+              }}
+            >
+              Read
+            </Button>
+          </File>
+        ),
+      )}
+    </>
   );
 };
 

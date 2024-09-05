@@ -1,0 +1,37 @@
+services:
+  runtime:
+    build:
+      dockerfile: Dockerfile.runtime
+      context: .
+    volumes:
+      - shared_functions:/home/deno/functions
+    ports:
+      - "8000:9000"
+    network_mode: host
+    environment:
+      - SERVICE_BASE_DIR=/home/deno/functions/
+
+  ipc-api:
+    build:
+      dockerfile: Dockerfile.api
+      context: .
+    environment:
+      - DB_LOCATION=/home/deno/db/
+      - TURSO_DB_URL=libsql://org-123-necmttn.turso.io
+      - TURSO_DB_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjE4ODUzNzgsImlkIjoiMjA5ZDQ5YzEtNzg2Zi00MTI1LTkyMjQtMmIxODJlYjI1NjY1In0.qNRpKqXB-MHgB_n0-LIWbHhpXJZQR4WIP5pxiVtPTeSj-VF3xMSbwWvjhwuv1lo7VrS_ZVphEnQt3EZITbcNDQ
+    volumes:
+      - type: bind
+        source: ./db
+        target: /home/deno/db
+      - shared_functions:/home/deno/functions
+    network_mode: host
+    ports:
+      - "8787:8787"
+
+volumes:
+  shared_functions:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./functions

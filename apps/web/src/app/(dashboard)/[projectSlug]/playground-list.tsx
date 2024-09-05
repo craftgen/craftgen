@@ -3,18 +3,21 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { RouterOutputs } from "@craftgen/ipc-api";
 import { PlaygroundList as PlaygroundListView } from "@craftgen/ui/views/playground-list";
 
 export const PlaygroundList: React.FC<{
-  projectSlug: string;
-}> = ({ projectSlug }) => {
+  orgSlug: string;
+  playgroundList?: RouterOutputs["platform"]["craft"]["module"]["list"];
+}> = ({ orgSlug, playgroundList }) => {
   const router = useRouter();
   return (
     <PlaygroundListView
       Link={Link}
-      projectSlug={projectSlug}
+      orgSlug={orgSlug}
+      playgroundList={playgroundList}
       onWorkflowCreate={(data) =>
-        router.push(`/${data.projectSlug}/${data.slug}/v/0`)
+        router.push(`/${data.organizationSlug}/${data.slug}/v/0`)
       }
     />
   );

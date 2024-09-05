@@ -13,8 +13,6 @@ import { TRPCReactProvider } from "@craftgen/ui/lib/api";
 import { PHIdentify } from "@/components/ph-identify";
 import { getUrl } from "@/trpc/shared";
 
-// import { TRPCReactProvider } from "@/trpc/react";
-
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter-variable" });

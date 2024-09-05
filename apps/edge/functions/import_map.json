@@ -1,0 +1,11 @@
+{
+  "imports": {
+    "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
+    "@libsql/client": "npm:@libsql/client@^0.10.0",
+    "drizzle-orm": "npm:drizzle-orm@^0.32.0",
+    "drizzle-orm/": "npm:/drizzle-orm@^0.32.0/",
+    "drizzle-kit": "npm:drizzle-kit@0.23.0",
+    "drizzle-kit/": "npm:/drizzle-kit@0.23.0/",
+    "@deno/kv": "npm:@deno/kv@^0.8.1"
+  }
+}

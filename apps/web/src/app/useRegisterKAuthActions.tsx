@@ -1,20 +1,20 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth, useSession, useUser } from "@clerk/nextjs";
 import { isNil } from "lodash-es";
 
 // import { useRegisterActions } from "kbar";
 import { useRegisterActions } from "@craftgen/ui/kbar/use-register-actions";
 
-import { useUser } from "./(dashboard)/hooks/use-user";
-
 export const useRegisterKAuthActions = () => {
-  const { data: user } = useUser();
+  const { orgSlug, userId, ...rest } = useAuth();
+  console.log(rest);
   const router = useRouter();
-
+  const { session } = useSession();
+  console.log("SESSISN", session);
   const currentProjectSlug = useMemo(() => {
-    return user?.user.user_metadata.currentProjectSlug;
-  }, [user]);
-
+    return orgSlug || session?.user?.username;
+  }, [session?.user]);
   useRegisterActions(
     [
       ...(!isNil(currentProjectSlug)
@@ -39,6 +39,6 @@ export const useRegisterKAuthActions = () => {
             },
           ]),
     ],
-    [user],
+    [currentProjectSlug],
   );
 };

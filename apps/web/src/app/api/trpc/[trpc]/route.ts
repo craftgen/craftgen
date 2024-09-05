@@ -1,9 +1,8 @@
+import { NextRequest } from "next/server";
+import { getAuth } from "@clerk/nextjs/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-import { appRouter, createTRPCContext } from "@craftgen/api";
-
-import { createClient } from "@/utils/supabase/server";
-import { getServiceSupabase } from "@/utils/supabase/service";
+import { appRouter, createTRPCContext } from "@craftgen/ipc-api";
 
 // export const runtime = "edge";
 
@@ -35,41 +34,18 @@ export function OPTIONS() {
   return response;
 }
 
-const handler = async (req: Request) => {
-  const supabase = createClient(req);
-  if (req && req.headers.has("Authorization")) {
-    await supabase.auth.setSession({
-      access_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
-      refresh_token: req.headers.get("Authorization")?.replace("Bearer ", "")!,
-    });
-  }
-
-  const session = await supabase.auth.getSession();
-  // console.log("AUTH", req.headers.get("Cookie"));
-  // const user = await supabase.auth.getUser(req.headers.get("Authorization"));
-
-  const supabaseService = getServiceSupabase();
+const handler = async (req: NextRequest) => {
+  const auth = getAuth(req);
 
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
-    req,
+    req: req as unknown as Request,
     createContext: () =>
       createTRPCContext({
+        // headers: req.headers,
+        auth: auth,
         headers: req.headers,
-        auth: session.data.session,
-        // ? {
-        //     ...session.data.session,
-        //     user: {
-        //       ...session.data.session.user,
-        //       user_metadata: {
-        //         ...session.data.session.user.user_metadata,
-        //         ...user?.data?.user?.user_metadata,
-        //       },
-        //     },
-        //   }
-        // : null,
-        supabaseService: supabaseService,
       }),
     onError({ error, path }) {
       console.error(`>>> tRPC Error on '${path}'`, error);

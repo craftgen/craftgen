@@ -6,10 +6,9 @@ import { CLink } from "../components/link";
 import { ThemeToggle } from "../components/theme-toggle";
 import { FeedbackButton } from "./feedback-button";
 
-export const Navbar: React.FC<PropsWithChildren<{ Link: any }>> = ({
-  Link,
-  children,
-}) => {
+export const Navbar: React.FC<
+  PropsWithChildren<{ Link: any; organizationSwitcher: React.ReactNode }>
+> = ({ Link, children, organizationSwitcher }) => {
   // const params = useParams();
   return (
     <div className="sticky top-0 z-50 inline-flex h-16 w-[calc(100%-4rem)] w-full items-center justify-between border-b bg-background p-1">
@@ -20,6 +19,7 @@ export const Navbar: React.FC<PropsWithChildren<{ Link: any }>> = ({
               CraftGen
             </CLink>
           </div>
+          {organizationSwitcher}
         </div>
         <div className="flex items-center space-x-2 px-2">
           <FeedbackButton />

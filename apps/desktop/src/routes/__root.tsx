@@ -1,4 +1,5 @@
 import { AuthSession } from "@supabase/supabase-js";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
@@ -40,6 +41,8 @@ const EdgeRuntimeStatus = () => {
   );
 };
 
+const queryClient = new QueryClient();
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => {
     return (
@@ -47,7 +50,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <DashboardLayout
           className={import.meta.env.DEV ? " border-x-4 border-red-500" : ""}
         >
-          <Outlet />
+          <QueryClientProvider client={queryClient}>
+            <Outlet />
+          </QueryClientProvider>
         </DashboardLayout>
         <EdgeRuntimeStatus />
 

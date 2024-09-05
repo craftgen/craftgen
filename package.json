@@ -13,7 +13,8 @@
     "lint": "turbo run lint --continue -- --cache --cache-location node_modules/.cache/.eslintcache",
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location node_modules/.cache/.eslintcache",
     "typecheck": "turbo typecheck",
-    "prepare": "husky"
+    "prepare": "husky",
+    "new:node": "deno init --lib ./nodes"
   },
   "dependencies": {
     "@acme/prettier-config": "workspace:*",

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useDebounce } from "react-use";
 import { z } from "zod";
 
-import { RouterOutputs } from "@craftgen/api";
+import { RouterOutputs } from "@craftgen/ipc-api";
 
 import { Alert, AlertDescription, AlertTitle } from "../components/alert";
 import { Badge } from "../components/badge";
@@ -87,11 +87,13 @@ const templates = [
 export const WorkflowCreateDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  projectSlug: string;
-  onCreate: (data: RouterOutputs["craft"]["module"]["create"]) => void;
-}> = ({ isOpen, onOpenChange, projectSlug, onCreate }) => {
-  const { data: project } = api.project.bySlug.useQuery({
-    projectSlug: projectSlug,
+  orgSlug: string;
+  onCreate: (
+    data: RouterOutputs["platform"]["craft"]["module"]["create"],
+  ) => void;
+}> = ({ isOpen, onOpenChange, orgSlug, onCreate }) => {
+  const { data: org } = api.platform.orgs.bySlug.useQuery({
+    orgSlug,
   });
 
   const utils = api.useUtils();
@@ -100,9 +102,8 @@ export const WorkflowCreateDialog: React.FC<{
     resolver: zodResolver(
       formSchema.refine(
         async ({ slug }) => {
-          const val = await utils.project.checkSlugAvailable.fetch({
+          const val = await utils.platform.orgs.checkSlugAvailable.fetch({
             slug,
-            projectId: project?.id!,
           });
           return val;
         },
@@ -132,9 +133,8 @@ export const WorkflowCreateDialog: React.FC<{
   const [nameAvailable, setNameAvailable] = useState(true);
   useDebounce(
     async () => {
-      const available = await utils.project.checkSlugAvailable.fetch({
+      const available = await utils.platform.orgs.checkSlugAvailable.fetch({
         slug,
-        projectId: project?.id!,
       });
       setNameAvailable(available);
     },
@@ -143,21 +143,21 @@ export const WorkflowCreateDialog: React.FC<{
   );
 
   const { mutateAsync: createWorkflow, error } =
-    api.craft.module.create.useMutation({
+    api.platform.craft.module.create.useMutation({
       onSuccess: async () => {
         await utils.craft.module.list.invalidate();
       },
     });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    const newPlayground = createWorkflow({
-      projectId: project?.id!,
+    const newWorkflow = createWorkflow({
+      orgId: org?.id!,
       public: data.public,
       name: data.name,
       slug: data.slug,
       description: data.description,
     });
-    toast.promise(newPlayground, {
+    toast.promise(newWorkflow, {
       loading: "Creating playground...",
       success: (data) => {
         onCreate(data);

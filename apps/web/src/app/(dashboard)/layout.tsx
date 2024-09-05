@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OrganizationSwitcher } from "@clerk/nextjs";
 
 import { Icons } from "@craftgen/ui/components/icons";
 import { Sidebar } from "@craftgen/ui/components/sidebar";
@@ -37,8 +38,8 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         bottomLinks={[]}
       />
       <DashboardLayout.Content>
-        <Navbar Link={Link}>
-          <UserNavWrapper session={session} />
+        <Navbar Link={Link} organizationSwitcher={<OrganizationSwitcher />}>
+          <UserNavWrapper />
         </Navbar>
         {children}
       </DashboardLayout.Content>

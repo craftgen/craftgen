@@ -1,0 +1,29 @@
+{
+  "name": "@craftgen/ipc-api",
+  "version": "0.0.1",
+  "description": "Craftgen IPC API",
+  "main": "mod.ts",
+  "types": "mod.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@clerk/backend": "^1.9.0",
+    "@clerk/clerk-js": "^5.15.1",
+    "@clerk/types": "^4.14.0",
+    "@craftgen/database": "0.0.1",
+    "@libsql/client": "^0.10.0",
+    "@trpc/client": "11.0.0-rc.452",
+    "@trpc/server": "11.0.0-rc.452",
+    "effect": "^3.6.1",
+    "lodash-es": "^4.17.21",
+    "superjson": "2.2.1",
+    "timestring": "^7.0.0",
+    "ts-pattern": "^5.0.5",
+    "zod": "3.21.4"
+  }
+}

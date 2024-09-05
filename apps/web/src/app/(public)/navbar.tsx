@@ -14,6 +14,8 @@ import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 import { StarCount } from "@/components/marketing/github-star-count";
 
+import { UserNavWrapper } from "../(dashboard)/user-nav";
+
 const MenuDropdown = ({ session }: { session: Session | null }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -75,7 +77,7 @@ const MenuDropdown = ({ session }: { session: Session | null }) => {
         >
           Careers
         </Link>
-        {/* <SessionButton onClick={() => setOpen(false)} session={session} /> */}
+        <UserNavWrapper />
       </DialogContent>
     </Dialog>
   );
@@ -138,7 +140,7 @@ export const NavBar = ({ session }: { session: Session | null }) => {
             </Link>
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            {/* <SessionButton session={session} /> */}
+            <UserNavWrapper />
             <ThemeToggle />
           </div>
         </div>

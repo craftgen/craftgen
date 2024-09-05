@@ -1,6 +1,6 @@
 import { Star, Zap } from "lucide-react";
 
-import { RouterOutputs } from "@craftgen/api";
+import { RouterOutputs } from "@craftgen/ipc-api";
 
 import { AspectRatio } from "../components/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/avatar";
@@ -8,7 +8,7 @@ import { CLink } from "../components/link";
 import { cn } from "../lib/utils";
 
 export const WorkflowList: React.FC<{
-  workflows: RouterOutputs["craft"]["module"]["featured"];
+  workflows: RouterOutputs["platform"]["craft"]["module"]["featured"];
   Link: any;
 }> = ({ workflows, Link }) => {
   return (
@@ -21,7 +21,7 @@ export const WorkflowList: React.FC<{
 };
 
 export const WorkflowItem: React.FC<{
-  workflow: RouterOutputs["craft"]["module"]["featured"][number];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["featured"][number];
   Link: any;
 }> = ({ workflow, Link }) => {
   const bgList = [
