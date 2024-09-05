@@ -21,16 +21,14 @@ const PlaygroundPage = async (props: {
   const supabase = createClient();
 
   try {
-    const workflow = await api.craft.module.meta({
-      projectSlug: props.params.projectSlug,
+    const workflow = await api.platform.craft.module.get({
+      orgSlug: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,
       version: Number(props.params.version),
       executionId: props.searchParams.execution,
     });
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
 
+    return <pre>{JSON.stringify(workflow, null, 2)}</pre>;
     return <Playground workflow={workflow} session={session} Link={Link} />;
   } catch (e) {
     if (e instanceof TRPCError) {

@@ -50,7 +50,7 @@ export async function generateMetadata(
 const PlaygroundPage: React.FC<Props> = async (props) => {
   try {
     const workflowMeta = await api.platform.craft.module.meta({
-      orgSlug: props.params.projectSlug,
+      as: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,
     });
     if (!workflowMeta) {
