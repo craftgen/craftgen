@@ -16,6 +16,7 @@ const DashboardPage = async () => {
   const featuredWorkflows = await api.platform.craft.module.featured({
     category: "all",
   });
+  const projects = await api.platform.orgs.list();
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -33,6 +34,13 @@ const DashboardPage = async () => {
             </div>
           </>
         )}
+        <div className="py-4">
+          {projects?.map((project) => (
+            <div key={project.id}>
+              <Link href={`/${project.slug}`}>{project.name}</Link>
+            </div>
+          ))}
+        </div>
         <div className="py-4">
           <WorkflowList workflows={featuredWorkflows} Link={Link} />
         </div>

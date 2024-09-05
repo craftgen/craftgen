@@ -68,11 +68,11 @@ const ProjectPage = async ({
 }) => {
   try {
     const platform = await api.platform.orgs.bySlug({
-      projectSlug: params.projectSlug,
+      orgSlug: params.projectSlug,
     });
 
     const tenant = await api.tenant.orgs.bySlug({
-      projectSlug: params.projectSlug,
+      orgSlug: params.projectSlug,
     });
 
     return (
@@ -84,7 +84,7 @@ const ProjectPage = async ({
           </div>
 
           <section className="col-span-9">
-            <PlaygroundList projectSlug={params.projectSlug} />
+            {/* <PlaygroundList projectSlug={params.projectSlug} /> */}
           </section>
         </ProjectLayout.Content>
       </ProjectLayout>

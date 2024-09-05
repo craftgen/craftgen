@@ -65,10 +65,10 @@ export const orgRouter = createTRPCRouter({
       });
     }),
   bySlug: publicProcedure
-    .input(z.object({ projectSlug: z.string() }))
+    .input(z.object({ orgSlug: z.string() }))
     .query(async ({ ctx, input }) => {
       const org = await ctx.tDb.query.organization.findFirst({
-        where: (p, { eq }) => eq(p.slug, input.projectSlug),
+        where: (p, { eq }) => eq(p.slug, input.orgSlug),
       });
       if (!org) throw new TRPCError({ code: "NOT_FOUND" });
       return org;

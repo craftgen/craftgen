@@ -45,8 +45,8 @@ export const orgRouter = createTRPCRouter({
       });
       return isNil(exist);
     }),
-  all: publicProcedure.query(({ ctx }) => {
-    return ctx.tenantDb.query.organization.findMany({});
+  list: publicProcedure.query(({ ctx }) => {
+    return ctx.pDb?.query.organization.findMany({});
   }),
   userProjects: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.tenantDb.query.organizationMembers.findMany({
@@ -65,10 +65,10 @@ export const orgRouter = createTRPCRouter({
       });
     }),
   bySlug: publicProcedure
-    .input(z.object({ projectSlug: z.string() }))
+    .input(z.object({ orgSlug: z.string() }))
     .query(async ({ ctx, input }) => {
       const org = await ctx.pDb?.query.organization.findFirst({
-        where: (p, { eq }) => eq(p.slug, input.projectSlug),
+        where: (p, { eq }) => eq(p.slug, input.orgSlug),
       });
 
       if (!org) throw new TRPCError({ code: "NOT_FOUND" });

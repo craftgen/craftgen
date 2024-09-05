@@ -26,6 +26,7 @@
       "npm:@trpc/server@11.0.0-rc.452": "npm:@trpc/server@11.0.0-rc.452",
       "npm:@tursodatabase/api@^1.8.1": "npm:@tursodatabase/api@1.8.1",
       "npm:@types/node": "npm:@types/node@18.16.19",
+      "npm:chalk@5": "npm:chalk@5.3.0",
       "npm:date-fns@^3.6.0": "npm:date-fns@3.6.0",
       "npm:dotenv-cli@^7.2.1": "npm:dotenv-cli@7.4.2",
       "npm:drizzle-kit@0.23.0": "npm:drizzle-kit@0.23.0_esbuild@0.19.12",
@@ -867,6 +868,10 @@
           "supports-color": "supports-color@5.5.0"
         }
       },
+      "chalk@5.3.0": {
+        "integrity": "sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==",
+        "dependencies": {}
+      },
       "client-only@0.0.1": {
         "integrity": "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==",
         "dependencies": {}
@@ -1595,7 +1600,8 @@
     "members": {
       "database": {
         "dependencies": [
-          "npm:@libsql/client@^0.7.0",
+          "npm:@effect/schema@^0.71.1",
+          "npm:@libsql/client@^0.10.0",
           "npm:@tursodatabase/api@^1.8.1",
           "npm:date-fns@^3.6.0",
           "npm:drizzle-kit@0.23.0",
@@ -1605,7 +1611,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@libsql/client@^0.7.0",
+            "npm:@effect/schema@^0.71.0",
+            "npm:@libsql/client@^0.10.0",
             "npm:@paralleldrive/cuid2@^2.2.2",
             "npm:@tursodatabase/api@^1.8.1",
             "npm:dotenv-cli@^7.2.1",
@@ -1619,21 +1626,29 @@
       },
       "ipc-api": {
         "dependencies": [
+          "npm:@clerk/backend@^1.9.0",
           "npm:@craftgen/database@0.0.1",
           "npm:@craftgen/queue@0.0.1",
           "npm:@trpc/client@^10.45.2",
           "npm:effect@^3.6.1",
+          "npm:libsql-client@^0.7.0",
           "npm:lodash-es@^4.17.21",
           "npm:timestring@^7.0.0",
           "npm:zod@3.23.8"
         ],
         "packageJson": {
           "dependencies": [
+            "npm:@clerk/backend@^1.9.0",
+            "npm:@clerk/clerk-js@^5.15.1",
+            "npm:@clerk/types@^4.14.0",
+            "npm:@craftgen/database@0.0.1",
+            "npm:@libsql/client@^0.10.0",
             "npm:@trpc/client@11.0.0-rc.452",
             "npm:@trpc/server@11.0.0-rc.452",
             "npm:effect@^3.6.1",
             "npm:lodash-es@^4.17.21",
             "npm:superjson@2.2.1",
+            "npm:timestring@^7.0.0",
             "npm:zod@3.21.4"
           ]
         }

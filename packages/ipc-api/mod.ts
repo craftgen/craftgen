@@ -2,7 +2,11 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 import { appRouter, type AppRouter } from "./router/index.ts";
 import { tenantRouter } from "./router/tenant/index.ts";
-import { createCallerFactory, createTRPCContextforTenant } from "./trpc.ts";
+import {
+  Context,
+  createCallerFactory,
+  createTRPCContextforTenant,
+} from "./trpc.ts";
 
 export { createTRPCContext } from "./trpc.ts";
 
@@ -15,13 +19,15 @@ export { appRouter };
  * const res = await trpc.post.all();
  *       ^? Post[]
  */
-export const createCaller = createCallerFactory(tenantRouter);
+export const createCaller = createCallerFactory(appRouter);
+
+export const tenantCaller = createCallerFactory(tenantRouter);
 
 export const createCallerForTenant = async (
   tenantSlug: string,
   ctx: Context,
 ) => {
-  return createCaller(
+  return tenantCaller(
     await createTRPCContextforTenant({
       tenantSlug,
       ...ctx,
