@@ -8,7 +8,7 @@ import { PlaygroundList as PlaygroundListView } from "@craftgen/ui/views/playgro
 
 export const PlaygroundList: React.FC<{
   orgSlug: string;
-  playgroundList?: RouterOutputs["craft"]["module"]["list"];
+  playgroundList?: RouterOutputs["platform"]["craft"]["module"]["list"];
 }> = ({ orgSlug, playgroundList }) => {
   const router = useRouter();
   return (

@@ -75,9 +75,9 @@ const ProjectPage = async ({
       notFound();
     }
 
-    // const playgroundList = await api.platform.craft.module.list({
-    //   orgSlug: params.projectSlug,
-    // });
+    const playgroundList = await api.platform.craft.module.list({
+      orgSlug: params.projectSlug,
+    });
 
     return (
       <ProjectLayout>
@@ -88,7 +88,10 @@ const ProjectPage = async ({
           </div>
 
           <section className="col-span-9">
-            <PlaygroundList orgSlug={params.projectSlug} playgroundList={[]} />
+            <PlaygroundList
+              orgSlug={params.projectSlug}
+              playgroundList={playgroundList}
+            />
           </section>
         </ProjectLayout.Content>
       </ProjectLayout>
