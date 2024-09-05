@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { eq, tenant } from "@craftgen/database";
 
+import { TRPCError } from "../../../deps.ts";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -17,7 +18,7 @@ export const craftModuleRouter = createTRPCRouter({
       }),
     )
     .query(({ ctx, input }) => {
-      return ctx.pDb?.query.workflow.findMany({
+      return ctx.tDb?.query.workflow.findMany({
         where: (w, { eq, and }) => and(eq(w.public, true)),
         orderBy: (w, { desc }) => desc(w.updatedAt),
         limit: input.count || 20,
@@ -292,6 +293,38 @@ export const craftModuleRouter = createTRPCRouter({
   //     });
   //   }),
 
+  meta: publicProcedure
+    .input(z.object({ orgSlug: z.string(), workflowSlug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const workflow = await ctx.tDb.query.workflow.findFirst({
+        where: (w, { eq }) => eq(w.slug, input.workflowSlug),
+        with: {
+          organization: {
+            columns: {
+              name: true,
+              slug: true,
+            },
+          },
+          versions: {
+            orderBy: (workflowVersion, { desc }) => [
+              desc(workflowVersion.version),
+            ],
+            limit: 1,
+          },
+        },
+      });
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+      const version = workflow.versions[0];
+      return {
+        ...workflow,
+        version,
+      };
+    }),
   // meta: publicProcedure
   //   .input(
   //     z.object({
@@ -460,6 +493,59 @@ export const craftModuleRouter = createTRPCRouter({
   //       edges: contentEdges,
   //     };
   //   }),
+
+  get: publicProcedure
+    .input(
+      z.object({
+        orgSlug: z.string(),
+        workflowSlug: z.string(),
+        version: z.number(),
+        executionId: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const isOwner = ctx.auth?.sessionClaims?.orgSlug === input.orgSlug;
+      const workflow = await ctx.tDb.query.workflow.findFirst({
+        where: (w, { eq, and, sql }) =>
+          and(
+            eq(w.slug, input.workflowSlug),
+            eq(w.organizationSlug, input.orgSlug),
+            isOwner ? eq(w.public, true) : sql`true`,
+          ),
+        with: {
+          organization: {
+            columns: {
+              id: true,
+            },
+          },
+          versions: {
+            where: (workflowVersion, { eq }) =>
+              eq(workflowVersion.version, input.version),
+            orderBy: (workflowVersion, { desc }) => [
+              desc(workflowVersion.version),
+            ],
+            limit: 1,
+          },
+        },
+      });
+      if (!workflow) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
+        });
+      }
+      const version = workflow.versions[0];
+      if (!version) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Version not found",
+        });
+      }
+      return {
+        ...workflow,
+        version,
+      };
+    }),
 
   // get: publicProcedure
   //   .input(

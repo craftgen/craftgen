@@ -231,6 +231,16 @@ export const craftModuleRouter = createTRPCRouter({
   //     });
   //   }),
 
+  meta: publicProcedure
+    .input(z.object({ orgSlug: z.string(), workflowSlug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const caller = await createCallerForTenant({
+        tenantSlug: input.orgSlug,
+        ctx,
+      });
+      return caller.craft.module.meta(input);
+    }),
+
   // meta: publicProcedure
   //   .input(
   //     z.object({
@@ -399,6 +409,24 @@ export const craftModuleRouter = createTRPCRouter({
   //       edges: contentEdges,
   //     };
   //   }),
+
+  get: publicProcedure
+    .input(
+      z.object({
+        orgSlug: z.string(),
+        workflowSlug: z.string(),
+        version: z.number(),
+        executionId: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const tenantCaller = await createCallerForTenant({
+        tenantSlug: input.orgSlug,
+        ctx,
+      });
+      const workflow = await tenantCaller.craft.module.get(input);
+      return workflow;
+    }),
 
   // get: publicProcedure
   //   .input(

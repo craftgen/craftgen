@@ -991,6 +991,9 @@ importers:
       '@craftgen/core':
         specifier: 0.1.2
         version: link:../core
+      '@craftgen/ipc-api':
+        specifier: '*'
+        version: link:../ipc-api
       '@craftgen/ui':
         specifier: '*'
         version: link:../ui

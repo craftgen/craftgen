@@ -29,6 +29,7 @@
     "@codemirror/view": "^6.24.0",
     "@craftgen/api": "*",
     "@craftgen/core": "0.1.2",
+    "@craftgen/ipc-api": "*",
     "@craftgen/ui": "*",
     "@hookform/resolvers": "^3.3.0",
     "@replit/codemirror-indentation-markers": "^6.5.0",

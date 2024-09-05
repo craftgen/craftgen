@@ -24,13 +24,13 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   try {
-    const workflowMeta = await api.craft.module.meta({
-      projectSlug: params.projectSlug,
+    const workflowMeta = await api.platform.craft.module.meta({
+      orgSlug: params.projectSlug,
       workflowSlug: params.workflowSlug,
     });
 
     return {
-      title: `${workflowMeta?.name} | ${workflowMeta?.project.name}`,
+      title: `${workflowMeta?.name} | ${workflowMeta?.organization.name}`,
       description: workflowMeta?.description,
     };
   } catch (e: unknown) {
@@ -47,35 +47,10 @@ export async function generateMetadata(
   }
 }
 
-export async function generateStaticParams() {
-  const projects = await db.query.project.findMany({
-    columns: {
-      slug: true,
-    },
-    with: {
-      workflows: {
-        columns: {
-          slug: true,
-        },
-      },
-    },
-    limit: 10,
-  });
-  const paths = projects
-    ?.map((project) => {
-      return project.workflows.map((workflow) => ({
-        projectSlug: project.slug,
-        workflowSlug: workflow.slug,
-      }));
-    })
-    .flat();
-  return paths;
-}
-
 const PlaygroundPage: React.FC<Props> = async (props) => {
   try {
-    const workflowMeta = await api.craft.module.meta({
-      projectSlug: props.params.projectSlug,
+    const workflowMeta = await api.platform.craft.module.meta({
+      orgSlug: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,
     });
     if (!workflowMeta) {
@@ -84,7 +59,7 @@ const PlaygroundPage: React.FC<Props> = async (props) => {
     return (
       <div className="flex h-full flex-col">
         <Editor
-          projectSlug={workflowMeta.projectSlug}
+          projectSlug={workflowMeta.organizationSlug}
           workflowSlug={workflowMeta.slug}
           version={workflowMeta.version?.version!}
           executionId={props.searchParams.execution as string}

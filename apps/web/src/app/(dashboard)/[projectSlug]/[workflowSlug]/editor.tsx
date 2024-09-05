@@ -15,9 +15,9 @@ export const Editor = ({
   version: number;
   executionId: string;
 }) => {
-  const { data: workflow, isLoading } = api.craft.module.get.useQuery(
+  const { data: workflow, isLoading } = api.platform.craft.module.get.useQuery(
     {
-      projectSlug: projectSlug,
+      orgSlug: projectSlug,
       workflowSlug: workflowSlug,
       version: version!,
       executionId: executionId,

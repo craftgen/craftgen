@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { RouterOutputs } from "@craftgen/api";
+import { RouterOutputs } from "@craftgen/ipc-api";
 import { api } from "@craftgen/ui/lib/api";
 
 import { useHeadlessEditor } from "./editor";
@@ -9,7 +9,7 @@ import { InputsList, OutputList } from "./ui/control/control-node";
 import { CraftContext, useCraftStore } from "./use-store";
 
 export const WorkflowInput = (props: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
 }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -19,7 +19,7 @@ export const WorkflowInput = (props: {
 };
 
 export const WorkflowInputForm = (props: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
 }) => {
   const utils = api.useUtils();
   const store = useRef(
@@ -27,11 +27,11 @@ export const WorkflowInputForm = (props: {
       layout: null as any,
       theme: "dark",
       readonly: false,
-      projectId: props.workflow.project.id,
-      projectSlug: props.workflow.projectSlug,
+      projectId: props.workflow.organization.id,
+      projectSlug: props.workflow.organizationSlug,
       workflowId: props.workflow.id,
       workflowSlug: props.workflow.slug,
-      workflowVersionId: props.workflow.version?.id,
+      workflowVersionId: props.workflow.version.id,
     }),
   );
   const { editor } = useHeadlessEditor({

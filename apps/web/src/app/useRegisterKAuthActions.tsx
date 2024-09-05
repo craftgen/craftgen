@@ -8,10 +8,8 @@ import { useRegisterActions } from "@craftgen/ui/kbar/use-register-actions";
 
 export const useRegisterKAuthActions = () => {
   const { orgSlug, userId, ...rest } = useAuth();
-  console.log(rest);
   const router = useRouter();
   const { session } = useSession();
-  console.log("SESSISN", session);
   const currentProjectSlug = useMemo(() => {
     return orgSlug || session?.user?.username;
   }, [session?.user]);

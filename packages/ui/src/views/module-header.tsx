@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { GitFork, Rocket, Slash, Star } from "lucide-react";
 
-import type { RouterOutputs } from "@craftgen/api";
+import type { RouterOutputs } from "@craftgen/ipc-api";
 
 import { Badge } from "../components/badge";
 import { Button } from "../components/button";
@@ -11,7 +11,7 @@ import { Separator } from "../components/separator";
 
 interface ModuleHeaderProps {
   moduleId: string;
-  workflow: RouterOutputs["craft"]["module"]["meta"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["meta"];
   Link: any;
 }
 
@@ -29,18 +29,18 @@ export const ModuleHeader = ({
               Link={Link}
               to={`/$projectSlug`}
               params={{
-                projectSlug: workflow.project.slug,
+                projectSlug: workflow.organizationSlug,
               }}
               className="text-muted-foreground"
             >
-              {workflow.project.slug}
+              {workflow.organizationSlug}
             </CLink>
             <Slash className="-rotate-12 text-muted-foreground" />
             <CLink
               Link={Link}
               to={`/$projectSlug/$workflowSlug`}
               params={{
-                projectSlug: workflow.project.slug,
+                projectSlug: workflow.organizationSlug,
                 workflowSlug: workflow.slug,
               }}
             >
@@ -63,7 +63,7 @@ export const ModuleHeader = ({
             Link={Link}
             to={`/$projectSlug/$workflowSlug/v/$version`}
             params={{
-              projectSlug: workflow.project.slug,
+              projectSlug: workflow.organizationSlug,
               workflowSlug: workflow.slug,
               version: workflow.version?.version || 0,
             }}

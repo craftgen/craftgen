@@ -17,11 +17,14 @@ const PlaygroundLayout = async (props: {
   children: React.ReactNode;
 }) => {
   try {
-    const workflow = await api.craft.module.meta({
-      projectSlug: props.params.projectSlug,
+    const workflow = await api.platform.craft.module.meta({
+      orgSlug: props.params.projectSlug,
       workflowSlug: props.params.workflowSlug,
     });
-    const moduleId = `${workflow.project.slug}/${workflow.slug}`;
+    if (!workflow) {
+      notFound();
+    }
+    const moduleId = `${workflow.organizationSlug}/${workflow.slug}`;
 
     return (
       <WorkflowLayout>
