@@ -23,7 +23,7 @@ import { api } from "../lib/api";
 import { WorkflowCreateDialog } from "./playground-create-dialog";
 import { WorkflowEditDialog } from "./playground-edit-dialog";
 
-type Playground = RouterOutputs["craft"]["module"]["list"][number];
+type Playground = RouterOutputs["platform"]["craft"]["module"]["list"][number];
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -99,8 +99,10 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
 }: {
   orgSlug: string;
   Link: T;
-  onWorkflowCreate: (data: RouterOutputs["craft"]["module"]["create"]) => void;
-  playgroundList?: RouterOutputs["craft"]["module"]["list"];
+  onWorkflowCreate: (
+    data: RouterOutputs["platform"]["craft"]["module"]["create"],
+  ) => void;
+  playgroundList?: RouterOutputs["platform"]["craft"]["module"]["list"];
 }) => {
   const { data } = api.platform.craft.module.list.useQuery(
     {
@@ -120,7 +122,7 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
           Link={Link}
           to={`/$projectSlug/$workflowSlug`}
           params={{
-            projectSlug: row.original.project.slug,
+            projectSlug: row.original.organizationSlug,
             workflowSlug: row.original.slug,
           }}
           className="font-bold"
@@ -147,7 +149,7 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
             Link={Link}
             to={`/$projectSlug/$workflowSlug/v/$version`}
             params={{
-              projectSlug: row.original.project.slug,
+              projectSlug: row.original.organizationSlug,
               workflowSlug: row.original.slug,
               version: row.original.version.version,
             }}
@@ -165,7 +167,7 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
       cell: ({ row }) => (
         <PlaygroundListTableRowActions<Playground>
           row={row}
-          projectSlug={row.original.project.slug}
+          projectSlug={row.original.organizationSlug}
         />
       ),
     },
@@ -198,7 +200,7 @@ export const PlaygroundList = <T extends React.ComponentType<any>>({
         <WorkflowCreateDialog
           isOpen={isOpen}
           onOpenChange={setOpen}
-          projectSlug={projectSlug}
+          orgSlug={orgSlug}
           onCreate={onWorkflowCreate}
         />
       )}

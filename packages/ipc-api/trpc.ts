@@ -16,7 +16,15 @@ import {
   type TenantDbClient,
 } from "../database/mod.ts";
 import { EventProcessor } from "../database/tenant/queue.ts";
-import { Effect, initTRPC, superjson, TRPCError, ZodError } from "./deps.ts";
+import {
+  Effect,
+  initTRPC,
+  match,
+  P,
+  superjson,
+  TRPCError,
+  ZodError,
+} from "./deps.ts";
 import { createCaller } from "./mod.ts";
 
 /**
@@ -111,19 +119,43 @@ export const createTRPCContext = async (opts: {
 };
 
 export const createTRPCContextforTenant = async (
-  opts: ReturnType<typeof createInnerTRPCContext> & { tenantSlug: string },
+  opts: ReturnType<typeof createInnerTRPCContext> & {
+    tenantSlug?: string;
+    tenantId?: string;
+    tenantDb?: TenantDbClient;
+  },
 ) => {
-  const tenantOrg = await opts.pDb?.query.organization.findFirst({
-    where: (org, { eq }) => eq(org.slug, opts.tenantSlug),
-  });
-  if (!tenantOrg) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Tenant not found" });
-  }
+  const tenantDb = await match(opts)
+    .with({ tenantSlug: P.string }, async ({ tenantSlug }) => {
+      const tenantOrg = await opts.pDb?.query.organization.findFirst({
+        where: (org, { eq }) => eq(org.slug, tenantSlug),
+      });
+      if (!tenantOrg) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Tenant not found" });
+      }
 
-  const tenantDb = tenantDbClient({
-    url: `libsql://${tenantOrg.database_name}-craftgen.turso.io`,
-    authToken: tenantOrg.database_auth_token as string,
-  });
+      return tenantDbClient({
+        url: `libsql://${tenantOrg.database_name}-craftgen.turso.io`,
+        authToken: tenantOrg.database_auth_token as string,
+      });
+    })
+    .with({ tenantId: P.string }, async ({ tenantId }) => {
+      const tenantOrg = await opts.pDb?.query.organization.findFirst({
+        where: (org, { eq }) => eq(org.id, tenantId),
+      });
+      if (!tenantOrg) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Tenant not found" });
+      }
+
+      return tenantDbClient({
+        url: `libsql://${tenantOrg.database_name}-craftgen.turso.io`,
+        authToken: tenantOrg.database_auth_token as string,
+      });
+    })
+    .with({ tenantDb: P.any }, ({ tenantDb }) => {
+      return tenantDb as TenantDbClient;
+    })
+    .run();
 
   return createInnerTRPCContext({
     queue: opts.queue,

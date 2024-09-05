@@ -25,11 +25,11 @@ export const orgRouter = createTRPCRouter({
         limit: 10,
       });
     }),
+
   checkSlugAvailable: protectedProcedure
     .input(
       z.object({
         slug: z.string(),
-        projectId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -37,7 +37,7 @@ export const orgRouter = createTRPCRouter({
         where: (workflow, { and, eq }) =>
           and(
             eq(workflow.slug, input.slug),
-            eq(workflow.organizationId, input.organizationId),
+            eq(workflow.organizationId, ctx.auth.sessionClaims.orgId),
           ),
         columns: {
           slug: true,
@@ -45,12 +45,13 @@ export const orgRouter = createTRPCRouter({
       });
       return isNil(exist);
     }),
+
   list: publicProcedure.query(({ ctx }) => {
     return ctx.pDb?.query.organization.findMany({});
   }),
   userProjects: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.tDb.query.organizationMembers.findMany({
-      where: (orgMembers, { eq }) => eq(orgMembers.userId, ctx.auth.user?.id),
+      where: (orgMembers, { eq }) => eq(orgMembers.userId, ctx.auth.userId),
       with: {
         organization: true,
       },

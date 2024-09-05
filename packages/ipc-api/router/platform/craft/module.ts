@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { eq, tenant } from "@craftgen/database";
-
 import { createCallerForTenant } from "../../../mod.ts";
 import {
   createTRPCRouter,
@@ -38,7 +36,10 @@ export const craftModuleRouter = createTRPCRouter({
   bySlug: publicProcedure
     .input(z.object({ moduleSlug: z.string(), orgSlug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const tenantCaller = await createCallerForTenant(input.orgSlug, ctx);
+      const tenantCaller = await createCallerForTenant({
+        tenantSlug: input.orgSlug,
+        ctx,
+      });
 
       return tenantCaller.craft.module.bySlug({
         orgSlug: input.orgSlug,
@@ -90,58 +91,14 @@ export const craftModuleRouter = createTRPCRouter({
         template: z.string().optional(),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.tDb?.transaction(async (tx) => {
-        const org = await tx.query.organization.findFirst({
-          where: (org, { eq }) => eq(org.id, input.orgId),
-        });
-        if (!org) throw new Error("Project not found");
-        // TODO check Ownership.
-        const [newWorkflow] = await tx
-          .insert(tenant.workflow)
-          .values({
-            name: input.name,
-            slug: input.slug,
-            description: input.description,
-            organizationId: org?.id,
-            organizationSlug: org?.slug,
-            public: input.public,
-          })
-          .returning();
-
-        if (!newWorkflow) throw new Error("Failed to create workflow");
-        const [initialVersion] = await tx
-          .insert(tenant.workflowVersion)
-          .values({
-            workflowId: newWorkflow.id,
-            organizationId: newWorkflow.organizationId,
-          })
-          .returning();
-        if (!initialVersion)
-          throw new Error("Failed to create playground version");
-
-        const [rootContext] = await tx
-          .insert(tenant.context)
-          .values({
-            organizationId: org.id,
-            type: "NodeModule",
-            workflow_id: newWorkflow?.id,
-            workflow_version_id: initialVersion.id,
-          })
-          .returning({
-            id: tenant.context.id,
-          });
-        if (!rootContext) throw new Error("Failed to create root context");
-
-        await tx
-          .update(tenant.workflowVersion)
-          .set({
-            contextId: rootContext.id,
-          })
-          .where(eq(tenant.workflowVersion.id, initialVersion.id));
-
-        return newWorkflow;
+    .mutation(async ({ ctx, input }) => {
+      const tenantCaller = await createCallerForTenant({
+        tenantDb: ctx.tDb,
+        ctx,
       });
+      const workflow = await tenantCaller.craft.module.create(input);
+
+      return workflow;
     }),
 
   // update: protectedProcedure
@@ -186,15 +143,19 @@ export const craftModuleRouter = createTRPCRouter({
   //   }),
   list: publicProcedure
     .input(z.object({ orgSlug: z.string() }))
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       // TODO: if (auth) owner then return all.
-      // const caller = await createCallerForTenant(input.orgSlug, ctx);
-      // return caller.craft.module.list({
-      //   orgSlug: input.orgSlug,
-      // });
-      return ctx.pDb?.query.workflow.findMany({
-        where: (w, { eq }) => eq(w.organizationSlug, input.orgSlug),
+
+      const caller = await createCallerForTenant({
+        tenantSlug: input.orgSlug,
+        ctx,
       });
+      return caller.craft.module.list({
+        orgSlug: input.orgSlug,
+      });
+      // return ctx.pDb?.query.workflow.findMany({
+      //   where: (w, { eq }) => eq(w.organizationSlug, input.orgSlug),
+      // });
     }),
 
   // list: publicProcedure

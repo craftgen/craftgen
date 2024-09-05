@@ -2,7 +2,6 @@ import { z } from "zod";
 
 import { eq, tenant } from "@craftgen/database";
 
-import { createCallerForTenant } from "../../../mod.ts";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -126,8 +125,8 @@ export const craftModuleRouter = createTRPCRouter({
           .values({
             organizationId: org.id,
             type: "NodeModule",
-            workflow_id: newWorkflow?.id,
-            workflow_version_id: initialVersion.id,
+            workflowId: newWorkflow.id,
+            workflowVersionId: initialVersion.id,
           })
           .returning({
             id: tenant.context.id,
@@ -186,6 +185,40 @@ export const craftModuleRouter = createTRPCRouter({
   //     });
   //   }),
 
+  list: publicProcedure
+    .input(z.object({ orgSlug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      let canAccessToPrivate = false;
+      if (ctx.auth?.sessionClaims?.orgSlug === input.orgSlug) {
+        canAccessToPrivate = true;
+      }
+
+      const workflows = await ctx.tDb?.query.workflow.findMany({
+        where: (w, { eq, and, sql }) =>
+          and(
+            eq(w.organizationSlug, input.orgSlug),
+            eq(w.public, canAccessToPrivate ? sql`true` : sql`false`),
+          ),
+        with: {
+          versions: {
+            orderBy: (workflowVersion, { desc }) => [
+              desc(workflowVersion.version),
+            ],
+            limit: 1,
+          },
+          organization: {
+            columns: {
+              slug: true,
+            },
+          },
+        },
+      });
+      return workflows.map((w) => ({
+        ...w,
+        version: w.versions[0]!,
+      }));
+    }),
+
   // list: publicProcedure
   //   .input(
   //     z.object({
@@ -234,7 +267,7 @@ export const craftModuleRouter = createTRPCRouter({
   //         });
   //       } else {
   //         workflows = await tx.query.workflow.findMany({
-  //           where: (workflow, { eq, and }) =>
+  //           where: (workflow, { eq, and }) => canAccess ? and(eq(workflow.projectId, org.id)),
   //             and(eq(workflow.projectId, org.id), eq(workflow.public, true)),
   //           with: {
   //             versions: {

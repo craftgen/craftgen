@@ -3,7 +3,10 @@ export {};
 declare global {
   interface CustomJwtSessionClaims {
     username: string;
-    currentProjectSlug: string;
+
+    orgSlug: string;
+    orgId: string;
+    orgRole: string;
   }
   interface UserPrivateMetadata {
     database_name: string;

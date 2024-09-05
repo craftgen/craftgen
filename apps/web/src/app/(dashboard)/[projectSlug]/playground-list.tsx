@@ -17,7 +17,7 @@ export const PlaygroundList: React.FC<{
       orgSlug={orgSlug}
       playgroundList={playgroundList}
       onWorkflowCreate={(data) =>
-        router.push(`/${data.projectSlug}/${data.slug}/v/0`)
+        router.push(`/${data.organizationSlug}/${data.slug}/v/0`)
       }
     />
   );

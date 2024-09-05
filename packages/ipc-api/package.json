@@ -23,6 +23,7 @@
     "lodash-es": "^4.17.21",
     "superjson": "2.2.1",
     "timestring": "^7.0.0",
+    "ts-pattern": "^5.0.5",
     "zod": "3.21.4"
   }
 }

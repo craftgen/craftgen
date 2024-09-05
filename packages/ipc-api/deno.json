@@ -14,6 +14,7 @@
     "libsql-client": "npm:libsql-client@^0.7.0",
     "lodash-es": "npm:lodash-es@^4.17.21",
     "timestring": "npm:timestring@^7.0.0",
+    "ts-pattern": "npm:ts-pattern@^5.3.1",
     "zod": "npm:zod@3.23.8"
   }
 }
