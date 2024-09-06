@@ -1,6 +1,6 @@
 import { createTRPCRouter } from "../../trpc.ts";
 import { craftEdgeRouter } from "./edge.ts";
-import { craftExecutionRouter } from "./execution.ts";
+// import { craftExecutionRouter } from "./execution.ts";
 import { craftModuleRouter } from "./module.ts";
 import { craftNodeRouter } from "./node.ts";
 import { craftVersionRouter } from "./version.ts";
@@ -8,7 +8,7 @@ import { craftVersionRouter } from "./version.ts";
 export const craftRouter = createTRPCRouter({
   edge: craftEdgeRouter,
   node: craftNodeRouter,
-  execution: craftExecutionRouter,
+  // execution: craftExecutionRouter,
   version: craftVersionRouter,
   module: craftModuleRouter,
 });

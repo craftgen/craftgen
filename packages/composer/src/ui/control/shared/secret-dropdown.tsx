@@ -20,7 +20,7 @@ import { api } from "@craftgen/ui/lib/api";
 
 export const SecretDropdown = (props: { onSelect: (val: string) => void }) => {
   const { data: user } = api.auth.getSession.useQuery();
-  const { data: creds } = api.credentials.list.useQuery(
+  const { data: creds } = api.tenant.credentials.list.useQuery(
     {},
     {
       enabled: !!user,

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // import dynamic from "next/dynamic";
 // import Link from "next/link";
 // import { redirect, useParams } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
 import * as FlexLayout from "flexlayout-react";
 import { motion } from "framer-motion";
 import { debounce } from "lodash-es";
@@ -23,7 +22,7 @@ import { useStore } from "zustand";
 // import { UserNav } from "@/app/(dashboard)/components/user-nav";
 // import { createCraftStore } from "@/core/store";
 // import { CraftContext, useCraftStore } from "@/core/use-store";
-import type { RouterOutputs } from "@craftgen/api";
+import type { RouterOutputs } from "@craftgen/ipc-api";
 // import type { Socket } from "@craftgen/core/sockets";
 import { Button } from "@craftgen/ui/components/button";
 import { Icon, Icons } from "@craftgen/ui/components/icons";
@@ -139,8 +138,8 @@ const defaultLayout: FlexLayout.IJsonModel = {
 };
 
 export const Playground: React.FC<{
-  workflow: RouterOutputs["craft"]["module"]["meta"];
-  session: Session | null;
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
+  session: any | null;
   Link: any;
 }> = ({ workflow, session, Link }) => {
   const { theme } = useTheme();
@@ -152,14 +151,13 @@ export const Playground: React.FC<{
       ),
       theme,
       readonly: false,
-      projectId: workflow.project.id,
-      projectSlug: workflow.projectSlug,
+      projectId: workflow.organizationId,
+      projectSlug: workflow.organizationSlug,
       workflowId: workflow.id,
       workflowSlug: workflow.slug,
       workflowVersionId: workflow.version?.id,
     }),
   );
-
   const { layout, di, setTheme } = useStore(store.current);
 
   useEffect(() => {
@@ -208,7 +206,7 @@ export const Playground: React.FC<{
               opacity: 0,
             }}
           >
-            <TokenList projectSlug={workflow.project.slug} />
+            <TokenList />
           </motion.div>
         );
       })
@@ -218,7 +216,7 @@ export const Playground: React.FC<{
             <h2>Workflows</h2>
             <ul>
               <li>
-                <Link href={`/${workflow.projectSlug}/${workflow.slug}`}>
+                <Link href={`/${workflow.organizationSlug}/${workflow.slug}`}>
                   {workflow.name}
                 </Link>
               </li>

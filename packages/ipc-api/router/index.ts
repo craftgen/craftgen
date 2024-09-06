@@ -13,7 +13,7 @@ export const appRouter = createTRPCRouter({
   platform: platformRouter,
   package: packageRouter,
   fs: fsRouter,
-  craft: craftRouter,
+  // craft: craftRouter,
   variables: variablesRouter,
   auth: authRouter,
   context: publicProcedure

@@ -543,7 +543,7 @@ export abstract class BaseNode<
     return this.di.workflowVersionId;
   }
   get projectId() {
-    return this.di.projectId;
+    return this.di.organizationId;
   }
 
   get executionId() {

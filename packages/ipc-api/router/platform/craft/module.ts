@@ -425,7 +425,11 @@ export const craftModuleRouter = createTRPCRouter({
         ctx,
       });
       const workflow = await tenantCaller.craft.module.get(input);
-      return workflow;
+
+      return {
+        ...workflow,
+        readonly: false, // TODO: check if user is member of project
+      };
     }),
 
   // get: publicProcedure

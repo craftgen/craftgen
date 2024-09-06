@@ -4,7 +4,7 @@ import type { Constructor } from "type-fest";
 import type { AnyStateMachine } from "xstate";
 import * as z from "zod";
 
-import type { AppRouter } from "@craftgen/api";
+import type { AppRouter } from "@craftgen/ipc-api";
 
 import type { Editor } from ".";
 import type { Connection } from "./connection/connection";

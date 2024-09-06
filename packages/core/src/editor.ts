@@ -623,7 +623,7 @@ export interface EditorProps<
     meta: {
       workflowId: string;
       workflowVersionId: string;
-      projectId: string;
+      organizationId: string;
       executionId?: string;
     };
     on?: EditorHandlers;
@@ -728,7 +728,7 @@ export class Editor<
   public logger = console;
   public readonly workflowId: string;
   public readonly workflowVersionId: string;
-  public readonly projectId: string;
+  public readonly organizationId: string;
 
   public executionId?: string;
   public executionStatus:
@@ -1203,7 +1203,7 @@ export class Editor<
     console.log("INITIALIZE", props.config);
     this.workflowId = props.config.meta.workflowId;
     this.workflowVersionId = props.config.meta.workflowVersionId;
-    this.projectId = props.config.meta.projectId;
+    this.organizationId = props.config.meta.organizationId;
     this.executionId = props.config.meta?.executionId;
     this.readonly = props.config.readonly || false;
     this.registry = props.config.nodes;
@@ -1610,7 +1610,7 @@ export class Editor<
   }
 
   public async createEditor(workflowVersionId: string) {
-    const workflow = await this.api.trpc.craft.module.getById.query({
+    const workflow = await this.api.trpc.platform.craft.module.getById.query({
       versionId: workflowVersionId,
     });
     const di = new Editor({
@@ -1618,7 +1618,7 @@ export class Editor<
         api: this.api,
         readonly: true,
         meta: {
-          projectId: this.projectId,
+          organizationId: this.organizationId,
           workflowId: this.workflowId,
           workflowVersionId: workflowVersionId,
           executionId: this.executionId,
@@ -1646,7 +1646,7 @@ export class Editor<
 
   public async setupEnv() {
     try {
-      const creds = await this.api.trpc.credentials.list.query({
+      const creds = await this.api.trpc.tenant.credentials.list.query({
         // projectId: this.projectId,
       });
       console.log("CREDS", creds);
@@ -1932,7 +1932,7 @@ export class Editor<
           workflowExecutionId: event.executionId!,
           workflowId: this.workflowId,
           workflowVersionId: this.workflowVersionId,
-          projectId: this.projectId,
+          projectId: this.organizationId,
           state: JSON.stringify(event.state),
         });
       });
@@ -1987,7 +1987,7 @@ export class Editor<
                   contextId: event.state.systemId,
                   workflowId: this.workflowId,
                   workflowVersionId: this.workflowVersionId,
-                  projectId: this.projectId,
+                  organizationId: this.organizationId,
                   context: JSON.stringify(sanitized),
                 };
               } else {
@@ -1995,13 +1995,13 @@ export class Editor<
                   contextId: event.state.systemId,
                   workflowId: this.workflowId,
                   workflowVersionId: this.workflowVersionId,
-                  projectId: this.projectId,
+                  organizationId: this.organizationId,
                   context: JSON.stringify(event.state),
                 };
               }
             },
           );
-          return this.api.trpc.craft.node.setContext.mutate(contexts);
+          return this.api.trpc.tenant.craft.node.setContext.mutate(contexts);
         }),
         catchError((error) => {
           // Handle or log the error
@@ -2338,10 +2338,10 @@ export class Editor<
               snapshot: actor.getSnapshot().toJSON(),
             };
 
-            await this.api.trpc.craft.node.upsert.mutate({
+            await this.api.trpc.tenant.craft.node.upsert.mutate({
               workflowId: this.workflowId,
               workflowVersionId: this.workflowVersionId,
-              projectId: this.projectId,
+              organizationId: this.organizationId,
               data: {
                 id: data.id,
                 type: data.ID,
@@ -2522,7 +2522,7 @@ export class Editor<
         ),
       )
       .subscribe(async (event) => {
-        await this.api.trpc.craft.node.updateMetadata.mutate(event);
+        await this.api.trpc.tenant.craft.node.updateMetadata.mutate(event);
       });
 
     const positionSubject = new BehaviorSubject<Position>({ x: 0, y: 0 });

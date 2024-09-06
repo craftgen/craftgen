@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { eq, sql, tenant } from "@craftgen/database";
 
-import { createTRPCRouter, protectedProcedure } from "../../trpc.ts";
+import { createTRPCRouter, protectedProcedure } from "../../../trpc.ts";
 
 type ProviderType = "OPENAI" | "REPLICATE" | "OTHER";
 
@@ -15,21 +15,10 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.session.user.user_metadata.currentProjectSlug) {
-        return [];
-      }
-      return await ctx.db.transaction(async (tx) => {
-        const organization = await tx.query.organization.findFirst({
-          where: (org, { eq }) =>
-            eq(org.slug, ctx.session.user.user_metadata.currentProjectSlug),
-        });
-        if (!organization) {
-          return [];
-        }
-        return await ctx.db.query.variable.findMany({
+      return await ctx.tDb.transaction(async (tx) => {
+        return await tx.query.variable.findMany({
           where: (token, { eq, and }) =>
             and(
-              eq(token.organizationId, organization?.id),
               input?.provider ? eq(token.provider, input.provider) : sql`true`,
             ),
           // columns: {
@@ -42,17 +31,12 @@ export const credentialsRouter = createTRPCRouter({
   hasKeyForProvider: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string(),
         provider: z.custom<ProviderType>(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const credentials = await ctx.db.query.variable.findFirst({
-        where: (token, { eq, and }) =>
-          and(
-            eq(token.organizationId, input.organizationId),
-            eq(token.provider, input.provider),
-          ),
+      const credentials = await ctx.tDb.query.variable.findFirst({
+        where: (token, { eq, and }) => and(eq(token.provider, input.provider)),
       });
       return !!credentials;
     }),
@@ -63,7 +47,7 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db
+      return await ctx.tDb
         .delete(tenant.variable)
         .where(eq(tenant.variable.id, input.id));
     }),
@@ -78,7 +62,7 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db
+      return await ctx.tDb
         .update(tenant.variable)
         .set({ key: input.key, value: input.value })
         .where(eq(tenant.variable.id, input.id))
@@ -92,7 +76,7 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const token = await ctx.db.query.variable.findFirst({
+      const token = await ctx.tDb.query.variable.findFirst({
         where: (variable, { eq }) => eq(variable.id, input.id),
       });
       if (!token) {
@@ -101,7 +85,7 @@ export const credentialsRouter = createTRPCRouter({
       if (token.provider === "OTHER") {
         throw new Error("Cannot set default for OTHER provider");
       }
-      await ctx.db.transaction(async (tx) => {
+      await ctx.tDb.transaction(async (tx) => {
         const existingDefault = await tx.query.variable.findFirst({
           where: (v, { eq, and }) =>
             and(
@@ -130,7 +114,6 @@ export const credentialsRouter = createTRPCRouter({
   insert: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string(),
         tokens: z.array(
           z.object({
             key: z.string(),
@@ -141,23 +124,23 @@ export const credentialsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.transaction(async (tx) => {
+      await ctx.tDb.transaction(async (tx) => {
         for (const token of input.tokens) {
           const defaultToken = await tx.query.variable.findFirst({
             where: (v, { eq, and }) =>
               and(
-                eq(v.organizationId, input.organizationId),
+                eq(v.organizationId, ctx.auth.sessionClaims.orgId as string),
                 eq(v.provider, token.provider),
                 eq(v.default, true),
               ),
           });
 
-          await ctx.db
+          await ctx.tDb
             .insert(tenant.variable)
             .values({
+              organizationId: ctx.auth.sessionClaims.orgId as string,
               ...token,
               default: defaultToken ? false : token.provider !== "OTHER",
-              organizationId: input.organizationId,
             })
             .returning();
         }

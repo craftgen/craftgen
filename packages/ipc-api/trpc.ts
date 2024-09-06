@@ -25,7 +25,6 @@ import {
   TRPCError,
   ZodError,
 } from "./deps.ts";
-import { createCaller } from "./mod.ts";
 
 /**
  * 1. CONTEXT

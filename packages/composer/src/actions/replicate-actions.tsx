@@ -18,16 +18,16 @@ export const useRegisterReplicateActions = ({
   di: Editor | null;
   layout: FlexLayout.Model;
 }) => {
-  const { data: hasReplicateKey } = api.credentials.hasKeyForProvider.useQuery(
-    {
-      projectId: di?.projectId!,
-      provider: "REPLICATE",
-    },
-    {
-      enabled: !!di?.projectId,
-      keepPreviousData: false,
-    },
-  );
+  const { data: hasReplicateKey } =
+    api.tenant.credentials.hasKeyForProvider.useQuery(
+      {
+        provider: "REPLICATE",
+      },
+      {
+        enabled: !!di?.organizationId,
+        keepPreviousData: false,
+      },
+    );
 
   const [q, _setQuery] = useState<string | undefined>(undefined);
   const setQuery = debounce(_setQuery, 250, { maxWait: 600 });

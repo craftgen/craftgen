@@ -203,7 +203,7 @@ export const useRegisterPlaygroundActions = ({
     },
   );
   const { data: assistants } = api.openai.assistant.list.useQuery(
-    { projectId: di?.projectId! },
+    { projectId: di?.organizationId! },
     { enabled: currentRootActionId === "assistant", keepPreviousData: true },
   );
 

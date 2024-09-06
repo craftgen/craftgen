@@ -2,9 +2,9 @@
 
 import { ReactNode, useEffect, useRef, useState } from "react";
 
-import type { RouterOutputs } from "@craftgen/api";
 import { Editor, type AreaExtra } from "@craftgen/core/editor";
 import { nodes, type Schemes, type WorkflowAPI } from "@craftgen/core/types";
+import type { RouterOutputs } from "@craftgen/ipc-api";
 import { Badge } from "@craftgen/ui/components/badge";
 import { toast } from "@craftgen/ui/components/use-toast";
 
@@ -17,7 +17,7 @@ import { CustomNode } from "./ui/custom-node";
 import { CustomSocket } from "./ui/custom-socket";
 
 export const createEditorFunc = (params: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   componentRegistry: Registry<
     HTMLElement,
@@ -32,7 +32,7 @@ export const createEditorFunc = (params: {
 };
 
 export const useHeadlessEditor = (params: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
 }) => {
@@ -57,7 +57,7 @@ export const useHeadlessEditor = (params: {
 };
 
 async function createHeadlessEditor(params: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   store: ReteStoreInstance;
 }) {
@@ -65,7 +65,7 @@ async function createHeadlessEditor(params: {
     config: {
       nodes,
       meta: {
-        projectId: params.workflow.projectId,
+        organizationId: params.workflow.organizationId,
         workflowId: params.workflow.id,
         workflowVersionId: params.workflow.version.id,
         executionId: params.workflow?.execution?.id,
@@ -90,7 +90,7 @@ async function createHeadlessEditor(params: {
 
 async function createEditor(params: {
   container: HTMLElement;
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
   api: Partial<WorkflowAPI>;
   componentRegistry: Registry<
     HTMLElement,
@@ -121,7 +121,7 @@ async function createEditor(params: {
         },
       },
       meta: {
-        projectId: params.workflow.projectId,
+        organizationId: params.workflow.organizationId,
         workflowId: params.workflow.id,
         workflowVersionId: params.workflow.version.id,
         executionId: params.workflow?.execution?.id,

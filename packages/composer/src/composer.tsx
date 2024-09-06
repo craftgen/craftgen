@@ -14,8 +14,8 @@ import {
 import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
 
-import type { RouterOutputs } from "@craftgen/api";
 import type { WorkflowAPI } from "@craftgen/core/types";
+import type { RouterOutputs } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
 import { LoadingDots } from "@craftgen/ui/components/loading-dots";
 import {
@@ -43,20 +43,21 @@ export type ComponentRegistry = Map<
 >;
 
 export const Composer: React.FC<{
-  workflowMeta: RouterOutputs["craft"]["module"]["meta"];
+  workflowMeta: RouterOutputs["platform"]["craft"]["module"]["meta"];
   store: any;
 }> = ({ workflowMeta, store }) => {
-  const { data: latestWorkflow, isLoading } = api.craft.module.get.useQuery(
-    {
-      projectSlug: workflowMeta.project.slug,
-      version: workflowMeta.version?.version!,
-      workflowSlug: workflowMeta.slug,
-      executionId: workflowMeta.execution?.id,
-    },
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: latestWorkflow, isLoading } =
+    api.platform.craft.module.get.useQuery(
+      {
+        orgSlug: workflowMeta.organizationSlug,
+        workflowSlug: workflowMeta.slug,
+        version: workflowMeta.version?.version!,
+        // executionId: workflowMeta.execution?.id,
+      },
+      {
+        refetchOnWindowFocus: false,
+      },
+    );
 
   if (isLoading)
     return (
@@ -69,7 +70,7 @@ export const Composer: React.FC<{
 };
 
 const ComposerUI = (props: {
-  workflow: RouterOutputs["craft"]["module"]["get"];
+  workflow: RouterOutputs["platform"]["craft"]["module"]["get"];
   store: any;
 }) => {
   const utils = api.useUtils();

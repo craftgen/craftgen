@@ -11,7 +11,7 @@ test("Node registry", async () => {
       api: mockAPI,
       nodes: { Start, TextNode },
       meta: {
-        projectId: "projectId",
+        organizationId: "projectId",
         workflowId: "workflowId",
         workflowVersionId: "workflowVersionId",
       },
@@ -30,7 +30,7 @@ test("Can not add node which is not registered", async () => {
         api: mockAPI,
         nodes: { Start },
         meta: {
-          projectId: "projectId",
+          organizationId: "projectId",
           workflowId: "workflowId",
           workflowVersionId: "workflowVersionId",
         },
@@ -56,7 +56,7 @@ test("Can add node which is registered", async () => {
       api: mockAPI,
       nodes: { Start, TextNode },
       meta: {
-        projectId: "projectId",
+        organizationId: "projectId",
         workflowId: "workflowId",
         workflowVersionId: "workflowVersionId",
       },
@@ -86,7 +86,7 @@ test("Throw if the edges are not valid", async () => {
           api: mockAPI,
           nodes: { Start, TextNode },
           meta: {
-            projectId: "projectId",
+            organizationId: "projectId",
             workflowId: "workflowId",
             workflowVersionId: "workflowVersionId",
           },
@@ -120,7 +120,7 @@ test("Can add valid edges", async () => {
       api: mockAPI,
       nodes: { TextNode, OpenAIFunctionCall },
       meta: {
-        projectId: "projectId",
+        organizationId: "projectId",
         workflowId: "workflowId",
         workflowVersionId: "workflowVersionId",
       },
@@ -177,7 +177,7 @@ test("Setups the editor", async () => {
       api: mockAPI,
       nodes: { TextNode, OpenAIFunctionCall },
       meta: {
-        projectId: "projectId",
+        organizationId: "projectId",
         workflowId: "workflowId",
         workflowVersionId: "workflowVersionId",
       },
@@ -217,7 +217,7 @@ test("Test execution", async () => {
       api: mockAPI,
       nodes: { TextNode, PromptTemplate },
       meta: {
-        projectId: "projectId",
+        organizationId: "projectId",
         workflowId: "workflowId",
         workflowVersionId: "workflowVersionId",
       },

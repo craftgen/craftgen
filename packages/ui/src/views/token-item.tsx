@@ -7,12 +7,12 @@ import { CheckIcon, Eye, EyeOff, MinusCircle, PlusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import type { RouterOutputs } from "@craftgen/api";
 import {
   Provider,
   providers,
   ProviderType,
 } from "@craftgen/core/provider/config";
+import type { RouterOutputs } from "@craftgen/ipc-api";
 
 import { Alert, AlertDescription, AlertTitle } from "../components/alert";
 import { Badge } from "../components/badge";
@@ -64,10 +64,9 @@ const formSchema = z.object({
 });
 
 export const TokenList: React.FC<{
-  tokens?: RouterOutputs["credentials"]["list"];
-  projectSlug: string;
-}> = ({ tokens, projectSlug }) => {
-  const { data: tokensData, isError } = api.credentials.list.useQuery(
+  tokens?: RouterOutputs["tenant"]["credentials"]["list"];
+}> = ({ tokens }) => {
+  const { data: tokensData, isError } = api.tenant.credentials.list.useQuery(
     {},
     {
       initialData: tokens,
@@ -87,7 +86,7 @@ export const TokenList: React.FC<{
       )}
       {tokensData && (
         <>
-          <TokenListNew tokens={tokensData} projectSlug={projectSlug} />
+          <TokenListNew tokens={tokensData} />
           {tokensData?.length > 0 && (
             <>
               <Separator />
@@ -101,12 +100,8 @@ export const TokenList: React.FC<{
 };
 
 export const TokenListNew: React.FC<{
-  tokens: RouterOutputs["credentials"]["list"];
-  projectSlug: string;
-}> = ({ projectSlug }) => {
-  const { data: project } = api.project.bySlug.useQuery({
-    projectSlug: projectSlug,
-  });
+  tokens: RouterOutputs["tenant"]["credentials"]["list"];
+}> = ({ tokens }) => {
   const utils = api.useUtils();
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -126,17 +121,15 @@ export const TokenListNew: React.FC<{
     name: "tokens", // unique name for your Field Array
   });
 
-  const { mutateAsync: insertToken } = api.credentials.insert.useMutation({
-    onSettled: async () => {
-      await utils.credentials.list.invalidate();
-      await utils.credentials.hasKeyForProvider.invalidate({
-        projectId: project?.id!,
-      });
-    },
-  });
+  const { mutateAsync: insertToken } =
+    api.tenant.credentials.insert.useMutation({
+      onSettled: async () => {
+        await utils.tenant.credentials.list.invalidate();
+        await utils.tenant.credentials.hasKeyForProvider.invalidate();
+      },
+    });
   const onSubmit = async (data?: z.infer<typeof formSchema>) => {
     await insertToken({
-      projectId: project?.id!,
       tokens: data?.tokens!,
     });
     form.reset();
@@ -377,7 +370,7 @@ const ProviderItem = ({ provider }: { provider: Provider }) => {
 };
 
 export const ExistingTokenList: React.FC<{
-  tokens: RouterOutputs["credentials"]["list"];
+  tokens: RouterOutputs["tenant"]["credentials"]["list"];
 }> = ({ tokens }) => {
   const [edit, setEdit] = useState<string | null>(null);
   return (
@@ -395,7 +388,7 @@ export const ExistingTokenList: React.FC<{
 };
 
 export const TokenItem: React.FC<{
-  token: RouterOutputs["credentials"]["list"][number];
+  token: RouterOutputs["tenant"]["credentials"]["list"][number];
   isOpen: boolean;
   setOpen: (id: string | null) => void;
 }> = ({ token, isOpen, setOpen }) => {
@@ -407,24 +400,30 @@ export const TokenItem: React.FC<{
     },
     resolver: zodResolver(tokenSchema),
   });
-  const { mutateAsync: updateToken } = api.credentials.update.useMutation();
+  const { mutateAsync: updateToken } =
+    api.tenant.credentials.update.useMutation();
   const onSubmit = async (data: z.infer<typeof tokenSchema>) => {
     await updateToken({ id: token.id, ...data });
-    await utils.credentials.list.invalidate();
+    await utils.tenant.credentials.list.invalidate();
     setOpen(null);
   };
-  const { mutateAsync: deleteToken } = api.credentials.delete.useMutation();
+  const { mutateAsync: deleteToken } =
+    api.tenant.credentials.delete.useMutation({
+      onSettled: async () => {
+        await utils.tenant.credentials.list.invalidate();
+      },
+    });
 
   const handleDelete = async () => {
     await deleteToken({ id: token.id });
-    await utils.credentials.list.invalidate();
+    await utils.tenant.credentials.list.invalidate();
   };
   const { mutateAsync: setDefaultToken } =
-    api.credentials.setDefault.useMutation();
+    api.tenant.credentials.setDefault.useMutation();
 
   const setDefault = async () => {
     await setDefaultToken({ id: token.id });
-    await utils.credentials.list.invalidate();
+    await utils.tenant.credentials.list.invalidate();
   };
 
   const provider = useMemo(() => {

@@ -32,7 +32,7 @@ export function SecretControlComponent(props: { data: SecretController }) {
 
   const [open, setOpen] = useState(false);
   const { data: user } = api.auth.getSession.useQuery();
-  const { data: values } = api.credentials.list.useQuery(
+  const { data: values } = api.tenant.credentials.list.useQuery(
     {},
     {
       initialData: [],
