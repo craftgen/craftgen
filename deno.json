@@ -1,1 +1,9 @@
-{ "workspace": ["./nodes/base", "./nodes/shared"] }
+{
+  "workspace": ["./nodes/base", "./nodes/shared"],
+  "deploy": {
+    "project": "769c6961-608e-4744-833d-255b33082389",
+    "exclude": ["**/node_modules"],
+    "include": [],
+    "entrypoint": "apps/web/.output/server/index.ts"
+  }
+}
