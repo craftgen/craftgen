@@ -30,6 +30,8 @@
     "react": "^18.2.0"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.4.1",
+    "@clerk/tanstack-start": "^0.3.5",
     "@craftgen/api": "0.1.2",
     "@craftgen/core": "0.1.2",
     "@craftgen/ipc-api": "0.0.1",

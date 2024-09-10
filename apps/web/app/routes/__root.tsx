@@ -8,8 +8,6 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Body, Head, Html, Meta, Scripts } from "@tanstack/start";
 
-import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
-
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
 import { Providers } from "~/providers";
@@ -69,9 +67,7 @@ function RootComponent() {
   return (
     <Providers>
       <RootDocument>
-        <DashboardLayout>
-          <Outlet />
-        </DashboardLayout>
+        <Outlet />
       </RootDocument>
     </Providers>
   );
