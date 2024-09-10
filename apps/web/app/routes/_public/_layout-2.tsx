@@ -1,8 +1,8 @@
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_layout/_layout-2')({
+export const Route = createFileRoute("/_public/_layout-2")({
   component: LayoutComponent,
-})
+});
 
 function LayoutComponent() {
   return (
@@ -12,7 +12,7 @@ function LayoutComponent() {
         <Link
           to="/layout-a"
           activeProps={{
-            className: 'font-bold',
+            className: "font-bold",
           }}
         >
           Layout A
@@ -20,7 +20,7 @@ function LayoutComponent() {
         <Link
           to="/layout-b"
           activeProps={{
-            className: 'font-bold',
+            className: "font-bold",
           }}
         >
           Layout B
@@ -30,5 +30,5 @@ function LayoutComponent() {
         <Outlet />
       </div>
     </div>
-  )
+  );
 }

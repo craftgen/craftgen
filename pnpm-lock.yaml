@@ -960,6 +960,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      posthog-js:
+        specifier: 1.139.0
+        version: 1.139.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1568,6 +1571,12 @@ importers:
 
   packages/ui:
     dependencies:
+      '@clerk/clerk-react':
+        specifier: ^5.4.1
+        version: 5.7.0(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/tanstack-start':
+        specifier: ^0.3.5
+        version: 0.3.5(@tanstack/react-router@1.34.7)(@tanstack/start@1.57.1)(react-dom@18.2.0)(react@18.2.0)
       '@craftgen/api':
         specifier: 0.1.2
         version: link:../api
@@ -4695,6 +4704,26 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       std-env: 3.7.0
       swr: 2.2.5(react@18.2.0)
+    dev: false
+
+  /@clerk/tanstack-start@0.3.5(@tanstack/react-router@1.34.7)(@tanstack/start@1.57.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Rctqajkvy1MC6bjvS6+6wvA0ah1mk0CJq92QXK2ib4uoBH4p0BAlH5JhlinAKD1ab3udlHkFitshEDgKjUP3KA==}
+    engines: {node: '>=18.17.0'}
+    peerDependencies:
+      '@tanstack/react-router': '>=1.49.1'
+      '@tanstack/start': '>=1.49.1'
+      react: '>=18 || >=19.0.0-beta'
+      react-dom: '>=18 || >=19.0.0-beta'
+    dependencies:
+      '@clerk/backend': 1.9.2(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/clerk-react': 5.7.0(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/shared': 2.6.2(react-dom@18.2.0)(react@18.2.0)
+      '@clerk/types': 4.19.0
+      '@tanstack/react-router': 1.34.7(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/start': 1.57.1(@types/node@20.14.14)(react-dom@18.2.0)(react@18.2.0)(typescript@5.4.5)(vite@4.5.3)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.4.1
     dev: false
 
   /@clerk/tanstack-start@0.3.5(@tanstack/react-router@1.56.5)(@tanstack/start@1.57.1)(react-dom@18.2.0)(react@18.2.0):
@@ -11296,6 +11325,31 @@ packages:
       - supports-color
     dev: false
 
+  /@react-native/community-cli-plugin@0.74.87(@babel/core@7.25.2)(@babel/preset-env@7.25.3):
+    resolution: {integrity: sha512-EgJG9lSr8x3X67dHQKQvU6EkO+3ksVlJHYIVv6U/AmW9dN80BEFxgYbSJ7icXS4wri7m4kHdgeq2PQ7/3vvrTQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@react-native-community/cli-server-api': 13.6.9(encoding@0.1.13)
+      '@react-native-community/cli-tools': 13.6.9(encoding@0.1.13)
+      '@react-native/dev-middleware': 0.74.87(encoding@0.1.13)
+      '@react-native/metro-babel-transformer': 0.74.87(@babel/core@7.25.2)(@babel/preset-env@7.25.3)
+      chalk: 4.1.2
+      execa: 5.1.1
+      metro: 0.80.9
+      metro-config: 0.80.9
+      metro-core: 0.80.9
+      node-fetch: 2.7.0(encoding@0.1.13)
+      querystring: 0.2.1
+      readline: 1.3.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@react-native/community-cli-plugin@0.74.87(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(encoding@0.1.13):
     resolution: {integrity: sha512-EgJG9lSr8x3X67dHQKQvU6EkO+3ksVlJHYIVv6U/AmW9dN80BEFxgYbSJ7icXS4wri7m4kHdgeq2PQ7/3vvrTQ==}
     engines: {node: '>=18'}
@@ -11394,7 +11448,7 @@ packages:
       invariant: 2.2.4
       nullthrows: 1.1.1
       react: 18.2.0
-      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(encoding@0.1.13)(react@18.2.0)
+      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(react@18.2.0)
     dev: false
 
   /@react-spring/animated@9.7.3(react@18.2.0):
@@ -11445,7 +11499,7 @@ packages:
       '@react-spring/shared': 9.7.3(react@18.2.0)
       '@react-spring/types': 9.7.3
       react: 18.2.0
-      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(encoding@0.1.13)(react@18.2.0)
+      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(react@18.2.0)
     dev: false
 
   /@react-spring/shared@9.7.3(react@18.2.0):
@@ -11542,7 +11596,7 @@ packages:
       its-fine: 1.2.5(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(encoding@0.1.13)(react@18.2.0)
+      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(react@18.2.0)
       react-reconciler: 0.27.0(react@18.2.0)
       react-use-measure: 2.1.1(react-dom@18.2.0)(react@18.2.0)
       scheduler: 0.21.0
@@ -13115,6 +13169,45 @@ packages:
       zod: 3.23.8
     dev: false
 
+  /@tanstack/router-plugin@1.57.1(vite@4.5.3):
+    resolution: {integrity: sha512-mE01npOVwm1qtirkoTC72UBSA/bdP4j3ZrJYjbT4d5cEy7Ict3rysSuhTmLQI3/eOWWouv4dqtWmsgBBNTJWcQ==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@rsbuild/core': '>=1.0.1-rc.5'
+      vite: '>=5.0.0'
+      webpack: '>=5.92.0'
+    peerDependenciesMeta:
+      '@rsbuild/core':
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
+    dependencies:
+      '@babel/core': 7.25.2
+      '@babel/generator': 7.25.0
+      '@babel/parser': 7.25.3
+      '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
+      '@babel/plugin-syntax-typescript': 7.24.7(@babel/core@7.25.2)
+      '@babel/template': 7.25.0
+      '@babel/traverse': 7.25.3
+      '@babel/types': 7.25.2
+      '@tanstack/router-generator': 1.56.4
+      '@tanstack/virtual-file-routes': 1.56.0
+      '@types/babel__core': 7.20.5
+      '@types/babel__generator': 7.6.8
+      '@types/babel__template': 7.4.4
+      '@types/babel__traverse': 7.20.6
+      babel-dead-code-elimination: 1.0.6
+      chokidar: 3.6.0
+      unplugin: 1.14.0
+      vite: 4.5.3(@types/node@20.14.14)
+      zod: 3.23.8
+    transitivePeerDependencies:
+      - supports-color
+      - webpack-sources
+    dev: false
+
   /@tanstack/router-plugin@1.57.1(vite@5.4.3):
     resolution: {integrity: sha512-mE01npOVwm1qtirkoTC72UBSA/bdP4j3ZrJYjbT4d5cEy7Ict3rysSuhTmLQI3/eOWWouv4dqtWmsgBBNTJWcQ==}
     engines: {node: '>=12'}
@@ -13197,6 +13290,71 @@ packages:
       '@types/babel__traverse': 7.20.6
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@tanstack/start@1.57.1(@types/node@20.14.14)(react-dom@18.2.0)(react@18.2.0)(typescript@5.4.5)(vite@4.5.3):
+    resolution: {integrity: sha512-ULoqEcstTEY2uI81fTKqPZD9LD1rr6mfiZVQk5rM3d1Myt/XdbWtlJzR5+4jjklqFzbpGulvmBPYXjUafVI6hA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=18.0.0 || >=19.0.0'
+      react-dom: '>=18.0.0 || >=19.0.0'
+    dependencies:
+      '@tanstack/react-cross-context': 1.51.6(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-router': 1.56.5(@tanstack/router-generator@1.56.4)(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/router-generator': 1.56.4
+      '@tanstack/router-plugin': 1.57.1(vite@4.5.3)
+      '@tanstack/start-vite-plugin': 1.51.6
+      '@types/jsesc': 3.0.3
+      '@vinxi/react': 0.2.4
+      '@vinxi/react-server-dom': 0.0.3(react-dom@18.2.0)(react@18.2.0)(vite@4.5.3)
+      '@vinxi/server-components': 0.4.2(vinxi@0.4.2)
+      '@vinxi/server-functions': 0.4.2(vinxi@0.4.2)
+      import-meta-resolve: 4.1.0
+      isbot: 5.1.17
+      jsesc: 3.0.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tiny-invariant: 1.3.3
+      vinxi: 0.4.2(@types/node@20.14.14)
+      vite-tsconfig-paths: 5.0.1(typescript@5.4.5)(vite@4.5.3)
+      zod: 3.23.8
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@rsbuild/core'
+      - '@tanstack/react-generator'
+      - '@types/node'
+      - '@upstash/redis'
+      - '@vercel/kv'
+      - better-sqlite3
+      - debug
+      - drizzle-orm
+      - encoding
+      - idb-keyval
+      - ioredis
+      - less
+      - lightningcss
+      - magicast
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - typescript
+      - uWebSockets.js
+      - vite
+      - webpack
+      - webpack-sources
+      - xml2js
     dev: false
 
   /@tanstack/start@1.57.1(@types/node@20.14.14)(react-dom@18.2.0)(react@18.2.0)(typescript@5.6.2)(vite@5.4.3):
@@ -15989,6 +16147,20 @@ packages:
       recast: 0.23.9
       tslib: 2.6.3
       vinxi: 0.4.2(@types/node@20.14.14)
+    dev: false
+
+  /@vinxi/react-server-dom@0.0.3(react-dom@18.2.0)(react@18.2.0)(vite@4.5.3):
+    resolution: {integrity: sha512-ZJJZtuw1TbGFOBuDZBHmM3w40yzFpNFWoPCoC2QtZBkYEQXYF9sOHHxkjTfNvk4rSn/zaUAs6KNUbVRvebq/1Q==}
+    engines: {node: '>=0.10.0'}
+    peerDependencies:
+      react: 0.0.0-experimental-035a41c4e-20230704
+      react-dom: 0.0.0-experimental-035a41c4e-20230704
+      vite: ^4.3.9
+    dependencies:
+      acorn-loose: 8.4.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      vite: 4.5.3(@types/node@20.14.14)
     dev: false
 
   /@vinxi/react-server-dom@0.0.3(react-dom@18.2.0)(react@18.2.0)(vite@5.4.3):
@@ -24479,6 +24651,24 @@ packages:
       rimraf: 3.0.2
     dev: false
 
+  /metro-config@0.80.9:
+    resolution: {integrity: sha512-28wW7CqS3eJrunRGnsibWldqgwRP9ywBEf7kg+uzUHkSFJNKPM1K3UNSngHmH0EZjomizqQA2Zi6/y6VdZMolg==}
+    engines: {node: '>=18'}
+    dependencies:
+      connect: 3.7.0
+      cosmiconfig: 5.2.1
+      jest-validate: 29.7.0
+      metro: 0.80.9
+      metro-cache: 0.80.9
+      metro-core: 0.80.9
+      metro-runtime: 0.80.9
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /metro-config@0.80.9(encoding@0.1.13):
     resolution: {integrity: sha512-28wW7CqS3eJrunRGnsibWldqgwRP9ywBEf7kg+uzUHkSFJNKPM1K3UNSngHmH0EZjomizqQA2Zi6/y6VdZMolg==}
     engines: {node: '>=18'}
@@ -24588,6 +24778,29 @@ packages:
       - supports-color
     dev: false
 
+  /metro-transform-worker@0.80.9:
+    resolution: {integrity: sha512-c/IrzMUVnI0hSVVit4TXzt3A1GiUltGVlzCmLJWxNrBGHGrJhvgePj38+GXl1Xf4Fd4vx6qLUkKMQ3ux73bFLQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@babel/core': 7.25.2
+      '@babel/generator': 7.25.0
+      '@babel/parser': 7.25.3
+      '@babel/types': 7.25.2
+      metro: 0.80.9
+      metro-babel-transformer: 0.80.9
+      metro-cache: 0.80.9
+      metro-cache-key: 0.80.9
+      metro-minify-terser: 0.80.9
+      metro-source-map: 0.80.9
+      metro-transform-plugins: 0.80.9
+      nullthrows: 1.1.1
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /metro-transform-worker@0.80.9(encoding@0.1.13):
     resolution: {integrity: sha512-c/IrzMUVnI0hSVVit4TXzt3A1GiUltGVlzCmLJWxNrBGHGrJhvgePj38+GXl1Xf4Fd4vx6qLUkKMQ3ux73bFLQ==}
     engines: {node: '>=18'}
@@ -24604,6 +24817,61 @@ packages:
       metro-source-map: 0.80.9
       metro-transform-plugins: 0.80.9
       nullthrows: 1.1.1
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /metro@0.80.9:
+    resolution: {integrity: sha512-Bc57Xf3GO2Xe4UWQsBj/oW6YfLPABEu8jfDVDiNmJvoQW4CO34oDPuYKe4KlXzXhcuNsqOtSxpbjCRRVjhhREg==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      '@babel/code-frame': 7.24.7
+      '@babel/core': 7.25.2
+      '@babel/generator': 7.25.0
+      '@babel/parser': 7.25.3
+      '@babel/template': 7.25.0
+      '@babel/traverse': 7.25.3
+      '@babel/types': 7.25.2
+      accepts: 1.3.8
+      chalk: 4.1.2
+      ci-info: 2.0.0
+      connect: 3.7.0
+      debug: 2.6.9
+      denodeify: 1.2.1
+      error-stack-parser: 2.1.4
+      graceful-fs: 4.2.11
+      hermes-parser: 0.20.1
+      image-size: 1.1.1
+      invariant: 2.2.4
+      jest-worker: 29.7.0
+      jsc-safe-url: 0.2.4
+      lodash.throttle: 4.1.1
+      metro-babel-transformer: 0.80.9
+      metro-cache: 0.80.9
+      metro-cache-key: 0.80.9
+      metro-config: 0.80.9
+      metro-core: 0.80.9
+      metro-file-map: 0.80.9
+      metro-resolver: 0.80.9
+      metro-runtime: 0.80.9
+      metro-source-map: 0.80.9
+      metro-symbolicate: 0.80.9
+      metro-transform-plugins: 0.80.9
+      metro-transform-worker: 0.80.9
+      mime-types: 2.1.35
+      node-fetch: 2.7.0(encoding@0.1.13)
+      nullthrows: 1.1.1
+      rimraf: 3.0.2
+      serialize-error: 2.1.0
+      source-map: 0.5.7
+      strip-ansi: 6.0.1
+      throat: 5.0.0
+      ws: 7.5.10
+      yargs: 17.7.2
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -27769,6 +28037,65 @@ packages:
       - utf-8-validate
     dev: false
 
+  /react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(@types/react@18.2.15)(react@18.2.0):
+    resolution: {integrity: sha512-Bgg2WvxaGODukJMTZFTZBNMKVaROHLwSb8VAGEdrlvKwfb1hHg/3aXTUICYk7dwgAnb+INbGMwnF8yeAgIUmqw==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      '@types/react': ^18.2.6
+      react: 18.2.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@jest/create-cache-key-function': 29.7.0
+      '@react-native-community/cli': 13.6.9(encoding@0.1.13)
+      '@react-native-community/cli-platform-android': 13.6.9(encoding@0.1.13)
+      '@react-native-community/cli-platform-ios': 13.6.9(encoding@0.1.13)
+      '@react-native/assets-registry': 0.74.87
+      '@react-native/codegen': 0.74.87(@babel/preset-env@7.25.3)
+      '@react-native/community-cli-plugin': 0.74.87(@babel/core@7.25.2)(@babel/preset-env@7.25.3)
+      '@react-native/gradle-plugin': 0.74.87
+      '@react-native/js-polyfills': 0.74.87
+      '@react-native/normalize-colors': 0.74.87
+      '@react-native/virtualized-lists': 0.74.87(@types/react@18.2.15)(react-native@0.74.5)(react@18.2.0)
+      '@types/react': 18.2.15
+      abort-controller: 3.0.0
+      anser: 1.4.10
+      ansi-regex: 5.0.1
+      base64-js: 1.5.1
+      chalk: 4.1.2
+      event-target-shim: 5.0.1
+      flow-enums-runtime: 0.0.6
+      invariant: 2.2.4
+      jest-environment-node: 29.7.0
+      jsc-android: 250231.0.0
+      memoize-one: 5.2.1
+      metro-runtime: 0.80.9
+      metro-source-map: 0.80.9
+      mkdirp: 0.5.6
+      nullthrows: 1.1.1
+      pretty-format: 26.6.2
+      promise: 8.3.0
+      react: 18.2.0
+      react-devtools-core: 5.3.1
+      react-refresh: 0.14.2
+      react-shallow-renderer: 16.15.0(react@18.2.0)
+      regenerator-runtime: 0.13.11
+      scheduler: 0.24.0-canary-efb381bbf-20230505
+      stacktrace-parser: 0.1.10
+      whatwg-fetch: 3.6.20
+      ws: 6.2.3
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /react-reconciler@0.27.0(react@18.2.0):
     resolution: {integrity: sha512-HmMDKciQjYmBRGuuhIaKA1ba/7a+UsM5FzOZsMO2JYHt9Jh8reCb7j1eDC95NOyUlKM9KRyvdx0flBuDvYSBoA==}
     engines: {node: '>=0.10.0'}
@@ -30578,6 +30905,19 @@ packages:
     resolution: {integrity: sha512-895zss8xqqHKTc28sHGIfZKnt3C5jrstB1DyPr/h3/flK0zojsZUMQL1/W4ytdDW6KI4Oth62nb9rrxmA3s3Iw==}
     dev: false
 
+  /tsconfck@3.1.3(typescript@5.4.5):
+    resolution: {integrity: sha512-ulNZP1SVpRDesxeMLON/LtWM8HIgAJEIVpVVhBM6gsmvQ8+Rh+ZG7FWGvHh7Ah3pRABwVJWklWCr/BTZSv0xnQ==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 5.4.5
+    dev: false
+
   /tsconfck@3.1.3(typescript@5.6.2):
     resolution: {integrity: sha512-ulNZP1SVpRDesxeMLON/LtWM8HIgAJEIVpVVhBM6gsmvQ8+Rh+ZG7FWGvHh7Ah3pRABwVJWklWCr/BTZSv0xnQ==}
     engines: {node: ^18 || >=20}
@@ -31626,6 +31966,23 @@ packages:
       magic-string: 0.30.8
     dev: false
 
+  /vite-tsconfig-paths@5.0.1(typescript@5.4.5)(vite@4.5.3):
+    resolution: {integrity: sha512-yqwv+LstU7NwPeNqajZzLEBVpUFU6Dugtb2P84FXuvaoYA+/70l9MHE+GYfYAycVyPSDYZ7mjOFuYBRqlEpTig==}
+    peerDependencies:
+      vite: '*'
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dependencies:
+      debug: 4.3.6
+      globrex: 0.1.2
+      tsconfck: 3.1.3(typescript@5.4.5)
+      vite: 4.5.3(@types/node@20.14.14)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: false
+
   /vite-tsconfig-paths@5.0.1(typescript@5.6.2)(vite@5.4.3):
     resolution: {integrity: sha512-yqwv+LstU7NwPeNqajZzLEBVpUFU6Dugtb2P84FXuvaoYA+/70l9MHE+GYfYAycVyPSDYZ7mjOFuYBRqlEpTig==}
     peerDependencies:
@@ -31641,6 +31998,42 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  /vite@4.5.3(@types/node@20.14.14):
+    resolution: {integrity: sha512-kQL23kMeX92v3ph7IauVkXkikdDRsYMGTVl5KY2E9OY4ONLvkHf04MDTbnfo6NKxZiDLWzVpP5oTa8hQD8U3dg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 20.14.14
+      esbuild: 0.18.20
+      postcss: 8.4.31
+      rollup: 3.29.4
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
 
   /vite@5.4.3(@types/node@20.14.14):
     resolution: {integrity: sha512-IH+nl64eq9lJjFqU+/yrRnrHPVTlgy42/+IzbOdaFDVlyLgI/wDlf+FCobXLX1cT0X5+7LMyH1mIy2xJdLfo8Q==}

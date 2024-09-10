@@ -15,16 +15,16 @@ import { Route as UsersImport } from './routes/users'
 import { Route as RedirectImport } from './routes/redirect'
 import { Route as PostsImport } from './routes/posts'
 import { Route as DeferredImport } from './routes/deferred'
-import { Route as LayoutImport } from './routes/_layout'
-import { Route as IndexImport } from './routes/index'
+import { Route as PublicImport } from './routes/_public'
 import { Route as UsersIndexImport } from './routes/users.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
+import { Route as PublicIndexImport } from './routes/_public/index'
 import { Route as UsersUserIdImport } from './routes/users.$userId'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
-import { Route as LayoutLayout2Import } from './routes/_layout/_layout-2'
+import { Route as PublicLayout2Import } from './routes/_public/_layout-2'
 import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
-import { Route as LayoutLayout2LayoutBImport } from './routes/_layout/_layout-2/layout-b'
-import { Route as LayoutLayout2LayoutAImport } from './routes/_layout/_layout-2/layout-a'
+import { Route as PublicLayout2LayoutBImport } from './routes/_public/_layout-2/layout-b'
+import { Route as PublicLayout2LayoutAImport } from './routes/_public/_layout-2/layout-a'
 
 // Create/Update Routes
 
@@ -48,13 +48,8 @@ const DeferredRoute = DeferredImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
-  path: '/',
+const PublicRoute = PublicImport.update({
+  id: '/_public',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -68,6 +63,11 @@ const PostsIndexRoute = PostsIndexImport.update({
   getParentRoute: () => PostsRoute,
 } as any)
 
+const PublicIndexRoute = PublicIndexImport.update({
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+
 const UsersUserIdRoute = UsersUserIdImport.update({
   path: '/$userId',
   getParentRoute: () => UsersRoute,
@@ -78,9 +78,9 @@ const PostsPostIdRoute = PostsPostIdImport.update({
   getParentRoute: () => PostsRoute,
 } as any)
 
-const LayoutLayout2Route = LayoutLayout2Import.update({
+const PublicLayout2Route = PublicLayout2Import.update({
   id: '/_layout-2',
-  getParentRoute: () => LayoutRoute,
+  getParentRoute: () => PublicRoute,
 } as any)
 
 const PostsPostIdDeepRoute = PostsPostIdDeepImport.update({
@@ -88,32 +88,25 @@ const PostsPostIdDeepRoute = PostsPostIdDeepImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutLayout2LayoutBRoute = LayoutLayout2LayoutBImport.update({
+const PublicLayout2LayoutBRoute = PublicLayout2LayoutBImport.update({
   path: '/layout-b',
-  getParentRoute: () => LayoutLayout2Route,
+  getParentRoute: () => PublicLayout2Route,
 } as any)
 
-const LayoutLayout2LayoutARoute = LayoutLayout2LayoutAImport.update({
+const PublicLayout2LayoutARoute = PublicLayout2LayoutAImport.update({
   path: '/layout-a',
-  getParentRoute: () => LayoutLayout2Route,
+  getParentRoute: () => PublicLayout2Route,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_layout': {
-      id: '/_layout'
+    '/_public': {
+      id: '/_public'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutImport
+      preLoaderRoute: typeof PublicImport
       parentRoute: typeof rootRoute
     }
     '/deferred': {
@@ -144,12 +137,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
-    '/_layout/_layout-2': {
-      id: '/_layout/_layout-2'
+    '/_public/_layout-2': {
+      id: '/_public/_layout-2'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof LayoutLayout2Import
-      parentRoute: typeof LayoutImport
+      preLoaderRoute: typeof PublicLayout2Import
+      parentRoute: typeof PublicImport
     }
     '/posts/$postId': {
       id: '/posts/$postId'
@@ -165,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdImport
       parentRoute: typeof UsersImport
     }
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexImport
+      parentRoute: typeof PublicImport
+    }
     '/posts/': {
       id: '/posts/'
       path: '/'
@@ -179,19 +179,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersIndexImport
       parentRoute: typeof UsersImport
     }
-    '/_layout/_layout-2/layout-a': {
-      id: '/_layout/_layout-2/layout-a'
+    '/_public/_layout-2/layout-a': {
+      id: '/_public/_layout-2/layout-a'
       path: '/layout-a'
       fullPath: '/layout-a'
-      preLoaderRoute: typeof LayoutLayout2LayoutAImport
-      parentRoute: typeof LayoutLayout2Import
+      preLoaderRoute: typeof PublicLayout2LayoutAImport
+      parentRoute: typeof PublicLayout2Import
     }
-    '/_layout/_layout-2/layout-b': {
-      id: '/_layout/_layout-2/layout-b'
+    '/_public/_layout-2/layout-b': {
+      id: '/_public/_layout-2/layout-b'
       path: '/layout-b'
       fullPath: '/layout-b'
-      preLoaderRoute: typeof LayoutLayout2LayoutBImport
-      parentRoute: typeof LayoutLayout2Import
+      preLoaderRoute: typeof PublicLayout2LayoutBImport
+      parentRoute: typeof PublicLayout2Import
     }
     '/posts/$postId/deep': {
       id: '/posts/$postId/deep'
@@ -205,30 +205,32 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-interface LayoutLayout2RouteChildren {
-  LayoutLayout2LayoutARoute: typeof LayoutLayout2LayoutARoute
-  LayoutLayout2LayoutBRoute: typeof LayoutLayout2LayoutBRoute
+interface PublicLayout2RouteChildren {
+  PublicLayout2LayoutARoute: typeof PublicLayout2LayoutARoute
+  PublicLayout2LayoutBRoute: typeof PublicLayout2LayoutBRoute
 }
 
-const LayoutLayout2RouteChildren: LayoutLayout2RouteChildren = {
-  LayoutLayout2LayoutARoute: LayoutLayout2LayoutARoute,
-  LayoutLayout2LayoutBRoute: LayoutLayout2LayoutBRoute,
+const PublicLayout2RouteChildren: PublicLayout2RouteChildren = {
+  PublicLayout2LayoutARoute: PublicLayout2LayoutARoute,
+  PublicLayout2LayoutBRoute: PublicLayout2LayoutBRoute,
 }
 
-const LayoutLayout2RouteWithChildren = LayoutLayout2Route._addFileChildren(
-  LayoutLayout2RouteChildren,
+const PublicLayout2RouteWithChildren = PublicLayout2Route._addFileChildren(
+  PublicLayout2RouteChildren,
 )
 
-interface LayoutRouteChildren {
-  LayoutLayout2Route: typeof LayoutLayout2RouteWithChildren
+interface PublicRouteChildren {
+  PublicLayout2Route: typeof PublicLayout2RouteWithChildren
+  PublicIndexRoute: typeof PublicIndexRoute
 }
 
-const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutLayout2Route: LayoutLayout2RouteWithChildren,
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicLayout2Route: PublicLayout2RouteWithChildren,
+  PublicIndexRoute: PublicIndexRoute,
 }
 
-const LayoutRouteWithChildren =
-  LayoutRoute._addFileChildren(LayoutRouteChildren)
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface PostsRouteChildren {
   PostsPostIdRoute: typeof PostsPostIdRoute
@@ -255,57 +257,56 @@ const UsersRouteChildren: UsersRouteChildren = {
 const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '': typeof LayoutLayout2RouteWithChildren
+  '': typeof PublicLayout2RouteWithChildren
   '/deferred': typeof DeferredRoute
   '/posts': typeof PostsRouteWithChildren
   '/redirect': typeof RedirectRoute
   '/users': typeof UsersRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
+  '/': typeof PublicIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
-  '/layout-a': typeof LayoutLayout2LayoutARoute
-  '/layout-b': typeof LayoutLayout2LayoutBRoute
+  '/layout-a': typeof PublicLayout2LayoutARoute
+  '/layout-b': typeof PublicLayout2LayoutBRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '': typeof LayoutLayout2RouteWithChildren
   '/deferred': typeof DeferredRoute
   '/redirect': typeof RedirectRoute
+  '': typeof PublicLayout2RouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
+  '/': typeof PublicIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
-  '/layout-a': typeof LayoutLayout2LayoutARoute
-  '/layout-b': typeof LayoutLayout2LayoutBRoute
+  '/layout-a': typeof PublicLayout2LayoutARoute
+  '/layout-b': typeof PublicLayout2LayoutBRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/_layout': typeof LayoutRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
   '/deferred': typeof DeferredRoute
   '/posts': typeof PostsRouteWithChildren
   '/redirect': typeof RedirectRoute
   '/users': typeof UsersRouteWithChildren
-  '/_layout/_layout-2': typeof LayoutLayout2RouteWithChildren
+  '/_public/_layout-2': typeof PublicLayout2RouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/users/$userId': typeof UsersUserIdRoute
+  '/_public/': typeof PublicIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
-  '/_layout/_layout-2/layout-a': typeof LayoutLayout2LayoutARoute
-  '/_layout/_layout-2/layout-b': typeof LayoutLayout2LayoutBRoute
+  '/_public/_layout-2/layout-a': typeof PublicLayout2LayoutARoute
+  '/_public/_layout-2/layout-b': typeof PublicLayout2LayoutBRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | ''
     | '/deferred'
     | '/posts'
@@ -313,6 +314,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/posts/$postId'
     | '/users/$userId'
+    | '/'
     | '/posts/'
     | '/users/'
     | '/layout-a'
@@ -320,12 +322,12 @@ export interface FileRouteTypes {
     | '/posts/$postId/deep'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | ''
     | '/deferred'
     | '/redirect'
+    | ''
     | '/posts/$postId'
     | '/users/$userId'
+    | '/'
     | '/posts'
     | '/users'
     | '/layout-a'
@@ -333,26 +335,25 @@ export interface FileRouteTypes {
     | '/posts/$postId/deep'
   id:
     | '__root__'
-    | '/'
-    | '/_layout'
+    | '/_public'
     | '/deferred'
     | '/posts'
     | '/redirect'
     | '/users'
-    | '/_layout/_layout-2'
+    | '/_public/_layout-2'
     | '/posts/$postId'
     | '/users/$userId'
+    | '/_public/'
     | '/posts/'
     | '/users/'
-    | '/_layout/_layout-2/layout-a'
-    | '/_layout/_layout-2/layout-b'
+    | '/_public/_layout-2/layout-a'
+    | '/_public/_layout-2/layout-b'
     | '/posts/$postId/deep'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  LayoutRoute: typeof LayoutRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
   DeferredRoute: typeof DeferredRoute
   PostsRoute: typeof PostsRouteWithChildren
   RedirectRoute: typeof RedirectRoute
@@ -361,8 +362,7 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  LayoutRoute: LayoutRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
   DeferredRoute: DeferredRoute,
   PostsRoute: PostsRouteWithChildren,
   RedirectRoute: RedirectRoute,
@@ -382,8 +382,7 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/_layout",
+        "/_public",
         "/deferred",
         "/posts",
         "/redirect",
@@ -391,13 +390,11 @@ export const routeTree = rootRoute
         "/posts/$postId/deep"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/_layout": {
-      "filePath": "_layout.tsx",
+    "/_public": {
+      "filePath": "_public.tsx",
       "children": [
-        "/_layout/_layout-2"
+        "/_public/_layout-2",
+        "/_public/"
       ]
     },
     "/deferred": {
@@ -420,12 +417,12 @@ export const routeTree = rootRoute
         "/users/"
       ]
     },
-    "/_layout/_layout-2": {
-      "filePath": "_layout/_layout-2.tsx",
-      "parent": "/_layout",
+    "/_public/_layout-2": {
+      "filePath": "_public/_layout-2.tsx",
+      "parent": "/_public",
       "children": [
-        "/_layout/_layout-2/layout-a",
-        "/_layout/_layout-2/layout-b"
+        "/_public/_layout-2/layout-a",
+        "/_public/_layout-2/layout-b"
       ]
     },
     "/posts/$postId": {
@@ -436,6 +433,10 @@ export const routeTree = rootRoute
       "filePath": "users.$userId.tsx",
       "parent": "/users"
     },
+    "/_public/": {
+      "filePath": "_public/index.tsx",
+      "parent": "/_public"
+    },
     "/posts/": {
       "filePath": "posts.index.tsx",
       "parent": "/posts"
@@ -444,13 +445,13 @@ export const routeTree = rootRoute
       "filePath": "users.index.tsx",
       "parent": "/users"
     },
-    "/_layout/_layout-2/layout-a": {
-      "filePath": "_layout/_layout-2/layout-a.tsx",
-      "parent": "/_layout/_layout-2"
+    "/_public/_layout-2/layout-a": {
+      "filePath": "_public/_layout-2/layout-a.tsx",
+      "parent": "/_public/_layout-2"
     },
-    "/_layout/_layout-2/layout-b": {
-      "filePath": "_layout/_layout-2/layout-b.tsx",
-      "parent": "/_layout/_layout-2"
+    "/_public/_layout-2/layout-b": {
+      "filePath": "_public/_layout-2/layout-b.tsx",
+      "parent": "/_public/_layout-2"
     },
     "/posts/$postId/deep": {
       "filePath": "posts_.$postId.deep.tsx"
