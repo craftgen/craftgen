@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "NITRO_PRESET=deno_deploy vinxi build",
-    "deploy": "cd ./output && deployctl deploy server/index.ts",
+    "deploy": "cd .output && deployctl deploy --project=craftgen-craftgen",
     "start": "vinxi start",
     "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./app",
     "format": "prettier --write '**/*' --ignore-unknown",
