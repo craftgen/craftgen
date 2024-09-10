@@ -31,7 +31,9 @@
   "packageManager": "pnpm@8.10.0",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "tooling/*",
+    "nodes/*"
   ],
   "name": "noktastudio",
   "prettier": "@acme/prettier-config"
