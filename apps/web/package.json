@@ -13,19 +13,42 @@
     "test:e2e": "playwright test --project=chromium"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.4.1",
+    "@clerk/tanstack-start": "^0.3.5",
+    "@craftgen/api": "^0.1.2",
+    "@craftgen/composer": "1.0.5",
+    "@craftgen/core": "0.1.2",
+    "@craftgen/db": "0.1.1",
+    "@craftgen/ipc-api": "0.0.1",
+    "@craftgen/ui": "1.0.4",
+    "@sentry/vite-plugin": "^2.20.1",
+    "@tanstack/react-query": "^5.22.2",
     "@tanstack/react-router": "^1.34.7",
     "@tanstack/router-devtools": "^1.56.5",
     "@tanstack/router-plugin": "^1.57.1",
     "@tanstack/start": "^1.57.1",
+    "@trpc/client": "11.0.0-rc.452",
+    "@trpc/react-query": "11.0.0-rc.452",
+    "@trpc/server": "11.0.0-rc.452",
     "@vitejs/plugin-react": "^4.3.1",
+    "dotenv": "^16.4.5",
+    "framer-motion": "^10.16.0",
     "isbot": "^5.1.14",
+    "lodash-es": "^4.17.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "redaxios": "^0.5.1",
+    "superjson": "2.2.1",
     "tailwind-merge": "^2.3.0",
-    "vinxi": "0.4.2"
+    "vinxi": "0.4.2",
+    "xstate": "5.14.0",
+    "zod": "3.21.4"
   },
   "devDependencies": {
+    "@acme/eslint-config": "0.3.0",
+    "@acme/prettier-config": "0.1.0",
+    "@acme/tailwind-config": "0.1.0",
+    "@acme/tsconfig": "0.1.0",
     "@playwright/test": "^1.46.1",
     "@types/node": "^20.4.10",
     "@types/react": "18.2.15",
@@ -33,9 +56,12 @@
     "autoprefixer": "^10.4.19",
     "postcss": "8.4.31",
     "prettier": "^3.0.3",
+    "rollup-preserve-directives": "^1.1.1",
     "tailwindcss": "3.3.3",
     "typescript": "^5.4.5",
+    "unplugin-fonts": "^1.1.1",
     "vite": "^5.3.5",
     "vite-tsconfig-paths": "^5.0.1"
-  }
+  },
+  "prettier": "@acme/prettier-config"
 }
