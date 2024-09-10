@@ -54,10 +54,10 @@
     "zod": "3.21.4"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:*",
-    "@acme/prettier-config": "workspace:*",
-    "@acme/tailwind-config": "workspace:*",
-    "@acme/tsconfig": "workspace:*",
+    "@acme/eslint-config": "0.3.0",
+    "@acme/prettier-config": "0.1.0",
+    "@acme/tailwind-config": "0.1.0",
+    "@acme/tsconfig": "0.1.0",
     "@tauri-apps/cli": "2.0.0-rc.1",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",

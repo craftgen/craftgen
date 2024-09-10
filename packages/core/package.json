@@ -88,9 +88,9 @@
     "zustand": "^4.3.9"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:*",
-    "@acme/prettier-config": "workspace:*",
-    "@acme/tsconfig": "workspace:*",
+    "@acme/eslint-config": "0.3.0",
+    "@acme/prettier-config": "0.1.0",
+    "@acme/tsconfig": "0.1.0",
     "@types/jest": "^29.5.6",
     "@types/tern": "^0.23.9",
     "@types/web": "^0.0.117",
