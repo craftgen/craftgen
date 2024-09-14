@@ -49,14 +49,14 @@ const MenuDropdown = () => {
         </Link> */}
         <Link
           onClick={() => setOpen(false)}
-          href="/docs"
+          to="/docs"
           className=" flex  items-center font-semibold leading-6"
         >
           Docs
         </Link>
         <Link
           onClick={() => setOpen(false)}
-          href="/features"
+          to="/features"
           className=" flex  items-center font-semibold leading-6"
         >
           Roadmap
@@ -64,13 +64,13 @@ const MenuDropdown = () => {
         </Link>
         <Link
           onClick={() => setOpen(false)}
-          href="/integrations"
+          to="/integrations"
           className=" flex  items-center font-semibold leading-6"
         >
           Integrations
         </Link>
         <Link
-          href="/careers"
+          to="/careers"
           className=" flex items-center text-lg font-semibold leading-6"
         >
           Careers
@@ -111,27 +111,27 @@ export const NavBar = () => {
             About
           </Link> */}
             <Link
-              href="/docs"
+              to="/docs"
               className=" flex items-center text-lg font-semibold leading-6"
             >
               Docs
             </Link>
             <Link
-              href="/integrations"
+              to="/integrations"
               className=" flex items-center text-lg font-semibold leading-6"
             >
               Integrations
             </Link>
-            <Link
+            <a
               href="https://github.com/orgs/craftgen/projects/1/views/2"
               target="_blank"
               className=" flex  items-center font-semibold leading-6"
             >
               Roadmap
               <Icons.externalLink className="h-4 w-4" />
-            </Link>
+            </a>
             <Link
-              href="/careers"
+              to="/careers"
               className=" flex items-center text-lg font-semibold leading-6"
             >
               Careers

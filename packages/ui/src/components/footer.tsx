@@ -138,7 +138,8 @@ function FooterLink({
 }: PropsWithChildren<{ link: string; blank?: boolean }>) {
   return (
     <Link
-      href={link}
+      // href={link}
+      to={link}
       target={blank ? "_blank" : ""}
       className="text-muted-foreground duration-300 hover:text-primary hover:opacity-50"
       rel="noreferrer"

@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   createRootRoute,
-  Link,
   Outlet,
   ScrollRestoration,
 } from "@tanstack/react-router";
