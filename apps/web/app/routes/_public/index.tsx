@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 // import { ChevronRightIcon } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 
@@ -103,7 +103,7 @@ export default function Home() {
                   Join the waitlist
                 </ShimmerButton>
               </Waitlist> */}
-              <Link
+              <a
                 href="https://cal.com/necmttn/craftgen"
                 className="text-sm font-semibold leading-6 text-foreground"
                 onClick={() => {
@@ -111,7 +111,7 @@ export default function Home() {
                 }}
               >
                 Schedule a call for demo <span aria-hidden="true">→</span>
-              </Link>
+              </a>
             </div>
             {/* <Downloads latestVersion="v0.1.0" /> */}
           </div>
