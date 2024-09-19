@@ -7,11 +7,11 @@ import { CheckIcon, Eye, EyeOff, MinusCircle, PlusCircle } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-  Provider,
-  providers,
-  ProviderType,
-} from "@craftgen/core/provider/config";
+// import {
+//   Provider,
+//   providers,
+//   ProviderType,
+// } from "@craftgen/core/provider/config";
 import type { RouterOutputs } from "@craftgen/ipc-api";
 
 import { Alert, AlertDescription, AlertTitle } from "../components/alert";

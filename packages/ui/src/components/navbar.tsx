@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SignedIn, SignedOut, SignIn, UserButton } from "@clerk/tanstack-start";
+import { SignedIn, SignedOut,  SignInButton, UserButton } from "@clerk/tanstack-start";
 import { Link } from "@tanstack/react-router";
 
 import {
@@ -12,7 +12,6 @@ import { ThemeToggle } from "@craftgen/ui/components/theme-toggle";
 
 // import { StarCount } from "@/components/marketing/github-star-count";
 
-// import { UserNavWrapper } from "../(dashboard)/user-nav";
 
 const MenuDropdown = () => {
   const [open, setOpen] = useState(false);
@@ -151,10 +150,10 @@ const AuthButton = () => {
   return (
     <>
       <SignedIn>
-        <UserButton />
+        <UserButton userProfileUrl="/settings"></UserButton>
       </SignedIn>
       <SignedOut>
-        <SignIn />
+        <SignInButton />
       </SignedOut>
     </>
   );

@@ -1,7 +1,7 @@
 import { z } from "../deps.ts";
 import { createTRPCRouter, publicProcedure } from "../trpc.ts";
 import { authRouter } from "./auth.ts";
-import { craftRouter } from "./craft/index.ts";
+// import { craftRouter } from "./craft/index.ts";
 import { fsRouter } from "./file.ts";
 import { packageRouter } from "./package.ts";
 import { platformRouter } from "./platform/index.ts";
@@ -32,12 +32,12 @@ export const appRouter = createTRPCRouter({
         delay: input.delay,
       };
 
-      await ctx.queue.enqueueEvent({
-        machineId: input.machineId,
-        type: input.type,
-        payload: input.payload,
-        scheduledFor: new Date(),
-      });
+      // await ctx.queue.enqueueEvent({
+      //   machineId: input.machineId,
+      //   type: input.type,
+      //   payload: input.payload,
+      //   scheduledFor: new Date(),
+      // });
 
       return {
         event,

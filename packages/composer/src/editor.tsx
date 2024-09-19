@@ -1,9 +1,7 @@
-"use client";
-
 import { ReactNode, useEffect, useRef, useState } from "react";
 
-import { Editor, type AreaExtra } from "@craftgen/core/editor";
-import { nodes, type Schemes, type WorkflowAPI } from "@craftgen/core/types";
+import { Editor, type AreaExtra } from "@craftgen/core";
+import { nodes, type Schemes, type WorkflowAPI } from "@craftgen/core";
 import type { RouterOutputs } from "@craftgen/ipc-api";
 import { Badge } from "@craftgen/ui/components/badge";
 import { toast } from "@craftgen/ui/components/use-toast";

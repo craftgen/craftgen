@@ -12,7 +12,7 @@ export const variablesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const variable = await ctx.db.query.variable.findFirst({
+      const variable = await ctx.tDb.query.variable.findFirst({
         where: (variable, { eq, and }) =>
           and(
             eq(variable.key, input.key),

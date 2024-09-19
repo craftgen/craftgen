@@ -14,6 +14,8 @@
     ]
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "clean": "rm -rf .turbo node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
@@ -78,7 +80,10 @@
     "@types/lodash-es": "^4.17.8",
     "@types/react": "18.2.15",
     "@types/react-dom": "^18.2.14",
-    "typescript": "^5.4.5"
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.4.5",
+    "vite": "^5.4.6",
+    "vite-plugin-dts": "^4.2.1"
   },
   "license": "ISC"
 }

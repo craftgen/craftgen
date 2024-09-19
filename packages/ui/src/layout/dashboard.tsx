@@ -10,7 +10,7 @@ export const DashboardLayout = ({
   return (
     <main
       className={cn(
-        "flex min-h-screen w-full flex-col bg-muted/40 bg-red-400",
+        "flex min-h-screen w-full flex-col bg-muted/40",
         className,
       )}
     >

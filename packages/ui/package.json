@@ -5,6 +5,8 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "add": "pnpm dlx shadcn-ui add",
     "clean": "rm -rf .turbo node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
@@ -31,7 +33,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.4.1",
-    "@clerk/tanstack-start": "^0.3.5",
+    "@clerk/tanstack-start": "^0.4.5",
     "@craftgen/api": "0.1.2",
     "@craftgen/core": "0.1.2",
     "@craftgen/ipc-api": "0.0.1",
@@ -112,6 +114,9 @@
     "prettier": "^3.0.3",
     "react": "18.2.0",
     "tailwindcss": "3.3.3",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.6",
+    "vite-plugin-dts": "^4.2.1"
   }
 }

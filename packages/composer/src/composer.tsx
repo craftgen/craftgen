@@ -14,7 +14,7 @@ import {
 import { observer } from "mobx-react-lite";
 import { createPortal } from "react-dom";
 
-import type { WorkflowAPI } from "@craftgen/core/types";
+import type { WorkflowAPI } from "@craftgen/core";
 import type { RouterOutputs } from "@craftgen/ipc-api";
 import { Button } from "@craftgen/ui/components/button";
 import { LoadingDots } from "@craftgen/ui/components/loading-dots";

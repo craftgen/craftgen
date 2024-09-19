@@ -1,2 +1,3 @@
-export { Editor } from "./editor";
+export * from "./editor";
+export * from "./types";
 // export { start } from "./worker/main";

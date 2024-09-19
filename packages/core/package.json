@@ -4,16 +4,14 @@
   "description": "",
   "type": "module",
   "exports": {
-    ".": "./src/",
-    "./*": [
-      "./src/*.tsx",
-      "./src/*.ts",
-      "./src/controls/*.tsx",
-      "./src/controls/*.ts"
-    ],
-    "./plugins/*": "./src/plugins/**/*.ts"
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "test": "echo 'test'",
     "format": "prettier --check \"**/*.{js,cjs,mjs,ts,tsx,md,json}\"",
     "lint": "eslint"
@@ -97,7 +95,10 @@
     "bun-types": "^1.0.6",
     "eslint": "^8.52.0",
     "jest": "^29.7.0",
-    "prettier": "^3.0.3"
+    "@vitejs/plugin-react": "^4.3.1",
+    "prettier": "^3.0.3",
+        "vite": "^5.4.6",
+    "vite-plugin-dts": "^4.2.1"
   },
   "prettier": "@acme/prettier-config"
 }

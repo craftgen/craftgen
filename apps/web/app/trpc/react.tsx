@@ -5,7 +5,7 @@ import {
 } from "@trpc/client";
 import superjson from "superjson";
 
-import type { AppRouter } from "@craftgen/api";
+import type { AppRouter } from "@craftgen/ipc-api";
 
 import { getUrl } from "./shared";
 

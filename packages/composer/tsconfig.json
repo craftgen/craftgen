@@ -5,6 +5,6 @@
     "jsx": "preserve",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json"
   },
-  "include": ["*.ts", "*.tsx", "src"],
+  "include": ["*.ts", "*.tsx", "src", "vite.config.js"],
   "exclude": ["node_modules"]
 }

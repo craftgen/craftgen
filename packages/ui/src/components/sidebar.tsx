@@ -1,13 +1,12 @@
 import { Icons } from "./icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import {Link} from '@tanstack/react-router'
 
 export const Sidebar = <T extends React.ComponentType<any>>({
-  Link,
   topLinks = [],
   bottomLinks = [],
   logoLinkProps,
 }: {
-  Link: T;
   logoLinkProps?: React.ComponentProps<T>;
   bottomLinks: {
     label: string;

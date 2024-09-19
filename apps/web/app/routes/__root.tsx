@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Body, Head, Html, Meta, Scripts } from "@tanstack/start";
+import { client } from "~/trpc/react";
 
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
@@ -57,6 +58,11 @@ export const Route = createRootRoute({
         <DefaultCatchBoundary {...props} />
       </RootDocument>
     );
+  },
+  context(ctx) {
+    return {
+      client,
+    };
   },
   notFoundComponent: () => <NotFound />,
   component: RootComponent,
