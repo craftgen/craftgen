@@ -12,6 +12,7 @@ import { NotFound } from "~/components/NotFound";
 import { Providers } from "~/providers";
 // @ts-expect-error
 import appCss from "~/styles/app.css?url";
+import { client } from "~/trpc/react";
 import { seo } from "~/utils/seo";
 
 export const Route = createRootRoute({
@@ -24,11 +25,15 @@ export const Route = createRootRoute({
       content: "width=device-width, initial-scale=1",
     },
     ...seo({
-      title:
-        "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
-      description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
+      title: "CraftGen",
+      description: `CraftGen is a platform for creating generative AI workflows.`,
     }),
   ],
+  context(ctx) {
+    return {
+      client,
+    };
+  },
   links: () => [
     { rel: "stylesheet", href: appCss },
     {
