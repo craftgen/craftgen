@@ -1,6 +1,6 @@
 <div align="center">
 
-![Logo of Craftgen](./apps/web/public/images/github-header.png)
+![Logo of Craftgen](./apps/next/public/images/github-header.png)
 
 <h3>
 
