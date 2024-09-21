@@ -26,7 +26,7 @@
   "keywords": [],
   "author": "",
   "peerDependencies": {
-    "@tanstack/react-router": "^1.34.7",
+    "@tanstack/react-router": "^1.58.3",
     "next": "^14.2.8",
     "posthog-js": "1.139.0",
     "react": "^18.2.0"
@@ -34,9 +34,9 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.4.1",
     "@clerk/tanstack-start": "^0.4.5",
-    "@craftgen/api": "0.1.2",
-    "@craftgen/core": "0.1.2",
-    "@craftgen/ipc-api": "0.0.1",
+    "@craftgen/api": "workspace:*",
+    "@craftgen/core": "workspace:*",
+    "@craftgen/ipc-api": "workspace:*",
     "@hookform/resolvers": "^3.3.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.4",
@@ -102,12 +102,13 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@acme/eslint-config": "0.3.0",
-    "@acme/prettier-config": "0.1.0",
-    "@acme/tailwind-config": "0.1.0",
-    "@acme/tsconfig": "0.1.0",
+    "@acme/eslint-config": "workspace:*",
+    "@acme/prettier-config": "workspace:*",
+    "@acme/tailwind-config": "workspace:*",
+    "@acme/tsconfig": "workspace:*",
     "@tanstack/react-router": "^1.34.7",
     "@types/react": "18.2.15",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.52.0",
     "next": "^14.2.8",
     "posthog-js": "1.139.0",
@@ -115,7 +116,6 @@
     "react": "18.2.0",
     "tailwindcss": "3.3.3",
     "typescript": "^5.4.5",
-    "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.6",
     "vite-plugin-dts": "^4.2.1"
   }

@@ -17,7 +17,7 @@
     "new:node": "deno init --lib ./nodes"
   },
   "dependencies": {
-    "@acme/prettier-config": "0.1.0",
+    "@acme/prettier-config": "workspace:*",
     "@changesets/cli": "^2.27.6",
     "@manypkg/cli": "^0.21.0",
     "@turbo/gen": "^2.0.3",
@@ -28,7 +28,7 @@
     "turbo": "^2.0.3",
     "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.10.0",
+  "packageManager": "pnpm@9.11.0+sha256.1c0e33f70e5df9eede84a357bdfa0b1f9dba6e58194628d48a1055756f553754",
   "workspaces": [
     "packages/*",
     "apps/*",

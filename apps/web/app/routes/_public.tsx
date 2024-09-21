@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 
 import { Footer } from "@craftgen/ui/components/footer";
 import { NavBar } from "@craftgen/ui/components/navbar";
@@ -12,7 +12,7 @@ function LayoutComponent() {
     <div className="p-2">
       <NavBar />
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

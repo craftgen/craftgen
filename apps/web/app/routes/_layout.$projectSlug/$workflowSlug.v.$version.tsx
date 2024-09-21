@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { Playground } from "@craftgen/composer/playground";
+// import { Playground } from "@craftgen/composer/playground";
 import { api } from "@craftgen/ui/lib/api";
 
 export const WorkflowEditor = () => {
@@ -17,7 +17,8 @@ export const WorkflowEditor = () => {
     },
   );
 
-  return <Playground workflow={workflow} session={auth} Link={Link} />;
+  // return <Playground workflow={workflow} session={auth} Link={Link} />;
+  return <div>Hello</div>;
 };
 
 export const Route = createFileRoute(
