@@ -12,6 +12,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 export default defineConfig({
+  server: {
+    prerender: {
+      routes: ["/", "/_layout/$orgSlug/$workflowSlug/v/$version"],
+    },
+  },
+
   vite: {
     plugins: () => [
       config("user", {
@@ -36,7 +42,7 @@ export default defineConfig({
       preserveDirectives(),
       tsConfigPaths({
         projects: ["./tsconfig.json"],
-      }),
+      }) as any,
       Unfonts({
         custom: {
           families: [

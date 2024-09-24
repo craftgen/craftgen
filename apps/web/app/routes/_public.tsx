@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { Footer } from "@craftgen/ui/components/footer";
 import { NavBar } from "@craftgen/ui/components/navbar";

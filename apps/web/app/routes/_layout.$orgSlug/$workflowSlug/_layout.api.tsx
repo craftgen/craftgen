@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { JSONView } from "@craftgen/ui/components/json-view";
-import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
-import { api } from "@craftgen/ui/lib/api";
+// import { JSONView } from "@craftgen/ui/components/json-view";
+// import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
+// import { api } from "@craftgen/ui/lib/api";
 
 function ProjectPage() {
   return <div>API</div>;
@@ -23,18 +23,18 @@ function ProjectPage() {
   //     <JSONView src={workflow} />
   //   </WorkflowLayout.Content>
   // );
-};
+}
 
 export const Route = createFileRoute(
-  "/_layout/$projectSlug/$workflowSlug/_layout/api",
+  "/_layout/$orgSlug/$workflowSlug/_layout/api",
 )({
-  loader: async ({
-    params: { projectSlug, workflowSlug },
-    context: { client },
-  }) =>
-    client.craft.module.meta.ensureData({
-      workflowSlug: workflowSlug,
-      projectSlug: projectSlug,
-    }),
+  // loader: async ({
+  //   params: { projectSlug, workflowSlug },
+  //   context: { client },
+  // }) =>
+  //   client.craft.module.meta.ensureData({
+  //     workflowSlug: workflowSlug,
+  //     projectSlug: projectSlug,
+  //   }),
   component: ProjectPage,
 });

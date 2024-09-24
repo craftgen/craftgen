@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Check, X } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useDebounce } from "react-use";
+import { useDebounce } from "use-debounce";
 import { z } from "zod";
 
 import { RouterOutputs } from "@craftgen/ipc-api";

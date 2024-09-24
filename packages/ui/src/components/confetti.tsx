@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Confetti from "react-dom-confetti";
-import { useDebounce } from "react-use";
+import { useDebounce } from "use-debounce";
 
 export function Confettis() {
   const [active, setActive] = useState(false);

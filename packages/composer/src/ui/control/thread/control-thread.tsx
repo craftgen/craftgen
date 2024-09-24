@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "@xstate/react";
 import { CheckSquare, Copy } from "lucide-react";
-import { useCopyToClipboard } from "react-use";
+import { useCopyToClipboard } from "usehooks-ts";
 
 import { Message, ThreadControl } from "@craftgen/core/controls/thread.control";
 import { ThreadMachineEvents } from "@craftgen/core/nodes/thread";

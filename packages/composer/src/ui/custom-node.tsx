@@ -13,8 +13,10 @@ import {
 } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Resizable } from "react-resizable";
-import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
 import { Key } from "ts-key-enum";
+// import { useCopyToClipboard, useDebounce, useMeasure } from "react-use";
+import { useDebounce } from "use-debounce";
+import { useCopyToClipboard } from "usehooks-ts";
 
 import type { Schemes } from "@craftgen/core/types";
 import { Badge } from "@craftgen/ui/components/badge";

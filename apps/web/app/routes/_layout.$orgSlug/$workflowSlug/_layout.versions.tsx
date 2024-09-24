@@ -22,10 +22,10 @@ function ProjectPage() {
       <JSONView src={workflow} />
     </WorkflowLayout.Content>
   );
-};
+}
 
 export const Route = createFileRoute(
-  "/_layout/$projectSlug/$workflowSlug/_layout/versions",
+  "/_layout/$orgSlug/$workflowSlug/_layout/versions",
 )({
   loader: async ({
     params: { projectSlug, workflowSlug },

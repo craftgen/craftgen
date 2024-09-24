@@ -1,10 +1,16 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 
+import {
+  api,
+  queryClient,
+  trpcClient,
+  trpcQueryUtils,
+} from "@craftgen/ui/lib/api";
+
 import { DefaultCatchBoundary } from "./components/DefaultCatchBoundary";
 import { NotFound } from "./components/NotFound";
 import { routeTree } from "./routeTree.gen";
-import { queryClient, trpc, trpcClient, trpcQueryUtils } from "./trpc/react";
 
 export function createRouter() {
   const router = createTanStackRouter({
@@ -17,11 +23,11 @@ export function createRouter() {
     },
     Wrap: function WrapComponent({ children }) {
       return (
-        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <api.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             {children}
           </QueryClientProvider>
-        </trpc.Provider>
+        </api.Provider>
       );
     },
   });

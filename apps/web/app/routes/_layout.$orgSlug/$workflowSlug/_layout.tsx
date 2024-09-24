@@ -53,26 +53,26 @@ function WorkflowPageLayout() {
   );
 }
 
-export const Route = createFileRoute(
-  "/_layout/$projectSlug/$workflowSlug/_layout",
-)({
-  beforeLoad: ({ context, location }) => {
-    // if (!context.auth) {
-    //   throw redirect({
-    //     to: "/login",
-    //     search: {
-    //       redirect: location.href,
-    //     },
-    //   });
-    // }
+export const Route = createFileRoute("/_layout/$orgSlug/$workflowSlug/_layout")(
+  {
+    beforeLoad: ({ context, location }) => {
+      // if (!context.auth) {
+      //   throw redirect({
+      //     to: "/login",
+      //     search: {
+      //       redirect: location.href,
+      //     },
+      //   });
+      // }
+    },
+    // loader: async ({
+    //   params: { projectSlug, workflowSlug },
+    //   context: { client },
+    // }) =>
+    // client.platform.craft.module.meta.ensureData({
+    //   workflowSlug: workflowSlug,
+    //   projectSlug: projectSlug,
+    // }),
+    component: WorkflowPageLayout,
   },
-  // loader: async ({
-  //   params: { projectSlug, workflowSlug },
-  //   context: { client },
-  // }) =>
-  // client.platform.craft.module.meta.ensureData({
-  //   workflowSlug: workflowSlug,
-  //   projectSlug: projectSlug,
-  // }),
-  component: WorkflowPageLayout,
-});
+);

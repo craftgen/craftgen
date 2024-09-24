@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_layout")({
 function LayoutComponent() {
   return (
     <DashboardLayout>
-      {/* <Sidebar
+      <Sidebar
         logoLinkProps={{
           to: "/",
         }}
@@ -40,7 +40,7 @@ function LayoutComponent() {
             linkProps: { to: "/settings" },
           },
         ]}
-      /> */}
+      />
       <DashboardLayout.Content>
         <div className="p-2">
           <Outlet />

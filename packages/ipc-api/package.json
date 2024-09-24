@@ -12,18 +12,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@clerk/backend": "^1.9.0",
-    "@clerk/clerk-js": "^5.15.1",
-    "@clerk/types": "^4.14.0",
+    "@clerk/backend": "^1.13.2",
+    "@clerk/clerk-js": "^5.22.3",
+    "@clerk/types": "^4.21.0",
     "@craftgen/database": "workspace:*",
     "@libsql/client": "^0.10.0",
-    "@trpc/client": "11.0.0-rc.452",
-    "@trpc/server": "11.0.0-rc.452",
-    "effect": "^3.6.1",
+    "@trpc/client": "11.0.0-rc.522",
+    "@trpc/server": "11.0.0-rc.522",
+    "effect": "^3.8.3",
     "lodash-es": "^4.17.21",
     "superjson": "2.2.1",
     "timestring": "^7.0.0",
-    "ts-pattern": "^5.0.5",
+    "ts-pattern": "^5.3.1",
     "zod": "3.21.4"
   }
 }

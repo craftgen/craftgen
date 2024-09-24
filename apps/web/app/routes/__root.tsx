@@ -18,12 +18,14 @@ import {
 } from "@tanstack/start";
 import { setCookie, setHeaders } from "vinxi/http";
 
+import { trpcQueryUtils } from "@craftgen/ui/lib/api";
+
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
 import { Providers } from "~/providers";
 // @ts-expect-error
 import appCss from "~/styles/app.css?url";
-import { trpcQueryUtils } from "~/trpc/react";
+// import { trpcQueryUtils } from "~/trpc/react";
 import { seo } from "~/utils/seo";
 
 const fetchClerkAuth = createServerFn("GET", async (_, ctx) => {

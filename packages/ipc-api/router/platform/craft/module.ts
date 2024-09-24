@@ -16,7 +16,6 @@ export const craftModuleRouter = createTRPCRouter({
       }),
     )
     .query(({ ctx, input }) => {
-      console.log("input", input);
       return ctx.pDb?.query.workflow.findMany({
         where: (w, { eq, and }) => and(eq(w.public, true)),
         orderBy: (w, { desc }) => desc(w.updatedAt),

@@ -1,27 +1,100 @@
-import { useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import {
+  createTRPCClient,
+  httpBatchLink,
+  loggerLink,
+  unstable_httpBatchStreamLink,
+} from "@trpc/client";
+import { createTRPCQueryUtils, createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
 import type { AppRouter } from "@craftgen/ipc-api";
 
-// export const api = createTRPCReact<AppRouter>();
+import { getUrl } from "./shared";
 
-// export function TRPCReactProvider(props: {
-//   children: React.ReactNode;
-//   headers: Headers;
-//   url: string;
-//   fetch?: (url: string, options?: RequestInit) => Promise<Response>;
-//   api: R
-//   queryClient: QueryClient;
-//   trpcClient: ReturnType<typeof api.createClient>
-// }) {
-//   return (
-//     <props.api.Provider client={props.trpcClient} queryClient={props.queryClient}>
-//       <QueryClientProvider client={props.queryClient}>
-//         {props.children}
-//       </QueryClientProvider>
-//     </props.api.Provider>
-//   );
-// }
+export const queryClient = new QueryClient();
+
+export const api = createTRPCReact<AppRouter>({});
+export const trpcClient = api.createClient({
+  links: [
+    loggerLink({
+      // enabled: () => false,
+      enabled: (op) =>
+        process.env.NODE_ENV === "development" ||
+        (op.direction === "down" && op.result instanceof Error),
+    }),
+    httpBatchLink({
+      url: getUrl(),
+      transformer: superjson,
+      async headers() {
+        const heads = new Headers();
+        if (typeof window === "undefined") {
+          const { getCookie } = await import("vinxi/http");
+          const authToken = getCookie("craftgen-jwt");
+          if (authToken) {
+            heads.set("authorization", `Bearer ${authToken}`);
+          }
+        }
+        return Object.fromEntries(heads);
+      },
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
+    }),
+    // unstable_httpBatchStreamLink({
+    //   url: getUrl(),
+    //   transformer: superjson,
+    //   async headers() {
+    //     const heads = new Headers();
+    //     if (typeof window === "undefined") {
+    //       const { getCookie } = await import("vinxi/http");
+    //       const authToken = getCookie("craftgen-jwt");
+    //       if (authToken) {
+    //         heads.set("authorization", `Bearer ${authToken}`);
+    //       }
+    //     }
+    //     return Object.fromEntries(heads);
+    //   },
+    //   fetch(url, options) {
+    //     return fetch(url, {
+    //       ...options,
+    //       credentials: "include",
+    //     });
+    //   },
+    // }),
+  ],
+});
+
+export const trpcQueryUtils = createTRPCQueryUtils<AppRouter>({
+  queryClient,
+  client: trpcClient,
+});
+
+export const client = createTRPCClient<AppRouter>({
+  links: [
+    loggerLink({
+      // enabled: () => false,
+      enabled: (op) =>
+        process.env.NODE_ENV === "development" ||
+        (op.direction === "down" && op.result instanceof Error),
+    }),
+    httpBatchLink({
+      url: getUrl(),
+      transformer: superjson,
+      headers() {
+        const heds = new Headers();
+        heds.set("x-trpc-source", "web");
+        return Object.fromEntries(heds);
+      },
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
+    }),
+  ],
+});

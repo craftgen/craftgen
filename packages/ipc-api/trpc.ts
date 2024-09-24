@@ -6,7 +6,8 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import { createClerkClient, type AuthObject } from "@clerk/backend";
+import { createClerkClient } from "@clerk/backend";
+import { type AuthObject } from "@clerk/types";
 import { type createClient } from "@libsql/client";
 
 import { tenantDbClient } from "../database/lib/client-org.ts";
@@ -77,20 +78,19 @@ export const createTRPCContext = async (opts: {
   client?: ReturnType<typeof createClient>;
   queue?: EventProcessor;
 }) => {
-  const auth = opts.auth;
+  const auth = Object.assign({}, opts.auth);
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
   console.log(">>> tRPC Request from", source, "by", `${auth?.userId} `);
 
   const platformDb = Effect.runSync(createPlatformDbClient);
 
-  console.log("AUTH IN BACKEND", auth);
-
   const tenantDb = async () => {
     if (!auth?.userId) {
       return undefined;
     }
     const user = await clerkClient.users.getUser(auth?.userId);
+    auth.user = user;
     if (
       !user?.privateMetadata.database_name &&
       !user?.privateMetadata.database_auth_token
