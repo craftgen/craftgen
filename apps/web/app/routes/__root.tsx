@@ -16,7 +16,7 @@ import {
   Meta,
   Scripts,
 } from "@tanstack/start";
-import { setCookie, setHeaders } from "vinxi/http";
+import { setCookie } from "vinxi/http";
 
 import { trpcQueryUtils } from "@craftgen/ui/lib/api";
 
@@ -30,9 +30,11 @@ import { seo } from "~/utils/seo";
 
 const fetchClerkAuth = createServerFn("GET", async (_, ctx) => {
   const auth = await getAuth(ctx.request);
-  const token = await auth.getToken();
-  if (token) {
-    setCookie("craftgen-jwt", token);
+  if (auth.userId) {
+    const token = await auth.getToken();
+    if (token) {
+      setCookie("craftgen-jwt", token);
+    }
   }
 
   return {
