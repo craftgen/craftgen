@@ -16,6 +16,7 @@ import {
   Meta,
   Scripts,
 } from "@tanstack/start";
+import { setCookie, setHeaders } from "vinxi/http";
 
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
@@ -27,6 +28,10 @@ import { seo } from "~/utils/seo";
 
 const fetchClerkAuth = createServerFn("GET", async (_, ctx) => {
   const auth = await getAuth(ctx.request);
+  const token = await auth.getToken();
+  if (token) {
+    setCookie("craftgen-jwt", token);
+  }
 
   return {
     auth,

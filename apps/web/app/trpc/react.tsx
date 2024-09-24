@@ -7,6 +7,7 @@ import {
 } from "@trpc/client";
 import { createTRPCQueryUtils, createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
+import { getCookie, parseCookies } from "vinxi/http";
 
 import type { AppRouter } from "@craftgen/ipc-api";
 
@@ -28,11 +29,34 @@ export const trpcClient = trpc.createClient({
       transformer: superjson,
       headers() {
         const heads = new Headers();
+        const authToken = getCookie("craftgen-jwt");
+        if (authToken) {
+          heads.set("authorization", `Bearer ${authToken}`);
+        }
+        // console.log("COOKIES in headers", cookies);
+        // Object.entries(cookies).forEach(([key, value]) => {
+        //   heads.set("cookie", `${key}=${value}`);
+        // });
+
+        // heads.set("cookie", cookies.toString());
+
+        // heads.set("cookie", `${key}=${value}`);
         return Object.fromEntries(heads);
       },
       fetch(url, options) {
         console.log("@".repeat(100));
         console.log("fetch", url, options);
+        if (typeof window !== "undefined") {
+          const cookies = parseCookies();
+          console.log("COOKIES", cookies);
+          return fetch(url, {
+            ...options,
+            headers: {
+              ...options?.headers,
+              // cookie: cookies,
+            },
+          });
+        }
 
         return fetch(url, {
           ...options,

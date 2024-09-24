@@ -7,20 +7,20 @@ import { trpc } from "~/trpc/react";
 
 function ExplorePage() {
   const data = Route.useLoaderData();
-  const { data: featuredWorkflows } =
-    trpc.platform.craft.module.featured.useQuery(
-      {
-        category: "all",
-      },
-      {
-        initialData: data.featuredWorkflows,
-      },
-    );
+  // const { data: featuredWorkflows } =
+  //   trpc.platform.craft.module.featured.useQuery(
+  //     {
+  //       category: "all",
+  //     },
+  //     {
+  //       initialData: data.featuredWorkflows,
+  //     },
+  //   );
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col space-y-10 p-4">
       <div className="p-4">
-        <WorkflowList workflows={featuredWorkflows} Link={Link} />
+        <WorkflowList workflows={data.featuredWorkflows} Link={Link} />
       </div>
     </div>
   );

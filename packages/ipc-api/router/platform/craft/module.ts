@@ -16,37 +16,22 @@ export const craftModuleRouter = createTRPCRouter({
       }),
     )
     .query(({ ctx, input }) => {
-      return {
-        featuredWorkflows: [
-          {
-            id: "1",
-            name: "Workflow 1",
-            slug: "workflow-1",
-            owner: "org-1",
+      console.log("input", input);
+      return ctx.pDb?.query.workflow.findMany({
+        where: (w, { eq, and }) => and(eq(w.public, true)),
+        orderBy: (w, { desc }) => desc(w.updatedAt),
+        limit: input.count || 20,
+        with: {
+          organization: true,
+          versions: {
+            columns: {
+              version: true,
+            },
+            orderBy: (version, { desc }) => desc(version.version),
+            limit: 1,
           },
-          {
-            id: "2",
-            name: "Workflow 2",
-            slug: "workflow-2",
-            owner: "org-2",
-          },
-        ],
-      };
-      // return ctx.pDb?.query.workflow.findMany({
-      //   where: (w, { eq, and }) => and(eq(w.public, true)),
-      //   orderBy: (w, { desc }) => desc(w.updatedAt),
-      //   limit: input.count || 20,
-      //   with: {
-      //     organization: true,
-      //     versions: {
-      //       columns: {
-      //         version: true,
-      //       },
-      //       orderBy: (version, { desc }) => desc(version.version),
-      //       limit: 1,
-      //     },
-      //   },
-      // });
+        },
+      });
     }),
 
   bySlug: publicProcedure

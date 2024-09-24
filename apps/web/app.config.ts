@@ -22,6 +22,10 @@ export default defineConfig({
               __dirname,
               "../../packages/core/src",
             ),
+            "@craftgen/composer": path.resolve(
+              __dirname,
+              "../../packages/composer/src",
+            ),
           },
         },
       }),
@@ -29,7 +33,7 @@ export default defineConfig({
         jsxRuntime: "automatic",
         include: ["@craftgen/ui", "@craftgen/composer", "@craftgen/core"],
       }),
-      // preserveDirectives(),
+      preserveDirectives(),
       tsConfigPaths({
         projects: ["./tsconfig.json"],
       }),

@@ -8,21 +8,21 @@ import {
 
 import { Tabs, TabsList, TabsTrigger } from "@craftgen/ui/components/tabs";
 import { WorkflowLayout } from "@craftgen/ui/layout/workflow";
-import { api } from "@craftgen/ui/lib/api";
+// import { api } from "@craftgen/ui/lib/api";
 import { ModuleHeader } from "@craftgen/ui/views/module-header";
 
-const WorkflowPageLayout = () => {
+function WorkflowPageLayout() {
   const params = Route.useParams();
   const data = Route.useLoaderData();
-  const { data: workflow } = api.craft.module.meta.useQuery(
-    {
-      projectSlug: params.projectSlug,
-      workflowSlug: params.workflowSlug,
-    },
-    {
-      initialData: data,
-    },
-  );
+  // const { data: workflow } = api.craft.module.meta.useQuery(
+  //   {
+  //     projectSlug: params.projectSlug,
+  //     workflowSlug: params.workflowSlug,
+  //   },
+  //   {
+  //     initialData: data,
+  //   },
+  // );
   const segment = useChildMatches({
     select: ([m]) => {
       return m?.routeId.split("/").pop();
@@ -30,7 +30,7 @@ const WorkflowPageLayout = () => {
   });
   return (
     <WorkflowLayout>
-      <ModuleHeader
+      {/* <ModuleHeader
         Link={Link}
         workflow={workflow}
         moduleId={`${workflow.project.slug}/${workflow.slug}`}
@@ -47,32 +47,32 @@ const WorkflowPageLayout = () => {
             <TabsTrigger value="versions">Versions</TabsTrigger>
           </Link>
         </TabsList>
-      </Tabs>
+      </Tabs> */}
       <Outlet />
     </WorkflowLayout>
   );
-};
+}
 
 export const Route = createFileRoute(
   "/_layout/$projectSlug/$workflowSlug/_layout",
 )({
   beforeLoad: ({ context, location }) => {
-    if (!context.auth) {
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      });
-    }
+    // if (!context.auth) {
+    //   throw redirect({
+    //     to: "/login",
+    //     search: {
+    //       redirect: location.href,
+    //     },
+    //   });
+    // }
   },
-  loader: async ({
-    params: { projectSlug, workflowSlug },
-    context: { client },
-  }) =>
-    client.craft.module.meta.ensureData({
-      workflowSlug: workflowSlug,
-      projectSlug: projectSlug,
-    }),
+  // loader: async ({
+  //   params: { projectSlug, workflowSlug },
+  //   context: { client },
+  // }) =>
+  // client.platform.craft.module.meta.ensureData({
+  //   workflowSlug: workflowSlug,
+  //   projectSlug: projectSlug,
+  // }),
   component: WorkflowPageLayout,
 });
