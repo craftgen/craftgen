@@ -1,21 +1,43 @@
 import * as React from "react";
+import { getAuth } from "@clerk/tanstack-start/server";
+import { QueryClient } from "@tanstack/react-query";
 import {
   createRootRoute,
+  createRootRouteWithContext,
   Outlet,
   ScrollRestoration,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { Body, Head, Html, Meta, Scripts } from "@tanstack/start";
-import { client } from "~/trpc/react";
+import {
+  Body,
+  createServerFn,
+  Head,
+  Html,
+  Meta,
+  Scripts,
+} from "@tanstack/start";
 
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
 import { Providers } from "~/providers";
 // @ts-expect-error
 import appCss from "~/styles/app.css?url";
+import { trpcQueryUtils } from "~/trpc/react";
 import { seo } from "~/utils/seo";
 
-export const Route = createRootRoute({
+const fetchClerkAuth = createServerFn("GET", async (_, ctx) => {
+  const auth = await getAuth(ctx.request);
+
+  return {
+    auth,
+  };
+});
+
+export interface RouterAppContext {
+  client: typeof trpcQueryUtils;
+}
+
+export const Route = createRootRouteWithContext<RouterAppContext>()({
   meta: () => [
     {
       charSet: "utf-8",
@@ -52,6 +74,13 @@ export const Route = createRootRoute({
     { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
     { rel: "icon", href: "/favicon.ico" },
   ],
+  beforeLoad: async () => {
+    const { auth } = await fetchClerkAuth();
+
+    return {
+      auth,
+    };
+  },
   errorComponent: (props) => {
     return (
       <RootDocument>
@@ -59,9 +88,9 @@ export const Route = createRootRoute({
       </RootDocument>
     );
   },
-  context(ctx) {
+  context: ({ context }) => {
     return {
-      client,
+      client: trpcQueryUtils,
     };
   },
   notFoundComponent: () => <NotFound />,

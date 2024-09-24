@@ -1,8 +1,8 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { Icons } from "@craftgen/ui/components/icons";
-import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 import { Sidebar } from "@craftgen/ui/components/sidebar";
+import { DashboardLayout } from "@craftgen/ui/layout/dashboard";
 
 export const Route = createFileRoute("/_layout")({
   component: LayoutComponent,
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_layout")({
 function LayoutComponent() {
   return (
     <DashboardLayout>
-      <Sidebar
+      {/* <Sidebar
         logoLinkProps={{
           to: "/",
         }}
@@ -40,10 +40,10 @@ function LayoutComponent() {
             linkProps: { to: "/settings" },
           },
         ]}
-      />
+      /> */}
       <DashboardLayout.Content>
         <div className="p-2">
-            <Outlet />
+          <Outlet />
         </div>
       </DashboardLayout.Content>
     </DashboardLayout>

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_public")({
 function LayoutComponent() {
   return (
     <div className="p-2">
-      <NavBar />
+      {/* <NavBar /> */}
       <Outlet />
       {/* <Footer /> */}
     </div>

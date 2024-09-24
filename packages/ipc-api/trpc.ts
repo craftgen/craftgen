@@ -86,16 +86,11 @@ export const createTRPCContext = async (opts: {
 
   console.log("AUTH IN BACKEND", auth);
 
-  const user = await clerkClient.users.getUser(auth?.userId as string);
-
-  // const tenantDb = Effect.runSync(
-  //   getTenantDbClient({
-  //     tenantId: user.privateMetadata.database_name,
-  //     authToken: user.privateMetadata.database_auth_token,
-  //   }),
-  // );
-
-  const tenantDb = () => {
+  const tenantDb = async () => {
+    if (!auth?.userId) {
+      return undefined;
+    }
+    const user = await clerkClient.users.getUser(auth?.userId);
     if (
       !user?.privateMetadata.database_name &&
       !user?.privateMetadata.database_auth_token
@@ -112,7 +107,7 @@ export const createTRPCContext = async (opts: {
     queue: opts.queue,
     auth,
     client: opts.client,
-    tenantDb: tenantDb()!,
+    tenantDb: await tenantDb(),
     platformDb,
   });
 };

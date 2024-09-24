@@ -1,15 +1,21 @@
+import { QueryClient } from "@tanstack/react-query";
 import {
   createTRPCClient,
+  httpBatchLink,
   loggerLink,
   unstable_httpBatchStreamLink,
 } from "@trpc/client";
+import { createTRPCQueryUtils, createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
 
 import type { AppRouter } from "@craftgen/ipc-api";
 
 import { getUrl } from "./shared";
 
-export const client = createTRPCClient<AppRouter>({
+export const queryClient = new QueryClient();
+
+export const trpc = createTRPCReact<AppRouter>({});
+export const trpcClient = trpc.createClient({
   links: [
     loggerLink({
       // enabled: () => false,
@@ -21,8 +27,41 @@ export const client = createTRPCClient<AppRouter>({
       url: getUrl(),
       transformer: superjson,
       headers() {
+        const heads = new Headers();
+        return Object.fromEntries(heads);
+      },
+      fetch(url, options) {
+        console.log("@".repeat(100));
+        console.log("fetch", url, options);
+
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
+    }),
+  ],
+});
+
+export const trpcQueryUtils = createTRPCQueryUtils<AppRouter>({
+  queryClient,
+  client: trpcClient,
+});
+
+export const client = createTRPCClient<AppRouter>({
+  links: [
+    loggerLink({
+      // enabled: () => false,
+      enabled: (op) =>
+        process.env.NODE_ENV === "development" ||
+        (op.direction === "down" && op.result instanceof Error),
+    }),
+    httpBatchLink({
+      url: getUrl(),
+      transformer: superjson,
+      headers() {
         const heds = new Headers();
-        heds.set("x-trpc-source", "desktop");
+        heds.set("x-trpc-source", "web");
         return Object.fromEntries(heds);
       },
       fetch(url, options) {

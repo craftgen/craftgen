@@ -6,54 +6,22 @@ import superjson from "superjson";
 
 import type { AppRouter } from "@craftgen/ipc-api";
 
-export const api = createTRPCReact<AppRouter>();
+// export const api = createTRPCReact<AppRouter>();
 
-export function TRPCReactProvider(props: {
-  children: React.ReactNode;
-  headers: Headers;
-  url: string;
-  fetch?: (url: string, options?: RequestInit) => Promise<Response>;
-}) {
-  const [queryClient] = useState(() => new QueryClient());
-
-  const [trpcClient] = useState(() =>
-    api.createClient({
-      links: [
-        loggerLink({
-          // enabled: () => false,
-          enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
-        }),
-        unstable_httpBatchStreamLink({
-          url: props.url,
-          transformer: superjson,
-          headers() {
-            const heads = new Map(props.headers);
-            return Object.fromEntries(heads);
-          },
-          fetch(url, options) {
-            return fetch(url, {
-              ...options,
-              credentials: "include",
-            });
-          },
-
-          // fetch: props.fetch && (url, options) =>  {
-          //     return props.fetch(url, {
-          //       ...options,
-          //       credentials: "include",
-          //     });
-          // },
-        }),
-      ],
-    }),
-  );
-  return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        {props.children}
-      </QueryClientProvider>
-    </api.Provider>
-  );
-}
+// export function TRPCReactProvider(props: {
+//   children: React.ReactNode;
+//   headers: Headers;
+//   url: string;
+//   fetch?: (url: string, options?: RequestInit) => Promise<Response>;
+//   api: R
+//   queryClient: QueryClient;
+//   trpcClient: ReturnType<typeof api.createClient>
+// }) {
+//   return (
+//     <props.api.Provider client={props.trpcClient} queryClient={props.queryClient}>
+//       <QueryClientProvider client={props.queryClient}>
+//         {props.children}
+//       </QueryClientProvider>
+//     </props.api.Provider>
+//   );
+// }
