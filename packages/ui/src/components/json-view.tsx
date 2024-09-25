@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { useSelector } from "@xstate/react";
 import JsonView from "react18-json-view";

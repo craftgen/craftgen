@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { Action, KBarProvider } from "kbar";
 

@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { KBarAnimator, KBarPortal, KBarPositioner, KBarSearch } from "kbar";
 import { Command } from "lucide-react";

@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { RouterOutputs } from "@craftgen/ipc-api";
 

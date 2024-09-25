@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { ReactElement, ReactNode, useEffect, useMemo, useRef } from "react";
 import { useKBar } from "kbar";

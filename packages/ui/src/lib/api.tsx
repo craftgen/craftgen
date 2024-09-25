@@ -29,11 +29,11 @@ export const trpcClient = api.createClient({
       async headers() {
         const heads = new Headers();
         if (typeof window === "undefined") {
-          const { getCookie } = await import("vinxi/http");
-          const authToken = getCookie("craftgen-jwt");
-          if (authToken) {
-            heads.set("authorization", `Bearer ${authToken}`);
-          }
+          // const { getCookie } = await import("vinxi/http");
+          // const authToken = getCookie("craftgen-jwt");
+          // if (authToken) {
+          //   heads.set("authorization", `Bearer ${authToken}`);
+          // }
         }
         return Object.fromEntries(heads);
       },

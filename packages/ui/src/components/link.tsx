@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { useMemo } from "react";
 import { type LinkProps } from "@tanstack/react-router";

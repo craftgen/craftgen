@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { Button } from "@craftgen/ui/components/button";
 import { toast } from "@craftgen/ui/components/use-toast";

@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { cubicBezier, motion } from "framer-motion";
 

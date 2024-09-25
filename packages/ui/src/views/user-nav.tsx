@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { useMemo } from "react";
 import { useTheme } from "next-themes";

@@ -13,14 +13,32 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 export default defineConfig({
   server: {
-    prerender: {
-      routes: ["/", "/_layout/$orgSlug/$workflowSlug/v/$version"],
-    },
+    // prerender: {
+    // routes: ["/", "/_layout/$orgSlug/$workflowSlug/v/$version"],
+    // },
+    // preset: "deno-deploy",
   },
-
   vite: {
     plugins: () => [
       config("user", {
+        // optimizeDeps: {
+        //   esbuildOptions: {
+        //     target: "esnext",
+        //     // Node.js global to browser globalThis
+        //     define: {
+        //       global: "globalThis",
+        //     },
+        //     supported: {
+        //       bigint: true,
+        //     },
+        //   },
+        // },
+        // esbuild: {
+        //   target: "esnext",
+        // },
+        // build: {
+        //   target: "esnext",
+        // },
         resolve: {
           alias: {
             "@craftgen/ui": path.resolve(__dirname, "../../packages/ui/src"),

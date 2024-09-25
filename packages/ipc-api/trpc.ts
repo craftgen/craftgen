@@ -7,8 +7,8 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import { createClerkClient } from "@clerk/backend";
-import { type AuthObject } from "@clerk/types";
-import { type createClient } from "@libsql/client";
+import type { AuthObject } from "@clerk/types";
+import type { createClient } from "@libsql/client";
 
 import { tenantDbClient } from "../database/lib/client-org.ts";
 import {
@@ -16,7 +16,7 @@ import {
   type PlatformDbClient,
   type TenantDbClient,
 } from "../database/mod.ts";
-import { EventProcessor } from "../database/tenant/queue.ts";
+import type { EventProcessor } from "../database/tenant/queue.ts";
 import {
   Effect,
   initTRPC,
