@@ -21,24 +21,6 @@ export default defineConfig({
   vite: {
     plugins: () => [
       config("user", {
-        // optimizeDeps: {
-        //   esbuildOptions: {
-        //     target: "esnext",
-        //     // Node.js global to browser globalThis
-        //     define: {
-        //       global: "globalThis",
-        //     },
-        //     supported: {
-        //       bigint: true,
-        //     },
-        //   },
-        // },
-        // esbuild: {
-        //   target: "esnext",
-        // },
-        // build: {
-        //   target: "esnext",
-        // },
         resolve: {
           alias: {
             "@craftgen/ui": path.resolve(__dirname, "../../packages/ui/src"),
