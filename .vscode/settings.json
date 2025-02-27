@@ -3,7 +3,7 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "turboConsoleLog.includeFileNameAndLineNum": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.defaultColorDecorators": true,
+  "editor.defaultColorDecorators": "auto",
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

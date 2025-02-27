@@ -13,10 +13,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 export default defineConfig({
   server: {
-    // prerender: {
-    // routes: ["/", "/_layout/$orgSlug/$workflowSlug/v/$version"],
-    // },
-    // preset: "deno-deploy",
+    preset: "deno-deploy",
   },
   vite: {
     plugins: () => [

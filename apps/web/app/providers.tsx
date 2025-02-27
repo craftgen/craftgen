@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { ClerkProvider } from "@clerk/tanstack-start";
 
@@ -22,7 +24,7 @@ if (!PUBLISHABLE_KEY) {
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider defaultTheme="system" storageKey="craftgen-theme">
         <PHProvider
           apiKey={posthogKey}
           options={{

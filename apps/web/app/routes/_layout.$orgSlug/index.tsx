@@ -1,10 +1,29 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { ProjectLayout } from "@craftgen/ui/layout/project";
-// import { trpc } from "~/trpc/react";
 import { api } from "@craftgen/ui/lib/api";
 import { PlaygroundList } from "@craftgen/ui/views/playground-list";
 import { ProjectCard } from "@craftgen/ui/views/project-card";
+
+export const Route = createFileRoute("/_layout/$orgSlug/")({
+  // loader: async ({ params: { orgSlug }, context: { client } }) =>
+  //   client.platform.orgs.bySlug.ensureData({
+  //     orgSlug: orgSlug,
+  //   }),
+  loader: async ({ params: { orgSlug }, context: { client } }) => {
+    // const org = await client.platform.orgs.bySlug.ensureData({
+    //   orgSlug: orgSlug,
+    // });
+    // return { org };
+    return {
+      org: {
+        slug: "test",
+      },
+    };
+  },
+
+  component: ProjectPage,
+});
 
 function ProjectPage() {
   const data = Route.useLoaderData();
@@ -14,19 +33,22 @@ function ProjectPage() {
       orgSlug: params.orgSlug,
     },
     {
-      initialData: data,
+      // initialData: data,
     },
   );
   const navigate = useNavigate();
+  console.log("project", project);
+  console.log("data", data);
+
   return (
     <ProjectLayout>
       <ProjectLayout.Content>
         <div className="col-span-3 ">
-          <ProjectCard project={project} />
+          {/* <ProjectCard project={project} /> */}
         </div>
 
         <section className="col-span-9">
-          <PlaygroundList
+          {/* <PlaygroundList
             Link={Link}
             orgSlug={project.slug}
             onWorkflowCreate={(data) =>
@@ -39,17 +61,9 @@ function ProjectPage() {
                 },
               })
             }
-          />
+          /> */}
         </section>
       </ProjectLayout.Content>
     </ProjectLayout>
   );
 }
-
-export const Route = createFileRoute("/_layout/$orgSlug/")({
-  loader: async ({ params: { orgSlug }, context: { client } }) =>
-    client.platform.orgs.bySlug.ensureData({
-      orgSlug: orgSlug,
-    }),
-  component: ProjectPage,
-});

@@ -1,7 +1,6 @@
 // "use client";
 
 import { useMemo } from "react";
-import { useTheme } from "next-themes";
 import { usePostHog } from "posthog-js/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Key } from "ts-key-enum";
@@ -24,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/dropdown-menu";
 import { api } from "../lib/api";
+import { useTheme } from "../providers/theme-provider";
 
 export const UserNav: React.FC<{
   Link: any;
